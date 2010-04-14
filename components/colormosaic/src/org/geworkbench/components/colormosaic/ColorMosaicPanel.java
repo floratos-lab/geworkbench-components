@@ -49,6 +49,8 @@ import javax.swing.JToolBar;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -346,10 +348,11 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
 				searchBtn_actionPerformed(e, searchBy.ARRAYNAME);
 			}
 		});
-		searchArray.setMinimumSize(new Dimension(60, 24));
-		searchArray.setPreferredSize(new Dimension(60, 24));
-		searchArray.setMaximumSize(new Dimension(60, 24));
+		searchArray.setMinimumSize(new Dimension(80, 24));
+		searchArray.setPreferredSize(new Dimension(80, 24));
+		searchArray.setMaximumSize(new Dimension(80, 24));
 		searchArray.setEnabled(false);
+		searchArray.getDocument().addDocumentListener(new DocListener(searchBy.ARRAYNAME));
 		searchArray.addKeyListener(new java.awt.event.KeyAdapter() {
 			public void keyPressed(KeyEvent e) {
 				searchText(e, searchBy.ARRAYNAME);
@@ -363,10 +366,11 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
 				searchBtn_actionPerformed(e, searchBy.ACCESSION);
 			}
 		});
-		searchAccession.setMinimumSize(new Dimension(60, 24));
-		searchAccession.setPreferredSize(new Dimension(60, 24));
-		searchAccession.setMaximumSize(new Dimension(60, 24));
+		searchAccession.setMinimumSize(new Dimension(80, 24));
+		searchAccession.setPreferredSize(new Dimension(80, 24));
+		searchAccession.setMaximumSize(new Dimension(80, 24));
 		searchAccession.setEnabled(false);
+		searchAccession.getDocument().addDocumentListener(new DocListener(searchBy.ACCESSION));
 		searchAccession.addKeyListener(new java.awt.event.KeyAdapter() {
 			public void keyPressed(KeyEvent e) {
 				searchText(e, searchBy.ACCESSION);
@@ -379,9 +383,10 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
 				searchBtn_actionPerformed(e, searchBy.LABEL);
 			}
 		});
-		searchLabel.setMinimumSize(new Dimension(60, 24));
-		searchLabel.setPreferredSize(new Dimension(60, 24));
-		searchLabel.setMaximumSize(new Dimension(60, 24));
+		searchLabel.setMinimumSize(new Dimension(80, 24));
+		searchLabel.setPreferredSize(new Dimension(80, 24));
+		searchLabel.setMaximumSize(new Dimension(80, 24));
+		searchLabel.getDocument().addDocumentListener(new DocListener(searchBy.LABEL));
 		searchLabel.addKeyListener(new java.awt.event.KeyAdapter() {
 			public void keyPressed(KeyEvent e) {
 				searchText(e, searchBy.LABEL);
@@ -440,9 +445,6 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         jToolBar1.add(jToggleArraynames, null);
         jToolBar1.add(jTogglePrintAccession, null);        
         jToolBar1.add(jTogglePrintDescription, null);
-        jToolBar1.add(exportButton, null);
-        jToolBar1.add(jAllMArrays, null);
-        jToolBar1.add(jAllMarkers, null);
         jToolBar1.add(jToggleSortButton, null);
         jToolBar1.add(jToolTipToggleButton, null);
 		jToolBar1.add(searchArray, null);
@@ -453,15 +455,21 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
 		jToolBar1.add(searchLabelBtn, null);
 		jToolBar1.add(clearButton, null);        
         mainPanel.add(jScrollPane, BorderLayout.CENTER);
-        mainPanel.add(jPanel1, BorderLayout.SOUTH);
-        jPanel1.add(jGeneWidthSlider, new GridBagConstraints(3, 1, 1, 1, 0.34, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-        jPanel1.add(jGeneHeightSlider, new GridBagConstraints(2, 1, 1, 1, 0.33, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-        jPanel1.add(jLabel1, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-        jPanel1.add(jLabel2, new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-        jPanel1.add(jIntensitySlider, new GridBagConstraints(0, 1, 1, 1, 0.33, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-        jPanel1.add(colorScale, 
-        		new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-        jPanel1.add(jLabel5, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+        JToolBar jToolBar2 = new JToolBar();
+        jToolBar2.add(exportButton, null);
+        jToolBar2.addSeparator();
+        jToolBar2.add(jAllMArrays, null);
+        jToolBar2.add(jAllMarkers, null);
+        jToolBar2.addSeparator();
+        jToolBar2.add(jLabel5, null);
+        jToolBar2.add(jIntensitySlider);
+        jToolBar2.add(colorScale, null);
+        jToolBar2.add(jLabel1, null);
+        jToolBar2.add(jGeneHeightSlider, null);
+        jToolBar2.addSeparator();
+        jToolBar2.add(jLabel2, null);
+        jToolBar2.add(jGeneWidthSlider, null);
+        mainPanel.add(jToolBar2, BorderLayout.SOUTH);
         jScrollPane.getViewport().add(colorMosaicImage, null);
         jScrollPane.setColumnHeaderView(colRuler);
         jScrollPane.setRowHeaderView(rowRuler);
@@ -699,8 +707,6 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
 
     /* Enter: search forward starting from next item
      * Ctl-B: search backwards from next item
-     * Backspace: remove last char without search
-     * other keys: search forward from current item
      */
     void searchText(KeyEvent e, searchBy type) {
         char c = e.getKeyChar();
@@ -708,8 +714,6 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
             findNext(1, c, type);
         } else if (e.isControlDown() && (e.getKeyChar() == '\u0002')) {
             findNext(-1, c, type);
-        } else if (e.getKeyCode() != KeyEvent.VK_BACK_SPACE){
-            findNext(0, c, type);
         }
     }
     
@@ -728,6 +732,7 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         }
         if (index < 0)  index = 0;
         if (Character.isLetterOrDigit(c))  markerString += Character.toLowerCase(c);
+        if (markerString.length()==0)  { clearButton_actionPerformed(null); return; }
 
     	int chipNo = colorMosaicImage.getChipNo();
         boolean found = false;
@@ -1309,5 +1314,20 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         }
   
     }
-
+    
+    private class DocListener implements DocumentListener {
+    	private searchBy searchType;
+    	DocListener(searchBy type){
+    		searchType = type;
+    	}
+        public void insertUpdate(DocumentEvent e) {
+            findNext(0, '\u000E', searchType);
+        }
+        public void removeUpdate(DocumentEvent e) {
+            findNext(0, '\u000E', searchType);
+        }
+        public void changedUpdate(DocumentEvent e) {
+            findNext(0, '\u000E', searchType);
+        }
+    }
 }
