@@ -1511,7 +1511,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	private void setThresholdSliderValue() {
 		double threshhold = 0;
-		if (hits.size() > 0)
+		if (hits != null && hits.size() > 0)
 			threshhold = hits.get(0).getThreshold();
 		double newSliderValue = threshhold
 				* (CellularNetWorkElementInformation.getBinNumber() - 1);
@@ -3223,8 +3223,11 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		log.debug("start processData");
 		DSDataSet ds = ProjectPanel.getInstance().getDataSet();
 
-		if ((dataset == null || dataset.hashCode() != ds.hashCode())
-				&& (ds != null && ds instanceof DSMicroarraySet)) {
+		if (ds == null || !(ds instanceof DSMicroarraySet))
+			return;
+		
+		if (( dataset == null) || (dataset.hashCode() != ds.hashCode()))
+	    {
 			dataset = (DSMicroarraySet) ds;
 			if (dataset.getValuesForName(CNKB_HITS) == null)
 				dataset.addNameValuePair(CNKB_HITS,
@@ -3266,12 +3269,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		log.debug("end processData");
 	}
 
-	private Integer getCnkbSelectionIndex() {
-		Integer index = null;
-
-		return index;
-	}
-
+	 
 	private boolean checkSelectedTableWithNewDataSet(DSPanel<DSGeneMarker> panel) {
 
 		if (hits == null) {
