@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -23,8 +24,11 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingWorker;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+
+import org.geworkbench.util.ProgressBar;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -53,14 +57,11 @@ import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
 
 /**
+ * Application component offering users a selection of microarray filtering
+ * options.
  * 
  * @author First Genetic Trust, yc2480
  * @version $Id$
- */
-
-/**
- * Application component offering users a selection of microarray filtering
- * options.
  */
 @AcceptTypes( { DSMicroarraySet.class })
 public class FilteringPanel implements VisualPlugin, ReHighlightable {
@@ -347,7 +348,7 @@ public class FilteringPanel implements VisualPlugin, ReHighlightable {
 	 * Obtains from the <code>ComponentRegistry</code> and displays the set of
 	 * available filters.
 	 */
-	public void reset() {
+	private void reset() {
 		/* Get the most recent available normalizers. Redisplay */
 		getAvailableFilters();
 		displayFilters();
@@ -537,35 +538,70 @@ public class FilteringPanel implements VisualPlugin, ReHighlightable {
 	void filtering_actionPerformed() {
 		if (selectedFilter == null || maSet == null)
 			return;
+		
 		ParamValidationResults pvr = selectedFilter.validateParameters();
-		if (!pvr.isValid()) {
-			/* Bring up an error message */
+		if (!pvr.isValid()) { /* Bring up an error message */
 			JOptionPane.showMessageDialog(null, pvr.getMessage(),
 					"Parameter Validation Error", JOptionPane.ERROR_MESSAGE);
-		} else {
-			final int PROCEED_OPTION = 0;
-			Object[] options = { "Proceed", "Cancel" };
-			int n = JOptionPane
-					.showOptionDialog(
-							null,
-							"You're making changes to the data. \nDo you want to save the current workspace before the change takes place?\n"
-									+ "If you want to save the workspace, please click cancel and then save it from the application menu.",
-							"Proceed to change?", JOptionPane.YES_NO_OPTION,
-							JOptionPane.QUESTION_MESSAGE, null, /*
-																 * do not use a
-																 * custom Icon
-																 */
-							options, /* the titles of buttons */
-							options[0]); /* default button title */
-			if (n != PROCEED_OPTION)
-				return;
+			return;
+		}
 
-			/* Invoke the selected filter */
-			AlgorithmExecutionResults results = selectedFilter.execute(maSet);
+		Object[] options = { "Proceed", "Cancel" };
+		int n = JOptionPane
+				.showOptionDialog(
+						null,
+						"You're making changes to the data. \nDo you want to save the current workspace before the change takes place?\n"
+								+ "If you want to save the workspace, please click cancel and then save it from the application menu.",
+						"Proceed to change?", JOptionPane.YES_NO_OPTION,
+						JOptionPane.QUESTION_MESSAGE, null, /* do not use a custom Icon */
+						options, /* the titles of buttons */
+						options[0]); /* default button title */
+		if (n != JOptionPane.YES_OPTION)
+			return;
+
+		progressBar.setTitle(selectedFilter.getLabel());
+		progressBar.setMessage("Filtering is ongoing. Please wait.");
+		progressBar.setAlwaysOnTop(true);
+		progressBar.start(); // this progress-bar is not properly cancellable
+
+		/* Invoke the selected filter */
+		FilterWorker worker = new FilterWorker();
+		worker.execute();
+	}
+	
+	final private ProgressBar progressBar = ProgressBar
+			.create(ProgressBar.INDETERMINATE_TYPE);
+
+	private class FilterWorker extends
+			SwingWorker<AlgorithmExecutionResults, Void> {
+
+		@Override
+		protected AlgorithmExecutionResults doInBackground() throws Exception {
+			//Thread.sleep(5000);// just to make it slow to test the progress-bar
+			return selectedFilter.execute(maSet);
+		}
+
+		@Override
+		protected void done() {
+			AlgorithmExecutionResults results = null;
+			try {
+				results = get();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return;
+			} catch (ExecutionException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return;
+			} finally {
+				progressBar.stop();
+			}
 			/* If there were problems encountered, let the user know. */
 			if (!results.isExecutionSuccessful()) {
 				JOptionPane.showMessageDialog(null, results.getMessage(),
 						"Filter Execution Error", JOptionPane.ERROR_MESSAGE);
+				progressBar.stop();
 				return;
 			}
 
@@ -578,20 +614,17 @@ public class FilteringPanel implements VisualPlugin, ReHighlightable {
 			String historyString = "";
 			if (selectedFilter.getLabel() != null)
 				historyString += selectedFilter.getLabel() + FileTools.NEWLINE;
-			if (selectedFilter.createHistory() != null) /*
-														 * to avoid printing
-														 * null for panels
-														 * didn't implement this
-														 * method.
-														 */
+			/* to avoid printing null for panels  didn't implement this method. */
+			if (selectedFilter.createHistory() != null) 
 				historyString += selectedFilter.createHistory()
 						+ FileTools.NEWLINE;
-			historyString += FileTools.NEWLINE; /*
-												 * to separate with next section
-												 * (if any)
-												 */
+			 /* to separate with next section (if any) */			
+			historyString += FileTools.NEWLINE;
+			progressBar.stop();
 			publishFilteringEvent(new FilteringEvent(maSet, filteredData,
 					historyString));
+			log.debug("filtering done.");
+
 		}
 
 	}
