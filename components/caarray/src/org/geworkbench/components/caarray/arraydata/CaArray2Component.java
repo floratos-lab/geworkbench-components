@@ -224,16 +224,12 @@ public class CaArray2Component implements VisualPlugin {
 			}
 			publishCaArrayEvent(event);
 
-		}
-
-		catch (Exception e) {
+		} catch (Exception e) {
 			CaArrayEvent event = new CaArrayEvent(url, port);
 			event.setPopulated(false);
 			event.setSucceed(false);
 			event.setErrorMessage(e.getMessage());
 			publishCaArrayEvent(event);
-			e.printStackTrace();
-
 		}
 
 	}
