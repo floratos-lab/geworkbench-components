@@ -118,7 +118,7 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.axis.ValueAxis; 
+import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.labels.XYToolTipGenerator;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
@@ -417,6 +417,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				}
 			}
 			hits.removeAllElements();
+			drawPlot(createCollection(0, 1, 1, true), "Throttle Graph");
+			throttlePanel.repaint();
 		}
 
 		activatedMarkerTable.revalidate();
@@ -470,6 +472,9 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 					}
 				}
 			}
+
+			drawPlot(createCollection(0, 1, 1, true), "Throttle Graph");
+			throttlePanel.repaint();
 		}
 
 		activatedMarkerTable.revalidate();
@@ -778,7 +783,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 				if (e.getStateChange() == ItemEvent.DESELECTED)
 					return;
- 
+
 				Object selectedVersion = versionComboBox.getSelectedItem();
 				String selectedCoxtext = SELECTCONTEXT;
 				if (selectedVersion != null)
@@ -820,7 +825,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				versionComboBox.setModel(new DefaultComboBoxModel(versionList
 						.toArray()));
 				versionComboBox.revalidate();
- 
+
 			}
 
 		});
@@ -1065,6 +1070,10 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 						}
 						activatedMarkerTable.revalidate();
 						detailTable.revalidate();
+
+						drawPlot(createCollection(0, 1, 1, true),
+								"Throttle Graph");
+						throttlePanel.repaint();
 
 					}
 				}
@@ -1488,7 +1497,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 					columnLabels[i].length() - COLUMNLABELPOSTFIX.length()))) {
 				model.addColumn(tableColumns[i]);
 			}
-		 
+
 		}
 
 		detailTable.tableChanged(new TableModelEvent(previewTableModel));
@@ -3185,10 +3194,10 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	@Subscribe
 	public void receive(ProjectEvent pe, Object source) {
 		DSDataSet ds = pe.getDataSet();
-		if (ds != null && ds instanceof DSMicroarraySet) {		 
+		if (ds != null && ds instanceof DSMicroarraySet) {
 			geneIdToMarkerIdMap = AnnotationParser
 					.getGeneIdToMarkerIDMapping((DSMicroarraySet) ds);
-			 
+
 		}
 	}
 
@@ -3211,7 +3220,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	}
 
 	synchronized void processData(DSPanel<DSGeneMarker> panel) {
-		log.debug("start processData");	 
+		log.debug("start processData");
 		DSDataSet ds = ProjectPanel.getInstance().getDataSet();
 
 		if ((dataset == null || dataset.hashCode() != ds.hashCode())
@@ -3253,7 +3262,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 		}
 		repaint();
-	 
+
 		log.debug("end processData");
 	}
 
