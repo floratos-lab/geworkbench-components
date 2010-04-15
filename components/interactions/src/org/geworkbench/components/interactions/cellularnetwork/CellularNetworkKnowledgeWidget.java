@@ -6,6 +6,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Frame;
+import java.awt.Graphics;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Point;
@@ -17,6 +18,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -43,6 +45,7 @@ import javax.swing.Box;
 import javax.swing.CellEditor;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
@@ -106,6 +109,7 @@ import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.engine.properties.PropertiesManager;
 import org.geworkbench.events.AdjacencyMatrixEvent;
 import org.geworkbench.events.GeneSelectorEvent;
+import org.geworkbench.events.ImageSnapshotEvent;
 import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.util.BrowserLauncher;
@@ -1044,7 +1048,17 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				cancelTheAction(evt);
 			}
-		});
+		});		
+		 
+		
+		imageSnapshotButton = new JButton("Throttle Graph Snapshot");
+		imageSnapshotButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				createImageSnapshot();
+			}
+		});	 
+
+		
 
 		jPanel1.setBorder(javax.swing.BorderFactory.createLineBorder(new Color(
 				204, 204, 255)));
@@ -1284,7 +1298,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				"# interactions", null, PlotOrientation.VERTICAL, true, true,
 				true); // Title, X-Axis label, Y-Axis label, Dataset, Show
 		// legend, show ToolTips
-		graph = new ChartPanel(chart, true);
+		graph = new ChartPanel(chart, true);	
+		
 		XYPlot newPlot = (XYPlot) chart.getPlot();
 
 		// change the auto tick unit selection to integer units only...
@@ -1301,6 +1316,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		commandToolBar.add(createNetWorkButton);
 		cancelButton.setText("Cancel");
 		commandToolBar.add(cancelButton);
+		commandToolBar.add(imageSnapshotButton);
+		
 
 		displaySelectedInteractionTypes.add(PROTEIN_DNA);
 		displaySelectedInteractionTypes.add(PROTEIN_PROTEIN);
@@ -1608,9 +1625,10 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 		xAxis.setRange(0, 1);
 		// OPTIONAL CUSTOMISATION COMPLETED.
-		graph.setChart(chart);
+		graph.setChart(chart);		 
 		setThresholdSliderValue();
-		thresholdSlider_stateChanged();
+		thresholdSlider_stateChanged();	
+		
 	}
 
 	void thresholdSlider_stateChanged() {
@@ -2062,7 +2080,9 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	private JButton networkAddButton;
 
 	private JButton cancelButton;
-
+	
+	private JButton imageSnapshotButton;	
+	 
 	private JList availableInteractionTypeList;
 
 	private JList availableNetworkInteractionTypeList;
@@ -2275,7 +2295,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			public void actionPerformed(ActionEvent e) {
 				changeServicesDialog.dispose();
 			}
-		});
+		});		
+		
 
 		/* add to button panel */
 		buttonPanel.add(submitButton);
@@ -3342,6 +3363,22 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		return pe;
 	}
 
+	@Publish
+	public ImageSnapshotEvent createImageSnapshot() {
+		Dimension panelSize = graph.getSize();
+		BufferedImage image = new BufferedImage(panelSize.width,
+				panelSize.height, BufferedImage.TYPE_INT_RGB);
+		Graphics g = image.getGraphics();
+		graph.paint(g);
+		ImageIcon icon = new ImageIcon(image, "CNKB Throttle Graph");
+		org.geworkbench.events.ImageSnapshotEvent event = new org.geworkbench.events.ImageSnapshotEvent(
+				"CNKB Throttle Graph Snapshot", icon,
+				org.geworkbench.events.ImageSnapshotEvent.Action.SAVE);
+		return event;
+	}
+	
+	
+	
 	class EntrezIdComparator implements Comparator<DSGeneMarker> {
 		public int compare(DSGeneMarker m1, DSGeneMarker m2) {
 			return (new Integer(m1.getGeneId())).compareTo(new Integer(m2
