@@ -28,8 +28,8 @@ import javax.swing.JList;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JMenu;
 import javax.swing.JTree;
+import javax.swing.JTextField;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.tree.TreePath;
 
@@ -68,6 +68,8 @@ import com.Ostermiller.util.ExcelCSVParser;
 public class GenePanel extends SelectorPanel<DSGeneMarker> {
 	private String taggedSelection = null; // tagged for cytoscape visualization
 	private boolean tagEventEnabled = true;
+	private static String osname = System.getProperty("os.name").toLowerCase();
+    private final static boolean is_mac = (osname.indexOf("mac") > -1);
 
 	/**
 	 * <code>FileFilter</code> that is used by the <code>JFileChoose</code>
@@ -147,12 +149,12 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 		rootPopup.add(deleteSetGroupItem);
 		saveOneItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				saveMergePressed(rightClickedPath, "Save Merged Marker Set");
+				saveMergePressed(rightClickedPath, "Save Marker Set");
 			}
 		});
 		saveMergeSets.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				saveMergePressed(rightClickedPath, "Save Marker Set");
+				saveMergePressed(rightClickedPath, "Save Merged Marker Set");
 			}
 		});
 		saveMultiSets.addActionListener(new ActionListener() {
@@ -255,7 +257,7 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 					}
 				}
 				if (confirmed) {
-					lastDir = fc.getSelectedFile().getPath();
+					lastDir = filename;
 					try {
 						setLastDataDirectory(fc.getCurrentDirectory()
 								.getCanonicalPath());
@@ -291,10 +293,13 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
             }
             if(comp instanceof JLabel) {
                 JLabel lbl= (JLabel)comp;
-                if (lbl.getText().startsWith("File ")){ // look for the button with text "File Name"
+                if (lbl.getText().startsWith("File Name") || lbl.getText().startsWith("File:")) {
                     cont.setVisible(false);
                     continue;
                 }
+            } else if (is_mac && comp instanceof JTextField) {
+				JTextField tf = (JTextField) comp;
+				tf.setText(".");
             }
              if(comp instanceof Container) {
                 try{
@@ -323,8 +328,18 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 					.getExtension();
 			int choice = fc.showSaveDialog(mainPanel.getParent());
 			if (choice == JFileChooser.APPROVE_OPTION) {
-				String pathname = fc.getSelectedFile().getAbsolutePath();
-				if (!fc.getSelectedFile().isDirectory()) {
+				File selectedFile = fc.getSelectedFile();
+				if (is_mac) {
+					while (selectedFile.getName().equals(".")) {
+						selectedFile = selectedFile.getParentFile();
+					}
+					if (selectedFile.getName().equals(
+							selectedFile.getParentFile().getName())) {
+						selectedFile = selectedFile.getParentFile();
+					}
+				}
+				String pathname = selectedFile.getAbsolutePath();
+				if (!selectedFile.isDirectory()) {
 					JOptionPane.showMessageDialog(null, "Not a valid directory!", "Warning", JOptionPane.ERROR_MESSAGE);
 					return;
 				}
@@ -345,9 +360,9 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 						else if (confirm == 3)  break;
 					}
 					if (confirmed) {
-						lastDir = fc.getSelectedFile().getPath();
+					    lastDir = filename;
 						try {
-							setLastDataDirectory(fc.getSelectedFile()
+							setLastDataDirectory(selectedFile
 									.getCanonicalPath());
 						} catch (Exception e) {
 							e.printStackTrace();
