@@ -7,7 +7,6 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.Insets;
@@ -117,9 +116,9 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
     private JTextField searchArray = new JTextField();
     private JTextField searchAccession = new JTextField();
     private JTextField searchLabel = new JTextField();
-    private JButton searchArrayBtn = new JButton("Search Array");
-    private JButton searchAccessionBtn = new JButton("Search Accession");
-    private JButton searchLabelBtn = new JButton("Search Label");
+    private JLabel searchArrayLbl = new JLabel("Search Array");
+    private JLabel searchAccessionLbl = new JLabel("Search Accession");
+    private JLabel searchLabelLbl = new JLabel("Search Label");
     private JButton clearButton = new JButton("Clear Search");
     private JToggleButton jTogglePrintDescription = new JToggleButton("Label", true);
     private JToggleButton jTogglePrintRatio = new JToggleButton("Ratio", true);
@@ -341,13 +340,7 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
             }
         });
 
-		searchArrayBtn.setMargin(new Insets(2, 3, 2, 3));
-		searchArrayBtn.setEnabled(false);
-		searchArrayBtn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				searchBtn_actionPerformed(e, searchBy.ARRAYNAME);
-			}
-		});
+		searchArrayLbl.setForeground(Color.gray);
 		searchArray.setMinimumSize(new Dimension(80, 24));
 		searchArray.setPreferredSize(new Dimension(80, 24));
 		searchArray.setMaximumSize(new Dimension(80, 24));
@@ -359,13 +352,7 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
 			}
 		});
 
-		searchAccessionBtn.setMargin(new Insets(2, 3, 2, 3));
-		searchAccessionBtn.setEnabled(false);
-		searchAccessionBtn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				searchBtn_actionPerformed(e, searchBy.ACCESSION);
-			}
-		});
+		searchAccessionLbl.setForeground(Color.gray);
 		searchAccession.setMinimumSize(new Dimension(80, 24));
 		searchAccession.setPreferredSize(new Dimension(80, 24));
 		searchAccession.setMaximumSize(new Dimension(80, 24));
@@ -377,12 +364,6 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
 			}
 		});
 
-		searchLabelBtn.setMargin(new Insets(2, 3, 2, 3));
-		searchLabelBtn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				searchBtn_actionPerformed(e, searchBy.LABEL);
-			}
-		});
 		searchLabel.setMinimumSize(new Dimension(80, 24));
 		searchLabel.setPreferredSize(new Dimension(80, 24));
 		searchLabel.setMaximumSize(new Dimension(80, 24));
@@ -447,12 +428,16 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         jToolBar1.add(jTogglePrintDescription, null);
         jToolBar1.add(jToggleSortButton, null);
         jToolBar1.add(jToolTipToggleButton, null);
+        jToolBar1.addSeparator();
+		jToolBar1.add(searchArrayLbl, null);
 		jToolBar1.add(searchArray, null);
-		jToolBar1.add(searchArrayBtn, null);
+		jToolBar1.addSeparator();
+		jToolBar1.add(searchAccessionLbl, null);
 		jToolBar1.add(searchAccession, null);
-		jToolBar1.add(searchAccessionBtn, null);
+		jToolBar1.addSeparator();
+		jToolBar1.add(searchLabelLbl, null);
 		jToolBar1.add(searchLabel, null);
-		jToolBar1.add(searchLabelBtn, null);
+		jToolBar1.addSeparator();
 		jToolBar1.add(clearButton, null);        
         mainPanel.add(jScrollPane, BorderLayout.CENTER);
         JToolBar jToolBar2 = new JToolBar();
@@ -638,11 +623,11 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
     void jTogglePrintAccession_actionPerformed(ActionEvent e) {
 		colorMosaicImage.setPrintAccession(jTogglePrintAccession.isSelected());
 		if (jTogglePrintAccession.isSelected()) {
-			searchAccessionBtn.setEnabled(true);
+			searchAccessionLbl.setForeground(Color.black);
 			searchAccession.setEnabled(true);
 			colRuler.revalidate();
 		} else {
-			searchAccessionBtn.setEnabled(false);
+			searchAccessionLbl.setForeground(Color.gray);
 			searchAccession.setEnabled(false);
 		}
 	}
@@ -650,11 +635,11 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
     void jTogglePrintDescription_actionPerformed(ActionEvent e) {
         colorMosaicImage.setPrintDescription(jTogglePrintDescription.isSelected());
     	if (jTogglePrintDescription.isSelected()) {
-			searchLabelBtn.setEnabled(true);
+			searchLabelLbl.setForeground(Color.black);
 			searchLabel.setEnabled(true);
 			colRuler.revalidate();
 		} else {
-			searchLabelBtn.setEnabled(false);
+			searchLabelLbl.setForeground(Color.gray);
 			searchLabel.setEnabled(false);
 		}
     }
@@ -689,20 +674,16 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
     
     void jToggleArraynames_actionPerformed(ActionEvent e) {
 		if (jToggleArraynames.isSelected() &&  jHideMaskedBtn.isSelected()) {
-			searchArrayBtn.setEnabled(true);
+			searchArrayLbl.setForeground(Color.black);
 			searchArray.setEnabled(true);
 			colRuler.setClearArraynames(false);
 		} else {
-			searchArrayBtn.setEnabled(false);
+			searchArrayLbl.setForeground(Color.gray);
 			searchArray.setEnabled(false);
 			colRuler.setClearArraynames(true);
 		}
 		colRuler.revalidate();
     	colRuler.repaint();
-    }
-
-    void searchBtn_actionPerformed(ActionEvent e, searchBy type) {
-    	findNext(1, '\u000E', type);
     }
 
     /* Enter: search forward starting from next item
@@ -712,7 +693,7 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         char c = e.getKeyChar();
         if (e.getKeyCode() == KeyEvent.VK_ENTER) {
             findNext(1, c, type);
-        } else if (e.isControlDown() && (e.getKeyChar() == '\u0002')) {
+        } else if (e.isControlDown() && (c == '\u0002')) {
             findNext(-1, c, type);
         }
     }
@@ -732,8 +713,6 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         }
         if (index < 0)  index = 0;
         if (Character.isLetterOrDigit(c))  markerString += Character.toLowerCase(c);
-        if (markerString.length()==0)  { clearButton_actionPerformed(null); return; }
-
     	int chipNo = colorMosaicImage.getChipNo();
         boolean found = false;
         if(type == searchBy.ARRAYNAME) {
@@ -747,7 +726,7 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
 					String name = mArray.toString().toLowerCase();
 					if (name.indexOf(markerString) >= 0) {
 						colorMosaicImage.setSelectedArray(j, markerString);
-						found = true;
+						found = true;//searchArray.setForeground(Color.black);
 						int xstart = (j - colorMosaicImage.maxDisplayArray / 2) * colorMosaicImage.geneWidth;
 						if (xstart < 0)  xstart = 0;
 						else if (xstart > colorMosaicImage.getVWidth())  xstart = colorMosaicImage.getVWidth();
@@ -756,9 +735,12 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
 					}
 				}
 			}
-			if (!found) {
+			if (!found || markerString.length()==0) {
+		        if (!found)
+		        	//searchArray.setForeground(Color.red);
+					JOptionPane.showMessageDialog(null, "No match found for search term: "+markerString, "Warning", JOptionPane.WARNING_MESSAGE);   
 				colorMosaicImage.setSelectedArray(-1, null);
-				JOptionPane.showMessageDialog(null, "No match found for search term: " + markerString, "Warning", JOptionPane.WARNING_MESSAGE);
+				jScrollPane.getViewport().setViewPosition(new Point(0, 0));
 			}
 			colRuler.repaint();
 		} else {
@@ -766,6 +748,8 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
 			if (colorMosaicImage.significanceResultSet != null)
 				markerNo = colorMosaicImage.markerList.size();
 			found = false;
+			int xstart = 0;
+			if (chipNo > colorMosaicImage.maxDisplayArray)  xstart = colorMosaicImage.getVWidth();
 			for (int idx = Math.abs(offset); idx <= markerNo; idx++) {
 				int i = 0;
 				if (offset < 0)  i = (index + markerNo - idx) % markerNo;
@@ -780,8 +764,6 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
 					if (type == searchBy.ACCESSION)   colorMosaicImage.setSelectedAccession(i, markerString);
 					else if (type == searchBy.LABEL)  colorMosaicImage.setSelectedLabel(i, markerString);
 					found = true;
-					int xstart = 0;
-					if (chipNo > colorMosaicImage.maxDisplayArray)  xstart = colorMosaicImage.getVWidth();
 					int ystart = (i-colorMosaicImage.maxDisplayMarker/2)*colorMosaicImage.geneHeight;
 					if (ystart < 0)  ystart = 0;
 					else if (ystart > colorMosaicImage.getVHeight())  ystart = colorMosaicImage.getVHeight();
@@ -789,10 +771,12 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
 					break;
 				}
 			}
-			if (!found) {
+			if (!found || markerString.length()==0) {
+		        if (!found)
+					JOptionPane.showMessageDialog(null, "No match found for search term: "+markerString, "Warning", JOptionPane.WARNING_MESSAGE);   
 				if (type == searchBy.ACCESSION)   colorMosaicImage.setSelectedAccession(-1, null);
 				else if (type == searchBy.LABEL)  colorMosaicImage.setSelectedLabel(-1, null);	
-				JOptionPane.showMessageDialog(null, "No match found for search term: "+markerString, "Warning", JOptionPane.WARNING_MESSAGE);
+				jScrollPane.getViewport().setViewPosition(new Point(xstart, 0));
 			}
 			colorMosaicImage.repaint();
 		}
@@ -1327,7 +1311,6 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
             findNext(0, '\u000E', searchType);
         }
         public void changedUpdate(DocumentEvent e) {
-            findNext(0, '\u000E', searchType);
         }
     }
 }
