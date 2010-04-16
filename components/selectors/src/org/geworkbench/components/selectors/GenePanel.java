@@ -141,14 +141,18 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 		treePopup.insert(newPanelItem2, 4);
 		savePanelItem.add(saveMergeSets);
 		savePanelItem.add(saveMultiSets);
-		treePopup.add(savePanelItem);
 		treePopup.add(tagPanelItem);
 		rootPopup.add(loadPanelItem);
 		rootPopup.add(newPanelItem);
 		rootPopup.add(deleteSetGroupItem);
+		saveOneItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				saveMergePressed(rightClickedPath, "Save Merged Marker Set");
+			}
+		});
 		saveMergeSets.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				saveMergePressed(rightClickedPath);
+				saveMergePressed(rightClickedPath, "Save Marker Set");
 			}
 		});
 		saveMultiSets.addActionListener(new ActionListener() {
@@ -214,7 +218,6 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 		setTreeRenderer(new CustomizedRenderer());
 	}
 
-	private JMenuItem savePanelItem = new JMenu("Save");
 	private JMenuItem saveMergeSets = new JMenuItem("Merge into one set");
 	private JMenuItem saveMultiSets = new JMenuItem("Save as multiple sets");
 	private JMenuItem loadPanelItem = new JMenuItem("Load Set");
@@ -224,7 +227,7 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 	private JMenuItem newPanelItem = new JMenuItem("New Set");
 	private JMenuItem newPanelItem2 = new JMenuItem("New Set");
 
-	private void saveMergePressed(TreePath path) {
+	private void saveMergePressed(TreePath path, String title) {
 		String[] labels = getSelectedTreesFromTree();
 		if (labels != null && labels.length > 0) {
 			JFileChooser fc = new JFileChooser(".");
@@ -234,7 +237,7 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 			FileFilter filter = new MarkerPanelSetFileFilter();
 			fc.setAcceptAllFileFilterUsed(false);
 			fc.setFileFilter(filter);
-			fc.setDialogTitle("Save Merged Marker Set");
+			fc.setDialogTitle(title);
 			String extension = ((MarkerPanelSetFileFilter) filter)
 					.getExtension();
 			int choice = fc.showSaveDialog(mainPanel.getParent());
