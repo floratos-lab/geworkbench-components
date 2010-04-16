@@ -560,7 +560,19 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 		// No-op
 	}
 
+	protected JMenuItem saveOneItem = new JMenuItem("Save");
+	protected JMenuItem savePanelItem = new JMenu("Save");
+	private static final int savePos = 9;
+
 	protected void showTreePopup(MouseEvent e) {
+		String[] labels = getSelectedTreesFromTree();
+		if (labels.length > 1) {
+			treePopup.remove(saveOneItem);
+			treePopup.insert(savePanelItem, savePos);
+		} else {
+			treePopup.insert(saveOneItem, savePos);
+			treePopup.remove(savePanelItem);
+		}
 		treePopup.show(e.getComponent(), e.getX(), e.getY());
 	}
 
