@@ -245,7 +245,7 @@ public class RemoteBlast {
 				
 				String s = sb.toString();
 				if(s.contains("READY")) {
-					s = s.replaceFirst("(?s).*READY[\\r\\n]+\\sQBlastInfoEnd[\\r\\n]+\\s--\\>\\</p\\>", ""); // remove everything before READY
+					s = removeBeginningPart(s); // remove everything before READY
 					s = s.replaceAll("\\<iframe.*\\</iframe\\>", "");
 					s = s
 							.replaceAll(
@@ -279,7 +279,13 @@ public class RemoteBlast {
 		}
 
 	}
-	
+
+	private String removeBeginningPart(String s) {
+		int index = s.indexOf("READY");
+		index = s.indexOf("</p>", index);
+		return s.substring(index+"</p>".length());
+	}
+
 	private String updateImageLink(String data) {
 		data = data.replaceAll("(src|SRC)=\"(/blast/)?images",
 				"src=\"http://blast.ncbi.nlm.nih.gov/images");
