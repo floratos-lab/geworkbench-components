@@ -208,8 +208,15 @@ public class BlastAlgorithm extends SwingWorker<CSAlignmentResultSet, Integer> {
 
 		}
 
-		return(new CSAlignmentResultSet(outputFile, sequenceDB
-				.getFASTAFileName(), sequenceDB, parentSequenceSet));
+		CSAlignmentResultSet blastResult = new CSAlignmentResultSet(outputFile, sequenceDB
+				.getFASTAFileName(), sequenceDB, parentSequenceSet);
+		blastResult.setLabel(BlastAppComponent.NCBILABEL);
+		ProjectNodeAddedEvent event = new ProjectNodeAddedEvent(null, null,
+				blastResult);
+		if(isCancelled())return null;
+		blastAppComponent.publishProjectNodeAddedEvent(event);
+		log.debug("blast result node added");
+		return blastResult;
 	}
 	
 	@Override
@@ -221,16 +228,8 @@ public class BlastAlgorithm extends SwingWorker<CSAlignmentResultSet, Integer> {
 			blastResult = get();
 			if (blastResult==null)return;
 			
-			blastResult.setLabel(BlastAppComponent.NCBILABEL);
-			ProjectNodeAddedEvent event = new ProjectNodeAddedEvent(null, null,
-					blastResult);
 			String historyStr = generateHistoryStr(sequenceDB);
 			ProjectPanel.addToHistory(blastResult, historyStr);
-
-			if (blastResult!=null && blastAppComponent != null) {
-				blastAppComponent.publishProjectNodeAddedEvent(event);
-				log.debug("blast result node added");
-			}
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
