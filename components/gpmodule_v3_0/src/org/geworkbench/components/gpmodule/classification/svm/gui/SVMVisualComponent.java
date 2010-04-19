@@ -11,27 +11,41 @@
 */
 package org.geworkbench.components.gpmodule.classification.svm.gui;
 
-import org.geworkbench.engine.config.VisualPlugin;
-import org.geworkbench.engine.management.AcceptTypes;
-import org.geworkbench.engine.management.Subscribe;
-import org.geworkbench.engine.management.Publish;
-import org.geworkbench.events.ProjectEvent;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
-import javax.swing.*;
-import java.awt.*;
-import java.util.*;
+import javax.swing.BorderFactory;
+import javax.swing.JPanel;
 
-import org.geworkbench.components.gpmodule.classification.svm.SVMClassifier;
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geworkbench.bison.algorithm.classification.CSSvmClassifier;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
+import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.components.gpmodule.classification.PredictionModel;
+import org.geworkbench.components.gpmodule.classification.PredictionResult;
+import org.geworkbench.components.gpmodule.classification.svm.SVMClassifier;
+import org.geworkbench.engine.config.VisualPlugin;
+import org.geworkbench.engine.management.AcceptTypes;
+import org.geworkbench.engine.management.Publish;
+import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.util.FilePathnameUtils;
 
 /**
  *@author Marc-Danie Nazaire
  */
 
-@AcceptTypes( {SVMClassifier.class})
+@AcceptTypes( {CSSvmClassifier.class})
 public class SVMVisualComponent implements VisualPlugin
 {
     private Log log = LogFactory.getLog(this.getClass());
@@ -106,11 +120,53 @@ public class SVMVisualComponent implements VisualPlugin
         System.out.println("SVMVisualComponent received project event.");
 
         DSDataSet dataSet = e.getDataSet();
-        if(dataSet != null && dataSet instanceof SVMClassifier)
+        if(dataSet != null && dataSet instanceof CSSvmClassifier)
         {
             component.removeAll();
 
-            svmVPanel = new SVMVisualizationPanel((SVMClassifier)e.getDataSet(), this);
+            CSSvmClassifier csClassifier = (CSSvmClassifier)dataSet;
+            File modelFile = null;
+            FileOutputStream out = null;
+			try {
+				modelFile = File.createTempFile("modelFile_"+System.currentTimeMillis(), ".odf", new File(FilePathnameUtils.getTemporaryFilesDirectoryPath()));
+	            modelFile.deleteOnExit();
+	            out = new FileOutputStream(modelFile);
+	            out.write(csClassifier.getModelFileContent());
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} finally {
+				try {
+					if(out!=null)
+						out.close();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+            
+            PredictionModel predictionModel = new PredictionModel(modelFile);
+
+            SVMClassifier svmClassifier = new SVMClassifier(csClassifier
+					.getParentDataSet(), csClassifier.getLabel(), csClassifier
+					.getClassifications(), predictionModel, csClassifier.getFeatureNames());
+            
+            // recreate prediction result (adopted from AbstarctTraining.execute()
+            DSPanel<DSMicroarray> casePanel = csClassifier.getCasePanel();
+            DSPanel<DSMicroarray> controlPanel = csClassifier.getControlPanel();
+            
+            DSPanel<DSMicroarray> trainPanel = new CSPanel<DSMicroarray> ();
+            trainPanel.addAll(controlPanel);
+            trainPanel.addAll(casePanel);
+            String[] classLabels = new String[trainPanel.size()];
+            Arrays.fill(classLabels, 0, controlPanel.size(), "Control");
+            Arrays.fill(classLabels, controlPanel.size(), trainPanel.size(), "Case");
+            PredictionResult trainResult = svmClassifier.classify(trainPanel, classLabels);
+            svmClassifier.setTrainPredResult(trainResult);
+            System.out.println(trainResult);
+            if(trainResult==null)System.exit(1);
+                
+            svmVPanel = new SVMVisualizationPanel(svmClassifier, this);
             svmVPanel.setBorder(BorderFactory.createEmptyBorder());
 
             component.add(svmVPanel);

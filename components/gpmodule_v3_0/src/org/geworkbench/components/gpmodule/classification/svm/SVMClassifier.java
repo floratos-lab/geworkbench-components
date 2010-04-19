@@ -31,7 +31,7 @@ import java.io.File;
  */
 public class SVMClassifier extends GPClassifier
 {
-    private PredictionModel predModel;
+    PredictionModel predModel;
     private PredictionResult trainPredResult;
     private PredictionResult testPredResult;
 

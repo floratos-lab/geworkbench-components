@@ -36,7 +36,7 @@ import java.util.Arrays;
  */
 public abstract class GPClassifier extends CSClassifier
 {
-    protected List featureNames;
+    public List featureNames;
     private String password;
 
     protected GPClassifier(DSDataSet parent, String label, String[] classifications)

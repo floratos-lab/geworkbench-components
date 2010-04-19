@@ -21,6 +21,7 @@ import org.geworkbench.components.gpmodule.classification.GPTraining;
 import org.geworkbench.components.gpmodule.classification.PredictionModel;
 import org.geworkbench.components.gpmodule.classification.PredictionResult;
 import org.geworkbench.bison.algorithm.classification.CSClassifier;
+import org.geworkbench.bison.algorithm.classification.CSSvmClassifier;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
@@ -39,7 +40,14 @@ import javax.swing.*;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 
 
 /**
@@ -173,7 +181,7 @@ public class SVMTraining extends GPTraining implements TrainingTask
 
         if(testPanel == null || testPanel.size() == 0)
         {
-            publishProjectNodeAddedEvent(new ProjectNodeAddedEvent(classifier.getLabel(), null, classifier));
+            publishProjectNodeAddedEvent(new ProjectNodeAddedEvent(classifier.getLabel(), null, createCsSvmClassifier(svmClassifier, casePanel, controlPanel)));
             return;
         }
 
@@ -199,8 +207,42 @@ public class SVMTraining extends GPTraining implements TrainingTask
             progressBar.stop();
         }
 
-        publishProjectNodeAddedEvent(new ProjectNodeAddedEvent(classifier.getLabel(), null, classifier));
+        publishProjectNodeAddedEvent(new ProjectNodeAddedEvent(classifier.getLabel(), null, createCsSvmClassifier(svmClassifier, casePanel, controlPanel)));
     }
+    
+    private static CSSvmClassifier createCsSvmClassifier(
+			SVMClassifier svmClassifier, DSPanel<DSMicroarray> casePanel,
+			DSPanel<DSMicroarray> controlPanel) {
+		File preModelFile = svmClassifier.predModel.getPredModelFile();
+
+		byte[] model = null;
+		FileInputStream fis = null;
+		try {
+			fis = new FileInputStream(preModelFile);
+			FileChannel fc = fis.getChannel();
+			model = new byte[(int) (fc.size())];
+			ByteBuffer bb = ByteBuffer.wrap(model);
+			fc.read(bb);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			try {
+				if (fis != null)
+					fis.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+		return new CSSvmClassifier(svmClassifier.getParentDataSet(),
+				svmClassifier.getLabel(), svmClassifier.getClassifications(),
+				model, svmClassifier.featureNames, casePanel, controlPanel);
+	}
 
     public boolean isCancelled()
     {
