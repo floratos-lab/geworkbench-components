@@ -314,8 +314,8 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 
 	protected DSMicroarray getPhenoLabel(int j) {
 		DSMicroarray mArray = null;
-		if (showAllMArrays || (microarrayPanel == null)
-				|| (microarrayPanel.size() == 0)) {
+		if ((showAllMArrays || (microarrayPanel == null)
+				|| (microarrayPanel.size() == 0)) && microarraySet!=null) {
 			mArray = microarraySet.get(j);
 		} else {
 			if (j >= 0 && j < microarrayPanel.size()) {
