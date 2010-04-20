@@ -5,8 +5,8 @@
 		class="org.geworkbench.components.colormosaic.ColorMosaicPanel"
 		version="1.0" 
 		author="geWorkbench Development Team"
-		authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Comments_on_geWorkbench#Color_Mosaic"
-		toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Comments_on_geWorkbench#Color_Mosaic"
+		authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
+		toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_Color_Mosaic"
 		description="A color spectrum is used to indicate the relative magnitudes of the measurements.
  The arrays (columns) are grouped by input group membership,
