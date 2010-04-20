@@ -982,6 +982,7 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         jAllMarkers.setEnabled(true);
         if (dataFile != null) {
             if (dataFile instanceof DSMicroarraySet) {
+                jToggleSortButton.setEnabled(false);
                 DSMicroarraySet set = (DSMicroarraySet) dataFile;
                 if (colorMosaicImage.getChips() != set) {
                     colorMosaicImage.microarrayPanel = null;
@@ -1011,6 +1012,9 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
     					.getMiddleColorValue(jIntensitySlider.getValue()));
                 colorScale.setMaxColor(colorContext
     					.getMaxColorValue(jIntensitySlider.getValue()));
+				//update marker and array selections after microarray set is handled
+                receive(pse, null);
+                receive(gse, null);
 
             } else if (dataFile instanceof DSSignificanceResultSet) {          
                 significanceMode = true;
@@ -1088,9 +1092,11 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         }
     }
 
+    private PhenotypeSelectorEvent<?> pse = null;
     @SuppressWarnings("unchecked")
     @Subscribe public void receive(PhenotypeSelectorEvent e, Object source) {
-        if (significanceMode) {
+    	pse = e;
+        if (significanceMode || e == null) {
             return;
         }
         if (jAllMArrays.isEnabled()==false)
@@ -1102,8 +1108,10 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         jHideMaskedBtn_actionPerformed(null); 
     }
 
+    private GeneSelectorEvent gse = null;
     @Subscribe public void receive(GeneSelectorEvent e, Object source) {
-        if (significanceMode) {
+    	gse = e;
+        if (significanceMode || e == null) {
             return;
         }
         DSPanel<DSGeneMarker> panel = e.getPanel();
