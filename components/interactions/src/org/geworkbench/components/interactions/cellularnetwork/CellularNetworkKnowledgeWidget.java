@@ -2801,8 +2801,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 					}
 					case 2: {
 
-						return GeneOntologyUtil.getOntologyUtil()
-								.checkMarkerFunctions(value);
+						return GeneOntologyUtil.checkMarkerFunctions(value);
 					}
 					case 3: {
 

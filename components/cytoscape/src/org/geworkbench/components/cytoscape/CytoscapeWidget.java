@@ -566,8 +566,7 @@ public class CytoscapeWidget implements VisualPlugin {
 			}
 
 			if (marker1 != null) {
-				String geneType = GeneOntologyUtil.getOntologyUtil()
-						.checkMarkerFunctions(marker1);
+				String geneType = GeneOntologyUtil.checkMarkerFunctions(marker1);
 
 				if (geneType == null || geneType.trim().equals(""))
 					geneType = "non K/P/TF, in microarray set";
