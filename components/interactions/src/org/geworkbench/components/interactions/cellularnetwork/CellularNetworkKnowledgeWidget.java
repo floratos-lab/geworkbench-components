@@ -565,14 +565,11 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		TreeMap<String, Set<GOTerm>> treeMapForFunction = null;
 		TreeMap<String, Set<GOTerm>> treeMapForProcess = null;
 
-		treeMapForComponent = GeneOntologyUtil.getOntologyUtil().getAllGoTerms(
-				hit.getdSGeneMarker(),
+		treeMapForComponent = hit.getAllAncestorGoTerms(
 				AnnotationParser.GENE_ONTOLOGY_CELLULAR_COMPONENT);
-		treeMapForFunction = GeneOntologyUtil.getOntologyUtil().getAllGoTerms(
-				hit.getdSGeneMarker(),
+		treeMapForFunction = hit.getAllAncestorGoTerms(
 				AnnotationParser.GENE_ONTOLOGY_MOLECULAR_FUNCTION);
-		treeMapForProcess = GeneOntologyUtil.getOntologyUtil().getAllGoTerms(
-				hit.getdSGeneMarker(),
+		treeMapForProcess = hit.getAllAncestorGoTerms(
 				AnnotationParser.GENE_ONTOLOGY_BIOLOGICAL_PROCESS);
 
 		if (treeMapForComponent != null && treeMapForComponent.size() > 0) {
