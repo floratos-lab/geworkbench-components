@@ -250,7 +250,7 @@ public class AlgorithmMatcher {
      */
     static String[] translateToGapcosts(String programName) {
         if (programName.equalsIgnoreCase(MATRIX1)) {
-            return new String[] {GAP0, GAP1, GAP2, GAP3, GAP3, GAP4, GAP5};
+            return new String[] {GAP0, GAP1, GAP2, GAP3, GAP4, GAP5};
 
         } else if (programName.equalsIgnoreCase(MATRIX2)) {
             return new String[] {GAPB45_1, GAPB45_2, GAPB45_3, GAPB45_4,
@@ -268,7 +268,7 @@ public class AlgorithmMatcher {
                     GAPP70_5, GAPP70_6};
         }
 
-        String[] defaultGAPCOSTS = new String[] {GAP0, GAP1, GAP2, GAP3, GAP3,
+        String[] defaultGAPCOSTS = new String[] {GAP0, GAP1, GAP2, GAP3,
                                    GAP4, GAP5};
         return defaultGAPCOSTS;
 

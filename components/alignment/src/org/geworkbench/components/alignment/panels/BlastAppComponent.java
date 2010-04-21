@@ -319,12 +319,6 @@ public class BlastAppComponent implements VisualPlugin {
         jExpectBox.setEditable(true);
         // (3)
         jGapcostsBox.setVerifyInputWhenFocusTarget(true);
-        jGapcostsBox.addItem("Existence: 11 Extension: 1");
-        jGapcostsBox.addItem("Existence:  9 Extension: 2");
-        jGapcostsBox.addItem("Existence:  8 Extension: 2");
-        jGapcostsBox.addItem("Existence:  7 Extension: 2");
-        jGapcostsBox.addItem("Existence: 12 Extension: 1");
-        jGapcostsBox.addItem("Existence: 10 Extension: 1");
         // (4)
         jWordsizeBox.addItem("3");
         jWordsizeBox.addItem("2");
