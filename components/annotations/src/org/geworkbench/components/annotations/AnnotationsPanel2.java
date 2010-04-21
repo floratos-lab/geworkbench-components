@@ -300,6 +300,40 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
                     break;
             }
         }
+
+		public boolean toCSV(String filename) {
+			boolean ret = true;
+
+			String[] annotationsHeader = { "Marker", "Gene", "Pathway" };
+			File tempAnnot = new File(filename);
+			try {
+				CSVPrinter csvout = new CSVPrinter(new BufferedOutputStream(
+						new FileOutputStream(tempAnnot)));
+
+				for (int i = 0; i < annotationsHeader.length; i++) {
+					csvout.print(annotationsHeader[i]);
+				}
+				csvout.println();
+
+				for (int cx = 0; cx < this.size; cx++) {
+					String markerName = markerData[cx].name;
+					String geneName = geneData[cx].name;
+					String pathwayName = pathwayData[cx].name;
+					csvout.print(markerName);
+					csvout.print(geneName);
+					csvout.print(pathwayName);
+					csvout.println();
+				}
+
+				csvout.flush();
+				csvout.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+				ret = false;
+			}
+
+			return ret;
+		}
     }
 
 	/**
@@ -332,7 +366,7 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
         private Boolean[] filteredDiseaseList;	//TRUE if that record is filtered.
         Map<String, Integer> numOfDuplicatesMap = null;	//for speed up the calculation duplications.
         int[] numOfDuplicatesArray = null;	//to store the number of duplications, so we can access it by index.
-        
+
         int[] numOfDuplicatesCache;
 
         public CGITableModel(MarkerData[] markerData, GeneData[] geneData, DiseaseData[] diseaseData, RoleData[] roleData, SentenceData[] sentenceData, PubmedData[] pubmedData) {
@@ -510,7 +544,7 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
         /**
 		 * This method will collapse given gene-disease pairs in the given
 		 * table, then refresh the table.
-		 * 
+		 *
 		 * @param aTable
 		 * @param gene
 		 * @param disease
@@ -525,7 +559,7 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
 		 * This method will collapse given gene-disease pairs in the given table
 		 * This method will NOT refresh the table, so you can call this method
 		 * multiple time and refresh it at once.
-		 * 
+		 *
 		 * @param aTable
 		 * @param gene
 		 * @param disease
@@ -564,7 +598,7 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
 			}
 			log.debug("filteredSize becomes to "+filteredSize);
 		}
-        
+
         //FIXME: this method should also be called when retrieve, not only retrieve all.
         public void updateNumOfDuplicates(){
     		ProgressBar pb = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
@@ -590,7 +624,7 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
 			}
             pb.stop();
         }
-        
+
         /*
 		 * This is a wrapper for expandBy, to be called from inside of this
 		 * file. So program will know it's called by the user, not by the code.
@@ -795,7 +829,7 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
 
             //numOfDuplicatesCache = new int[size];
             numOfDuplicatesMap = new HashMap<String, Integer>();
-            
+
             this.markerData = newMarkerData;
             this.geneData = newGeneData;
             this.diseaseData = newDiseaseData;
@@ -1219,6 +1253,16 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
             }
         });
 
+        annotationExportButton.setForeground(Color.black);
+        annotationExportButton.setToolTipText("Export to CSV files");
+        annotationExportButton.setFocusPainted(true);
+        annotationExportButton.setText("Export");
+        annotationExportButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	annotationExportButton_actionPerformed(e);
+            }
+        });
+
         cgiRetrieveCaBioCheckBox.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
 				userAlsoWantCaBioData = (e.getStateChange() == ItemEvent.SELECTED);
@@ -1286,6 +1330,7 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
         annoHumanOrMouseComboBox.addActionListener(HumanMouseListener);
         annoButtonPanel.add(annoRetrieveButton);
         annoButtonPanel.add(annoClearButton);
+        annoButtonPanel.add(annotationExportButton);
         cgiButtonPanel.add(cgiRetrieveCaBioCheckBox);
         cgiButtonPanel.add(cgiRetrievePathwayCheckBox);
         cgiButtonPanel.add(cgiHumanOrMouseComboBox);
@@ -1822,7 +1867,7 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
         expandCollapseRetrieveAllMenu.add(expandAllItem);
 
     }
-    
+
     private void collapseAll(){
         Runnable collapseThread = new Runnable() {
         	public void run() {
@@ -1851,7 +1896,7 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
         t.setPriority(Thread.MIN_PRIORITY);
        	t.start();
     }
-    
+
     boolean entered = false;
     private void syncHeaderWidthWithTableWidth(){
     	if (entered) return;
@@ -2507,6 +2552,30 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
 		}
     }
 
+    private void annotationExportButton_actionPerformed(ActionEvent e) {
+		JFileChooser jFC=new JFileChooser();
+
+		//We remove "all files" from filter, since we only allow CSV format
+		FileFilter ft = jFC.getAcceptAllFileFilter();
+		jFC.removeChoosableFileFilter(ft);
+
+		TabularFileFilter filter = new TabularFileFilter();
+        jFC.setFileFilter(filter);
+
+	    //Save model to CSV file
+        jFC.setDialogTitle("Save annotations table");
+		int returnVal = jFC.showSaveDialog(this.getComponent());
+	    if (returnVal == JFileChooser.APPROVE_OPTION) {
+			String tabFilename;
+			tabFilename = jFC.getSelectedFile().getAbsolutePath();
+			if (!tabFilename.toLowerCase().endsWith(
+					"." + filter.getExtension().toLowerCase())) {
+				tabFilename += "." + filter.getExtension();
+			}
+			annotationModel.toCSV(tabFilename);
+		}
+    }
+
     /*
      *
      */
@@ -2826,6 +2895,7 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
     private JCheckBox cgiRetrievePathwayCheckBox = new JCheckBox(RETRIEVE_PATHWAY_DATA);
     private JComboBox cgiHumanOrMouseComboBox = new JComboBox(Human_Mouse);
     private JButton exportButton = new JButton();
+    private JButton annotationExportButton = new JButton();
 
 
     private DSItemList<DSGeneMarker> selectedMarkerInfo = null;
@@ -2917,7 +2987,7 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
             diseaseTable.getColumnModel().getColumn(3).setHeaderValue("Role");
             diseaseTable.getColumnModel().getColumn(4).setHeaderValue("Sentence");
             diseaseTable.getColumnModel().getColumn(5).setHeaderValue("Pubmed");
-            diseaseTable.getTableHeader().revalidate();	
+            diseaseTable.getTableHeader().revalidate();
         }
         else
         {
@@ -2941,7 +3011,7 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
             agentTable.getColumnModel().getColumn(3).setHeaderValue("Role");
             agentTable.getColumnModel().getColumn(4).setHeaderValue("Sentence");
             agentTable.getColumnModel().getColumn(5).setHeaderValue("Pubmed");
-            agentTable.getTableHeader().revalidate();	
+            agentTable.getTableHeader().revalidate();
         }
         else
         {
@@ -2954,7 +3024,7 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
             agentTable.getColumnModel().getColumn(5).setHeaderValue("Pubmed");
             agentTable.getTableHeader().revalidate();
         }
-        
+
     	  if (svgStringListMap.containsKey(new Integer(hashcode)))
             svgStringList = svgStringListMap.get(new Integer(hashcode));
     	  else
