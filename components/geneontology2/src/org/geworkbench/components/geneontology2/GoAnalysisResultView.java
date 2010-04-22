@@ -111,6 +111,8 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 	private JPanel treeTab = null;
 	private TableRowSorter<GoTableModel> sorter = null;
 	
+	private GoTreeNode root = new GoTreeNode (); // root
+
 	private void initializePrimaryView() {
 		primaryView = new JTabbedPane();
 
@@ -238,14 +240,7 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 			
 		});
 
-		GoTreeNode root = new GoTreeNode (result); // root
 		treeModel = new DefaultTreeModel(root);
-		namespaceId2Node = new HashMap<Integer, GoTreeNode>();
-		for(int namespaceId: GoAnalysisResult.getNamespaceIds()) {
-			GoTreeNode namespaceNode = new GoTreeNode(result, namespaceId, root); // parent is root: 0 
-			root.add(namespaceNode);
-			namespaceId2Node.put(namespaceId, namespaceNode);
-		}
 
 		tree = new JTree(treeModel);
 		tree.setExpandsSelectedPaths(true);
