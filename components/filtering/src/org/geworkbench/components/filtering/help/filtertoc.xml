@@ -12,11 +12,11 @@
 
 		<tocitem target="deviation.filter" text="Deviation Filter"/>
 
-		<tocitem target="expr.threshold.filter" text="Expression Threshold"/>
+		<tocitem target="expr.threshold.filter" text="Expression Threshold Filter"/>
 
-		<tocitem target="two.channel.filter" text="Two Channel"/>		
+		<tocitem target="two.channel.filter" text="Genepix Expression Threshold Filter(Two Channel)"/>
 
-		<tocitem target="Genepix.filter" text="Genepix Filter"/>	
+		<tocitem target="Genepix.filter" text="Genepix Flags Filter"/>
 	
 
 	</tocitem>
