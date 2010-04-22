@@ -14,6 +14,7 @@ package org.geworkbench.components.gpmodule.classification;
 import org.genepattern.matrix.Dataset;
 import org.genepattern.matrix.ClassVector;
 import org.genepattern.matrix.AbstractDataset;
+import org.genepattern.matrix.DefaultClassVector;
 import org.genepattern.io.gct.GctWriter;
 import org.genepattern.io.cls.ClsWriter;
 import org.genepattern.io.IOUtil;
@@ -26,9 +27,17 @@ import org.genepattern.util.GPpropertiesManager;
 import org.geworkbench.util.ClassifierException;
 import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbench.algorithms.AbstractTraining;
+import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
+import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.annotation.DSAnnotationContext;
+import org.geworkbench.bison.annotation.CSAnnotationContextManager;
+import org.geworkbench.bison.annotation.CSAnnotationContext;
 
 import java.io.*;
 import java.util.List;
+import java.util.ArrayList;
 
 /**
  * @author Marc-Danie Nazaire
@@ -42,6 +51,37 @@ public abstract class GPTraining extends AbstractTraining
         return createGCTFile(fileName, trainingSet, featureNames, null);
     }
 
+    protected File createGCTFile(String fileName, GPTrainingPanel panel, List<float[]> caseData, List<float[]> controlData)
+    {
+        DSItemList markers = panel.getActiveMarkers();
+
+        List featureNames = new ArrayList();
+        for(int i =0; i < markers.size();i++)
+        {
+            featureNames.add(((DSGeneMarker)markers.get(i)).getLabel());
+        }
+
+        List trainingSet = new ArrayList<double[]>();
+        trainingSet.addAll(controlData);
+
+        List arrayNames = new ArrayList();
+        DSAnnotationContext<DSMicroarray> context = CSAnnotationContextManager.getInstance().getCurrentContext(panel.getMaSet());
+        DSPanel<DSMicroarray> dsPanel = context.getActivatedItemsForClass(CSAnnotationContext.CLASS_CONTROL);
+        for(DSMicroarray microarray: dsPanel)
+        {
+            arrayNames.add(microarray.getLabel());
+        }
+
+        trainingSet.addAll(caseData);
+        dsPanel = context.getActivatedItemsForClass(CSAnnotationContext.CLASS_CASE);
+        for(DSMicroarray microarray: dsPanel)
+        {
+            arrayNames.add(microarray.getLabel());
+        }
+
+        return createGCTFile(fileName, trainingSet, featureNames, arrayNames);
+
+    }
     protected File createGCTFile(String fileName, final List trainingSet, final List featureNames, final List arrayNames)
     {
         File gctFile = null;
@@ -111,6 +151,23 @@ public abstract class GPTraining extends AbstractTraining
         }
 
         return gctFile;
+    }
+
+    protected File createCLSFile(String fileName, List<float[]> caseData, List<float[]> controlData)
+    {
+        int sampleSize = caseData.size() + controlData.size();
+        String[] classLabels = new String[sampleSize];
+
+        for(int i = 0; i < sampleSize; i++)
+        {
+            if(i < controlData.size())
+                classLabels[i] = "Control";
+            else
+                classLabels[i] = "Case";
+        }
+
+        ClassVector classVec = new DefaultClassVector(classLabels);
+        return createCLSFile(fileName, classVec);
     }
 
     protected File createCLSFile(String fileName, ClassVector classLabel)
