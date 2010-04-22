@@ -3339,12 +3339,16 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
         if (svgString != null) {
             StringReader reader = new StringReader(svgString);
             Document document = null;
+           	ClassLoader currentContextClassLoader = Thread.currentThread().getContextClassLoader();
             try {
+            	Thread.currentThread().setContextClassLoader(SAXSVGDocumentFactory.class.getClassLoader());
                 String parser = XMLResourceDescriptor.getXMLParserClassName();
                 SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(parser);
                 document = f.createDocument(null, reader);
             } catch (IOException ex) {
             	log.error(ex);
+            } finally {
+                Thread.currentThread().setContextClassLoader(currentContextClassLoader);
             }
 
             svgCanvas.setDocument(document);
