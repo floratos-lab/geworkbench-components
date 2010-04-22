@@ -752,8 +752,8 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 		if (labels.length > 0) {
 			int confirm = JOptionPane.showConfirmDialog(getComponent(),
 					"Delete selected set" + (labels.length > 1 ? "s" : "")
-							+ "?");
-			if (confirm == JOptionPane.YES_OPTION) {
+							+ "?", "Confirm to delete", JOptionPane.OK_CANCEL_OPTION);
+			if (confirm == JOptionPane.OK_OPTION) {
 				panelTree.clearSelection();
 				for (int i = 0; i < labels.length; i++) {
 					String label = labels[i];
