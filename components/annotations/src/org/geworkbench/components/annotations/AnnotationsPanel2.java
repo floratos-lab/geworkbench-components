@@ -188,9 +188,11 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
 	}
 
 	private String unwrapFromHTML(String s) {
-		//FIXME: if it's collapsed, there's no string to unwrap, in that case, we should skip the unwrap procedure.
-		return s.substring("<html><a href=\"__noop\">".length(), s.length()
+		if(s.startsWith("<html><a href=\"__noop\">"))
+			return s.substring("<html><a href=\"__noop\">".length(), s.length()
 				- "</a></html>".length());
+		else
+			return "";
 	}
 
 	/**
@@ -1448,21 +1450,15 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
 	                if ((column == COL_GENE)) {
 	                    String value = (String) diseaseTable.getValueAt(row, column);
 	                    value=unwrapFromHTML(value);
-	                    String address = GeneCards_PREFIX + value;
-	                    try {
-							BrowserLauncher.openURL(address);
-						} catch (IOException e1) {
-							log.error(e1,e1);
-						}
+	                    if(value.length()>0) {
+		                    String address = GeneCards_PREFIX + value;
+		                    try {
+								BrowserLauncher.openURL(address);
+							} catch (IOException e1) {
+								log.error(e1,e1);
+							}
+	                    }
 	                }
-//	                if ((column == COL_DISEASE)) {
-//	                    String address = EVS_PREFIX + table.getModel().getValueAt(row, COL_EVSID);
-//	                    try {
-//							BrowserLauncher.openURL(address);
-//						} catch (IOException e1) {
-//	                		log.error(e1,e1);
-//						}
-//	                }
 	                if ((column == COL_PUBMED)) {
 	                    String value = (String) diseaseTable.getValueAt(row, column);
 	                    value=unwrapFromHTML(value);
@@ -1474,8 +1470,7 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
 	                    		}catch(IOException e1){
 	                    			log.error(e1);
 	                    		}
-	                    }
-	                    else {
+	                    } else if(value.length()>0) {
 							String address = PUBMED_PREFIX + value;
 							try {
 								BrowserLauncher.openURL(address);
@@ -1594,30 +1589,26 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
 	                if ((column == COL_GENE)) {
 	                    String value = (String) agentTable.getValueAt(row, column);
 	                    value=unwrapFromHTML(value);
-	                    String address = GeneCards_PREFIX + value;
-	                    try {
-							BrowserLauncher.openURL(address);
-						} catch (IOException e1) {
-							log.error(e1,e1);
-						}
+	                    if(value.length()>0) {
+		                    String address = GeneCards_PREFIX + value;
+		                    try {
+								BrowserLauncher.openURL(address);
+							} catch (IOException e1) {
+								log.error(e1,e1);
+							}
+	                    }
 	                }
-//	                if ((column == COL_AGENT)) {
-//	                    String address = EVS_PREFIX + table2.getModel().getValueAt(row, COL_EVSID);
-//	                    try {
-//							BrowserLauncher.openURL(address);
-//						} catch (IOException e1) {
-//							log.error(e1,e1);
-//						}
-//	                }
 	                if ((column == COL_PUBMED)) {
 	                    String value = (String) agentTable.getValueAt(row, column);
 	                    value=unwrapFromHTML(value);
-	                    String address = "http://www.ncbi.nlm.nih.gov/pubmed/"+value;
-	                    try {
-							BrowserLauncher.openURL(address);
-						} catch (IOException e1) {
-							log.error(e1,e1);
-						}
+	                    if(value.length()>0) {
+		                    String address = "http://www.ncbi.nlm.nih.gov/pubmed/"+value;
+		                    try {
+								BrowserLauncher.openURL(address);
+							} catch (IOException e1) {
+								log.error(e1,e1);
+							}
+	                    }
 	                }
 	                if ((column == COL_SENTENCE)) {
 	                	String value = (String) agentTable.getValueAt(row, column);
