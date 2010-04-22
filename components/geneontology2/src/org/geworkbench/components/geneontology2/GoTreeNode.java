@@ -33,17 +33,14 @@ class GoTreeNode implements TreeNode {
 		this.children = null;
 	}
 
-    public void removeAllChildren() {
+	public void removeAllChildren() {
     	children = null;
     }
 
-	/* constructor only for root*/
-	GoTreeNode(final GoAnalysisResult result) {
-		this.result = result;
-		
-		this.goId = 0;
+	GoTreeNode() {
+		goId = 0;
 	}
-
+	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
@@ -51,11 +48,10 @@ class GoTreeNode implements TreeNode {
 	public String toString() {
 		if(goId==0)return "ROOT"; 
 
-		String row = result.getRowAsString(goId);
-		if(row==null) {// not in the result 
+		if(result==null || result.getRowAsString(goId)==null) {// not in the result 
 			return GoAnalysisResult.getGoTermName(goId); 
 		} else { // in the result from ontologizer
-			return row;
+			return result.getRowAsString(goId);
 		}
 	}
 	
