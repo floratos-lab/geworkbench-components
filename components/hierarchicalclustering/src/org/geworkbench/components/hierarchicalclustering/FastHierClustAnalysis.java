@@ -385,7 +385,7 @@ class FastHierClustAnalysis extends AbstractGridAnalysis implements
 							+ "Remove before proceeding.");
 
 		// warning danger of out of memory error
-		final int LARGE_SET_SIZE = 1000;
+		final int LARGE_SET_SIZE = 2000;
 		String setTooLarge = null;
 		if(numMAs>LARGE_SET_SIZE) {
 			setTooLarge = "Microarray set size "+numMAs;
@@ -397,8 +397,7 @@ class FastHierClustAnalysis extends AbstractGridAnalysis implements
 			int n = JOptionPane.showConfirmDialog(null,
 					setTooLarge+" is very large and may cause out-of-memory error.\n Do you want to continue?",
 				    "Too large set",
-				    JOptionPane.WARNING_MESSAGE,
-				    JOptionPane.YES_NO_OPTION);
+				    JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 			if (n != JOptionPane.YES_OPTION) {
 				return new ParamValidationResults(false, "You chose to cancel because marker set is too large.");
 			}
