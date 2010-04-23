@@ -8,20 +8,21 @@
 		toolURL="http://wiki.c2b2.columbia.edu/califanolab/index.php/Software/ARACNE"
 		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_ARACNE"
 		description="ARACNe: Algorithm for the Reconstruction of Accurate
- Cellular Networks.  This component uses a measure of mutual
- information to quantify the influence of one or more chosen
- hub genes (e.g. transcription factors) on the expression of
- other target genes.  Direct interactions can be preferentially
- preserved over indirect.  Primarily intended for the
- reconstruction of cellular networks within mammalian cell types,
- it requires expression profiles from many differ states
- (conditions, phenotypes) to provide the perturbations which
- allow networks to be inferred." 
+			Cellular Networks.  This component uses a measure of mutual
+			information to quantify the influence of one or more chosen
+			hub genes (e.g. transcription factors) on the expression of
+			other target genes.  Direct interactions can be preferentially
+			preserved over indirect.  Primarily intended for the
+			reconstruction of cellular networks within mammalian cell types,
+			it requires expression profiles from many differ states
+			(conditions, phenotypes) to provide the perturbations which
+			allow networks to be inferred." 
  		mustAccept="true" documentation="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_ARACNE" analysis="true">
 		<required-component
 			class="org.geworkbench.components.cytoscape.CytoscapeWidget" />
 				
 		<license>
+		
 			<![CDATA[
 <html>
 
@@ -427,18 +428,11 @@ clear=all style='page-break-before:always'>
 
 ]]>
 		</license>
+		<online-help helpSet="org/geworkbench/components/aracne/help/aracneHelpSet.hs" />
 	</component>
 
 
 	<plugin id="AracneAnalysis" name="ARACNE Analysis"
 		class="org.geworkbench.components.aracne.AracneAnalysis" source="aracne-java" />
-
-	<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
-		<component class="org.geworkbench.components.aracne-java.AracneAnalysis">
-			<online-help
-				helpSet="org/geworkbench/components/aracne/help/aracneHelpSet.hs" />
-		</component>
-	</component-descriptor>
 
 </component-descriptor>
