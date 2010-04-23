@@ -523,7 +523,7 @@ public class BlastAppComponent implements VisualPlugin {
 				|| selectedProgramName
 						.equalsIgnoreCase(SELECT_A_PROGRAM_PROMPT)) {
 			jScrollPane1.getViewport().removeAll();
-			textArea.setText( "" );
+			textArea.setText( "" );			
 			return;
 		}
 
@@ -543,7 +543,7 @@ public class BlastAppComponent implements VisualPlugin {
 		(jScrollPane1.getViewport()).add(databaseTable, null);
 		String[] model = AlgorithmMatcher
 				.translateToMatrices(selectedProgramName);
-		jMatrixBox.setModel(new DefaultComboBoxModel(model));
+		jMatrixBox.setModel(new DefaultComboBoxModel(model));		
 		String[] model2 = AlgorithmMatcher
 				.translateToWordSize(selectedProgramName);
 		jWordsizeBox.setModel(new DefaultComboBoxModel(model2));
@@ -553,6 +553,7 @@ public class BlastAppComponent implements VisualPlugin {
 			jGapcostsBox.setVisible(false);
 			jGapcostsLabel.setVisible(false);
 		} else {
+			jMatrixBox.setSelectedIndex(3);//zheng
 			humanRepeatFilter.setEnabled(false);
 			jGapcostsBox.setEditable(false);
 			jGapcostsBox.setVisible(true);
