@@ -669,11 +669,8 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 		if (sourceMA == null) {
 			return;
 		}
-		if (fe.getInformation().startsWith("Missing")) {
-			updateSelectedPanel();
 
-			// repaint();
-		}
+		updateSelectedPanel();
 	}
 
 	/**
