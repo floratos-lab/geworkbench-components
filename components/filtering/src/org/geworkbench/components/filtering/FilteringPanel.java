@@ -10,6 +10,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -247,8 +248,10 @@ public class FilteringPanel implements VisualPlugin, ReHighlightable {
 
 
 	protected void preview() {
-		List<DSGeneMarker> list = ((FilteringAnalysis)selectedFilter).getMarkersToBeRemoved(maSet);
-		
+		List<Integer> indexList = ((FilteringAnalysis)selectedFilter).getMarkersToBeRemoved(maSet);
+		List<DSGeneMarker> list = new ArrayList<DSGeneMarker>();
+		for(Integer index: indexList)
+			list.add(maSet.getMarkers().get(index));
 		PreviewDialog dialog = new PreviewDialog(list, maSet.getMarkers().size(), this);
 		dialog.setVisible(true);
 	}
