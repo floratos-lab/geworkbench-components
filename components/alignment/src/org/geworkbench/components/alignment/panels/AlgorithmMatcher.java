@@ -272,6 +272,15 @@ public class AlgorithmMatcher {
         return defaultGAPCOSTS;
 
     }
+    
+    static Map<String, Integer> defaultGapcostIndex = new HashMap<String, Integer>();
+    static {
+    	defaultGapcostIndex.put(MATRIX1, 4);
+    	defaultGapcostIndex.put(MATRIX2, 0);
+    	defaultGapcostIndex.put(MATRIX3, 0);
+    	defaultGapcostIndex.put(MATRIX4, 0);
+    	defaultGapcostIndex.put(MATRIX5, 0);
+    }
 
     /**
      * Static utility ussed in BlastAppComponent: translate program name to word size.
