@@ -319,6 +319,14 @@ public class BlastAppComponent implements VisualPlugin {
         jExpectBox.setEditable(true);
         // (3)
         jGapcostsBox.setVerifyInputWhenFocusTarget(true);
+    	String defaulMatrixName = "BLOSUM62"; 
+        String[] model = AlgorithmMatcher.translateToGapcosts(defaulMatrixName
+                );
+       	jGapcostsBox.setModel(new DefaultComboBoxModel(model));
+       	Integer index = AlgorithmMatcher.defaultGapcostIndex.get(defaulMatrixName);
+       	if(index==null) index = 0;
+       	jGapcostsBox.setSelectedIndex(index);
+
         // (4)
         jWordsizeBox.addItem("3");
         jWordsizeBox.addItem("2");
@@ -553,9 +561,13 @@ public class BlastAppComponent implements VisualPlugin {
     }
 
     private void jMatrixBox_actionPerformed(ActionEvent e) {
-        String[] model = AlgorithmMatcher.translateToGapcosts(
-                jMatrixBox.getSelectedItem().toString());
+    	String matrixName = jMatrixBox.getSelectedItem().toString(); 
+        String[] model = AlgorithmMatcher.translateToGapcosts(matrixName
+                );
        	jGapcostsBox.setModel(new DefaultComboBoxModel(model));
+       	Integer index = AlgorithmMatcher.defaultGapcostIndex.get(matrixName);
+       	if(index==null) index = 0;
+       	jGapcostsBox.setSelectedIndex(index);
     }
 
     public CSSequenceSet getFastaFile() {
