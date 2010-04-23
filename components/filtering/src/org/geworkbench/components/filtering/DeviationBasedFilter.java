@@ -18,7 +18,8 @@ import org.geworkbench.bison.model.analysis.FilteringAnalysis;
  * Provides an implementation for a deviation based filter. In particular,
  * for every marker profile (i.e., for the vector defined by the
  * marker values across all chips in the experiment) it calculates
- * the vector's deviation. If this deviation is less than the user provided
+ * the vector's sample standard deviation (divides by N-1). 
+ * If this deviation is less than the user provided
  * value, the corresponding marker is set to "Missing" across all arrays
  * in the dataset.
  * <p/>
@@ -35,6 +36,7 @@ import org.geworkbench.bison.model.analysis.FilteringAnalysis;
  * deviation calculation.</LI>
  * </UL>
  */
+ 
 public class DeviationBasedFilter extends FilteringAnalysis {
 	private static final long serialVersionUID = -3948591097666762748L;
 	private static Log log = LogFactory.getLog(DeviationBasedFilter.class);
@@ -103,7 +105,7 @@ public class DeviationBasedFilter extends FilteringAnalysis {
     }
     
     /**
-     * Compute the deviation for the numbers in <code>profile</code>.
+     * Compute the sample standard deviation for the numbers in <code>profile</code>.
      *
      * @param profile
      * @return
@@ -113,8 +115,11 @@ public class DeviationBasedFilter extends FilteringAnalysis {
             return 0.0;
         double meanValue = getMean(profile);
         double deviation = 0.0;
-        for (int i = 0; i < profile.length; ++i)
-            deviation += (profile[i] - meanValue) * (profile[i] - meanValue);
+		double diff = 0.0;
+        for (int i = 0; i < profile.length; i++) {
+			diff = (profile[i] - meanValue);
+            deviation += diff*diff;
+		}
         if (profile.length > 1)
             deviation /= (profile.length - 1);
         return Math.sqrt(deviation);
