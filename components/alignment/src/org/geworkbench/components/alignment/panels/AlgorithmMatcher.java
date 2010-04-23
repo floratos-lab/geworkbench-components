@@ -179,6 +179,7 @@ public class AlgorithmMatcher {
     private static final String GAPP30_3 = "Existence: 6 Extension: 2";
     private static final String GAPP30_4 = "Existence: 5 Extension: 2";
     private static final String GAPP30_5 = "Existence: 8 Extension: 1";
+    private static final String GAPP30_6 = "Existence: 10 Extension: 1";
     private static final String GAPP70_1 = "Existence: 10 Extension: 1";
     private static final String GAPP70_2 = "Existence: 7 Extension: 2";
     private static final String GAPP70_3 = "Existence: 6 Extension: 2";
@@ -237,8 +238,8 @@ public class AlgorithmMatcher {
     static String[] translateToMatrices(String programName) {
         if (programName.equalsIgnoreCase("blastn")) {
             return new String[] {MATRIX0};
-        } else {
-            return new String[] {MATRIX1, MATRIX2, MATRIX3, MATRIX4, MATRIX5
+        } else {        	
+            return new String[] {MATRIX4,MATRIX5, MATRIX3, MATRIX1, MATRIX2 //zheng
             };
         }
     }
@@ -253,19 +254,19 @@ public class AlgorithmMatcher {
             return new String[] {GAP1, GAP2, GAP3, GAP4, GAP0, GAP5};
 
         } else if (programName.equalsIgnoreCase(MATRIX2)) {
-            return new String[] {GAPB45_1, GAPB45_2, GAPB45_3, GAPB45_4,
-                    GAPB45_5, GAPB45_6, GAPB45_7, GAPB45_8, GAPB45_9, GAPB45_10,
+            return new String[] { GAPB45_2, GAPB45_3, GAPB45_4,
+                    GAPB45_5, GAPB45_1, GAPB45_6, GAPB45_7, GAPB45_8, GAPB45_9, GAPB45_10,
                     GAPB45_11, GAPB45_12
             };
         } else if (programName.equalsIgnoreCase(MATRIX3)) {
-            return new String[] {GAPB80_1, GAPB80_2, GAPB80_3, GAPB80_4,
-                    GAPB80_5, GAPB80_6};
+            return new String[] {GAPB80_2, GAPB80_3, GAPB80_4,
+                    GAPB80_5, GAPB80_1, GAPB80_6};
         } else if (programName.equalsIgnoreCase(MATRIX4)) {
-            return new String[] {GAPP30_1, GAPP30_2, GAPP30_3, GAPP30_4,
-                    GAPP30_5};
+            return new String[] {GAPP30_2, GAPP30_3, GAPP30_4,
+            		GAPP30_6,GAPP30_1, GAPP30_5};
         } else if (programName.equalsIgnoreCase(MATRIX5)) {
-            return new String[] {GAPP70_1, GAPP70_2, GAPP70_3, GAPP70_4,
-                    GAPP70_5, GAPP70_6};
+            return new String[] {GAPP70_4, GAPP70_2, GAPP70_3,  
+            		GAPP70_6, GAPP70_1, GAPP70_5, };
         }
 
         String[] defaultGAPCOSTS = new String[] {GAP1, GAP2, GAP3, GAP4, GAP0, GAP5};
@@ -276,10 +277,10 @@ public class AlgorithmMatcher {
     static Map<String, Integer> defaultGapcostIndex = new HashMap<String, Integer>();
     static {
     	defaultGapcostIndex.put(MATRIX1, 4);
-    	defaultGapcostIndex.put(MATRIX2, 0);
-    	defaultGapcostIndex.put(MATRIX3, 0);
-    	defaultGapcostIndex.put(MATRIX4, 0);
-    	defaultGapcostIndex.put(MATRIX5, 0);
+    	defaultGapcostIndex.put(MATRIX2, 4);
+    	defaultGapcostIndex.put(MATRIX3, 4);
+    	defaultGapcostIndex.put(MATRIX4, 4);
+    	defaultGapcostIndex.put(MATRIX5, 4);
     }
 
     /**
