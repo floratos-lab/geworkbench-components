@@ -208,8 +208,8 @@ public class RemoteBlast {
 				}
 				throw new NcbiResponseException("No status in entire response");
 			} else {
-				LOG.error("Submission returns error status");
-				throw new NcbiResponseException("Submission returns error status");
+				LOG.error("Submission returns error status "+statusCode);
+				throw new NcbiResponseException("Submission returns error status "+statusCode);
 			}
 		} catch (HttpException e) {
 			throw new NcbiResponseException(e.getMessage());
