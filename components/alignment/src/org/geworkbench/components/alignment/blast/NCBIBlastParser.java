@@ -66,7 +66,6 @@ public class NCBIBlastParser {
 		StringTokenizer st;
 		BlastObj each;
 		int index = 0;
-		String subject = "";
 
 		File file = new File(filename);
 		// server failure
@@ -195,7 +194,7 @@ public class NCBIBlastParser {
 						break;
 					}
 
-					String detaillines = "<PRE>" + line;
+					StringBuffer detaillines = new StringBuffer("<PRE>").append(line);
 					line = br.readLine().trim();
 
 					boolean additionalDetail = false;
@@ -207,9 +206,8 @@ public class NCBIBlastParser {
 					// get BlastObj hit for which alignment is for
 					each = hits.get(index);
 					// skip the beginning description
-					subject = "";
 					boolean getStartPoint = true;
-					subject = "";
+					StringBuffer subject = new StringBuffer();
 					int endPoint = 0;
 					while (!(line.trim().startsWith(">"))) {
 
@@ -250,7 +248,7 @@ public class NCBIBlastParser {
 								st.nextToken();
 							}
 							// concat the aligned parts and get rid of "-"
-							subject = subject.concat(st.nextToken().replaceAll(
+							subject = subject.append(st.nextToken().replaceAll(
 									"-", ""));
 
 							endPoint = Integer.valueOf(st.nextToken())
@@ -260,21 +258,21 @@ public class NCBIBlastParser {
 						String s = br.readLine();
 						line = s.trim();
 						if (!line.startsWith(">")) {
-							detaillines += s + NEWLINESIGN;
+							detaillines.append(s).append(NEWLINESIGN);
 						}
 					}
 					each.setEndPoint(endPoint);
 					each.setAlignmentLength(Math.abs(each.getStartPoint()
 							- each.getEndPoint()) + 1);
-					each.setSubject(subject);
+					each.setSubject(subject.toString());
 
-					detaillines += "</PRE>";
+					detaillines.append("</PRE>");
 
 					if (additionalDetail) {
 						String previousDetail = each.getDetailedAlignment();
-						detaillines = previousDetail + detaillines;
+						detaillines =  detaillines.insert(0, previousDetail);
 					}
-					each.setDetailedAlignment(detaillines);
+					each.setDetailedAlignment(detaillines.toString());
 
 					index++;
 					if (endofResult) {
