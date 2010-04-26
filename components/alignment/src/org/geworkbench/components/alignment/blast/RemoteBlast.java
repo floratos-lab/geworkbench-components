@@ -16,8 +16,10 @@ import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -164,14 +166,19 @@ public class RemoteBlast {
 				retryhandler);
 		client.getParams().setCookiePolicy(CookiePolicy.IGNORE_COOKIES);
 
-		String submitURLString = "http://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Put&QUERY="
-				+ query + cmdLine;
-		GetMethod getMethod = new GetMethod(submitURLString);
+		String submitURLString = "http://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Put"
+				+ cmdLine;
+		PostMethod post = new PostMethod(submitURLString);
+		NameValuePair[] data = {
+		          new NameValuePair("QUERY", query)
+		        };
+		post.setRequestBody(data);
+
 		try {
-			int statusCode = client.executeMethod(getMethod);
+			int statusCode = client.executeMethod(post);
 
 			if (statusCode == HttpStatus.SC_OK) {
-				InputStream stream = getMethod.getResponseBodyAsStream();
+				InputStream stream = post.getResponseBodyAsStream();
 				BufferedReader in = new BufferedReader(new InputStreamReader(
 						stream));
 				String line = null;
@@ -216,7 +223,7 @@ public class RemoteBlast {
 		} catch (IOException e) {
 			throw new NcbiResponseException(e.getMessage());
 		} finally {
-			getMethod.releaseConnection();
+			post.releaseConnection();
 		}
 	}
 
