@@ -227,7 +227,8 @@ public class RemoteBlast {
 		}
 	}
 
-	boolean retrieveResult(String resultURLString) {
+	enum Status {READY, WAITING, ERROR}
+	Status retrieveResult(String resultURLString) {
 		HttpClient client = new HttpClient();
 		DefaultHttpMethodRetryHandler retryhandler = new DefaultHttpMethodRetryHandler(
 				10, true);
@@ -265,22 +266,28 @@ public class RemoteBlast {
 					pw.println(NCBIHEADER);
 					pw.println( s );
 					pw.close();
-					return true;
+					return Status.READY;
+				} else if(s.contains("WAITING")) {
+					LOG.debug("... waiting for blast result");
+					return Status.WAITING;
 				} else {
-					LOG.debug("... blast result not ready");
-					return false;
+					PrintWriter pw = new PrintWriter(new File(filename));
+					pw.print(s);
+					pw.close();
+					LOG.debug("... blast response does not have proper status");
+					return Status.ERROR;
 				}
 			} else {
 				LOG.error("retrieve failed for " + resultURLString);
 				LOG.error("status code=" + statusCode);
-				return true;
+				return Status.ERROR;
 			}
 		} catch (HttpException e) {
 			e.printStackTrace();
-			return true;
+			return Status.ERROR;
 		} catch (IOException e) {
 			e.printStackTrace();
-			return true;
+			return Status.ERROR;
 		} finally {
 			getMethod.releaseConnection();
 		}

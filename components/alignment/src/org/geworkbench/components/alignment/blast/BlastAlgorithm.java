@@ -1,6 +1,10 @@
 package org.geworkbench.components.alignment.blast;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Date;
 import java.util.concurrent.ExecutionException;
 
@@ -17,6 +21,7 @@ import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.util.RandomNumberGenerator;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.components.alignment.blast.RemoteBlast.NcbiResponseException;
+import org.geworkbench.components.alignment.blast.RemoteBlast.Status;
 import org.geworkbench.components.alignment.panels.AlgorithmMatcher;
 import org.geworkbench.components.alignment.panels.BlastAppComponent;
 import org.geworkbench.components.alignment.panels.ParameterSetting;
@@ -163,7 +168,8 @@ public class BlastAlgorithm extends SwingWorker<CSAlignmentResultSet, Integer> {
 
 			String resultURLString = "http://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Get&FORMAT_TYPE=HTML&RID="
 					+ BLAST_rid;
-			while(!blast.retrieveResult(resultURLString) && !isCancelled()) {
+			Status status = blast.retrieveResult(resultURLString);
+			while(status==Status.WAITING && !isCancelled()) {
 				updateStatus("For sequence " + sequence
 						+ ",  the blast job is running. ");
 				try {
@@ -171,6 +177,12 @@ public class BlastAlgorithm extends SwingWorker<CSAlignmentResultSet, Integer> {
 				} catch (InterruptedException e) {
 					// do nothing
 				}
+				status = blast.retrieveResult(resultURLString);
+			}
+			if(status!=Status.READY) {
+				String msg = parseError(outputFile);
+				processExceptionFromNcbi(new Exception(msg), sequence);
+				return null;
 			}
 		}
 		if(isCancelled()){
@@ -219,6 +231,35 @@ public class BlastAlgorithm extends SwingWorker<CSAlignmentResultSet, Integer> {
 		return blastResult;
 	}
 	
+	private static String parseError(String outputFile) {
+		BufferedReader br = null;
+		try {
+			br = new BufferedReader(new FileReader(outputFile));
+			String line = br.readLine();
+			while(line!=null) {
+				int index = line.indexOf("Error: ");
+				if(index>=0) {
+					return line.substring(index);
+				}
+				line = br.readLine();
+			}
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return "FileNotFoundException in parsing error";
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return "IOException in parsing error";
+		} finally {
+			try {
+				br.close();
+			} catch (IOException e) {
+			}
+		}
+		return "Other error (not able to be parsed)";
+	}
+
 	@Override
     protected void done() {
 		if(isCancelled())return;
