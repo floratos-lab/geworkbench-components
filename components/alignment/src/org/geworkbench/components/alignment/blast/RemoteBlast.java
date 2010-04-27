@@ -247,6 +247,7 @@ public class RemoteBlast {
 				String line = in.readLine();
 				StringBuilder sb = new StringBuilder(line);
 				while ((line = in.readLine()) != null) {
+					line = updateImageLink(line);
 					sb.append(line).append(System.getProperty("line.separator"));
 				}
 				stream.close();
@@ -260,7 +261,6 @@ public class RemoteBlast {
 									"\\s\\<div id=\"graphic\" class=\"blRes\"\\>(?s).+?\\</center\\>\\<hr\\>\\</div\\>",
 									""); // remove the graphic block
 					
-					s = updateImageLink(s);
 					// true flag for append: useful for now for multiple sequences
 					PrintWriter pw = new PrintWriter(new FileWriter(new File(filename), true)); //"RETRIEVED_"+rid+"_"+System.currentTimeMillis()+".html"));
 					pw.println(NCBIHEADER);
