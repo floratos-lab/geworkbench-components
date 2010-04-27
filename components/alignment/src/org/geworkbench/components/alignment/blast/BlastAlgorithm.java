@@ -239,7 +239,8 @@ public class BlastAlgorithm extends SwingWorker<CSAlignmentResultSet, Integer> {
 			while(line!=null) {
 				int index = line.indexOf("Error: ");
 				if(index>=0) {
-					return line.substring(index);
+					int index2 = line.indexOf("</font>", index);
+					return line.substring(index, index2);
 				}
 				line = br.readLine();
 			}
