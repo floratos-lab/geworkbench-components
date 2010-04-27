@@ -2,7 +2,6 @@ package org.geworkbench.components.discovery.view;
 
 import org.geworkbench.util.patterns.CSMatchedHMMOriginSeqPattern;
 import org.geworkbench.util.patterns.CSMatchedSeqPattern;
-import org.geworkbench.util.patterns.CSMatchedHMMSeqPattern;
 
 /**
  * The visual representation of a Pattern node.
