@@ -1,8 +1,7 @@
 package org.geworkbench.util.associationdiscovery.cluster.hierarchical;
 
-import org.geworkbench.util.patterns.CSMatchedSeqPattern;
-import org.geworkbench.util.patterns.CSMatchedHMMSeqPattern;
 import org.geworkbench.util.patterns.CSMatchedHMMOriginSeqPattern;
+import org.geworkbench.util.patterns.CSMatchedSeqPattern;
 
 /**
  * <p>Title: Bioworks</p>

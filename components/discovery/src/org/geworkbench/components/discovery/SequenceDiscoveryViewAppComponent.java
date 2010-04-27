@@ -1,5 +1,20 @@
 package org.geworkbench.components.discovery;
 
+import java.awt.Component;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.JOptionPane;
+import javax.swing.JTable;
+import javax.swing.JTree;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreePath;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.Collection;
@@ -8,6 +23,7 @@ import org.geworkbench.bison.datastructure.biocollections.DSCollection;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
+import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
@@ -17,7 +33,6 @@ import org.geworkbench.bison.datastructure.complex.pattern.sequence.CSSeqRegistr
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.ProjectSelection;
 import org.geworkbench.components.discovery.view.PatternNode;
-
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Asynchronous;
@@ -27,28 +42,22 @@ import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.HistoryEvent;
 import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.events.SequenceDiscoveryTableEvent;
-import org.geworkbench.events.SessionConnectEvent;
 import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbench.util.PropertiesMonitor;
+import org.geworkbench.util.patterns.CSMatchedSeqPattern;
 import org.geworkbench.util.patterns.SequencePatternUtils;
 import org.geworkbench.util.remote.Connection;
 import org.geworkbench.util.remote.ConnectionCreationException;
 import org.geworkbench.util.remote.GlobusConnection;
 import org.geworkbench.util.remote.SPLASHDefinition;
-import org.geworkbench.util.session.*;
+import org.geworkbench.util.session.DiscoverySession;
+import org.geworkbench.util.session.Logger;
+import org.geworkbench.util.session.LoggerException;
+import org.geworkbench.util.session.LoginPanelModel;
+import org.geworkbench.util.session.SessionCreationException;
 import org.geworkbench.util.session.dialog.SessionChooser;
-import polgara.soapPD_wsdl.Parameters;
 
-import javax.swing.*;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreePath;
-import java.awt.*;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
+import polgara.soapPD_wsdl.Parameters;
 
 /**
  * <p>
@@ -62,14 +71,13 @@ import java.util.ArrayList;
  * SequenceDiscoveryTableEvent.
  * </p>
  * <p>
- * Copyright: Copyright (c) 2003
+ * Copyright (c) 2003
  * </p>
  * <p>
  * Company: Califano Lab
  * </p>
- *
- * @author cal lab
- * @version 1.0
+ * 
+ * @version $Id$
  */
 
 @AcceptTypes( { CSSequenceSet.class, SoapParmsDataSet.class })
@@ -82,24 +90,19 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 
 	// This is the currently selected database in the project.
 	// It is updated every time a file selection occurs in the main project.
-	private DSSequenceSet fullSequenceDB = null;
-	private CSSequenceSet activeSequenceDB = null;
+	private DSSequenceSet<? extends DSSequence> fullSequenceDB = null;
+	private CSSequenceSet<? extends DSSequence> activeSequenceDB = null;
 
-	// Following var will be used to fix bug 660, add selection to the module.
-	protected DSPanel<? extends DSGeneMarker> activatedMarkers = null;
-	private final int ATDATANODEWITHSUBNODE = 1;
+	// Following variables will be used to fix bug 660, add selection to the
+	// module.
+	private DSPanel<? extends DSGeneMarker> activatedMarkers = null;
 	private final int ATDATANODEWITHOUTSUBNODE = 0;
-	private final int ATDATASUBNODE = 2;
 	private final int SEQUENCE = 3;
 	private final int NONSEQUENCE = 4;
 	private int currentStatus = ATDATANODEWITHOUTSUBNODE;
-	private int currentNode = NONSEQUENCE;
 
 	// login data parameters are stored here
 	private LoginPanelModel loginPanelModel = new LoginPanelModel();
-
-	// intermediate values of the loginPanelModel are saved here
-	LoginPanelModel tempLoginModel = new LoginPanelModel();
 
 	public SequenceDiscoveryViewAppComponent() {
 		try {
@@ -107,111 +110,44 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 			sDiscoveryViewWidget.addPropertyChangeListener(this);
 			sDiscoveryViewWidget.setSequenceDiscoveryViewAppComponent(this);
 		} catch (Exception ex) {
-			System.out
-					.println("SequenceDiscoveryViewAppComponent::::::::constructor: "
-							+ ex.toString());
 			ex.printStackTrace();
 		}
 	}
 
-	/**
-	 * This method checks that a database file is set in the project. If the
-	 * file is set it creates a session.
-	 */
-	private DiscoverySession doNewSession() {
-		DiscoverySession discoverySession = null;
-		// check that a database file is selected in the project.
-		if (!isDiscoveryFileSet()) {
-			showInfoMessage("Please select a sequence file.", "Select File");
-			return discoverySession;
-		}
-		discoverySession = createSession();
-		return discoverySession;
-	}
-
-	/**
-	 * This method creates a new session. The session is created with the
-	 * database file returned from getDivcoveryFile.
-	 *
-	 * @return the new session or null if no session was created.
-	 */
-	private DiscoverySession createSession() {
-		// try to create this session
-		DiscoverySession aDiscoverySession = null;
-		// if the chooser is null, the user cancelled the dialog
-		SessionChooser chooser = showChooser();
-		if (chooser == null) {
-			return aDiscoverySession;
-		}
-		String host = chooser.getHostName();
-		int port = chooser.getPortNum();
-		String userName = chooser.getUserName();
-		char[] password = chooser.getPassWord();
-		String sName = chooser.getSession();
-
-		try {
-			aDiscoverySession = connectToService(host, port, userName,
-					password, sName);
-
-		} catch (SessionCreationException exp) {
-			exp.printStackTrace();
-			showInfoMessage("DiscoverySession was not created. "
-					+ exp.getMessage(), "DiscoverySession Error");
-			return aDiscoverySession;
-		}
-
-		// save the user's choosing to the Properties file and to the model
-		saveSessionProperties(host, port, userName);
-		copyLoginPanelModel(tempLoginModel, loginPanelModel);
-
-		return aDiscoverySession;
-	}
-
+	@SuppressWarnings("unchecked")
 	private DiscoverySession connectToService(String host, int port,
 			String userName, char[] password, String sessionName)
 			throws SessionCreationException {
-		URL url = getURL(host, port);
 		// establish a connection
-		Connection connection = getConnection(url);
+		Connection connection = getConnection(host, port);
 		// now try to login
 		Logger logger = getLogger(connection, userName, password);
 
-		return createSession(sessionName, connection, userName, logger
-				.getUserId());
-	}
+		File seqFile = null;
+		/*
+		 * This returns the file on which a discovery will be made on.
+		 */
+		synchronized (this) {
+			if (activeSequenceDB != null && activeSequenceDB.size() > 0) {
+				seqFile = activeSequenceDB.getFile();
+			} else if (fullSequenceDB != null) {
+				seqFile = fullSequenceDB.getFile();
+			} else {
+				return null;
+			}
+		}
 
-	private DiscoverySession createSession(String sessionName, Connection con,
-			String uName, int uId) throws SessionCreationException {
-		File seqFile = getDiscoveryFile();
 		if (seqFile == null) {
 			return null;
 		}
-		DSSequenceSet database = CSSequenceSet.getSequenceDB(seqFile);
+		DSSequenceSet<? extends DSSequence> database = CSSequenceSet
+				.getSequenceDB(seqFile);
 		// the database will be saved with this name on the server.
 		String databaseName = SPLASHDefinition.encodeFile(database.getFile(),
-				uName);
+				userName);
 		// create a session
-		return new DiscoverySession(sessionName, database, databaseName, con,
-				uName, uId);
-	}
-
-	/**
-	 * This is a helper method to build a URL to a server
-	 *
-	 * @param host
-	 *            name of a host
-	 * @param port
-	 *            the port on the host
-	 * @return url
-	 */
-	private URL getURL(String host, int port) throws SessionCreationException {
-		try {
-			return (DiscoverySession.isNormalSession) ? Connection.getURL(host,
-					port) : GlobusConnection.getURL(host, port);
-		} catch (MalformedURLException ex) {
-			throw new SessionCreationException("Could not form URL. (host: "
-					+ host + "port: " + port + ")");
-		}
+		return new DiscoverySession(sessionName, database, databaseName,
+				connection, userName, logger.getUserId());
 	}
 
 	private Logger getLogger(Connection connection, String user, char[] password)
@@ -225,7 +161,17 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 		return logger;
 	}
 
-	private Connection getConnection(URL url) throws SessionCreationException {
+	private Connection getConnection(String host, int port)
+			throws SessionCreationException {
+		URL url = null;
+		try {
+			url = (DiscoverySession.isNormalSession) ? Connection.getURL(host,
+					port) : GlobusConnection.getURL(host, port);
+		} catch (MalformedURLException ex) {
+			throw new SessionCreationException("Could not form URL. (host: "
+					+ host + "port: " + port + ")");
+		}
+
 		try {
 			return new Connection(url);
 		} catch (ConnectionCreationException ex) {
@@ -243,7 +189,8 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 				JOptionPane.INFORMATION_MESSAGE);
 	}
 
-	public void updateDataSetView() {
+	@SuppressWarnings("unchecked")
+	void updateDataSetView() {
 
 		boolean activateMarkers = true;
 		if (currentStatus == NONSEQUENCE) {
@@ -263,37 +210,27 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 			activeSequenceDB = (CSSequenceSet) fullSequenceDB;
 		} else if (activeSequenceDB.size() < fullSequenceDB.size()) {
 			// create a temp folder for new Sequence.
-			String tempFolder = FilePathnameUtils.getTemporaryFilesDirectoryPath();
+			String tempFolder = FilePathnameUtils
+					.getTemporaryFilesDirectoryPath();
 			String tempString = fullSequenceDB.getFile().getName() + "temp-"
 					+ activeSequenceDB.size();
 			File tempFile = new File(tempFolder + tempString);
-			if(SequencePatternUtils.createFile(tempFile, activeSequenceDB)) {
+			if (SequencePatternUtils.createFile(tempFile, activeSequenceDB)) {
 				activeSequenceDB = new CSSequenceSet();
 				activeSequenceDB.readFASTAFile(tempFile);
 				activeSequenceDB.setFASTAFile(tempFile);
 			}
 		}
-//		if (activeSequenceDB != null) {
-//			System.out.println("get updated. " + activeSequenceDB.getID());
-//		} else {
-//			System.out.println("get updated. but activeSequenceDB = "
-//					+ activeSequenceDB);
-//		}
 
 		if (activeSequenceDB instanceof DSSequenceSet) {
- 			Parameters parms = null;
-			File resultFile = null;
-			String subNodeID = null;
-			boolean withSubNode = false;
 			sDiscoveryViewWidget.setSequenceDB(activeSequenceDB);
-
 		}
 
 	}
 
 	/**
 	 * geneSelectorAction
-	 *
+	 * 
 	 * @param e
 	 *            GeneSelectorEvent
 	 */
@@ -311,6 +248,7 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 	/**
 	 * We want to know when the user selects file
 	 */
+	@SuppressWarnings("unchecked")
 	@Subscribe
 	public void receive(ProjectEvent e, Object source) {
 		if (e.getMessage().equalsIgnoreCase("Project Cleared")) {
@@ -332,10 +270,9 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 				if (ds != null && ds instanceof SoapParmsDataSet) {
 					// ParameterTranslation.getParameterTranslation().
 					// getParameters(((SoapParmsDataSet)ds).getParameters());
-					currentNode = ATDATANODEWITHSUBNODE;
-					parms = ParameterTranslation.getParameterTranslation()
-							.getParameters(
-									((SoapParmsDataSet) ds).getParameters());
+					parms = ParameterTranslation
+							.getParameters(((SoapParmsDataSet) ds)
+									.getParameters());
 					;
 					String currentMinSupportTypeName = ((SoapParmsDataSet) ds)
 							.getParameters().getMinSupportType();
@@ -344,8 +281,6 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 					resultFile = ((SoapParmsDataSet) ds).getResultFile();
 					sDiscoveryViewWidget
 							.setMinSupportTypeName(currentMinSupportTypeName);
-				} else {
-					currentNode = ATDATANODEWITHOUTSUBNODE;
 				}
 				if (df.equals(fullSequenceDB)) {
 					sDiscoveryViewWidget.setSequenceDB(activeSequenceDB,
@@ -361,107 +296,63 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 		}
 	}
 
-	@Subscribe
-	public void sessionConnectAction(SessionConnectEvent evt, Object publisher) {
-		// if evt is splash do...
-		System.out.println("session Connect event.....");
-		File seqFile = getDiscoveryFile();
-		if (seqFile == null) {
-			showInfoMessage("Please select a sequence file in the project.",
-					"Splash Reconnect");
-			return;
-		}
-
-		try {
-			URL url = getURL(evt.getHost(), evt.getPort());
-			// establish a connection
-			Connection connection = getConnection(url);
-			// now try to login
-			Logger logger = getLogger(connection, evt.getUserName(), evt
-					.getPassword().toCharArray());
-
-			DSSequenceSet database = CSSequenceSet.getSequenceDB(seqFile);
-			String localDatabase = SPLASHDefinition.encodeFile(database
-					.getFile(), evt.getUserName());
-			DiscoverySession s = new DiscoverySession(evt.getSessionName(),
-					database, localDatabase, connection, logger.getUserName(),
-					logger.getUserId(), evt.getSessionId());
-
-			if (!checkDataFile(s, localDatabase, logger.getUserName())) {
-				return;
-			}
-
-			sDiscoveryViewWidget.viewResult(s);
-		} catch (SessionCreationException exp) {
-			exp.printStackTrace();
-			showInfoMessage("DiscoverySession was not created. "
-					+ exp.getMessage(), "DiscoverySession Error");
-		}
-	}
-
 	/**
-	 * The function varifies that the selected data file in the same as the
-	 * session's data file.
-	 *
-	 * @param s
-	 *            DiscoverySession
-	 * @return boolean
-	 */
-	private boolean checkDataFile(DiscoverySession s, String localDataFile,
-			String user) {
-		try {
-			String remoteDatabase = s.getDataFileName();
-			if (remoteDatabase.equals(localDataFile)) {
-				return true;
-			} else {
-				File f = SPLASHDefinition.decode(remoteDatabase, user);
-				String file = f.getAbsolutePath();
-				showInfoMessage("The selected data file does not match\n"
-						+ file + " which is set for the session.\n"
-						+ "Please select the correct "
-						+ "file before trying to reconnect.",
-						"DiscoverySession Error");
-				return false;
-			}
-
-		} catch (SessionOperationException exp) {
-			showInfoMessage("Error while varifying data. " + exp.getMessage(),
-					"DiscoverySession Error");
-		}
-		return false;
-	}
-
-	/**
-	 * The method returns a session. Note: The method will popup a dialog to
+	 * The method returns a session. Note: The method will pop up a dialog to
 	 * create a session.
-	 *
+	 * 
 	 * @return the active session.
 	 */
-	public synchronized DiscoverySession getSession() {
-		DiscoverySession discoverySession = doNewSession();
-		return discoverySession;
-	}
+	synchronized DiscoverySession getSession() {
+		// check that a database file is selected in the project.
+		if (!isDiscoveryFileSet()) {
+			showInfoMessage("Please select a sequence file.", "Select File");
+			return null;
+		}
 
-	/**
-	 * The method pop the session chooser dialog.
-	 *
-	 * @return the a SessionChooser object if the user entered valid data, else
-	 *         null.
-	 */
-	private SessionChooser showChooser() {
+		/*
+		 * This part creates a new session. The session is created with the
+		 * database file returned from getDivcoveryFile.
+		 */
+		// if the chooser is null, the user cancelled the dialog
+		// intermediate values of the loginPanelModel are saved here
+		LoginPanelModel tempLoginModel = new LoginPanelModel();
 		copyLoginPanelModel(loginPanelModel, tempLoginModel);
 		SessionChooser chooser = new SessionChooser(null,
 				"New DiscoverySession", tempLoginModel);
 		int retVal = chooser.show();
 		if (retVal == SessionChooser.CANCEL_OPTION) {
-			return (null);
+			return null;
 		}
-		return chooser;
+
+		String host = chooser.getHostName();
+		int port = chooser.getPortNum();
+		String userName = chooser.getUserName();
+		char[] password = chooser.getPassWord();
+		String sName = chooser.getSession();
+
+		// try to create this session
+		DiscoverySession aDiscoverySession = null;
+		try {
+			aDiscoverySession = connectToService(host, port, userName,
+					password, sName);
+
+		} catch (SessionCreationException exp) {
+			exp.printStackTrace();
+			showInfoMessage("DiscoverySession was not created. "
+					+ exp.getMessage(), "DiscoverySession Error");
+			return null;
+		}
+
+		// save the user's choosing to the Properties file and to the model
+		saveSessionProperties(host, port, userName);
+		copyLoginPanelModel(tempLoginModel, loginPanelModel);
+
+		return aDiscoverySession;
 	}
 
 	/**
 	 * copy the data from one LoginPanelModel to the other.
-	 *
+	 * 
 	 * @param from
 	 * @param to
 	 */
@@ -473,7 +364,7 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 
 	/**
 	 * This method passes the session properties to the Properties manager.
-	 *
+	 * 
 	 * @param host
 	 *            host name
 	 * @param port
@@ -492,43 +383,31 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 	}
 
 	/**
-	 * This method returns the file on which a discovery will be made on.
-	 *
-	 * @return file for discovery
-	 */
-	public synchronized File getDiscoveryFile() {
-		if (activeSequenceDB != null && activeSequenceDB.size() > 0) {
-			return activeSequenceDB.getFile();
-		} else {
-			if (fullSequenceDB != null) {
-				return fullSequenceDB.getFile();
-			}
-		}
-		return null;
-	}
-
-	/**
 	 * This method returns a true if a discovery file is selected.
-	 *
+	 * 
 	 * @return true if and only if a file is selected in the project pannel.
 	 */
-	public boolean isDiscoveryFileSet() {
+	private boolean isDiscoveryFileSet() {
 		return (fullSequenceDB != null);
 	}
 
 	/**
 	 * This method is used to fire events from the SequenceDiscoveryViewWidget
-	 *
+	 * 
 	 * @param evt
 	 *            property event
 	 */
+	@SuppressWarnings("unchecked")
 	public void propertyChange(PropertyChangeEvent evt) {
 		String property = evt.getPropertyName();
 		if (property.equalsIgnoreCase(SequenceDiscoveryViewWidget.PARAMETERS)
 				|| property
 						.equalsIgnoreCase(SequenceDiscoveryViewWidget.PATTERN_DB)) {
-			DSAncillaryDataSet data = (DSAncillaryDataSet) evt.getNewValue();
-			projectNodeEvent(data);
+			DSAncillaryDataSet<? extends DSBioObject> dataset = (DSAncillaryDataSet<? extends DSBioObject>) evt
+					.getNewValue();
+			org.geworkbench.events.ProjectNodeAddedEvent event = new org.geworkbench.events.ProjectNodeAddedEvent(
+					"message", null, dataset);
+			publishProjectNodeAddedEvent(event);
 		} else if (property
 				.equalsIgnoreCase(SequenceDiscoveryViewWidget.TABLE_EVENT)) {
 			notifyTableEvent(evt);
@@ -544,54 +423,28 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 		return event;
 	}
 
-	private void projectNodeEvent(DSAncillaryDataSet set) {
-		org.geworkbench.events.ProjectNodeAddedEvent event = new org.geworkbench.events.ProjectNodeAddedEvent(
-				"message", null, set);
-		publishProjectNodeAddedEvent(event);
-	}
-
-	public SequenceDiscoveryViewWidget getSequenceDiscoveryViewWidget() {
-		return sDiscoveryViewWidget;
-	}
-
-	public void setSequenceDiscoveryViewWidget(SequenceDiscoveryViewWidget s) {
-		sDiscoveryViewWidget = s;
-	}
-
 	private void notifyTableEvent(PropertyChangeEvent evt) {
 		if (!isDiscoveryFileSet()) {
 			return;
 		}
 
 		JTable table = (JTable) evt.getNewValue();
-		/*
-		 * Pattern[] patterns = null; if (table != null) { PatternTableModel
-		 * model = (PatternTableModel) (table).getModel(); int[] rows =
-		 * table.getSelectedRows(); patterns = new Pattern[rows.length]; for
-		 * (int i = 0; i < rows.length; i++) { patterns[i] =
-		 * model.getPattern(rows[i]); } } else { patterns = new Pattern[0]; }
-		 */
 		DSCollection<DSMatchedPattern<DSSequence, CSSeqRegistration>> patternMatches = new Collection<DSMatchedPattern<DSSequence, CSSeqRegistration>>();
 		if (table != null) {
 			org.geworkbench.util.patterns.PatternTableModel model = (org.geworkbench.util.patterns.PatternTableModel) (table)
 					.getModel();
 			int[] rows = table.getSelectedRows();
 			for (int i = 0; i < rows.length; i++) {
-				DSMatchedPattern pattern = model.getPattern(rows[i]);
-				// if (pattern instanceof CSMatchedSeqPattern) {
-				// ((CSMatchedSeqPattern) pattern).setSeqDB(sequenceDB);
-				// }
+				DSMatchedPattern<DSSequence, CSSeqRegistration> pattern = model
+						.getPattern(rows[i]);
 				patternMatches.add(pattern);
 			}
 		}
 
-		// SequenceDiscoveryTableEvent e = new SequenceDiscoveryTableEvent(this,
-		// patterns);
-		// e.setSequenceDB(sequenceDB);
 		SequenceDiscoveryTableEvent e = new SequenceDiscoveryTableEvent(
 				patternMatches);
 		publishSequenceDiscoveryTableEvent(e);
-	} // end notify
+	} // end notify table event
 
 	@Publish
 	public SequenceDiscoveryTableEvent publishSequenceDiscoveryTableEvent(
@@ -606,7 +459,7 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 		JTree tree = (JTree) evt.getNewValue();
 		TreePath[] paths = tree.getSelectionPaths();
 		if (paths != null) {
-			ArrayList patternList = new ArrayList();
+			List<CSMatchedSeqPattern> patternList = new ArrayList<CSMatchedSeqPattern>();
 			for (int i = 0; i < paths.length; i++) {
 				Object lastPathComponent = paths[i].getLastPathComponent();
 				if (lastPathComponent instanceof DefaultMutableTreeNode) {
@@ -628,11 +481,12 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 						patternMatches);
 				publishSequenceDiscoveryTableEvent(e);
 			}
-		} // end notify
-	}
+		}
+	} // end notify tree event
 
 	/**
 	 * This method is used to trigger HistoryPanel to refresh.
+	 * 
 	 * @param event
 	 * @return
 	 */

@@ -1,5 +1,13 @@
 package org.geworkbench.util.session;
 
+import java.rmi.RemoteException;
+import java.util.ArrayList;
+
+import javax.xml.rpc.holders.ByteArrayHolder;
+import javax.xml.rpc.holders.DoubleHolder;
+import javax.xml.rpc.holders.IntHolder;
+import javax.xml.rpc.holders.StringHolder;
+
 import org.apache.axis.types.UnsignedInt;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
@@ -7,17 +15,19 @@ import org.geworkbench.util.associationdiscovery.cluster.hierarchical.PatternDis
 import org.geworkbench.util.patterns.CSMatchedHMMOriginSeqPattern;
 import org.geworkbench.util.patterns.CSMatchedSeqPattern;
 import org.geworkbench.util.patterns.PatternOfflet;
-import org.geworkbench.util.patterns.CSMatchedHMMSeqPattern;
 import org.geworkbench.util.remote.Connection;
-import polgara.soapPD_wsdl.*;
-import polgara.soapPD_wsdl.holders.*;
 
-import javax.xml.rpc.holders.ByteArrayHolder;
-import javax.xml.rpc.holders.DoubleHolder;
-import javax.xml.rpc.holders.IntHolder;
-import javax.xml.rpc.holders.StringHolder;
-import java.rmi.RemoteException;
-import java.util.ArrayList;
+import polgara.soapPD_wsdl.HMMLoci;
+import polgara.soapPD_wsdl.LoginToken;
+import polgara.soapPD_wsdl.Parameters;
+import polgara.soapPD_wsdl.SOAPOffset;
+import polgara.soapPD_wsdl.SoapPDPortType;
+import polgara.soapPD_wsdl.holders.ArrayOfSOAPOffsetHolder;
+import polgara.soapPD_wsdl.holders.ExhaustiveHolder;
+import polgara.soapPD_wsdl.holders.HMMPatternHolder;
+import polgara.soapPD_wsdl.holders.HierarchicalHolder;
+import polgara.soapPD_wsdl.holders.ProfileHMMHolder;
+import polgara.soapPD_wsdl.holders.SOAPPatternHolder;
 
 
 /**
