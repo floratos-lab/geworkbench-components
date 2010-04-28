@@ -5,7 +5,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
@@ -20,7 +19,6 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -49,7 +47,6 @@ import org.geworkbench.components.discovery.view.PatternTreeView;
 import org.geworkbench.events.HistoryEvent;
 import org.geworkbench.events.ProgressBarEvent;
 import org.geworkbench.events.ProgressChangeEvent;
-import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.events.StatusBarEvent;
 import org.geworkbench.events.listeners.ProgressChangeListener;
 import org.geworkbench.events.listeners.StatusChangeListener;
@@ -138,7 +135,6 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 	private ParameterPanel parameterPanel = new ParameterPanel();
 
 	private ParametersHandler parmsHandler = new ParametersHandler();
-	private JCheckBox useglobus = new JCheckBox("use globus");
 	private String currentNodeID = "";
 
 	JButton executeButton = new JButton();
@@ -249,16 +245,6 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		panelView.add(currentViewComponent, BorderLayout.WEST);
 		sequenceViewPanel.add(parameterPanel, BorderLayout.SOUTH);
 		sequenceViewPanel.add(algoPanel, java.awt.BorderLayout.NORTH);
-
-		useglobus.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if (useglobus.isSelected()) {
-					DiscoverySession.isNormalSession = false;
-				} else {
-					DiscoverySession.isNormalSession = true;
-				}
-			}
-		});
 
 		this.add(sequenceViewPanel);
 		jToolBar1.add(executeButton);
@@ -503,11 +489,8 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 	 */
 	private boolean registerSession(String stubId, DiscoverySession s) {
 		if ((s != null) && (stubId != null)) {
-			if (DiscoverySession.isNormalSession) {
 				sessionManager.put(stubId, s);
-			} else {
-				globusManager.put(stubId, s);
-			}
+
 			return true;
 		}
 		System.err.println("Warning: registerSession failed" + "[subId="

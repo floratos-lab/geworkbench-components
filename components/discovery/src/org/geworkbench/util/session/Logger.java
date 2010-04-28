@@ -30,7 +30,6 @@ public class Logger {
     private GlobusLogger globusLogger;
 
     public Logger(Connection connection, String userName, char[] password) throws LoggerException {
-        if (DiscoverySession.isNormalSession) {
             this.port = connection.getPort();
 
             try {
@@ -39,9 +38,6 @@ public class Logger {
                 exp.printStackTrace();
                  throw new LoggerException("Could not connect to the server.");
             }
-        } else {
-            globusLogger = new GlobusLogger(connection.getInnerConnection(), userName, password);
-        }
     }
 
     /**
@@ -66,14 +62,10 @@ public class Logger {
     }
 
     public char[] getPassword() {
-        if (DiscoverySession.isNormalSession) {
             char[] retPassword = new char[password.length];
             System.arraycopy(password, 0, retPassword, 0, password.length);
 
             return retPassword;
-        } else {
-            return globusLogger.getPassword();
-        }
     }
 
     /**
@@ -82,7 +74,7 @@ public class Logger {
      * @return userId
      */
     public int getUserId() {
-        return (DiscoverySession.isNormalSession) ? userId : globusLogger.getUserId();
+        return userId;
     }
 
     /**
@@ -91,7 +83,7 @@ public class Logger {
      * @return user name
      */
     public String getUserName() {
-        return (DiscoverySession.isNormalSession) ? userName : globusLogger.getUserName();
+        return userName;
     }
 
     /**
@@ -101,14 +93,10 @@ public class Logger {
      * @throws RemoteException
      */
     public void logout() throws LoggerException {
-        if (DiscoverySession.isNormalSession) {
             try {
                 port.logout(userId);
             } catch (RemoteException e) {
                 throw new LoggerException("Could not reach the server to logout");
             }
-        } else {
-            globusLogger.logout();
-        }
     }
 }

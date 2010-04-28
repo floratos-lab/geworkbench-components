@@ -43,9 +43,6 @@ import polgara.soapPD_wsdl.holders.SOAPPatternHolder;
  * @version 1.0
  */
 public class DiscoverySession {
-    // indicate if this is a normal SPLASH session(true) or globus(false)
-    public static boolean isNormalSession = true;
-
     //user id and session id as known on the host
     private LoginToken logToken = new LoginToken();
 
@@ -92,7 +89,6 @@ public class DiscoverySession {
         /** @todo   fix this  type matching!  ... (dna=0 protein=1 on server)*/
         sType = (database.isDNA()) ? 0 : 1;
 
-        if (DiscoverySession.isNormalSession) {
             try {
                 init(sessionName, database, databaseName, connection, userName);
 
@@ -104,9 +100,6 @@ public class DiscoverySession {
             } catch (RemoteException exp) {
                 throw new SessionCreationException("Could not reach the server.");
             }
-        } else {
-            globSession = new GlobusSession(sessionName, database, databaseName, connection.getInnerConnection(), userName, userId);
-        }
     }
 
     /**
@@ -124,12 +117,8 @@ public class DiscoverySession {
     public DiscoverySession(String sessionName, DSSequenceSet database, String databaseName, Connection connection, String userName, int userId, int sessionId) {
         sType = (database.isDNA()) ? 0 : 1;
 
-        if (DiscoverySession.isNormalSession) {
             init(sessionName, database, databaseName, connection, userName);
             setLogToken(userId, sessionId);
-        } else {
-            globSession = new GlobusSession(sessionName, database, databaseName, connection.getInnerConnection(), userName, userId, sessionId);
-        }
     }
 
     private void setLogToken(int userId, int sessionId) {
@@ -158,7 +147,6 @@ public class DiscoverySession {
      * @throws SessionOperationException if upload fails.
      */
     public void upload(int index) throws SessionOperationException {
-        if (DiscoverySession.isNormalSession) {
             if ((index < 0) || (index >= database.getSequenceNo())) {
                 throw new IndexOutOfBoundsException("0<= idexRange <" + database.getSequenceNo() + " ; index = " + index);
             }
@@ -171,9 +159,6 @@ public class DiscoverySession {
                 setState(true);
                 throw new SessionOperationException("Could not load Sequences.");
             }
-        } else {
-            globSession.upload(index);
-        }
     }
 
     /**
@@ -185,7 +170,6 @@ public class DiscoverySession {
      * @throws SessionOperationException
      */
     public boolean loadSequenceRemote() throws SessionOperationException {
-        if (DiscoverySession.isNormalSession) {
             int retValue;
 
             try {
@@ -196,9 +180,6 @@ public class DiscoverySession {
             }
 
             return ((retValue == 0) ? true : false);
-        } else {
-            return globSession.loadSequenceRemote();
-        }
     }
 
     /**
@@ -209,7 +190,6 @@ public class DiscoverySession {
      * @throws SessionOperationException if a call to the server failed.
      */
     public void uploadAndSave() throws SessionOperationException {
-        if (DiscoverySession.isNormalSession) {
             boolean status = loadSequenceRemote();
 
             if (status == true) {
@@ -226,9 +206,6 @@ public class DiscoverySession {
             }
 
             saveSeqDB();
-        } else {
-            globSession.uploadAndSave();
-        }
     }
 
     /**
@@ -249,11 +226,7 @@ public class DiscoverySession {
      * @return the sequence database
      */
     public synchronized DSSequenceSet getSequenceDB() {
-        if (DiscoverySession.isNormalSession) {
             return database;
-        }
-
-        return globSession.getSequenceDB();
     }
 
     /**
@@ -262,7 +235,6 @@ public class DiscoverySession {
      * @throws SessionOperationException if the parameters cant be set.
      */
     public int setParameters(Parameters parms) throws SessionOperationException {
-        if (DiscoverySession.isNormalSession) {
             int returnVal;
             try {
                 returnVal = soapPort.setParameters(logToken, parms);
@@ -274,9 +246,6 @@ public class DiscoverySession {
             parameter = parms;
 
             return returnVal;
-        } else {
-            return globSession.setParameters(parms);
-        }
     }
 
     /**
@@ -285,7 +254,7 @@ public class DiscoverySession {
      * @return parameters;
      */
     public Parameters getParameter() {
-        return (DiscoverySession.isNormalSession) ? parameter : globSession.getParameter();
+        return parameter;
     }
 
     /**
@@ -294,20 +263,15 @@ public class DiscoverySession {
      * @throws SessionOperationException
      */
     public int getPatternNo() throws SessionOperationException {
-        if (DiscoverySession.isNormalSession) {
             try {
                 return soapPort.getPatternNo(logToken);
             } catch (RemoteException ex) {
                 setState(true);
                 throw new SessionOperationException("Could not get total pattern number.");
             }
-        } else {
-            return globSession.getPatternNo();
-        }
     }
 
     public Parameters getParameters() throws SessionOperationException {
-        if (DiscoverySession.isNormalSession) {
             try {
                 IntHolder minSupport = new IntHolder(); //1
                 IntHolder minTokens = new IntHolder();
@@ -373,9 +337,6 @@ public class DiscoverySession {
                 setState(true);
                 throw new SessionOperationException("Could not get Parameters.");
             }
-        } else {
-            return globSession.getParameters();
-        }
     }
 
     /**
@@ -394,46 +355,33 @@ public class DiscoverySession {
      * @throws SessionOperationException if a a call to the server failed.
      */
     public boolean isDone() throws SessionOperationException {
-        if (DiscoverySession.isNormalSession) {
             try {
                 return soapPort.isDone(logToken);
             } catch (Exception ex) {
                 setState(true);
                 throw new SessionOperationException("Could not determine session status.");
             }
-        } else {
-            return globSession.isDone();
-        }
     }
 
     public String getDataFileName() throws SessionOperationException {
-        if (DiscoverySession.isNormalSession) {
             try {
                 return soapPort.getDataFileName(logToken);
             } catch (RemoteException ex) {
                 setState(true);
                 throw new SessionOperationException("Could not determine session status.");
             }
-        } else {
-            return globSession.getDataFileName();
-        }
     }
 
     /**
      * Save the database on the server.
      */
     public int saveSeqDB() throws SessionOperationException {
-        if (DiscoverySession.isNormalSession) {
             try {
                 return soapPort.saveSeqDB(logToken, databaseName);
             } catch (java.rmi.RemoteException exp) {
                 setState(true);
                 throw new SessionOperationException("Could not save the sequences.");
             }
-        } else {
-            return globSession.saveSeqDB();
-        }
-        // return 0;
     }
 
     /**
@@ -453,7 +401,6 @@ public class DiscoverySession {
      * @throws SessionOperationException if the discovery can't run.
      */
     public int discover(String algorithm) throws SessionOperationException {
-        if (DiscoverySession.isNormalSession) {
             try {
                 return soapPort.discover(logToken, algorithm);
             } catch (RemoteException ex) {
@@ -462,29 +409,21 @@ public class DiscoverySession {
                 String msg = ex.getMessage();
                 throw new SessionOperationException("Unable to run discovery. " + msg);
             }
-        } else {
-            return globSession.discover(algorithm);
-        }
     }
 
     /**
      * Delete this session on the server.
      */
     public int deleteSession() throws SessionOperationException {
-        if (DiscoverySession.isNormalSession) {
             try {
                 return soapPort.deleteSession(logToken);
             } catch (RemoteException exp) {
                 setState(true);
                 throw new SessionOperationException("DiscoverySession was not deleted. Server was not reached.");
             }
-        } else {
-            return globSession.deleteSession();
-        }
     }
 
     public void getPattern(int patId, org.geworkbench.util.patterns.CSMatchedSeqPattern pattern) throws SessionOperationException {
-        if (DiscoverySession.isNormalSession) {
             DoubleHolder pValue = new DoubleHolder();
             ByteArrayHolder loci = new ByteArrayHolder();
 
@@ -508,9 +447,6 @@ public class DiscoverySession {
                 setState(true);
                 throw new SessionOperationException("Could not get the pattern.");
             }
-        } else {
-            globSession.getPattern(patId, pattern);
-        }
     }
 
     public  boolean translateToNewPattern(CSMatchedSeqPattern csMatchedSeqPattern, ArrayOfSOAPOffsetHolder arrayOfSOAPOffsetHolder){
@@ -531,16 +467,12 @@ public class DiscoverySession {
      *
     */
     public int sortPatterns(int sortMode) throws SessionOperationException {
-        if (DiscoverySession.isNormalSession) {
             try {
                 return soapPort.sortPatterns(logToken, sortMode);
             } catch (Exception ex) {
                 setState(true);
                 throw new SessionOperationException("Could not sort the patterns.");
             }
-        } else {
-            return globSession.sortPatterns(sortMode);
-        }
     }
 
     /**
@@ -549,20 +481,15 @@ public class DiscoverySession {
      * @throws SessionOperationException
      */
     public double getCompletion() throws SessionOperationException {
-        if (DiscoverySession.isNormalSession) {
             try {
                 return soapPort.getCompletion(logToken);
             } catch (RemoteException ex) {
                 setState(true);
                 throw new SessionOperationException("Could not get completion status.");
             }
-        } else {
-            return globSession.getCompletion();
-        }
     }
 
     public void stop() throws SessionOperationException {
-        if (DiscoverySession.isNormalSession) {
             try {
                 soapPort.stop(logToken);
             } catch (RemoteException ex) {
@@ -570,9 +497,6 @@ public class DiscoverySession {
                 System.out.println("ex: " + ex.getMessage());
                 throw new SessionOperationException("Could not stop the algorithm.");
             }
-        } else {
-            globSession.stop();
-        }
     }
 
     /**
@@ -581,16 +505,12 @@ public class DiscoverySession {
      * @throws SessionOperationException
      */
     public int maskPattern(int patId, int complete) throws SessionOperationException {
-        if (DiscoverySession.isNormalSession) {
             try {
                 return soapPort.maskPattern(logToken, patId, complete);
             } catch (RemoteException ex) {
                 setState(true);
                 throw new SessionOperationException("Could not mask the pattern.");
             }
-        } else {
-            return globSession.maskPattern(patId, complete);
-        }
     }
 
     /**
@@ -599,29 +519,21 @@ public class DiscoverySession {
      * @throws SessionOperationException
      */
     public void unmask() throws SessionOperationException {
-        if (DiscoverySession.isNormalSession) {
             try {
                 soapPort.unmask(logToken);
             } catch (RemoteException ex) {
                 setState(true);
                 throw new SessionOperationException("Could not mask all sequences.");
             }
-        } else {
-            globSession.unmask();
-        }
     }
 
     public String getAlgorithmName() throws SessionOperationException {
-        if (DiscoverySession.isNormalSession) {
             try {
                 return soapPort.getAlgorithmName(logToken);
             } catch (RemoteException ex) {
                 setState(true);
                 throw new SessionOperationException("Could not get Algorithm Name.");
             }
-        } else {
-            return globSession.getAlgorithmName();
-        }
     }
 
     /**
@@ -633,7 +545,6 @@ public class DiscoverySession {
      * @throws SessionOperationException
      */
     public PatternDiscoveryHierachicalNode getPatternNode(String path) throws SessionOperationException {
-        if (DiscoverySession.isNormalSession) {
             try {
 
                 SOAPPatternHolder patHolder = new SOAPPatternHolder();
@@ -681,9 +592,6 @@ public class DiscoverySession {
                 setState(true);
                 throw new SessionOperationException("RemoteException in fetching node.");
             }
-        } else {
-            return globSession.getPatternNode(path);
-        }
     }
 
     /**
@@ -697,7 +605,6 @@ public class DiscoverySession {
      * @throws SessionOperationException
      */
     public int maskPatternLocus(byte[] locus, int from, int to, int mask) throws SessionOperationException {
-        if (DiscoverySession.isNormalSession) {
             try {
                 return soapPort.maskPatternLocus(logToken, locus, from, to, mask);
             } catch (RemoteException ex) {
@@ -705,9 +612,6 @@ public class DiscoverySession {
                 ex.printStackTrace();
                 throw new SessionOperationException("Could not mask the pattern Locus.");
             }
-        } else {
-            return globSession.maskPatternLocus(locus, from, to, mask);
-        }
     }
 
     /**
@@ -716,16 +620,12 @@ public class DiscoverySession {
      * @throws SessionOperationException
      */
     public int setStatus(int[] ids, int enable) throws SessionOperationException {
-        if (DiscoverySession.isNormalSession) {
             try {
                 return soapPort.setStatus(logToken, ids, enable);
             } catch (RemoteException ex) {
                 setState(true);
                 throw new SessionOperationException("Could set the status.");
             }
-        } else {
-            return globSession.setStatus(ids, enable);
-        }
     }
 
     /**
@@ -734,7 +634,7 @@ public class DiscoverySession {
      * @return this session name
      */
     public String getSessionName() {
-        return (DiscoverySession.isNormalSession) ? sessionName : globSession.getSessionName();
+        return sessionName;
     }
 
     /**
@@ -744,7 +644,7 @@ public class DiscoverySession {
      * .
      */
     public int getSequenceNo() {
-        return (DiscoverySession.isNormalSession) ? database.getSequenceNo() : globSession.getSequenceNo();
+        return database.getSequenceNo();
     }
 
     /**
@@ -753,7 +653,7 @@ public class DiscoverySession {
      * @return true if a session failed else false
      */
     public boolean isFailed() {
-        return (DiscoverySession.isNormalSession) ? this.failed : globSession.isFailed();
+        return this.failed;
     }
 
     private void setState(boolean fail) {
@@ -770,10 +670,10 @@ public class DiscoverySession {
     }
 
     public String getUserName() {
-        return (DiscoverySession.isNormalSession) ? userName : globSession.getUserName();
+        return userName;
     }
 
     public int getUserId() {
-        return (DiscoverySession.isNormalSession) ? logToken.getUserId().intValue() : globSession.getUserId();
+        return logToken.getUserId().intValue();
     }
 }
