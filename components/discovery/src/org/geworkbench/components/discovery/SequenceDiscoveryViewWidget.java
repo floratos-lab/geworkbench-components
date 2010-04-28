@@ -333,10 +333,6 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 				.equalsIgnoreCase(AlgorithmSelectionPanel.EXHAUSTIVE)) {
 			algorithm = exhaustive_actionPerformed(discoverySession);
 			viewId = PATTERN_TABLE;
-		} else if (selectedAlgo
-				.equalsIgnoreCase(AlgorithmSelectionPanel.HIERARCHICAL)) {
-			algorithm = hierarc_actionPerformed(discoverySession);
-			viewId = PATTERN_TREE;
 		} else {
 			System.err.print("No Algorithm found...");
 			return;
@@ -438,11 +434,6 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 			torun = new ExhaustiveDiscovery(discoverySession);
 			algoPanelName = AlgorithmSelectionPanel.EXHAUSTIVE;
 			id = PATTERN_TABLE;
-		} else if (algoServerName
-				.equalsIgnoreCase(SPLASHDefinition.Algorithm.HIERARCHICAL)) {
-			torun = new HierarchicalDiscovery(discoverySession);
-			algoPanelName = AlgorithmSelectionPanel.HIERARCHICAL;
-			id = PATTERN_TREE;
 		} else {
 			return;
 		}
@@ -891,13 +882,6 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 			loader = new RegularDiscoveryFileLoader(sequenceFile, patternfile);
 			id = PATTERN_TABLE;
 			algoPanelName = AlgorithmSelectionPanel.DISCOVER;
-		} else if (type != null
-				&& type.equalsIgnoreCase(AlgorithmSelectionPanel.HIERARCHICAL)) {
-			loader = new HierarchicalDiscoveryFileLoader(sequenceFile,
-					patternfile);
-			id = PATTERN_TREE;
-			algoPanelName = AlgorithmSelectionPanel.HIERARCHICAL;
-
 		} else {
 			System.err.println("Loading failed. Did not recognize the data.");
 			return;
@@ -960,13 +944,6 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 			loader = new RegularDiscoveryFileLoader(sequenceFile, patternfile);
 			id = PATTERN_TABLE;
 			algoPanelName = AlgorithmSelectionPanel.DISCOVER;
-		} else if (type != null
-				&& type.equalsIgnoreCase(AlgorithmSelectionPanel.HIERARCHICAL)) {
-			loader = new HierarchicalDiscoveryFileLoader(sequenceFile,
-					patternfile);
-			id = PATTERN_TREE;
-			algoPanelName = AlgorithmSelectionPanel.HIERARCHICAL;
-
 		} else {
 			System.err.println("Loading failed. Did not recognize the data.");
 			return;
