@@ -92,7 +92,7 @@ public class PatternTreeView extends JPanel implements TreeModelListener {
                 BufferedWriter writer = new BufferedWriter(new FileWriter(chooser.getSelectedFile().getAbsoluteFile()));
 
                 DefaultMutableTreeNode node = (DefaultMutableTreeNode) patternTree.getModel().getRoot();
-                writer.write(AlgorithmSelectionPanel.HIERARCHICAL + "\n");
+                writer.write("hierarchical\n");
                 String all = this.widget.getSequenceDB().getFile().getName() + "\n";
                 writer.write(all);
 
