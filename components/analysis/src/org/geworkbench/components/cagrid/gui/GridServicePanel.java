@@ -3,6 +3,7 @@ package org.geworkbench.components.cagrid.gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.util.Collection;
@@ -160,6 +161,7 @@ public class GridServicePanel extends JPanel {
 				urlServiceBuilder.getPanel(),
 				ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
 				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		urlServiceBuilderScrollPane.setMinimumSize(new Dimension(300, 50));
 
 		/* part C */
 		final IndexServiceSelectionButtonListener indexServiceSelectionButtonListener = new IndexServiceSelectionButtonListener();
