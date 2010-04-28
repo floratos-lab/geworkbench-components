@@ -19,11 +19,10 @@ import polgara.soapPD_wsdl.SoapPDPortType;
  * <p>Company: </p>
  *
  * @author Aner
- * @version 1.0
+ * @version $Id$
  */
 public class Connection {
     private SoapPDPortType port;
-    private GlobusConnection innerConnection;
 
     public Connection(URL serverURL) throws ConnectionCreationException {
         try {
@@ -51,14 +50,6 @@ public class Connection {
      */
     public SoapPDPortType getPort() {
         return port;
-    }
-
-    public globus.soapPD_wsdl.SoapPDPortType getInnerPort() {
-        return innerConnection.getPort();
-    }
-
-    public GlobusConnection getInnerConnection() {
-        return innerConnection;
     }
 
     /**

@@ -8,13 +8,13 @@ import java.rmi.RemoteException;
 
 /**
  * <p>Title: Sequence and Pattern Plugin</p>
- * <p>Description: This class is resposible for login/logout from a server.
+ * <p>Description: This class is responsible for login/logout from a server.
  * Currently this is a class but may be extended to an interface in future.</p>
  * <p>Copyright: Copyright (c) 2003</p>
  * <p>Company: </p>
  *
  * @author not attributable
- * @version 1.0
+ * @version $Id$
  */
 public class Logger {
     private SoapPDPortType port;
@@ -27,7 +27,6 @@ public class Logger {
 
     //user password
     private char[] password;
-    private GlobusLogger globusLogger;
 
     public Logger(Connection connection, String userName, char[] password) throws LoggerException {
             this.port = connection.getPort();
