@@ -11,23 +11,18 @@ import javax.xml.rpc.holders.StringHolder;
 import org.apache.axis.types.UnsignedInt;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
-import org.geworkbench.util.associationdiscovery.cluster.hierarchical.PatternDiscoveryHierachicalNode;
-import org.geworkbench.util.patterns.CSMatchedHMMOriginSeqPattern;
 import org.geworkbench.util.patterns.CSMatchedSeqPattern;
 import org.geworkbench.util.patterns.PatternOfflet;
 import org.geworkbench.util.remote.Connection;
 
-import polgara.soapPD_wsdl.HMMLoci;
 import polgara.soapPD_wsdl.LoginToken;
 import polgara.soapPD_wsdl.Parameters;
 import polgara.soapPD_wsdl.SOAPOffset;
 import polgara.soapPD_wsdl.SoapPDPortType;
 import polgara.soapPD_wsdl.holders.ArrayOfSOAPOffsetHolder;
 import polgara.soapPD_wsdl.holders.ExhaustiveHolder;
-import polgara.soapPD_wsdl.holders.HMMPatternHolder;
 import polgara.soapPD_wsdl.holders.HierarchicalHolder;
 import polgara.soapPD_wsdl.holders.ProfileHMMHolder;
-import polgara.soapPD_wsdl.holders.SOAPPatternHolder;
 
 
 /**
@@ -532,64 +527,6 @@ public class DiscoverySession {
             } catch (RemoteException ex) {
                 setState(true);
                 throw new SessionOperationException("Could not get Algorithm Name.");
-            }
-    }
-
-    /**
-     * Return a Node structure based on a path
-     *
-     *
-     * @param path
-     * @return
-     * @throws SessionOperationException
-     */
-    public PatternDiscoveryHierachicalNode getPatternNode(String path) throws SessionOperationException {
-            try {
-
-                SOAPPatternHolder patHolder = new SOAPPatternHolder();
-                IntHolder patIncluded = new IntHolder();
-                IntHolder patExcluded = new IntHolder();
-                IntHolder hPatIncluded = new IntHolder();
-                IntHolder hPatExcluded = new IntHolder();
-                HMMPatternHolder hmmPat = new HMMPatternHolder();
-                //  System.out.println(path + " path = " + patHolder + logToken);
-                // soapPort.getPatternNode(logToken, path, 0, patHolder,
-                //   patIncluded, patExcluded);
-                soapPort.getPatternNode(logToken, path, 0, patHolder, hmmPat, hPatIncluded, hPatExcluded, patIncluded, patExcluded);
-
-                //check if the pattern was found
-                if ((patIncluded.value == 0) && (patExcluded.value == 0)) {
-                    //not found...
-                    return null;
-                }
-
-                org.geworkbench.util.patterns.CSMatchedSeqPattern pattern = new CSMatchedSeqPattern(database);
-                //System.out.println(patHolder + " patholder, value =" + patHolder.value);
-
-                pattern.idNo = new IntHolder(patHolder.value.getIdNo());
-                pattern.seqNo = new IntHolder(patHolder.value.getSeqNo());
-                pattern.setPValue(patHolder.value.getPValue());
-                pattern.locus = patHolder.value.getLoci();
-                translateToNewPattern(pattern, new ArrayOfSOAPOffsetHolder(patHolder.value.getOffset()));
-
-                PatternDiscoveryHierachicalNode node = new PatternDiscoveryHierachicalNode(pattern);
-                node.patIncluded = patIncluded.value;
-                node.patExcluded = patExcluded.value;
-
-                String conSeq = hmmPat.value.getConsensusSeq();
-
-                HMMLoci[] hmmArr = hmmPat.value.getLoci().getItem();
-               //todo
-                //disabled by xz, 01/25/07
-                 node.hmmPattern = new CSMatchedHMMOriginSeqPattern(database, conSeq, hmmArr);
-                 //node.hmmPatternOrigin = new CSMatchedHMMOriginSeqPattern();
-                node.hPatIncluded = hPatIncluded.value;
-                node.hPatExcluded = hPatExcluded.value;
-
-                return node;
-            } catch (RemoteException ex) {
-                setState(true);
-                throw new SessionOperationException("RemoteException in fetching node.");
             }
     }
 
