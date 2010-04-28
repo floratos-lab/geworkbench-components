@@ -35,15 +35,11 @@ import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.components.discovery.algorithm.AbstractSequenceDiscoveryAlgorithm;
 import org.geworkbench.components.discovery.algorithm.AlgorithmStub;
 import org.geworkbench.components.discovery.algorithm.ExhaustiveDiscovery;
-import org.geworkbench.components.discovery.algorithm.HierarchicalDiscovery;
-import org.geworkbench.components.discovery.algorithm.HierarchicalDiscoveryFileLoader;
 import org.geworkbench.components.discovery.algorithm.RegularDiscovery;
 import org.geworkbench.components.discovery.algorithm.RegularDiscoveryFileLoader;
 import org.geworkbench.components.discovery.model.GenericModel;
 import org.geworkbench.components.discovery.model.PatternTableModelWrapper;
-import org.geworkbench.components.discovery.model.PatternTreeModel;
 import org.geworkbench.components.discovery.view.PatternTableView;
-import org.geworkbench.components.discovery.view.PatternTreeView;
 import org.geworkbench.events.HistoryEvent;
 import org.geworkbench.events.ProgressBarEvent;
 import org.geworkbench.events.ProgressChangeEvent;
@@ -78,7 +74,7 @@ import polgara.soapPD_wsdl.Parameters;
  * </p>
  * 
  * @author
- * @version 1.0
+ * @version $Id$
  */
 
 public class SequenceDiscoveryViewWidget extends JPanel implements
@@ -108,14 +104,12 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 	public static final String PATTERN_DB = "patternDB";
 	public static final String PARAMETERS = "parameters";
 	public static final String TABLE_EVENT = "tableEvent";
-	public static final String TREE_EVENT = "treeEvent";
 
 	// the displayed view component in this widget
 	private Component currentViewComponent = new JPanel();
 	private final int DEFAULT_VIEW = -1;
 	private int currentModel = 0;
 	private final int PATTERN_TABLE = 0;
-	private final int PATTERN_TREE = 1;
 
 	// views and models
 	private JPanel[] viewList = null;
@@ -159,7 +153,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 	 * initialized the views and models
 	 */
 	private void initViewAndModel() {
-		int view_model = 2;
+		int view_model = 1;
 		viewList = new JPanel[view_model];
 		modelList = new GenericModel[view_model];
 
@@ -170,15 +164,6 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		PatternTableView patternTableView = new PatternTableView(ptModel, this);
 		patternTableView.addPropertyChangeListener(this);
 		viewList[PATTERN_TABLE] = patternTableView;
-
-		// pattern tree model
-		PatternTreeModel pTreeModel = new PatternTreeModel();
-		modelList[this.PATTERN_TREE] = pTreeModel;
-		// pattern tree view
-		PatternTreeView pTreeView = new PatternTreeView(pTreeModel, this);
-		pTreeModel.addTreeModelListener(pTreeView);
-		pTreeView.addPropertyChangeListener(this);
-		viewList[this.PATTERN_TREE] = pTreeView;
 	}
 
 	public void jbInit() throws Exception {
@@ -395,8 +380,6 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		} else if (property
 				.equalsIgnoreCase(PatternTableView.PATTERN_ADDTO_PROJECT)) {
 			firePropertyChange(PATTERN_DB, null, evt.getNewValue());
-		} else if (property.equalsIgnoreCase(PatternTreeView.TREESELECTION)) {
-			firePropertyChange(TREE_EVENT, null, evt.getNewValue());
 		}
 	}
 
@@ -673,22 +656,6 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		// readParameter("Exhaustive");
 		String resultStr = readParameterAndCreateResultfile("Exhaustive");
 		AbstractSequenceDiscoveryAlgorithm abstractSequenceDiscoveryAlgorithm = new ExhaustiveDiscovery(
-				discoverySession, getParameters());
-		abstractSequenceDiscoveryAlgorithm.setResultFile(new File(resultStr));
-		abstractSequenceDiscoveryAlgorithm.setSequenceInputData(this
-				.getSequenceDB());
-		return abstractSequenceDiscoveryAlgorithm;
-
-	}
-
-	/**
-	 * Hiearchical discovery.
-	 */
-	public AbstractSequenceDiscoveryAlgorithm hierarc_actionPerformed(
-			DiscoverySession discoverySession) {
-
-		String resultStr = readParameterAndCreateResultfile("Hiearchical");
-		AbstractSequenceDiscoveryAlgorithm abstractSequenceDiscoveryAlgorithm = new HierarchicalDiscovery(
 				discoverySession, getParameters());
 		abstractSequenceDiscoveryAlgorithm.setResultFile(new File(resultStr));
 		abstractSequenceDiscoveryAlgorithm.setSequenceInputData(this

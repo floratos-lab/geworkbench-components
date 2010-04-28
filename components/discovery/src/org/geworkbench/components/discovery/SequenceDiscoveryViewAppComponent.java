@@ -6,14 +6,9 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
-import javax.swing.JTree;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreePath;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -32,7 +27,6 @@ import org.geworkbench.bison.datastructure.complex.pattern.SoapParmsDataSet;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.CSSeqRegistration;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.ProjectSelection;
-import org.geworkbench.components.discovery.view.PatternNode;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Asynchronous;
@@ -44,7 +38,6 @@ import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.events.SequenceDiscoveryTableEvent;
 import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbench.util.PropertiesMonitor;
-import org.geworkbench.util.patterns.CSMatchedSeqPattern;
 import org.geworkbench.util.patterns.SequencePatternUtils;
 import org.geworkbench.util.remote.Connection;
 import org.geworkbench.util.remote.ConnectionCreationException;
@@ -409,9 +402,6 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 		} else if (property
 				.equalsIgnoreCase(SequenceDiscoveryViewWidget.TABLE_EVENT)) {
 			notifyTableEvent(evt);
-		} else if (property
-				.equalsIgnoreCase(SequenceDiscoveryViewWidget.TREE_EVENT)) {
-			notifyTreeEvent(evt);
 		}
 	}
 
@@ -449,38 +439,6 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 			SequenceDiscoveryTableEvent event) {
 		return event;
 	}
-
-	private void notifyTreeEvent(PropertyChangeEvent evt) {
-		if (!isDiscoveryFileSet()) {
-			return;
-		}
-		JTree tree = (JTree) evt.getNewValue();
-		TreePath[] paths = tree.getSelectionPaths();
-		if (paths != null) {
-			List<CSMatchedSeqPattern> patternList = new ArrayList<CSMatchedSeqPattern>();
-			for (int i = 0; i < paths.length; i++) {
-				Object lastPathComponent = paths[i].getLastPathComponent();
-				if (lastPathComponent instanceof DefaultMutableTreeNode) {
-					DefaultMutableTreeNode node = (DefaultMutableTreeNode) lastPathComponent;
-					Object userObject = node.getUserObject();
-
-					if (userObject instanceof PatternNode) {
-						PatternNode nvr = (PatternNode) userObject;
-						if (nvr.getPattern() != null) {
-							patternList.add(nvr.getPattern());
-						}
-					}
-				}
-			}
-			if (patternList.size() > 0) {
-				DSCollection<DSMatchedPattern<DSSequence, CSSeqRegistration>> patternMatches = new Collection<DSMatchedPattern<DSSequence, CSSeqRegistration>>();
-				patternMatches.addAll(patternList);
-				SequenceDiscoveryTableEvent e = new SequenceDiscoveryTableEvent(
-						patternMatches);
-				publishSequenceDiscoveryTableEvent(e);
-			}
-		}
-	} // end notify tree event
 
 	/**
 	 * This method is used to trigger HistoryPanel to refresh.
