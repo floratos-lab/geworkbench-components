@@ -35,12 +35,12 @@ import polgara.soapPD_wsdl.holders.SOAPPatternHolder;
  * <p>Description: Class DiscoverySession describes a
  * session. A session is an abstraction of a session on
  * a SPLASH server on which different queries
- * will be perfomred. </p>
+ * will be performed. </p>
  * <p>Copyright: Copyright (c) 2003</p>
  * <p>Company: </p>
  *
  * @author Aner
- * @version 1.0
+ * @version $Id$
  */
 public class DiscoverySession {
     //user id and session id as known on the host
@@ -71,7 +71,6 @@ public class DiscoverySession {
     //signals that a method throw A session exception
     //This lets us delete the session
     private boolean failed = false;
-    private GlobusSession globSession;
 
     /**
      * Create a new session with the given on the remote server
