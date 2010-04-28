@@ -1,13 +1,12 @@
 package org.geworkbench.util.remote;
 
-import org.geworkbench.util.session.DiscoverySession;
-import polgara.soapPD_wsdl.SoapPDLocator;
-import polgara.soapPD_wsdl.SoapPDPortType;
-
-import javax.xml.rpc.ServiceException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import org.apache.axis.client.Service;
+
+import javax.xml.rpc.ServiceException;
+
+import polgara.soapPD_wsdl.SoapPDLocator;
+import polgara.soapPD_wsdl.SoapPDPortType;
 
 /**
  * <p>Title: Connection</p>
@@ -28,11 +27,7 @@ public class Connection {
 
     public Connection(URL serverURL) throws ConnectionCreationException {
         try {
-            if (DiscoverySession.isNormalSession) {
                 port = connect(serverURL);
-            } else {
-                innerConnection = new GlobusConnection(serverURL);
-            }
         } catch (ServiceException ex) {
             throw new ConnectionCreationException("Could not establish connection.");
         }

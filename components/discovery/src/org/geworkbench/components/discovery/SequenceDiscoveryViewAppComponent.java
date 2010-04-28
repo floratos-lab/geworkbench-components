@@ -48,7 +48,6 @@ import org.geworkbench.util.patterns.CSMatchedSeqPattern;
 import org.geworkbench.util.patterns.SequencePatternUtils;
 import org.geworkbench.util.remote.Connection;
 import org.geworkbench.util.remote.ConnectionCreationException;
-import org.geworkbench.util.remote.GlobusConnection;
 import org.geworkbench.util.remote.SPLASHDefinition;
 import org.geworkbench.util.session.DiscoverySession;
 import org.geworkbench.util.session.Logger;
@@ -165,8 +164,7 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 			throws SessionCreationException {
 		URL url = null;
 		try {
-			url = (DiscoverySession.isNormalSession) ? Connection.getURL(host,
-					port) : GlobusConnection.getURL(host, port);
+			url = Connection.getURL(host, port);
 		} catch (MalformedURLException ex) {
 			throw new SessionCreationException("Could not form URL. (host: "
 					+ host + "port: " + port + ")");
