@@ -38,13 +38,13 @@ import org.geworkbench.events.listeners.ParameterActionListener;
 public class GenepixExpressionThresholdFilterPanel extends AbstractSaveableParameterPanel {
 	private static final long serialVersionUID = -3835388346988546797L;
 	
-	final String INSIDE_RANGE = "Inside range";
-    final String OUTSIDE_RANGE = "Outside range";
+	final String INSIDE_RANGE = "Inside of range";
+    final String OUTSIDE_RANGE = "Outside of range";
     private JLabel Cy3MinLabel = new JLabel("Cy3 Range Min");
     private JLabel Cy3MaxLabel = new JLabel("Cy3 Range Max");
     private JLabel Cy5MinLabel = new JLabel("Cy5 Range Min");
     private JLabel Cy5MaxLabel = new JLabel("Cy5 Range Max");
-    private JLabel optionLabel = new JLabel("Filter values");
+    private JLabel optionLabel = new JLabel("Filter-out values");
     private JFormattedTextField Cy3MinValue = new JFormattedTextField();
     private JFormattedTextField Cy3MaxValue = new JFormattedTextField();
     private JFormattedTextField Cy5MinValue = new JFormattedTextField();
@@ -127,7 +127,7 @@ public class GenepixExpressionThresholdFilterPanel extends AbstractSaveableParam
         container.add(Cy5MaxValue);
         container.add(optionLabel);
         container.add(optionSelection);
-        container.setPreferredSize(new Dimension(400, 80));
+        container.setPreferredSize(new Dimension(500, 80));
         
         JPanel topPanel = new JPanel(new FlowLayout());
         topPanel.add(filterOptionPanel);
@@ -135,7 +135,7 @@ public class GenepixExpressionThresholdFilterPanel extends AbstractSaveableParam
         JPanel bottomPanel = new JPanel(new FlowLayout());
         bottomPanel.add(container);
         bottomPanel.setAlignmentX(LEFT_ALIGNMENT);
-        bottomPanel.setMaximumSize(new Dimension(400, 80));
+        bottomPanel.setMaximumSize(new Dimension(500, 80));
 
         JPanel wrapperPanel = new JPanel();
         BoxLayout boxLayout = new BoxLayout(wrapperPanel, BoxLayout.PAGE_AXIS);
