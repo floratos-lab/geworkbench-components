@@ -28,11 +28,11 @@ import org.geworkbench.events.listeners.ParameterActionListener;
 public class ExpressionThresholdFilterPanel extends AbstractSaveableParameterPanel {
 	private static final long serialVersionUID = 5725991435412934513L;
 	
-	final String INSIDE_RANGE = "Inside range";
-    final String OUTSIDE_RANGE = "Outside range";
+	final String INSIDE_RANGE = "Inside of range";
+    final String OUTSIDE_RANGE = "Outside of range";
     private JLabel rangeMinLabel = new JLabel("Range Min");
     private JLabel rangeMaxLabel = new JLabel("Range Max");
-    private JLabel rangeOptionLabel = new JLabel("Filter values");
+    private JLabel rangeOptionLabel = new JLabel("Filter-out values");
     private JFormattedTextField rangeMinValue = new JFormattedTextField();
     private JFormattedTextField rangeMaxValue = new JFormattedTextField(NumberFormat.getNumberInstance());
     private JComboBox optionSelection = new JComboBox(new String[]{INSIDE_RANGE, OUTSIDE_RANGE});
