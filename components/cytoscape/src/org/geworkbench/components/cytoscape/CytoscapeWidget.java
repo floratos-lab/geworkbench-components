@@ -22,12 +22,12 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.Vector;
-
+ 
 import javax.swing.Box;
 import javax.swing.JInternalFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
-import javax.swing.JProgressBar;
+import javax.swing.JProgressBar; 
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 
@@ -43,11 +43,14 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.G
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.builtin.projects.DataSetNode;
+import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.GeneTaggedEvent;
+import org.geworkbench.events.AdjacencyMatrixEvent;
 import org.geworkbench.events.ProjectNodeRemovedEvent;
 import org.geworkbench.util.Util;
 import org.geworkbench.util.annotation.Gene;
@@ -130,8 +133,9 @@ public class CytoscapeWidget implements VisualPlugin {
 
 	static private Log log = LogFactory.getLog(CytoscapeWidget.class);
 	private AdjacencyMatrixDataSet adjSet = null;
+	private AdjacencyMatrix adjMatrix = null;
 	private HashSet<String> dataSetIDs = new HashSet<String>();
-	private DiscreteMapping nodeDm = null, edgeDm = null;
+	private DiscreteMapping nodeDm = null, edgeDm = null;	 
 
 	private VisualStyle sample1VisualStyle;
 
@@ -144,10 +148,11 @@ public class CytoscapeWidget implements VisualPlugin {
 
 	private boolean uiSetup = false;
 
+	private volatile boolean cancelAction = false;
 	private CyNetworkView view = null;
-
+	
 	// these are default because ExpandMenuListener needs access
-	AdjacencyMatrix adjMatrix = null;
+	
 	CyNetwork cytoNetwork = null;
 	JProgressBar jProgressBar = new JProgressBar();
 	DSMicroarraySet<? extends DSMicroarray> maSet = null;
@@ -161,6 +166,7 @@ public class CytoscapeWidget implements VisualPlugin {
 
 		init();
 		publishEnabled = true;
+
 	}
 
 	/**
@@ -186,6 +192,7 @@ public class CytoscapeWidget implements VisualPlugin {
 			menuBar.setAlignmentX(Component.LEFT_ALIGNMENT);
 			comp2.setAlignmentX(Component.LEFT_ALIGNMENT);
 			comp3.setAlignmentX(Component.LEFT_ALIGNMENT);
+
 			box.add(comp1);
 			box.add(comp2);
 			box.add(comp3);
@@ -213,6 +220,7 @@ public class CytoscapeWidget implements VisualPlugin {
 	 */
 	@Subscribe
 	public void receive(GeneTaggedEvent e, Object source) {
+
 		DSPanel<DSGeneMarker> panel = e.getPanel();
 		if (panel == null) {
 			log.error("panel is null in "
@@ -252,6 +260,18 @@ public class CytoscapeWidget implements VisualPlugin {
 		publishEnabled = true;
 	}
 
+	@Subscribe
+	public void receive(AdjacencyMatrixEvent ae, Object source) {
+		if (ae.getAction() != null
+				&& ae.getAction().equals(AdjacencyMatrixEvent.Action.CANCEL)) {
+			cancelAction = true;			 
+			log.info("got AdjacencyMatrixEvent.action.CANCEL event");			 
+			if ( ae.getAdjacencyMatrix() == adjMatrix)
+			    ProjectPanel.getInstance().removeAddedSubNode(adjSet);
+	     }
+		 
+	}
+
 	/**
 	 * receiveProjectSelection
 	 * 
@@ -261,56 +281,68 @@ public class CytoscapeWidget implements VisualPlugin {
 	@Subscribe
 	public void receive(org.geworkbench.events.ProjectEvent e, Object source) {
 
-		DSDataSet<?> dataSet = e.getDataSet();
-		if (dataSet instanceof AdjacencyMatrixDataSet) {
-			adjSet = (AdjacencyMatrixDataSet) dataSet;
-			maSet = adjSet.getMatrix().getMicroarraySet();
-			getGeneIdToNameMap();
+		try {
+			DSDataSet<?> dataSet = e.getDataSet();
 
-			if (maSet != null) {				 
-				geneIdToMarkerIdMap = AnnotationParser
-						.getGeneIdToMarkerIDMapping(maSet);
-			}
-			boolean found = false;
-			String foundID = null;
-			if (!dataSetIDs.contains(adjSet.getID())) {
-				dataSetIDs.add(adjSet.getID());
-			} else {
-				Set<?> networks = Cytoscape.getNetworkSet();
-				for (Iterator<?> iterator = networks.iterator(); iterator
-						.hasNext();) {
-					Object next = iterator.next();
-					// String id = (String) iterator.next();
-					String id = "";
-					if (next instanceof String) {
-						id = (String) next;
-					} else if (next instanceof FingCyNetwork) {
-						id = ((FingCyNetwork) next).getIdentifier();
-					}
-					CyNetwork network = Cytoscape.getNetwork(id);
-					String title = network.getTitle();
-					log.debug("compare: " + title + " AND "
-							+ adjSet.getNetworkName());
-					if (title.equals(adjSet.getNetworkName())) {
-						found = true;
-						foundID = id;
-						break;
+			if (dataSet instanceof AdjacencyMatrixDataSet) {
+
+				adjSet = (AdjacencyMatrixDataSet) dataSet;
+				adjMatrix = adjSet.getMatrix();
+				maSet = adjSet.getMatrix().getMicroarraySet();
+				getGeneIdToNameMap();
+
+				if (maSet != null) {
+					geneIdToMarkerIdMap = AnnotationParser
+							.getGeneIdToMarkerIDMapping(maSet);
+				}
+				boolean found = false;
+				String foundID = null;
+				if (!dataSetIDs.contains(adjSet.getID())) {
+					dataSetIDs.add(adjSet.getID());
+				} else {
+					Set<?> networks = Cytoscape.getNetworkSet();
+					for (Iterator<?> iterator = networks.iterator(); iterator
+							.hasNext();) {
+						Object next = iterator.next();
+						// String id = (String) iterator.next();
+						String id = "";
+						if (next instanceof String) {
+							id = (String) next;
+						} else if (next instanceof FingCyNetwork) {
+							id = ((FingCyNetwork) next).getIdentifier();
+						}
+						CyNetwork network = Cytoscape.getNetwork(id);
+						String title = network.getTitle();
+						log.debug("compare: " + title + " AND "
+								+ adjSet.getNetworkName());
+						if (title.equals(adjSet.getNetworkName())) {
+							found = true;
+							foundID = id;
+							break;
+						}
 					}
 				}
-			}
-			if (!found) {
-				receiveMatrix();
-			} else {
-				Cytoscape.getDesktop().getNetworkPanel().focusNetworkNode(
-						foundID);
+
+				if (!found) {
+					receiveMatrix();					
+				} else {
+					Cytoscape.getDesktop().getNetworkPanel().focusNetworkNode(
+							foundID);
+				}
+				cancelAction = false;
+			 
 			}
 
-		}
+		} catch (Exception ex) {
+			log.error(ex.getMessage());
+		}  
+
 	}
 
 	@SuppressWarnings("unchecked")
 	@Subscribe
 	public void receive(ProjectNodeRemovedEvent event, Object source) {
+		log.info("receive ProjectNodeRemovedEvent event");
 		DSDataSet dataSet = event.getAncillaryDataSet();
 		if (!(dataSet instanceof AdjacencyMatrixDataSet)) {
 			// if the event is published by other types, do nothing.
@@ -325,7 +357,7 @@ public class CytoscapeWidget implements VisualPlugin {
 				id = ((FingCyNetwork) network).getIdentifier();
 				CyNetwork cyNetwork = Cytoscape.getNetwork(id);
 				if (cyNetwork.getTitle().equals(
-						adjMatrixDataSet.getNetworkName())) {
+						adjMatrixDataSet.getNetworkName())) {					 
 					Cytoscape.destroyNetwork(cyNetwork);
 					return;
 				}
@@ -525,14 +557,14 @@ public class CytoscapeWidget implements VisualPlugin {
 
 		try {
 
-			
 			if (marker1 != null) {
 				Cytoscape.getNodeAttributes().setAttribute(
 						cyNode.getIdentifier(), "geneID", marker1.getGeneId());
-                
-                Cytoscape.getNodeAttributes().setAttribute(cyNode.getIdentifier(),
-					"geneName", cyNode.getIdentifier());
-                
+
+				Cytoscape.getNodeAttributes().setAttribute(
+						cyNode.getIdentifier(), "geneName",
+						cyNode.getIdentifier());
+
 				Cytoscape.getNodeAttributes().setAttribute(
 						cyNode.getIdentifier(), "markerName",
 						marker1.getLabel());
@@ -541,9 +573,10 @@ public class CytoscapeWidget implements VisualPlugin {
 					Cytoscape.getNodeAttributes().setAttribute(
 							cyNode.getIdentifier(), "geneID",
 							new Integer(geneIdStr));
-				    Cytoscape.getNodeAttributes().setAttribute(cyNode.getIdentifier(),
-					"geneName", cyNode.getIdentifier());
-				    
+					Cytoscape.getNodeAttributes().setAttribute(
+							cyNode.getIdentifier(), "geneName",
+							cyNode.getIdentifier());
+
 				} catch (NumberFormatException ne) {
 					// if geneIdStr is not an integer, just ignore it.
 				}
@@ -566,7 +599,8 @@ public class CytoscapeWidget implements VisualPlugin {
 			}
 
 			if (marker1 != null) {
-				String geneType = GeneOntologyUtil.checkMarkerFunctions(marker1);
+				String geneType = GeneOntologyUtil
+						.checkMarkerFunctions(marker1);
 
 				if (geneType == null || geneType.trim().equals(""))
 					geneType = "non K/P/TF, in microarray set";
@@ -808,6 +842,7 @@ public class CytoscapeWidget implements VisualPlugin {
 
 	private void receiveMatrix() {
 		// 1) RECEIVE event
+
 		String name = adjSet.getNetworkName();
 		String tmpname = adjSet.getMatrix().getLabel();
 		if ((tmpname != null) && (!name.contains(tmpname))) {
@@ -824,39 +859,51 @@ public class CytoscapeWidget implements VisualPlugin {
 		adjSet.setNetworkName(name);
 		cytoNetwork = Cytoscape.createNetwork(name);
 
-		// 2) DRAW NETWORK event
-
-		drawCompleteNetwork(adjSet.getMatrix(), getGeneIdToNameMap(), adjSet
-				.getThreshold());
-		// if (adjSet.getGeneId() == -1) {
-		// drawCompleteNetwork(adjSet.getMatrix(), adjSet.getThreshold());
-		// } else {
-		// drawCentricNetwork(adjSet.getMatrix(), adjSet.getGeneId(), adjSet
-		// .getThreshold(), adjSet.getDepth());
-		// }
-
-		Cytoscape.getCurrentNetworkView().applyVizmapper(sample1VisualStyle);
-
-		// Cytoscape.getCurrentNetworkView().applyVizmapper(sample1VisualStyle);
-
 		try {
 			JInternalFrame[] frames = Cytoscape.getDesktop()
 					.getNetworkViewManager().getDesktopPane().getAllFrames();
+
 			for (int i = 0; i < frames.length; i++) {
 				frames[i].setMaximum(true);
 			}
+
 		} catch (Exception e) {
 			log.error(e, e);
-			// we just try to maximize the window, if failed, no big deal
+			// we just try to maximize the window, if failed, no big
+			// deal
 		}
+ 
+		// 2) DRAW NETWORK event
+	 
+		log.info("startDrawing = true");
+		drawCompleteNetwork(getGeneIdToNameMap(), adjSet
+				.getThreshold());
+		if (cancelAction)
+		{
+			log.info("got cancel action");
+			return;
+		
+		}
+	 
+		Cytoscape.getCurrentNetworkView().applyVizmapper(sample1VisualStyle);
+		if (cancelAction)
+		{
+			log.info("got cancel action");
+			return;
+		
+		}		
+		 
 		CytoPanel temp = Cytoscape.getDesktop().getCytoPanel(
 				SwingConstants.WEST);
+	 
 		NetworkPanel tempp = null;
 		for (int cx = 0; cx < temp.getCytoPanelComponentCount(); cx++) {
 			if (temp.getComponentAt(cx) instanceof NetworkPanel)
 				tempp = (NetworkPanel) temp.getComponentAt(cx);
 		}
-		tempp.hide(); // this line fixed wrong node number and wrong edge
+		tempp.hide(); // this line fixed wrong node number and wrong
+		// edge
+         
 		// number.
 		// 3) FINISH event
 		if (maSet != null) {
@@ -869,6 +916,9 @@ public class CytoscapeWidget implements VisualPlugin {
 			});
 
 		}
+
+		log.info("DrawAction finished.");
+
 	}
 
 	@SuppressWarnings("unchecked")
@@ -888,17 +938,19 @@ public class CytoscapeWidget implements VisualPlugin {
 
 	}
 
-	void drawCompleteNetwork(AdjacencyMatrix adjMatrix,
-			HashMap<String, String> geneIdToNameMap, double threshold) {
+	void drawCompleteNetwork(HashMap<String, String> geneIdToNameMap, double threshold) {
 
 		for (int cx = 0; cx < Cytoscape.getCurrentNetwork().getEdgeCount(); cx++) {
 			Cytoscape.getCurrentNetwork().removeEdge(cx, true);
 		}
-		this.adjMatrix = adjMatrix;
-
+		
 		Iterator<Integer> keysIt = adjMatrix.getGeneRows().keySet().iterator();
 		int i = 0;
 		while (keysIt.hasNext()) {
+			if (cancelAction) {
+				log.info("got cancel action");				 
+				return;
+			}
 			i++;
 			int key = keysIt.next().intValue();
 			createSubNetwork(key, geneIdToNameMap, threshold, 1);
@@ -909,20 +961,38 @@ public class CytoscapeWidget implements VisualPlugin {
 				.getGeneRowsNotInMicroarray().keySet().iterator();
 
 		while (keysNotInMicroarray.hasNext()) {
+			if (cancelAction) {
+				log.info("got cancel action");			 
+				return;
+			}
 			i++;
 			String key = keysNotInMicroarray.next();
 			createSubNetwork(key, geneIdToNameMap, threshold, 1);
 			log.debug("iteration: " + i);
 		}
 
-		// I use cytoscape's build-in layout instead of yfiles layout to avoid
-		// duplicates entries in yfiles's menu.
+		if (cancelAction) {
+			log.info("got cancel action");		 
+			return;
+		}
+	 
 		new ForceDirectedLayout(Cytoscape.getCurrentNetworkView()).doLayout();
-		memoryUsage();
+
+		if (cancelAction) {
+			log.info("got cancel action");			 
+			return;
+		}
+	 
 		new SpringEmbeddedLayouter(Cytoscape.getCurrentNetworkView())
 				.doLayout();
 
+		if (cancelAction) {
+			log.info("got cancel action");			 
+			return;
+		}
+	 
 		Cytoscape.getCurrentNetworkView().fitContent();
 
 	}
+
 }
