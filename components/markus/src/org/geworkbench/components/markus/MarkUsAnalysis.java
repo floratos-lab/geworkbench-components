@@ -3,6 +3,7 @@ package org.geworkbench.components.markus;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import javax.swing.DefaultComboBoxModel;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -11,9 +12,12 @@ import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.datastructure.bioobjects.structure.DSProteinStructure;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.bison.model.analysis.ProteinStructureAnalysis;
+import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.events.ProjectEvent;
 
 /**
  * MarkUs Analysis.
@@ -135,5 +139,15 @@ public class MarkUsAnalysis extends AbstractGridAnalysis implements ProteinStruc
 		return false;
 	}
 
+	@Subscribe
+    public void receive(ProjectEvent e, Object source) {
+        DSDataSet<?> data = e.getDataSet();
+        if (data instanceof DSProteinStructure)
+        {
+        	DSProteinStructure dsp = (DSProteinStructure)data;
+        	HashMap<String, Integer> chains = dsp.getChains();
+        	mcp.cbxChain.setModel(new DefaultComboBoxModel(chains.keySet().toArray()));
+        }
+    }
 }
 
