@@ -809,6 +809,9 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
     }
 
 	void clearButton_actionPerformed(ActionEvent e) {
+		searchArray.setText("");
+		searchAccession.setText("");
+		searchLabel.setText("");
 		colorMosaicImage.setSelectedAccession(-1, null);
 		colorMosaicImage.setSelectedLabel(-1, null);
 		colorMosaicImage.setSelectedArray(-1, null);
@@ -1031,6 +1034,8 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
                 //// Make panels from the significance data and display only that
                 // Pheno
                 CSPanel<DSMicroarray> phenoPanel = new CSPanel<DSMicroarray>("Phenotypes");
+                DSItemList<DSPanel<DSMicroarray>> list = phenoPanel.panels();
+           		list.clear(); 
                 DSAnnotationContext<DSMicroarray> context = CSAnnotationContextManager.getInstance().getCurrentContext(set);
                 for (int i = 0; i < 2; i++) {
                     String[] labels = sigSet.getLabels(i);
@@ -1060,8 +1065,8 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
                jAllMarkers.setEnabled(false);
        /*    */
                 setSignificance(sigSet);
-                revalidate();
                 displayMosaic();
+                revalidate();
                 mainPanel.repaint();
             }
         } else {
