@@ -846,16 +846,10 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
             if(Double.valueOf(confidence).doubleValue() >= ((Double)confidenceThreshold.getValue()).doubleValue())
             {
                 list.add(r);
-                System.out.println("Adding " + Double.valueOf(confidence).doubleValue() + " to list"
-                + " since it is greater than or equal to " + ((Double)confidenceThreshold.getValue()).doubleValue());
-
             }
             else
             {
                 lessThan = true;
-                System.out.println("Not adding " + Double.valueOf(confidence).doubleValue() + " to list"
-                               + " since it is less than " + ((Double)confidenceThreshold.getValue()).doubleValue());
-
             }
         }        
 
