@@ -205,6 +205,7 @@ class ModulatorModel extends AbstractTableModel {
 				mindyPlugin.setSelectAll(false);
 
 			mindyPlugin.setTextNumModSelected(getNumberOfModulatorsSelected());
+			mindyPlugin.getTableTab().setFirstColumnWidth(30);
 		}
 	}
 
@@ -303,6 +304,7 @@ class ModulatorModel extends AbstractTableModel {
 		this.fireTableDataChanged();
 		log.debug("\t\tmod model::selectAllModulators::end::"
 				+ System.currentTimeMillis());
+		mindyPlugin.getTableTab().setFirstColumnWidth(30);
 	}
 	
 	@SuppressWarnings("unchecked")

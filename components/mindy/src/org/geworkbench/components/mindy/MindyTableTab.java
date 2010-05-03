@@ -217,14 +217,17 @@ public class MindyTableTab extends JSplitPane {
 					log.debug("Setting sort to Aggregate");
 					aggregateModel.setModulatorSortMethod(
 							MindyPlugin.ModulatorSort.Aggregate);
+					setFirstColumnWidth(30);
 				} else if (selected.equals("Enhancing")) {
 					log.debug("Setting sort to Enhancing");
 					aggregateModel.setModulatorSortMethod(
 							MindyPlugin.ModulatorSort.Enhancing);
+					setFirstColumnWidth(30);
 				} else {
 					log.debug("Setting sort to Negative");
 					aggregateModel.setModulatorSortMethod(
 							MindyPlugin.ModulatorSort.Negative);
+					setFirstColumnWidth(30);
 				}
 				clearAllTargetTableModulatorSelections();
 			}
@@ -375,6 +378,7 @@ public class MindyTableTab extends JSplitPane {
 							aggregateModel
 									.showLimitedMarkers();
 						}
+						setFirstColumnWidth(30);
 					}
 				});
 
@@ -397,10 +401,11 @@ public class MindyTableTab extends JSplitPane {
 	private void limitModulators(Integer modLimit, boolean selected, JTable table) {
 		aggregateModel.setModLimit(modLimit);
 		aggregateModel.setModulatorsLimited(selected);
+		aggregateModel.fireTableStructureChanged();
+
 		setTargetCheckboxesVisibility(selectionEnabledCheckBoxTarget
 				.isSelected());
 
-		aggregateModel.fireTableStructureChanged();
 		columnScrolling();
 	}
 
@@ -459,15 +464,17 @@ public class MindyTableTab extends JSplitPane {
 		this.headerCheckBoxes = headerCheckBoxes;
 	}
 
+	void setFirstColumnWidth(int w) {
+		targetTable.getColumn(" ").setMaxWidth(w);
+		targetTable.getColumn(" ").setMinWidth(w);
+		targetTable.getColumn(" ").setWidth(w);
+	}
+	
 	void setTargetCheckboxesVisibility(boolean show) {
 		if (show) {
-			targetTable.getColumn(" ").setMaxWidth(30);
-			targetTable.getColumn(" ").setMinWidth(30);
-			targetTable.getColumn(" ").setWidth(30);
+			setFirstColumnWidth(30);
 		} else {
-			targetTable.getColumn(" ").setMaxWidth(0);
-			targetTable.getColumn(" ").setMinWidth(0);
-			targetTable.getColumn(" ").setWidth(0);
+			setFirstColumnWidth(0);
 		}
 	}
 
