@@ -89,8 +89,7 @@ public class CARTTrainingPanel extends GPTrainingPanel
 
     protected String getSummaryFile()
     {
-        return null;
-        //return CARTTrainingPanel.class.getResource("help.html").getPath();
+        return CARTTrainingPanel.class.getResource("help.html").getPath();
     }
 
     protected CSClassifier trainForValidation(java.util.List<float[]> trainingCaseData, java.util.List<float[]> trainingControlData) throws ClassifierException
