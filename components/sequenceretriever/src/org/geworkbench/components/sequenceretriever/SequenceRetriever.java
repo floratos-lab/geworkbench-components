@@ -583,6 +583,13 @@ public class SequenceRetriever implements VisualPlugin {
 			if (sequenceDB != null) {
 				sequenceDB = new CSSequenceSet();
 			}
+			
+			String annotationFileName = ((CSMicroarraySet)refMASet).getAnnotationFileName(); 
+			if(annotationFileName==null) {
+				JOptionPane.showMessageDialog(null, "No annotation file was loaded for this dataset, cannot retrieve sequences.");
+				return;
+			}
+
 			Thread t = new Thread() {
 
 				public void run() {
