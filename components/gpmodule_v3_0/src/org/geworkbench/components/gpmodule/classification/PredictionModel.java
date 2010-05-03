@@ -11,10 +11,7 @@
 */
 package org.geworkbench.components.gpmodule.classification;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
@@ -32,18 +29,28 @@ public class PredictionModel
     {
         modelFile = file;
         model = null;
-        try
-        {
-            FileInputStream fis = new FileInputStream(file);
+
+        FileInputStream fis = null;
+        try {
+            fis = new FileInputStream(modelFile);
             FileChannel fc = fis.getChannel();
-            model = new byte[(int)(fc.size())];
+            model = new byte[(int) (fc.size())];
             ByteBuffer bb = ByteBuffer.wrap(model);
             fc.read(bb);
-        }
-        catch(IOException io)
-        {
-           io.printStackTrace();
-
+        } catch (FileNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } finally {
+            try {
+                if (fis != null)
+                    fis.close();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         }
     }
 
@@ -69,5 +76,10 @@ public class PredictionModel
         }
 
         return modelFile;
+    }
+
+    public byte[] getModelFileContent()
+    {   
+        return model;
     }
 }
