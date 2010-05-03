@@ -121,10 +121,10 @@ class ColumnHeaderListener extends MouseAdapter {
 						mindyTableTab.getSelectAllModsCheckBoxTarget().setSelected(true);
 					else
 						mindyTableTab.getSelectAllModsCheckBoxTarget().setSelected(false);
+					atm.fireTableStructureChanged();
 					mindyTableTab
 							.setTargetCheckboxesVisibility(mindyTableTab.getSelectionEnabledCheckBoxTarget()
 									.isSelected());
-					atm.fireTableStructureChanged();
 				}
 				if (mColIndex >= atm.getNumberOfModulatorCheckBoxes())
 					log.error("check box index [" + mColIndex
