@@ -18,10 +18,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -35,6 +32,8 @@ import javax.swing.JTextField;
 
 import org.geworkbench.bison.algorithm.classification.CSClassifier;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
+import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
+import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.builtin.projects.LoadData;
 import org.geworkbench.components.gpmodule.classification.GPTrainingPanel;
 import org.geworkbench.events.listeners.ParameterActionListener;
@@ -272,7 +271,27 @@ public class WVTrainingPanel extends GPTrainingPanel {
 
         setTrainingTask(this.wvTraining);
 
-        return wvTraining.trainClassifier(trainingCaseData, trainingControlData);
+        List<String> caseArrayNames = new ArrayList();
+        for(int i = 0; i < trainingCaseData.size(); i++)
+        {
+            caseArrayNames.add("Case_" + i);
+        }
+
+        List<String> controlArrayNames = new ArrayList();
+        for(int i = 0; i < trainingControlData.size(); i++)
+        {
+            controlArrayNames.add("Control_" + i);
+        }
+
+        DSItemList markers = getActiveMarkers();
+
+        List featureNames = new ArrayList();
+        for(int i =0; i < markers.size();i++)
+        {
+            featureNames.add(((DSGeneMarker)markers.get(i)).getLabel());
+        }
+        
+        return wvTraining.trainClassifier(trainingCaseData, trainingControlData, featureNames, caseArrayNames, controlArrayNames);
     }
 
     public ParamValidationResults validateParameters()

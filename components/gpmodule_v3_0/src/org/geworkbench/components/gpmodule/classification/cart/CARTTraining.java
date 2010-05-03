@@ -51,7 +51,8 @@ public class CARTTraining extends GPTraining implements TrainingTask
         setDefaultPanel(panel);
     }
 
-    protected CSClassifier trainClassifier(List<float[]> caseData, List<float[]> controlData)
+    protected CSClassifier trainClassifier(List<float[]> caseData, List<float[]> controlData, List<String> featureNames,
+                                           List<String> caseArrayNames, List<String> controlArrayNames)
     {
         log.debug("Training classifier.");
         CARTClassifier classifier = null;
@@ -69,9 +70,14 @@ public class CARTTraining extends GPTraining implements TrainingTask
 
             DSPanel<DSMicroarray> controlPanel = context.getActivatedItemsForClass(CSAnnotationContext.CLASS_CONTROL);
 
+            if(caseArrayNames == null || caseArrayNames.size() == 0)
+                caseArrayNames = getArrayNames(casePanel);
+            if(controlArrayNames == null || controlArrayNames.size() == 0)
+                controlArrayNames = getArrayNames(controlPanel);
+
             //Create gct file
-            GPDataset dataset = createGCTDataset(caseData, controlData, getArrayNames(casePanel),
-                                                      getArrayNames(controlPanel));
+            GPDataset dataset = createGCTDataset(caseData, controlData, caseArrayNames,
+                                                     controlArrayNames);
             File trainingDataFile;
 
             try

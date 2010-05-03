@@ -51,7 +51,8 @@ public class WVTraining extends GPTraining implements TrainingTask
         setDefaultPanel(panel);
     }
 
-    protected CSClassifier trainClassifier(List<float[]> caseData, List<float[]> controlData)
+    protected CSClassifier trainClassifier(List<float[]> caseData, List<float[]> controlData, List<String> featureNames,
+                                           List<String> caseArrayNames, List<String> controlArrayNames)
     {
         log.debug("Training classifier.");
        
@@ -65,7 +66,6 @@ public class WVTraining extends GPTraining implements TrainingTask
             if(caseData.size() == 0)
                 throw new ClassifierException("Case data must be provided");
 
-            System.out.println("Before open training progress listener");
             if(trainingProgressListener != null)
                 trainingProgressListener.stepUpdate("processing training parameters", 1);
 
@@ -75,10 +75,16 @@ public class WVTraining extends GPTraining implements TrainingTask
 
             DSPanel<DSMicroarray> controlPanel = context.getActivatedItemsForClass(CSAnnotationContext.CLASS_CONTROL);
 
-            //Create gct file
-            GPDataset dataset = createGCTDataset(caseData, controlData, getArrayNames(casePanel),
-                                                      getArrayNames(controlPanel));
+            if(caseArrayNames == null || caseArrayNames.size() == 0)
+                caseArrayNames = getArrayNames(casePanel);
+            if(controlArrayNames == null || controlArrayNames.size() == 0)
+                controlArrayNames = getArrayNames(controlPanel);
 
+            //Create gct file
+            GPDataset dataset = createGCTDataset(caseData, controlData, caseArrayNames,
+                                                      controlArrayNames);
+
+            System.out.println("sample size is  "  + (controlData.size() + caseData.size()));
             File trainingDataFile;
 
             try
@@ -129,12 +135,9 @@ public class WVTraining extends GPTraining implements TrainingTask
             File modelFile = trainData("WeightedVoting", (Parameter[])parameters.toArray(new Parameter[0]));
             PredictionModel predModel = createModel(modelFile);
 
-            System.out.println("Model file is: " + modelFile);
             wvClassifier = new WVClassifier(null, "WV Classifier", new String[]{"Positive", "Negative"}, 
                             predModel, dataset, casePanel, controlPanel);
             wvClassifier.setPassword(((WVTrainingPanel)panel).getPassword());
-
-            System.out.println("After getting new WV classifier");
 
             if(trainingProgressListener != null)
                 trainingProgressListener.stepUpdate("classifier trained", 3);
@@ -146,9 +149,6 @@ public class WVTraining extends GPTraining implements TrainingTask
             JOptionPane.showMessageDialog(panel, e.getMessage());
             log.warn(e);
         }
-
-        System.out.println("Returning new classifier");
-
         return wvClassifier;
     }
 

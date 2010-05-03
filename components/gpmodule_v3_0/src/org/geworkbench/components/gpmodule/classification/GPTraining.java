@@ -26,6 +26,7 @@ import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.algorithm.classification.CSClassifier;
 import org.geworkbench.components.gpmodule.GPDataset;
 
 import java.io.*;
@@ -175,6 +176,14 @@ public abstract class GPTraining extends AbstractTraining
 
         return modelFile;
     }
+
+    protected CSClassifier trainClassifier(List<float[]> caseData, List<float[]> controlData)
+    {
+            return trainClassifier(caseData, controlData, null, null, null);
+    }
+
+    protected abstract CSClassifier trainClassifier(List<float[]> caseData, List<float[]> controlData, List<String> featureNames,
+                                           List<String> caseArrayNames, List<String> controlArrayNames);
 
     public PredictionModel createModel(File fileName)
     {
