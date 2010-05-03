@@ -1,6 +1,5 @@
 package org.geworkbench.components.filtering;
 
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.io.Serializable;
 import java.util.HashMap;
@@ -8,10 +7,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.JFormattedTextField;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
@@ -37,9 +33,6 @@ import org.geworkbench.events.listeners.ParameterActionListener;
 public class MissingValuesFilterPanel extends AbstractSaveableParameterPanel {
 	private static final long serialVersionUID = 1391701528215000956L;
 	
-	private JLabel maxMissingLabel = new JLabel("<html><p>Maximum number of</p><p>missing arrays</p></html>");
-    private JFormattedTextField maxMissingValue = new JFormattedTextField();
-
     public MissingValuesFilterPanel() {
         try {
             jbInit();
@@ -49,41 +42,18 @@ public class MissingValuesFilterPanel extends AbstractSaveableParameterPanel {
 
     }
 
+    private FilterOptionPanel filterOptionPanel = new FilterOptionPanel();
+
     private void jbInit() throws Exception {
         JPanel container = new JPanel();
         this.setLayout(new FlowLayout());
         container.setLayout(new BoxLayout(container, BoxLayout.X_AXIS));
-        container.add(Box.createHorizontalGlue());
-        container.add(maxMissingLabel);
-        container.add(maxMissingValue);
-        container.setPreferredSize(new Dimension(220, 27));
+        container.add(filterOptionPanel);
         this.add(container);
-        maxMissingValue.setValue(new Integer(0));
-        maxMissingValue.setFocusLostBehavior(JFormattedTextField.COMMIT_OR_REVERT);
         ParameterActionListener parameterActionListener = new ParameterActionListener(this);
-        maxMissingValue.addActionListener(parameterActionListener);
+        filterOptionPanel.numberField.addActionListener(parameterActionListener);
+        filterOptionPanel.percentField.addActionListener(parameterActionListener);
     }
-
-    /**
-     * Get the user-specifed maximum number of microarrays that a marker is allowed
-     * to have a missing value so that it does not get filtered out.
-     *
-     * @return
-     */
-    public int getMaxMissingArrays() {
-        return ((Number) maxMissingValue.getValue()).intValue();
-    }
-
-    /**
-        * Set the user-specifed maximum number of microarrays that a marker is allowed
-        * to have a missing value so that it does not get filtered out.
-        *
-        *
-        */
-       public void settMaxMissingArrays(int newValue) {
-            maxMissingValue.setValue(newValue);
-       }
-
 
     /**
      * Overrides the method from <code>AbstractSaveableParameterPanel</code>.
@@ -93,11 +63,16 @@ public class MissingValuesFilterPanel extends AbstractSaveableParameterPanel {
      * @return
      */
     public ParamValidationResults validateParameters() {
-        if (getMaxMissingArrays() < 0)
-            return new ParamValidationResults(false, "The number of microarrays cannot be negative.");
-        else
-            return new ParamValidationResults(true, "No Error");
-    }
+		if (filterOptionPanel.getNumberThreshold() < 0)
+			return new ParamValidationResults(false,
+					"The number of microarrays cannot be negative.");
+		else if (filterOptionPanel.getPercentThreshold() < 0
+				|| filterOptionPanel.getPercentThreshold() > 1.)
+			return new ParamValidationResults(false,
+					"The percentage of microarrays must be within range [0%, 100%].");
+		else
+			return new ParamValidationResults(true, "No Error");
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -110,10 +85,12 @@ public class MissingValuesFilterPanel extends AbstractSaveableParameterPanel {
         	Map.Entry<Serializable, Serializable> parameter = iterator.next();
 			Object key = parameter.getKey();
 			Object value = parameter.getValue();
-			if (key.equals("maxMissingValue")){
-	            this.maxMissingValue.setValue((Integer)value);
+			if (key.equals("numberThreshold")){
+	            this.filterOptionPanel.numberField.setValue((Integer)value);
 	            this.revalidate();
-
+			} else if (key.equals("percentThreshold")){
+	            this.filterOptionPanel.percentField.setValue((Double)value);
+	            this.revalidate();
 			}
 		}
     }
@@ -125,7 +102,8 @@ public class MissingValuesFilterPanel extends AbstractSaveableParameterPanel {
 	 */
     public Map<Serializable, Serializable> getParameters() {
 		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
-		parameters.put("maxMissingValue", (Integer) maxMissingValue.getValue());
+		parameters.put("numberThreshold", (Integer) this.filterOptionPanel.getNumberThreshold());
+		parameters.put("percentThreshold", (Double) this.filterOptionPanel.getPercentThreshold());
 		return parameters;
 	}
 
@@ -140,11 +118,16 @@ public class MissingValuesFilterPanel extends AbstractSaveableParameterPanel {
 		String histStr = "Missing Values Filter parameter:\n";
 		Map<Serializable, Serializable>parameters = null;
 		parameters = getParameters();
-		histStr += "Maximum number of missing arrays: ";
-		histStr += parameters.get("maxMissingValue");
+		histStr += "number threshold of missing arrays: ";
+		histStr += parameters.get("numberThreshold");
+		histStr += "\n----------------------------------------\n";
+		histStr += "percentage threshold of missing arrays: ";
+		histStr += parameters.get("percentThreshold");
 		histStr += "\n----------------------------------------\n";
 		return histStr;
 	}
 
-
+	FilterOptionPanel getFilterOptionPanel() {
+		return filterOptionPanel;
+	}
 }

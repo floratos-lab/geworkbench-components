@@ -1,5 +1,7 @@
 package org.geworkbench.components.filtering;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMarkerValue;
 import org.geworkbench.bison.model.analysis.FilteringAnalysis;
 
@@ -16,6 +18,7 @@ import org.geworkbench.bison.model.analysis.FilteringAnalysis;
  */
 public class MissingValuesFilter extends FilteringAnalysis {
 	private static final long serialVersionUID = -7753521003532896836L;
+	private static Log log = LogFactory.getLog(MissingValuesFilter.class);
 	
     public MissingValuesFilter() {
         setDefaultPanel(new MissingValuesFilterPanel());
@@ -23,8 +26,20 @@ public class MissingValuesFilter extends FilteringAnalysis {
 
     @Override
     protected void getParametersFromPanel() {
-        numberThreshold = ((MissingValuesFilterPanel) aspp).getMaxMissingArrays();
-        criterionOption = CriterionOption.COUNT;
+		MissingValuesFilterPanel missingValuesFilterPanel = (MissingValuesFilterPanel) aspp; 
+        
+        FilterOptionPanel filterOptionPanel = missingValuesFilterPanel.getFilterOptionPanel();
+		if(filterOptionPanel.getSelectedOption()==FilterOptionPanel.Option.NUMBER_REMOVAL) {
+	        criterionOption = CriterionOption.COUNT;
+		} else if(filterOptionPanel.getSelectedOption()==FilterOptionPanel.Option.PERCENT_REMOVAL) {
+	        criterionOption = CriterionOption.PERCENT;
+		} else {
+	        log.error("Invalid filtering option");
+		}
+
+        numberThreshold = filterOptionPanel.getNumberThreshold();
+        percentThreshold = filterOptionPanel.getPercentThreshold();
+
     }
     
     protected boolean isMissing(int arrayIndex, int markerIndex) {
