@@ -89,6 +89,7 @@ public class MindyVisualComponent implements VisualPlugin, java.util.Observer {
 	 * @param source -
 	 *            source of the ProjectEvent
 	 */
+	@SuppressWarnings("unchecked")
 	@Subscribe(Asynchronous.class)
 	public void receive(ProjectEvent projectEvent, Object source) {
 		/*  added to preconditions checks,
@@ -129,7 +130,7 @@ public class MindyVisualComponent implements VisualPlugin, java.util.Observer {
 			// the selected project tree node
 			if (ht.containsKey(node)) {
 				// if so, set mindyPlugin to the one stored in the hashtable
-				mindyPlugin = (MindyPlugin) ht.get(node);
+				mindyPlugin = ht.get(node);
 				log.debug("plugin already exists for node ["
 						+ node.toString() + "]");
 			} else {
@@ -201,7 +202,6 @@ public class MindyVisualComponent implements VisualPlugin, java.util.Observer {
 	 * @param source -
 	 *            source of the GeneSelectorEvent
 	 */
-	@SuppressWarnings("unchecked")
 	@Subscribe(Asynchronous.class)
 	public void receive(GeneSelectorEvent e, Object source) {
 		log.debug("***Received gene selector event ");
@@ -211,11 +211,13 @@ public class MindyVisualComponent implements VisualPlugin, java.util.Observer {
 //				DSPanel<DSGeneMarker> selectorPanel = e.getPanel();
 				selectorPanel = e.getPanel();
 
-				Iterator it = ht.values().iterator();
+				Iterator<MindyPlugin> it = ht.values().iterator();
 				while (it.hasNext()) {
 					log
 							.debug("***received gene selector event::calling resetTargetSetModel: ");
-					((MindyPlugin) it.next()).setFilteringSelectorPanel(selectorPanel);
+					MindyPlugin p = it.next();
+					p.setFilteringSelectorPanel(selectorPanel);
+					p.getTableTab().setFirstColumnWidth(30);
 //					((MindyPlugin) it.next()).resetTargetSetModel(selectorPanel);
 				}
 			} else
