@@ -1,7 +1,7 @@
 /*
   The Broad Institute
   SOFTWARE COPYRIGHT NOTICE AGREEMENT
-  This software and its documentation are copyright (2003-2007) by the
+  This software and its documentation are copyright (2003-2010) by the
   Broad Institute/Massachusetts Institute of Technology. All rights are
   reserved.
 
@@ -12,9 +12,12 @@
 package org.geworkbench.components.gpmodule.classification.wv;
 
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.components.gpmodule.classification.PredictionModel;
 import org.geworkbench.components.gpmodule.classification.GPClassifier;
 import org.geworkbench.components.gpmodule.classification.PredictionResult;
+import org.geworkbench.components.gpmodule.GPDataset;
 import org.genepattern.webservice.Parameter;
 
 import java.io.*;
@@ -25,13 +28,12 @@ import java.util.ArrayList;
  * @author Marc-Danie Nazaire
  */
 public class WVClassifier extends GPClassifier {
-    PredictionModel predModel;
 
-    public WVClassifier(DSDataSet parent, String label, String[] classifications, PredictionModel model, List featureNames)
+    public WVClassifier(DSDataSet parent, String label, String[] classifications, PredictionModel model,
+                        GPDataset dataset, DSPanel<DSMicroarray> casePanel,
+                        DSPanel<DSMicroarray> controlPanel)
     {
-        super(parent, label, classifications);
-        this.predModel = model;
-        this.featureNames = featureNames;
+        super("WeightedVoting", parent, label, classifications, model, dataset, casePanel, controlPanel);
     }
 
     public int classify(float[] data)

@@ -1,7 +1,7 @@
 /*
   The Broad Institute
   SOFTWARE COPYRIGHT NOTICE AGREEMENT
-  This software and its documentation are copyright (2003-2008) by the
+  This software and its documentation are copyright (2003-2010) by the
   Broad Institute/Massachusetts Institute of Technology. All rights are
   reserved.
 
@@ -9,10 +9,11 @@
   whatsoever. Neither the Broad Institute nor MIT can be responsible for its
   use, misuse, or functionality.
 */
-package org.geworkbench.components.gpmodule.classification.svm.gui;
+package org.geworkbench.components.gpmodule.classification.gui;
 
-import org.geworkbench.components.gpmodule.classification.svm.SVMClassifier;
+import org.geworkbench.components.gpmodule.classification.VisualGPClassifier;
 import org.geworkbench.components.gpmodule.classification.PredictionResult;
+import org.geworkbench.components.gpmodule.classification.svm.gui.SVMTreeModel;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
@@ -51,10 +52,10 @@ import java.text.DecimalFormat;
 /**
  * @author Marc-Danie Nazaire
  */
-public class SVMVisualizationPanel extends JPanel implements ItemListener
+public class GPClassificationVisualizationPanel extends JPanel implements ItemListener
 {
-    private SVMVisualComponent svmVisComp;
-    private SVMClassifier svmClassifier;
+    private GPClassificationVisualComponent gpCVisComp;
+    private VisualGPClassifier visualGPClassifier;
     private JTabbedPane tabPane;
     private JPanel trainResultPanel;
     private JPanel testResultPanel;
@@ -80,10 +81,10 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
     private JSlider confSlider;
 
 
-    public SVMVisualizationPanel(SVMClassifier svmClassifier, SVMVisualComponent svmVisComp)
+    public GPClassificationVisualizationPanel(VisualGPClassifier visualGPClassifier, GPClassificationVisualComponent gpCVisComp)
     {
-        this.svmClassifier = svmClassifier;
-        this.svmVisComp = svmVisComp;
+        this.visualGPClassifier = visualGPClassifier;
+        this.gpCVisComp = gpCVisComp;
 
         jbInit();
     }
@@ -110,9 +111,9 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
         testResultsTable = new JXTable();
         JScrollPane scrollPane = new JScrollPane(testResultsTable);
         testResultPanel.add(scrollPane, BorderLayout.CENTER);
-        if(svmClassifier.getTestPredResult() != null)
+        if(visualGPClassifier.getTestPredResult() != null)
         {
-            buildTestResultTable(svmClassifier.getTestPredResult());
+            buildTestResultTable(visualGPClassifier.getTestPredResult());
         }
 
         testDataPanel = new JPanel();
@@ -201,7 +202,7 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
         trainResultsTable.setShowGrid(true);
         trainResultsTable.setGridColor(Color.LIGHT_GRAY);
 
-        PredictionResult predResult = svmClassifier.getTrainPredResult();
+        PredictionResult predResult = visualGPClassifier.getTrainPredResult();
 
         int sampleIndx = predResult.getColumn("Samples");
         int tClassIndx = predResult.getColumn("True Class");
@@ -214,10 +215,10 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
         DefaultTableModel tableModel = new DefaultTableModel();
         tableModel.setColumnIdentifiers(columnNames);
 
-        java.net.URL imageURL1 = SVMVisualizationPanel.class.getResource("images/green_check_mark.gif");
+        java.net.URL imageURL1 = GPClassificationVisualizationPanel.class.getResource("images/green_check_mark.gif");
         ImageIcon correct_image = new ImageIcon(imageURL1);
 
-        java.net.URL imageURL2 = SVMVisualizationPanel.class.getResource("images/xMark.gif");
+        java.net.URL imageURL2 = GPClassificationVisualizationPanel.class.getResource("images/xMark.gif");
         ImageIcon incorrect_image = new ImageIcon(imageURL2);
 
 
@@ -348,7 +349,7 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
                     testClass = caseRadioButton.getText();
                     predictedResultPanel = new CSPanel<DSMicroarray>("Predicted Cases");
 
-                    CSMicroarraySet dataset = (CSMicroarraySet)svmClassifier.getParentDataSet();
+                    CSMicroarraySet dataset = (CSMicroarraySet) visualGPClassifier.getParentDataSet();
                     for(int i = 0; i < testResultsTable.getRowCount(); i++)
                     {
                         if(!((String)testResultsTable.getModel().getValueAt(i, 1)).equalsIgnoreCase("Case"))
@@ -369,7 +370,7 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
                     testClass = controlRadioButton.getText();
                     predictedResultPanel = new CSPanel<DSMicroarray>("Predicted Controls");
 
-                    CSMicroarraySet dataset = (CSMicroarraySet)svmClassifier.getParentDataSet();
+                    CSMicroarraySet dataset = (CSMicroarraySet) visualGPClassifier.getParentDataSet();
                     for(int i = 0; i < testResultsTable.getRowCount(); i++)
                     {
                         if(!((String)testResultsTable.getModel().getValueAt(i, 1)).equalsIgnoreCase("Control"))
@@ -391,7 +392,7 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
                     JOptionPane.showMessageDialog(null, "No microarrays predicted as " + testClass + " ");
                 }
                 else
-                    svmVisComp.publishSubpanelChangedEvent(new org.geworkbench.events.SubpanelChangedEvent(DSMicroarray.class, predictedResultPanel, org.geworkbench.events.SubpanelChangedEvent.NEW));
+                    gpCVisComp.publishSubpanelChangedEvent(new org.geworkbench.events.SubpanelChangedEvent(DSMicroarray.class, predictedResultPanel, org.geworkbench.events.SubpanelChangedEvent.NEW));
             }
         });
 
@@ -419,7 +420,7 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
 
                 JComboBox comboBox = (JComboBox)event.getSource();
                 String microarraySetName = (String)comboBox.getSelectedItem();
-                DSMicroarraySet microarraySet = (DSMicroarraySet)SVMVisualComponent.microarraySets.get(microarraySetName);
+                DSMicroarraySet microarraySet = (DSMicroarraySet)GPClassificationVisualComponent.microarraySets.get(microarraySetName);
 
                 maSetComboBox.removeAllItems();
 
@@ -479,7 +480,7 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
                 String contextName = (String)comboBox.getSelectedItem();
 
                 String microarraySetName = (String)maSetNodeComboBox.getSelectedItem();
-                DSMicroarraySet microarraySet = (DSMicroarraySet)SVMVisualComponent.microarraySets.get(microarraySetName);
+                DSMicroarraySet microarraySet = (DSMicroarraySet)GPClassificationVisualComponent.microarraySets.get(microarraySetName);
                 CSAnnotationContextManager manager = CSAnnotationContextManager.getInstance();
 
                 DSAnnotationContext context = manager.getContext(microarraySet, contextName);
@@ -559,7 +560,7 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
                 {
                     public void run()
                     {
-                        DSMicroarraySet maSet = (DSMicroarraySet)SVMVisualComponent.microarraySets.get(maSetNodeComboBox.getSelectedItem());
+                        DSMicroarraySet maSet = (DSMicroarraySet)GPClassificationVisualComponent.microarraySets.get(maSetNodeComboBox.getSelectedItem());
                         CSAnnotationContextManager manager = CSAnnotationContextManager.getInstance();
 
                         String context = (String)maSetComboBox.getSelectedItem();
@@ -581,7 +582,7 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
                         testLabels.put(context, labelNames);
 
                         manager.setCurrentContext(maSet, selectedContext);
-                        svmClassifier.setParent(maSet);
+                        visualGPClassifier.setParent(maSet);
 
                         ProgressBar progressBar;
                         progressBar = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
@@ -594,7 +595,7 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
                         PredictionResult result = null;
                         try
                         {
-                            result = svmClassifier.classify(panel);
+                            result = visualGPClassifier.classify(panel);
 
                             buildTestResultTable(result);
                         }
@@ -629,14 +630,14 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
 
         testDataPanel.add(Box.createVerticalGlue());
 
-        Iterator it = SVMVisualComponent.microarraySets.keySet().iterator();
+        Iterator it = GPClassificationVisualComponent.microarraySets.keySet().iterator();
         while(it.hasNext())
         {
             String key = (String)it.next();
-            DSMicroarraySet microarraySet = (DSMicroarraySet)SVMVisualComponent.microarraySets.get(key);
+            DSMicroarraySet microarraySet = (DSMicroarraySet)GPClassificationVisualComponent.microarraySets.get(key);
             maSetNodeComboBox.addItem(microarraySet.getDataSetName());
 
-            if(microarraySet.getDataSetName().equals(svmClassifier.getParentDataSet().getDataSetName()))
+            if(microarraySet.getDataSetName().equals(visualGPClassifier.getParentDataSet().getDataSetName()))
             {
                 maSetNodeComboBox.setSelectedItem(microarraySet.getDataSetName());
             }
@@ -845,15 +846,18 @@ public class SVMVisualizationPanel extends JPanel implements ItemListener
             if(Double.valueOf(confidence).doubleValue() >= ((Double)confidenceThreshold.getValue()).doubleValue())
             {
                 list.add(r);
+                System.out.println("Adding " + Double.valueOf(confidence).doubleValue() + " to list"
+                + " since it is greater than or equal to " + ((Double)confidenceThreshold.getValue()).doubleValue());
+
             }
             else
+            {
                 lessThan = true;
-        }
+                System.out.println("Not adding " + Double.valueOf(confidence).doubleValue() + " to list"
+                               + " since it is less than " + ((Double)confidenceThreshold.getValue()).doubleValue());
 
-        if(list.size() == 0 || lessThan == false)
-        {
-            return;
-        }
+            }
+        }        
 
         int[] indices = new int[list.size()];
         for(int r = 0; r < indices.length; r++)

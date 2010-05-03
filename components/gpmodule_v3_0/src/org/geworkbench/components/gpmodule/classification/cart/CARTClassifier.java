@@ -9,10 +9,10 @@
   whatsoever. Neither the Broad Institute nor MIT can be responsible for its
   use, misuse, or functionality.
 */
-package org.geworkbench.components.gpmodule.classification.svm;
+package org.geworkbench.components.gpmodule.classification.cart;
 
-import org.geworkbench.components.gpmodule.classification.PredictionModel;
 import org.geworkbench.components.gpmodule.classification.VisualGPClassifier;
+import org.geworkbench.components.gpmodule.classification.PredictionModel;
 import org.geworkbench.components.gpmodule.GPDataset;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
@@ -26,25 +26,25 @@ import java.io.File;
 /**
  * @author Marc-Danie Nazaire
  */
-public class SVMClassifier extends VisualGPClassifier
+public class CARTClassifier extends VisualGPClassifier
 {
-    public SVMClassifier(DSDataSet parent, String label, String[] classifications, PredictionModel model,
-                         GPDataset dataset, DSPanel<DSMicroarray> casePanel, DSPanel<DSMicroarray> controlPanel)
+    public CARTClassifier(DSDataSet parent, String label, String[] classifications, 
+                          PredictionModel model, GPDataset dataset, DSPanel<DSMicroarray> casePanel, DSPanel<DSMicroarray> controlPanel)
     {
-        super("SVM", parent, label, classifications, dataset, model, casePanel, controlPanel);
+        super("CART", parent, label, classifications, dataset, model, casePanel, controlPanel);
     }
 
     public Parameter[] buildParametersList(List data, List arrayNames, String[] classLabels)
     {
-        File testData = createTestGCTFile("SVMTest_Data", data, arrayNames);
-        File testCLSData = createTestCLSFile("SVMTest_Cls", data.size(), classLabels);
+        File testData = createTestGCTFile("CARTTest_Data", data, arrayNames);
+        File testCLSData = createTestCLSFile("CARTTest_Cls", data.size(), classLabels);
 
         List parameters = new ArrayList();
 
         parameters.add(new Parameter("saved.model.filename", predModel.getPredModelFile().getAbsolutePath()));
         parameters.add(new Parameter("test.data.filename", testData.getAbsolutePath()));
         parameters.add(new Parameter("test.cls.filename", testCLSData.getAbsolutePath()));
-        parameters.add(new Parameter("pred.results.output.file", predModel.getPredModelFile().getName() + "pred"));
+        parameters.add(new Parameter("pred.results.file", predModel.getPredModelFile().getName() + "pred"));
 
         return (Parameter[])parameters.toArray(new Parameter[0]);
     }

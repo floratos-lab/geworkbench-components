@@ -1,7 +1,7 @@
 /*
   The Broad Institute
   SOFTWARE COPYRIGHT NOTICE AGREEMENT
-  This software and its documentation are copyright (2003-2007) by the
+  This software and its documentation are copyright (2003-2010) by the
   Broad Institute/Massachusetts Institute of Technology. All rights are
   reserved.
 
@@ -13,14 +13,18 @@ package org.geworkbench.components.gpmodule.classification.knn;
 
 import org.geworkbench.components.gpmodule.classification.GPTraining;
 import org.geworkbench.components.gpmodule.classification.PredictionModel;
+import org.geworkbench.components.gpmodule.classification.GPClassificationUtils;
+import org.geworkbench.components.gpmodule.GPDataset;
 import org.geworkbench.bison.algorithm.classification.CSClassifier;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.bison.annotation.DSAnnotationContext;
+import org.geworkbench.bison.annotation.CSAnnotationContextManager;
+import org.geworkbench.bison.annotation.CSAnnotationContext;
 import org.geworkbench.util.ClassifierException;
 import org.geworkbench.util.TrainingTask;
 import org.geworkbench.util.TrainingProgressListener;
 import org.genepattern.matrix.ClassVector;
-import org.genepattern.matrix.DefaultClassVector;
 import org.genepattern.webservice.Parameter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -28,6 +32,7 @@ import org.apache.commons.logging.LogFactory;
 import javax.swing.*;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.io.*;
 
 /**
@@ -82,45 +87,44 @@ public class KNNTraining extends GPTraining implements TrainingTask
                 trainingProgressListener.stepUpdate("processing training parameters", 1);
 
             KNNTrainingPanel knnPanel = (KNNTrainingPanel)panel;
-            DSItemList markers = knnPanel.getActiveMarkers();
+            DSAnnotationContext<DSMicroarray> context = CSAnnotationContextManager.getInstance().getCurrentContext(panel.getMaSet());
+            DSPanel<DSMicroarray> casePanel = context.getActivatedItemsForClass(CSAnnotationContext.CLASS_CASE);
 
-            List featureNames = new ArrayList();
-            for(int i =0; i < markers.size();i++)
+            DSPanel<DSMicroarray> controlPanel = context.getActivatedItemsForClass(CSAnnotationContext.CLASS_CONTROL);
+
+            //Create gct file
+            GPDataset dataset = createGCTDataset(caseData, controlData, getArrayNames(casePanel),
+                                                      getArrayNames(controlPanel));
+
+            File trainingDataFile;
+
+            try
             {
-                featureNames.add(((DSGeneMarker)markers.get(i)).getLabel());
+                String fileName = GPClassificationUtils.createGCTFile(dataset, "KNN_Data");
+                trainingDataFile = new File(fileName);
+            }
+            catch(IOException io)
+            {
+                io.printStackTrace();
+                throw new ClassifierException("An error occurred when training SVM classifier");
             }
 
-            List trainingSet = new ArrayList<double[]>();
-            trainingSet.addAll(controlData);
-            trainingSet.addAll(caseData);
-
-            File trainingData = createGCTFile("KNN_Data", trainingSet, featureNames);
-
-            int sampleSize = caseData.size() + controlData.size();
-            String[] classLabels = new String[sampleSize];
-            for(int i = 0; i < sampleSize; i++)
-            {
-                if(i < controlData.size())
-                    classLabels[i] = "Control";
-                else
-                    classLabels[i] = "Case";
-            }
-
-            ClassVector classVec = new DefaultClassVector(classLabels);
-            File clsData = createCLSFile("KNN_Cls", classVec);
+            //Create cls file
+            ClassVector clsVector = createClassVector(caseData, controlData);
+            File clsData = GPClassificationUtils.createCLSFile("KNN_Cls", clsVector);
 
             int numNeighbors = knnPanel.getNumNeighbors();
             int weightType = getWeightType(knnPanel.getWeightType());
 
             List parameters = new ArrayList();
-            parameters.add(new Parameter("train.filename", trainingData.getAbsolutePath()));
+            parameters.add(new Parameter("train.filename", trainingDataFile.getAbsolutePath()));
             parameters.add(new Parameter("train.class.filename", clsData.getAbsolutePath()));
-            parameters.add(new Parameter("model.file", ++modelCount + trainingData.getName()));
+            parameters.add(new Parameter("model.file", ++modelCount + trainingDataFile.getName()));
 
             if(knnPanel.useFeatureFileMethod())
             {
                 String featureFile = knnPanel.getFeatureFile();
-                validateFeatureFile(featureFile, featureNames);
+                validateFeatureFile(featureFile, Arrays.asList(dataset.getRowNames()));
 
                 parameters.add(new Parameter("feature.list.filename", featureFile));
             }
@@ -152,7 +156,8 @@ public class KNNTraining extends GPTraining implements TrainingTask
             File modelFile = trainData("KNN", (Parameter[])parameters.toArray(new Parameter[0]));
             PredictionModel predModel = createModel(modelFile);
 
-            knnClassifier = new KNNClassifier(null, "KNN Classifier", new String[]{"Positive", "Negative"}, predModel, featureNames, knnParams);
+            knnClassifier = new KNNClassifier(null, "KNN Classifier", new String[]{"Positive", "Negative"},
+                    predModel, dataset, casePanel, controlPanel, knnParams);
             knnClassifier.setPassword(((KNNTrainingPanel)panel).getPassword());
 
             if(trainingProgressListener != null)

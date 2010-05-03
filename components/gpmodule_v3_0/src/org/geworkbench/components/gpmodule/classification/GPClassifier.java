@@ -1,7 +1,7 @@
 /*
   The Broad Institute
   SOFTWARE COPYRIGHT NOTICE AGREEMENT
-  This software and its documentation are copyright (2003-2007) by the
+  This software and its documentation are copyright (2003-2010) by the
   Broad Institute/Massachusetts Institute of Technology. All rights are
   reserved.
 
@@ -11,9 +11,12 @@
 */
 package org.geworkbench.components.gpmodule.classification;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.algorithm.classification.CSClassifier;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.bison.algorithm.classification.CSSvmClassifier;
 import org.geworkbench.util.ClassifierException;
 import org.geworkbench.util.FilePathnameUtils;
+import org.geworkbench.components.gpmodule.GPDataset;
 import org.genepattern.io.gct.GctWriter;
 import org.genepattern.io.cls.ClsWriter;
 import org.genepattern.util.GPpropertiesManager;
@@ -21,10 +24,7 @@ import org.genepattern.client.GPClient;
 import org.genepattern.webservice.JobResult;
 import org.genepattern.webservice.Parameter;
 import org.genepattern.webservice.AnalysisWebServiceProxy;
-import org.genepattern.matrix.Dataset;
-import org.genepattern.matrix.AbstractDataset;
-import org.genepattern.matrix.ClassVector;
-import org.genepattern.matrix.DefaultClassVector;
+import org.genepattern.matrix.*;
 
 import javax.swing.*;
 import java.io.*;
@@ -34,14 +34,21 @@ import java.util.Arrays;
 /**
  * @author Marc-Danie Nazaire
  */
-public abstract class GPClassifier extends CSClassifier
+public abstract class GPClassifier extends CSSvmClassifier
 {
-    public List featureNames;
+    protected PredictionModel predModel;
+    protected GPDataset dataset;
     private String password;
+    protected String moduleName;
 
-    protected GPClassifier(DSDataSet parent, String label, String[] classifications)
+    protected GPClassifier(String moduleName, DSDataSet parent, String label, String[] classifications, PredictionModel model, GPDataset dataset,
+                           DSPanel<DSMicroarray> casePanel, DSPanel<DSMicroarray> controlPanel)
     {
-        super(parent, label, classifications);
+        super(parent, label, classifications, model.getModelFileContent(), Arrays.asList(dataset.getRowNames()), casePanel, controlPanel);
+
+        this.predModel = model;
+        this.dataset = dataset;
+        this.moduleName = moduleName;
         password = null;
     }
 
@@ -68,12 +75,12 @@ public abstract class GPClassifier extends CSClassifier
 
             public String getRowName(int row)
             {
-                return (String)featureNames.get(row);
+                return dataset.getRowNames()[row];
             }
 
             public int getRowCount()
             {
-                return featureNames.size();
+                return dataset.getRowCount();
             }
 
             public String getRowDescription(int row)

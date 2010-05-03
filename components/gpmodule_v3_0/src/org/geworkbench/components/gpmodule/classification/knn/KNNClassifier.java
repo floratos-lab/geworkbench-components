@@ -12,9 +12,12 @@
 package org.geworkbench.components.gpmodule.classification.knn;
 
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.components.gpmodule.classification.PredictionModel;
 import org.geworkbench.components.gpmodule.classification.GPClassifier;
 import org.geworkbench.components.gpmodule.classification.PredictionResult;
+import org.geworkbench.components.gpmodule.GPDataset;
 import org.genepattern.webservice.Parameter;
 
 import java.io.File;
@@ -26,14 +29,12 @@ import java.util.ArrayList;
  */
 public class KNNClassifier extends GPClassifier {
     List knnParameters = null;
-    PredictionModel predModel;
 
-    public KNNClassifier(DSDataSet parent, String label, String[] classifications, PredictionModel predModel, List featureNames, List knnParams)
+    public KNNClassifier(DSDataSet parent, String label, String[] classifications, PredictionModel predModel,
+                         GPDataset dataset, DSPanel<DSMicroarray> casePanel,
+                         DSPanel<DSMicroarray> controlPanel, List knnParams)
     {
-        super(parent, label, classifications);
-
-        this.predModel = predModel;
-        this.featureNames = featureNames;
+        super("KNN", parent, label, classifications, predModel, dataset, casePanel, controlPanel);
         this.knnParameters = knnParams;
     }
 

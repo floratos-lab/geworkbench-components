@@ -1,7 +1,7 @@
 /*
   The Broad Institute
   SOFTWARE COPYRIGHT NOTICE AGREEMENT
-  This software and its documentation are copyright (2003-2007) by the
+  This software and its documentation are copyright (2003-2010) by the
   Broad Institute/Massachusetts Institute of Technology. All rights are
   reserved.
 
@@ -20,34 +20,24 @@ import org.geworkbench.util.ProgressBar;
 import org.geworkbench.components.gpmodule.classification.GPTraining;
 import org.geworkbench.components.gpmodule.classification.PredictionModel;
 import org.geworkbench.components.gpmodule.classification.PredictionResult;
+import org.geworkbench.components.gpmodule.classification.GPClassificationUtils;
+import org.geworkbench.components.gpmodule.GPDataset;
 import org.geworkbench.bison.algorithm.classification.CSClassifier;
-import org.geworkbench.bison.algorithm.classification.CSSvmClassifier;
-import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.annotation.DSAnnotationContext;
 import org.geworkbench.bison.annotation.CSAnnotationContextManager;
 import org.geworkbench.bison.annotation.CSAnnotationContext;
 import org.geworkbench.events.ProjectNodeAddedEvent;
-import org.geworkbench.builtin.projects.ProjectPanel;
 import org.genepattern.matrix.ClassVector;
-import org.genepattern.matrix.DefaultClassVector;
 import org.genepattern.webservice.Parameter;
 
 import javax.swing.*;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 
 
 /**
@@ -79,58 +69,44 @@ public class SVMTraining extends GPTraining implements TrainingTask
             if(caseData.size() == 0)
                 throw new ClassifierException("Case data must be provided");
 
-            SVMTrainingPanel svmPanel = (SVMTrainingPanel)panel;
-            DSItemList markers = svmPanel.getActiveMarkers();
+            DSAnnotationContext<DSMicroarray> context = CSAnnotationContextManager.getInstance().getCurrentContext(panel.getMaSet());
+            DSPanel<DSMicroarray> casePanel = context.getActivatedItemsForClass(CSAnnotationContext.CLASS_CASE);
 
-            List featureNames = new ArrayList();
-            for(int i =0; i < markers.size();i++)
+            DSPanel<DSMicroarray> controlPanel = context.getActivatedItemsForClass(CSAnnotationContext.CLASS_CONTROL);
+
+            //Create gct file
+            GPDataset dataset = createGCTDataset(caseData, controlData, getArrayNames(casePanel),
+                                                      getArrayNames(controlPanel));
+
+            File trainingDataFile;
+
+            try
             {
-                featureNames.add(((DSGeneMarker)markers.get(i)).getLabel());
+                String fileName  = GPClassificationUtils.createGCTFile(dataset, "SVM_Data");
+                trainingDataFile = new File(fileName);
+            }
+            catch(IOException io)
+            {
+                io.printStackTrace();
+                throw new ClassifierException("An error occurred when training SVM classifier");
             }
 
-            List trainingSet = new ArrayList<double[]>();
-            trainingSet.addAll(controlData);
+            //Create cls file
+            ClassVector clsVector = createClassVector(caseData, controlData);
+            File clsData = GPClassificationUtils.createCLSFile("SVM_Cls", clsVector);
 
-            List arrayNames = new ArrayList();
-            DSAnnotationContext<DSMicroarray> context = CSAnnotationContextManager.getInstance().getCurrentContext(svmPanel.getMaSet());
-            DSPanel<DSMicroarray> dsPanel = context.getActivatedItemsForClass(CSAnnotationContext.CLASS_CONTROL);
-            for(DSMicroarray microarray: dsPanel)
-            {
-                arrayNames.add(microarray.getLabel());
-            }
-
-            trainingSet.addAll(caseData);
-            dsPanel = context.getActivatedItemsForClass(CSAnnotationContext.CLASS_CASE);
-            for(DSMicroarray microarray: dsPanel)
-            {
-                arrayNames.add(microarray.getLabel());
-            }
-
-            File trainingData = createGCTFile("SVM_Data", trainingSet, featureNames, arrayNames);
-
-
-            int sampleSize = caseData.size() + controlData.size();
-            String[] classLabels = new String[sampleSize];
-            for(int i = 0; i < sampleSize; i++)
-            {
-                if(i < controlData.size())
-                    classLabels[i] = "Control";
-                else
-                    classLabels[i] = "Case";
-            }
-
-            ClassVector classVec = new DefaultClassVector(classLabels);
-            File clsData = createCLSFile("SVM_Cls", classVec);
-
+            //Set parameters for running the module
             Parameter[] parameters = new Parameter[3];
-            parameters[0] = new Parameter("train.data.filename", trainingData.getAbsolutePath());
+            parameters[0] = new Parameter("train.data.filename", trainingDataFile.getAbsolutePath());
             parameters[1] = new Parameter("train.cls.filename", clsData.getAbsolutePath());
-            parameters[2] = new Parameter("model.output.file", ++modelCount + trainingData.getName());
+            parameters[2] = new Parameter("model.output.file", ++modelCount + trainingDataFile.getName() + ".model");
 
+            //Run module and get model result file
             File modelFile = trainData("SVM", parameters);
             PredictionModel model = new PredictionModel(modelFile);
 
-            svmClassifier = new SVMClassifier(svmPanel.getMaSet(), "SVM Classifier", new String[]{"Positive", "Negative"}, model, featureNames);
+            svmClassifier = new SVMClassifier(panel.getMaSet(), "SVM Classifier",
+                    new String[]{"Positive", "Negative"}, model, dataset, casePanel, controlPanel);
             svmClassifier.setPassword(((SVMTrainingPanel)panel).getPassword());
         }
         catch(ClassifierException e)
@@ -181,7 +157,7 @@ public class SVMTraining extends GPTraining implements TrainingTask
 
         if(testPanel == null || testPanel.size() == 0)
         {
-            publishProjectNodeAddedEvent(new ProjectNodeAddedEvent(classifier.getLabel(), null, createCsSvmClassifier(svmClassifier, casePanel, controlPanel)));
+            publishProjectNodeAddedEvent(new ProjectNodeAddedEvent(classifier.getLabel(), null, classifier));
             return;
         }
 
@@ -207,43 +183,9 @@ public class SVMTraining extends GPTraining implements TrainingTask
             progressBar.stop();
         }
 
-        publishProjectNodeAddedEvent(new ProjectNodeAddedEvent(classifier.getLabel(), null, createCsSvmClassifier(svmClassifier, casePanel, controlPanel)));
+        publishProjectNodeAddedEvent(new ProjectNodeAddedEvent(classifier.getLabel(), null, classifier));
     }
     
-    private static CSSvmClassifier createCsSvmClassifier(
-			SVMClassifier svmClassifier, DSPanel<DSMicroarray> casePanel,
-			DSPanel<DSMicroarray> controlPanel) {
-		File preModelFile = svmClassifier.predModel.getPredModelFile();
-
-		byte[] model = null;
-		FileInputStream fis = null;
-		try {
-			fis = new FileInputStream(preModelFile);
-			FileChannel fc = fis.getChannel();
-			model = new byte[(int) (fc.size())];
-			ByteBuffer bb = ByteBuffer.wrap(model);
-			fc.read(bb);
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} finally {
-			try {
-				if (fis != null)
-					fis.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-
-		return new CSSvmClassifier(svmClassifier.getParentDataSet(),
-				svmClassifier.getLabel(), svmClassifier.getClassifications(),
-				model, svmClassifier.featureNames, casePanel, controlPanel);
-	}
-
     public boolean isCancelled()
     {
         return false;

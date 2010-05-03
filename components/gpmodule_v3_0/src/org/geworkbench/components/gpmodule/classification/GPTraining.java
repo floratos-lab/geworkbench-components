@@ -1,7 +1,7 @@
 /*
   The Broad Institute
   SOFTWARE COPYRIGHT NOTICE AGREEMENT
-  This software and its documentation are copyright (2003-2008) by the
+  This software and its documentation are copyright (2003-2010) by the
   Broad Institute/Massachusetts Institute of Technology. All rights are
   reserved.
 
@@ -11,12 +11,7 @@
 */
 package org.geworkbench.components.gpmodule.classification;
 
-import org.genepattern.matrix.Dataset;
-import org.genepattern.matrix.ClassVector;
-import org.genepattern.matrix.AbstractDataset;
-import org.genepattern.matrix.DefaultClassVector;
-import org.genepattern.io.gct.GctWriter;
-import org.genepattern.io.cls.ClsWriter;
+import org.genepattern.matrix.*;
 import org.genepattern.io.IOUtil;
 import org.genepattern.client.GPClient;
 import org.genepattern.webservice.JobResult;
@@ -31,9 +26,7 @@ import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.annotation.DSAnnotationContext;
-import org.geworkbench.bison.annotation.CSAnnotationContextManager;
-import org.geworkbench.bison.annotation.CSAnnotationContext;
+import org.geworkbench.components.gpmodule.GPDataset;
 
 import java.io.*;
 import java.util.List;
@@ -46,12 +39,19 @@ public abstract class GPTraining extends AbstractTraining
 {
     protected static int modelCount = 0;
 
-    protected File createGCTFile(String fileName, final List trainingSet, final List featureNames)
+    public List<String> getArrayNames(DSPanel<DSMicroarray> panel)
     {
-        return createGCTFile(fileName, trainingSet, featureNames, null);
+        List arrayNames = new ArrayList();
+        for(DSMicroarray microarray: panel)
+        {
+            arrayNames.add(microarray.getLabel());
+        }
+
+        return arrayNames;
     }
 
-    protected File createGCTFile(String fileName, GPTrainingPanel panel, List<float[]> caseData, List<float[]> controlData)
+    public GPDataset createGCTDataset(List<float[]> caseData, List<float[]> controlData,
+                                            List<String> caseArrayNames, List<String> controlArrayNames)
     {
         DSItemList markers = panel.getActiveMarkers();
 
@@ -61,99 +61,20 @@ public abstract class GPTraining extends AbstractTraining
             featureNames.add(((DSGeneMarker)markers.get(i)).getLabel());
         }
 
-        List trainingSet = new ArrayList<double[]>();
+        List<float[]> trainingSet = new ArrayList();
         trainingSet.addAll(controlData);
+        trainingSet.addAll(caseData);
 
         List arrayNames = new ArrayList();
-        DSAnnotationContext<DSMicroarray> context = CSAnnotationContextManager.getInstance().getCurrentContext(panel.getMaSet());
-        DSPanel<DSMicroarray> dsPanel = context.getActivatedItemsForClass(CSAnnotationContext.CLASS_CONTROL);
-        for(DSMicroarray microarray: dsPanel)
-        {
-            arrayNames.add(microarray.getLabel());
-        }
+        arrayNames.addAll(controlArrayNames);
+        arrayNames.addAll(caseArrayNames);
 
-        trainingSet.addAll(caseData);
-        dsPanel = context.getActivatedItemsForClass(CSAnnotationContext.CLASS_CASE);
-        for(DSMicroarray microarray: dsPanel)
-        {
-            arrayNames.add(microarray.getLabel());
-        }
+        GPDataset dataset = new GPDataset(trainingSet, (String[])featureNames.toArray(new String[0]), (String[])arrayNames.toArray(new String[0]));
 
-        return createGCTFile(fileName, trainingSet, featureNames, arrayNames);
-
-    }
-    protected File createGCTFile(String fileName, final List trainingSet, final List featureNames, final List arrayNames)
-    {
-        File gctFile = null;
-        Dataset data = new AbstractDataset() {
-
-            public double getValue(int row, int column)
-            {
-                return ((float[])trainingSet.get(column))[row];
-            }
-
-            public String getRowName(int row)
-            {
-                return (String)featureNames.get(row);
-            }
-
-            public int getRowCount()
-            {
-                return featureNames.size();
-            }
-
-            public String getRowDescription(int row)
-            {
-                return "";
-            }
-
-            public int getColumnCount()
-            {
-                return trainingSet.size();
-            }
-
-            public String getColumnName(int column)
-            {
-                if(arrayNames != null && arrayNames.get(column) != null)
-                {
-                    return (String) arrayNames.get(column);
-                }
-
-                return "Column " + column;
-            }
-
-            public String getColumnDescription(int column)
-            {
-                return "";
-            }
-        };
-
-        GctWriter writer = new GctWriter();
-        OutputStream os = null;
-        try
-        {
-            gctFile = new File(fileName + ".gct");
-            gctFile.deleteOnExit();
-            os = new BufferedOutputStream(new FileOutputStream(gctFile));
-            writer.write(data, os);
-        }
-        catch (IOException ioe)
-        {   ioe.printStackTrace();  }
-        finally
-        {
-            try
-            {
-                if (os != null)
-                {   os.close(); }
-            }
-            catch (IOException e)
-            {   e.printStackTrace();    }
-        }
-
-        return gctFile;
+        return dataset;
     }
 
-    protected File createCLSFile(String fileName, List<float[]> caseData, List<float[]> controlData)
+    public ClassVector createClassVector(List<float[]> caseData, List<float[]> controlData)
     {
         int sampleSize = caseData.size() + controlData.size();
         String[] classLabels = new String[sampleSize];
@@ -166,27 +87,9 @@ public abstract class GPTraining extends AbstractTraining
                 classLabels[i] = "Case";
         }
 
-        ClassVector classVec = new DefaultClassVector(classLabels);
-        return createCLSFile(fileName, classVec);
-    }
+        ClassVector clsVector = new DefaultClassVector(classLabels);
 
-    protected File createCLSFile(String fileName, ClassVector classLabel)
-    {
-        File clsFile = null;
-
-        try
-        {
-            clsFile = new File(fileName + ".cls");
-            clsFile.deleteOnExit();
-            FileOutputStream clsOutputStream = new FileOutputStream(clsFile);
-
-            ClsWriter writer = new ClsWriter();
-            writer.write(classLabel, clsOutputStream);
-        }
-        catch(Exception e)
-        {   e.printStackTrace(); }
-
-        return clsFile;
+        return clsVector;
     }
 
     protected int getStatistic(String statistic, boolean median, boolean stdDev)

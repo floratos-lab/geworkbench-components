@@ -1,7 +1,7 @@
 /*
   The Broad Institute
   SOFTWARE COPYRIGHT NOTICE AGREEMENT
-  This software and its documentation are copyright (2003-2007) by the
+  This software and its documentation are copyright (2003-2010) by the
   Broad Institute/Massachusetts Institute of Technology. All rights are
   reserved.
 
@@ -13,14 +13,18 @@ package org.geworkbench.components.gpmodule.classification.wv;
 
 import org.geworkbench.components.gpmodule.classification.GPTraining;
 import org.geworkbench.components.gpmodule.classification.PredictionModel;
+import org.geworkbench.components.gpmodule.classification.GPClassificationUtils;
+import org.geworkbench.components.gpmodule.GPDataset;
 import org.geworkbench.bison.algorithm.classification.CSClassifier;
-import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.annotation.DSAnnotationContext;
+import org.geworkbench.bison.annotation.CSAnnotationContextManager;
+import org.geworkbench.bison.annotation.CSAnnotationContext;
 import org.geworkbench.util.ClassifierException;
 import org.geworkbench.util.TrainingTask;
 import org.geworkbench.util.TrainingProgressListener;
 import org.genepattern.matrix.ClassVector;
-import org.genepattern.matrix.DefaultClassVector;
 import org.genepattern.webservice.Parameter;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.Log;
@@ -28,6 +32,7 @@ import org.apache.commons.logging.Log;
 import javax.swing.*;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.io.*;
 
 /**
@@ -60,46 +65,46 @@ public class WVTraining extends GPTraining implements TrainingTask
             if(caseData.size() == 0)
                 throw new ClassifierException("Case data must be provided");
 
+            System.out.println("Before open training progress listener");
             if(trainingProgressListener != null)
                 trainingProgressListener.stepUpdate("processing training parameters", 1);
 
             WVTrainingPanel wvPanel = (WVTrainingPanel)panel;
-            DSItemList markers = wvPanel.getActiveMarkers();
+            DSAnnotationContext<DSMicroarray> context = CSAnnotationContextManager.getInstance().getCurrentContext(panel.getMaSet());
+            DSPanel<DSMicroarray> casePanel = context.getActivatedItemsForClass(CSAnnotationContext.CLASS_CASE);
 
-            List featureNames = new ArrayList();
-            for(int i =0; i < markers.size(); i++)
+            DSPanel<DSMicroarray> controlPanel = context.getActivatedItemsForClass(CSAnnotationContext.CLASS_CONTROL);
+
+            //Create gct file
+            GPDataset dataset = createGCTDataset(caseData, controlData, getArrayNames(casePanel),
+                                                      getArrayNames(controlPanel));
+
+            File trainingDataFile;
+
+            try
             {
-                featureNames.add(((DSGeneMarker)markers.get(i)).getLabel());
+                String fileName = GPClassificationUtils.createGCTFile(dataset, "WV_Data");
+                trainingDataFile = new File(fileName);
+            }
+            catch(IOException io)
+            {
+                io.printStackTrace();
+                throw new ClassifierException("An error occurred when training SVM classifier");
             }
 
-            List trainingSet = new ArrayList<double[]>();
-            trainingSet.addAll(controlData);
-            trainingSet.addAll(caseData);
-
-            File trainingData = createGCTFile("WV_Data", trainingSet, featureNames);
-
-            int sampleSize = caseData.size() + controlData.size();
-            String[] classLabels = new String[sampleSize];
-            for(int i = 0; i < sampleSize; i++)
-            {
-                if(i < controlData.size())
-                    classLabels[i] = "Control";
-                else
-                    classLabels[i] = "Case";
-            }
-
-            ClassVector classVec = new DefaultClassVector(classLabels);
-            File clsData = createCLSFile("WV_Cls", classVec);
+            //Create cls file
+            ClassVector clsVector = createClassVector(caseData, controlData);
+            File clsData = GPClassificationUtils.createCLSFile("WV_Cls", clsVector);
 
             List parameters = new ArrayList();
-            parameters.add(new Parameter("train.filename", trainingData.getAbsolutePath()));
+            parameters.add(new Parameter("train.filename", trainingDataFile.getAbsolutePath()));
             parameters.add(new Parameter("train.class.filename", clsData.getAbsolutePath()));
-            parameters.add(new Parameter("model.file", ++modelCount + trainingData.getName()));
+            parameters.add(new Parameter("model.file", ++modelCount + trainingDataFile.getName()));
             
             if(wvPanel.useFeatureFileMethod())
             {
                 String featureFile = wvPanel.getFeatureFile();
-                validateFeatureFile(featureFile, featureNames);
+                validateFeatureFile(featureFile, Arrays.asList(dataset.getRowNames()));
                 parameters.add(new Parameter("feature.list.filename", featureFile));
             }
             else
@@ -124,8 +129,12 @@ public class WVTraining extends GPTraining implements TrainingTask
             File modelFile = trainData("WeightedVoting", (Parameter[])parameters.toArray(new Parameter[0]));
             PredictionModel predModel = createModel(modelFile);
 
-            wvClassifier = new WVClassifier(null, "WV Classifier", new String[]{"Positive", "Negative"}, predModel, featureNames);
+            System.out.println("Model file is: " + modelFile);
+            wvClassifier = new WVClassifier(null, "WV Classifier", new String[]{"Positive", "Negative"}, 
+                            predModel, dataset, casePanel, controlPanel);
             wvClassifier.setPassword(((WVTrainingPanel)panel).getPassword());
+
+            System.out.println("After getting new WV classifier");
 
             if(trainingProgressListener != null)
                 trainingProgressListener.stepUpdate("classifier trained", 3);
@@ -137,6 +146,8 @@ public class WVTraining extends GPTraining implements TrainingTask
             JOptionPane.showMessageDialog(panel, e.getMessage());
             log.warn(e);
         }
+
+        System.out.println("Returning new classifier");
 
         return wvClassifier;
     }
