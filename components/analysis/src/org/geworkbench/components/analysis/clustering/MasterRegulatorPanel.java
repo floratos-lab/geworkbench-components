@@ -338,10 +338,18 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		adjModel.add(adjDataSet.getDataSetName());
 	}
 
-	public void removeAdjMatrixToCombobox(AdjacencyMatrixDataSet adjDataSet){
-		adjacencymatrixDataSets.remove(adjDataSet);
-		//adjModel.remove(adjDataSet.getDataSetName());
-		adjModel.remove(adjModel.indexOf(adjDataSet.getDataSetName()));
+	public void removeAdjMatrixToCombobox(AdjacencyMatrixDataSet adjDataSet){		
+		try
+		{
+		   adjacencymatrixDataSets.remove(adjDataSet);
+		   //adjModel.remove(adjDataSet.getDataSetName());
+		   adjModel.remove(adjModel.indexOf(adjDataSet.getDataSetName()));
+		}
+		catch(Exception ex)
+		{
+			log.error(ex.getMessage());
+		}
+		
 	}
 
 	public void renameAdjMatrixToCombobox(AdjacencyMatrixDataSet adjDataSet, String oldName, String newName){
