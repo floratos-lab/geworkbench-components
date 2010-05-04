@@ -1251,8 +1251,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				});
 
 		jPanel1.setLayout(new BorderLayout());
-		progressDisplayBar.add(jLabel1);
-		jProgressBar1.setForeground(Color.green);
+		progressDisplayBar.add(jLabel1);		 
 		jProgressBar1.setMinimumSize(new Dimension(10, 16));
 		jProgressBar1.setBorderPainted(true);
 		jProgressBar1.setMaximum(100);
