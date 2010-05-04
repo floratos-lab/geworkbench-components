@@ -24,17 +24,17 @@ import java.util.ArrayList;
 /**
  *@author Marc-Danie Nazaire
  */
-public class SVMTreeModel implements TreeModel
+public class GPTreeModel implements TreeModel
 {
     private DSAnnotationContext context;
     private List treeModelListeners = new ArrayList();
 
-    public SVMTreeModel()
+    public GPTreeModel()
     {
         context = null;
     }
 
-    public SVMTreeModel(DSAnnotationContext context)
+    public GPTreeModel(DSAnnotationContext context)
     {
         this.context = context;
     }

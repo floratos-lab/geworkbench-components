@@ -13,7 +13,7 @@ package org.geworkbench.components.gpmodule.classification.gui;
 
 import org.geworkbench.components.gpmodule.classification.VisualGPClassifier;
 import org.geworkbench.components.gpmodule.classification.PredictionResult;
-import org.geworkbench.components.gpmodule.classification.svm.gui.SVMTreeModel;
+import org.geworkbench.components.gpmodule.classification.svm.gui.GPTreeModel;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
@@ -69,7 +69,7 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
     private JFreeChart curveChart;
     private JSplitPane testMainPanel;
     private static Map <String, List> testLabels = new HashMap();
-    private SVMTreeModel treeModel;
+    private GPTreeModel treeModel;
     private JXTable trainResultsTable;
     private JXTable testResultsTable;
     private JButton createMaSetButton;
@@ -515,7 +515,7 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
         maSetGroupLabel.setAlignmentX(JLabel.LEFT_ALIGNMENT);
         testDataPanel.add(maSetGroupLabel);
 
-        treeModel = new SVMTreeModel();
+        treeModel = new GPTreeModel();
 
         maSetGroupTree = new JTree(treeModel)
         {
