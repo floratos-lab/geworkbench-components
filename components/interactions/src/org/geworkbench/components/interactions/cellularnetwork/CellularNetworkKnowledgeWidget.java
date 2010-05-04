@@ -1699,6 +1699,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				CellularNetworkKnowledgeWidget.EntrezIdComparator eidc = new CellularNetworkKnowledgeWidget.EntrezIdComparator();
 				Collections.sort(copy, eidc);
 				AdjacencyMatrix matrix = new AdjacencyMatrix();
+				task.setAdjacencyMatrix(matrix);
 				AdjacencyMatrixDataSet adjacencyMatrixdataSet = null;
 				matrix.setMicroarraySet(dataset);
 
@@ -1919,8 +1920,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 					if (task.isCancelled())
 						   return;
 					else
-					{    
-						 task.setAdjacencyMatrix(matrix);
+					{   						
 						 createNetworkPb.setTitle("Draw cytoscape graph");
 						 createNetworkPb.setMessage("Draw cytoscape graph ...");							  
 						 
