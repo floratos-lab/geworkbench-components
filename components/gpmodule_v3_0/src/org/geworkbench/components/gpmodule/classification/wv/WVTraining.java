@@ -84,7 +84,6 @@ public class WVTraining extends GPTraining implements TrainingTask
             GPDataset dataset = createGCTDataset(caseData, controlData, caseArrayNames,
                                                       controlArrayNames);
 
-            System.out.println("sample size is  "  + (controlData.size() + caseData.size()));
             File trainingDataFile;
 
             try
