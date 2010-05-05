@@ -162,7 +162,7 @@ public class GPConfigPanel extends JPanel
         {
             public void componentShown(ComponentEvent event)
             {
-                resetGPConfigParameters(false);
+                resetGPConfigParameters(true);
             }
 
             public void componentResized(ComponentEvent event){}
@@ -402,7 +402,7 @@ public class GPConfigPanel extends JPanel
             }
             catch(Exception we)
             {
-                // this is not executed when login is initiated automatically and not by user                
+                // this is not executed when login is initiated automatically and not by user
                 if(!automatic)
                 {
                     we.printStackTrace();
