@@ -28,6 +28,8 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.algorithm.classification.CSClassifier;
 import org.geworkbench.components.gpmodule.GPDataset;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.io.*;
 import java.util.List;
@@ -38,6 +40,8 @@ import java.util.ArrayList;
  */
 public abstract class GPTraining extends AbstractTraining
 {
+    static Log log = LogFactory.getLog(GPTraining.class);
+
     protected static int modelCount = 0;
 
     public List<String> getArrayNames(DSPanel<DSMicroarray> panel)
@@ -121,8 +125,26 @@ public abstract class GPTraining extends AbstractTraining
             String serverName = GPpropertiesManager.getProperty("gp.server");
             String userName = GPpropertiesManager.getProperty("gp.user.name");
             String password = ((GPTrainingPanel)this.panel).getPassword();
-            GPClient server = new GPClient(serverName, userName, password);
 
+            String passwordRequired = ((GPTrainingPanel)this.panel).
+                    getConfigPanel().passwordRequired(serverName, userName);
+
+            //Check if password needs to be entered
+            if((password == null || password.equals("")) && (passwordRequired != null &&  passwordRequired.equals("true")))
+            {
+                ((GPTrainingPanel)this.panel).
+                    getConfigPanel().highlightPassword(true);
+                ((GPTrainingPanel)this.panel).
+                    getConfigPanel().showEditServerSettingsFrame("Please enter your password");
+                password = ((GPTrainingPanel)this.panel).getPassword();
+                ((GPTrainingPanel)this.panel).
+                    getConfigPanel().highlightPassword(false);
+            }
+
+            if(password == null)
+                password="";
+            GPClient server = new GPClient(serverName, userName, password);
+            
             JobResult analysisResult = server.runAnalysis(classifierName, parameters);
             String[] outputFiles = analysisResult.getOutputFileNames();
 
@@ -159,7 +181,7 @@ public abstract class GPTraining extends AbstractTraining
 
              if(we.getMessage().indexOf(classifierName + " not found on server") != -1)
              {
-                throw new ClassifierException(classifierName + " module not found on  GenePattern server");
+                throw new ClassifierException(classifierName + " module not found on GenePattern server");
              }
              else
                 throw new ClassifierException("Could not connect to GenePattern server");
