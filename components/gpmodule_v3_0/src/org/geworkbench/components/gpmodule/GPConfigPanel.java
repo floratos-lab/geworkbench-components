@@ -34,11 +34,9 @@ import java.beans.PropertyChangeListener;
 
 import org.genepattern.util.GPpropertiesManager;
 import org.genepattern.webservice.AdminProxy;
-import org.genepattern.webservice.WebServiceException;
 import org.genepattern.webservice.TaskInfo;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.components.gpmodule.gsea.GSEAAnalysisPanel;
 import org.geworkbench.components.gpmodule.event.ServerConnectionEvent;
 import org.geworkbench.components.gpmodule.listener.ServerConnectionListener;
 
@@ -47,6 +45,8 @@ import org.geworkbench.components.gpmodule.listener.ServerConnectionListener;
  */
 public class GPConfigPanel extends JPanel
 {
+    private boolean highlightPassword = false;
+
     private static class InvalidInputException extends Exception {
 		private static final long serialVersionUID = -667139707540590720L;
 
@@ -62,7 +62,7 @@ public class GPConfigPanel extends JPanel
     private JFormattedTextField username;
     private JPasswordField password;
     private static String passwordValue = null;
-    private JFrame editSettingsFrame;
+    private JDialog editSettingsFrame;
     private JTable serverSettingsTable;
     private DefaultFormBuilder builder;
     public static ServerConnectionListener listener = null;
@@ -197,7 +197,10 @@ public class GPConfigPanel extends JPanel
         JScrollPane tableScrollPane = new JScrollPane();
         tableScrollPane.setViewportView(serverSettingsTable);
 
-        editSettingsFrame = new JFrame();
+        editSettingsFrame = new JDialog();
+        editSettingsFrame.setModal(true);
+        editSettingsFrame.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        editSettingsFrame.setAlwaysOnTop(true);
         JButton modifyButton = new JButton("Modify");
         modifyButton.addActionListener( new ActionListener()
         {
@@ -205,22 +208,8 @@ public class GPConfigPanel extends JPanel
             {
                 try
                 {
-                    editSettingsFrame.setTitle("Edit GenePattern Server Settings");
-                    editSettingsFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                    builder.getPanel().setVisible(true);
-
-                    editSettingsFrame.getContentPane().add(builder.getPanel());
-                    editSettingsFrame.pack();
-                                       
-                    // center on the screen
-                    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-	                editSettingsFrame.setLocation((screenSize.width - editSettingsFrame.getWidth()) / 2,
-                    (screenSize.height - editSettingsFrame.getHeight()) / 2);
-
-                    editSettingsFrame.setAlwaysOnTop(true);
-                    editSettingsFrame.setVisible(true);
-
-                    editSettingsFrame.getContentPane().repaint();
+                    String title = "Edit GenePattern Server Settings";                    
+                    showEditServerSettingsFrame(title);
                 }
                 catch(Exception e)
                 {
@@ -237,6 +226,39 @@ public class GPConfigPanel extends JPanel
         panel.add(modifyButton);
         this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
         this.add(panel);         
+    }
+
+    /*
+      hack to indicate password is missing when it is required
+     */
+    public void highlightPassword(boolean value)
+    {
+        highlightPassword = value;
+    }
+
+    public void showEditServerSettingsFrame(String title)
+    {
+        if(highlightPassword)
+        {
+            password.setBackground(new Color(255, 255, 204));
+            password.setBorder(BorderFactory.createLineBorder(Color.black));
+
+        }
+
+        editSettingsFrame.setTitle(title);
+        builder.getPanel().setVisible(true);
+
+        editSettingsFrame.getContentPane().add(builder.getPanel());
+        editSettingsFrame.pack();
+
+        // center on the screen
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        editSettingsFrame.setLocation((screenSize.width - editSettingsFrame.getWidth()) / 2,
+        (screenSize.height - editSettingsFrame.getHeight()) / 2);
+
+        editSettingsFrame.setVisible(true);
+
+        editSettingsFrame.getContentPane().repaint();
     }
 
     private void showMessageDialog(String message)
@@ -362,7 +384,35 @@ public class GPConfigPanel extends JPanel
             column.setPreferredWidth(w);
         }
     }
-    
+
+    public String passwordRequired(String serverName, String userName)
+    {
+        AdminProxy admin = null;
+        try
+        {
+            admin = new AdminProxy(serverName, userName, null);
+
+            String passwordRequired = (String)admin.getServiceInfo().get("require.password");
+            passwordRequired = passwordRequired.toLowerCase();
+
+            if(passwordRequired != null && passwordRequired.equals("false"))
+            {
+                return "false";
+            }
+
+            if(passwordRequired != null && passwordRequired.equals("true"))
+            {
+                return "true";
+            }
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
     private boolean testConfigSettings(String serverName, String userName, String password, boolean automatic)
     {
         AdminProxy admin = null;
