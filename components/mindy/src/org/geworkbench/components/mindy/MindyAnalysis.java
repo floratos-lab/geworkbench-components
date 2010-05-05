@@ -243,26 +243,12 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 		}
 
 		boolean fullSetMI = false;
-		if (params.getUnconditional().trim().equals(MindyParamPanel.MI)) {
-			fullSetMI = true;
-		}
-		float fullSetThreshold = params.getUnconditionalValue();
-		if ((!fullSetMI)
-				&& (params.getUnconditionalCorrection()
-						.equals(MindyParamPanel.BONFERRONI))) {
-			fullSetThreshold = fullSetThreshold / numMarkers;
-		}
-
+		float fullSetThreshold = 0;
 		boolean subsetMI = false;
 		if (params.getConditional().trim().equals(MindyParamPanel.MI)) {
 			subsetMI = true;
 		}
 		float subsetThreshold = params.getConditionalValue();
-		if ((!subsetMI)
-				&& (params.getUnconditionalCorrection()
-						.equals(MindyParamPanel.BONFERRONI))) {
-			subsetThreshold = subsetThreshold / numMarkers;
-		}
 
 		paramDescB.append("Conditional:\t");
 		paramDescB.append(params.getConditional());
@@ -270,14 +256,6 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 		paramDescB.append(params.getConditionalValue());
 		paramDescB.append("\tCorrection: ");
 		paramDescB.append(params.getConditionalCorrection());
-		paramDescB.append("\n");
-
-		paramDescB.append("Unconditional:\t");
-		paramDescB.append(params.getUnconditional());
-		paramDescB.append(" at ");
-		paramDescB.append(params.getUnconditionalValue());
-		paramDescB.append("\tCorrection: ");
-		paramDescB.append(params.getUnconditionalCorrection());
 		paramDescB.append("\n");
 
 		float setFraction = params.getSetFraction() / 100f;
@@ -696,13 +674,6 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 		bisonParameters.put("conditionalValue", conditionalValue);
 		String conditionalCorrection = paramPanel.getConditionalCorrection();
 		bisonParameters.put("conditionalCorrection", conditionalCorrection);
-		String unconditional = paramPanel.getUnconditional().trim();
-		bisonParameters.put("unconditional", unconditional);
-		float unconditionalValue = paramPanel.getUnconditionalValue();
-		bisonParameters.put("unconditionalValue", unconditionalValue);
-		String unconditionalCorrection = paramPanel
-				.getUnconditionalCorrection();
-		bisonParameters.put("unconditionalCorrection", unconditionalCorrection);
 
 		ArrayList<String> dpiAnnotList = paramPanel.getDPIAnnotatedGeneList();
 		bisonParameters.put("dpiAnnotList", dpiAnnotList);
