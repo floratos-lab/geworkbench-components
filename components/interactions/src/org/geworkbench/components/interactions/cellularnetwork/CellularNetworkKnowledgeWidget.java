@@ -2208,7 +2208,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			GOTERMCOLUMN, true);
 
 	private JCheckBox networkJCheckBox1 = new JCheckBox(
-			"Restrict to genes prsent in microarray set", false);
+			"Restrict to genes present in microarray set", false);
 	private JCheckBox networkJCheckBox2 = new JCheckBox(
 			"Use setting  from Column Display Preferences", true);
 
@@ -3057,7 +3057,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		}
 	}
 
-	public class preferenceJCheckBox extends JCheckBox {
+	private class preferenceJCheckBox extends JCheckBox {
 
 		public preferenceJCheckBox(String label, boolean isSelected) {
 
@@ -3072,7 +3072,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		}
 	}
 
-	class ComboBoxCellRenderer implements ListCellRenderer {
+	private class ComboBoxCellRenderer implements ListCellRenderer {
 		protected DefaultListCellRenderer defaultRenderer = new DefaultListCellRenderer();
 
 		public Component getListCellRendererComponent(JList list, Object value,
