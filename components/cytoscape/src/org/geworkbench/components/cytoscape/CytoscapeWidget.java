@@ -342,7 +342,7 @@ public class CytoscapeWidget implements VisualPlugin {
 	@SuppressWarnings("unchecked")
 	@Subscribe
 	public void receive(ProjectNodeRemovedEvent event, Object source) {
-		log.info("receive ProjectNodeRemovedEvent event");
+		log.info("receive ProjectNodeRemovedEvent event");		 
 		DSDataSet dataSet = event.getAncillaryDataSet();
 		if (!(dataSet instanceof AdjacencyMatrixDataSet)) {
 			// if the event is published by other types, do nothing.
@@ -873,9 +873,7 @@ public class CytoscapeWidget implements VisualPlugin {
 			// deal
 		}
  
-		// 2) DRAW NETWORK event
-	 
-		log.info("startDrawing = true");
+		// 2) DRAW NETWORK event	  
 		drawCompleteNetwork(getGeneIdToNameMap(), adjSet
 				.getThreshold());
 		if (cancelAction)
