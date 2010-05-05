@@ -375,6 +375,9 @@ public class WVTrainingPanel extends GPTrainingPanel {
 			if (key.equals("featureFile")){
 				this.featureFileTextBox.setText((String)value);
 			}
+            if (key.equals("numFolds")){
+				this.numberFolds.setValue(value);
+			}
 		}
     }
 
@@ -396,6 +399,8 @@ public class WVTrainingPanel extends GPTrainingPanel {
 		parameters.put("minStdDev", (String)minStdDev.getValue());
 		parameters.put("featureFileMethod", featureFileMethod.isSelected());
 		parameters.put("featureFile", featureFile);
+        parameters.put("numFolds", getNumberFolds());
+
 		return parameters;
 	}
 

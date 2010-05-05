@@ -480,6 +480,9 @@ public class KNNTrainingPanel extends GPTrainingPanel {
 			if (key.equals("distanceMeasure")){
 				setDistanceMeasure((String)value);
 			}
+            if (key.equals("numFolds")){
+				this.numberFolds.setValue(value);
+			}
 		}
 		stopNotifyAnalysisPanelTemporary(false);
     }
@@ -503,6 +506,8 @@ public class KNNTrainingPanel extends GPTrainingPanel {
 		parameters.put("numNeighbors", getNumNeighbors());
 		parameters.put("weightType", getWeightType());
 		parameters.put("distanceMeasure", getDistanceMeasure());
+        parameters.put("numFolds", getNumberFolds());
+
 		return parameters;
 	}
 
