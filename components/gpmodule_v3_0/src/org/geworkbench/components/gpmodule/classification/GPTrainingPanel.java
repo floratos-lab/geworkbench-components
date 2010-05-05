@@ -19,9 +19,6 @@ import javax.swing.*;
 import java.awt.*;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.layout.RowSpec;
-import com.jgoodies.forms.layout.FormLayout;
-import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.CellConstraints;
 
 /**
@@ -83,5 +80,10 @@ public abstract class GPTrainingPanel extends AbstractTrainingPanel
     public String getPassword()
     {
         return gpConfigPanel.getPassword();
+    }
+
+    public GPConfigPanel getConfigPanel()
+    {
+        return gpConfigPanel;
     }
 }
