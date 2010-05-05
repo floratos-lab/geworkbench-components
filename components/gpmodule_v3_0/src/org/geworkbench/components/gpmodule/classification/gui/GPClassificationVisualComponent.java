@@ -22,7 +22,7 @@ import javax.swing.JPanel;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.bison.algorithm.classification.CSSvmClassifier;
+import org.geworkbench.bison.algorithm.classification.CSVisualClassifier;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.components.gpmodule.classification.VisualGPClassifier;
@@ -35,7 +35,7 @@ import org.geworkbench.engine.management.Subscribe;
  *@author Marc-Danie Nazaire
  */
 
-@AcceptTypes( {CSSvmClassifier.class})
+@AcceptTypes( {CSVisualClassifier.class})
 public class GPClassificationVisualComponent implements VisualPlugin
 {
     private Log log = LogFactory.getLog(this.getClass());

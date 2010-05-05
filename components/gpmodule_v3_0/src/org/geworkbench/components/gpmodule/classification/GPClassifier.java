@@ -13,7 +13,7 @@ package org.geworkbench.components.gpmodule.classification;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
-import org.geworkbench.bison.algorithm.classification.CSSvmClassifier;
+import org.geworkbench.bison.algorithm.classification.CSVisualClassifier;
 import org.geworkbench.util.ClassifierException;
 import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbench.components.gpmodule.GPDataset;
@@ -34,7 +34,7 @@ import java.util.Arrays;
 /**
  * @author Marc-Danie Nazaire
  */
-public abstract class GPClassifier extends CSSvmClassifier
+public abstract class GPClassifier extends CSVisualClassifier
 {
     protected PredictionModel predModel;
     protected GPDataset dataset;
