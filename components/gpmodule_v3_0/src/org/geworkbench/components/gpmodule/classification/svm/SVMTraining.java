@@ -90,6 +90,7 @@ public class SVMTraining extends GPTraining implements TrainingTask
             {
                 String fileName  = GPClassificationUtils.createGCTFile(dataset, "SVM_Data");
                 trainingDataFile = new File(fileName);
+                trainingDataFile.deleteOnExit();
             }
             catch(IOException io)
             {

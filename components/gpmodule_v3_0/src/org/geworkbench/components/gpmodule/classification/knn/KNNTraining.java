@@ -108,6 +108,7 @@ public class KNNTraining extends GPTraining implements TrainingTask
             {
                 String fileName = GPClassificationUtils.createGCTFile(dataset, "KNN_Data");
                 trainingDataFile = new File(fileName);
+                trainingDataFile.deleteOnExit();
             }
             catch(IOException io)
             {

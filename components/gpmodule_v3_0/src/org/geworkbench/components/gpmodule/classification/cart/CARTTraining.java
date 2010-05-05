@@ -84,6 +84,7 @@ public class CARTTraining extends GPTraining implements TrainingTask
             {
                 String fileName = GPClassificationUtils.createGCTFile(dataset, "CART_Data");
                 trainingDataFile = new File(fileName);
+                trainingDataFile.deleteOnExit();
             }
             catch(IOException io)
             {

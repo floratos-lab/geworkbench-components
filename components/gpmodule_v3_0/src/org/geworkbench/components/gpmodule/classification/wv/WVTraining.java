@@ -90,6 +90,7 @@ public class WVTraining extends GPTraining implements TrainingTask
             {
                 String fileName = GPClassificationUtils.createGCTFile(dataset, "WV_Data");
                 trainingDataFile = new File(fileName);
+                trainingDataFile.deleteOnExit();                
             }
             catch(IOException io)
             {
