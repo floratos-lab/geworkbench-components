@@ -34,6 +34,8 @@ import org.apache.commons.logging.LogFactory;
 import java.io.*;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Set;
+import java.util.HashSet;
 
 /**
  * @author Marc-Danie Nazaire
@@ -60,7 +62,7 @@ public abstract class GPTraining extends AbstractTraining
     {
         DSItemList markers = panel.getActiveMarkers();
 
-        List featureNames = new ArrayList();
+        Set featureNames = new HashSet();
         for(int i =0; i < markers.size();i++)
         {
             featureNames.add(((DSGeneMarker)markers.get(i)).getLabel());

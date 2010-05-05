@@ -381,11 +381,13 @@ public class KNNTrainingPanel extends GPTrainingPanel {
 
     public ParamValidationResults validateParameters()
     {
+        Set uniqueMarkers = new HashSet(getActiveMarkers());
+        int numFeatures = uniqueMarkers.size();
         if(!useFeatureFileMethod() && getNumFeatures() <= 0)
             return new ParamValidationResults(false, "num features must be greater than 0");
-        else if(!useFeatureFileMethod() && getNumFeatures() > getActiveMarkers().size())
-            return new ParamValidationResults(false, "num features cannot be greater than \nnumber of activated markers: "
-                    + getActiveMarkers().size());
+        else if(!useFeatureFileMethod() && getNumFeatures() > numFeatures)
+            return new ParamValidationResults(false, "num features cannot be greater than \nnumber of markers: "
+                    + numFeatures);
         else if(useMinStdDev())
         {
             if(getMinStdDev() == null || getMinStdDev().equals(""))
