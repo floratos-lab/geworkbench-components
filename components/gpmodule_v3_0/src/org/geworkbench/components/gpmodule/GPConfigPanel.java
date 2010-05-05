@@ -242,9 +242,13 @@ public class GPConfigPanel extends JPanel
         {
             password.setBackground(new Color(255, 255, 204));
             password.setBorder(BorderFactory.createLineBorder(Color.black));
-
         }
-
+        else
+        {
+            //reset password field bg color and border
+            password.setBackground((new JPasswordField()).getBackground());
+            password.setBorder((new JPasswordField()).getBorder());
+        }
         editSettingsFrame.setTitle(title);
         builder.getPanel().setVisible(true);
 
