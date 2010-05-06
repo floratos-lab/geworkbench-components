@@ -408,6 +408,8 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
                 }
             }
         });
+        exportButton.setEnabled(false);
+        jExportItem.setEnabled(false);
         
         jAllMarkers.setSelected(false);
         jAllMarkers.setText("All Markers");
@@ -986,6 +988,8 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         if (dataFile != null) {
             if (dataFile instanceof DSMicroarraySet) {
                 jToggleSortButton.setEnabled(false);
+            	exportButton.setEnabled(false);
+            	jExportItem.setEnabled(false);
                 DSMicroarraySet set = (DSMicroarraySet) dataFile;
                 if (colorMosaicImage.getChips() != set) {
                     colorMosaicImage.microarrayPanel = null;
@@ -1025,6 +1029,8 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
                 significance = sigSet;         
                 DSMicroarraySet set = sigSet.getParentDataSet();             
                 jToggleSortButton.setEnabled(true);
+                exportButton.setEnabled(true);
+                jExportItem.setEnabled(true);
 
                 // by default color mosaic displays unsorted markers
                 jToggleSortButton.setSelected(false);
