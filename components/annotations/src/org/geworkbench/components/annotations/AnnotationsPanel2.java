@@ -38,6 +38,7 @@ import java.util.Observer;
 import java.util.Set;
 
 import javax.swing.Box;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -71,6 +72,9 @@ import org.apache.batik.bridge.ExternalResourceSecurity;
 import org.apache.batik.bridge.ScriptSecurity;
 import org.apache.batik.dom.svg.SAXSVGDocumentFactory;
 import org.apache.batik.swing.JSVGCanvas;
+import org.apache.batik.swing.gvt.GVTTreeRendererAdapter;
+import org.apache.batik.swing.gvt.GVTTreeRendererListener;
+import org.apache.batik.swing.gvt.GVTTreeRendererEvent;
 import org.apache.batik.swing.svg.LinkActivationEvent;
 import org.apache.batik.swing.svg.LinkActivationListener;
 import org.apache.batik.swing.svg.SVGUserAgent;
@@ -3021,7 +3025,6 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
     	  else
     	  {
     		  pathwayComboBox.removeAllItems();
-    		  pathwayComboBox.addItem(" ");
     		  pathwayList.clear();
     		  svgStringList.clear();
     	  }
@@ -3031,10 +3034,7 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
     		  int selectIndex = pathwayComboItemSelectedMap.get(new Integer(hashcode));
 
               pathwayList = pathwayListMap.get(new Integer(hashcode));
-    		  pathwayComboBox.removeAllItems();
-    		  pathwayComboBox.addItem(" ");
-    		  for (int i=pathwayList.size()-1; i>=0; i--)
-    			  pathwayComboBox.addItem(pathwayList.get(i));
+              pathwayComboBox.setModel(new DefaultComboBoxModel(pathwayList.toArray()));
     		  pathwayComboBox.setSelectedIndex(selectIndex);
     		  pathwayComboBox.revalidate();
 
@@ -3076,7 +3076,6 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
         pathwayComboBox.setMaximumSize(new Dimension(130, 25));
         pathwayComboBox.setMinimumSize(new Dimension(130, 25));
         pathwayComboBox.setPreferredSize(new Dimension(130, 25));
-        pathwayComboBox.insertItemAt(" ", 0);
         pathwayComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
             	pathwayComboBox_actionPerformed(e);
@@ -3120,13 +3119,7 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
         pathwayTool.add(component1);
         pathwayTool.add(imagePathwayButton);
 
-        svgCanvas.addLinkActivationListener(new LinkActivationListener() {
-            public void linkActivated(LinkActivationEvent lae) {
-                svgCanvas_linkActivated(lae);
-            }
-
-        });
-        jscrollPanePathway.getViewport().add(svgCanvas, null);
+        createSvgCanvas();
 
         svgStringList = new HashMap<String, String>();
         pathwayList = new ArrayList<String>();
@@ -3136,6 +3129,26 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
         tabPanelSelectedMap = new HashMap<Integer, Integer>();
     }
 
+    private LinkActivationListener linkListener = new LinkActivationListener() {
+        public void linkActivated(LinkActivationEvent lae) {
+            svgCanvas_linkActivated(lae);
+        }
+    };
+
+    private GVTTreeRendererListener renderListener = new GVTTreeRendererAdapter() {
+    	public void gvtRenderingCompleted(GVTTreeRendererEvent e) {
+    		//set canvas viewbox size to document size
+    		svgCanvas.revalidate();
+        }
+    };
+
+    private void createSvgCanvas()
+    {
+    	svgCanvas = new JSVGCanvas(new UserAgent(), true, true);
+        svgCanvas.addLinkActivationListener(linkListener);
+        svgCanvas.addGVTTreeRendererListener(renderListener);
+        jscrollPanePathway.getViewport().add(svgCanvas, null);
+    }
     /*
      *
      */
@@ -3172,8 +3185,8 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
     		svgStringList.remove(pathwayName);
     		pathwayList.remove(pathwayName);
     		//svgCanvas.setDocument(null);
-    		pathwayComboBox.setSelectedIndex(0);
     		pathwayComboBox.removeItem(pathwayName);
+    		if (pathwayComboBox.getItemCount()>0) pathwayComboBox.setSelectedIndex(pathwayList.size()-1);
     		svgCanvas.revalidate();
             pathwayPanel.revalidate();
             jTabbedPane1.setTitleAt(jTabbedPane1.indexOfComponent(pathwayPanel),"Pathway");
@@ -3189,7 +3202,6 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
     private void clearHistButton_actionPerformed(ActionEvent e) {
 
     	pathwayComboBox.removeAllItems();
-    	pathwayComboBox.insertItemAt(" ", 0);
     	svgStringList.clear();
 		pathwayList.clear();
 		try{
@@ -3232,8 +3244,8 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
     	}
     	svgStringList.put(pathwayName, pathwayDiagram);
 		pathwayList.add(pathwayName);
-    	pathwayComboBox.insertItemAt(pathwayName, 1);
-    	pathwayComboBox.setSelectedIndex(1);
+    	pathwayComboBox.addItem(pathwayName);
+    	pathwayComboBox.setSelectedIndex(pathwayList.size()-1);
     	pathwayComboBox.revalidate();
 
 
@@ -3311,7 +3323,7 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
     /**
      * <code>Canvas</code> on which the Pathway SVG image is drawn
      */
-    private JSVGCanvas svgCanvas = new JSVGCanvas(new UserAgent(), true, true);
+    private JSVGCanvas svgCanvas = null;
     private static final String SVG_BASE_URL = "http://cgap.nci.nih.gov/";
 
 
@@ -3327,6 +3339,8 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
      * @param svgString SVG document returned from a caBIO search as a String
      */
     private void setSvg(String svgString) {
+    	if (svgCanvas == null || svgCanvas.getGraphics() == null)
+    		return;
         if (svgString != null) {
             StringReader reader = new StringReader(svgString);
             Document document = null;
@@ -3342,18 +3356,8 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
                 Thread.currentThread().setContextClassLoader(currentContextClassLoader);
             }
 
+            createSvgCanvas();
             svgCanvas.setDocument(document);
-            if (svgCanvas.getGraphics() != null)
-     	    {
-              try
-              {
-    	      svgCanvas.resetRenderingTransform();
-              }
-              catch(IllegalStateException ex)
-      	      {
-      	    	log.error(ex);
-      	      }
-     	    }
             svgCanvas.revalidate();
             pathwayPanel.revalidate();
         } else {
