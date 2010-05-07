@@ -14,6 +14,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.rmi.RemoteException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -31,6 +32,7 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.xml.namespace.QName;
 import javax.xml.rpc.ParameterMode;
+import javax.xml.rpc.ServiceException;
 
 import org.apache.axis.client.Call;
 import org.apache.axis.client.Service;
@@ -314,12 +316,20 @@ public class SequenceFetcher {
                     }
                 }
             }
+        } catch (ServiceException e) {
+        	e.printStackTrace();
+        } catch (MalformedURLException e) {
+        	e.printStackTrace();
+        } catch (RemoteException e) {
+			e.printStackTrace();
+        } catch (NoClassDefFoundError e) { // runtime
+        	e.printStackTrace();
         } catch (Exception e) {
         	if ( e.getMessage().contains("DbfNoEntryFoundException"))
         	 	 log.info("No result found for affyid " + affyid );
         	else
                  e.printStackTrace();
-        }
+		}
         return sequenceSet;
     }
 
