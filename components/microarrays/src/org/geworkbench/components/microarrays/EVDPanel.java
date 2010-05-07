@@ -1,6 +1,6 @@
 package org.geworkbench.components.microarrays;
 
-
+import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
@@ -8,7 +8,6 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarker
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
-import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.engine.config.MenuListener;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
@@ -18,15 +17,17 @@ import org.geworkbench.util.microarrayutils.MicroarrayViewEventBase;
 import org.geworkbench.util.visualproperties.PanelVisualProperties;
 import org.geworkbench.util.visualproperties.PanelVisualPropertiesManager;
 import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartMouseEvent;
+import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.entity.XYItemEntity;
 import org.jfree.chart.labels.XYToolTipGenerator;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
-import org.jfree.data.Range;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
@@ -40,7 +41,7 @@ import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Vector;
+import java.util.Iterator;
 
 /**
  * <p>Title: caWorkbench</p>
@@ -66,7 +67,6 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
     private double maxValue = 0.0d;
     private double minValue = 0.0d;
 
-    private Vector dataInBins;
     private JButton jPrintBttn = new JButton();
     ArrayList<PanelVisualProperties> propertiesList = new ArrayList<
             PanelVisualProperties>();
@@ -93,11 +93,9 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
     private static int DEFAULTBASKETNUM = 99;
     private int basketNum = DEFAULTBASKETNUM;
     private double binSize = 0.1d;
-    private boolean isTTest;
     private boolean isToolTipEnabled = true;
     private boolean isColorChecked = false;
     private JButton imageSnapshotButton;
-    private AlgorithmExecutionResults results = null;
     private DecimalFormat myFormatter = new DecimalFormat("0.000");
     private static int MAXBINNUM = 200;
     private static int RANGE = 2; //the left and right edge size beyound the min/max values.
@@ -307,10 +305,7 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
 
     void jLeftBoundarySlider_stateChanged(ChangeEvent e) {
         int value = jLeftBoundarySlider.getValue();
-        double maxValue = jLeftBoundarySlider.getMaximum();
         XYPlot plot = this.chart.getXYPlot();
-        ValueAxis domainAxis = plot.getDomainAxis();
-        Range range = domainAxis.getRange();
         //        double c = domainAxis.getLowerBound()
         //                   + (value / maxValue) * range.getLength();
         lowValue = minValue + value * binSize;
@@ -327,9 +322,6 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
     void jRightBoundarySlider_stateChanged(ChangeEvent e) {
         int value = jRightBoundarySlider.getValue();
         XYPlot plot = this.chart.getXYPlot();
-        double maxValue = jRightBoundarySlider.getMaximum();
-        ValueAxis domainAxis = plot.getDomainAxis();
-        Range range = domainAxis.getRange();
         //        double c = domainAxis.getLowerBound()
         //                   + (value / maxValue) * range.getLength();
         highValue = minValue + value * binSize;
@@ -367,7 +359,8 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
         refresh();
     }
 
-    protected void fireModelChangedEvent(MicroarraySetViewEvent event) {
+    @SuppressWarnings("unchecked")
+	protected void fireModelChangedEvent(MicroarraySetViewEvent event) {
         super.fireModelChangedEvent(event);
         if (refMASet == null) {
             // mainPanel.remove(graph);
@@ -422,8 +415,7 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
         double max = 0.0d;
         double min = 0.0d;
         if (maSetView != null){
-        DSMicroarraySet<DSMicroarray>
-                maSet = (DSMicroarraySet) maSetView.getDataSet();
+        	maSet = (DSMicroarraySet<DSMicroarray>) maSetView.getDataSet();
         if (maSet != null && maSetView.markers() != null) {
             int numGenes = maSetView.markers().size();
             for (int geneCtr = 0; geneCtr < numGenes; geneCtr++) {
@@ -487,7 +479,7 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
 
     }
 
-
+    private DSMicroarraySet<DSMicroarray> maSet = null;
     public XYSeriesCollection createCollection(double min, double max,
                                                int selectedId, boolean active) {
         PanelVisualPropertiesManager propertiesManager =
@@ -499,8 +491,7 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
         String bin = myFormatter.format(binSize);
         binNumLabel.setText("Bin size:  " + bin);
         XYSeriesCollection plots = new XYSeriesCollection();
-        DSMicroarraySet<DSMicroarray>
-                maSet = (DSMicroarraySet) maSetView.getDataSet();
+        maSet = (DSMicroarraySet<DSMicroarray>) maSetView.getDataSet();
         if (maSet == null) {
             return null;
         }
@@ -516,7 +507,6 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
             if (maSetView.markers() == null) {
                 return null;
             }
-            int numGenes = maSetView.markers().size();
             hs = new HistogramPanel(basketNum);
             hs.process(ma, minValue, maxValue);
 
@@ -582,7 +572,6 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
                     int itemNo = panel.size();
                     if (itemNo > 0) {
                         for (int k = 0; k < itemNo; k++) {
-                            int serial = panel.get(k).getSerial();
 
                             DSMicroarray currentMicroarray = panel.get(k);
                             propertiesList.add(properties);
@@ -718,7 +707,6 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
                 public String generateToolTip(XYDataset dataset, int series,
                                               int item) {
                     String resultStr = "";
-                    Object[] result = new Object[3];
                     String label = (String) (plots.getSeries(series).getKey());
                     double x = dataset.getXValue(series, item);
                     if (Double.isNaN(x) && dataset.getX(series, item) == null) {
@@ -780,8 +768,18 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
 
 
         graph.setChart(chart);
-
-
+        graph.addChartMouseListener(new ChartMouseListener() {
+        	public void chartMouseMoved(ChartMouseEvent e){
+        	}
+        	public void chartMouseClicked(ChartMouseEvent e){
+        		if (e.getEntity() instanceof XYItemEntity) {
+        			XYItemEntity i = (XYItemEntity)e.getEntity();
+        			int selectedId = i.getSeriesIndex();
+        			if (selectedId > 0)
+        				setSlider(i.getDataset().getSeriesKey(selectedId).toString());
+        		}
+        	}
+        });
     }
 
 //    /**
@@ -801,9 +799,6 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
         return null;
     }
 
-    private void reset() {
-
-    }
 
     private void jAddBttn_actionPerformed(ActionEvent e) {
         try {
@@ -827,11 +822,11 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
             highValue = lowValue;
             lowValue = temp;
         }
-        DSPanel panel = hs.getPanel(lowValue, highValue);
+        DSPanel<DSGeneMarker> panel = hs.getPanel(lowValue, highValue);
         selectedGeneNum.setText("Selected genes: " +
                     hs.getGeneNumbers(lowValue, highValue));
         if (panel != null) {
-            publishSubpanelChangedEvent(new SubpanelChangedEvent(DSGeneMarker.class, panel, org.geworkbench.events.SubpanelChangedEvent.NEW));
+            publishSubpanelChangedEvent(new SubpanelChangedEvent<DSGeneMarker>(DSGeneMarker.class, panel, org.geworkbench.events.SubpanelChangedEvent.NEW));
         } else {
             JOptionPane.showMessageDialog(null, "No gene is selected",
                     "Please check",
@@ -840,6 +835,20 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
 
     }
 
+    private void setSlider(String selected) {
+    	String currentBase = maSet.get(jMASlider.getValue()).getLabel();
+    	if (!currentBase.equals(selected)){
+    		int newBaseId = 0;
+    		for (int i = 0; i < maSet.size(); i++) {
+    			if (maSet.get(i).getLabel().equals(selected)) {
+    				newBaseId = i;
+    				break;
+    			}
+    		}
+    		jMASlider.setValue(newBaseId);
+    		refresh();
+    	}
+    }
     public void refresh(int mode) {
 
         if (mode == EVDMODE) {
@@ -878,7 +887,8 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
     /**
      * doTTest
      */
-    public void doTTest() {
+    @SuppressWarnings("unchecked")
+	public void doTTest() {
         SimpleTTest simpleTTest = new SimpleTTest();
         //  int num = maSetView
         double values[] = simpleTTest.execute(maSetView, onlyActivatedMarkers);
@@ -911,7 +921,7 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
         private int nbins; // number of bins.
 
         int[] basketValues; //the bin values
-        ArrayList al[]; //assicated gene markers.
+        ArrayList<DSGeneMarker> al[]; //assicated gene markers.
         private double maxValue;
         private double minValue;
 
@@ -924,7 +934,8 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
         /**
          * clear
          */
-        private void clear() {
+		@SuppressWarnings("unchecked")
+		private void clear() {
             al = new ArrayList[nbins + 1];
             for (int i = 0; i < nbins + 1; i++) {
                 al[i] = new ArrayList();
@@ -1032,7 +1043,7 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
                     ((maxValue - minValue) / nbins));
         }
 
-        DSPanel getPanel(double leftValue, double rightValue) {
+        DSPanel<DSGeneMarker> getPanel(double leftValue, double rightValue) {
             int leftBin = getBinPosition(leftValue);
             int rightBin = getBinPosition(rightValue);
             DSPanel<DSGeneMarker>
