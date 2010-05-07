@@ -7,12 +7,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Iterator;
@@ -22,7 +18,6 @@ import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.ButtonModel;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -35,7 +30,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.EtchedBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.table.AbstractTableModel;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -51,6 +45,7 @@ import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.events.SubpanelChangedEvent;
+import org.geworkbench.util.OWFileChooser;
 
 import com.jgoodies.binding.adapter.BasicComponentFactory;
 import com.jgoodies.binding.value.ValueHolder;
@@ -145,9 +140,8 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin{
 	                try {
 	                	String exportFileStr="data/exportALL.csv";
 	                    File exportFile = new File(exportFileStr);
-	                    JFileChooser chooser = new JFileChooser(exportFile);
+	                    OWFileChooser chooser = new OWFileChooser(exportFile);
 	                    chooser.showSaveDialog(MasterRegulatorViewer.this);
-	                    //TODO: file overwrite checking and warning
 	                    if (chooser.getSelectedFile()!=null){
 	                    	exportFileStr = chooser.getSelectedFile().getPath();
 		                    BufferedWriter writer = new BufferedWriter(new FileWriter(exportFileStr));
@@ -195,9 +189,8 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin{
 		                try {
 		                	String exportFileStr="data/exportTGs.csv";
 		                    File exportFile = new File(exportFileStr);
-		                    JFileChooser chooser = new JFileChooser(exportFile);
+		                    OWFileChooser chooser = new OWFileChooser(exportFile);
 		                    chooser.showSaveDialog(MasterRegulatorViewer.this);
-		                    //TODO: file overwrite checking and warning
 		                    if (chooser.getSelectedFile()!=null){
 		                    	exportFileStr = chooser.getSelectedFile().getPath();
 			                    BufferedWriter writer = new BufferedWriter(new FileWriter(exportFileStr));
@@ -246,7 +239,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin{
 						if (MRAResultSet.getPValueOf(detailedTFGraphViewer.tfA, marker)<Double.valueOf(pValueHolder.getValue().toString()))
 							panelSignificant.add(marker, new Float(MRAResultSet.getPValueOf(detailedTFGraphViewer.tfA, marker)));
 					}
-					publishSubpanelChangedEvent(new SubpanelChangedEvent(
+					publishSubpanelChangedEvent(new SubpanelChangedEvent<DSGeneMarker>(
 							DSGeneMarker.class, panelSignificant,
 							SubpanelChangedEvent.NEW));
 		        }
@@ -410,6 +403,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin{
 	      }
 	    };
 
+	@SuppressWarnings("unchecked")
 	@Subscribe
 	public void receive(ProjectEvent event, Object source) {
 		DSDataSet dataSet = event.getDataSet();
@@ -539,7 +533,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin{
 		return this;
 	}
 	
-	protected void updateSelectedTF(DSMasterRagulatorResultSet mraResultSet, DSGeneMarker tfA, TableViewer tv){
+	protected void updateSelectedTF(DSMasterRagulatorResultSet<DSGeneMarker> mraResultSet, DSGeneMarker tfA, TableViewer tv){
 		boolean usePValue = true;
 		double pValue = Double.valueOf(pValueHolder.getValue().toString());
 		int records = 0;
