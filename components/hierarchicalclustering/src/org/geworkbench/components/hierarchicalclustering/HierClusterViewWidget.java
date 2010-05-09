@@ -1,6 +1,37 @@
 package org.geworkbench.components.hierarchicalclustering;
 
-import com.jgoodies.forms.builder.ButtonBarBuilder;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionAdapter;
+import java.awt.event.MouseMotionListener;
+import java.awt.image.BufferedImage;
+import java.util.HashMap;
+
+import javax.swing.ImageIcon;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JSlider;
+import javax.swing.JSpinner;
+import javax.swing.JToggleButton;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.border.LineBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
@@ -11,19 +42,11 @@ import org.geworkbench.bison.model.clusters.DSHierClusterDataSet;
 import org.geworkbench.bison.model.clusters.HierCluster;
 import org.geworkbench.bison.model.clusters.MarkerHierCluster;
 import org.geworkbench.bison.model.clusters.MicroarrayHierCluster;
-import org.geworkbench.bison.util.colorcontext.ColorContext;
 import org.geworkbench.events.HierClusterModelEvent;
 import org.geworkbench.events.HierClusterModelEventListener;
 import org.geworkbench.util.ColorScale;
 
-import javax.swing.*;
-import javax.swing.border.LineBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import java.awt.*;
-import java.awt.event.*;
-import java.awt.image.BufferedImage;
-import java.util.HashMap;
+import com.jgoodies.forms.builder.ButtonBarBuilder;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>
@@ -50,45 +73,41 @@ import java.util.HashMap;
  * <p><h3>Cluster analysis and display of genome-wide expression patterns</h3></p>
  * <p>Michael B. Eisen, Paul T. Spellman, Patrick O. Brown AND David Botstein</p>
  * <p>Proc. Natl. Acad. Sci. USA</p>
- * <p>Vol. 95, pp. 14863�14868, December 1998</p>
+ * <p>Vol. 95, pp. 14863 - 14868, December 1998</p>
  * <p>Genetics</p>
  *
  * @author First Genetic Trust
- * @version 1.0
+ * @version $Id$
  */
 public class HierClusterViewWidget extends JPanel implements HierClusterModelEventListener {
+	private static final long serialVersionUID = 3261372914974476040L;
 
-    static Log log = LogFactory.getLog(HierClusterViewWidget.class);
+	private static Log log = LogFactory.getLog(HierClusterViewWidget.class);
 
     /**
      * Property used for conveying the origin of a <code>PropertyChange</code>
      * event for distinguishing messages from other components which throw
      * <code>PropertyChange</code> events
      */
-    public static final String SAVEIMAGE_PROPERTY = "saveClusterImage";
+    static final String SAVEIMAGE_PROPERTY = "saveClusterImage";
 
     /**
      * Property to signify that a Single Marker Selection originated from
      * the <code>HierClusterViewWidget</code>
      */
-    public static String SINGLE_MARKER_SELECTED_PROPERTY = "HierarchicalClusterSingleMarkerSelected";
+    static String SINGLE_MARKER_SELECTED_PROPERTY = "HierarchicalClusterSingleMarkerSelected";
 
     /**
      * Property to signify that a Single Marker Selection originated from
      * the <code>HierClusterViewWidget</code>
      */
-    public static String MULTIPLE_MARKER_SELECTED_PROPERTY = "HierarchicalClusterMultipleMarkerSelected";
+    static String MULTIPLE_MARKER_SELECTED_PROPERTY = "HierarchicalClusterMultipleMarkerSelected";
 
     /**
      * Property to signify that a Single Marker Selection originated from
      * the <code>HierClusterViewWidget</code>
      */
-    public static String MULTIPLE_ARRAY_SELECTED_PROPERTY = "HierarchicalClusterMultipleArraySelected";
-
-    /**
-     * Use for drawing the marker values
-     */
-    private ColorContext markerColors = null;
+    static String MULTIPLE_ARRAY_SELECTED_PROPERTY = "HierarchicalClusterMultipleArraySelected";
 
     /**
      * The underlying micorarray set used in the hierarchical clustering
@@ -130,18 +149,18 @@ public class HierClusterViewWidget extends JPanel implements HierClusterModelEve
     /**
      * The <code>JPanel</code> on which the marker dendrogram is painted
      */
-    HierClusterTree markerDendrogram = null;
+    private HierClusterTree markerDendrogram = null;
 
     /**
      * The <code>JPanel</code> on which the array dendrogram is painted
      */
-    HierClusterTree arrayDendrogram = null;
+    private HierClusterTree arrayDendrogram = null;
 
     /**
      * The <code>JPanel</code> on which the array names is painted
      */
-    HierClusterLabels arrayNames = null;
-    JPanel arrayContainer = new JPanel();
+    private HierClusterLabels arrayNames = null;
+    private JPanel arrayContainer = new JPanel();
 
     /**
      * Slider for controlling color intensity of markers in the dendrogram
@@ -213,17 +232,12 @@ public class HierClusterViewWidget extends JPanel implements HierClusterModelEve
     /**
      * Application menu listeners returned by this component
      */
-    private HashMap listeners = new HashMap();
+    private HashMap<String, ActionListener> listeners = new HashMap<String, ActionListener>();
 
     /**
      * Visual widget
      */
     private BorderLayout borderLayout1 = new BorderLayout();
-
-    /**
-     * Visual widget
-     */
-    private JToolBar jToolBar1 = new JToolBar();
 
     /**
      * Visual widget
@@ -243,22 +257,7 @@ public class HierClusterViewWidget extends JPanel implements HierClusterModelEve
     /**
      * Visual widget
      */
-    private Component jSpacer3;
-
-    /**
-     * Visual widget
-     */
     private JToggleButton jToolTipToggleButton = new JToggleButton();
-
-    /**
-     * Visual widget
-     */
-    private Component jSpacer4;
-
-    /**
-     * Visual widget
-     */
-    private Component jSpacer1;
 
     /**
      * Visual widget
@@ -304,30 +303,22 @@ public class HierClusterViewWidget extends JPanel implements HierClusterModelEve
     }
 
     /**
-     * Sets the <code>ColorContext</code> for marker rendering in the dendrogram
-     *
-     * @param cc <code>ColorContext</code> to be used
-     */
-    public void setColorContext(ColorContext cc) {
-        markerColors = cc;
-    }
-
-    /**
      * Returns application menu listeners that this component handles
      *
      * @return listeners
      */
-    public HashMap getListeners() {
+    HashMap<String, ActionListener> getListeners() {
         return listeners;
     }
 
     /**
      * <code>HierClusterModelEventListener</code> interface method that notifies
-     * this component of a change in the Clusering data model
+     * this component of a change in the Clustering data model
      *
      * @param hcme the new model wrapping the clustering data
      */
-    public void hierClusterModelChange(HierClusterModelEvent hcme) {
+    @SuppressWarnings("unchecked")
+	public void hierClusterModelChange(HierClusterModelEvent hcme) {
     	display.resetVariables();	//fix mantis #1578
         mASet = hcme.getMicroarraySet();
         originalMarkerCluster = hcme.getMarkerCluster();
@@ -402,24 +393,8 @@ public class HierClusterViewWidget extends JPanel implements HierClusterModelEve
         arrayNames.leftOffset = mdw;
         jPanel2.setPreferredSize(new Dimension((int) ((adw + mdw) * 1.5), (int) (ndh + adh + ht + (ht / 5))));
         jPanel2.setSize(new Dimension((int) ((adw + mdw) * 1.5), (int) (ndh + adh + ht + (ht / 5))));
-        //setPreferredSize(new Dimension( (int) ( (adw + mdw) * 1.5),
-        //                             (int) (ht + (ht / 5))));
-        //setSize(new Dimension( (int) ( (adw + mdw) * 1.5),
-        //                    (int) (ht + (ht / 5))));
         display.setPreferredSize(new Dimension((int) mdw / 2, ht));
         display.setSize(new Dimension((int) mdw / 2, ht));
-    }
-
-    /**
-     * Highlights (or de-highlights) the designate MarkerInfo, if the marker
-     * info belongs to some cluster in currentMarkerCluster (i.e., it is a
-     * MarkerInfo currently displayed). This will be useful when a marker is
-     * selected from the marker list.
-     *
-     * @param mInfo  MarkerInfo to be highlighted
-     * @param status whether to be highlighted or not
-     */
-    public void highlight(DSGeneMarker mInfo, boolean status) {
     }
 
     private ColorScale colorScale = new ColorScale(Color.gray, Color.gray, Color.gray);
@@ -430,9 +405,6 @@ public class HierClusterViewWidget extends JPanel implements HierClusterModelEve
      * @throws Exception
      */
     private void jbInit() throws Exception {
-        jSpacer3 = Box.createHorizontalStrut(8);
-        jSpacer4 = Box.createHorizontalStrut(8);
-        jSpacer1 = Box.createHorizontalStrut(8);
         this.setLayout(borderLayout1);
         jPanel2.setLayout(borderLayout2);
         jToolTipToggleButton.setToolTipText("Toggle signal");
@@ -726,13 +698,6 @@ public class HierClusterViewWidget extends JPanel implements HierClusterModelEve
             Graphics2D ig = tempImage.createGraphics();
             ig.setColor(Color.white);
             jPanel2.paint(ig);
-//            arrayNames.paintComponent(ig);
-//            markerDendrogram.paintComponent(ig);
-//            arrayDendrogram.paintComponent(ig);
-//            ig.fillRect(0, 0, markerDendrogram.getWidth(), arrayDendrogram.getHeight() + arrayNames.image.getHeight());
-//            ig.drawImage(markerDendrogram.image, null, 0, arrayDendrogram.image.getHeight() + arrayNames.image.getHeight());
-//            ig.drawImage(arrayNames.image, null, 0, 0);
-//            ig.drawImage(arrayDendrogram.image, null, 0, arrayNames.image.getHeight());
             ig.drawImage(display.image, null, markerDendrogram.getWidth(), arrayDendrogram.getHeight() + arrayNames.image.getHeight());
 
             ImageIcon newIcon = new ImageIcon(tempImage, "Hierarchical Clustering Image : " + mASet.getDataSet().getLabel());
@@ -750,7 +715,6 @@ public class HierClusterViewWidget extends JPanel implements HierClusterModelEve
         if (selectedMarkerCluster != null) {
             java.util.List<Cluster> leaves = selectedMarkerCluster.getLeafChildren();
 
-//            Cluster[] leaves = selectedMarkerCluster.getLeafChildren();
             DSGeneMarker[] mInfos = new DSGeneMarker[leaves.size()];
 
             for (int i = 0; i < leaves.size(); i++)
