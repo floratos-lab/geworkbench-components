@@ -716,7 +716,9 @@ public class HierClusterViewWidget extends JPanel implements HierClusterModelEve
     private void saveImage_actionPerformed(ActionEvent e) {
         if ((markerDendrogram != null) && (arrayDendrogram != null) && (display != null)) {
             display.imageSnapshot = markerDendrogram.imageSnapshot = arrayDendrogram.imageSnapshot = arrayNames.imageSnapshot = true;
-            this.paintImmediately(0, 0, this.getWidth(), this.getHeight());
+            display.paint(this.getGraphics());
+            arrayNames.paint(this.getGraphics());
+            repaint();
 
             int w = display.image.getWidth() + markerDendrogram.getWidth();
             int h = arrayDendrogram.getHeight() + display.image.getHeight() + arrayNames.image.getHeight();
