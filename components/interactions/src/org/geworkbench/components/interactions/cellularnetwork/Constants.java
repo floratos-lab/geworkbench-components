@@ -1,0 +1,55 @@
+package org.geworkbench.components.interactions.cellularnetwork; 
+ 
+
+/**
+ * @author Min You
+ * @version $Id$
+ */
+ 
+public class Constants  {
+	 
+	public static final String GeneCards_PREFIX = "http://www.genecards.org/cgi-bin/carddisp.pl?gene=";
+
+	public static final String Entrez_PREFIX = "http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&cmd=Retrieve&dopt=full_report&list_uids=";
+
+	public static final String PROPERTIES_FILE = "conf/application.properties";
+
+	public static final String CNKB_HITS = "CNKB_HITS";
+
+	public static final String INTERACTIONS_SERVLET_URL = "interactions_servlet_url";
+	public static final String INTERACTIONS_SERVLET_CONNECTION_TIMEOUT = "interactions_servlet_connection_timeout";
+	public static final String MAX_INTERACTIONS_NUMBER = "max_interaction_number";
+  
+	public static final String GOTERMCOLUMN = "GO Annotation";
+
+	public static final String ACTIVETABLE = "ACTIVETABLE";
+
+	public static final String DETAILTABLE = "DETAILTABLE";
+
+	public static final String MARKERLABEL = "Marker";
+
+	public static final String GENELABEL = "Gene";
+
+	public static final String GENETYPELABEL = "Gene Type";
+
+	public static final String PROTEIN_DNA = "protein-dna";
+
+	public static final String PROTEIN_PROTEIN = "protein-protein";
+
+	public static final String COLUMNLABELPOSTFIX = " #";
+
+	public static final String CNKB_SELECTION = "cnkb selection";
+
+	public static final String CNKB_SELECTION_INDEX = "CNKB_SELECTION_INDEX";
+
+	public static final String SELECTCONTEXT = "Select Context";
+
+	public static final String SELECTVERSION = "Select Version";
+
+	public static final String DISPLAYSELECTEDINTERACTIONTYPE = "displaySelectedInteractionTypes";
+
+	public static final String NETWORKSELECTEDINTERACTIONTYPE = "networkSelectedInteractionTypes";
+
+  
+	 
+}
