@@ -317,18 +317,17 @@ public class SequenceFetcher {
                 }
             }
         } catch (ServiceException e) {
+        	log.warn(e.getMessage());
         	e.printStackTrace();
         } catch (MalformedURLException e) {
+        	log.warn(e.getMessage());
         	e.printStackTrace();
         } catch (RemoteException e) {
-			e.printStackTrace();
+        	// DbfNoEntryFoundException & DbfConnException will be caught here
+        	log.warn(e.getMessage());
         } catch (NoClassDefFoundError e) { // runtime
+        	log.warn(e.getMessage());
         	e.printStackTrace();
-        } catch (Exception e) {
-        	if ( e.getMessage().contains("DbfNoEntryFoundException"))
-        	 	 log.info("No result found for affyid " + affyid );
-        	else
-                 e.printStackTrace();
 		}
         return sequenceSet;
     }
