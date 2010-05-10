@@ -256,6 +256,8 @@ public class InteractionsConnectionImpl {
 					ResultSetlUtil.INTERACTIONS_SERVLET_URL);
 			while (rs.next()) {
 				version = rs.getString("version").trim();
+				if (version.equalsIgnoreCase("DEL"))
+					continue;
 				value = rs.getString("authentication_yn").trim();
 				if (value.equalsIgnoreCase("Y"))
 					needAuthentication = true;
