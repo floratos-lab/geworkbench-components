@@ -43,6 +43,7 @@ import javax.swing.ListModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
@@ -590,9 +591,10 @@ public class SequenceRetriever implements VisualPlugin {
 				return;
 			}
 
-			Thread t = new Thread() {
+			SwingWorker<Void, Void> t = new SwingWorker<Void, Void>() {
 
-				public void run() {
+				@Override
+				protected Void doInBackground() throws Exception {
 					int size = ls2.getSize();
 					Vector list = new Vector();
 					for (int x = 0; x < size; ++x) {
@@ -601,8 +603,13 @@ public class SequenceRetriever implements VisualPlugin {
 					}
 
 					if (!getSequences(list)){
-						return;
+						log.warn("getSequences did not succeed.");
 					}
+					return null;
+				}
+				
+				@Override
+				public void done() {
 					if (status.equalsIgnoreCase(STOP)) {
 						sequenceDB = new CSSequenceSet();
 						updateProgressBar(100, "Stopped on " + new Date());
@@ -615,9 +622,9 @@ public class SequenceRetriever implements VisualPlugin {
 					stopButton.setEnabled(false);
 					jComboCategory.setSelectedItem(currentView);
 				}
+
 			};
-			t.setPriority(Thread.MIN_PRIORITY);
-			t.start();
+			t.execute();
 		} else {
 			JOptionPane.showMessageDialog(null,
 					"Please select gene(s) or marker(s).");
