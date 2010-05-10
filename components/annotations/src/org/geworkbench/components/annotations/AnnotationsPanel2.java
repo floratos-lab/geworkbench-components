@@ -3245,7 +3245,8 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
     	svgStringList.put(pathwayName, pathwayDiagram);
 		pathwayList.add(pathwayName);
     	pathwayComboBox.addItem(pathwayName);
-    	pathwayComboBox.setSelectedIndex(pathwayList.size()-1);
+    	if (pathwayComboBox.getSelectedIndex() != pathwayList.size()-1)
+    		pathwayComboBox.setSelectedIndex(pathwayList.size()-1);
     	pathwayComboBox.revalidate();
 
 
