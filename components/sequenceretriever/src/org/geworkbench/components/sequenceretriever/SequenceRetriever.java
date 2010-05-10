@@ -300,12 +300,12 @@ public class SequenceRetriever implements VisualPlugin {
 
 		jPanel2.setLayout(new BorderLayout());
 		beforeText.setModel(model);
-		beforeText.setSize(new Dimension(15, 10));
-		beforeText.setPreferredSize(new Dimension(15, 10));
+//		beforeText.setSize(new Dimension(15, 10));
+//		beforeText.setPreferredSize(new Dimension(15, 10));
 
 		afterText.setModel(model1);
-		afterText.setSize(new Dimension(15, 10));
-		afterText.setPreferredSize(new Dimension(15, 10));
+//		afterText.setSize(new Dimension(15, 10));
+//		afterText.setPreferredSize(new Dimension(15, 10));
 
 		jLabel1.setToolTipText("Downstream");
 		jLabel1.setText("+");
