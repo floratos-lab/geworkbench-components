@@ -27,9 +27,14 @@ import javax.swing.JProgressBar;
 import javax.swing.JToolBar;
 import javax.swing.border.TitledBorder;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
+import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
+import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
+import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.datastructure.complex.pattern.SoapParmsDataSet;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.components.discovery.algorithm.AbstractSequenceDiscoveryAlgorithm;
@@ -47,7 +52,6 @@ import org.geworkbench.events.StatusBarEvent;
 import org.geworkbench.events.listeners.ProgressChangeListener;
 import org.geworkbench.events.listeners.StatusChangeListener;
 import org.geworkbench.util.AlgorithmSelectionPanel;
-import org.geworkbench.util.remote.SPLASHDefinition;
 import org.geworkbench.util.session.DiscoverySession;
 
 import polgara.soapPD_wsdl.Parameters;
@@ -80,10 +84,8 @@ import polgara.soapPD_wsdl.Parameters;
 public class SequenceDiscoveryViewWidget extends JPanel implements
 		StatusChangeListener, PropertyChangeListener, ProgressChangeListener {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -7663914616670165388L;
+	private static Log log = LogFactory.getLog(SequenceDiscoveryViewWidget.class);
 
 	// holds the id of the current selected project file.
 	// this id is the key for mapping to an AlgorithmStub.
@@ -93,17 +95,16 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 	private File currentResultFile;
 
 	// Contains all the algorithm Stubs - they are mapped by the selected file.
-	private HashMap algorithmStubManager = new HashMap();
+	private HashMap<String, AlgorithmStub> algorithmStubManager = new HashMap<String, AlgorithmStub>();
 
-	// Conatains sessions - they are mapped by the selected file.
-	private HashMap sessionManager = new HashMap();
-	private HashMap globusManager = new HashMap();
+	// Contains sessions - they are mapped by the selected file.
+	private HashMap<String, DiscoverySession> sessionManager = new HashMap<String, DiscoverySession>();
 	private AlgorithmSelectionPanel algoPanel = new org.geworkbench.util.AlgorithmSelectionPanel();
 
 	// property changes
-	public static final String PATTERN_DB = "patternDB";
-	public static final String PARAMETERS = "parameters";
-	public static final String TABLE_EVENT = "tableEvent";
+	static final String PATTERN_DB = "patternDB";
+	static final String PARAMETERS = "parameters";
+	static final String TABLE_EVENT = "tableEvent";
 
 	// the displayed view component in this widget
 	private Component currentViewComponent = new JPanel();
@@ -120,7 +121,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 	private JPanel sequenceViewPanel = new JPanel();
 	private JToolBar jToolBar1 = new JToolBar();
 	private BorderLayout borderLayout3 = new BorderLayout();
-	private DSSequenceSet sequenceDB = new CSSequenceSet();
+	private DSSequenceSet<? extends DSSequence> sequenceDB = new CSSequenceSet<CSSequence>();
 	private SequenceDiscoveryViewAppComponent appComponent = null;
 	private JPanel panelView = new JPanel();
 	private JProgressBar progressBar = new JProgressBar(0, 100);
@@ -235,8 +236,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		jToolBar1.add(executeButton);
 		jToolBar1.add(stopButton);
 		jToolBar1.add(loadBttn);
-		// remove globus option for geWorkbench 1.6 release
-		//jToolBar1.add(useglobus);
+
 		jToolBar1.add(progressBar);
 		panelView.add(jToolBar1, java.awt.BorderLayout.NORTH);
 	}
@@ -249,6 +249,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 	 *            the event for updating the progress bar.
 	 * @see org.geworkbench.events.ProgressBarEvent.
 	 */
+	@Override
 	public void progressBarChanged(org.geworkbench.events.ProgressBarEvent evt) {
 		int min = evt.getMin();
 		int max = evt.getMax();
@@ -270,6 +271,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 	 *            the event for updating the status bar.
 	 * @see StatusBarEvent.
 	 */
+	@Override
 	public void statusBarChanged(StatusBarEvent evt) {
 		String message = evt.getSatus();
 		jPatternLabel.setText(message);
@@ -283,22 +285,23 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 	 */
 	private void executButton_actionPerformed(ActionEvent e) {
 		appComponent.updateDataSetView();
-		
-		// get a discoverySession for running the algo
-		String stubKey = getProjectFileId();
-		DiscoverySession discoverySession = getSession(stubKey);
-		if (discoverySession == null) { // we cannot run this algorithm with no
-										// discoverySession
-			return;
-		}
 
-		// fire a clear table event
-		firePropertyChange(TABLE_EVENT, null, null);
-		selectAlgorithm(discoverySession);
+		// get a discoverySession for running the algo
+		DiscoverySession discoverySession = appComponent.getSession();
+		// we cannot run this algorithm with no discoverySession
+		if ((discoverySession != null) && (currentStubId != null)) {
+			sessionManager.put(currentStubId, discoverySession);
+			// fire a clear table event
+			firePropertyChange(TABLE_EVENT, null, null);
+			selectAlgorithm(discoverySession);
+		} else {
+			log.error("Warning: registerSession failed" + "[subId=" + currentStubId
+					+ " session=" + discoverySession + "]");
+		}
 	}
 
-	public void setMinSupportTypeName(String currentMinSupportTypeName) {
-		// System.out.println("In SDVW: " + currentMinSupportTypeName);
+	// invoked from SequenceDiscoveryViewAppComponent.receive(ProjectEvent, Object)
+	void setMinSupportTypeName(String currentMinSupportTypeName) {
 		if (currentMinSupportTypeName != null)
 			parameterPanel.setCurrentSupportMenuStr(currentMinSupportTypeName);
 	};
@@ -319,7 +322,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 			algorithm = exhaustive_actionPerformed(discoverySession);
 			viewId = PATTERN_TABLE;
 		} else {
-			System.err.print("No Algorithm found...");
+			log.error("No Algorithm found...");
 			return;
 		}
 
@@ -330,29 +333,29 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 	private void switchAlgo(String selectedAlgo,
 			AbstractSequenceDiscoveryAlgorithm algorithm, int viewId) {
 		algorithm.addProgressChangeListener(this);
-		String stubKey = getProjectFileId();
-		AlgorithmStub stub = getStub(stubKey);
+		AlgorithmStub stub = getStub(currentStubId);
 		setStubAlgoAndPanel(stub, algorithm, selectedAlgo);
-		algorithmStubManager.put(stubKey, stub);
+		algorithmStubManager.put(currentStubId, stub);
 
 		algorithm.addStatusChangeListener(this);
 		initAndStart(stub, viewId);
 	}
 
-	private DSAncillaryDataSet resultData = null;
+	private DSAncillaryDataSet<? extends DSBioObject> resultData = null;
+
 	/**
 	 * Reads the parameters from the parameter panel.
 	 * 
 	 * @param type
 	 */
-
+	@SuppressWarnings("unchecked")
 	private String readParameterAndCreateResultfile(String type) {
 		Parameters p = parmsHandler.readParameter(parameterPanel,
 				getSequenceDB().getSequenceNo(), type);
 		parms = p;
 		// fire a parameter change to the application
 		org.geworkbench.bison.datastructure.complex.pattern.Parameters pp;
-		pp = ParameterTranslation.getParameterTranslation().translate(parms);
+		pp = ParameterTranslation.translate(parms);
 		pp.setMinSupportType(parameterPanel.getCurrentSupportMenuStr());// To
 																		// fix
 																		// bug
@@ -373,6 +376,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 	 * 
 	 * @param evt
 	 */
+	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
 		String property = evt.getPropertyName();
 		if (property.equalsIgnoreCase(PatternTableView.ROWSELECTION)) {
@@ -383,93 +387,9 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		}
 	}
 
-	/**
-	 * The function display the result of the discoverySession.
-	 * 
-	 * @param discoverySession
-	 *            DiscoverySession
-	 */
-	public void viewResult(DiscoverySession discoverySession) {
-		String stubKey = getProjectFileId();
-
-		if (!registerSession(stubKey, discoverySession)) {
-			return;
-		}
-
-		String algoServerName = "";
-		Parameters p = null;
-		try {
-			algoServerName = discoverySession.getAlgorithmName();
-			p = discoverySession.getParameters();
-		} catch (Exception ex) {
-		}
-
-		String algoPanelName = "";
-		int id = DEFAULT_VIEW;
-		AbstractSequenceDiscoveryAlgorithm torun = null;
-		// connect to the algorithm
-		if (algoServerName.equalsIgnoreCase(SPLASHDefinition.Algorithm.REGULAR)) {
-			torun = new RegularDiscovery(discoverySession);
-			algoPanelName = AlgorithmSelectionPanel.DISCOVER;
-			id = PATTERN_TABLE;
-		} else if (algoServerName
-				.equalsIgnoreCase(SPLASHDefinition.Algorithm.EXHAUSTIVE)) {
-			torun = new ExhaustiveDiscovery(discoverySession);
-			algoPanelName = AlgorithmSelectionPanel.EXHAUSTIVE;
-			id = PATTERN_TABLE;
-		} else {
-			return;
-		}
-
-		updateParameterPanel(p);
-		updateParameterPanel(p);
-		changeAlgorithmSelection(algoPanelName);
-		switchAlgo(algoPanelName, torun, id);
-	}
-
 	private void updateParameterPanel(Parameters p) {
 
 		parmsHandler.writeParameter(parameterPanel, p);
-	}
-
-	/**
-	 * The function returns a session.
-	 * 
-	 * @param stubId
-	 *            an identifier for the seesion
-	 * @return session or null if a session does not exist.
-	 */
-	private DiscoverySession getSession(String stubId) {
-		// DiscoverySession s = DiscoverySession.isNormalSession ?
-		// (DiscoverySession) sessionManager.get(stubId) : (DiscoverySession)
-		// globusManager.get(stubId);
-		//
-		// if (s != null && !s.isFailed()) {
-		// return s;
-		// }
-		// we don't have a session mapped. Get one from the app component.
-		DiscoverySession s = appComponent.getSession();
-		return registerSession(stubId, s) ? s : null;
-	}
-
-	/**
-	 * Registers a sesssion.
-	 * 
-	 * @param stubId
-	 *            String
-	 * @param s
-	 *            DiscoverySession
-	 * @return boolean
-	 */
-	private boolean registerSession(String stubId, DiscoverySession s) {
-		if ((s != null) && (stubId != null)) {
-				sessionManager.put(stubId, s);
-
-			return true;
-		}
-		System.err.println("Warning: registerSession failed" + "[subId="
-				+ stubId + " session=" + s + "]");
-		return false;
 	}
 
 	/**
@@ -516,22 +436,12 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 			attachDataSource(newStub.getResultDataSource(), newStub);
 			// update the algorithms selection panel to reflect the running
 			// algo.
-			changeAlgorithmSelection(newStub.getDescription());
+			algoPanel.setSelectedAlgorithm(newStub.getDescription());
 		} else {
-			setDefaultView();
+			// set Default View 
+			setCurrentView(DEFAULT_VIEW);
+			setCurrentParameterPanel(new ParameterPanel());
 		}
-	}
-
-	/**
-	 * Sets the default view for a file with no stub association
-	 */
-	private void setDefaultView() {
-		setCurrentView(DEFAULT_VIEW);
-		setCurrentParameterPanel(new ParameterPanel());
-	}
-
-	private void changeAlgorithmSelection(String algorithmDescription) {
-		algoPanel.setSelectedAlgorithm(algorithmDescription);
 	}
 
 	/**
@@ -568,7 +478,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 			if (modelList[i].attach(source)) {
 				// pass the model to the algorithm stub
 				stub.gainedFocus(modelList[i]);
-				setCurrentModel(i);
+				currentModel = i;
 				// update the view panel
 				setCurrentView(i);
 				setCurrentParameterPanel(stub.getParameterPanel());
@@ -594,10 +504,6 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		sequenceViewPanel.add(parameterPanel, BorderLayout.SOUTH);
 		revalidate();
 		repaint();
-	}
-
-	private synchronized String getProjectFileId() {
-		return currentStubId;
 	}
 
 	private AlgorithmStub getStub(String key) {
@@ -650,7 +556,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 	/**
 	 * Exhaustive
 	 */
-	public AbstractSequenceDiscoveryAlgorithm exhaustive_actionPerformed(
+	private AbstractSequenceDiscoveryAlgorithm exhaustive_actionPerformed(
 			DiscoverySession discoverySession) {
 
 		// readParameter("Exhaustive");
@@ -668,35 +574,24 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		GenericModel model = modelList[viewId];
 		stub.gainedFocus(model);
 		model.attach(stub.getResultDataSource());
-		setViewAndModel(viewId);
+
+		// replace the view and model
+		setCurrentView(viewId);
+		currentModel = viewId;
 
 		// start the algorithm
 		stub.start(executeButton);
 	}
 
-	private void setViewAndModel(int index) {
-		// replace the view and model
-		setCurrentView(index);
-		setCurrentModel(index);
-	}
-
 	private void stopButton_actionPerformed(ActionEvent e) {
-		String stubKey = getProjectFileId();
-		AlgorithmStub stub = (AlgorithmStub) algorithmStubManager.get(stubKey);
+		AlgorithmStub stub = (AlgorithmStub) algorithmStubManager.get(currentStubId);
 		if (stub != null) {
 			stub.stop();
 		}
 	}
 
-	private void setCurrentModel(int model) {
-		currentModel = model;
-	}
-
-	public void setParms(Parameters parms) {
-		this.parms = parms;
-	}
-
-	public synchronized void setSequenceDB(DSSequenceSet sDB,
+	// invoked by SequenceDiscoveryViewAppComponent.receive(ProjectEvent, Object)
+	synchronized void setSequenceDB(DSSequenceSet<? extends DSSequence> sDB,
 			boolean withExistedPatternNode, String patternNodeID, Parameters p,
 			File resultFile) {
 		// reset the currentResultFile.
@@ -735,68 +630,20 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		}
 	}
 
-	public synchronized void setSequenceDB(DSSequenceSet sDB) {
+	// invoked by SequnceDiscoveryViewAppComponent.updateDataSetView()
+	synchronized void setSequenceDB(DSSequenceSet<? extends DSSequence> sDB) {
 		if(sequenceDB!=null)
 		 sequenceDB = sDB;
-		 
-//			String stubID = sDB.getID() + sDB.getDataSetName();
-//			// Point currentNodeID to the name associated with the sequenceDB
-//			// name no matter the node is subnode or node.
-//			currentNodeID = stubID;
-//
-//			// change the stub for the widget
-//			projectFileChanged(stubID);
-	 
-
 	}
 
-	public synchronized void setSequenceDB(DSSequenceSet sDB,
-			boolean withExistedPatternNode, String patternNodeID, Parameters p) {
-		if (sequenceDB.getID() != sDB.getID()) {
-			sequenceDB = sDB;
-
-			String stubID = sDB.getID() + sDB.getDataSetName();
-			// Point currentNodeID to the name associated with the sequenceDB
-			// name no matter the node is subnode or node.
-			currentNodeID = stubID;
-			if (withExistedPatternNode && patternNodeID != null) {
-				stubID += patternNodeID;
-			}
-			// change the stub for the widget
-			projectFileChanged(stubID);
-		} else {
-
-			String stubID = sDB.getID() + sDB.getDataSetName();
-			// Point currentNodeID to the name associated with the sequenceDB
-			// name no matter the node is subnode or node.
-			currentNodeID = stubID;
-			if (withExistedPatternNode && patternNodeID != null) {
-				stubID += patternNodeID;
-			}
-			// change the stub for the widget
-			projectFileChanged(stubID);
-			if (p != null) {
-				updateParameterPanel(p);
-			}
-
-		}
-	}
-
-	public synchronized DSSequenceSet getSequenceDB() {
+	public synchronized DSSequenceSet<? extends DSSequence> getSequenceDB() {
 		 return sequenceDB;
 	}
 
-	public Parameters getParms() {
-		return parms;
-	}
-
-	public void setSequenceDiscoveryViewAppComponent(
+	// invoked in SequnceDiscoveryViewAppComponent constructor
+	void setSequenceDiscoveryViewAppComponent(
 			SequenceDiscoveryViewAppComponent s) {
 		appComponent = s;
-	}
-
-	public SequenceDiscoveryViewAppComponent getSequenceDiscoveryViewAppComponent() {
-		return appComponent;
 	}
 
 	public Parameters getParameters() {
@@ -860,7 +707,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		firePropertyChange(TABLE_EVENT, null, null);
 	}
 
-	void loadBttn_actionPerformed(ActionEvent e) {
+	private void loadBttn_actionPerformed(ActionEvent e) {
 		JFileChooser chooser = new JFileChooser(
 				org.geworkbench.util.PropertiesMonitor.getPropertiesMonitor()
 						.getDefPath());
@@ -925,6 +772,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 	/**
 	 * Handle the data history.
 	 */
+	@Override
 	public void progressChanged(ProgressChangeEvent evt) {
 		if (evt == null || evt.isInitial() ) {
 			return;
