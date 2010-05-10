@@ -2025,7 +2025,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	}
 
-	public class IntegerRenderer extends JLabel implements TableCellRenderer {
+	private class IntegerRenderer extends JLabel implements TableCellRenderer {
 		Border unselectedBorder = null;
 
 		Border selectedBorder = null;
@@ -2134,7 +2134,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		}
 	}
 
-	public class ColorRenderer extends JLabel implements TableCellRenderer {
+	private class ColorRenderer extends JLabel implements TableCellRenderer {
 		Border unselectedBorder = null;
 
 		Border selectedBorder = null;
