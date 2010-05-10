@@ -117,7 +117,7 @@ public class TabularMicroarrayPanel extends MicroarrayViewEventBase {
             DSGeneMarker stats = uniqueMarkers.get(row);
 			if (stats != null) {
 				if (col == 0) {
-					return stats.toString() + stats.getDescription();
+					return stats.toString();
 				} else {
 					DSMicroarray array = maSetView.get(col - 1);
 					DSMarkerValue value = array.getMarkerValue(row);
