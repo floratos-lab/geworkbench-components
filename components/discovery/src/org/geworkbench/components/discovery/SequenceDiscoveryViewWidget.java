@@ -14,9 +14,10 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
-import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -25,7 +26,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JToolBar;
-import javax.swing.border.TitledBorder;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -61,10 +61,10 @@ import polgara.soapPD_wsdl.Parameters;
  * This class services the needs of different algorithms. It enables them to use
  * a "GUI template" for displaying the progress/status of a computation and for
  * displaying the transformation of their input data. Each algorithm instance is
- * associated with a "view" (Note: there is a one to many mapping btwn
- * algorithms and a particular view). A view is a graphical represenation of the
+ * associated with a "view" (Note: there is a one to many mapping between
+ * algorithms and a particular view). A view is a graphical representation of the
  * Algorithm result set. For an algorithm to display its results, a DataSource
- * is attached to a model of the corresponding view. The Datasource contains the
+ * is attached to a model of the corresponding view. The Data source contains the
  * algorithm's result. Communications: viewer - model: defined by these
  * components. viewer - SequenceDiscoveryViewWidget: through property changes
  * model - Algorithm's DataSource: as defined by the model interface
@@ -80,7 +80,6 @@ import polgara.soapPD_wsdl.Parameters;
  * @author
  * @version $Id$
  */
-
 public class SequenceDiscoveryViewWidget extends JPanel implements
 		StatusChangeListener, PropertyChangeListener, ProgressChangeListener {
 
@@ -95,10 +94,8 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 	private File currentResultFile;
 
 	// Contains all the algorithm Stubs - they are mapped by the selected file.
-	private HashMap<String, AlgorithmStub> algorithmStubManager = new HashMap<String, AlgorithmStub>();
+	private Map<String, AlgorithmStub> algorithmStubMap = new HashMap<String, AlgorithmStub>();
 
-	// Contains sessions - they are mapped by the selected file.
-	private HashMap<String, DiscoverySession> sessionManager = new HashMap<String, DiscoverySession>();
 	private AlgorithmSelectionPanel algoPanel = new org.geworkbench.util.AlgorithmSelectionPanel();
 
 	// property changes
@@ -109,84 +106,66 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 	// the displayed view component in this widget
 	private Component currentViewComponent = new JPanel();
 	private final int DEFAULT_VIEW = -1;
-	private int currentModel = 0;
 	private final int PATTERN_TABLE = 0;
 
-	// views and models
-	private JPanel[] viewList = null;
-	private GenericModel[] modelList;
+	// view and model
+	private JPanel view;
+	private GenericModel model;
 
 	private Parameters parms = null;
-	private BorderLayout borderLayout1 = new BorderLayout();
 	private JPanel sequenceViewPanel = new JPanel();
 	private JToolBar jToolBar1 = new JToolBar();
-	private BorderLayout borderLayout3 = new BorderLayout();
+
 	private DSSequenceSet<? extends DSSequence> sequenceDB = new CSSequenceSet<CSSequence>();
 	private SequenceDiscoveryViewAppComponent appComponent = null;
+	
 	private JPanel panelView = new JPanel();
 	private JProgressBar progressBar = new JProgressBar(0, 100);
-	private BorderLayout borderLayout4 = new BorderLayout();
+
 	private JLabel jPatternLabel = new JLabel();
 	private ParameterPanel parameterPanel = new ParameterPanel();
 
 	private ParametersHandler parmsHandler = new ParametersHandler();
 	private String currentNodeID = "";
 
-	JButton executeButton = new JButton();
-	JButton stopButton = new JButton();
-	TitledBorder titledBorder4;
-	Box box1;
-	JButton loadBttn = new JButton();
+	private JButton executeButton = new JButton();
+	private JButton stopButton = new JButton();
+	private JButton loadBttn = new JButton();
 
 	public SequenceDiscoveryViewWidget() throws Exception {
-		initViewAndModel();
+		// initialized the views and models
+		// pattern table model
+		model = new PatternTableModelWrapper();
+		// pattern table view
+		view = new PatternTableView(model, this);
+		view.addPropertyChangeListener(this);
+
 		try {
 			jbInit();
 		} catch (Exception ex) {
-			System.err.println("SequenceDiscoveryViewWidget:::constructor: "
+			log.error("SequenceDiscoveryViewWidget:::constructor: "
 					+ ex.toString());
-			ex.printStackTrace();
 			throw ex;
 		}
 	}
 
-	/**
-	 * initialized the views and models
-	 */
-	private void initViewAndModel() {
-		int view_model = 1;
-		viewList = new JPanel[view_model];
-		modelList = new GenericModel[view_model];
-
-		// pattern table model
-		PatternTableModelWrapper ptModel = new PatternTableModelWrapper();
-		modelList[PATTERN_TABLE] = ptModel;
-		// pattern table view
-		PatternTableView patternTableView = new PatternTableView(ptModel, this);
-		patternTableView.addPropertyChangeListener(this);
-		viewList[PATTERN_TABLE] = patternTableView;
-	}
-
-	public void jbInit() throws Exception {
+	private void jbInit() throws Exception {
 		ImageIcon startButtonIcon = new ImageIcon(this.getClass().getResource(
 				"start.gif"));
 		ImageIcon stopButtonIcon = new ImageIcon(this.getClass().getResource(
 				"stop.gif"));
 		ImageIcon loadtButtonIcon = new ImageIcon(this.getClass().getResource(
 				"load.gif"));
-		this.setLayout(borderLayout1);
+		this.setLayout(new BorderLayout());
 
-		sequenceViewPanel.setLayout(borderLayout3);
+		sequenceViewPanel.setLayout(new BorderLayout());
 
 		// progress bar init
 		progressBar.setOrientation(JProgressBar.HORIZONTAL);
 		progressBar.setBorder(BorderFactory.createEtchedBorder());
-		progressBar.setMaximumSize(new Dimension(32767, 26));
-		progressBar.setMinimumSize(new Dimension(10, 26));
-		progressBar.setPreferredSize(new Dimension(104, 26));
 		progressBar.setStringPainted(true);
 		// View panel - different views plug into this panel
-		panelView.setLayout(borderLayout4);
+		panelView.setLayout(new BorderLayout());
 
 		jPatternLabel.setBorder(BorderFactory.createEtchedBorder());
 		jPatternLabel.setText("...");
@@ -233,6 +212,8 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		sequenceViewPanel.add(algoPanel, java.awt.BorderLayout.NORTH);
 
 		this.add(sequenceViewPanel);
+		
+		jToolBar1.setLayout(new BoxLayout(jToolBar1, BoxLayout.LINE_AXIS));
 		jToolBar1.add(executeButton);
 		jToolBar1.add(stopButton);
 		jToolBar1.add(loadBttn);
@@ -278,7 +259,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 	}
 
 	/**
-	 * The dispatch of the different algorithms startes here.
+	 * The dispatch of the different algorithms starts here.
 	 * 
 	 * @param e
 	 *            ActionEvent
@@ -290,8 +271,6 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		DiscoverySession discoverySession = appComponent.getSession();
 		// we cannot run this algorithm with no discoverySession
 		if ((discoverySession != null) && (currentStubId != null)) {
-			sessionManager.put(currentStubId, discoverySession);
-			// fire a clear table event
 			firePropertyChange(TABLE_EVENT, null, null);
 			selectAlgorithm(discoverySession);
 		} else {
@@ -315,11 +294,11 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 
 		// select the algorithm to run
 		if (selectedAlgo.equalsIgnoreCase(AlgorithmSelectionPanel.DISCOVER)) {
-			algorithm = discovery_actionPerformed(discoverySession);
+			algorithm = createDiscoveryAlgorithm(discoverySession);
 			viewId = PATTERN_TABLE;
 		} else if (selectedAlgo
 				.equalsIgnoreCase(AlgorithmSelectionPanel.EXHAUSTIVE)) {
-			algorithm = exhaustive_actionPerformed(discoverySession);
+			algorithm = createExhaustive(discoverySession);
 			viewId = PATTERN_TABLE;
 		} else {
 			log.error("No Algorithm found...");
@@ -335,10 +314,18 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		algorithm.addProgressChangeListener(this);
 		AlgorithmStub stub = getStub(currentStubId);
 		setStubAlgoAndPanel(stub, algorithm, selectedAlgo);
-		algorithmStubManager.put(currentStubId, stub);
+		algorithmStubMap.put(currentStubId, stub);
 
 		algorithm.addStatusChangeListener(this);
-		initAndStart(stub, viewId);
+
+		stub.gainedFocus(model);
+		model.attach(stub.getResultDataSource());
+
+		// replace the view and model
+		setCurrentView(viewId);
+
+		// start the algorithm
+		stub.start(executeButton);
 	}
 
 	private DSAncillaryDataSet<? extends DSBioObject> resultData = null;
@@ -349,7 +336,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 	 * @param type
 	 */
 	@SuppressWarnings("unchecked")
-	private String readParameterAndCreateResultfile(String type) {
+	private File readParameterAndCreateResultfile(String type) {
 		Parameters p = parmsHandler.readParameter(parameterPanel,
 				getSequenceDB().getSequenceNo(), type);
 		parms = p;
@@ -368,7 +355,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		currentStubId = currentNodeID + id;
 		resultData = pds;
 		firePropertyChange(PARAMETERS, null, pds);
-		return resultFile.getAbsolutePath();
+		return resultFile;
 	}
 
 	/**
@@ -385,11 +372,6 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 				.equalsIgnoreCase(PatternTableView.PATTERN_ADDTO_PROJECT)) {
 			firePropertyChange(PATTERN_DB, null, evt.getNewValue());
 		}
-	}
-
-	private void updateParameterPanel(Parameters p) {
-
-		parmsHandler.writeParameter(parameterPanel, p);
 	}
 
 	/**
@@ -412,9 +394,9 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		String oldStubId = currentStubId;
 		currentStubId = stub;
 
-		AlgorithmStub oldStub = (AlgorithmStub) algorithmStubManager
+		AlgorithmStub oldStub = algorithmStubMap
 				.get(oldStubId);
-		AlgorithmStub newStub = (AlgorithmStub) algorithmStubManager
+		AlgorithmStub newStub = algorithmStubMap
 				.get(currentStubId);
 
 		if (currentResultFile != null) {
@@ -422,12 +404,11 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		}
 		if (oldStub == null && newStub == null) {
 			// no algorithm stub is mapped
-
 			return;
 		}
 
 		if (oldStub != null) {
-			oldStub.lostFocus(modelList[currentModel]);
+			oldStub.lostFocus(model);
 			oldStub.removeStatusChangeListener(this);
 		}
 
@@ -452,12 +433,12 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 	 */
 	private void setCurrentView(int i) {
 		Component comp = null;
-		if ((i < 0) || (i > modelList.length)) {
+		if (i==DEFAULT_VIEW) {
 			comp = DefaultLook.panel;
 			statusBarChanged(DefaultLook.statusEvt);
 			progressBarChanged(DefaultLook.progressEvt);
 		} else {
-			comp = viewList[i];
+			comp = view;
 		}
 		panelView.remove(currentViewComponent);
 		currentViewComponent = comp;
@@ -471,25 +452,13 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 	 */
 	private void attachDataSource(
 			org.geworkbench.util.patterns.DataSource source, AlgorithmStub stub) {
-		// we iterate over the models, searching for a model that can display
-		// this algorithm result.
-		int i = 0;
-		for (; i < modelList.length; i++) {
-			if (modelList[i].attach(source)) {
-				// pass the model to the algorithm stub
-				stub.gainedFocus(modelList[i]);
-				currentModel = i;
-				// update the view panel
-				setCurrentView(i);
-				setCurrentParameterPanel(stub.getParameterPanel());
-				break;
-			}
-		}
-
-		if (i == modelList.length) {
-			// we should not be here -- each algorithm should have a model!
-			System.err.println("No model found for this algoritm");
-			setCurrentView(DEFAULT_VIEW);
+		// only one model now
+		if (model.attach(source)) {
+			// pass the model to the algorithm stub
+			stub.gainedFocus(model);
+			// update the view panel
+			setCurrentView(0);
+			setCurrentParameterPanel(stub.getParameterPanel());
 		}
 	}
 
@@ -507,7 +476,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 	}
 
 	private AlgorithmStub getStub(String key) {
-		AlgorithmStub stub = (AlgorithmStub) algorithmStubManager.get(key);
+		AlgorithmStub stub = algorithmStubMap.get(key);
 		// if stub is null we need to create stub for this algorithm
 		if (stub == null) {
 			stub = new AlgorithmStub();
@@ -516,7 +485,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 			// stop the previous algorithm
 			stub.stop();
 			// remove the model from the stopped algorithm
-			stub.lostFocus(modelList[currentModel]);
+			stub.lostFocus(model);
 			stub.removeStatusChangeListener(this);
 		}
 		return stub;
@@ -525,12 +494,12 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 	/**
 	 * The plain vanilla sequence discovery.
 	 */
-	private AbstractSequenceDiscoveryAlgorithm discovery_actionPerformed(
+	private AbstractSequenceDiscoveryAlgorithm createDiscoveryAlgorithm(
 			DiscoverySession session) {
-		String resultStr = readParameterAndCreateResultfile("Discovery");
+		File resultFile = readParameterAndCreateResultfile("Discovery");
 		AbstractSequenceDiscoveryAlgorithm abstractSequenceDiscoveryAlgorithm = new RegularDiscovery(
 				session, getParameters());
-		abstractSequenceDiscoveryAlgorithm.setResultFile(new File(resultStr));
+		abstractSequenceDiscoveryAlgorithm.setResultFile(resultFile);
 		abstractSequenceDiscoveryAlgorithm.setSequenceInputData(this
 				.getSequenceDB());
 		return abstractSequenceDiscoveryAlgorithm;
@@ -556,35 +525,20 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 	/**
 	 * Exhaustive
 	 */
-	private AbstractSequenceDiscoveryAlgorithm exhaustive_actionPerformed(
+	private AbstractSequenceDiscoveryAlgorithm createExhaustive(
 			DiscoverySession discoverySession) {
-
-		// readParameter("Exhaustive");
-		String resultStr = readParameterAndCreateResultfile("Exhaustive");
+		File resultFile = readParameterAndCreateResultfile("Exhaustive");
 		AbstractSequenceDiscoveryAlgorithm abstractSequenceDiscoveryAlgorithm = new ExhaustiveDiscovery(
 				discoverySession, getParameters());
-		abstractSequenceDiscoveryAlgorithm.setResultFile(new File(resultStr));
+		abstractSequenceDiscoveryAlgorithm.setResultFile(resultFile);
 		abstractSequenceDiscoveryAlgorithm.setSequenceInputData(this
 				.getSequenceDB());
 		return abstractSequenceDiscoveryAlgorithm;
 
 	}
 
-	private void initAndStart(AlgorithmStub stub, int viewId) {
-		GenericModel model = modelList[viewId];
-		stub.gainedFocus(model);
-		model.attach(stub.getResultDataSource());
-
-		// replace the view and model
-		setCurrentView(viewId);
-		currentModel = viewId;
-
-		// start the algorithm
-		stub.start(executeButton);
-	}
-
 	private void stopButton_actionPerformed(ActionEvent e) {
-		AlgorithmStub stub = (AlgorithmStub) algorithmStubManager.get(currentStubId);
+		AlgorithmStub stub = algorithmStubMap.get(currentStubId);
 		if (stub != null) {
 			stub.stop();
 		}
@@ -624,9 +578,8 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 			// change the stub for the widget
 			projectFileChanged(stubID);
 			if (p != null) {
-				updateParameterPanel(p);
+				parmsHandler.writeParameter(parameterPanel, p);
 			}
-
 		}
 	}
 
@@ -816,17 +769,15 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		+"\n   Window: "+parms.getWindow()
 		;
 	}
-}
 
-/**
- * Default look and feel for the sequence panel
- * 
- * @version 1.0
- */
-class DefaultLook {
-	public static final JPanel panel = new JPanel();
-	public static final StatusBarEvent statusEvt = new org.geworkbench.events.StatusBarEvent(
-			"...");
-	public static final ProgressBarEvent progressEvt = new org.geworkbench.events.ProgressBarEvent(
-			null, null, 0);
+	/**
+	 * Default look and feel for the sequence panel
+	 */
+	private static class DefaultLook {
+		public static final JPanel panel = new JPanel();
+		public static final StatusBarEvent statusEvt = new org.geworkbench.events.StatusBarEvent(
+				"...");
+		public static final ProgressBarEvent progressEvt = new org.geworkbench.events.ProgressBarEvent(
+				null, null, 0);
+	}
 }
