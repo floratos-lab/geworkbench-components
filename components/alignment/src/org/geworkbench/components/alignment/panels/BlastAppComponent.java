@@ -263,15 +263,10 @@ public class BlastAppComponent implements VisualPlugin {
 
         jLabel9.setText("Program: ");
 
-        serviceProgressBar.setMinimumSize(new Dimension(10, 26));
-        serviceProgressBar.setPreferredSize(new Dimension(104, 26));
-
         jBasicPane.setPreferredSize(new Dimension(364, 250));
-        jPanel3.setLayout(borderLayout3);
-
         jBasicPane.setLayout(borderLayout2);
-        //jBasicPane.setPreferredSize(new Dimension(10, 100));
-        jBasicPane.setMinimumSize(new Dimension(10, 100));
+        
+        jPanel3.setLayout(borderLayout3);
 
         jAdvancedPane.setLayout(gridBagLayout3);
         databaseTable.setToolTipText("Select a database");
@@ -367,6 +362,7 @@ public class BlastAppComponent implements VisualPlugin {
         blastStopButton.addActionListener(new
                                           BlastAppComponent_blastStopButton_actionAdapter());
 
+        jToolBar2.setLayout(new BoxLayout(jToolBar2, BoxLayout.LINE_AXIS));
         jToolBar2.add(serviceProgressBar);
         serviceProgressBar.setOrientation(JProgressBar.HORIZONTAL);
         serviceProgressBar.setBorder(BorderFactory.createEtchedBorder());
@@ -596,7 +592,7 @@ public class BlastAppComponent implements VisualPlugin {
 
                 try {
 
-                    serviceProgressBar.setForeground(Color.GREEN);
+                    serviceProgressBar.setForeground(Color.BLACK);
                     serviceProgressBar.setBackground(Color.WHITE);
 
                     updateProgressBar(10, "Wait...");
