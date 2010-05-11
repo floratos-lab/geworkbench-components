@@ -28,7 +28,8 @@ public class AracneProgress implements Observer {
         aracneThread.start();
     }
     
-    public void update(java.util.Observable ob, Object o) {
+    @SuppressWarnings("deprecation") // we have to use stop because the thread is running outside code
+	public void update(java.util.Observable ob, Object o) {
 		log.debug("initiated close");
 		aracneThread.stop();
 		log.warn("Cancelling ARACNE Analysis.");
