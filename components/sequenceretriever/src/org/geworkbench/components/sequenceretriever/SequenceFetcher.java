@@ -276,7 +276,7 @@ public class SequenceFetcher {
         return null;
     }
 
-    static CSSequenceSet<CSSequence> getAffyProteinSequences(String affyid) {
+    static CSSequenceSet<CSSequence> getAffyProteinSequences(String affyid) throws RemoteException {
         CSSequenceSet<CSSequence> sequenceSet = new CSSequenceSet<CSSequence>();
         try {
             Call call = (Call) new Service().createCall();
@@ -325,6 +325,8 @@ public class SequenceFetcher {
         } catch (RemoteException e) {
         	// DbfNoEntryFoundException & DbfConnException will be caught here
         	log.warn(e.getMessage());
+        	if(!e.toString().contains("DbfNoEntryFoundException")) // do not re-throw if it is DbfNoEntryFoundException
+        			throw e;
         } catch (NoClassDefFoundError e) { // runtime
         	log.warn(e.getMessage());
         	e.printStackTrace();
