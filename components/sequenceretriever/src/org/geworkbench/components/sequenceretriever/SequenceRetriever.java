@@ -11,6 +11,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.rmi.RemoteException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -836,6 +837,7 @@ public class SequenceRetriever implements VisualPlugin {
 				proteinSequenceDB = new CSSequenceSet();
 
 				if (selectedList != null) {
+					try {
 
 					for (int count = 0; count < selectedList.size(); count++) {
 						DSGeneMarker geneMarker = (DSGeneMarker) selectedList
@@ -876,7 +878,12 @@ public class SequenceRetriever implements VisualPlugin {
 							}
 
 						}
+					} // end of for loop
+					} catch (RemoteException e) {
+						showNoSequencesDialog(e.toString());
+						return false;
 					}
+
 
 				}
 
@@ -922,7 +929,7 @@ public class SequenceRetriever implements VisualPlugin {
 		sequenceDB.parseMarkers();
 		String fileName = this.getRandomFileName();
 		if (sequenceDB.getSequenceNo() == 0) {
-			showNoSequencesDialog();
+			showNoSequencesDialog("No sequences retrieved for selected markers");
 		}
 		if (sequenceDB.getSequenceNo() != 0) {
 			sequenceDB.writeToFile(fileName);
@@ -933,11 +940,12 @@ public class SequenceRetriever implements VisualPlugin {
 		}
 	}
 
-	private void showNoSequencesDialog() {
+	// this method is meant to be called from non-EDT thread
+	private void showNoSequencesDialog(final String message) {
 	    Runnable showModalDialog = new Runnable() {
 	        public void run() {
 				JOptionPane.showMessageDialog(getComponent(),
-				"No sequences retrieved for selected markers");
+				message);
 	        }
 	    };
 	    try {
