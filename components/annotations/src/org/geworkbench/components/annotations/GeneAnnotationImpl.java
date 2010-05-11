@@ -548,6 +548,7 @@ public class GeneAnnotationImpl implements GeneAnnotation {
 				agentRoles, agentSentences, agentPubmeds);
 	}
 
+	protected static String message = "Getting Disease/Agent Associations: ";
 	public AgentDiseaseResults showAnnotation(
 			DSItemList<DSGeneMarker> selectedMarkerInfo, JMenuItem retrieveItem, CGITableModel diseaseModel, CGITableModel agentModel, ProgressBar pb) {
         ArrayList<MarkerData> markerData = new ArrayList<MarkerData>();
@@ -565,7 +566,10 @@ public class GeneAnnotationImpl implements GeneAnnotation {
         ArrayList<PubmedData> agentPubmedData = new ArrayList<PubmedData>();
         if (selectedMarkerInfo != null) {
             pb.setTitle("Querying caBIO..");
-            pb.start();
+            if (!pb.isActive()) {
+                pb.setMessage("Connecting to server...");
+            	pb.start();
+            }
 
     		ApplicationService appService = null;
     		try {
@@ -586,7 +590,7 @@ public class GeneAnnotationImpl implements GeneAnnotation {
             //TODO: to save network communication time, we should query only once by submitting the list.
             for (int i = 0; i < selectedMarkerInfo.size(); i++) {
                 index++;
-                String progressMessage = "";
+                String progressMessage = "Getting Disease/Agent Associations: ";
                 progressMessage += "Marker "+index+"/"+selectedMarkerInfo.size()+"   ";
 				if (stopAlgorithm == true) {
 					stopAlgorithm(pb);
@@ -637,7 +641,11 @@ public class GeneAnnotationImpl implements GeneAnnotation {
         		}
         		if (results2!=null)
         		for (Object gfa : results2) {
-                    pb.setMessage(progressMessage+"Records "+(diseaseLimit+agentLimit-diseaseLimitIndex-agentLimitIndex)+"/"+(diseaseRecords+agentRecords)+"\n");
+        			message = progressMessage+"Records "+(diseaseLimit+agentLimit-diseaseLimitIndex-agentLimitIndex)+"/"+(diseaseRecords+agentRecords)+"\n";
+        			if (AnnotationsPanel2.userAlsoWantPathwayData)
+        				pb.setMessage("<html>"+AnnotationsPanel2.message+"<br><br>"+message);
+        			else
+            			pb.setMessage(message);
 					if (stopAlgorithm == true) {
 						stopAlgorithm(pb);
 						break;
@@ -686,9 +694,8 @@ public class GeneAnnotationImpl implements GeneAnnotation {
         			}
         		}
             }
-
-            pb.stop();
-
+        	message = "Getting Disease/Agent Associations: Completed";
+            if (!AnnotationsPanel2.t2.isAlive() && pb.isActive()) pb.stop();
         }
         
         MarkerData[] markers = markerData.toArray(new MarkerData[0]);

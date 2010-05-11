@@ -1184,7 +1184,7 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
     }
 
     private boolean userAlsoWantCaBioData = false;
-    private boolean userAlsoWantPathwayData = false;
+    protected static boolean userAlsoWantPathwayData = false;
 
     /**
      * Configures the Graphical User Interface and Listeners
@@ -2082,6 +2082,10 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
         }
     }
 
+	private ProgressBar pb = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
+    protected static String message = "Getting Marker Annotation/Pathways: ";
+    private static Thread t1 = null;
+    protected static Thread t2 = null;
     /**
      * Performs caBIO queries and constructs HTML display of the results
      */
@@ -2103,9 +2107,7 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
             	public void run() {
             		dropDownLists[2].removeAllItems();
             		dropDownLists[2].addItem("");
-            		ProgressBar pb = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
                     pb.addObserver(getAnnotationsPanel());
-                    pb.setMessage("Connecting to server...");
             		GeneAnnotation geneAnnotation = new GeneAnnotationImpl();
             		AgentDiseaseResults agentDiseaseResults = geneAnnotation.showAnnotation(selectedMarkerInfo, retrieveItem, diseaseModel, agentModel, pb);
             		if (stopAlgorithm){
@@ -2234,10 +2236,10 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
                 }
 
             };
-            Thread t = new Thread(query);
-            t.setPriority(Thread.MIN_PRIORITY);
+            t1 = new Thread(query);
+            t1.setPriority(Thread.MIN_PRIORITY);
             if (userAlsoWantCaBioData)
-            	t.start();
+            	t1.start();
             if (userAlsoWantPathwayData &&(!userAlsoWantCaBioData))
                 jTabbedPane1.setSelectedComponent(annotationPanel);
         }
@@ -2250,15 +2252,16 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
             Runnable query = new Runnable() {
 
             	public void run() {
-            		ProgressBar pb = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
-                    pb.addObserver(getAnnotationsPanel());
-                    pb.setMessage("Connecting to server...");
                     ArrayList<MarkerData> markerData = new ArrayList<MarkerData>();
                     ArrayList<GeneData> geneData = new ArrayList<GeneData>();
                     ArrayList<PathwayData> pathwayData = new ArrayList<PathwayData>();
                     if (selectedMarkerInfo != null) {
                         pb.setTitle("Querying caBIO..");
-                        pb.start();
+                        if (!pb.isActive()) {
+                            pb.addObserver(getAnnotationsPanel());
+                            pb.setMessage("Connecting to server...");
+                        	pb.start();
+                        }
 
                         if (criteria == null) {
                             try {
@@ -2278,6 +2281,11 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
                                stopAlgorithm(pb);
                                   return;
                             }
+                            message = "Getting Marker Annotation/Pathways: " + selectedMarkerInfo.get(i).getLabel();
+                            if (userAlsoWantCaBioData) 
+                            	pb.setMessage("<html>"+message+"<br><br>"+GeneAnnotationImpl.message);
+                            else
+                                pb.setMessage(message);
 
                             String geneName = selectedMarkerInfo.get(i).getGeneName();
                             GeneAnnotation[] annotations;
@@ -2286,7 +2294,6 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
                             if (annotations == null )
                             	return;
 
-                            pb.setMessage("Getting Marker Annotation and Pathways: " + selectedMarkerInfo.get(i).getLabel());
                             MarkerData marker = new MarkerData(selectedMarkerInfo.get(i),"");
                             if ( annotations.length > 0) {
                                 for (int j = 0; j < annotations.length; j++) {
@@ -2323,9 +2330,8 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
 //                                markerData.add(marker);
 //                            }
                         }
-
-                        pb.stop();
-
+                    	message = "Getting Marker Annotation/Pathways: Completed";
+                        if (!t1.isAlive() && pb.isActive())  pb.stop();
                     }
                     MarkerData[] markers = markerData.toArray(new MarkerData[0]);
                     GeneData[] genes = geneData.toArray(new GeneData[0]);
@@ -2351,10 +2357,10 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
                     });
                 }
             };
-            Thread t = new Thread(query);
-            t.setPriority(Thread.MIN_PRIORITY);
+            t2 = new Thread(query);
+            t2.setPriority(Thread.MIN_PRIORITY);
             if (userAlsoWantPathwayData)
-            	t.start();
+            	t2.start();
             if ((!userAlsoWantPathwayData) && userAlsoWantCaBioData)
                 jTabbedPane1.setSelectedComponent(cgiPanel);
         }
