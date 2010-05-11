@@ -1,31 +1,20 @@
 package org.geworkbench.components.aracne;
 
-import java.awt.BorderLayout;
 import java.awt.HeadlessException;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.util.Observer;
-
-import javax.swing.JButton;
-import javax.swing.JProgressBar;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.util.ProgressBar;
-import org.geworkbench.util.threading.SwingWorker;
-
-import wb.plugins.aracne.WeightedGraph;
 
 /**
  * @author mhall
+ * @version $Id$
  */
 public class AracneProgress implements Observer {
-	static Log log = LogFactory.getLog(AracneProgress.class);
+	private static Log log = LogFactory.getLog(AracneProgress.class);
 	
-    SwingWorker<WeightedGraph, Object> worker;
-    Thread aracneThread;
+    private Thread aracneThread;
     private ProgressBar progressBar = null;
 
     public AracneProgress(Thread thread) throws HeadlessException {  
