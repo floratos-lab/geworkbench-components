@@ -16,6 +16,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Observer;
 
+import javax.swing.SwingWorker;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.genepattern.webservice.Parameter;
@@ -35,7 +37,6 @@ import org.geworkbench.components.gpmodule.GPAnalysis;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.util.ProgressBar;
-import org.geworkbench.util.threading.SwingWorker;
 
 /**
  * @author: Marc-Danie Nazaire

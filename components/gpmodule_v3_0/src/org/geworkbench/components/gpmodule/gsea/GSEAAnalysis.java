@@ -1,36 +1,41 @@
 package org.geworkbench.components.gpmodule.gsea;
 
-import org.geworkbench.components.gpmodule.GPAnalysis;
-import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
-import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.datastructure.biocollections.gsea.DSGSEAResultDataSet;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Observer;
+
+import javax.swing.JOptionPane;
+import javax.swing.SwingWorker;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.tools.zip.ZipEntry;
+import org.apache.tools.zip.ZipFile;
+import org.genepattern.matrix.ClassVector;
+import org.genepattern.matrix.DefaultClassVector;
+import org.genepattern.webservice.Parameter;
+import org.geworkbench.bison.annotation.CSAnnotationContext;
+import org.geworkbench.bison.annotation.CSAnnotationContextManager;
+import org.geworkbench.bison.annotation.DSAnnotationContext;
 import org.geworkbench.bison.datastructure.biocollections.gsea.CSGSEAResultDataSet;
+import org.geworkbench.bison.datastructure.biocollections.gsea.DSGSEAResultDataSet;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
-import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
-import org.geworkbench.bison.annotation.DSAnnotationContext;
-import org.geworkbench.bison.annotation.CSAnnotationContextManager;
-import org.geworkbench.bison.annotation.CSAnnotationContext;
+import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
+import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
+import org.geworkbench.builtin.projects.ProjectPanel;
+import org.geworkbench.components.gpmodule.GPAnalysis;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.util.ProgressBar;
-import org.geworkbench.util.threading.SwingWorker;
-import org.geworkbench.builtin.projects.ProjectPanel;
-import org.geworkbench.builtin.projects.Icons;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.tools.zip.ZipFile;
-import org.apache.tools.zip.ZipEntry;
-import org.genepattern.webservice.Parameter;
-import org.genepattern.matrix.ClassVector;
-import org.genepattern.matrix.DefaultClassVector;
-
-import javax.swing.*;
-import java.util.*;
-import java.io.File;
 
 /**
  * User: nazaire
