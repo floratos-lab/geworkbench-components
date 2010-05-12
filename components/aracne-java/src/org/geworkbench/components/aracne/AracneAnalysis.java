@@ -56,6 +56,8 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 	 */
 	private static final long serialVersionUID = 1L;
 
+	private static final int MINIMUM_ARRAY_NUMBER = 100;
+
 	static Log log = LogFactory.getLog(AracneAnalysis.class);
 
 	private DSMicroarraySetView<DSGeneMarker, DSMicroarray> mSetView;
@@ -172,6 +174,16 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 		double pt = params.getConsensusThreshold();
 		if (bs <= 0 || pt <= 0 || pt > 1)
 			return null;
+		
+		if(mSetView.size()<MINIMUM_ARRAY_NUMBER) {
+			int n = JOptionPane.showConfirmDialog(
+				    null,
+				    "ARACNe should not in general be run on less than "+MINIMUM_ARRAY_NUMBER+" arrays. Do you want to continue?",
+				    "Too few arrays",
+				    JOptionPane.YES_NO_OPTION);
+			if(n!=JOptionPane.YES_OPTION)
+				return null;
+		}
 
 		AracneThread aracneThread = new AracneThread(mSetView, p, bs, pt);
 
