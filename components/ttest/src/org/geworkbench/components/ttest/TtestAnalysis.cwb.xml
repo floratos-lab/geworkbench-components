@@ -1,8 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
-	<component  name="TtestAnalysis"
-		class="org.geworkbench.components.analysis.clustering.TtestAnalysis"
+	<component name="T Test Analysis"
+		class="org.geworkbench.components.ttest.TtestAnalysis"
 		version="1.0"
 		author="geWorkbench Development Team"
 		authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
@@ -26,6 +27,6 @@
 	</component>
 
 
-	<plugin id="TtestAnalysis" name="T Test Analysis" class="org.geworkbench.components.analysis.clustering.TtestAnalysis" source="analysis"/>
+	<plugin id="TtestAnalysis" name="T Test Analysis" class="org.geworkbench.components.ttest.TtestAnalysis" source="ttest"/>
 
 </component-descriptor>
