@@ -341,7 +341,7 @@ public class TableViewer extends JPanel {
 			Component c = super.getTableCellRendererComponent(table, obj,
 					param, param3, row, col);
 			((JLabel) c).setHorizontalAlignment(JLabel.RIGHT);
-			c.setBackground(Color.white);
+
 			return c;
 		}
 		
