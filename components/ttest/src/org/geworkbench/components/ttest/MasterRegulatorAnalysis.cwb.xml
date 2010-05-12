@@ -2,7 +2,7 @@
 	xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
 	<component  name="Master Regulator Analysis"
-		class="org.geworkbench.components.analysis.clustering.MasterRegulatorAnalysis"
+		class="org.geworkbench.components.ttest.MasterRegulatorAnalysis"
 		version="1.0"
 		author="Califano lab (C2B2)"
 		authorURL="http://wiki.c2b2.columbia.edu/califanolab/index.php/Califano_Info"
@@ -26,6 +26,6 @@
 
 	</component>
 
-	<plugin id="MasterRegulatorAnalysis" name="MRA Analysis" class="org.geworkbench.components.analysis.clustering.MasterRegulatorAnalysis" source="analysis"/>
+	<plugin id="MasterRegulatorAnalysis" name="MRA Analysis" class="org.geworkbench.components.ttest.MasterRegulatorAnalysis" source="analysis"/>
 
 </component-descriptor>
