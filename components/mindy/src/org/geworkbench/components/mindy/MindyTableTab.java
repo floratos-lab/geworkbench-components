@@ -83,7 +83,7 @@ public class MindyTableTab extends JSplitPane {
 					component.setBackground(new Color(237, 237, 237));
 				} else {
 					// If not shaded, match the table's background
-					component.setBackground(getBackground());
+					//component.setBackground(getBackground());
 				}
 				if (colorCheck.isSelected() && col > 1) {
 					float score = aggregateModel.getScoreAt(
