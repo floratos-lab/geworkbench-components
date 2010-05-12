@@ -234,7 +234,7 @@ public class MindyPlugin extends JPanel {
 						c.setBackground(new Color(237, 237, 237));
 					} else {
 						// If not shaded, match the table's background
-						c.setBackground(getBackground());
+						//c.setBackground(getBackground());
 					}
 					return c;
 				}
@@ -386,7 +386,7 @@ public class MindyPlugin extends JPanel {
 						c.setBackground(new Color(237, 237, 237));
 					} else {
 						// If not shaded, match the table's background
-						c.setBackground(getBackground());
+						//c.setBackground(getBackground());
 					}
 
 					return c;
