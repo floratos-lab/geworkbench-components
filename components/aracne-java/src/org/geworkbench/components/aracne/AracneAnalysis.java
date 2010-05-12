@@ -341,12 +341,12 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 				weightedGraph = HardenedAracne.run(convert(mSetView), p,
 						bootstrapNumber, pThreshold);
 			} catch (Exception e) {
+				progressWindow.stopProgress();
 				showMessage("Exception caught in ARACNe run: "+e.toString());
 				return;
-			} finally {
-				progressWindow.stopProgress();
 			}
 			log.debug("Done running ARACNE in worker thread.");
+			progressWindow.stopProgress();
 
 			/* done if in PREPROCESSING mode*/
 			if (this.p.getMode().equals(Parameter.MODE.PREPROCESSING)) {
