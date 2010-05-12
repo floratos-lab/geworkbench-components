@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 	
@@ -14,7 +15,7 @@
  the set of genes regulated by a particular transcription factor."
 				visualizer="true"				
 	 >
-		<required-component class="org.geworkbench.components.analysis.clustering.MasterRegulatorAnalysis" />
+		<required-component class="org.geworkbench.components.ttest.MasterRegulatorAnalysis" />
 		<license><![CDATA[
 			<html><head><meta http-equiv=Content-Type content="text/html; charset=windows-1252"></head>
 				<body>----</body>
@@ -23,7 +24,7 @@
 
 	</component>
 
-	<plugin id="MasterRegulatorViewer" name="MRA Viewer" class="org.geworkbench.components.ttest.MasterRegulatorViewer" source="analysis">
+	<plugin id="MasterRegulatorViewer" name="MRA Viewer" class="org.geworkbench.components.ttest.MasterRegulatorViewer" source="ttest">
 			<gui-area name="VisualArea"/>
   </plugin>		
 

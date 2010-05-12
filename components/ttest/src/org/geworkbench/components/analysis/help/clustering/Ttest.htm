@@ -1,0 +1,78 @@
+<html>
+
+
+
+<head>
+
+<meta http-equiv="Content-Language" content="en-us">
+
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+
+<meta name="ProgId" content="FrontPage.Editor.Document">
+
+<title>User Comments</title>
+
+<link rel="stylesheet" type="text/css" href="ncicb.css">
+
+</head>
+
+
+
+<body>
+
+
+<h3>T-Test Analysis</h3> 
+    <p>The t-test determines if for each marker there is a significant difference between two groups, such as case or control panel classification described in the Panel section of help. This statistic accomplishes this task by examining the differences between the means relative to the variance of the data. The formula for the t-test consists of determining the ratio of the differences between the two means and the measure of the variability between two datasets or panels</p> 
+    <p>The T-test analysis implementation is based on code from the <a href="http://www.tigr.org/software/tm4/mev.html">Multi Experiment Viewer (MEV)</a> platform, made available from The Institute for Genomic Research (TIGR). The MeV <a href="ftp://occams.dfci.harvard.edu/pub/bio/MeV/MeV_Manual_3_1.pdf">Manual</a> offers a detailed description of the workings of MeV. </p> 
+    <h3>Apply T-Test </h3> 
+    <p>1 From the Analysis Panel, select <b>T-Test Analysis </b>from the selection list.</p> 
+    <p>2 Update or accept the default setting for the parameters as described in the <a href="#_Parameter">parameter </a>section.</p> 
+    <p>3 Click on <b>Analyze. </b> In the Gene Panel, the markers which met the significance test are included in a new panel called &#8220;Significant Genes&#8221;. The values of the T-Test can be seen in the <b>Volcano Plot and Color </b><b>Mosaic</b> panel.</p> 
+    <h3><a name="_Parameter"></a>Parameter Settings</h3> 
+    <p>The T-Test analysis parameters are as follows:</p> 
+    <li>
+    <p class="BulletL1"><a href="#_Alpha_Corrections">Alpha-corrections</a></p> 
+    </li>
+    <li>
+    <p class="BulletL1"><a href="#_P-Value">P-Value Parameters</a></p> 
+    </li>
+    <li>
+    <p class="BulletL1"><a href="#_Degree_of_Freedom">Degree of Freedom </a></p> 
+    </li>
+    <h3><a name="_P-Value"></a>P-Value</h3> 
+    <h3><img border="0" width="823" height="259" src="Ttest_files/image001.jpg"></h3> 
+    <p>This tab indicates the method by which p-values are determined for each gene and allows the input of the critical p-value. The steps of basic usage are described as follows: </p> 
+    <p>- <b>p-values based on t-distribution:</b> Using this option, a gene's p-value is taken directly from the theoretical t-distribution based on the gene's calculated t-value.</p> 
+    <p>- <b>p-values based on permutation: </b>A gene's p-value is determined by forming a distribution based on permutations of the data for that gene. </p> 
+    <p>- <b>Randomly grouped experiments</b>: This text box captures number of times to permute the values.</p> 
+    <p>- <b>Use all permutations: </b>Permutes the values a number of times equal to the maximum number of permutations possible</p> 
+    <p>- <b>Overall alpha:</b> A text box to capture the alpha or critical p-value.</p> 
+    <p>- <b>Activated Markers and Activated Array Checkbox: </b> These checkboxes limit the analysis to activated panels</p> 
+    <h3><a name="_Degree_of_Freedom"></a>Degree of Freedom</h3> 
+    <p><img border="0" width="796" height="244" src="Ttest_files/image002.jpg"></p> <b> </b> 
+    <p>The degrees of freedom for an estimate is defined as the number of independent measurements that go into determining an estimate. It is directly related to the number of data points and is dictated by the microarray experimental design. </p>
+    <p>When assuming Equal Group Variances, the degrees of freedom are the sum of the number of samples in both categories (panels) minus 2 (As the variance and mean for the groups are calculated during the T-test classification process).</p>
+    <p> For unequal group variances, the degrees of freedom are computed using the Welch&#8217;s t-test approximation which produces a slightly smaller t-value than the traditional equal variance T-test (also called Student&#8217;s T-test). The computed t-value is used above to determine the significance p-value for each gene using parameters based on above text-box. The steps of basic usage are described as follows: </p>
+    <p><b>Group Variance:</b></p> 
+    <p>- <b>Equal group variances:</b> Unpaired data with equal variance. </p> 
+    <p>- <b>Unequal group variances:</b> The approximate degrees of freedom are obtained from Welch&#8217;s approximation formula</p> 
+    <h3><a name="_Alpha_Corrections"></a>Alpha Corrections</h3> 
+    <p><img border="0" width="786" height="244" src="Ttest_files/image003.jpg"></p> 
+    <p>This is an estimate of the risk level for the estimate of significance, or a rate for acceptable false error. Traditionally this is set as 0.05 (called Type I error), or that there is 1 in 20 chance that the T-test classification of genes as significant in either category would be incorrect.The steps of basic usage are described as follows: </p> 
+    <p><b>Correction Method:</b></p> 
+    <p>-<b>Just Alpha (no correction):</b> Alpha is not altered. </p> 
+    <p>-<b>Standard Bonferroni Correction:</b> A user-specified alpha is divided by the number of genes to give the critical p-value. </p> 
+    <p>-<b>Adjusted Bonferroni Correction </b>: T-values for all the genes are ranked in descending order and the gene with the highest t-value, the critical p-value becomes (alpha / n), where n is the total number of genes; for the gene with the second-highest t-value, the critical p-value will be (alpha/ n-1).</p> 
+    <p>-<b>Step-down Westfall Young: </b>These functions compute permutation adjusted p-values for step-down multiple testing procedures described in Westfall &amp; Young (1993). </p>
+
+ 
+
+    
+</body>
+
+
+
+</html>
+

@@ -68,8 +68,6 @@ import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.bison.model.analysis.ParameterPanel;
 import org.geworkbench.bison.model.analysis.ProteinSequenceAnalysis;
 import org.geworkbench.bison.model.analysis.ProteinStructureAnalysis;
-import org.geworkbench.components.analysis.clustering.MultiTTestAnalysisPanel;
-import org.geworkbench.components.analysis.clustering.TtestAnalysisPanel;
 import org.geworkbench.components.cagrid.gui.GridServicePanel;
 import org.geworkbench.engine.config.PluginRegistry;
 import org.geworkbench.engine.config.VisualPlugin;
@@ -1020,8 +1018,9 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 					.getNamesOfStoredParameterSets();
 			setNamedParameters(storedParameterSetNames);
 
-			if (paramPanel instanceof MultiTTestAnalysisPanel
-					|| paramPanel instanceof TtestAnalysisPanel)
+			String className = paramPanel.getClass().getName();
+			if (className.equals("org.geworkbench.components.ttest.MultiTTestAnalysisPanel")
+					|| className.equals("org.geworkbench.components.ttest.TtestAnalysis"))
 				super.chkAllArrays.setVisible(false);
 			else
 				super.chkAllArrays.setVisible(true);
@@ -1118,17 +1117,13 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	private void analyze_actionPerformed(ActionEvent e) {
 		maSetView = getDataSetView();
 
-		if (currentParameterPanel instanceof MultiTTestAnalysisPanel
-				|| currentParameterPanel instanceof TtestAnalysisPanel) {
+		String className = currentParameterPanel.getClass().getName();
+		if (className.equals("org.geworkbench.components.ttest.MultiTTestAnalysisPanel")
+				|| className.equals("org.geworkbench.components.ttest.TtestAnalysisPanel")) {
 			onlyActivatedArrays = true;
 
 			Boolean isLogNormalized = null;
-			if (currentParameterPanel instanceof TtestAnalysisPanel)
-				isLogNormalized = ((TtestAnalysisPanel) currentParameterPanel)
-						.isLogNormalized();
-			else
-				isLogNormalized = ((MultiTTestAnalysisPanel) currentParameterPanel)
-						.isLogNormalized();
+			isLogNormalized = currentParameterPanel.isLogNormalized();
 
 			Boolean isLogNormalizedFromGuess = guessLogNormalized(maSetView);
 

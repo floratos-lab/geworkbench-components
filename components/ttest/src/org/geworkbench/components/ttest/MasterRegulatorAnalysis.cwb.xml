@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
@@ -15,7 +16,7 @@
  2 cellular phenotypes, e.g. experimental and control."
 							analysis="true"							
 	 >
-		<required-component class="org.geworkbench.components.analysis.clustering.MasterRegulatorViewer" />
+		<required-component class="org.geworkbench.components.ttest.MasterRegulatorViewer" />
 		<license><![CDATA[
 			<html><head><meta http-equiv=Content-Type content="text/html; charset=windows-1252"></head>
 				<body>----</body>
@@ -26,6 +27,6 @@
 
 	</component>
 
-	<plugin id="MasterRegulatorAnalysis" name="MRA Analysis" class="org.geworkbench.components.ttest.MasterRegulatorAnalysis" source="analysis"/>
+	<plugin id="MasterRegulatorAnalysis" name="MRA Analysis" class="org.geworkbench.components.ttest.MasterRegulatorAnalysis" source="ttest"/>
 
 </component-descriptor>
