@@ -50,7 +50,7 @@ import edu.columbia.c2b2.aracne.Aracne;
 
 /**
  * @author zji
- * @version $Id: HardenedAracne.java,v 1.2 2009-06-04 20:01:49 oshteynb Exp $
+ * @version $Id$
  *
  */
 public class HardenedAracne {
@@ -78,10 +78,16 @@ public class HardenedAracne {
 	 */
 	// two parameters (bootstrap & pthreshold) are not part of edu.columbia.c2b2.aracne.Parameter
 	// because they are from the perl script instead of aracne-java
-	public static WeightedGraph run(MicroarraySet microarraySet, Parameter parameter, int bootstrapNumber, double pThreshold) {
+	public static WeightedGraph run(MicroarraySet microarraySet, Parameter parameter, int bootstrapNumber, double pThreshold) throws Exception {
 		if(bootstrapNumber==1){
 //			System.out.println("HardenedAracne.run with parameter: " + parameter);
-			return Aracne.run(microarraySet, parameter);
+			WeightedGraph g = null;
+			try {
+				g =  Aracne.run(microarraySet, parameter);
+			} catch (Exception e) {
+				throw e;
+			}
+			return g;
 		}
 
 		if(parameter.getSample()!=0) {

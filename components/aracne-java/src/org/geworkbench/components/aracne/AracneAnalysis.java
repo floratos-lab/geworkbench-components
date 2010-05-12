@@ -1,6 +1,7 @@
 package org.geworkbench.components.aracne;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -8,6 +9,7 @@ import java.util.Map;
 import java.util.Vector;
 
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -45,7 +47,7 @@ import edu.columbia.c2b2.aracne.Parameter;
 
 /**
  * @author Matt Hall
- * @version $id$
+ * @version $Id$
  */
 public class AracneAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -323,10 +325,16 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 		public void run() {
 			log.debug("Running ARACNE in worker thread.");
 			p.setSuppressFileWriting(true);
-			weightedGraph = HardenedAracne.run(convert(mSetView), p,
-					bootstrapNumber, pThreshold);
+			try {
+				weightedGraph = HardenedAracne.run(convert(mSetView), p,
+						bootstrapNumber, pThreshold);
+			} catch (Exception e) {
+				showMessage("Exception caught in ARACNe run: "+e.toString());
+				return;
+			} finally {
+				progressWindow.stopProgress();
+			}
 			log.debug("Done running ARACNE in worker thread.");
-			progressWindow.stopProgress();
 
 			/* done if in PREPROCESSING mode*/
 			if (this.p.getMode().equals(Parameter.MODE.PREPROCESSING)) {
@@ -391,6 +399,25 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 			this.progressWindow = progressWindow;
 		}
 
+	}
+
+	// this is meant to be called from non-EDT thread
+	private static void showMessage(final String message) {
+		Runnable runnable = new Runnable() {
+
+			@Override
+			public void run() {
+				JOptionPane.showMessageDialog(null, message);
+			}
+			
+		};
+		try {
+			SwingUtilities.invokeAndWait(runnable);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/*
