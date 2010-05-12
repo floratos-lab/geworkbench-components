@@ -39,6 +39,7 @@ import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.CellEditor; 
 import javax.swing.ImageIcon;
 import javax.swing.JButton; 
@@ -209,8 +210,6 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	private JToolBar commandToolBar;
 
 	private JToolBar graphToolBar;
-
-	private JLabel thresholdLabel;
 
 	private JLabel activeMarkersLabel;
 
@@ -719,9 +718,9 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		progressDisplayBar = new JToolBar();
 
 		graphToolBar = new JToolBar();
-		thresholdLabel = new JLabel("Threshold");
+
 		thresholdTextField = new JTextField(".00", 4);
-		thresholdTextField.setMaximumSize(new Dimension(20, 20));
+		thresholdTextField.setMaximumSize(new Dimension(100, 50));
 		thresholdTextField.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				jThresholdTextField_actionPerformed();
@@ -753,8 +752,9 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		thresholdSlider
 				.setToolTipText("Move the slider to change the threshold for the throttle graph");
 
-		graphToolBar.add(thresholdLabel);
-		graphToolBar.add(Box.createHorizontalStrut(10));
+		graphToolBar.setLayout(new BoxLayout(graphToolBar, BoxLayout.LINE_AXIS));
+		graphToolBar.add(Box.createRigidArea(new Dimension(10, 0)));
+		graphToolBar.add(new JLabel("Threshold "));
 		graphToolBar.add(thresholdTextField);
 		graphToolBar.add(thresholdSlider);
 		cancelButton = new JButton();
@@ -978,6 +978,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				});
 
 		jPanel1.setLayout(new BorderLayout());
+		progressDisplayBar.setLayout(new BoxLayout(progressDisplayBar, BoxLayout.LINE_AXIS));
 		progressDisplayBar.add(jLabel1);
 		jProgressBar1.setMinimumSize(new Dimension(10, 16));
 		jProgressBar1.setBorderPainted(true);
