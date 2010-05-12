@@ -566,6 +566,7 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 				} else {					
 					StringBuilder paramDescB = new StringBuilder(
 							"Running MatrixReduce Analysis:\n");
+					paramDescB.append("Sequence: "+params.getSequenceFile()+"\n");
 					paramDescB.append("Topological Pattern: "+params.getTopoPattern()+"\n");
 					paramDescB.append("p Value: "+params.getPValue()+"\n");
 					paramDescB.append("Max Motif: "+params.getMaxMotif()+"\n");
