@@ -98,7 +98,7 @@ public class MasterRegulatorAnalysis extends AbstractAnalysis implements
 		}
 		// analysis
 		DSMasterRagulatorResultSet mraResultSet = new CSMasterRegulatorResultSet(
-				maSet, analysisName);		
+				maSet, analysisName, view.markers().size());		
 		//t-test
 		log.info("Executing T-Test...");
 		AlgorithmExecutionResults tTestResult = tTestAnalysis.calculate(input, true);

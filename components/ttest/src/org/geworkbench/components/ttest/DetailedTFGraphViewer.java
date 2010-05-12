@@ -82,7 +82,10 @@ public class DetailedTFGraphViewer extends JPanel {
 		g.setColor(Color.red);
 		int width = this.getWidth();
 		int height = this.getHeight();
-		int numMarkers = numberOfMarkers;
+		int numMarkers = 0;
+		if(mraResultSet!=null)
+			numMarkers = mraResultSet.getMarkerCount();
+
 		g.drawRect(0, 0, width, height);
 		if ((numberOfMarkers > 0) && (mraResultSet != null)) {
 			// draw the color sections
