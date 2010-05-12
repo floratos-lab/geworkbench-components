@@ -563,8 +563,14 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 												+ mr.stdout);
 						dataSet.setRunLog(mr.stdout);
 					}
-				} else {
-					ProjectPanel.addToHistory(dataSet, params.toString());
+				} else {					
+					StringBuilder paramDescB = new StringBuilder(
+							"Running MatrixReduce Analysis:\n");
+					paramDescB.append("Topological Pattern: "+params.getTopoPattern()+"\n");
+					paramDescB.append("p Value: "+params.getPValue()+"\n");
+					paramDescB.append("Max Motif: "+params.getMaxMotif()+"\n");
+					paramDescB.append("Strand: "+params.getStrandString()+"\n");
+					ProjectPanel.addToHistory(dataSet, paramDescB.toString());
 				}
 				progressBar.stop();
 				return new AlgorithmExecutionResults(true, "Completed", dataSet);
