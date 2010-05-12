@@ -1,16 +1,32 @@
 package org.geworkbench.util.session.dialog;
 
-import org.geworkbench.util.session.LoginPanelModel;
-
-import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.border.EtchedBorder;
-import javax.swing.border.TitledBorder;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Frame;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
+
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.UIManager;
+import javax.swing.border.Border;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
+
+import org.geworkbench.util.session.LoginPanelModel;
 
 /**
  * <p>Title: Sequence and Pattern Plugin</p>
@@ -20,44 +36,36 @@ import java.awt.event.KeyEvent;
  * <p>Company: </p>
  *
  * @author Aner
- * @version 1.0
+ * @version $Id$
  */
-
 class CreateSessionDialog extends JDialog {
-    BorderLayout borderLayout2 = new BorderLayout();
-    Border border1;
-    private boolean canceled = false;
-    Border border2;
-    TitledBorder titledBorder1;
-    Border border3;
-    JPanel jPanel1 = new JPanel();
-    JButton cancelButton = new JButton();
-    JButton connectButton = new JButton();
-    JPanel jPanel2 = new JPanel();
-    Border border4;
-    JPanel jPanel3 = new JPanel();
-    Border border5;
-    TitledBorder titledBorder2;
-    Border border6;
-    GridBagLayout gridBagLayout3 = new GridBagLayout();
-    Border border7;
+	private static final long serialVersionUID = -6879419192925394259L;
+	
+	private BorderLayout borderLayout2 = new BorderLayout();
+	private Border border1;
+	private JPanel jPanel1 = new JPanel();
+	private JButton cancelButton = new JButton();
+	private JButton connectButton = new JButton();
+	private JPanel jPanel2 = new JPanel();
+	private JPanel jPanel3 = new JPanel();
+	private Border border6;
+	private GridBagLayout gridBagLayout3 = new GridBagLayout();
+	private Border border7;
 
     //value to be returned
-    public static int CANCEL_OPTION = 0;
+    private static int CANCEL_OPTION = 0;
     public static int CONNECT_OPTION = 1;
     private int returnValue = CANCEL_OPTION;
     private static int sessionNo = 1;
-    JPanel jPanel5 = new JPanel();
-    BorderLayout borderLayout1 = new BorderLayout();
-    LoginPanel loginPanel = null;
-    JPanel jPanel4 = new JPanel();
-    JTextField sessionName = new JTextField();
-    GridBagLayout gridBagLayout2 = new GridBagLayout();
-    JLabel sessionL = new JLabel();
-    Border border8;
-    TitledBorder titledBorder3;
-    Border border9;
-    FlowLayout flowLayout1 = new FlowLayout();
+    private JPanel jPanel5 = new JPanel();
+    private BorderLayout borderLayout1 = new BorderLayout();
+    private LoginPanel loginPanel = null;
+    private JPanel jPanel4 = new JPanel();
+    private JTextField sessionName = new JTextField(10);
+    private JLabel sessionL = new JLabel();
+    private TitledBorder titledBorder3;
+    private Border border9;
+    private FlowLayout flowLayout1 = new FlowLayout();
 
     public CreateSessionDialog(Frame frame, String title, LoginPanelModel model, boolean modal) {
         super(frame, title, modal);
@@ -72,25 +80,10 @@ class CreateSessionDialog extends JDialog {
         initDialog();
     }
 
-    public CreateSessionDialog(LoginPanelModel model) {
-        this(null, "New DiscoverySession", model, true);
-    }
-
-    public CreateSessionDialog(String title, LoginPanelModel model) {
-        this(null, title, model, true);
-    }
-
     private void jbInit() throws Exception {
         border1 = BorderFactory.createCompoundBorder(BorderFactory.createEtchedBorder(Color.white, new Color(165, 163, 151)), BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        border2 = BorderFactory.createLineBorder(Color.white, 1);
-        titledBorder1 = new TitledBorder(BorderFactory.createLineBorder(Color.white, 1), "Server Login");
-        border3 = BorderFactory.createCompoundBorder(new TitledBorder(BorderFactory.createLineBorder(Color.gray, 1), "Sessions"), BorderFactory.createEmptyBorder(2, 2, 2, 2));
-        border4 = BorderFactory.createCompoundBorder(new TitledBorder(new EtchedBorder(EtchedBorder.RAISED, Color.white, new Color(165, 163, 151)), "DiscoverySession's Server"), BorderFactory.createEmptyBorder(1, 1, 1, 1));
-        border5 = new EtchedBorder(EtchedBorder.RAISED, Color.white, new Color(165, 163, 151));
-        titledBorder2 = new TitledBorder(border5, "DiscoverySession's Data");
         border6 = BorderFactory.createCompoundBorder(new TitledBorder(new EtchedBorder(EtchedBorder.RAISED, Color.white, new Color(165, 163, 151)), "DiscoverySession"), BorderFactory.createEmptyBorder(2, 1, 1, 1));
         border7 = new TitledBorder(BorderFactory.createEmptyBorder(), "");
-        border8 = BorderFactory.createEmptyBorder(1, 1, 1, 1);
         titledBorder3 = new TitledBorder(new EtchedBorder(EtchedBorder.RAISED, Color.white, new Color(142, 142, 142)), "DiscoverySession's server");
         border9 = BorderFactory.createCompoundBorder(titledBorder3, BorderFactory.createEmptyBorder(1, 1, 1, 1));
         this.getContentPane().setLayout(borderLayout2);
@@ -100,18 +93,17 @@ class CreateSessionDialog extends JDialog {
         jPanel1.setPreferredSize(new Dimension(500, 250));
         jPanel1.setRequestFocusEnabled(true);
         this.setResizable(false);
-        CreateSessionDialog_this_keyAdapter keyAdapter = new CreateSessionDialog_this_keyAdapter(this);
+        CreateSessionDialog_this_keyAdapter keyAdapter = new CreateSessionDialog_this_keyAdapter();
         cancelButton.setText("Cancel");
-        cancelButton.addActionListener(new CreateSessionDialog_cancelButton_actionAdapter(this));
+        cancelButton.addActionListener(new CreateSessionDialog_cancelButton_actionAdapter());
         cancelButton.addKeyListener(keyAdapter);
         cancelButton.setActionCommand("cancelAction");
         connectButton.setMaximumSize(new Dimension(73, 25));
         connectButton.setToolTipText("");
         connectButton.setActionCommand("connectAction");
         connectButton.setText("Create");
-        connectButton.addActionListener(new CreateSessionDialog_connectButton_actionAdapter(this));
+        connectButton.addActionListener(new CreateSessionDialog_connectButton_actionAdapter());
         connectButton.addKeyListener(keyAdapter);
-        connectButton.addActionListener(new CreateSessionDialog_connectButton_actionAdapter(this));
         jPanel2.setLayout(flowLayout1);
         jPanel2.setBackground(UIManager.getColor("Menu.background"));
         jPanel2.setBorder(border7);
@@ -123,15 +115,14 @@ class CreateSessionDialog extends JDialog {
         jPanel4.setBorder(border6);
         jPanel4.setDebugGraphicsOptions(0);
         jPanel4.setDoubleBuffered(true);
-        jPanel4.setLayout(gridBagLayout2);
-        sessionName.setMinimumSize(new Dimension(150, 22));
-        sessionName.setPreferredSize(new Dimension(150, 22));
+        jPanel4.setLayout(new BoxLayout(jPanel4, BoxLayout.LINE_AXIS));
+
         sessionName.setText("");
         sessionName.addKeyListener(keyAdapter);
         sessionL.setText("DiscoverySession Name:");
         jPanel5.setBorder(border9);
-        jPanel4.add(sessionL, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
-        jPanel4.add(sessionName, new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
+        jPanel4.add(sessionL);
+        jPanel4.add(sessionName);
         jPanel3.add(jPanel4, null);
         jPanel3.add(jPanel5, null);
         jPanel5.add(loginPanel, BorderLayout.CENTER);
@@ -143,7 +134,7 @@ class CreateSessionDialog extends JDialog {
     }
 
     /**
-     * Initialize general Dialog behavors.
+     * Initialize general Dialog behaviors.
      */
     private void initDialog() {
         //center the dialog by default
@@ -231,7 +222,7 @@ class CreateSessionDialog extends JDialog {
     }
 
     /**
-     * This method retuns the host name.
+     * This method returns the host name.
      *
      * @return host name
      */
@@ -240,7 +231,7 @@ class CreateSessionDialog extends JDialog {
     }
 
     /**
-     * This method retuns the user name.
+     * This method returns the user name.
      *
      * @return user name
      */
@@ -250,7 +241,7 @@ class CreateSessionDialog extends JDialog {
     }
 
     /**
-     * This method retuns the port number.
+     * This method returns the port number.
      *
      * @return port number
      */
@@ -271,13 +262,13 @@ class CreateSessionDialog extends JDialog {
         return sessionName.getText();
     }
 
-    void cancelButton_actionPerformed(ActionEvent e) {
+    private void cancelButton_actionPerformed(ActionEvent e) {
         returnValue = CANCEL_OPTION;
         --sessionNo;
         setVisible(false);
     }
 
-    void connectButton_actionPerformed(ActionEvent e) {
+    private void connectButton_actionPerformed(ActionEvent e) {
         if (verify()) {
             returnValue = CONNECT_OPTION;
             setVisible(false);
@@ -285,65 +276,30 @@ class CreateSessionDialog extends JDialog {
         return;
     }
 
-    class CreateSessionDialog_cancelButton_actionAdapter implements java.awt.event.ActionListener {
-        CreateSessionDialog adaptee;
-
-        CreateSessionDialog_cancelButton_actionAdapter(CreateSessionDialog adaptee) {
-            this.adaptee = adaptee;
-        }
+    private class CreateSessionDialog_cancelButton_actionAdapter implements java.awt.event.ActionListener {
 
         public void actionPerformed(ActionEvent e) {
-            adaptee.cancelButton_actionPerformed(e);
+            cancelButton_actionPerformed(e);
         }
     }
 
-    class CreateSessionDialog_connectButton_actionAdapter implements java.awt.event.ActionListener {
-        CreateSessionDialog adaptee;
-
-        CreateSessionDialog_connectButton_actionAdapter(CreateSessionDialog adaptee) {
-            this.adaptee = adaptee;
-        }
-
-        public void actionPerformed(ActionEvent e) {
-            adaptee.connectButton_actionPerformed(e);
+    private class CreateSessionDialog_connectButton_actionAdapter implements java.awt.event.ActionListener {
+        
+    	public void actionPerformed(ActionEvent e) {
+            connectButton_actionPerformed(e);
         }
     }
 
-    /**
-     * Used for key short cut on the session creation.
-     *
-     * @param e KeyEvent
-     */
-    void this_keyReleased(KeyEvent e) {
-        int keyCode = e.getKeyCode();
-        if (keyCode == KeyEvent.VK_ENTER && e.getSource() != cancelButton) {
-            connectButton_actionPerformed(null);
-        } else if (keyCode == KeyEvent.VK_ENTER && e.getSource() == cancelButton) {
-            cancelButton_actionPerformed(null);
+    private class CreateSessionDialog_this_keyAdapter extends java.awt.event.KeyAdapter {
+
+        public void keyReleased(KeyEvent e) {
+            int keyCode = e.getKeyCode();
+            if (keyCode == KeyEvent.VK_ENTER && e.getSource() != cancelButton) {
+                connectButton_actionPerformed(null);
+            } else if (keyCode == KeyEvent.VK_ENTER && e.getSource() == cancelButton) {
+                cancelButton_actionPerformed(null);
+            }
         }
     }
-}
 
-class CreateSessionDialog_this_keyAdapter extends java.awt.event.KeyAdapter {
-    CreateSessionDialog adaptee;
-
-    CreateSessionDialog_this_keyAdapter(CreateSessionDialog adaptee) {
-        this.adaptee = adaptee;
-    }
-
-    public void keyReleased(KeyEvent e) {
-        adaptee.this_keyReleased(e);
-    }
-}
-
-class CreateSessionDialog_connectButton_actionAdapter implements java.awt.event.ActionListener {
-    CreateSessionDialog adaptee;
-
-    CreateSessionDialog_connectButton_actionAdapter(CreateSessionDialog adaptee) {
-        this.adaptee = adaptee;
-    }
-
-    public void actionPerformed(ActionEvent e) {
-        adaptee.connectButton_actionPerformed(e);
-    }
 }
