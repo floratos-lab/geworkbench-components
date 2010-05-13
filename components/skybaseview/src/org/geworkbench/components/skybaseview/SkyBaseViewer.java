@@ -87,8 +87,6 @@ import org.jmol.api.JmolAdapter;
 import org.jmol.api.JmolSimpleViewer;
 import org.jmol.api.JmolStatusListener;
 import org.jmol.api.JmolViewer;
-import org.openscience.jmol.ui.JmolPopup;
-import org.openscience.jmol.ui.JmolPopupSwing;
 
 /**
  * Display SkyBase blast results in table, bar chart and jmol
@@ -593,17 +591,12 @@ public class SkyBaseViewer implements VisualPlugin {
 	 */
 	static class JmolPanel extends JPanel {
 		private static final long serialVersionUID = 1L;
-		JmolViewer viewer;
+		JmolSimpleViewer viewer;
 		JmolAdapter adapter;
-		JmolPopup popup;
-		MyStatusListener listener;
 
 		JmolPanel() {
-			adapter = new SmarterJmolAdapter(null);
-			viewer = JmolViewer.allocateViewer(this, adapter);
-			popup = new JmolPopupSwing(viewer);
-			listener = new MyStatusListener(popup);
-			viewer.setJmolStatusListener(listener);
+			adapter = new SmarterJmolAdapter();
+			viewer = JmolSimpleViewer.allocateSimpleViewer(this, adapter);
 		}
 
 		public JmolSimpleViewer getViewer() {
@@ -620,58 +613,6 @@ public class SkyBaseViewer implements VisualPlugin {
 		}
 	}
 
-	static class MyStatusListener implements JmolStatusListener {
-
-		JmolPopup jmolpopup;
-
-		public MyStatusListener(JmolPopup jmolpopup) {
-			this.jmolpopup = jmolpopup;
-		}
-
-		public void notifyFileLoaded(String fullPathName, String fileName,
-				String modelName, Object clientFile, String errorMsg) {
-			jmolpopup.updateComputedMenus();
-		}
-
-		public void setStatusMessage(String statusMessage) {
-			if (statusMessage == null)
-				return;
-		}
-
-		public void scriptEcho(String strEcho) {
-			scriptStatus(strEcho);
-		}
-
-		public void scriptStatus(String strStatus) {
-		}
-
-		public void notifyScriptTermination(String errorMessage, int msWalltime) {
-		}
-
-		public void handlePopupMenu(int x, int y) {
-			if (jmolpopup != null)
-				jmolpopup.show(x, y);
-		}
-
-		public void measureSelection(int atomIndex) {
-		}
-
-		public void notifyMeasurementsChanged() {
-		}
-
-		public void notifyFrameChanged(int frameNo) {
-		}
-
-		public void notifyAtomPicked(int atomIndex, String strInfo) {
-		}
-
-		public void showUrl(String urlString) {
-		}
-
-		public void showConsole(boolean showConsole) {
-		}
-
-	}
 
 	/*
 	 * download web content from fname
