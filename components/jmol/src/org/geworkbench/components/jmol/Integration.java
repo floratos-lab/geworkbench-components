@@ -67,9 +67,11 @@ public class Integration {
         //    viewer.openFile("http://database.server/models/1pdb.pdb.gz");
 //        viewer.openStringInline(strXyzHOH);
         viewer.evalString(strScript);
+        /*
         String strError = viewer.getOpenFileError();
         if (strError != null)
             System.out.println(strError);
+        */
     }
 
     final static String strXyzHOH =
@@ -92,7 +94,7 @@ public class Integration {
         JmolAdapter adapter;
 
         JmolPanel() {
-            adapter = new SmarterJmolAdapter(null);
+            adapter = new SmarterJmolAdapter();
             viewer = JmolSimpleViewer.allocateSimpleViewer(this, adapter);
         }
 

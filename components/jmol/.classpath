@@ -13,5 +13,6 @@
 	<classpathentry kind="lib" path="lib/saxon.jar"/>
 	<classpathentry kind="lib" path="lib/vecmath1.2-1.14.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/geworkbench-core"/>
+	<classpathentry kind="lib" path="lib/Jmol.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
