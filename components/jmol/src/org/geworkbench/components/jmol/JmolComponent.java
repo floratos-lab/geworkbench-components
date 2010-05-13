@@ -1,7 +1,6 @@
 package org.geworkbench.components.jmol;
 
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.structure.DSProteinStructure;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
@@ -9,28 +8,21 @@ import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.ProjectEvent;
 import org.jmol.api.JmolSimpleViewer;
 import org.jmol.api.JmolAdapter;
-import org.jmol.api.JmolStatusListener;
-import org.jmol.api.JmolViewer;
 import org.jmol.adapter.smarter.SmarterJmolAdapter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openscience.jmol.ui.JmolPopup;
-import org.openscience.jmol.ui.JmolPopupSwing;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import java.awt.*;
 import java.io.*;
-import java.net.URL;
-import java.net.MalformedURLException;
 
 @AcceptTypes({DSProteinStructure.class})
 public class JmolComponent extends JPanel implements VisualPlugin {
 
+	private static final long serialVersionUID = -7312121815189456386L;
     static Log log = LogFactory.getLog(JmolComponent.class);
 
     private DSProteinStructure proteinData;
-    private JLabel infoLabel;
 
     final static String strXyzHOH =
             "3\n" +
@@ -41,6 +33,7 @@ public class JmolComponent extends JPanel implements VisualPlugin {
 
     final static String strScript = //"delay; move 360 0 0 0 0 0 0 0 4;";
 	"wireframe off; spacefill off; cartoons; color structure;";
+    final static int zoomMin = 5, zoomMax = 200000, zoomNorm = 100;
 
     private JmolPanel jmolPanel;
 
@@ -67,7 +60,7 @@ public class JmolComponent extends JPanel implements VisualPlugin {
 
     @Subscribe
     public void receive(ProjectEvent event, Object source) {
-        DSDataSet dataSet = event.getDataSet();
+        DSDataSet<?> dataSet = event.getDataSet();
         // We will act on this object if it is a DSMicroarraySet
         if (dataSet instanceof DSProteinStructure) {
             proteinData = (DSProteinStructure) dataSet;
@@ -109,17 +102,13 @@ public class JmolComponent extends JPanel implements VisualPlugin {
 
 
     static class JmolPanel extends JPanel {
-        JmolViewer viewer;
+		private static final long serialVersionUID = -6989654578372619887L;
+		JmolSimpleViewer viewer;
         JmolAdapter adapter;
-        JmolPopup popup;
-        MyStatusListener listener;
 
         JmolPanel() {
-            adapter = new SmarterJmolAdapter(null);
-            viewer = JmolViewer.allocateViewer(this, adapter);
-            popup = new JmolPopupSwing(viewer);
-            listener = new MyStatusListener(popup);
-            viewer.setJmolStatusListener(listener);
+            adapter = new SmarterJmolAdapter();
+            viewer = JmolSimpleViewer.allocateSimpleViewer(this, adapter);
         }
 
         public JmolSimpleViewer getViewer() {
@@ -130,85 +119,23 @@ public class JmolComponent extends JPanel implements VisualPlugin {
         final Rectangle rectClip = new Rectangle();
 
         public void paint(Graphics g) {
+			double zoom = getZoom();
+    		if (zoom != 100) viewer.evalString("zoom "+zoom);
+
             getSize(currentSize);
             g.getClipBounds(rectClip);
             viewer.renderScreenImage(g, currentSize, rectClip);
         }
-    }
 
-    static class MyStatusListener implements JmolStatusListener {
-
-        JmolPopup jmolpopup;
-
-        public MyStatusListener(JmolPopup jmolpopup) {
-            this.jmolpopup = jmolpopup;
+        private double getZoom() {
+        	double zoom = zoomNorm;
+        	int width = getVisibleRect().width;
+        	int height = getVisibleRect().height;
+        	if (width != height)
+        		zoom = height < width ? 100.0*height/width : 100.0*width/height;
+        	if (zoom < zoomMin || zoom > zoomMax) zoom = zoomNorm;
+        	return zoom;
         }
-
-        public void notifyFileLoaded(String fullPathName, String fileName,
-                                     String modelName, Object clientFile,
-                                     String errorMsg) {
-            jmolpopup.updateComputedMenus();
-        }
-
-        public void setStatusMessage(String statusMessage) {
-            if (statusMessage == null)
-                return;
-//            if (messageCallback != null && jsoWindow != null)
-//                jsoWindow.call(messageCallback, new Object[]{htmlName, statusMessage});
-//            showStatusAndConsole(statusMessage);
-        }
-
-        public void scriptEcho(String strEcho) {
-            scriptStatus(strEcho);
-        }
-
-        public void scriptStatus(String strStatus) {
-//            if (strStatus != null && messageCallback != null && jsoWindow != null)
-//                jsoWindow.call(messageCallback, new Object[]{htmlName, strStatus});
-//            consoleMessage(strStatus);
-        }
-
-        public void notifyScriptTermination(String errorMessage, int msWalltime) {
-//            showStatusAndConsole("Jmol script completed");
-//            if (buttonCallbackNotificationPending) {
-//                System.out.println("!!!! calling back " + buttonCallback);
-//                buttonCallbackAfter[0] = buttonName;
-//                buttonWindow.call(buttonCallback, buttonCallbackAfter);
-//            }
-        }
-
-        public void handlePopupMenu(int x, int y) {
-            if (jmolpopup != null)
-                jmolpopup.show(x, y);
-        }
-
-        public void measureSelection(int atomIndex) {
-        }
-
-        public void notifyMeasurementsChanged() {
-        }
-
-        public void notifyFrameChanged(int frameNo) {
-            //System.out.println("notifyFrameChanged(" + frameNo +")");
-//            if (animFrameCallback != null && jsoWindow != null)
-//                jsoWindow.call(animFrameCallback,
-//                        new Object[]{htmlName, new Integer(frameNo)});
-        }
-
-        public void notifyAtomPicked(int atomIndex, String strInfo) {
-            //System.out.println("notifyAtomPicked(" + atomIndex + "," + strInfo +")");
-//            showStatusAndConsole(strInfo);
-//            if (pickCallback != null && jsoWindow != null)
-//                jsoWindow.call(pickCallback,
-//                        new Object[]{htmlName, strInfo, new Integer(atomIndex)});
-        }
-
-        public void showUrl(String urlString) {
-        }
-
-        public void showConsole(boolean showConsole) {
-        }
-
     }
 
 }
