@@ -70,7 +70,7 @@ public class TabularMicroarrayPanel extends MicroarrayViewEventBase {
                         c.setBackground(Color.yellow);
                     } else if (marker.isMasked()) {
                         c.setBackground(Color.pink);
-                    } else {
+                    } else if(!isSelected) {
                         c.setBackground(Color.white);
                     }
                     ((JLabel) c).setHorizontalAlignment(JLabel.CENTER);
