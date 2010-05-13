@@ -134,7 +134,8 @@ public class CytoscapeWidget implements VisualPlugin {
 	static private Log log = LogFactory.getLog(CytoscapeWidget.class);
 	private AdjacencyMatrixDataSet adjSet = null;
 	private AdjacencyMatrix adjMatrix = null;
-	private HashSet<String> dataSetIDs = new HashSet<String>();
+	private Set<String> dataSetIDs = new HashSet<String>();
+	private volatile Set<Integer> cancelList = new HashSet<Integer>();
 	private DiscreteMapping nodeDm = null, edgeDm = null;	 
 
 	private VisualStyle sample1VisualStyle;
@@ -147,8 +148,7 @@ public class CytoscapeWidget implements VisualPlugin {
 			ShapeNodeRealizer.TRAPEZOID_2 };
 
 	private boolean uiSetup = false;
-
-	private volatile boolean cancelAction = false;
+ 
 	private CyNetworkView view = null;
 	
 	// these are default because ExpandMenuListener needs access
@@ -264,8 +264,15 @@ public class CytoscapeWidget implements VisualPlugin {
 	public void receive(AdjacencyMatrixEvent ae, Object source) {
 		if (ae.getAction() != null
 				&& ae.getAction().equals(AdjacencyMatrixEvent.Action.CANCEL)) {
-			cancelAction = true;			 
+			cancelList.add(ae.getAdjacencyMatrix().hashCode());			 
 			log.info("got AdjacencyMatrixEvent.action.CANCEL event");			 
+			try
+			{
+				Thread.sleep(100);
+			}catch(Exception ex)
+			{
+				log.error(ex.getMessage());
+			}
 			if ( ae.getAdjacencyMatrix() == adjMatrix)
 			    ProjectPanel.getInstance().removeAddedSubNode(adjSet);
 	     }
@@ -280,7 +287,7 @@ public class CytoscapeWidget implements VisualPlugin {
 	 */
 	@Subscribe
 	public void receive(org.geworkbench.events.ProjectEvent e, Object source) {
-
+        int adjMatrixId;
 		try {
 			DSDataSet<?> dataSet = e.getDataSet();
 
@@ -288,6 +295,7 @@ public class CytoscapeWidget implements VisualPlugin {
 
 				adjSet = (AdjacencyMatrixDataSet) dataSet;
 				adjMatrix = adjSet.getMatrix();
+				adjMatrixId = adjMatrix.hashCode();
 				maSet = adjSet.getMatrix().getMicroarraySet();
 				getGeneIdToNameMap();
 
@@ -324,17 +332,18 @@ public class CytoscapeWidget implements VisualPlugin {
 				}
 
 				if (!found) {
-					receiveMatrix();					
+					receiveMatrix(adjMatrixId);					
 				} else {
 					Cytoscape.getDesktop().getNetworkPanel().focusNetworkNode(
 							foundID);
 				}
-				cancelAction = false;
+				if (cancelList.contains(adjMatrixId))
+					cancelList.remove(adjMatrixId);
 			 
 			}
 
 		} catch (Exception ex) {
-			log.error(ex.getMessage());
+			log.error(ex.getMessage());		 
 		}  
 
 	}
@@ -840,7 +849,7 @@ public class CytoscapeWidget implements VisualPlugin {
 		sample1VisualStyle.setName("geneways-interactions");
 	}
 
-	private void receiveMatrix() {
+	private void receiveMatrix(int adjMatrixId) {
 		// 1) RECEIVE event
 
 		String name = adjSet.getNetworkName();
@@ -874,9 +883,9 @@ public class CytoscapeWidget implements VisualPlugin {
 		}
  
 		// 2) DRAW NETWORK event	  
-		drawCompleteNetwork(getGeneIdToNameMap(), adjSet
+		drawCompleteNetwork(adjMatrixId, getGeneIdToNameMap(), adjSet
 				.getThreshold());
-		if (cancelAction)
+		if (cancelList.contains(adjMatrixId))
 		{
 			log.info("got cancel action");
 			return;
@@ -884,7 +893,7 @@ public class CytoscapeWidget implements VisualPlugin {
 		}
 	 
 		Cytoscape.getCurrentNetworkView().applyVizmapper(sample1VisualStyle);
-		if (cancelAction)
+		if (cancelList.contains(adjMatrixId))
 		{
 			log.info("got cancel action");
 			return;
@@ -936,7 +945,7 @@ public class CytoscapeWidget implements VisualPlugin {
 
 	}
 
-	void drawCompleteNetwork(HashMap<String, String> geneIdToNameMap, double threshold) {
+	void drawCompleteNetwork(int adjMatrixId, HashMap<String, String> geneIdToNameMap, double threshold) {
 
 		for (int cx = 0; cx < Cytoscape.getCurrentNetwork().getEdgeCount(); cx++) {
 			Cytoscape.getCurrentNetwork().removeEdge(cx, true);
@@ -945,7 +954,7 @@ public class CytoscapeWidget implements VisualPlugin {
 		Iterator<Integer> keysIt = adjMatrix.getGeneRows().keySet().iterator();
 		int i = 0;
 		while (keysIt.hasNext()) {
-			if (cancelAction) {
+			if (cancelList.contains(adjMatrixId)) {
 				log.info("got cancel action");				 
 				return;
 			}
@@ -959,7 +968,7 @@ public class CytoscapeWidget implements VisualPlugin {
 				.getGeneRowsNotInMicroarray().keySet().iterator();
 
 		while (keysNotInMicroarray.hasNext()) {
-			if (cancelAction) {
+			if (cancelList.contains(adjMatrixId)) {
 				log.info("got cancel action");			 
 				return;
 			}
@@ -969,14 +978,14 @@ public class CytoscapeWidget implements VisualPlugin {
 			log.debug("iteration: " + i);
 		}
 
-		if (cancelAction) {
+		if (cancelList.contains(adjMatrixId)) {
 			log.info("got cancel action");		 
 			return;
 		}
 	 
 		new ForceDirectedLayout(Cytoscape.getCurrentNetworkView()).doLayout();
 
-		if (cancelAction) {
+		if (cancelList.contains(adjMatrixId)) {
 			log.info("got cancel action");			 
 			return;
 		}
@@ -984,7 +993,7 @@ public class CytoscapeWidget implements VisualPlugin {
 		new SpringEmbeddedLayouter(Cytoscape.getCurrentNetworkView())
 				.doLayout();
 
-		if (cancelAction) {
+		if (cancelList.contains(adjMatrixId)) {
 			log.info("got cancel action");			 
 			return;
 		}
