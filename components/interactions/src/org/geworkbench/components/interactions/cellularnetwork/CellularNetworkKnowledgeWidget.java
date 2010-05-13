@@ -5,7 +5,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Frame;
-import java.awt.Graphics; 
+import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -39,13 +39,17 @@ import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+ 
+import javax.swing.CellEditor;
+ 
 import javax.swing.BoxLayout;
-import javax.swing.CellEditor; 
+ 
+ 
 import javax.swing.ImageIcon;
-import javax.swing.JButton; 
+import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JDialog;
-import javax.swing.JLabel; 
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -59,21 +63,21 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
-import javax.swing.JTree; 
+import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.TableModelEvent;
-import javax.swing.table.DefaultTableModel; 
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
-import javax.swing.SwingWorker;
+//import javax.swing.SwingWorker;
 
 import org.apache.commons.collections15.MultiMap;
 import org.apache.commons.collections15.multimap.MultiHashMap;
@@ -127,7 +131,8 @@ import org.jfree.ui.RectangleInsets;
 
 /**
  * @author manjunath at genomecenter dot columbia dot edu, xiaoqing zhang
- * @version $Id$
+ * @version $Id: CellularNetworkKnowledgeWidget.java 6499 2010-05-10 21:35:41Z
+ *          youmi $
  */
 @AcceptTypes( { DSMicroarraySet.class })
 public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
@@ -159,10 +164,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	private Vector<CellularNetWorkElementInformation> hits = null;
 
 	private MultiMap<String, Integer> geneIdToMarkerIdMap = new MultiHashMap<String, Integer>();
-
-	private CreateNetworkTask task;	 
-	
-	
+ 
 	private JButton cancelButton;
 
 	private JButton imageSnapshotButton;
@@ -202,9 +204,10 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	private JTable activatedMarkerTable;
 
 	private JProgressBar jProgressBar1 = new JProgressBar();
-
-	private ProgressBar createNetworkPb;
-
+ 
+	private CreateNetworkHandler createNetworkHandler;
+	//private CreateNetworkTask createNetworkHandler;
+	
 	private JToolBar progressDisplayBar;
 
 	private JToolBar commandToolBar;
@@ -218,15 +221,13 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	private JSlider thresholdSlider;
 
 	private DecimalFormat myFormatter = new DecimalFormat("0.00");
-	 
-	private JPanel jCenterPanel = new JPanel();	 
 
-	private GridLayout gridLayout2 = new GridLayout();		 
+	private JPanel jCenterPanel = new JPanel();
+
+	private GridLayout gridLayout2 = new GridLayout();
 
 	private JDialog goDialog = new JDialog();
-	
 
-	 
 	private Vector<DSGeneMarker> allGenes = new Vector<DSGeneMarker>();
 
 	private Vector<DSGeneMarker> selectedGenes = new Vector<DSGeneMarker>();
@@ -234,8 +235,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	private Vector<Vector<Object>> cachedPreviewData = new Vector<Vector<Object>>();
 
 	private DSMicroarraySet dataset = null;
-	
- 
+
 	/**
 	 * Creates new form Interactions
 	 */
@@ -410,7 +410,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		if (Constants.ACTIVETABLE.equalsIgnoreCase(tableName)) {
 			activatedMarkerTable.clearSelection();
 			for (DSGeneMarker marker : allGenes) {
-				if (marker != null) {					 
+				if (marker != null) {
 					CellularNetWorkElementInformation cellularNetWorkElementInformation = new CellularNetWorkElementInformation(
 							marker);
 					boolean newEntry = true;
@@ -454,7 +454,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				int row = selectedRows[i];
 				if (row < allGenes.size()) {
 					DSGeneMarker marker = allGenes.get(row);
-					if (marker != null) {						 
+					if (marker != null) {
 						CellularNetWorkElementInformation cellularNetWorkElementInformation = new CellularNetWorkElementInformation(
 								marker);
 
@@ -894,7 +894,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 					int row = target.getSelectedRow();
 					if (row < allGenes.size()) {
 						DSGeneMarker marker = allGenes.get(row);
-						if (marker != null) {						 
+						if (marker != null) {
 							CellularNetWorkElementInformation cellularNetWorkElementInformation = new
 
 							CellularNetWorkElementInformation(marker);
@@ -966,28 +966,36 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 					public void actionPerformed(java.awt.event.ActionEvent evt) {
 
 						createNetWorkButton.setEnabled(false);
-						task = new CreateNetworkTask();
-						task.execute();
 
+						ProgressBar createNetworkPb = null;
+						createNetworkPb = ProgressBar
+								.create(ProgressBar.INDETERMINATE_TYPE);
+ 
+						createNetworkHandler   = new CreateNetworkHandler(
+								createNetworkPb);
+						createNetworkHandler.start();
+						 
+						/*createNetworkHandler   = new CreateNetworkTask(
+						 	createNetworkPb);
+						 
+						createNetworkHandler.execute();   */
+						 
 						createNetworkPb.setTitle("Create network");
 						createNetworkPb.setMessage("Create network...");
 						createNetworkPb.setModal(true);
-						createNetworkPb.start();
-
+						createNetworkPb.start();						 
 					}
 				});
 
-		jPanel1.setLayout(new BorderLayout());
+		jPanel1.setLayout(new BorderLayout()); 		 
 		progressDisplayBar.setLayout(new BoxLayout(progressDisplayBar, BoxLayout.LINE_AXIS));
 		progressDisplayBar.add(jLabel1);
+ 
 		jProgressBar1.setMinimumSize(new Dimension(10, 16));
 		jProgressBar1.setBorderPainted(true);
 		jProgressBar1.setMaximum(100);
 		jProgressBar1.setMinimum(0);
-
-		createNetworkPb = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
-		createNetworkPb.addObserver(this);
-
+ 
 		progressDisplayBar.add(jProgressBar1);
 		jPanel1.add(progressDisplayBar, BorderLayout.NORTH);
 
@@ -1051,7 +1059,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		cancelButton.setText("Cancel");
 		commandToolBar.add(cancelButton);
 		commandToolBar.add(imageSnapshotButton);
-		 
+
 		List<String> displaySelectedInteractionTypes = jPreferencePanel
 				.getDisplaySelectedInteractionTypes();
 		columnLabels = new String[firstFourColumnLabels.length
@@ -1169,7 +1177,6 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		return plots;
 	}
 
-	 
 	/**
 	 * Respond to the change of the Threshold Text field.
 	 * 
@@ -1327,11 +1334,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		for (int i = 1; i < newPlot.getDatasetCount(); i++) {
 			renderer.setSeriesLinesVisible(i, true);
 		}
-
-		// base color & shape
-		// renderer.setSeriesPaint(0, baseColor);
-		// renderer.setSeriesShape(0, baseShape);
-
+ 
 		newPlot.setRenderer(renderer);
 
 		// change the auto tick unit selection to integer units only...
@@ -1339,10 +1342,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
 
 		ValueAxis xAxis = newPlot.getDomainAxis();
-
-		// xAxis.setAutoRange(false);
-		// xAxis.setRange(dateRange);
-
+ 
 		xAxis.setRange(0, 1);
 		// OPTIONAL CUSTOMISATION COMPLETED.
 		graph.setChart(chart);
@@ -1396,7 +1396,9 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	}
 
-	private void createNetworks() {// GEN-FIRST:event_loadfromDBHandler
+	private void createNetworks(ProgressBar createNetworkPb,
+			CreateNetworkHandler handler) {// GEN-FIRST:event_loadfromDBHandler
+ 
 		HashMap<String, String> geneIdToNameMap = new HashMap<String, String>();
 		DSItemList<DSGeneMarker> markers = dataset.getMarkers();
 		DSItemList<DSGeneMarker> copy = new CSItemList<DSGeneMarker>();
@@ -1404,7 +1406,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		CellularNetworkKnowledgeWidget.EntrezIdComparator eidc = new CellularNetworkKnowledgeWidget.EntrezIdComparator();
 		Collections.sort(copy, eidc);
 		AdjacencyMatrix matrix = new AdjacencyMatrix();
-		task.setAdjacencyMatrix(matrix);
+		handler.setAdjacencyMatrix(matrix);
 		AdjacencyMatrixDataSet adjacencyMatrixdataSet = null;
 		matrix.setMicroarraySet(dataset);
 
@@ -1417,6 +1419,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		String historyStr = "";
 		boolean isRestrictToGenesPresentInMicroarray = jPreferencePanel
 				.isNetworkJCheckBox1Selected();
+
+	    createNetworkPb.addObserver(this);
 
 		for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {
 			if (needBreak)
@@ -1435,7 +1439,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				log.debug(" index:" + index + ",serial:" + serial + ",CNKB#"
 						+ cellularNetWorkElementInformation.getdSGeneMarker());
 				for (InteractionDetail interactionDetail : arrayList) {
-					if (task.isCancelled() == true)
+					if (handler.isCancelled() == true)
 						return;
 					isGene1InMicroarray = true;
 					isGene2InMicroarray = true;
@@ -1609,32 +1613,36 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 					+ "      Selected Marker List: \n" + historyStr + "\n";
 			ProjectPanel.addToHistory(adjacencyMatrixdataSet, historyStr);
 
-			if (task.isCancelled())
+			if (handler.isCancelled())
 				return;
 			else {
 				createNetworkPb.setTitle("Draw cytoscape graph");
 				createNetworkPb.setMessage("Draw cytoscape graph ...");
 
-			}
-
+			}		 
 			publishProjectNodeAddedEvent(new ProjectNodeAddedEvent(
 					"Adjacency Matrix Added", null, adjacencyMatrixdataSet));
 
 		}
-		createNetWorkButton.setEnabled(true);
-		createNetworkPb.dispose();
+ 
+		if (!handler.isCancelled()) {
+			log.info("task is completed");
+			createNetWorkButton.setEnabled(true);
+			createNetworkPb.dispose();
+		} else {
+			log.info("task is canceled");
 
-	}// GEN-LAST:event_loadfromDBHandler 
-	
-	 
-	
+		}
 
+	}// GEN-LAST:event_loadfromDBHandler
+ 
 	public Vector<CellularNetWorkElementInformation> getHits() {
 		return hits;
 	}
 
 	private void cancelTheAction(ActionEvent e) {
 		cancelAction = true;
+		createNetWorkButton.setEnabled(true);
 	}
 
 	private void previewSelectionsHandler(ActionEvent e) {
@@ -1762,8 +1770,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 					} else {
 						updateProgressBar(1, "Stopped");
-					}
-					// previewTableModel.fireTableDataChanged();
+					}					 
 					previewTableModel.fireTableRowsUpdated(0, detailTable
 							.getRowCount());
 					detailTable.revalidate();
@@ -1823,8 +1830,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 			List<String> allInteractionTypes = jPreferencePanel
 					.getAllInteractionTypes();
-			// /List<String> displayAvailInteractionTypes =
-			// jPreferencePanel.getDisplayAvailInteractionTypes();
+		 
 			if (allInteractionTypes != null && allInteractionTypes.size() > 0) {
 
 				columnLabels = new String[firstFourColumnLabels.length
@@ -1865,7 +1871,6 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	}
 
-	 
 	DefaultTableModel activeMarkersTableModel = new DefaultTableModel() {
 
 		@Override
@@ -1938,8 +1943,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				}
 
 			}
-			// TableWorker worker = new TableWorker(row, column);
-			// worker.start();
+		 
 			return "loading ...";
 		}
 	};
@@ -2060,16 +2064,11 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 									5, 2, 5, table.getSelectionBackground());
 						}
 						setBorder(selectedBorder);
-
-						// setForeground(list.getSelectionForeground());
+						 
 						setText("<html><font color=blue><i>" + "Unknown"
 								+ "</i></font></html>");
 					} else {
-
-						// setForeground(Color.red);
-						// setForeground(list.getSelectionForeground());
-						// setText("<html><font color=RED><i>" + "Unknown" +
-						// "</i></font></html>");
+ 
 						setText("<html><font><i>" + "Unknown"
 								+ "</i></font></html>");
 						setToolTipText("Please push the Refresh button to retrieve related information.");
@@ -2082,12 +2081,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				} else {
 
 					setBackground(Color.white);
-					// System.out.println( tableColumn.getHeaderValue() +"PD= "
-					// +
-					// !cellularNetWorkElementInformation.isIncludePDInteraction()
-					// +
-					// tableColumn.getHeaderValue().toString().equalsIgnoreCase(PDNUMBERLABEL)
-					// );
+				 
 					String headerStr = tableColumn.getHeaderValue().toString();
 					if (jPreferencePanel.getNetworkSelectedInteractionTypes()
 							.contains(
@@ -2098,28 +2092,19 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 													.length()))) {
 						setBackground(Color.gray);
 					}
-					// else if (column == 6) {
-					// setBackground(Color.white);
-					// }
-
-					// else if (column == 7) {
-					// setBackground(Color.white);
-					// }
+					 
 					if (isSelected) {
 						if (selectedBorder == null) {
 							selectedBorder = BorderFactory.createMatteBorder(2,
 									5, 2, 5, table.getSelectionBackground());
 						}
 						setBorder(selectedBorder);
-						// setBackground(Color.blue);
-						// setForeground(list.getSelectionForeground());
+					 
 						setText("<html><font color=blue><b>" + color
 								+ "</b></font></html>");
 						setToolTipText(color.toString());
 					} else {
-
-						// setForeground(Color.red);
-						// setForeground(list.getSelectionForeground());
+						
 						setText("<html><font color=blue><b>" + color
 								+ "<b></font></html>");
 						if (unselectedBorder == null) {
@@ -2217,14 +2202,12 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 									5, 2, 5, table.getSelectionBackground());
 						}
 						setBorder(selectedBorder);
-
-						// setForeground(list.getSelectionForeground());
+						 
 						setText("<html><font color=blue><b>" + color
 								+ "</b></font></html>");
 					} else {
 
-						setForeground(Color.black);
-						// setForeground(list.getSelectionForeground());
+						setForeground(Color.black);					 
 						setText("<html><font color=blue><b>" + color
 								+ "<b></font></html>");
 						if (unselectedBorder == null) {
@@ -2250,37 +2233,43 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		}
 	};
 
-	private class CreateNetworkTask extends SwingWorker<Void, Void> {
+	private class CreateNetworkHandler extends Thread {
 		AdjacencyMatrix matrix = null;
+		ProgressBar pb = null;
+		boolean cancel = false;
 
-		CreateNetworkTask() {
+		public CreateNetworkHandler(ProgressBar createNetworkPb) {
 			super();
+			this.pb = createNetworkPb;			 
+		}
+      
+		public void run() {
+			createNetworks(pb, this);		 
 		}
 
-		@Override
-		protected void done() {
-			log.info("create network is done.");
-
-		}
-
-		@Override
-		protected Void doInBackground() {
-
-			createNetworks();
-			return null;
-		}
-
-		public AdjacencyMatrix getAdjacencyMatrix() {
+		protected AdjacencyMatrix getAdjacencyMatrix() {
 			return matrix;
 		}
 
-		public void setAdjacencyMatrix(AdjacencyMatrix matrix) {
+		protected ProgressBar getProgressBar() {
+			return pb;
+		}
+
+		protected void setAdjacencyMatrix(AdjacencyMatrix matrix) {
 			this.matrix = matrix;
 		}
 
+		protected boolean isCancelled() {
+			return this.cancel;
+		}
+
+		protected void cancel(boolean cancel) {
+			this.cancel = cancel;
+		}	
+
 	}
 
-
+	 
 	@Publish
 	public org.geworkbench.events.SubpanelChangedEvent<DSGeneMarker> publishSubpanelChangedEvent(
 			org.geworkbench.events.SubpanelChangedEvent<DSGeneMarker> event) {
@@ -2408,8 +2397,6 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		}
 	}
 
-	 
-
 	@Publish
 	public AdjacencyMatrixEvent publishAdjacencyMatrixEvent(
 			AdjacencyMatrixEvent ae) {
@@ -2463,21 +2450,61 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			detailTable.repaint();
 		}
 	}
+	
+	/*private class CreateNetworkTask extends SwingWorker<Void, Void> {
+		AdjacencyMatrix matrix = null;
+		ProgressBar pb = null;
+		CreateNetworkTask(ProgressBar pb) {
+			super();
+			this.pb = pb;
+		}
 
-	public void update(Observable o, Object arg) {
-		task.cancel(true);
-		if (createNetworkPb.getTitle().equals("Draw cytoscape graph")) {
-			createNetworkPb.dispose();
-			publishAdjacencyMatrixEvent(new AdjacencyMatrixEvent(task
-					.getAdjacencyMatrix(), "Interactions from knowledgebase",
-					-1, 2, 0.5f, AdjacencyMatrixEvent.Action.CANCEL));
-
-		} else {
-			createNetworkPb.dispose();
-			createNetWorkButton.setEnabled(true);
+		@Override
+		protected void done() {
+			log.info("create network is done.");
 
 		}
+
+		@Override
+		protected Void doInBackground() {
+			log.info("Before createNetworks1");
+			createNetworks1(pb, this);
+			return null;
+		}
+
+		public AdjacencyMatrix getAdjacencyMatrix() {
+			return matrix;
+		}
+
+		public void setAdjacencyMatrix(AdjacencyMatrix matrix) {
+			this.matrix = matrix;
+		}
+		
+		protected ProgressBar getProgressBar() {
+			return pb;
+		}
+
+	}  */
+
+	
+	
+	
+	public void update(Observable o, Object arg) {            
+		createNetworkHandler.cancel(true);
+		ProgressBar pb = createNetworkHandler.getProgressBar();
+		if (pb.getTitle().equals("Draw cytoscape graph")) {
+			pb.dispose();
+			publishAdjacencyMatrixEvent(new AdjacencyMatrixEvent(
+					createNetworkHandler.getAdjacencyMatrix(),
+					"Interactions from knowledgebase", -1, 2, 0.5f,
+					AdjacencyMatrixEvent.Action.CANCEL));
+
+		} else {
+			pb.dispose();
+
+		}
+		createNetWorkButton.setEnabled(true);		 
 		log.info("Create network canceled.");
 	}
-
+	 
 }
