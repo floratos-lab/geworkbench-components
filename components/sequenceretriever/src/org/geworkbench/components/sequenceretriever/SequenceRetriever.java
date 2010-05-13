@@ -291,8 +291,6 @@ public class SequenceRetriever implements VisualPlugin {
 
 		main.setLayout(new BorderLayout());
 		jToolbar2.setBorder(BorderFactory.createEtchedBorder());
-		jToolbar2.setMinimumSize(new Dimension(20, 25));
-		jToolbar2.setPreferredSize(new Dimension(20, 25));
 
 		seqScrollPane.setBorder(BorderFactory.createEtchedBorder());
 		seqScrollPane.setMaximumSize(new Dimension(32767, 32767));
@@ -301,12 +299,7 @@ public class SequenceRetriever implements VisualPlugin {
 
 		jPanel2.setLayout(new BorderLayout());
 		beforeText.setModel(model);
-//		beforeText.setSize(new Dimension(15, 10));
-//		beforeText.setPreferredSize(new Dimension(15, 10));
-
 		afterText.setModel(model1);
-//		afterText.setSize(new Dimension(15, 10));
-//		afterText.setPreferredSize(new Dimension(15, 10));
 
 		jLabel1.setToolTipText("Downstream");
 		jLabel1.setText("+");
