@@ -50,35 +50,40 @@ public class TabularMicroarrayPanel extends MicroarrayViewEventBase {
         }
     }
 
+    private static TableCellRenderer defaultRenderer = new DefaultTableCellRenderer();
+    
     private TableCellRenderer renderer = new DefaultTableCellRenderer() {
         private static final long serialVersionUID = -2148986327315654796L;
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
+            Component defaultComponent = defaultRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
             Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
 
 			/* Convert the model index to the visual index */
 			int modelCol = table.convertColumnIndexToModel(col);
             
+			// note: because c is in fact reused, we need to reset the properties that may be changed
             if (modelCol == 0) {
-                c.setBackground(Color.lightGray);
+            	if(!isSelected) {
+	                c.setBackground(Color.lightGray);
+	                c.setForeground(defaultComponent.getForeground());
+            	}
                 ((JLabel) c).setHorizontalAlignment(JLabel.LEFT);
-                ((JComponent) c).setBorder(BorderFactory.createRaisedBevelBorder());
+                ((JComponent) c).setBorder(BorderFactory.createLineBorder(Color.white));
             } else {
                 DSGeneMarker stats = uniqueMarkers.get(row);
                 if (stats != null) {
                     DSMutableMarkerValue marker = maSetView.items().get(modelCol - 1).getMarkerValue(stats.getSerial());
                     if (marker.isMissing()) {
                         c.setBackground(Color.yellow);
+                        c.setForeground(Color.blue);
                     } else if (marker.isMasked()) {
                         c.setBackground(Color.pink);
-                    } else if(!isSelected) {
-                        c.setBackground(Color.white);
+                        c.setForeground(Color.blue);
+                    } else {
+                        c.setBackground(defaultComponent.getBackground());
+                        c.setForeground(defaultComponent.getForeground());
                     }
                     ((JLabel) c).setHorizontalAlignment(JLabel.CENTER);
-                    if (isSelected) {
-                        ((JComponent) c).setBorder(BorderFactory.createEtchedBorder());
-                    } else {
-                        ((JComponent) c).setBorder(BorderFactory.createEmptyBorder());
-                    }
                 }
             }
             return c;
