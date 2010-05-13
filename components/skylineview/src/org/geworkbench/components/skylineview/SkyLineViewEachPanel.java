@@ -54,10 +54,6 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.jmol.adapter.smarter.SmarterJmolAdapter;
 import org.jmol.api.JmolAdapter;
 import org.jmol.api.JmolSimpleViewer;
-import org.jmol.api.JmolStatusListener;
-import org.jmol.api.JmolViewer;
-import org.openscience.jmol.ui.JmolPopup;
-import org.openscience.jmol.ui.JmolPopupSwing;
 
 /**
  * SkyLine result viewer for each homology model
@@ -90,6 +86,7 @@ public class SkyLineViewEachPanel extends JPanel implements VisualPlugin,
 	private int num_model_files = 5;
 	private HashMap<String, Integer> forder = new HashMap<String, Integer>();
 	private static String strScript = "wireframe off; spacefill off; cartoons; color structure;";
+    final static int zoomMin = 5, zoomMax = 200000, zoomNorm = 100;
 
 	private static String energycols[] = { "Residue #", "Pair Energy",
 			"Surface Energy", "Combined Energy" };
@@ -660,17 +657,12 @@ public class SkyLineViewEachPanel extends JPanel implements VisualPlugin,
 
 	static class JmolPanel extends JPanel {
 		private static final long serialVersionUID = 1L;
-		JmolViewer viewer;
+		JmolSimpleViewer viewer;
 		JmolAdapter adapter;
-		JmolPopup popup;
-		MyStatusListener listener;
 
 		JmolPanel() {
-			adapter = new SmarterJmolAdapter(null);
-			viewer = JmolViewer.allocateViewer(this, adapter);
-			popup = new JmolPopupSwing(viewer);
-			listener = new MyStatusListener(popup);
-			viewer.setJmolStatusListener(listener);
+			adapter = new SmarterJmolAdapter();
+			viewer = JmolSimpleViewer.allocateSimpleViewer(this, adapter);
 		}
 
 		public JmolSimpleViewer getViewer() {
@@ -681,62 +673,23 @@ public class SkyLineViewEachPanel extends JPanel implements VisualPlugin,
 		final Rectangle rectClip = new Rectangle();
 
 		public void paint(Graphics g) {
+			double zoom = getZoom();
+    		if (zoom != 100) viewer.evalString("zoom "+zoom);
+
 			getSize(currentSize);
 			g.getClipBounds(rectClip);
 			viewer.renderScreenImage(g, currentSize, rectClip);
 		}
+
+        private double getZoom() {
+        	double zoom = zoomNorm;
+        	int width = getVisibleRect().width;
+        	int height = getVisibleRect().height;
+        	if (width != height)
+        		zoom = height < width ? 100.0*height/width : 100.0*width/height;
+        	if (zoom < zoomMin || zoom > zoomMax) zoom = zoomNorm;
+        	return zoom;
+        }
 	}
 
-	static class MyStatusListener implements JmolStatusListener {
-
-		JmolPopup jmolpopup;
-
-		public MyStatusListener(JmolPopup jmolpopup) {
-			this.jmolpopup = jmolpopup;
-		}
-
-		public void notifyFileLoaded(String fullPathName, String fileName,
-				String modelName, Object clientFile, String errorMsg) {
-			jmolpopup.updateComputedMenus();
-		}
-
-		public void setStatusMessage(String statusMessage) {
-			if (statusMessage == null)
-				return;
-		}
-
-		public void scriptEcho(String strEcho) {
-			scriptStatus(strEcho);
-		}
-
-		public void scriptStatus(String strStatus) {
-		}
-
-		public void notifyScriptTermination(String errorMessage, int msWalltime) {
-		}
-
-		public void handlePopupMenu(int x, int y) {
-			if (jmolpopup != null)
-				jmolpopup.show(x, y);
-		}
-
-		public void measureSelection(int atomIndex) {
-		}
-
-		public void notifyMeasurementsChanged() {
-		}
-
-		public void notifyFrameChanged(int frameNo) {
-		}
-
-		public void notifyAtomPicked(int atomIndex, String strInfo) {
-		}
-
-		public void showUrl(String urlString) {
-		}
-
-		public void showConsole(boolean showConsole) {
-		}
-
-	}
 }
