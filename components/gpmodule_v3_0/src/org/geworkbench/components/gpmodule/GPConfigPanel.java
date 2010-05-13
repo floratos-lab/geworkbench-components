@@ -92,37 +92,37 @@ public class GPConfigPanel extends JPanel
 
         resetGPConfigParameters(true);
 
-        protocol.setPreferredSize(new Dimension(145, 20));
-        protocol.setMinimumSize(new Dimension(145, 20));
-        protocol.setMaximumSize(new Dimension(145, 20));
+//        protocol.setPreferredSize(new Dimension(145, 20));
+//        protocol.setMinimumSize(new Dimension(145, 20));
+//        protocol.setMaximumSize(new Dimension(145, 20));
         builder.append(new JLabel("Protocol"), protocol);
         builder.append("Whether to connect using http or https protocol");
         builder.nextLine();
 
-        host.setPreferredSize(new Dimension(145, 20));
-        host.setMinimumSize(new Dimension(145, 20));
-        host.setMaximumSize(new Dimension(145, 20));
+//        host.setPreferredSize(new Dimension(145, 20));
+//        host.setMinimumSize(new Dimension(145, 20));
+//        host.setMaximumSize(new Dimension(145, 20));
         builder.append(new JLabel("Host"), host);
         builder.append("The name or ip address of the server");
         builder.nextLine();    
 
-        port.setPreferredSize(new Dimension(145, 20));
-        port.setMinimumSize(new Dimension(145, 20));
-        port.setMaximumSize(new Dimension(145, 20));
+//        port.setPreferredSize(new Dimension(145, 20));
+//        port.setMinimumSize(new Dimension(145, 20));
+//        port.setMaximumSize(new Dimension(145, 20));
         builder.append(new JLabel("Port"), port);
         builder.append("The port specified for the server");
         builder.nextLine();
 
-        username.setPreferredSize(new Dimension(145, 20));
-        username.setMinimumSize(new Dimension(145, 20));
-        username.setMaximumSize(new Dimension(145, 20));
+//        username.setPreferredSize(new Dimension(145, 20));
+//        username.setMinimumSize(new Dimension(145, 20));
+//        username.setMaximumSize(new Dimension(145, 20));
         builder.append(new JLabel("Username"), username);
         builder.append("The login username");
         builder.nextLine();
 
-        password.setPreferredSize(new Dimension(145, 20));
-        password.setMinimumSize(new Dimension(145, 20));
-        password.setMaximumSize(new Dimension(145, 20));
+//        password.setPreferredSize(new Dimension(145, 20));
+//        password.setMinimumSize(new Dimension(145, 20));
+//        password.setMaximumSize(new Dimension(145, 20));
         builder.append(new JLabel("Password"), password);
         builder.append("The login password (if required)");
         builder.nextLine();
