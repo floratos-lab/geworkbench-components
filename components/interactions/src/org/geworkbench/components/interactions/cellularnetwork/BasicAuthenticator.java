@@ -7,9 +7,12 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener; 
-import java.net.Authenticator; 
-import java.net.PasswordAuthentication; 
+import java.awt.event.KeyListener;
+import java.net.Authenticator;
+import java.net.PasswordAuthentication;
+
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -61,21 +64,33 @@ class LoginDialog extends JDialog implements KeyListener, ActionListener {
 	public LoginDialog() {
 		setModal(true);
 		setTitle("Login Required");
-		north = new JPanel();
-		north.setLayout(null);
-		north.setPreferredSize(new Dimension(277, 110));
+
+		JPanel name = new JPanel();
+		name.setLayout(new BoxLayout(name, BoxLayout.X_AXIS));
 		nameLabel = new JLabel("Username:", JLabel.LEFT);
-		nameLabel.setBounds(10, 40, 90, 20);
-		north.add(nameLabel);
-		passwordLabel = new JLabel("Password:", JLabel.LEFT);
-		passwordLabel.setBounds(10, 70, 90, 20);
-		north.add(passwordLabel);
+		nameLabel.setPreferredSize(new Dimension(100, 50));
+		name.add(nameLabel);
 		nameTextField = new JTextField();
-		nameTextField.setBounds(100, 40, 157, 20);
-		north.add(nameTextField);
+		nameTextField.setMaximumSize(new Dimension(100, 25));
+		name.add(nameTextField);
+		
+		JPanel password = new JPanel();
+		password.setLayout(new BoxLayout(password, BoxLayout.X_AXIS));
+		passwordLabel = new JLabel("Password:", JLabel.LEFT);
+		passwordLabel.setPreferredSize(new Dimension(100, 50));
+		password.add(passwordLabel);
 		passwordField = new JPasswordField();
-		passwordField.setBounds(100, 70, 157, 20);
-		north.add(passwordField);
+		passwordField.setMaximumSize(new Dimension(100, 25));
+		password.add(passwordField);
+		
+		north = new JPanel();
+		north.setLayout(new BoxLayout(north, BoxLayout.Y_AXIS));
+		north.setPreferredSize(new Dimension(277, 110));
+		name.setAlignmentX(0.5f);
+		password.setAlignmentX(0.5f);
+		north.add(Box.createRigidArea(new Dimension(0,12)));
+		north.add(name);
+		north.add(password);
 
 		getContentPane().add(north, BorderLayout.CENTER);
 		south = new JPanel();
