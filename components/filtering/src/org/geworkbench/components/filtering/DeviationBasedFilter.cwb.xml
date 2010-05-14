@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
 	<component  name="Deviation Based Filter"
@@ -10,6 +11,7 @@
 				description="Marks as missing all markers whose standard deviation
  is less than a given value across all microarrays. "
  				loadByDefault="true"
+ 				category="filter"
 	 >
 			<required-component class="org.geworkbench.components.microarrays.TabularMicroarrayPanel" />
 		<license><![CDATA[
