@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
 	<component  name="Genepix Expression Threshold Filter"
@@ -12,6 +13,7 @@
  and marks as missing all expression measurements for
  which either channel intensity is inside (or outside)
  the defined range. "
+ 				category="filter"
 	 >
 		<required-component class="org.geworkbench.components.microarrays.TabularMicroarrayPanel" />
 		<license><![CDATA[

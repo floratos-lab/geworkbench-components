@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
 	<component  name="Missing Values Filter"
@@ -12,6 +13,7 @@
  where N is set by the user. Missing values can arise either
  from the original data or from the results of another filtering step. "
  				loadByDefault="true"
+ 				category="filter"
 	 >
 		<required-component class="org.geworkbench.components.microarrays.TabularMicroarrayPanel" />
 		<license><![CDATA[
