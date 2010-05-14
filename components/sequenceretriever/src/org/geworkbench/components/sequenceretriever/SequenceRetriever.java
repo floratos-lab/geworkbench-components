@@ -384,8 +384,8 @@ public class SequenceRetriever implements VisualPlugin {
 							model = new SpinnerNumberModel(1999, 1, 1999, 1);
 							model1 = new SpinnerNumberModel(2000, 1, 2000, 1);
 						} else if (cmd != null && cmd.equalsIgnoreCase(UCSC)) {
-							model = new SpinnerNumberModel(10000, 1, 98000, 1);
-							model1 = new SpinnerNumberModel(10000, 1, 10000, 1);
+							model = new SpinnerNumberModel(2000, 1, 98000, 1);
+							model1 = new SpinnerNumberModel(1000, 1, 10000, 1);
 						}
 						currentSource = cmd;
 					}
