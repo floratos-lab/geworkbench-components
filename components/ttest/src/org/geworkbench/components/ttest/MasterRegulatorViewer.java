@@ -15,6 +15,7 @@ import java.util.Iterator;
 
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.ButtonModel;
 import javax.swing.JButton;
@@ -91,14 +92,16 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		tv2.setNumerical(1, true);
 		tv2.setNumerical(2, true);
 
-		final JSplitPane jSplitPane1 = new JSplitPane();
+		final JPanel viewPanel = new JPanel();
 		final JSplitPane jSplitPane2 = new JSplitPane();
 
-		jSplitPane1.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
-		jSplitPane1.setDividerSize(2);
-		jSplitPane1.setDividerLocation(400);
-		jSplitPane1.setTopComponent(jSplitPane2);
-		jSplitPane1.setBottomComponent(detailedTFGraphViewer);
+		viewPanel.setLayout(new BoxLayout(viewPanel, BoxLayout.PAGE_AXIS));
+		JPanel topPanel = new JPanel();
+		topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.LINE_AXIS));
+		topPanel.add(jSplitPane2);
+		viewPanel.add(topPanel);
+		detailedTFGraphViewer.setPreferredSize(new Dimension(0,90));
+		viewPanel.add(detailedTFGraphViewer);
 		jSplitPane2.setDividerLocation(600);
 		jSplitPane2.setDividerSize(3);
 
@@ -412,7 +415,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		detailedTFGraphViewer.setBorder(BorderFactory
 				.createEtchedBorder(EtchedBorder.LOWERED));
 		// builder.append(new JScrollPane(detailedTFGraphViewer),2);
-		builder.add(jSplitPane1, new CellConstraints("1,2,f,f"));
+		builder.add(viewPanel, new CellConstraints("1,2,f,f"));
 
 		JScrollPane wholeWindowScrollPane = new JScrollPane(builder.getPanel());
 		this.setLayout(new BorderLayout());
