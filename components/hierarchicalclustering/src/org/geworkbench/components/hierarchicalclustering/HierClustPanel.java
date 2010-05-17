@@ -128,9 +128,9 @@ public class HierClustPanel extends AbstractSaveableParameterPanel{
         dimension.addItem("Marker");
         dimension.addItem("Microarray");
         dimension.addItem("Both");
-        metric.addItem("Euclidean");
-        metric.addItem("Pearson's");
-        metric.addItem("Spearman's");
+        metric.addItem("Euclidean Distance");
+        metric.addItem("Pearson's Correlation");
+        metric.addItem("Spearman's Rank Correlation");
 
         ParameterActionListener parameterActionListener = new ParameterActionListener(this);
         
@@ -139,7 +139,7 @@ public class HierClustPanel extends AbstractSaveableParameterPanel{
         metric.addActionListener(parameterActionListener);
 
         FormLayout layout = new FormLayout(
-                "right:max(40dlu;pref), 3dlu, 70dlu, 7dlu",
+                "right:max(40dlu;pref), 3dlu, 100dlu, 7dlu",
                 "");
         DefaultFormBuilder builder = new DefaultFormBuilder(layout);
         builder.setDefaultDialogBorder();
