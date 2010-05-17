@@ -110,5 +110,8 @@ public class GenepixExpressionThresholdFilter extends FilteringAnalysis {
 		} else {
 	        log.error("Invalid filtering option");
 		}
+		
+        numberThreshold = filterOptionPanel.getNumberThreshold();
+        percentThreshold = filterOptionPanel.getPercentThreshold();
 	}
 }
