@@ -1,6 +1,5 @@
 package org.geworkbench.components.filtering;
 
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.io.Serializable;
@@ -103,7 +102,6 @@ public class ExpressionThresholdFilterPanel extends AbstractSaveableParameterPan
         container.add(rangeMaxValue);
         container.add(rangeOptionLabel);
         container.add(optionSelection);
-        container.setPreferredSize(new Dimension(250, 80));
 
         JPanel topPanel = new JPanel(new FlowLayout());
         topPanel.add(filterOptionPanel);
@@ -111,7 +109,6 @@ public class ExpressionThresholdFilterPanel extends AbstractSaveableParameterPan
         JPanel bottomPanel = new JPanel(new FlowLayout());
         bottomPanel.add(container);
         bottomPanel.setAlignmentX(LEFT_ALIGNMENT);
-        bottomPanel.setMaximumSize(new Dimension(250, 80));
 
         JPanel wrapperPanel = new JPanel();
         BoxLayout boxLayout = new BoxLayout(wrapperPanel, BoxLayout.PAGE_AXIS);
