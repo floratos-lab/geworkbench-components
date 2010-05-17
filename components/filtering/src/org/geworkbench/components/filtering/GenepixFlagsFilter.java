@@ -170,5 +170,8 @@ public class GenepixFlagsFilter extends FilteringAnalysis {
 		} else {
 	        log.error("Invalid filtering option");
 		}
+		
+        numberThreshold = filterOptionPanel.getNumberThreshold();
+        percentThreshold = filterOptionPanel.getPercentThreshold();
 	}
 }
