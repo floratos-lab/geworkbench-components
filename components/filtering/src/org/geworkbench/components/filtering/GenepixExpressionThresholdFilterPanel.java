@@ -1,6 +1,5 @@
 package org.geworkbench.components.filtering;
 
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.io.Serializable;
@@ -22,17 +21,13 @@ import org.geworkbench.events.listeners.ParameterActionListener;
 /**
  * <p>Copyright: Copyright (c) 2003</p>
  * <p>Company: First Genetic Trust Inc.</p>
- * @author First Genetic Trust
- * @version 1.0
- */
-
-/**
+ * 
  * The parameters panel for the <code>GenepixExpressionThresholdFilter</code>
  * filter. Collects ranges bounds for the values of the green channel (Cy3)
  * and the red channel (Cy5). Individual marker values from a Genepix array
  * will be compared against these ranges and filtered appropriatelly.
  *
- * @author unknown, yc2480
+ * @author First Genetic Trust, yc2480
  * @version $Id$
  */
 public class GenepixExpressionThresholdFilterPanel extends AbstractSaveableParameterPanel {
