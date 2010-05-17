@@ -844,27 +844,8 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 					.getNamedParameterSet(parametersNameList[i]));
 			parameter2.remove(ParameterKey.class.getSimpleName());
 			if (parameter1.equals(parameter2)) {
-				/*
-				 * Move matched one to the top of the list, so user can always
-				 * see them.
-				 */
 				String[] savedParameterSetNames = selectedAnalysis
 						.getNamesOfStoredParameterSets();
-				/* savedParameterSetNames[i] will need to be moved to top */
-				/*
-				 * sets before it needs to move back, and it needs to be moved
-				 * to the first one.
-				 */
-				String matchedOne = savedParameterSetNames[i];
-				if (i != 0) {
-					for (int j = i - 1; j >= 0; j--) {
-						savedParameterSetNames[j + 1] = savedParameterSetNames[j];
-					}
-					savedParameterSetNames[0] = matchedOne;
-				}
-				/* set the JList to display the re-organized list */
-				paramsJList.removeAll();
-				paramsJList.setListData(savedParameterSetNames);
 				/*
 				 * make sure that only one parameter set can be selected at a
 				 * time
@@ -872,8 +853,8 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 				paramsJList.getSelectionModel().setSelectionMode(
 						ListSelectionModel.SINGLE_SELECTION);
 				analysisPanel.revalidate();
-				/* select the first one (which matches current settings) */
-				paramsJList.setSelectedIndex(0);
+				/* select the matched one and scroll to display it */
+				paramsJList.setSelectedValue(savedParameterSetNames[i], true);
 				/*
 				 * Since we don't allow duplicate parameter sets in the list, so
 				 * if we detect one, we can skip the rest.
