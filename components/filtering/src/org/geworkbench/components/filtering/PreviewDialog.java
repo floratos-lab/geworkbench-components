@@ -96,7 +96,7 @@ public class PreviewDialog extends JDialog {
 				}
 				
 				JOptionPane.showMessageDialog(PreviewDialog.this,
-						"Marker name "+markerToBeSearched.getText()+" is nto found.", 
+						"Marker name "+markerToBeSearched.getText()+" is not found.", 
 					    "Not Found", JOptionPane.PLAIN_MESSAGE);
 				
 			}
@@ -127,7 +127,7 @@ public class PreviewDialog extends JDialog {
 				}
 				
 				JOptionPane.showMessageDialog(PreviewDialog.this,
-					    "Gene symbol "+geneToBeSearched.getText()+" is nto found.", 
+					    "Gene symbol "+geneToBeSearched.getText()+" is not found.", 
 					    "Not Found", JOptionPane.PLAIN_MESSAGE);
 				
 			}
