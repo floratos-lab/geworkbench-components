@@ -33,7 +33,7 @@ import org.geworkbench.events.listeners.ParameterActionListener;
  * will be compared against these ranges and filtered appropriatelly.
  *
  * @author unknown, yc2480
- * @version $ID$
+ * @version $Id$
  */
 public class GenepixExpressionThresholdFilterPanel extends AbstractSaveableParameterPanel {
 	private static final long serialVersionUID = -3835388346988546797L;
@@ -57,7 +57,8 @@ public class GenepixExpressionThresholdFilterPanel extends AbstractSaveableParam
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
 	 * Set inputed parameters to GUI.
 	 */
-    public void setParameters(Map<Serializable, Serializable> parameters){
+    @Override
+	public void setParameters(Map<Serializable, Serializable> parameters){
         Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
         for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set.iterator(); iterator.hasNext();) {
         	Map.Entry<Serializable, Serializable> parameter = iterator.next();
@@ -88,7 +89,8 @@ public class GenepixExpressionThresholdFilterPanel extends AbstractSaveableParam
 	 *      Since HierClustPanel only has three parameters, we return metric,
 	 *      dimension and method in the format same as getBisonParameters().
 	 */
-    public Map<Serializable, Serializable> getParameters() {
+    @Override
+	public Map<Serializable, Serializable> getParameters() {
 		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
 		parameters.put("Cy3MinValue", (Double)Cy3MinValue.getValue());
 		parameters.put("Cy3MaxValue", (Double)Cy3MaxValue.getValue());
@@ -127,7 +129,6 @@ public class GenepixExpressionThresholdFilterPanel extends AbstractSaveableParam
         container.add(Cy5MaxValue);
         container.add(optionLabel);
         container.add(optionSelection);
-        container.setPreferredSize(new Dimension(500, 80));
         
         JPanel topPanel = new JPanel(new FlowLayout());
         topPanel.add(filterOptionPanel);
@@ -135,7 +136,6 @@ public class GenepixExpressionThresholdFilterPanel extends AbstractSaveableParam
         JPanel bottomPanel = new JPanel(new FlowLayout());
         bottomPanel.add(container);
         bottomPanel.setAlignmentX(LEFT_ALIGNMENT);
-        bottomPanel.setMaximumSize(new Dimension(500, 80));
 
         JPanel wrapperPanel = new JPanel();
         BoxLayout boxLayout = new BoxLayout(wrapperPanel, BoxLayout.PAGE_AXIS);
@@ -218,7 +218,8 @@ public class GenepixExpressionThresholdFilterPanel extends AbstractSaveableParam
      *
      * @return
      */
-    public ParamValidationResults validateParameters() {
+    @Override
+	public ParamValidationResults validateParameters() {
         if (getCy3Min() > getCy3Max())
             return new ParamValidationResults(false, "Invalid range for Cy3 channel.");
         else if (getCy5Min() > getCy5Max())
