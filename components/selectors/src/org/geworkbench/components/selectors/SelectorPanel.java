@@ -853,6 +853,8 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 	 */
 	protected String[] getSelectedTreesFromTree() {
 		TreePath[] paths = panelTree.getSelectionPaths();
+		if(paths==null)return new String[0];
+		
 		int n = paths.length;
 		ArrayList<String> list = new ArrayList<String>();
 		for (int i = 0; i < n; i++) {
