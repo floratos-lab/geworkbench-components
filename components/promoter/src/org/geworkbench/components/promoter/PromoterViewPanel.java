@@ -404,16 +404,13 @@ public class PromoterViewPanel extends JPanel {
         gridLayout2.setColumns(3);
         gridLayout2.setRows(2);
         parmsPanel.setLayout(gridBagLayout1);
-        pValueLabel.setText("PValue / 1K:");
-        pValueField.setMinimumSize(new Dimension(70, 18));
-        pValueField.setPreferredSize(new Dimension(70, 18));
+        pValueLabel.setText("P-Value / 1K:");
         pValueField.setText("0.05");
         //expectedLabel1.setHorizontalAlignment(SwingConstants.TRAILING);
         expectedLabel1.setHorizontalTextPosition(SwingConstants.LEADING);
         expectedLabel1.setText("Expected:");
         //actualLabel1.setHorizontalAlignment(SwingConstants.TRAILING);
         actualLabel1.setText("Actual:");
-        expectedCountBox.setPreferredSize(new Dimension(70, 18));
         expectedCountBox.setEditable(false);
         expectedCountBox.setText("0");
         expectedCountBox.addActionListener(new ActionListener() {
@@ -421,12 +418,9 @@ public class PromoterViewPanel extends JPanel {
                 expectedCountBox_actionPerformed(e);
             }
         });
-        enrichmentBox.setPreferredSize(new Dimension(70, 18));
         enrichmentBox.setEditable(false);
         enrichmentBox.setText("1.0");
         parmsPanel.setBorder(BorderFactory.createEtchedBorder());
-        parmsPanel.setMinimumSize(new Dimension(130, 110));
-        parmsPanel.setPreferredSize(new Dimension(130, 110));
         parmsPanel.setMinimumSize(new Dimension(130, 100));
         parmsPanel.setPreferredSize(new Dimension(130, 100));
         enrichmentLabel.setText("Enrich. p-value:");
@@ -436,13 +430,10 @@ public class PromoterViewPanel extends JPanel {
                 useThresholdCheck_actionPerformed(e);
             }
         });
-        countBox.setPreferredSize(new Dimension(70, 18));
         countBox.setEditable(false);
         countBox.setText("0");
-        thresholdBox.setPreferredSize(new Dimension(70, 18));
         thresholdBox.setEditable(false);
         set13KCheck.setText("13K Set");
-        percentSeqMatchBox.setPreferredSize(new Dimension(70, 18));
         percentSeqMatchBox.setEditable(false);
         percentSeqMatchBox.setText("0%");
         totalLabel1.setFont(new java.awt.Font("Dialog", Font.BOLD, 11));
@@ -456,9 +447,7 @@ public class PromoterViewPanel extends JPanel {
         seqCountBox.setText("0");
         seqEnrichmentBox.setEditable(false);
         seqEnrichmentBox.setText("1.0");
-        pValueFieldResult.setMinimumSize(new Dimension(70, 18));
         pValueFieldResult.setEditable(false);
-        thresholdResult.setMinimumSize(new Dimension(70, 18));
         thresholdResult.setEditable(false);
         stopButton.setText("Stop");
         stopButton.addActionListener(new ActionListener() {
@@ -680,7 +669,7 @@ public class PromoterViewPanel extends JPanel {
                                               new Insets(1, 2, 1, 2), 0, 0));
 
           parmsPanel.add(percentSeqMatchBox,
-                       new GridBagConstraints(4, 13, 2, 1, 1.0, 0.0
+                       new GridBagConstraints(3, 13, 1, 1, 1.0, 0.0
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.HORIZONTAL,
                                               new Insets(1, 2, 1, 2), 0, 0));
