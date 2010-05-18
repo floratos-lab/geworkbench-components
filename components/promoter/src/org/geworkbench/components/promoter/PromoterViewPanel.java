@@ -337,6 +337,7 @@ public class PromoterViewPanel extends JPanel {
         jButton2.setToolTipText("Retrieve promoter sequences");
         jButton2.setHorizontalTextPosition(SwingConstants.TRAILING);
         jButton2.setText("Retrieve");
+        jButton2.setEnabled(false); // disable for release 2.0 see bug 1134
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 jButton2_actionPerformed(e);
