@@ -115,11 +115,8 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 		log.debug("input: " + input);
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> inputSetView = (DSMicroarraySetView) input;
 		DSPanel<DSMicroarray> arraySet = null;
-		DSPanel<DSGeneMarker> markerSet = null;
 		if (inputSetView.useItemPanel())
 			arraySet = inputSetView.getItemPanel();
-		if (inputSetView.useMarkerPanel())
-			markerSet = inputSetView.getMarkerPanel();
 
 		// Mindy parameter validation always returns true
 		// (the method is not overrode from AbstractAnalysis)
@@ -309,7 +306,7 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 			return null;
 		}
 		progressBar.setMessage("Running MINDY Algorithm");
-		MindyThread mt = new MindyThread(mSet, arraySet, markerSet, params
+		MindyThread mt = new MindyThread(mSet, arraySet, params
 				.getTargetGeneList(), transFac, new Marker(params
 				.getTranscriptionFactor()), modulators, dpiAnnots, fullSetMI,
 				fullSetThreshold, subsetMI, subsetThreshold, setFraction,
@@ -373,8 +370,6 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 
 		DSPanel<DSMicroarray> arraySet;
 
-		DSPanel<DSGeneMarker> markerSet;
-
 		List<String> chosenTargets;
 
 		DSGeneMarker transFac;
@@ -405,7 +400,7 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 
 		public MindyThread(DSMicroarraySet<DSMicroarray> mSet,
 				DSPanel<DSMicroarray> arraySet,
-				DSPanel<DSGeneMarker> markerSet, List<String> chosenTargets,
+				List<String> chosenTargets,
 				DSGeneMarker transFac, Marker tf, ArrayList<Marker> modulators,
 				ArrayList<Marker> dpiAnnots, boolean fullSetMI,
 				float fullSetThreshold, boolean subsetMI,
@@ -413,7 +408,6 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 				String paramDesc, String candidateModFile) {
 			this.mSet = mSet;
 			this.arraySet = arraySet;
-			this.markerSet = markerSet;
 			this.chosenTargets = chosenTargets;
 			this.transFac = transFac;
 			this.tf = tf;
@@ -516,7 +510,7 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 
 			// bug 1992, it was about NPE, but just in case will catch any exception
 			try {
-				results = mindy.runMindy(convert(mSet, arrayForMindyRun, markerSet,
+				results = mindy.runMindy(convert(mSet, arrayForMindyRun,
 						chosenTargets), tf, modulators, dpiAnnots, fullSetMI,
 						fullSetThreshold, subsetMI, subsetThreshold, setFraction,
 						dpiTolerance);
@@ -577,17 +571,8 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 		}
 
 		private MicroarraySet convert(DSMicroarraySet<DSMicroarray> inSet,
-				ArrayList<DSMicroarray> arrayForMindyRun, DSPanel markerSet, List<String> chosenTargets) {
+				ArrayList<DSMicroarray> arrayForMindyRun, List<String> chosenTargets) {
 			MarkerSet markers = new MarkerSet();
-			if ((markerSet != null) && (markerSet.size() > 0)) {
-				log.debug("Processing marker panel: size=" + markerSet.size());
-				int size = markerSet.size();
-				for (int i = 0; i < size; i++) {
-					markers.addMarker(new Marker(((DSGeneMarker) markerSet
-							.get(i)).getLabel()));
-				}
-			}
-			log.debug("markers size (post panel)=" + markers.size());
 			if ((chosenTargets != null) && (chosenTargets.size() > 0)) {
 				log.debug("Processing chosen targets: size="
 						+ chosenTargets.size());
