@@ -1091,7 +1091,7 @@ public class PromoterViewPanel extends JPanel {
 		}
 		tfListModel.setFullNameTaxGroupMap(fullNameTaxGroupMap);
 		
-        uniqueTaxGroupVector.add("All Taxonomies");
+        uniqueTaxGroupVector.add("All Taxa");
         uniqueTaxGroupVector.addAll(uniqueTaxGroupSet);
         Collections.sort(uniqueTaxGroupVector);
     }
