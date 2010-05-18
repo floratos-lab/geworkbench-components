@@ -6,6 +6,8 @@ package org.geworkbench.components.filtering;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -63,6 +65,27 @@ public class FilterOptionPanel extends JPanel {
 	    ButtonGroup group = new ButtonGroup();
 	    group.add(percentRemovalButton);
 	    group.add(numberRemovalButton);
+	    
+	    // default choice 
+	    percentRemovalButton.setSelected(true);
+	    numberField.setEnabled(false);
+	    
+	    ActionListener actionListener = new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(percentRemovalButton.isSelected()) {
+					percentField.setEnabled(true);
+					numberField.setEnabled(false);
+				} else { 
+					percentField.setEnabled(false);
+					numberField.setEnabled(true);
+				}
+			}
+	    	
+	    };
+		percentRemovalButton.addActionListener(actionListener );
+	    numberRemovalButton.addActionListener(actionListener);
 
 	    Border border1 = BorderFactory.createEtchedBorder(Color.white,
 	            new Color(165, 163, 151));
