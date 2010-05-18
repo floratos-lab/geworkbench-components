@@ -725,7 +725,7 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 							 * this make it shown in the center of our software
 							 */
 							anovaAnalysisPanel.getTopLevelAncestor(),
-							"The input dataset must be log-transformed; please reenter log-transformed data to run this anlysis.\n\nClick proceed to override and continue the analysis with the input dataset selected.",
+							"The input dataset should be log-transformed (to approximate a standard distribution); \n\nClick Proceed to override and continue the analysis with the input dataset selected.",
 							"Log Transformation", JOptionPane.YES_NO_OPTION,
 							JOptionPane.QUESTION_MESSAGE,
 							/* do not use a custom Icon */
