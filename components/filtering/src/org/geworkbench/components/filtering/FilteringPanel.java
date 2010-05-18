@@ -430,7 +430,8 @@ public class FilteringPanel implements VisualPlugin, ReHighlightable {
 					.getNamedParameterSet(parametersNameList[i]));
 			parameter2.remove(ParameterKey.class.getSimpleName());
 			if (parameter1.equals(parameter2)) {
-				namedParameters.setSelectedIndex(i);
+				String[] savedParameterSetNames = selectedFilter.getNamesOfStoredParameterSets();
+				namedParameters.setSelectedValue(savedParameterSetNames[i], true);
 			}
 		}
 	}
