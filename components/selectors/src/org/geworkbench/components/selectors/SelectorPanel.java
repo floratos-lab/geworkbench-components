@@ -272,6 +272,7 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 	}
 
 	protected String getLabelForPath(TreePath path) {
+		if(path==null)return null;
 		Object obj = path.getLastPathComponent();
 		if (obj instanceof String) {
 			return (String) obj;
