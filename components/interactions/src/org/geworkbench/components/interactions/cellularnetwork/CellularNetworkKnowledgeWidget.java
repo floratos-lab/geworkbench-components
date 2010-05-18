@@ -39,12 +39,12 @@ import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
- 
+
 import javax.swing.CellEditor;
- 
+
 import javax.swing.BoxLayout;
- 
- 
+
+
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
@@ -120,6 +120,8 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.event.ChartProgressEvent;
+import org.jfree.chart.event.ChartProgressListener;
 import org.jfree.chart.labels.XYToolTipGenerator;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
@@ -164,7 +166,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	private Vector<CellularNetWorkElementInformation> hits = null;
 
 	private MultiMap<String, Integer> geneIdToMarkerIdMap = new MultiHashMap<String, Integer>();
- 
+
 	private JButton cancelButton;
 
 	private JButton imageSnapshotButton;
@@ -204,10 +206,10 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	private JTable activatedMarkerTable;
 
 	private JProgressBar jProgressBar1 = new JProgressBar();
- 
+
 	private CreateNetworkHandler createNetworkHandler;
 	//private CreateNetworkTask createNetworkHandler;
-	
+
 	private JToolBar progressDisplayBar;
 
 	private JToolBar commandToolBar;
@@ -277,7 +279,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	/**
 	 * Create a popup menu to display thge name of different Go Terms in 3
 	 * catagories.
-	 * 
+	 *
 	 * @param rowIndex
 	 * @param columnIndex
 	 * @return
@@ -365,7 +367,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	/**
 	 * Create a popup menu to display thge name of different Go Terms in 3
 	 * catagories.
-	 * 
+	 *
 	 * @param rowIndex
 	 * @param columnIndex
 	 * @return
@@ -503,7 +505,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	/**
 	 * Create a popup menu to display thge name of different Go Terms in 3
 	 * catagories.
-	 * 
+	 *
 	 * @param rowIndex
 	 * @return
 	 */
@@ -559,7 +561,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	/**
 	 * Create a popup menu to display thge name of different Go Terms in 3
 	 * catagories.
-	 * 
+	 *
 	 * @param rowIndex
 	 * @param columnIndex
 	 * @return
@@ -604,7 +606,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	/**
 	 * Display a tree for a specific go term.
-	 * 
+	 *
 	 * @param jMenu
 	 * @param treeMap
 	 */
@@ -631,7 +633,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	/**
 	 * Create a TreeNode from the Go Term data.
-	 * 
+	 *
 	 * @param set
 	 * @return
 	 */
@@ -657,7 +659,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	/**
 	 * Display Go Tree.
-	 * 
+	 *
 	 * @param set
 	 */
 	private void displayGoTree(Set<GOTerm> set) {
@@ -970,32 +972,32 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 						ProgressBar createNetworkPb = null;
 						createNetworkPb = ProgressBar
 								.create(ProgressBar.INDETERMINATE_TYPE);
- 
+
 						createNetworkHandler   = new CreateNetworkHandler(
 								createNetworkPb);
 						createNetworkHandler.start();
-						 
+
 						/*createNetworkHandler   = new CreateNetworkTask(
 						 	createNetworkPb);
-						 
+
 						createNetworkHandler.execute();   */
-						 
+
 						createNetworkPb.setTitle("Create network");
 						createNetworkPb.setMessage("Create network...");
 						createNetworkPb.setModal(true);
-						createNetworkPb.start();						 
+						createNetworkPb.start();
 					}
 				});
 
-		jPanel1.setLayout(new BorderLayout()); 		 
+		jPanel1.setLayout(new BorderLayout());
 		progressDisplayBar.setLayout(new BoxLayout(progressDisplayBar, BoxLayout.LINE_AXIS));
 		progressDisplayBar.add(jLabel1);
- 
+
 		jProgressBar1.setMinimumSize(new Dimension(10, 16));
 		jProgressBar1.setBorderPainted(true);
 		jProgressBar1.setMaximum(100);
 		jProgressBar1.setMinimum(0);
- 
+
 		progressDisplayBar.add(jProgressBar1);
 		jPanel1.add(progressDisplayBar, BorderLayout.NORTH);
 
@@ -1087,7 +1089,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	/**
 	 * Generate the data to draw the curve.
-	 * 
+	 *
 	 * @param min
 	 * @param max
 	 * @param selectedId
@@ -1179,7 +1181,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	/**
 	 * Respond to the change of the Threshold Text field.
-	 * 
+	 *
 	 * @param
 	 */
 	public void jThresholdTextField_actionPerformed() {
@@ -1266,7 +1268,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	/**
 	 * Create the plot for the throttle graph.
-	 * 
+	 *
 	 * @param plots
 	 * @param title
 	 */
@@ -1296,6 +1298,26 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		newPlot.setRangeGridlinePaint(Color.white);
 		newPlot.setDomainCrosshairVisible(true);
 		newPlot.setDomainCrosshairLockedOnData(true);
+
+		chart.addProgressListener(new ChartProgressListener() {
+
+			public void chartProgress(ChartProgressEvent event) {
+				if (event.getType() == ChartProgressEvent.DRAWING_FINISHED) {
+					// set text field and slider
+					JFreeChart chart = event.getChart();
+					XYPlot plot = (XYPlot) chart.getPlot();
+					double aCrosshair = plot.getDomainCrosshairValue();
+
+					String s = myFormatter.format(aCrosshair);
+					thresholdTextField.setText(s);
+
+					double newSliderValue = aCrosshair
+							* (CellularNetWorkElementInformation.getBinNumber() - 1);
+					thresholdSlider.setValue((int) newSliderValue);
+				}
+			}
+
+		});
 
 		// Set up fixed ranges.
 		// ValueAxis xaxis = new NumberAxis();
@@ -1334,7 +1356,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		for (int i = 1; i < newPlot.getDatasetCount(); i++) {
 			renderer.setSeriesLinesVisible(i, true);
 		}
- 
+
 		newPlot.setRenderer(renderer);
 
 		// change the auto tick unit selection to integer units only...
@@ -1342,7 +1364,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
 
 		ValueAxis xAxis = newPlot.getDomainAxis();
- 
+
 		xAxis.setRange(0, 1);
 		// OPTIONAL CUSTOMISATION COMPLETED.
 		graph.setChart(chart);
@@ -1398,7 +1420,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	private void createNetworks(ProgressBar createNetworkPb,
 			CreateNetworkHandler handler) {// GEN-FIRST:event_loadfromDBHandler
- 
+
 		HashMap<String, String> geneIdToNameMap = new HashMap<String, String>();
 		DSItemList<DSGeneMarker> markers = dataset.getMarkers();
 		DSItemList<DSGeneMarker> copy = new CSItemList<DSGeneMarker>();
@@ -1619,12 +1641,12 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				createNetworkPb.setTitle("Draw cytoscape graph");
 				createNetworkPb.setMessage("Draw cytoscape graph ...");
 
-			}		 
+			}
 			publishProjectNodeAddedEvent(new ProjectNodeAddedEvent(
 					"Adjacency Matrix Added", null, adjacencyMatrixdataSet));
 
 		}
- 
+
 		if (!handler.isCancelled()) {
 			log.info("task is completed");
 			createNetWorkButton.setEnabled(true);
@@ -1635,7 +1657,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		}
 
 	}// GEN-LAST:event_loadfromDBHandler
- 
+
 	public Vector<CellularNetWorkElementInformation> getHits() {
 		return hits;
 	}
@@ -1770,7 +1792,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 					} else {
 						updateProgressBar(1, "Stopped");
-					}					 
+					}
 					previewTableModel.fireTableRowsUpdated(0, detailTable
 							.getRowCount());
 					detailTable.revalidate();
@@ -1830,7 +1852,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 			List<String> allInteractionTypes = jPreferencePanel
 					.getAllInteractionTypes();
-		 
+
 			if (allInteractionTypes != null && allInteractionTypes.size() > 0) {
 
 				columnLabels = new String[firstFourColumnLabels.length
@@ -1943,7 +1965,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				}
 
 			}
-		 
+
 			return "loading ...";
 		}
 	};
@@ -2064,11 +2086,11 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 									5, 2, 5, table.getSelectionBackground());
 						}
 						setBorder(selectedBorder);
-						 
+
 						setText("<html><font color=blue><i>" + "Unknown"
 								+ "</i></font></html>");
 					} else {
- 
+
 						setText("<html><font><i>" + "Unknown"
 								+ "</i></font></html>");
 						setToolTipText("Please push the Refresh button to retrieve related information.");
@@ -2081,7 +2103,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				} else {
 
 					setBackground(Color.white);
-				 
+
 					String headerStr = tableColumn.getHeaderValue().toString();
 					if (jPreferencePanel.getNetworkSelectedInteractionTypes()
 							.contains(
@@ -2092,19 +2114,19 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 													.length()))) {
 						setBackground(Color.gray);
 					}
-					 
+
 					if (isSelected) {
 						if (selectedBorder == null) {
 							selectedBorder = BorderFactory.createMatteBorder(2,
 									5, 2, 5, table.getSelectionBackground());
 						}
 						setBorder(selectedBorder);
-					 
+
 						setText("<html><font color=blue><b>" + color
 								+ "</b></font></html>");
 						setToolTipText(color.toString());
 					} else {
-						
+
 						setText("<html><font color=blue><b>" + color
 								+ "<b></font></html>");
 						if (unselectedBorder == null) {
@@ -2202,12 +2224,12 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 									5, 2, 5, table.getSelectionBackground());
 						}
 						setBorder(selectedBorder);
-						 
+
 						setText("<html><font color=blue><b>" + color
 								+ "</b></font></html>");
 					} else {
 
-						setForeground(Color.black);					 
+						setForeground(Color.black);
 						setText("<html><font color=blue><b>" + color
 								+ "<b></font></html>");
 						if (unselectedBorder == null) {
@@ -2240,11 +2262,11 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 		public CreateNetworkHandler(ProgressBar createNetworkPb) {
 			super();
-			this.pb = createNetworkPb;			 
+			this.pb = createNetworkPb;
 		}
-      
+
 		public void run() {
-			createNetworks(pb, this);		 
+			createNetworks(pb, this);
 		}
 
 		protected AdjacencyMatrix getAdjacencyMatrix() {
@@ -2265,11 +2287,11 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 		protected void cancel(boolean cancel) {
 			this.cancel = cancel;
-		}	
+		}
 
 	}
 
-	 
+
 	@Publish
 	public org.geworkbench.events.SubpanelChangedEvent<DSGeneMarker> publishSubpanelChangedEvent(
 			org.geworkbench.events.SubpanelChangedEvent<DSGeneMarker> event) {
@@ -2450,7 +2472,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			detailTable.repaint();
 		}
 	}
-	
+
 	/*private class CreateNetworkTask extends SwingWorker<Void, Void> {
 		AdjacencyMatrix matrix = null;
 		ProgressBar pb = null;
@@ -2479,17 +2501,17 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		public void setAdjacencyMatrix(AdjacencyMatrix matrix) {
 			this.matrix = matrix;
 		}
-		
+
 		protected ProgressBar getProgressBar() {
 			return pb;
 		}
 
 	}  */
 
-	
-	
-	
-	public void update(Observable o, Object arg) {            
+
+
+
+	public void update(Observable o, Object arg) {
 		createNetworkHandler.cancel(true);
 		ProgressBar pb = createNetworkHandler.getProgressBar();
 		if (pb.getTitle().equals("Draw cytoscape graph")) {
@@ -2503,8 +2525,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			pb.dispose();
 
 		}
-		createNetWorkButton.setEnabled(true);		 
+		createNetWorkButton.setEnabled(true);
 		log.info("Create network canceled.");
 	}
-	 
+
 }
