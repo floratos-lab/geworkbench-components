@@ -310,7 +310,7 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
 		public boolean toCSV(String filename) {
 			boolean ret = true;
 
-			String[] annotationsHeader = { "Marker", "Gene", "Pathway" };
+			String[] annotationsHeader = { "Marker", "Gene", "Entrez GeneId", "Entrez URL", "GeneCards URL", "Pathway" };
 			File tempAnnot = new File(filename);
 			try {
 				CSVPrinter csvout = new CSVPrinter(new BufferedOutputStream(
@@ -324,9 +324,17 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
 				for (int cx = 0; cx < this.size; cx++) {
 					String markerName = markerData[cx].name;
 					String geneName = geneData[cx].name;
+			        GeneAnnotation annotation = new GeneAnnotationImpl();
+			        String entrezId = annotation.getEntrezId(geneData[cx].gene);
+		            String entrezUrl = "http://www.ncbi.nlm.nih.gov/sites/entrez?Db=gene&Cmd=ShowDetailView&TermToSearch="+entrezId;
+                    String GeneCardsUrl = GeneCards_PREFIX + geneName;
 					String pathwayName = pathwayData[cx].name;
+
 					csvout.print(markerName);
 					csvout.print(geneName);
+					csvout.print(entrezId);
+					csvout.print(entrezUrl);
+					csvout.print(GeneCardsUrl);
 					csvout.print(pathwayName);
 					csvout.println();
 				}
@@ -2282,7 +2290,7 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
                                   return;
                             }
                             message = "Getting Marker Annotation/Pathways: " + selectedMarkerInfo.get(i).getLabel();
-                            if (userAlsoWantCaBioData) 
+                            if (userAlsoWantCaBioData)
                             	pb.setMessage("<html>"+message+"<br><br>"+GeneAnnotationImpl.message);
                             else
                                 pb.setMessage(message);
