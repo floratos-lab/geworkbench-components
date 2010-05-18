@@ -578,6 +578,8 @@ public class MatrixReduceViewer implements VisualPlugin {
 		sequencePanel.add(controlPanel, BorderLayout.WEST);
 
 	}
+	
+	private static int MAX_PIXEL_MB = 100;
 
 	/*
 	 * public void createImageSnapshot(){ System.out.println("blaa;dlfjk");
@@ -588,18 +590,25 @@ public class MatrixReduceViewer implements VisualPlugin {
 	@Publish
 	public org.geworkbench.events.ImageSnapshotEvent createImageSnapshot() {
 		org.geworkbench.events.ImageSnapshotEvent event = null;
+		int w = sequenceList.getWidth();
+		int h = sequenceList.getHeight();
+		long size = w*h;
+		if(size > MAX_PIXEL_MB*1024*1024) {
+			JOptionPane.showMessageDialog(this.getComponent(),
+			"The snapshot you're trying to take is "+w+"X"+h+"="+size+", about "+size/1000000+" mega pixels. It take too much memory to handle.");
+			return null;
+		}
 		try {
-			BufferedImage image = new BufferedImage(sequenceList.getWidth(),
-					sequenceList.getHeight(), BufferedImage.TYPE_INT_RGB);
+			BufferedImage image = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
 			Graphics g = image.getGraphics();
 			sequenceList.print(g);
 			ImageIcon icon = new ImageIcon(image, "MatrixReduce");
 			event = new org.geworkbench.events.ImageSnapshotEvent(
 					"MatrixReduce Snapshot", icon,
 					org.geworkbench.events.ImageSnapshotEvent.Action.SAVE);
-		} catch (Error e) {
+		} catch (OutOfMemoryError e) {
 			JOptionPane.showMessageDialog(this.getComponent(),
-					"Sorry, out of memory...");
+					"OutOfMemoryError when the image's size is "+w+"X"+h);
 		}
 		return event;
 	}
