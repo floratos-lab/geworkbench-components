@@ -426,7 +426,8 @@ public class NormalizationPanel implements VisualPlugin, ReHighlightable {
 						.getNamedParameterSet(parametersNameList[i]));
 				parameter2.remove(ParameterKey.class.getSimpleName());
 				if (parameter1.equals(parameter2)) {
-					namedParameters.setSelectedIndex(i);
+					String[] savedParameterSetNames = selectedNormalizer.getNamesOfStoredParameterSets();
+					namedParameters.setSelectedValue(savedParameterSetNames[i], true);
 				}
 			}
 			calledFromProgram = false;
