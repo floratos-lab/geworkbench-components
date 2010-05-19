@@ -595,7 +595,7 @@ public class MatrixReduceViewer implements VisualPlugin {
 		long size = w*h;
 		if(size > MAX_PIXEL_MB*1024*1024) {
 			JOptionPane.showMessageDialog(this.getComponent(),
-			"The snapshot you're trying to take is "+w+"X"+h+"="+size+", about "+size/1000000+" mega pixels. It take too much memory to handle.");
+			"The requested snapshot is "+w+" X "+h+" pixels, or about "+size/1000000+" megapixels. Cannot create.");
 			return null;
 		}
 		try {
