@@ -87,6 +87,8 @@ public class GenepixExpressionThresholdFilterPanel extends AbstractSaveableParam
     @Override
 	public Map<Serializable, Serializable> getParameters() {
 		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
+		parameters.put("numberThreshold", (Integer) this.filterOptionPanel.getNumberThreshold());
+		parameters.put("percentThreshold", (Double) this.filterOptionPanel.getPercentThreshold());
 		parameters.put("Cy3MinValue", (Double)Cy3MinValue.getValue());
 		parameters.put("Cy3MaxValue", (Double)Cy3MaxValue.getValue());
 		parameters.put("Cy5MinValue", (Double)Cy5MinValue.getValue());
@@ -230,12 +232,22 @@ public class GenepixExpressionThresholdFilterPanel extends AbstractSaveableParam
 	}
 
 	@Override
-	public String getDataSetHistory() {
+	public String getDataSetHistory() {		
+		Map<Serializable, Serializable>parameters = null;
+		parameters = getParameters();
 		GenepixExpressionThresholdFilterPanel genepixExpressionThresholdFilterPanel = this;
 		String histStr = "";
 		// Header
 		histStr += "GenepixExpressionThresholdFilter parameters:\n";
 		histStr += "----------------------------------------\n";
+		if(this.filterOptionPanel.isNumberSelect()){
+			histStr += "number threshold of missing arrays: ";
+			histStr += parameters.get("numberThreshold");			
+		}else{
+			histStr += "percentage threshold of missing arrays: ";
+			histStr += parameters.get("percentThreshold");
+		}	
+		histStr += "\n";
 		// Cy3 Range Min
 		histStr += "Cy3 Range Min: ";
 		histStr += genepixExpressionThresholdFilterPanel.getCy3Min() + "\n";
