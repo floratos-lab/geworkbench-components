@@ -8,7 +8,6 @@ import javax.swing.JMenuItem;
 
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
-import org.geworkbench.components.annotations.AnnotationsPanel2.CGITableModel;
 import org.geworkbench.util.ProgressBar;
 
 
