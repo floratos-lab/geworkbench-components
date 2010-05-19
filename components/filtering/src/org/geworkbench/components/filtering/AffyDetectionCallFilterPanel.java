@@ -87,6 +87,8 @@ public class AffyDetectionCallFilterPanel extends AbstractSaveableParameterPanel
 	 */
     public Map<Serializable, Serializable> getParameters() {
 		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
+		parameters.put("numberThreshold", (Integer) this.filterOptionPanel.getNumberThreshold());
+		parameters.put("percentThreshold", (Double) this.filterOptionPanel.getPercentThreshold());
 		parameters.put("present", presentButton.isSelected());
 		parameters.put("absent", absentButton.isSelected());
 		parameters.put("marginal", marginalButton.isSelected());
@@ -209,14 +211,25 @@ public class AffyDetectionCallFilterPanel extends AbstractSaveableParameterPanel
 		// TODO Auto-generated method stub
 
 	}
+	
+	
 
 	@Override
 	public String getDataSetHistory() {
 		String histStr = "";
-
+		Map<Serializable, Serializable>parameters = null;
+		parameters = getParameters();
 		// Header
 		histStr += "AffyDetectionCallFilter parameters:\n";
 		histStr += "----------------------------------------\n";
+		
+		if(this.filterOptionPanel.isNumberSelect()){
+			histStr += "number threshold of missing arrays: ";
+			histStr += parameters.get("numberThreshold");			
+		}else{
+			histStr += "percentage threshold of missing arrays: ";
+			histStr += parameters.get("percentThreshold");			
+		}		
 
 		// present
 		histStr += PRESENT_OPTION + ": ";

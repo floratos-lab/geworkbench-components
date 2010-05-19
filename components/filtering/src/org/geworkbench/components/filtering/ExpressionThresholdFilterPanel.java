@@ -72,6 +72,8 @@ public class ExpressionThresholdFilterPanel extends AbstractSaveableParameterPan
 	 */
     public Map<Serializable, Serializable> getParameters() {
 		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
+		parameters.put("numberThreshold", (Integer) this.filterOptionPanel.getNumberThreshold());
+		parameters.put("percentThreshold", (Double) this.filterOptionPanel.getPercentThreshold());
 		parameters.put("rangeMin", (Number) rangeMinValue.getValue());
 		parameters.put("rangeMax", (Number) rangeMaxValue.getValue());
 		parameters.put("isInside", (optionSelection.getSelectedIndex() == 0));
@@ -185,9 +187,18 @@ public class ExpressionThresholdFilterPanel extends AbstractSaveableParameterPan
 	@Override
 	public String getDataSetHistory() {
 		String histStr = "Expression Threshold Filter:\n";
-
+		histStr += "----------------------------------------\n";
 		Map<Serializable, Serializable>parameters = null;
 		parameters = getParameters();
+		
+		if(this.filterOptionPanel.isNumberSelect()){
+			histStr += "number threshold of missing arrays: ";
+			histStr += parameters.get("numberThreshold");			
+		}else{
+			histStr += "percentage threshold of missing arrays: ";
+			histStr += parameters.get("percentThreshold");
+		}	
+		histStr += "\n";
 		histStr += "Range Min: ";
 		histStr += parameters.get("rangeMin");
 		histStr += "\nRange Max: ";
@@ -201,8 +212,7 @@ public class ExpressionThresholdFilterPanel extends AbstractSaveableParameterPan
 		else{
 			histStr += "Outside Range";
 		}
-		
-		histStr += "\n----------------------------------------\n";
+		histStr += "\n";		
 		return histStr;
 	}
 
