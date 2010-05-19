@@ -310,7 +310,7 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
 		public boolean toCSV(String filename) {
 			boolean ret = true;
 
-			String[] annotationsHeader = { "Marker", "Gene", "Entrez GeneId", "Entrez URL", "GeneCards URL", "Pathway" };
+			String[] annotationsHeader = { "Marker", "Gene", "Entrez GeneId", "Pathway", "Entrez URL", "GeneCards URL" };
 			File tempAnnot = new File(filename);
 			try {
 				CSVPrinter csvout = new CSVPrinter(new BufferedOutputStream(
@@ -333,9 +333,9 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
 					csvout.print(markerName);
 					csvout.print(geneName);
 					csvout.print(entrezId);
+					csvout.print(pathwayName);
 					csvout.print(entrezUrl);
 					csvout.print(GeneCardsUrl);
-					csvout.print(pathwayName);
 					csvout.println();
 				}
 
