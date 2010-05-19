@@ -1139,9 +1139,28 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 	 * right-click behavior.
 	 */
 	protected class ItemList extends org.geworkbench.util.JAutoList {
+		private static final long serialVersionUID = -4147380829426347621L;
+	    private JToggleButton jToolTipToggleButton = new JToggleButton();
+	    private boolean showToolTip = false;
+	    private static final int iconsize = 28;
 
 		public ItemList(ListModel model) {
 			super(model);
+			setList(model);
+	        topPanel.add(jToolTipToggleButton);
+
+	        jToolTipToggleButton.setPreferredSize(new Dimension(iconsize, iconsize));
+	        jToolTipToggleButton.setToolTipText("Toggle name tooltips");
+	        jToolTipToggleButton.setSelected(false);
+	        jToolTipToggleButton.setIcon(new ImageIcon(this.getClass().getResource("bulb_icon_grey.gif")));
+	        jToolTipToggleButton.setSelectedIcon(new ImageIcon(this.getClass().getResource("bulb_icon_gold.gif")));
+	        jToolTipToggleButton.addActionListener(new ActionListener() {
+	            public void actionPerformed(ActionEvent e) {
+	                if (jToolTipToggleButton.isSelected()) 
+	                	showToolTip = true;
+	                else showToolTip = false;
+	            }
+	        });
 		}
 
 		@Override
@@ -1159,6 +1178,31 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 			itemClicked(index, e);
 		}
 
+		public void setList(ListModel model) {
+			list = new JList(model) {
+				private static final long serialVersionUID = 7273196340245426337L;
+				public String getToolTipText(MouseEvent e) {
+	        		int i = locationToIndex(e.getPoint());
+					if (!showToolTip || i < 0) return null;
+	        		String text = getModel().getElementAt(i).toString();
+	        		text = "<html>"+text+"</html>";
+	        		if (text.indexOf(": (") > -1) {
+	        			text = text.replaceFirst(": \\(", "<br>");
+	        			text = text.replaceFirst("\\)", "<br>");
+	        		} else
+	        			text = text.replaceFirst(": ", "<br>");
+	        		text = text.replaceAll("; ", "<br>");
+	        		return text;
+	        	}
+	        };
+	        revalidate(); repaint();
+	        scrollPane.getViewport().setView(list);
+	        list.addMouseListener(new MouseAdapter() {
+	            @Override public void mouseReleased(MouseEvent e) {
+	                handleMouseEvent(e);
+	            }
+	        });
+		}
 	}
 
 	protected class ListCellRenderer extends DefaultListCellRenderer {
