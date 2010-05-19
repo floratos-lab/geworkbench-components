@@ -26,7 +26,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
-import org.geworkbench.components.annotations.AnnotationsPanel2.CGITableModel;
 import org.geworkbench.util.ProgressBar;
 import org.geworkbench.util.annotation.Pathway;
 
