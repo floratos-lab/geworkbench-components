@@ -44,7 +44,7 @@ import com.larvalabs.chart.PSAMPlot;
  * <p>Company: Califano Lab</p>
  *
  * @author Xuegong Wang, manjunath at genomecenter dot columbia dot edu, Xiaoqing Zhang
- * @version 1.0
+ * @version $Id$
  */
 
 public class PromoterViewPanel extends JPanel {
@@ -149,7 +149,7 @@ public class PromoterViewPanel extends JPanel {
     JPanel jPanel1 = new JPanel();
     JPanel northPanel = new JPanel();
     JCheckBox showTF = new JCheckBox("Show TFs");
-    JCheckBox showSeqPattern = new JCheckBox("Show Patterns     ");
+    JCheckBox showSeqPattern = new JCheckBox("Show Patterns");
     JButton clearButton = new JButton("Clear All");
     JToolBar jToolBar = new JToolBar();
     BorderLayout borderLayout5 = new BorderLayout();
@@ -588,7 +588,9 @@ public class PromoterViewPanel extends JPanel {
         //jTabbedPane1.add(jPanel9, "ModuleDiscovery");
 
         seqDisPanel.addToolBarButton(showSeqPattern);
+        seqDisPanel.jToolBar1.add(Box.createRigidArea(new Dimension(15, 0)));
         seqDisPanel.addToolBarButton(showTF);
+        seqDisPanel.jToolBar1.add(Box.createRigidArea(new Dimension(15, 0)));
         seqDisPanel.addToolBarButton(clearButton);
         logoPanel = new JPanel();
         logoPanel.setLayout(new BorderLayout());
