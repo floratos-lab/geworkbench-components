@@ -56,16 +56,16 @@ public class PudgeBrowser implements VisualPlugin {
 	private boolean initial = true, link = true;
 
 	private static ImageIcon browseIcon = new ImageIcon(
-	   "src/images/Right.gif");
+	   "classes/images/Right.gif");
 	private JToolBar jBrowserToolBar = new JToolBar();
 	private JButton jStopButton = new JButton("Stop",
-	   new ImageIcon("src/images/Stop.png"));
+	   new ImageIcon("classes/images/Stop.png"));
 	private JButton jRefreshButton = new JButton("Refresh",
-	   new ImageIcon("src/images/Reload.png"));
+	   new ImageIcon("classes/images/Reload.png"));
 	private JButton jForwardButton = new JButton("Forward",
-	   new ImageIcon("src/images/Forward.png"));
+	   new ImageIcon("classes/images/Forward.png"));
 	private JButton jBackButton = new JButton("Back",
-	   new ImageIcon("src/images/Back.png"));
+	   new ImageIcon("classes/images/Back.png"));
 	private MyStatusBar statusBar = new MyStatusBar();
 	private JPanel jAddressPanel = new JPanel();
 	private JLabel jAddressLabel = new JLabel();
