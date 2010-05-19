@@ -162,11 +162,12 @@ public class DeviationBasedFilterPanel extends AbstractSaveableParameterPanel {
 		String histStr = "Deviation Based Filter parameters:\n";
 		Map<Serializable, Serializable>parameters = null;
 		parameters = getParameters();
+		histStr += "----------------------------------------\n";
 		histStr += "Missing Values: ";
 		histStr += parameters.get("missingValues");
 		histStr += "\nDeviation Bound: ";
 		histStr += parameters.get("bound");
-		histStr += "\n----------------------------------------\n";
+		histStr += "\n";
 		return histStr;
 	}
 	

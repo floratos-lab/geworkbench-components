@@ -191,7 +191,7 @@ public class ExpressionThresholdFilterPanel extends AbstractSaveableParameterPan
 		Map<Serializable, Serializable>parameters = null;
 		parameters = getParameters();
 		
-		if(this.filterOptionPanel.isNumberSelect()){
+		if(this.filterOptionPanel.numberRemovalButton.isSelected()){
 			histStr += "number threshold of missing arrays: ";
 			histStr += parameters.get("numberThreshold");			
 		}else{

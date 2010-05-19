@@ -36,7 +36,6 @@ public class FilterOptionPanel extends JPanel {
 	
 	JFormattedTextField percentField = null;
 	JFormattedTextField numberField = null;
-	private boolean numberSelect;
 	
 	FilterOptionPanel() {
 		super(new GridBagLayout());
@@ -70,7 +69,6 @@ public class FilterOptionPanel extends JPanel {
 	    // default choice 
 	    percentRemovalButton.setSelected(true);	    
 	    numberField.setEnabled(false);
-	    setNumberSelect(false);
 	    
 	    ActionListener actionListener = new ActionListener() {
 
@@ -79,11 +77,9 @@ public class FilterOptionPanel extends JPanel {
 				if(percentRemovalButton.isSelected()) {
 					percentField.setEnabled(true);
 					numberField.setEnabled(false);
-					setNumberSelect(false);
 				} else { 
 					percentField.setEnabled(false);
 					numberField.setEnabled(true);
-					setNumberSelect(true);
 				}
 			}
 	    	
@@ -116,11 +112,4 @@ public class FilterOptionPanel extends JPanel {
 		return Double.parseDouble(percentField.getText())*0.01;
 	}
 
-	public void setNumberSelect(boolean numberSelect) {
-		this.numberSelect = numberSelect;
-	}
-
-	public boolean isNumberSelect() {
-		return numberSelect;
-	}
 }

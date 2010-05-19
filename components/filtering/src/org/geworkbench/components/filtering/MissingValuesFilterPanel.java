@@ -86,12 +86,10 @@ public class MissingValuesFilterPanel extends AbstractSaveableParameterPanel {
 			Object key = parameter.getKey();
 			Object value = parameter.getValue();
 			if (key.equals("numberThreshold")){
-	            this.filterOptionPanel.numberField.setValue((Integer)value);
-	            this.filterOptionPanel.setNumberSelect(true);
+	            this.filterOptionPanel.numberField.setValue((Integer)value);	           
 	            this.revalidate();
 			} else if (key.equals("percentThreshold")){
-	            this.filterOptionPanel.percentField.setValue((Double)value);
-	            this.filterOptionPanel.setNumberSelect(false);
+	            this.filterOptionPanel.percentField.setValue((Double)value);	            
 	            this.revalidate();
 			}
 		}
@@ -120,14 +118,15 @@ public class MissingValuesFilterPanel extends AbstractSaveableParameterPanel {
 		String histStr = "Missing Values Filter parameter:\n";
 		Map<Serializable, Serializable>parameters = null;
 		parameters = getParameters();
-		histStr += "\n----------------------------------------\n";
-		if(this.filterOptionPanel.isNumberSelect()){
+		histStr += "----------------------------------------\n";
+		if(this.filterOptionPanel.numberRemovalButton.isSelected()){
 			histStr += "number threshold of missing arrays: ";
 			histStr += parameters.get("numberThreshold");			
 		}else{
 			histStr += "percentage threshold of missing arrays: ";
 			histStr += parameters.get("percentThreshold");			
 		}
+		histStr += "\n";
 		return histStr;
 	}
 
