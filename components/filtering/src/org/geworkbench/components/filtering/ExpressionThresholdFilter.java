@@ -77,11 +77,9 @@ public class ExpressionThresholdFilter extends FilteringAnalysis {
 
         FilterOptionPanel filterOptionPanel = parameterPanel.getFilterOptionPanel();
 		if(filterOptionPanel.getSelectedOption()==FilterOptionPanel.Option.NUMBER_REMOVAL) {
-	        criterionOption = CriterionOption.COUNT;
-	        filterOptionPanel.setNumberSelect(true);
+	        criterionOption = CriterionOption.COUNT;	        
 		} else if(filterOptionPanel.getSelectedOption()==FilterOptionPanel.Option.PERCENT_REMOVAL) {
-	        criterionOption = CriterionOption.PERCENT;
-	        filterOptionPanel.setNumberSelect(false);
+	        criterionOption = CriterionOption.PERCENT;	       
 		} else {
 	        log.error("Invalid filtering option");
 		}

@@ -137,6 +137,8 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel {
 	 */
     public Map<Serializable, Serializable> getParameters() {
 		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
+		parameters.put("numberThreshold", (Integer) this.filterOptionPanel.getNumberThreshold());
+		parameters.put("percentThreshold", (Double) this.filterOptionPanel.getPercentThreshold());		
 		parameters.put("SelectedFlags", getSelectedFlags());
 		return parameters;
 	}
@@ -150,7 +152,8 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel {
             e.printStackTrace();
         }
 
-    }
+    }   
+   
 
     private FilterOptionPanel filterOptionPanel = new FilterOptionPanel();
 
@@ -411,12 +414,21 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel {
 	}
 	@Override
 	public String getDataSetHistory() {
+		Map<Serializable, Serializable>parameters = null;
+		parameters = getParameters();		
 		String histStr = "";
 
 		// Header
 		histStr += "GenepixFlagsFilter parameters:\n";
 		histStr += "----------------------------------------\n";
-
+		if(this.filterOptionPanel.numberRemovalButton.isSelected()){
+			histStr += "number threshold of missing arrays: ";
+			histStr += parameters.get("numberThreshold");			
+		}else{
+			histStr += "percentage threshold of missing arrays: ";
+			histStr += parameters.get("percentThreshold");			
+		}		
+		histStr += "\n";
 		/*   flags*/
         for (Object fd : heldPanel.hits) {
             FlagDetail detail = (FlagDetail) fd;

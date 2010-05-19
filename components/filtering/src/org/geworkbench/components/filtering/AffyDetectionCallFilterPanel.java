@@ -223,14 +223,14 @@ public class AffyDetectionCallFilterPanel extends AbstractSaveableParameterPanel
 		histStr += "AffyDetectionCallFilter parameters:\n";
 		histStr += "----------------------------------------\n";
 		
-		if(this.filterOptionPanel.isNumberSelect()){
+		if(this.filterOptionPanel.numberRemovalButton.isSelected()){
 			histStr += "number threshold of missing arrays: ";
 			histStr += parameters.get("numberThreshold");			
 		}else{
 			histStr += "percentage threshold of missing arrays: ";
 			histStr += parameters.get("percentThreshold");			
 		}		
-
+		histStr += "\n";
 		// present
 		histStr += PRESENT_OPTION + ": ";
 		histStr += isPresentSelected()? FILTERED : NOT_FILTERED;
