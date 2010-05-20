@@ -24,8 +24,10 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 
-import org.geworkbench.analysis.AbstractSaveableParameterPanel;
+import org.geworkbench.analysis.AbstractSaveableParameterPanel; 
+import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.events.listeners.ParameterActionListener;
+ 
 
 /**
  * <p>Copyright: Copyright (c) 2005</p>
@@ -459,6 +461,17 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel {
 
 		return histStr;
 	}
+	
+	@Override
+    public ParamValidationResults validateParameters() {
+    	 String error = filterOptionPanel.validateParameters();
+    	 if ( error == null)
+            return new ParamValidationResults(true, "No Error");
+    	 else   	  	
+    		return new ParamValidationResults(false, error);
+    	 
+    }
+	
 
 	FilterOptionPanel getFilterOptionPanel() {
 		return filterOptionPanel;

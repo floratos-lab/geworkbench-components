@@ -231,7 +231,10 @@ public class GenepixExpressionThresholdFilterPanel extends AbstractSaveableParam
      */
     @Override
 	public ParamValidationResults validateParameters() {
-        if (getCy3Min() > getCy3Max())
+    	String error = filterOptionPanel.validateParameters();
+    	if ( error != null)
+    		 return new ParamValidationResults(false, error);
+    	else if (getCy3Min() > getCy3Max())
             return new ParamValidationResults(false, "Invalid range for Cy3 channel.");
         else if (getCy5Min() > getCy5Max())
             return new ParamValidationResults(false, "Invalid range for Cy5 channel.");

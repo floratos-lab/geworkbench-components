@@ -37,6 +37,8 @@ public class FilterOptionPanel extends JPanel {
 	JFormattedTextField percentField = null;
 	JFormattedTextField numberField = null;
 	
+	public static int arrayNumber =0;
+	
 	FilterOptionPanel() {
 		super(new GridBagLayout());
 		
@@ -110,5 +112,44 @@ public class FilterOptionPanel extends JPanel {
 	double getPercentThreshold() {
 		return Double.parseDouble(percentField.getText())*0.01;
 	}
+	
+	public String validateParameters()
+	{
+		String errorMessage = null;
+		if(percentRemovalButton.isSelected()) 
+		{	 
+			Integer percentNum = getInteger((percentField.getText()));
+			 if (percentNum == null || percentNum < 0 || percentNum > 99) {
+				 errorMessage = "Please enter 0 to 99 for percentage of matching arrays.";
+			 }
+	            
+		}
+		else if (numberRemovalButton.isSelected())
+		{
+			Integer num = getInteger((numberField.getText()));
+			 if (num == null || num < 0 || num > arrayNumber-1) {
+				 errorMessage = "Please enter 0 to " + (arrayNumber-1) + " for number of matching arrays.";
+			 }
+		}
+			
+		return errorMessage;
+	}
+	
+	private Integer getInteger(String s)
+	{
+		try
+		{
+			if (s==null)
+				return null;
+			else
+				return new Integer(s.trim());
+		}catch(Exception ex)
+		{
+			return null;
+			
+		}
+		 
+	}
+	 
 
 }

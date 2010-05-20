@@ -248,6 +248,16 @@ public class FilteringPanel implements VisualPlugin, ReHighlightable {
 
 
 	protected void preview() {
+		if (selectedFilter == null || maSet == null)
+			return;
+		
+		ParamValidationResults pvr = selectedFilter.validateParameters();
+		if (!pvr.isValid()) { /* Bring up an error message */
+			JOptionPane.showMessageDialog(null, pvr.getMessage(),
+					"Parameter Validation Error", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+
 		List<Integer> indexList = ((FilteringAnalysis)selectedFilter).getMarkersToBeRemoved(maSet);
 		List<DSGeneMarker> list = new ArrayList<DSGeneMarker>();
 		for(Integer index: indexList)
@@ -302,7 +312,8 @@ public class FilteringPanel implements VisualPlugin, ReHighlightable {
 	public void receive(org.geworkbench.events.ProjectEvent pe, Object source) {
 		DSDataSet<?> dataSet = pe.getDataSet();
 		if (dataSet != null && dataSet instanceof DSMicroarraySet) {
-			maSet = (DSMicroarraySet<?>) dataSet;
+			maSet = (DSMicroarraySet<?>) dataSet;			 
+			FilterOptionPanel.arrayNumber = maSet.size();
 			reset();
 		}
 	}
@@ -459,6 +470,8 @@ public class FilteringPanel implements VisualPlugin, ReHighlightable {
 		selectedFilter = availableFilters[pluginFilters.getSelectedIndex()];
 		/* Get the parameters panel for the selected filter. */
 		ParameterPanel paramPanel = selectedFilter.getParameterPanel();
+		
+	 
 		/* Set the list of available named parameters for the selected filter. */
 		if (paramPanel != null) {
 			setParametersPanel(paramPanel);
@@ -654,6 +667,16 @@ public class FilteringPanel implements VisualPlugin, ReHighlightable {
 		 * If the parameterSet already exist, we popup a message window to
 		 * inform user
 		 */
+		if (selectedFilter == null || maSet == null)
+			return;
+		
+		ParamValidationResults pvr = selectedFilter.validateParameters();
+		if (!pvr.isValid()) { /* Bring up an error message */
+			JOptionPane.showMessageDialog(null, pvr.getMessage(),
+					"Parameter Validation Error", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		
 		if (selectedFilter.parameterSetExist(selectedFilter.getParameters())) {
 			JOptionPane.showMessageDialog(null, "ParameterSet already exist.",
 					"Canceled", JOptionPane.OK_OPTION);
@@ -682,6 +705,7 @@ public class FilteringPanel implements VisualPlugin, ReHighlightable {
 					return;
 				}
 			}
+	
 			if (selectedFilter != null && paramName != null) {
 				selectedFilter.saveParameters(paramName);
 				setNamedParameters(selectedFilter

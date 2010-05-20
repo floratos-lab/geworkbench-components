@@ -185,10 +185,12 @@ public class ExpressionThresholdFilterPanel extends AbstractSaveableParameterPan
      * @return
      */
     public ParamValidationResults validateParameters() {
-        if (getUpperBound() < getLowerBound())
+    	 String error = filterOptionPanel.validateParameters();
+    	 if ( error != null)
+    		 return new ParamValidationResults(false, error);
+    	 else if (getUpperBound() < getLowerBound())
             return new ParamValidationResults(false, "Upper bound must be larger than lower bound.");
-        else
-            return new ParamValidationResults(true, "No Error");
+         else return new ParamValidationResults(true, "No Error");
     }
 
 	@Override

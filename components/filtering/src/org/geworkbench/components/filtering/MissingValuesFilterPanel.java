@@ -65,16 +65,13 @@ public class MissingValuesFilterPanel extends AbstractSaveableParameterPanel {
      * @return
      */
     public ParamValidationResults validateParameters() {
-		if (filterOptionPanel.getNumberThreshold() < 0)
-			return new ParamValidationResults(false,
-					"The number of microarrays cannot be negative.");
-		else if (filterOptionPanel.getPercentThreshold() < 0
-				|| filterOptionPanel.getPercentThreshold() > 1.)
-			return new ParamValidationResults(false,
-					"The percentage of microarrays must be within range [0%, 100%].");
-		else
-			return new ParamValidationResults(true, "No Error");
-	}
+   	 String error = filterOptionPanel.validateParameters();
+   	 if ( error == null)
+           return new ParamValidationResults(true, "No Error");
+   	 else   	  	
+   		return new ParamValidationResults(false, error);
+   	 
+   }
 
 	/*
 	 * (non-Javadoc)
