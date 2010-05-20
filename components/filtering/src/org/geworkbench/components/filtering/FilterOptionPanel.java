@@ -6,8 +6,8 @@ package org.geworkbench.components.filtering;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -44,7 +44,7 @@ public class FilterOptionPanel extends JPanel {
 		numberRemovalButton = new JRadioButton("Remove the marker if the number of matching arrays is more than");
 		
 		percentField = new JFormattedTextField();
-		percentField.setValue(40.0);
+		percentField.setValue(new Double(40.0));
 		percentField.setColumns(5);
 		numberField = new JFormattedTextField();
 		numberField.setValue(new Integer(0));
@@ -70,23 +70,22 @@ public class FilterOptionPanel extends JPanel {
 	    percentRemovalButton.setSelected(true);	    
 	    numberField.setEnabled(false);
 	    
-	    ActionListener actionListener = new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if(percentRemovalButton.isSelected()) {
-					percentField.setEnabled(true);
-					numberField.setEnabled(false);
-				} else { 
-					percentField.setEnabled(false);
-					numberField.setEnabled(true);
+	    percentRemovalButton.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				if (e.getStateChange() == ItemEvent.SELECTED) {
+		    			percentField.setEnabled(true);
+		    			numberField.setEnabled(false);
+					}
 				}
-			}
-	    	
-	    };
-		percentRemovalButton.addActionListener(actionListener );
-	    numberRemovalButton.addActionListener(actionListener);
-
+	    });
+	    numberRemovalButton.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				if (e.getStateChange() == ItemEvent.SELECTED) {
+		    			numberField.setEnabled(true);
+		    			percentField.setEnabled(false);
+					}
+				}
+	    });
 	    Border border1 = BorderFactory.createEtchedBorder(Color.white,
 	            new Color(165, 163, 151));
 	    setBorder(new TitledBorder(border1, "Filtering Options"));

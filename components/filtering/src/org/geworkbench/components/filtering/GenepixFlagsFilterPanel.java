@@ -25,6 +25,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
+import org.geworkbench.events.listeners.ParameterActionListener;
 
 /**
  * <p>Copyright: Copyright (c) 2005</p>
@@ -124,6 +125,14 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel {
 	                    detail.setIsFiltered(false);
 	                }
 	            }
+			} else if (key.equals("numberThreshold")){
+	            this.filterOptionPanel.numberField.setValue((Integer)value);	           
+	            this.filterOptionPanel.numberRemovalButton.setSelected(true);
+	            this.revalidate();
+			} else if (key.equals("percentThreshold")){
+	            this.filterOptionPanel.percentField.setValue((Double)value);	            
+	            this.filterOptionPanel.percentRemovalButton.setSelected(true);
+	            this.revalidate();
 			}
 		}
         revalidate();
@@ -137,8 +146,10 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel {
 	 */
     public Map<Serializable, Serializable> getParameters() {
 		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
-		parameters.put("numberThreshold", (Integer) this.filterOptionPanel.getNumberThreshold());
-		parameters.put("percentThreshold", (Double) this.filterOptionPanel.getPercentThreshold());		
+		if (this.filterOptionPanel.numberRemovalButton.isSelected())
+			parameters.put("numberThreshold", (Integer) this.filterOptionPanel.getNumberThreshold());
+		else
+			parameters.put("percentThreshold", (Double) this.filterOptionPanel.percentField.getValue());
 		parameters.put("SelectedFlags", getSelectedFlags());
 		return parameters;
 	}
@@ -187,6 +198,11 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel {
         wrapperPanel.add(bottomPanel);
         this.add(wrapperPanel);
 
+        ParameterActionListener parameterActionListener = new ParameterActionListener(this);
+        filterOptionPanel.numberField.addActionListener(parameterActionListener);
+        filterOptionPanel.percentField.addActionListener(parameterActionListener);
+        filterOptionPanel.numberRemovalButton.addActionListener(parameterActionListener);
+        filterOptionPanel.percentRemovalButton.addActionListener(parameterActionListener);
     }
 
     /**

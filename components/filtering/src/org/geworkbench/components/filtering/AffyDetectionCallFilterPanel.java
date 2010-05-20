@@ -70,12 +70,18 @@ public class AffyDetectionCallFilterPanel extends AbstractSaveableParameterPanel
 
 			if (key.equals("present")){
 	            this.presentButton.setSelected((Boolean)value);
-			}
-			if (key.equals("absent")){
+			} else if (key.equals("absent")){
 				this.absentButton.setSelected((Boolean)value);
-			}
-			if (key.equals("marginal")){
+			} else if (key.equals("marginal")){
 				this.marginalButton.setSelected((Boolean)value);
+			} else if (key.equals("numberThreshold")){
+	            this.filterOptionPanel.numberField.setValue((Integer)value);	           
+	            this.filterOptionPanel.numberRemovalButton.setSelected(true);
+	            this.revalidate();
+			} else if (key.equals("percentThreshold")){
+	            this.filterOptionPanel.percentField.setValue((Double)value);	            
+	            this.filterOptionPanel.percentRemovalButton.setSelected(true);
+	            this.revalidate();
 			}
 		}
     }
@@ -87,8 +93,10 @@ public class AffyDetectionCallFilterPanel extends AbstractSaveableParameterPanel
 	 */
     public Map<Serializable, Serializable> getParameters() {
 		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
-		parameters.put("numberThreshold", (Integer) this.filterOptionPanel.getNumberThreshold());
-		parameters.put("percentThreshold", (Double) this.filterOptionPanel.getPercentThreshold());
+		if (this.filterOptionPanel.numberRemovalButton.isSelected())
+			parameters.put("numberThreshold", (Integer) this.filterOptionPanel.getNumberThreshold());
+		else
+			parameters.put("percentThreshold", (Double) this.filterOptionPanel.percentField.getValue());
 		parameters.put("present", presentButton.isSelected());
 		parameters.put("absent", absentButton.isSelected());
 		parameters.put("marginal", marginalButton.isSelected());
@@ -138,6 +146,10 @@ public class AffyDetectionCallFilterPanel extends AbstractSaveableParameterPanel
         presentButton.addActionListener(parameterActionListener);
         absentButton.addActionListener(parameterActionListener);
         marginalButton.addActionListener(parameterActionListener);
+        filterOptionPanel.numberField.addActionListener(parameterActionListener);
+        filterOptionPanel.percentField.addActionListener(parameterActionListener);
+        filterOptionPanel.numberRemovalButton.addActionListener(parameterActionListener);
+        filterOptionPanel.percentRemovalButton.addActionListener(parameterActionListener);
         
         JPanel topPanel = new JPanel(new FlowLayout());
         topPanel.add(filterOptionPanel);

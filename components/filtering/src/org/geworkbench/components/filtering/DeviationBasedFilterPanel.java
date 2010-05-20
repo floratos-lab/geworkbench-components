@@ -44,6 +44,7 @@ public class DeviationBasedFilterPanel extends AbstractSaveableParameterPanel {
     private JLabel missingValuesLabel = new JLabel("Missing values");
     private JFormattedTextField deviationCutoff = new JFormattedTextField();
     private JComboBox missingValuesSelection = new JComboBox(new String[]{MARKER_OPTION, MICROARRAY_OPTION, IGNORE_OPTION});
+    private ParameterActionListener parameterActionListener = null;
 
     /*
      * (non-Javadoc)
@@ -61,6 +62,8 @@ public class DeviationBasedFilterPanel extends AbstractSaveableParameterPanel {
      * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
      */
     public void setParameters(Map<Serializable, Serializable> parameters){
+    	if ((getStopNotifyAnalysisPanelTemporaryFlag()==true)&&(parameterActionListener.getCalledFromProgramFlag()==true)) return;
+    	stopNotifyAnalysisPanelTemporary(true);
         Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
         for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set.iterator(); iterator.hasNext();) {
         	Map.Entry<Serializable, Serializable> parameter = iterator.next();
@@ -73,6 +76,7 @@ public class DeviationBasedFilterPanel extends AbstractSaveableParameterPanel {
 				deviationCutoff.setText((String)value);
 			}
 		}
+        stopNotifyAnalysisPanelTemporary(false);
     }
 
     public DeviationBasedFilterPanel() {
