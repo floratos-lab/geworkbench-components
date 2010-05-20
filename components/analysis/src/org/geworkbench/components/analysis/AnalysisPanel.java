@@ -24,6 +24,7 @@ import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.ButtonModel;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -159,8 +160,6 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 
 	private GridLayout gridLayout3 = null;
 
-	private JScrollPane jScrollPane1 = null;
-
 	private JPanel jPanel1 = null;
 
 	private JScrollPane jScrollPane3 = null;
@@ -186,7 +185,8 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	protected AbstractAnalysis[] availableAnalyses = null;
 	protected AbstractAnalysis selectedAnalysis = null;
 
-	private JList analysesJList = null;
+	private JComboBox analysisComboBox = new JComboBox();
+	private JComboBox parameterComboBox = new JComboBox();
 	private JList paramsJList = null;
 
 	/*
@@ -222,7 +222,6 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	 *             exception thrown during GUI construction
 	 */
 	public void jbInit() throws Exception {
-		super.jbInit();
 		analysisPanel = new JPanel();
 		analysisScrollPane = new JScrollPane();
 		innerAnalysisPanel = new JPanel();
@@ -248,9 +247,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 
 		paramsJList = new JList();
 
-		jScrollPane1 = new JScrollPane();
 		jPanel1 = new JPanel();
-		analysesJList = new JList();
 		jScrollPane3 = new JScrollPane();
 
 		analysisPanel.setLayout(analysisPanelBorderLayout);
@@ -290,19 +287,19 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		});
 		paramsJList.setAutoscrolls(true);
 		paramsJList.setBorder(BorderFactory.createLineBorder(Color.black));
-		jScrollPane1.setPreferredSize(new Dimension(248, 68));
 		jPanel1.setLayout(gridLayout3);
 		jPanel1.setMinimumSize(new Dimension(0, 0));
 		jPanel1.setPreferredSize(new Dimension(50, 50));
 		jPanel1.setToolTipText("");
-		/* Make sure that only one analysis can be selected at a time; */
-		analysesJList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		analysesJList.addListSelectionListener(new ListSelectionListener() {
-			public void valueChanged(ListSelectionEvent e) {
+
+		analysisComboBox.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
 				analysisSelected_action(e);
 			}
+			
 		});
-		analysesJList.setBorder(BorderFactory.createLineBorder(Color.black));
 		gridLayout3.setColumns(2);
 		analysisPanel.add(analysisScrollPane, BorderLayout.CENTER);
 		analysisScrollPane.getViewport().add(innerAnalysisPanel, null);
@@ -333,10 +330,9 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		parameterPanel.add(buttonsBuilder.getPanel(), BorderLayout.LINE_END);
 
 		analysisParameterSplitPane.add(jPanel1, JSplitPane.TOP);
-		jPanel1.add(jScrollPane1, null);
+		jPanel1.add(analysisComboBox, null);
 		jPanel1.add(jScrollPane3, null);
 		jScrollPane3.getViewport().add(paramsJList);
-		jScrollPane1.getViewport().add(analysesJList);
 
 		jAnalysisTabbedPane = new JTabbedPane();
 		parameterPanel.setName(PARAMETERS);
@@ -762,7 +758,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	 */
 	private void displayAnalyses() {
 		/* Clean the list */
-		analysesJList.removeAll();
+		analysisComboBox.removeAllItems();
 
 		/* Get the display names of the available analyses. */
 		String[] names = new String[availableAnalyses.length];
@@ -779,10 +775,24 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 				}
 		}
 
+		String selectedAnalysisName = null;
+		if(selectedAnalysis!=null) {
+			selectedAnalysisName = selectedAnalysis.getLabel();
+		}
 		/* Show graphical components */
-		analysesJList.setListData(names);
-		if (selectedAnalysis != null) {
-			analysesJList.setSelectedValue(selectedAnalysis.getLabel(), true);
+		// populate the combo box
+		for(String n: names) {
+			analysisComboBox.addItem(n);
+		}
+
+		// use name to restore selectedAnalysis because addItem de-selected combo box, and thus de-select the analysis 
+		if (selectedAnalysisName != null) {
+			for(int i=0; i<analysisComboBox.getItemCount(); i++) {
+				if(selectedAnalysisName.equals(analysisComboBox.getItemAt(i))) {
+					analysisComboBox.setSelectedIndex(i);
+					break;
+				}
+			}
 		} else {
 			setParametersPanel(this.emptyParameterPanel);
 			save.setEnabled(false);
@@ -975,18 +985,18 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	int previousSelectedIndex = -1;
 
 	/**
-	 * Listener invoked when an analysis is selected from the {@link JList} of
+	 * Listener invoked when an analysis is selected from the combo box of
 	 * analyses. The parameters for this analysis are shown.
 	 * 
-	 * @param lse
+	 * @param action evene
 	 */
-	private void analysisSelected_action(ListSelectionEvent lse) {
-		if (analysesJList.getSelectedIndex() == -1) {
+	private void analysisSelected_action(ActionEvent actionEvent) {
+		if (analysisComboBox.getSelectedIndex() == -1) {
 			return;
 		}
 		delete.setEnabled(false);
 
-		int index = analysesJList.getSelectedIndex();
+		int index = analysisComboBox.getSelectedIndex();
 		selectedAnalysis = availableAnalyses[index];
 
 		/* Set the parameters panel for the selected analysis. */
@@ -1031,7 +1041,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		}
 
 		if (selectedAnalysis instanceof AbstractGridAnalysis) {
-			if (analysesJList.getSelectedIndex() != previousSelectedIndex) {
+			if (analysisComboBox.getSelectedIndex() != previousSelectedIndex) {
 				jGridServicePanel = new GridServicePanel(SERVICE);
 				jGridServicePanel.setAnalysisType(selectedAnalysis);
 				if (jAnalysisTabbedPane.getTabCount() > ANALYSIS_TAB_COUNT)
@@ -1046,7 +1056,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 			// service information every time.
 			// Should have a better implementation.
 		}
-		previousSelectedIndex = analysesJList.getSelectedIndex();
+		previousSelectedIndex = analysisComboBox.getSelectedIndex();
 	}
 
 	/**
