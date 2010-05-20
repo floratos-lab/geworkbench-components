@@ -11,7 +11,7 @@ import java.awt.event.ItemListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
-import javax.swing.JFormattedTextField;
+import javax.swing.JTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -34,8 +34,8 @@ public class FilterOptionPanel extends JPanel {
 	JRadioButton percentRemovalButton;
 	JRadioButton numberRemovalButton;
 	
-	JFormattedTextField percentField = null;
-	JFormattedTextField numberField = null;
+	JTextField percentField = null;
+	JTextField numberField = null;
 	
 	public static int arrayNumber =0;
 	
@@ -45,11 +45,11 @@ public class FilterOptionPanel extends JPanel {
 		percentRemovalButton = new JRadioButton("Remove the marker if the percentage of matching arrays is more than");
 		numberRemovalButton = new JRadioButton("Remove the marker if the number of matching arrays is more than");
 		
-		percentField = new JFormattedTextField();
-		percentField.setValue(new Double(40.0));
-		percentField.setColumns(5);
-		numberField = new JFormattedTextField();
-		numberField.setValue(new Integer(0));
+		percentField = new JTextField();
+		percentField.setText("40");	
+		percentField.setColumns(5);		 
+		numberField = new JTextField();
+		numberField.setText("0");
 		numberField.setColumns(5);
 
 		GridBagConstraints c = new GridBagConstraints();
@@ -106,11 +106,11 @@ public class FilterOptionPanel extends JPanel {
 	}
 	
 	int getNumberThreshold() {
-		return Integer.parseInt(numberField.getText());
+		return Integer.parseInt(numberField.getText().trim());
 	}
 
 	double getPercentThreshold() {
-		return Double.parseDouble(percentField.getText())*0.01;
+		return Double.parseDouble(percentField.getText().trim())*0.01;
 	}
 	
 	public String validateParameters()
