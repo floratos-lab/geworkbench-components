@@ -525,6 +525,7 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
         cgiButtonPanel.add(exportButton);
         annotationModel = new AnnotationTableModel();
         annotationTable = new SortableTable(annotationModel);
+        annotationTable.getTableHeader().setPreferredSize(new Dimension(0, 25));
         annotationPanel.setLayout(new BorderLayout());
         annotationPanel.add(new JScrollPane(annotationTable),BorderLayout.CENTER);
         cgiPanel = new JSplitPane(
@@ -581,6 +582,7 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
 				return c;
 			}
         };
+		diseaseTable.getTableHeader().setPreferredSize(new Dimension(0, 25));
 
         TableColumnModelListener tableColumnModelListener = new TableColumnModelListener() {
 			public void columnAdded(TableColumnModelEvent e) {
@@ -609,12 +611,12 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
 			}
 		};
         diseaseTable.getColumnModel().addColumnModelListener(tableColumnModelListener);
-        diseaseTable.getColumnModel().getColumn(0).setHeaderValue("Marker");
-        diseaseTable.getColumnModel().getColumn(1).setHeaderValue("Gene");
-        diseaseTable.getColumnModel().getColumn(2).setHeaderValue("Disease");
-        diseaseTable.getColumnModel().getColumn(3).setHeaderValue("Role");
-        diseaseTable.getColumnModel().getColumn(4).setHeaderValue("Sentence");
-        diseaseTable.getColumnModel().getColumn(5).setHeaderValue("Pubmed");
+        diseaseTable.getColumnModel().getColumn(0).setHeaderValue("     Marker");
+        diseaseTable.getColumnModel().getColumn(1).setHeaderValue("     Gene");
+        diseaseTable.getColumnModel().getColumn(2).setHeaderValue("     Disease");
+        diseaseTable.getColumnModel().getColumn(3).setHeaderValue("     Role");
+        diseaseTable.getColumnModel().getColumn(4).setHeaderValue("     Sentence");
+        diseaseTable.getColumnModel().getColumn(5).setHeaderValue("     Pubmed");
         diseaseTable.setCellSelectionEnabled(false);
         diseaseTable.setRowSelectionAllowed(false);
         diseaseTable.setColumnSelectionAllowed(false);
@@ -747,13 +749,14 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
 				return c;
 			}
         };
+        agentTable.getTableHeader().setPreferredSize(new Dimension(0, 25));
         agentTable.getColumnModel().addColumnModelListener(tableColumnModelListener);
-        agentTable.getColumnModel().getColumn(0).setHeaderValue("Marker");
-        agentTable.getColumnModel().getColumn(1).setHeaderValue("Gene");
-        agentTable.getColumnModel().getColumn(2).setHeaderValue("Agent");
-        agentTable.getColumnModel().getColumn(3).setHeaderValue("Role");
-        agentTable.getColumnModel().getColumn(4).setHeaderValue("Sentence");
-        agentTable.getColumnModel().getColumn(5).setHeaderValue("Pubmed");
+        agentTable.getColumnModel().getColumn(0).setHeaderValue("     Marker");
+        agentTable.getColumnModel().getColumn(1).setHeaderValue("     Gene");
+        agentTable.getColumnModel().getColumn(2).setHeaderValue("     Agent");
+        agentTable.getColumnModel().getColumn(3).setHeaderValue("     Role");
+        agentTable.getColumnModel().getColumn(4).setHeaderValue("     Sentence");
+        agentTable.getColumnModel().getColumn(5).setHeaderValue("     Pubmed");
         agentTable.setCellSelectionEnabled(false);
         agentTable.setRowSelectionAllowed(false);
         agentTable.setColumnSelectionAllowed(false);
@@ -830,9 +833,9 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
                 }
             }
         });
-        annotationTable.getColumnModel().getColumn(0).setHeaderValue("Marker");
-        annotationTable.getColumnModel().getColumn(1).setHeaderValue("Gene");
-        annotationTable.getColumnModel().getColumn(2).setHeaderValue("Pathway");
+        annotationTable.getColumnModel().getColumn(0).setHeaderValue("     Marker");
+        annotationTable.getColumnModel().getColumn(1).setHeaderValue("     Gene");
+        annotationTable.getColumnModel().getColumn(2).setHeaderValue("     Pathway");
         annotationTable.setCellSelectionEnabled(false);
         annotationTable.setRowSelectionAllowed(false);
         annotationTable.setColumnSelectionAllowed(false);
@@ -1351,18 +1354,18 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
                     agentTableList.put(new Integer(maSet.hashCode()), agentModel);
                     agentTable.setSortableModel(agentModel);
 
-                    diseaseTable.getColumnModel().getColumn(0).setHeaderValue("Marker");
-                    diseaseTable.getColumnModel().getColumn(1).setHeaderValue("Gene");
-                    diseaseTable.getColumnModel().getColumn(2).setHeaderValue("Disease");
-                    diseaseTable.getColumnModel().getColumn(3).setHeaderValue("Role");
-                    diseaseTable.getColumnModel().getColumn(4).setHeaderValue("Sentence");
-                    diseaseTable.getColumnModel().getColumn(5).setHeaderValue("Pubmed");
-                    agentTable.getColumnModel().getColumn(0).setHeaderValue("Marker");
-                    agentTable.getColumnModel().getColumn(1).setHeaderValue("Gene");
-                    agentTable.getColumnModel().getColumn(2).setHeaderValue("Agent");
-                    agentTable.getColumnModel().getColumn(3).setHeaderValue("Role");
-                    agentTable.getColumnModel().getColumn(4).setHeaderValue("Sentence");
-                    agentTable.getColumnModel().getColumn(5).setHeaderValue("Pubmed");
+                    diseaseTable.getColumnModel().getColumn(0).setHeaderValue("     Marker");
+                    diseaseTable.getColumnModel().getColumn(1).setHeaderValue("     Gene");
+                    diseaseTable.getColumnModel().getColumn(2).setHeaderValue("     Disease");
+                    diseaseTable.getColumnModel().getColumn(3).setHeaderValue("     Role");
+                    diseaseTable.getColumnModel().getColumn(4).setHeaderValue("     Sentence");
+                    diseaseTable.getColumnModel().getColumn(5).setHeaderValue("     Pubmed");
+                    agentTable.getColumnModel().getColumn(0).setHeaderValue("     Marker");
+                    agentTable.getColumnModel().getColumn(1).setHeaderValue("     Gene");
+                    agentTable.getColumnModel().getColumn(2).setHeaderValue("     Agent");
+                    agentTable.getColumnModel().getColumn(3).setHeaderValue("     Role");
+                    agentTable.getColumnModel().getColumn(4).setHeaderValue("     Sentence");
+                    agentTable.getColumnModel().getColumn(5).setHeaderValue("     Pubmed");
                     sortByNumberOfRecords = true;
 
                     SwingUtilities.invokeLater(new Runnable() {
@@ -1526,9 +1529,9 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
                     annotationModel = new AnnotationTableModel(markers, genes, pathways);
                     annotationTableList.put(new Integer(maSet.hashCode()),  annotationModel);
                     annotationTable.setSortableModel(annotationModel);
-                    annotationTable.getColumnModel().getColumn(0).setHeaderValue("Marker");
-                    annotationTable.getColumnModel().getColumn(1).setHeaderValue("Gene");
-                    annotationTable.getColumnModel().getColumn(2).setHeaderValue("Pathway");
+                    annotationTable.getColumnModel().getColumn(0).setHeaderValue("     Marker");
+                    annotationTable.getColumnModel().getColumn(1).setHeaderValue("     Gene");
+                    annotationTable.getColumnModel().getColumn(2).setHeaderValue("     Pathway");
                     SwingUtilities.invokeLater(new Runnable() {
                         public void run() {
                         	annotationTable.getTableHeader().repaint();
@@ -1671,20 +1674,20 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
      */
     private void cgiClearButton_actionPerformed(ActionEvent e) {
         diseaseTable.setSortableModel(new CGITableModel(this));
-        diseaseTable.getColumnModel().getColumn(0).setHeaderValue("Marker");
-        diseaseTable.getColumnModel().getColumn(1).setHeaderValue("Gene");
-        diseaseTable.getColumnModel().getColumn(2).setHeaderValue("Disease");
-        diseaseTable.getColumnModel().getColumn(3).setHeaderValue("Role");
-        diseaseTable.getColumnModel().getColumn(4).setHeaderValue("Sentence");
-        diseaseTable.getColumnModel().getColumn(5).setHeaderValue("Pubmed");
+        diseaseTable.getColumnModel().getColumn(0).setHeaderValue("     Marker");
+        diseaseTable.getColumnModel().getColumn(1).setHeaderValue("     Gene");
+        diseaseTable.getColumnModel().getColumn(2).setHeaderValue("     Disease");
+        diseaseTable.getColumnModel().getColumn(3).setHeaderValue("     Role");
+        diseaseTable.getColumnModel().getColumn(4).setHeaderValue("     Sentence");
+        diseaseTable.getColumnModel().getColumn(5).setHeaderValue("     Pubmed");
         diseaseTable.getTableHeader().revalidate();
         agentTable.setSortableModel(new CGITableModel(this));
-        agentTable.getColumnModel().getColumn(0).setHeaderValue("Marker");
-        agentTable.getColumnModel().getColumn(1).setHeaderValue("Gene");
-        agentTable.getColumnModel().getColumn(2).setHeaderValue("Agent");
-        agentTable.getColumnModel().getColumn(3).setHeaderValue("Role");
-        agentTable.getColumnModel().getColumn(4).setHeaderValue("Sentence");
-        agentTable.getColumnModel().getColumn(5).setHeaderValue("Pubmed");
+        agentTable.getColumnModel().getColumn(0).setHeaderValue("     Marker");
+        agentTable.getColumnModel().getColumn(1).setHeaderValue("     Gene");
+        agentTable.getColumnModel().getColumn(2).setHeaderValue("     Agent");
+        agentTable.getColumnModel().getColumn(3).setHeaderValue("     Role");
+        agentTable.getColumnModel().getColumn(4).setHeaderValue("     Sentence");
+        agentTable.getColumnModel().getColumn(5).setHeaderValue("     Pubmed");
         agentTable.getTableHeader().revalidate();
         leftHeadPanel.setVisible(false);
         rightHeadPanel.setVisible(false);
@@ -1761,9 +1764,9 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
      */
     private void annoClearButton_actionPerformed(ActionEvent e) {
         annotationTable.setSortableModel(new AnnotationTableModel());
-        annotationTable.getColumnModel().getColumn(0).setHeaderValue("Marker");
-        annotationTable.getColumnModel().getColumn(1).setHeaderValue("Gene");
-        annotationTable.getColumnModel().getColumn(2).setHeaderValue("Pathway");
+        annotationTable.getColumnModel().getColumn(0).setHeaderValue("     Marker");
+        annotationTable.getColumnModel().getColumn(1).setHeaderValue("     Gene");
+        annotationTable.getColumnModel().getColumn(2).setHeaderValue("     Pathway");
         annotationTable.getTableHeader().revalidate();
         annotationTableList.put(new Integer(maSet.hashCode()),  new AnnotationTableModel());
     }
@@ -2143,17 +2146,17 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
         {
         	annotationModel = annotationTableList.get(new Integer(hashcode));
         	annotationTable.setSortableModel(annotationModel);
-            annotationTable.getColumnModel().getColumn(0).setHeaderValue("Marker");
-            annotationTable.getColumnModel().getColumn(1).setHeaderValue("Gene");
-            annotationTable.getColumnModel().getColumn(2).setHeaderValue("Pathway");
+            annotationTable.getColumnModel().getColumn(0).setHeaderValue("     Marker");
+            annotationTable.getColumnModel().getColumn(1).setHeaderValue("     Gene");
+            annotationTable.getColumnModel().getColumn(2).setHeaderValue("     Pathway");
             annotationTable.getTableHeader().revalidate();
         }
         else
         {
         	annotationTable.setSortableModel(new AnnotationTableModel());
-            annotationTable.getColumnModel().getColumn(0).setHeaderValue("Marker");
-            annotationTable.getColumnModel().getColumn(1).setHeaderValue("Gene");
-            annotationTable.getColumnModel().getColumn(2).setHeaderValue("Pathway");
+            annotationTable.getColumnModel().getColumn(0).setHeaderValue("     Marker");
+            annotationTable.getColumnModel().getColumn(1).setHeaderValue("     Gene");
+            annotationTable.getColumnModel().getColumn(2).setHeaderValue("     Pathway");
             annotationTable.getTableHeader().revalidate();
         }
 
@@ -2161,23 +2164,23 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
         {
         	diseaseModel = diseaseTableList.get(new Integer(hashcode));
         	diseaseTable.setSortableModel(diseaseModel);
-        	diseaseTable.getColumnModel().getColumn(0).setHeaderValue("Marker");
-            diseaseTable.getColumnModel().getColumn(1).setHeaderValue("Gene");
-            diseaseTable.getColumnModel().getColumn(2).setHeaderValue("Disease");
-            diseaseTable.getColumnModel().getColumn(3).setHeaderValue("Role");
-            diseaseTable.getColumnModel().getColumn(4).setHeaderValue("Sentence");
-            diseaseTable.getColumnModel().getColumn(5).setHeaderValue("Pubmed");
+        	diseaseTable.getColumnModel().getColumn(0).setHeaderValue("     Marker");
+            diseaseTable.getColumnModel().getColumn(1).setHeaderValue("     Gene");
+            diseaseTable.getColumnModel().getColumn(2).setHeaderValue("     Disease");
+            diseaseTable.getColumnModel().getColumn(3).setHeaderValue("     Role");
+            diseaseTable.getColumnModel().getColumn(4).setHeaderValue("     Sentence");
+            diseaseTable.getColumnModel().getColumn(5).setHeaderValue("     Pubmed");
             diseaseTable.getTableHeader().revalidate();
         }
         else
         {
         	diseaseTable.setSortableModel(new CGITableModel(this));
-        	diseaseTable.getColumnModel().getColumn(0).setHeaderValue("Marker");
-            diseaseTable.getColumnModel().getColumn(1).setHeaderValue("Gene");
-            diseaseTable.getColumnModel().getColumn(2).setHeaderValue("Disease");
-            diseaseTable.getColumnModel().getColumn(3).setHeaderValue("Role");
-            diseaseTable.getColumnModel().getColumn(4).setHeaderValue("Sentence");
-            diseaseTable.getColumnModel().getColumn(5).setHeaderValue("Pubmed");
+        	diseaseTable.getColumnModel().getColumn(0).setHeaderValue("     Marker");
+            diseaseTable.getColumnModel().getColumn(1).setHeaderValue("     Gene");
+            diseaseTable.getColumnModel().getColumn(2).setHeaderValue("     Disease");
+            diseaseTable.getColumnModel().getColumn(3).setHeaderValue("     Role");
+            diseaseTable.getColumnModel().getColumn(4).setHeaderValue("     Sentence");
+            diseaseTable.getColumnModel().getColumn(5).setHeaderValue("     Pubmed");
             diseaseTable.getTableHeader().revalidate();
         }
 
@@ -2185,23 +2188,23 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
         {
         	agentModel = agentTableList.get(new Integer(hashcode));
         	agentTable.setSortableModel(agentModel);
-        	agentTable.getColumnModel().getColumn(0).setHeaderValue("Marker");
-            agentTable.getColumnModel().getColumn(1).setHeaderValue("Gene");
-            agentTable.getColumnModel().getColumn(2).setHeaderValue("Disease");
-            agentTable.getColumnModel().getColumn(3).setHeaderValue("Role");
-            agentTable.getColumnModel().getColumn(4).setHeaderValue("Sentence");
-            agentTable.getColumnModel().getColumn(5).setHeaderValue("Pubmed");
+        	agentTable.getColumnModel().getColumn(0).setHeaderValue("     Marker");
+            agentTable.getColumnModel().getColumn(1).setHeaderValue("     Gene");
+            agentTable.getColumnModel().getColumn(2).setHeaderValue("     Disease");
+            agentTable.getColumnModel().getColumn(3).setHeaderValue("     Role");
+            agentTable.getColumnModel().getColumn(4).setHeaderValue("     Sentence");
+            agentTable.getColumnModel().getColumn(5).setHeaderValue("     Pubmed");
             agentTable.getTableHeader().revalidate();
         }
         else
         {
         	agentTable.setSortableModel(new CGITableModel(this));
-        	agentTable.getColumnModel().getColumn(0).setHeaderValue("Marker");
-            agentTable.getColumnModel().getColumn(1).setHeaderValue("Gene");
-            agentTable.getColumnModel().getColumn(2).setHeaderValue("Disease");
-            agentTable.getColumnModel().getColumn(3).setHeaderValue("Role");
-            agentTable.getColumnModel().getColumn(4).setHeaderValue("Sentence");
-            agentTable.getColumnModel().getColumn(5).setHeaderValue("Pubmed");
+        	agentTable.getColumnModel().getColumn(0).setHeaderValue("     Marker");
+            agentTable.getColumnModel().getColumn(1).setHeaderValue("     Gene");
+            agentTable.getColumnModel().getColumn(2).setHeaderValue("     Disease");
+            agentTable.getColumnModel().getColumn(3).setHeaderValue("     Role");
+            agentTable.getColumnModel().getColumn(4).setHeaderValue("     Sentence");
+            agentTable.getColumnModel().getColumn(5).setHeaderValue("     Pubmed");
             agentTable.getTableHeader().revalidate();
         }
 
