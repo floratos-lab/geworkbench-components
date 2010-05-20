@@ -18,6 +18,7 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
+import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.events.listeners.ParameterActionListener;
 
 /**
@@ -35,7 +36,7 @@ import org.geworkbench.events.listeners.ParameterActionListener;
  * @author unknown, yc2480
  * @version $ID$
  */
-public class AffyDetectionCallFilterPanel extends AbstractSaveableParameterPanel implements ItemListener {
+public class AffyDetectionCallFilterPanel extends AbstractSaveableParameterPanel implements ItemListener{
 	/**
 	 *
 	 */
@@ -217,6 +218,17 @@ public class AffyDetectionCallFilterPanel extends AbstractSaveableParameterPanel
         "absent: "+isAbsentSelected()+"\n"+
     	"========================================\n";
     }
+    
+    @Override
+    public ParamValidationResults validateParameters() {
+    	 String error = filterOptionPanel.validateParameters();
+    	 if ( error == null)
+            return new ParamValidationResults(true, "No Error");
+    	 else   	  	
+    		return new ParamValidationResults(false, error);
+    	 
+    }
+
 
 	@Override
 	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
@@ -261,7 +273,7 @@ public class AffyDetectionCallFilterPanel extends AbstractSaveableParameterPanel
 		return histStr;
 	}
 	
-	FilterOptionPanel getFilterOptionPanel() {
+	public FilterOptionPanel getFilterOptionPanel() {
 		return filterOptionPanel;
 	}
 }
