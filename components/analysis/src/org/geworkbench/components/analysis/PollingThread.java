@@ -5,8 +5,6 @@ import javax.swing.JOptionPane;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
-import org.geworkbench.engine.management.Subscribe;
-import org.geworkbench.events.PendingNodeCancelledEvent;
 import org.geworkbench.events.ProjectNodeCompletedEvent;
 import org.ginkgo.labs.ws.GridEndpointReferenceType;
 
