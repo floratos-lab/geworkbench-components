@@ -1,11 +1,9 @@
 package org.geworkbench.components.analysis;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -20,13 +18,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.ButtonModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
-import javax.swing.JList;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
@@ -34,9 +33,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
-import javax.swing.ListSelectionModel;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -158,11 +154,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 
 	private JButton analyze = null;
 
-	private GridLayout gridLayout3 = null;
-
 	private JPanel jPanel1 = null;
-
-	private JScrollPane jScrollPane3 = null;
 
 	private JTabbedPane jAnalysisTabbedPane = null;
 
@@ -187,7 +179,6 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 
 	private JComboBox analysisComboBox = new JComboBox();
 	private JComboBox parameterComboBox = new JComboBox();
-	private JList paramsJList = null;
 
 	/*
 	 * Results obtained from execution of an analysis. This is an instance
@@ -243,12 +234,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		d.setSize(d.getWidth() * 2, d.getHeight());
 		analyze.setPreferredSize(d);
 
-		gridLayout3 = new GridLayout();
-
-		paramsJList = new JList();
-
 		jPanel1 = new JPanel();
-		jScrollPane3 = new JScrollPane();
 
 		analysisPanel.setLayout(analysisPanelBorderLayout);
 		innerAnalysisPanel.setLayout(borderLayout3);
@@ -278,19 +264,15 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		});
 		analysisParameterSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		analysisParameterSplitPane.setDividerSize(3);
-		/* Make sure that only one parameter set can be selected at a time; */
-		paramsJList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		paramsJList.addListSelectionListener(new ListSelectionListener() {
-			public void valueChanged(ListSelectionEvent e) {
+
+		parameterComboBox.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
 				namedParameterSelection_action(e);
 			}
 		});
-		paramsJList.setAutoscrolls(true);
-		paramsJList.setBorder(BorderFactory.createLineBorder(Color.black));
-		jPanel1.setLayout(gridLayout3);
-		jPanel1.setMinimumSize(new Dimension(0, 0));
-		jPanel1.setPreferredSize(new Dimension(50, 50));
-		jPanel1.setToolTipText("");
+		parameterComboBox.setAutoscrolls(true);
 
 		analysisComboBox.addActionListener(new ActionListener() {
 
@@ -300,7 +282,6 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 			}
 			
 		});
-		gridLayout3.setColumns(2);
 		analysisPanel.add(analysisScrollPane, BorderLayout.CENTER);
 		analysisScrollPane.getViewport().add(innerAnalysisPanel, null);
 		innerAnalysisPanel.add(analysisParameterSplitPane, BorderLayout.CENTER);
@@ -330,9 +311,15 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		parameterPanel.add(buttonsBuilder.getPanel(), BorderLayout.LINE_END);
 
 		analysisParameterSplitPane.add(jPanel1, JSplitPane.TOP);
+		jPanel1.setLayout(new BoxLayout(jPanel1, BoxLayout.LINE_AXIS));
+		jPanel1.add(Box.createRigidArea(new Dimension(5, 0)));
+		jPanel1.add(new JLabel("Analysis"));
+		jPanel1.add(Box.createRigidArea(new Dimension(5, 0)));
 		jPanel1.add(analysisComboBox, null);
-		jPanel1.add(jScrollPane3, null);
-		jScrollPane3.getViewport().add(paramsJList);
+		jPanel1.add(Box.createRigidArea(new Dimension(50, 0)));
+		jPanel1.add(new JLabel("Saved Parameters"));
+		jPanel1.add(Box.createRigidArea(new Dimension(5, 0)));
+		jPanel1.add(parameterComboBox, null);
 
 		jAnalysisTabbedPane = new JTabbedPane();
 		parameterPanel.setName(PARAMETERS);
@@ -826,12 +813,12 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	 * @param storedParameters
 	 */
 	private void setNamedParameters(String[] storedParameters) {
-		paramsJList.removeAll();
-		paramsJList.setListData(storedParameters);
+		parameterComboBox.removeAllItems();
+		parameterComboBox.addItem("");
+		for(String n: storedParameters) {
+			parameterComboBox.addItem(n);
+		}
 
-		/* make sure that only one parameter set can be selected at a time */
-		paramsJList.getSelectionModel().setSelectionMode(
-				ListSelectionModel.SINGLE_SELECTION);
 		analysisPanel.revalidate();
 		highlightCurrentParameterGroup();
 	}
@@ -845,7 +832,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 				.getParameterPanel();
 		String[] parametersNameList = selectedAnalysis
 				.getNamesOfStoredParameterSets();
-		paramsJList.clearSelection();
+		parameterComboBox.setSelectedIndex(0);
 		for (int i = 0; i < parametersNameList.length; i++) {
 			Map<Serializable, Serializable> parameter1 = ((AbstractSaveableParameterPanel) currentParameterPanel)
 					.getParameters();
@@ -856,15 +843,15 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 			if (parameter1.equals(parameter2)) {
 				String[] savedParameterSetNames = selectedAnalysis
 						.getNamesOfStoredParameterSets();
-				/*
-				 * make sure that only one parameter set can be selected at a
-				 * time
-				 */
-				paramsJList.getSelectionModel().setSelectionMode(
-						ListSelectionModel.SINGLE_SELECTION);
 				analysisPanel.revalidate();
 				/* select the matched one and scroll to display it */
-				paramsJList.setSelectedValue(savedParameterSetNames[i], true);
+				for(int itemIndex=0; itemIndex<parameterComboBox.getItemCount(); itemIndex++) {
+					if(parameterComboBox.getItemAt(itemIndex).equals(savedParameterSetNames[i])) {
+						parameterComboBox.setSelectedIndex(itemIndex);
+						break;
+					}
+						
+				}
 				/*
 				 * Since we don't allow duplicate parameter sets in the list, so
 				 * if we detect one, we can skip the rest.
@@ -915,10 +902,10 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 			 * currently displayed parameter already has a name associated with
 			 * it, use that name in the pop-up, otherwise the default.
 			 */
-			int index = paramsJList.getSelectedIndex();
+			int index = parameterComboBox.getSelectedIndex();
 			String namedParameter = null;
-			if (index != -1) {
-				namedParameter = (String) paramsJList.getModel().getElementAt(
+			if (index != 0) {
+				namedParameter = (String) parameterComboBox.getItemAt(
 						index);
 				if (currentParameterPanel.isDirty()) {
 					namedParameter = DEFAULT_PARAMETER_SETTING_NAME;
@@ -960,7 +947,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	 */
 	private void delete_actionPerformed(ActionEvent e) {
 		if (selectedAnalysis != null
-				&& this.paramsJList.getSelectedIndex() == -1) {
+				&& this.parameterComboBox.getSelectedIndex() <= 0) {
 			JOptionPane.showMessageDialog(null,
 					"You have to select a setting before you can delete it.",
 					"Canceled", JOptionPane.OK_OPTION);
@@ -971,12 +958,12 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 					JOptionPane.WARNING_MESSAGE);
 
 			if ((selectedAnalysis != null) && (choice == 0)
-					&& (this.paramsJList.getSelectedIndex() >= 0)) {
+					&& (this.parameterComboBox.getSelectedIndex() > 0)) {
 				log.info("Deleting saved parameters: "
-						+ (String) this.paramsJList.getSelectedValue());
-				this.removeNamedParameter((String) this.paramsJList
-						.getSelectedValue());
-				if (this.paramsJList.getModel().getSize() < 1)
+						+ (String) this.parameterComboBox.getSelectedItem());
+				this.removeNamedParameter((String) this.parameterComboBox
+						.getSelectedItem());
+				if (this.parameterComboBox.getItemCount() <= 1)
 					this.delete.setEnabled(false);
 			}
 		}
@@ -1063,8 +1050,8 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	 * 
 	 */
 	private void selectLastSavedParameterSet() {
-		int lastIndex = paramsJList.getModel().getSize() - 1;
-		if (lastIndex >= 0) {
+		int lastIndex = parameterComboBox.getItemCount();
+		if (lastIndex > 0) {
 			String paramName = selectedAnalysis.getLastSavedParameterSetName();
 			/* load from memory */
 			Map<Serializable, Serializable> parameters = selectedAnalysis
@@ -1081,16 +1068,16 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	 * 
 	 * @param e
 	 */
-	private void namedParameterSelection_action(ListSelectionEvent e) {
+	private void namedParameterSelection_action(ActionEvent e) {
 		if (selectedAnalysis == null) {
 			delete.setEnabled(false);
 			return;
 		}
-		int index = paramsJList.getSelectedIndex();
-		if (index != -1) {
+		int index = parameterComboBox.getSelectedIndex();
+		if (index > 0) {
 			delete.setEnabled(true);
 
-			String paramName = (String) paramsJList.getModel().getElementAt(
+			String paramName = (String) parameterComboBox.getItemAt(
 					index);
 			/* load from memory */
 			Map<Serializable, Serializable> parameters = selectedAnalysis
