@@ -1,8 +1,5 @@
 package edu.columbia.geworkbench.cagrid.discovery.client;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.axis.message.addressing.AttributedURI;
 import org.apache.axis.message.addressing.EndpointReferenceType;
 import org.apache.commons.lang.StringUtils;
