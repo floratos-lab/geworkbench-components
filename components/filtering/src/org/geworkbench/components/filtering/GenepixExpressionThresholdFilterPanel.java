@@ -46,6 +46,7 @@ public class GenepixExpressionThresholdFilterPanel extends AbstractSaveableParam
     private JFormattedTextField Cy5MaxValue = new JFormattedTextField();
     private JComboBox optionSelection = new JComboBox(new String[]{INSIDE_RANGE, OUTSIDE_RANGE});
     private GridLayout gridLayout1 = new GridLayout();
+    private ParameterActionListener parameterActionListener = null;
 
 	/*
 	 * (non-Javadoc)
@@ -54,6 +55,8 @@ public class GenepixExpressionThresholdFilterPanel extends AbstractSaveableParam
 	 */
     @Override
 	public void setParameters(Map<Serializable, Serializable> parameters){
+    	if ((getStopNotifyAnalysisPanelTemporaryFlag()==true)&&(parameterActionListener.getCalledFromProgramFlag()==true)) return;
+    	stopNotifyAnalysisPanelTemporary(true);
         Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
         for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set.iterator(); iterator.hasNext();) {
         	Map.Entry<Serializable, Serializable> parameter = iterator.next();
@@ -61,20 +64,25 @@ public class GenepixExpressionThresholdFilterPanel extends AbstractSaveableParam
 			Object value = parameter.getValue();
 			if (key.equals("Cy3MinValue")){
 	            this.Cy3MinValue.setValue((Double)value);
-			}
-			if (key.equals("Cy3MaxValue")){
+			} else if (key.equals("Cy3MaxValue")){
 				this.Cy3MaxValue.setValue((Double)value);
-			}
-			if (key.equals("Cy5MinValue")){
+			} else if (key.equals("Cy5MinValue")){
 				this.Cy5MinValue.setValue((Double)value);
-			}
-			if (key.equals("Cy5MaxValue")){
+			} else if (key.equals("Cy5MaxValue")){
 				this.Cy5MaxValue.setValue((Double)value);
-			}
-			if (key.equals("optionSelection")){
+			} else if (key.equals("optionSelection")){
 				this.optionSelection.setSelectedIndex((Integer)value);
+			} else if (key.equals("numberThreshold")){
+	            this.filterOptionPanel.numberField.setValue((Integer)value);	           
+	            this.filterOptionPanel.numberRemovalButton.setSelected(true);
+	            this.revalidate();
+			} else if (key.equals("percentThreshold")){
+	            this.filterOptionPanel.percentField.setValue((Double)value);	            
+	            this.filterOptionPanel.percentRemovalButton.setSelected(true);
+	            this.revalidate();
 			}
 		}
+        stopNotifyAnalysisPanelTemporary(false);
     }
 
     /*
@@ -87,8 +95,10 @@ public class GenepixExpressionThresholdFilterPanel extends AbstractSaveableParam
     @Override
 	public Map<Serializable, Serializable> getParameters() {
 		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
-		parameters.put("numberThreshold", (Integer) this.filterOptionPanel.getNumberThreshold());
-		parameters.put("percentThreshold", (Double) this.filterOptionPanel.getPercentThreshold());
+		if (this.filterOptionPanel.numberRemovalButton.isSelected())
+			parameters.put("numberThreshold", (Integer) this.filterOptionPanel.getNumberThreshold());
+		else
+			parameters.put("percentThreshold", (Double) this.filterOptionPanel.percentField.getValue());
 		parameters.put("Cy3MinValue", (Double)Cy3MinValue.getValue());
 		parameters.put("Cy3MaxValue", (Double)Cy3MaxValue.getValue());
 		parameters.put("Cy5MinValue", (Double)Cy5MinValue.getValue());
@@ -149,12 +159,16 @@ public class GenepixExpressionThresholdFilterPanel extends AbstractSaveableParam
         Cy5MinValue.setFocusLostBehavior(JFormattedTextField.COMMIT_OR_REVERT);
         Cy5MaxValue.setValue(new Double(0.0));
         Cy5MaxValue.setFocusLostBehavior(JFormattedTextField.COMMIT_OR_REVERT);
-        ParameterActionListener parameterActionListener = new ParameterActionListener(this);
+        parameterActionListener = new ParameterActionListener(this);
         Cy3MinValue.addPropertyChangeListener(parameterActionListener);
         Cy3MaxValue.addPropertyChangeListener(parameterActionListener);
         Cy5MinValue.addPropertyChangeListener(parameterActionListener);
         Cy5MaxValue.addPropertyChangeListener(parameterActionListener);
         optionSelection.addActionListener(parameterActionListener);
+        filterOptionPanel.numberField.addActionListener(parameterActionListener);
+        filterOptionPanel.percentField.addActionListener(parameterActionListener);
+        filterOptionPanel.numberRemovalButton.addActionListener(parameterActionListener);
+        filterOptionPanel.percentRemovalButton.addActionListener(parameterActionListener);
     }
 
     /**
