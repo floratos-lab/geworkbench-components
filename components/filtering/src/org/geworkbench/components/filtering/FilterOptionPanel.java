@@ -47,10 +47,10 @@ public class FilterOptionPanel extends JPanel {
 		
 		percentField = new JTextField();
 		percentField.setText("40");	
-		percentField.setColumns(5);		 
+		percentField.setColumns(3);		 
 		numberField = new JTextField();
 		numberField.setText("0");
-		numberField.setColumns(5);
+		numberField.setColumns(3);
 
 		GridBagConstraints c = new GridBagConstraints();
 		add(percentRemovalButton);
