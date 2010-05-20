@@ -147,9 +147,10 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 				ontologyFileNameField.setText((String) value);
 			}
 			if (key.equals("loadedAnnotation")) {
-				loadedAnnotationsRadioButton.setSelected(true);
-			} else {
-				alternateAnnotationRadioButton.setSelected(true);
+				if((Boolean)value)
+					loadedAnnotationsRadioButton.setSelected(true);
+				else
+					alternateAnnotationRadioButton.setSelected(true);
 			}
 			if (key.equals("loadedAnnotationFile"))
 				annotationFileNameField.setText((String)value);
