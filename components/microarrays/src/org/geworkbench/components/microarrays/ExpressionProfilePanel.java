@@ -92,9 +92,8 @@ public class ExpressionProfilePanel extends MicroarrayViewEventBase implements
 	/**
 	 * @throws Exception
 	 */
-	protected void jbInit() throws Exception {
+	private void jbInit() throws Exception {
 
-		super.jbInit();
 		graphPanel = new JPanel(new BorderLayout());
 		chart = ChartFactory.createXYLineChart(null, // Title
 				X_AXIS_LABEL, // X-Axis label

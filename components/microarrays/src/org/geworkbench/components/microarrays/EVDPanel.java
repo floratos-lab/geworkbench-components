@@ -110,8 +110,7 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
         }
     }
 
-    protected void jbInit() throws Exception {
-        super.jbInit();
+    private void jbInit() throws Exception {
         setupGUI();
         jLeftBoundarySlider.setToolTipText(
                 "Move the slider to change the lower boundary of selected genes expression.");
