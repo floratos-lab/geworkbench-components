@@ -841,17 +841,8 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 					.getNamedParameterSet(parametersNameList[i]));
 			parameter2.remove(ParameterKey.class.getSimpleName());
 			if (parameter1.equals(parameter2)) {
-				String[] savedParameterSetNames = selectedAnalysis
-						.getNamesOfStoredParameterSets();
 				analysisPanel.revalidate();
-				/* select the matched one and scroll to display it */
-				for(int itemIndex=0; itemIndex<parameterComboBox.getItemCount(); itemIndex++) {
-					if(parameterComboBox.getItemAt(itemIndex).equals(savedParameterSetNames[i])) {
-						parameterComboBox.setSelectedIndex(itemIndex);
-						break;
-					}
-						
-				}
+				parameterComboBox.setSelectedIndex(i+1);
 				/*
 				 * Since we don't allow duplicate parameter sets in the list, so
 				 * if we detect one, we can skip the rest.
@@ -989,12 +980,10 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		/* Set the parameters panel for the selected analysis. */
 		ParameterPanel paramPanel = selectedAnalysis.getParameterPanel();
 		if (paramPanel != null) {
-			setParametersPanel(paramPanel);
-
-			// TODO add some variant back in
 			String[] storedParameterSetNames = availableAnalyses[index]
 					.getNamesOfStoredParameterSets();
 			setNamedParameters(storedParameterSetNames);
+			setParametersPanel(paramPanel);
 
 			String className = paramPanel.getClass().getName();
 			if (className.equals("org.geworkbench.components.ttest.MultiTTestAnalysisPanel")
