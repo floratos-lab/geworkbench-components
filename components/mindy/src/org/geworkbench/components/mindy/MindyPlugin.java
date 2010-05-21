@@ -256,9 +256,7 @@ public class MindyPlugin extends JPanel {
 			modTable.getColumnModel().getColumn(0).setMinWidth(
 					MIN_CHECKBOX_WIDTH);
 			modTable.getColumnModel().getColumn(0).setMaxWidth(
-					MAX_CHECKBOX_WIDTH);
-			modTable.getColumnModel().getColumn(0).setPreferredWidth(MAX_CHECKBOX_WIDTH);
-			 
+					MAX_CHECKBOX_WIDTH);		 
 			modTable.setAutoCreateColumnsFromModel(false);
 			modTable.getTableHeader().addMouseListener(
 					new ColumnHeaderListener(this));
