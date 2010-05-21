@@ -102,7 +102,8 @@ public class MindyTableTab extends JSplitPane {
 		// 0 hardcoded for consistency, refactor later
 		targetTable.getColumnModel().getColumn(0).setMinWidth(
 				MindyPlugin.MIN_CHECKBOX_WIDTH);
-
+		targetTable.getColumnModel().getColumn(0).setMaxWidth(
+				MindyPlugin.MAX_CHECKBOX_WIDTH);
 		targetTable.getTableHeader().setDefaultRenderer(
 				new CheckBoxRenderer(mindyPlugin));
 		targetTable.getTableHeader().addMouseListener(
@@ -466,8 +467,7 @@ public class MindyTableTab extends JSplitPane {
 
 	void setFirstColumnWidth(int w) {
 		targetTable.getColumn(" ").setMaxWidth(w);
-		targetTable.getColumn(" ").setMinWidth(w);
-		targetTable.getColumn(" ").setWidth(w);
+		targetTable.getColumn(" ").setMinWidth(w);	 
 	}
 	
 	void setTargetCheckboxesVisibility(boolean show) {

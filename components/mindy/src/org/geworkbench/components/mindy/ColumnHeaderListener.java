@@ -139,9 +139,10 @@ class ColumnHeaderListener extends MouseAdapter {
 					boolean tmp = states[mColIndex];
 					states[mColIndex] = !tmp;
 					atm.sort(mColIndex, states[mColIndex]);
-					mindyTableTab.getAggregateModel().fireTableStructureChanged();
+					mindyTableTab.getAggregateModel().fireTableStructureChanged();				 
 				}
 			}
+			mindyTableTab.setTargetCheckboxesVisibility((mindyTableTab.getSelectionEnabledCheckBoxTarget().isSelected()));
 		}
 		if (model instanceof ModulatorTargetModel) {
 			// sort
@@ -153,5 +154,6 @@ class ColumnHeaderListener extends MouseAdapter {
 				mtm.sort(mColIndex, states[mColIndex]);
 			}
 		}
+		 
 	}
 }
