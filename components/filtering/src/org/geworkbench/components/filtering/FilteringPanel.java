@@ -1,7 +1,6 @@
 package org.geworkbench.components.filtering;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -17,19 +16,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JList;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.ListSelectionModel;
 import javax.swing.SwingWorker;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-
-import org.geworkbench.util.ProgressBar;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -52,6 +48,7 @@ import org.geworkbench.engine.management.ComponentRegistry;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.FilteringEvent;
+import org.geworkbench.util.ProgressBar;
 import org.ginkgo.labs.util.FileTools;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
@@ -92,15 +89,9 @@ public class FilteringPanel implements VisualPlugin, ReHighlightable {
 	 */
 	protected AbstractAnalysis selectedFilter = null;
 
-	/**
-	 * JList used to display the normalizers.
-	 */
-	protected JList pluginFilters = new JList();
-
-	/**
-	 * JList used to display named parameter settings for a selected filter.
-	 */
-	protected JList namedParameters = new JList();
+	private JComboBox pluginFilters = new JComboBox();
+	private JComboBox namedParameters = new JComboBox();
+	
 	BorderLayout borderLayout1 = new BorderLayout();
 	JScrollPane jScrollPane2 = new JScrollPane();
 	JPanel jPanel3 = new JPanel();
@@ -122,9 +113,6 @@ public class FilteringPanel implements VisualPlugin, ReHighlightable {
 	BorderLayout borderLayout5 = new BorderLayout();
 	BorderLayout borderLayout6 = new BorderLayout();
 	JPanel jPanel1 = new JPanel();
-	GridLayout gridLayout3 = new GridLayout();
-	JScrollPane jScrollPane1 = new JScrollPane();
-	JScrollPane jScrollPane3 = new JScrollPane();
 
 	public FilteringPanel() {
 		try {
@@ -180,32 +168,26 @@ public class FilteringPanel implements VisualPlugin, ReHighlightable {
 			}
 		});
 
-		jScrollPane1.setPreferredSize(new Dimension(248, 80));
-		jPanel1.setLayout(gridLayout3);
-		jPanel1.setMinimumSize(new Dimension(0, 0));
-		jPanel1.setPreferredSize(new Dimension(50, 50));
-		jPanel1.setMaximumSize(new Dimension(50, 80));
-		/* Make sure that only one filter can be selected at a time; */
-		pluginFilters.getSelectionModel().setSelectionMode(
-				ListSelectionModel.SINGLE_SELECTION);
-		pluginFilters.addListSelectionListener(new ListSelectionListener() {
-			public void valueChanged(ListSelectionEvent e) {
+		jPanel1.setLayout(new BoxLayout(jPanel1, BoxLayout.LINE_AXIS));
+
+		pluginFilters.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
 				filterSelected_action(e);
 			}
 
 		});
-		pluginFilters.setBorder(BorderFactory.createLineBorder(Color.black));
-		/* Make sure that only one parameter set can be selected at a time; */
-		namedParameters.getSelectionModel().setSelectionMode(
-				ListSelectionModel.SINGLE_SELECTION);
-		namedParameters.addListSelectionListener(new ListSelectionListener() {
-			public void valueChanged(ListSelectionEvent e) {
+
+		namedParameters.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
 				namedParameterSelection_action(e);
 			}
 
 		});
 		namedParameters.setAutoscrolls(true);
-		namedParameters.setBorder(BorderFactory.createLineBorder(Color.black));
 		filteringPanel.add(jScrollPane2, BorderLayout.CENTER);
 		jScrollPane2.getViewport().add(jPanel3, null);
 		jPanel3.add(jSplitPane1, BorderLayout.CENTER);
@@ -215,10 +197,14 @@ public class FilteringPanel implements VisualPlugin, ReHighlightable {
 		jPanel4.add(currentParameterPanel, BorderLayout.CENTER);
 
 		jSplitPane1.add(jPanel1, JSplitPane.TOP);
-		jPanel1.add(jScrollPane1, null);
-		jPanel1.add(jScrollPane3, null);
-		jScrollPane3.getViewport().add(namedParameters, null);
-		jScrollPane1.getViewport().add(pluginFilters, null);
+		jPanel1.add(Box.createRigidArea(new Dimension(5, 0)));
+		jPanel1.add(new JLabel("Filter"));
+		jPanel1.add(Box.createRigidArea(new Dimension(5, 0)));
+		jPanel1.add(pluginFilters, null);
+		jPanel1.add(Box.createRigidArea(new Dimension(50, 0)));
+		jPanel1.add(new JLabel("Saved Parameters"));
+		jPanel1.add(Box.createRigidArea(new Dimension(5, 0)));
+		jPanel1.add(namedParameters, null);
 
 		save.setPreferredSize(deleteSetting.getPreferredSize());
 		filter.setPreferredSize(deleteSetting.getPreferredSize());
@@ -277,12 +263,12 @@ public class FilteringPanel implements VisualPlugin, ReHighlightable {
 				"Deleting Saved Parameters", JOptionPane.YES_NO_OPTION,
 				JOptionPane.WARNING_MESSAGE);
 		if ((selectedFilter != null) && (choice == 0)
-				&& (namedParameters.getSelectedIndex() >= 0)) {
+				&& (namedParameters.getSelectedIndex() > 0)) {
 			log.info("Deleting saved parameters: "
-					+ (String) namedParameters.getSelectedValue());
+					+ (String) namedParameters.getSelectedItem());
 			this.removeNamedParameter((String) namedParameters
-					.getSelectedValue());
-			if (namedParameters.getModel().getSize() < 1)
+					.getSelectedItem());
+			if (namedParameters.getItemCount() <= 1)
 				deleteSetting.setEnabled(false);
 		}
 	}
@@ -372,17 +358,25 @@ public class FilteringPanel implements VisualPlugin, ReHighlightable {
 	 * Displays the list of available filters.
 	 */
 	private void displayFilters() {
+		String selectedName = null;
+		if(selectedFilter!=null) 
+			selectedName = selectedFilter.getLabel();
 		/* Clear the list */
-		pluginFilters.removeAll();
+		pluginFilters.removeAllItems();
 		/* Stores the display names of the available filters. */
 		String[] names = new String[availableFilters.length];
 		for (int i = 0; i < availableFilters.length; i++) {
 			names[i] = availableFilters[i].getLabel();
+			pluginFilters.addItem(names[i]);
 		}
 
-		pluginFilters.setListData(names);
-		if (selectedFilter != null)
-			pluginFilters.setSelectedValue(selectedFilter.getLabel(), true);
+		if (selectedName != null)
+			for(int i=0; i<pluginFilters.getItemCount(); i++) {
+				if(selectedName.equals(pluginFilters.getItemAt(i))) {
+					pluginFilters.setSelectedIndex(i);
+					break;
+				}
+			}
 		else {
 			setParametersPanel(this.emptyParameterPanel);
 			save.setEnabled(false);
@@ -414,11 +408,10 @@ public class FilteringPanel implements VisualPlugin, ReHighlightable {
 	 * @param storedParameters
 	 */
 	private void setNamedParameters(String[] storedParameters) {
-		namedParameters.removeAll();
-		namedParameters.setListData(storedParameters);
-		/* Make sure that only one parameter set can be selected at a time; */
-		namedParameters.getSelectionModel().setSelectionMode(
-				ListSelectionModel.SINGLE_SELECTION);
+		namedParameters.removeAllItems();
+		namedParameters.addItem("");
+		for(String n: storedParameters)
+			namedParameters.addItem(n);
 		filteringPanel.revalidate();
 		highlightCurrentParameterGroup();
 	}
@@ -432,7 +425,7 @@ public class FilteringPanel implements VisualPlugin, ReHighlightable {
 				.getParameterPanel();
 		String[] parametersNameList = selectedFilter
 				.getNamesOfStoredParameterSets();
-		namedParameters.clearSelection();
+		namedParameters.setSelectedIndex(0);
 		for (int i = 0; i < parametersNameList.length; i++) {
 			Map<Serializable, Serializable> parameter1 = ((AbstractSaveableParameterPanel) currentParameterPanel)
 					.getParameters();
@@ -441,8 +434,8 @@ public class FilteringPanel implements VisualPlugin, ReHighlightable {
 					.getNamedParameterSet(parametersNameList[i]));
 			parameter2.remove(ParameterKey.class.getSimpleName());
 			if (parameter1.equals(parameter2)) {
-				String[] savedParameterSetNames = selectedFilter.getNamesOfStoredParameterSets();
-				namedParameters.setSelectedValue(savedParameterSetNames[i], true);
+				namedParameters.setSelectedIndex(i+1);
+				break;
 			}
 		}
 	}
@@ -462,7 +455,7 @@ public class FilteringPanel implements VisualPlugin, ReHighlightable {
 	 *            The <code>ListSelectionEvent</code> received from the list
 	 *            selection.
 	 */
-	private void filterSelected_action(ListSelectionEvent lse) {
+	private void filterSelected_action(ActionEvent actionEvent) {
 		if (pluginFilters.getSelectedIndex() == -1)
 			return;
 		deleteSetting.setEnabled(false);
@@ -470,13 +463,11 @@ public class FilteringPanel implements VisualPlugin, ReHighlightable {
 		selectedFilter = availableFilters[pluginFilters.getSelectedIndex()];
 		/* Get the parameters panel for the selected filter. */
 		ParameterPanel paramPanel = selectedFilter.getParameterPanel();
-		
-	 
 		/* Set the list of available named parameters for the selected filter. */
 		if (paramPanel != null) {
-			setParametersPanel(paramPanel);
 			setNamedParameters(availableFilters[pluginFilters
-					.getSelectedIndex()].getNamesOfStoredParameterSets());
+			                					.getSelectedIndex()].getNamesOfStoredParameterSets());
+			setParametersPanel(paramPanel);
 
 			/*
 			 * If it's first time (means just after load from file) for this
@@ -508,8 +499,8 @@ public class FilteringPanel implements VisualPlugin, ReHighlightable {
 	 * 
 	 */
 	private void selectLastSavedParameterSet() {
-		int lastIndex = namedParameters.getModel().getSize() - 1;
-		if (lastIndex >= 0) {
+		int lastIndex = namedParameters.getItemCount();
+		if (lastIndex > 0) {
 			String paramName = selectedFilter.getLastSavedParameterSetName();
 			/* load from memory */
 			Map<Serializable, Serializable> parameters = selectedFilter
@@ -530,20 +521,23 @@ public class FilteringPanel implements VisualPlugin, ReHighlightable {
 	 *            <code>MouseListener</code> listening to the namedParameters
 	 *            JList
 	 */
-	private void namedParameterSelection_action(ListSelectionEvent e) {
+	private void namedParameterSelection_action(ActionEvent e) {
 		if (selectedFilter == null) {
 			deleteSetting.setEnabled(false);
 			return;
 		}
 		int index = namedParameters.getSelectedIndex();
-		if (index != -1) {
+		if (index >0) {
 			deleteSetting.setEnabled(true);
 
-			String paramName = (String) namedParameters.getModel()
-					.getElementAt(index);
+			String paramName = (String) namedParameters.getItemAt(index);
 			/* load from memory */
 			Map<Serializable, Serializable> parameters = selectedFilter
 					.getNamedParameterSet(paramName);
+			if(parameters==null) {
+				log.error("Saved paremeter '"+paramName+"' was not found.");
+				return;
+			}
 			selectedFilter.setParameters(parameters);
 		}
 	}
@@ -683,9 +677,8 @@ public class FilteringPanel implements VisualPlugin, ReHighlightable {
 		} else {
 			int index = namedParameters.getSelectedIndex();
 			String namedParameter = null;
-			if (index != -1) {
-				namedParameter = (String) namedParameters.getModel()
-						.getElementAt(index);
+			if (index > 0) {
+				namedParameter = (String) namedParameters.getItemAt(index);
 				if (currentParameterPanel.isDirty())
 					namedParameter = "New Parameter Setting Name";
 			} else {
