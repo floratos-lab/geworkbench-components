@@ -73,6 +73,8 @@ public class MindyPlugin extends JPanel {
 	static final int DEFAULT_MODULATOR_LIMIT = 10;
 
 	static final int MIN_CHECKBOX_WIDTH = 10;
+	
+	static final int MAX_CHECKBOX_WIDTH = 30;
 
 	static final int MIN_MARKER_NAME_WIDTH = 200;
 	
@@ -253,7 +255,10 @@ public class MindyPlugin extends JPanel {
 			// 0 hardcoded for consistency, refactor later
 			modTable.getColumnModel().getColumn(0).setMinWidth(
 					MIN_CHECKBOX_WIDTH);
-
+			modTable.getColumnModel().getColumn(0).setMaxWidth(
+					MAX_CHECKBOX_WIDTH);
+			modTable.getColumnModel().getColumn(0).setPreferredWidth(MAX_CHECKBOX_WIDTH);
+			 
 			modTable.setAutoCreateColumnsFromModel(false);
 			modTable.getTableHeader().addMouseListener(
 					new ColumnHeaderListener(this));
@@ -980,8 +985,8 @@ public class MindyPlugin extends JPanel {
 	void setListTableViewOptions() {
 		boolean selected = selectionEnabledCheckBox.isSelected();
 		if (selected) {
-			listTable.getColumnModel().getColumn(0).setMaxWidth(30);
-			listTable.getColumnModel().getColumn(2).setMaxWidth(30);
+			listTable.getColumnModel().getColumn(0).setMaxWidth(MAX_CHECKBOX_WIDTH);
+			listTable.getColumnModel().getColumn(2).setMaxWidth(MAX_CHECKBOX_WIDTH);
 		}
 		setListCheckboxesVisibility(selected);
 	}
