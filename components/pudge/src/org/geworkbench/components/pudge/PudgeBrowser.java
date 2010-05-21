@@ -223,6 +223,7 @@ public class PudgeBrowser implements VisualPlugin {
 				mainPanel.add(jp, BorderLayout.CENTER);
 				mainPanel.add(jAddrToolBarPanel, BorderLayout.NORTH);
 				mainPanel.add(statusBar, BorderLayout.SOUTH);
+				if (is_mac) mainPanel.add(jp, BorderLayout.CENTER);
 			} else {
 				System.out.println("later: " + url);
 
