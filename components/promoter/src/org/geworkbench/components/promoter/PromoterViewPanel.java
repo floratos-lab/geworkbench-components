@@ -1180,9 +1180,9 @@ public class PromoterViewPanel extends JPanel {
                                         bw.write(pl.getAscii() + tab);
                                         if (seqReg.strand == 0){
                                             bw.write(seqReg.x1 + 1 + tab);
-                                            bw.write(seqReg.x2 + 1 + tab);
+                                            bw.write(seqReg.x2 + tab);
                                         } else if (seqReg.strand == 1){
-                                            bw.write(seqReg.x2 + 1 + tab);
+                                            bw.write(seqReg.x2 + tab);
                                             bw.write(seqReg.x1 + 1 + tab);
                                         }
                                         bw.newLine();
