@@ -47,10 +47,10 @@ public class FilterOptionPanel extends JPanel {
 		
 		percentField = new JTextField();
 		percentField.setText("40");	
-		percentField.setColumns(3);		 
+		percentField.setColumns(5);		 
 		numberField = new JTextField();
 		numberField.setText("0");
-		numberField.setColumns(3);
+		numberField.setColumns(5);
 
 		GridBagConstraints c = new GridBagConstraints();
 		add(percentRemovalButton);
@@ -118,9 +118,9 @@ public class FilterOptionPanel extends JPanel {
 		String errorMessage = null;
 		if(percentRemovalButton.isSelected()) 
 		{	 
-			Integer percentNum = getInteger((percentField.getText()));
-			 if (percentNum == null || percentNum < 0 || percentNum > 99) {
-				 errorMessage = "Please enter 0 to 99 for percentage of matching arrays.";
+			Double percentNum = getDouble((percentField.getText()));
+			 if (percentNum == null || percentNum < 0 || percentNum > 100) {
+				 errorMessage = "Please enter 0 to 100 for percentage of matching arrays.";
 			 }
 	            
 		}
@@ -133,6 +133,23 @@ public class FilterOptionPanel extends JPanel {
 		}
 			
 		return errorMessage;
+	}
+	
+	
+	private Double getDouble(String s)
+	{
+		try
+		{
+			if (s==null)
+				return null;
+			else
+				return new Double(s.trim());
+		}catch(Exception ex)
+		{
+			return null;
+			
+		}
+		 
 	}
 	
 	private Integer getInteger(String s)
