@@ -128,7 +128,7 @@ public class MarkUsBrowser implements VisualPlugin {
 			System.out.println("process_id: " + process_id);
 			musid4prt.put(proteinData, process_id);
 			if (process_id.startsWith("MUS")) {
-				if ((is_windows && is_64bit) || (is_mac && !is_64bit)) {
+				if ((is_windows && is_64bit) || is_mac) {
 					handleUnsupportedOS();
 					return;
 				}
@@ -177,7 +177,7 @@ public class MarkUsBrowser implements VisualPlugin {
 			process_id = musid4prt.get(proteinData);
 			log.debug("proteinData found: "+process_id);
 
-			if ((is_windows && is_64bit) || (is_mac && !is_64bit)) {
+			if ((is_windows && is_64bit) || is_mac) {
 				handleUnsupportedOS();
 				return;
 			}
