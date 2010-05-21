@@ -219,7 +219,7 @@ public class NormalizationPanel implements VisualPlugin, ReHighlightable {
 
 		jSplitPane1.add(jPanel1, JSplitPane.TOP);
 		jPanel1.add(Box.createRigidArea(new Dimension(5, 0)));
-		jPanel1.add(new JLabel("Filter"));
+		jPanel1.add(new JLabel("Normalizer"));
 		jPanel1.add(Box.createRigidArea(new Dimension(5, 0)));
 		jPanel1.add(pluginNormalizers, null);
 		jPanel1.add(Box.createRigidArea(new Dimension(50, 0)));
