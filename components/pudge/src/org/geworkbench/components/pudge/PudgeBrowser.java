@@ -1,8 +1,12 @@
 package org.geworkbench.components.pudge;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.Dimension;
 import java.io.BufferedReader;
 import java.io.File;
@@ -16,6 +20,7 @@ import java.util.Properties;
 import javax.swing.BorderFactory;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -33,6 +38,7 @@ import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.ProjectEvent;
+import org.geworkbench.util.BrowserLauncher;
 import org.jdesktop.jdic.browser.BrowserEngineManager;
 import org.jdesktop.jdic.browser.IBrowserEngine;
 import org.jdesktop.jdic.browser.WebBrowser;
@@ -52,7 +58,6 @@ public class PudgeBrowser implements VisualPlugin {
 	private JPanel mainPanel = new JPanel(new BorderLayout());
 	private JPanel jp = new JPanel(new BorderLayout());
 	private IWebBrowser wb;
-	private boolean finish = false;
 	private boolean initial = true, link = true;
 
 	private static ImageIcon browseIcon = new ImageIcon(
@@ -80,6 +85,8 @@ public class PudgeBrowser implements VisualPlugin {
 	private static String osname = System.getProperty("os.name").toLowerCase();
 	private final static boolean is_mac = (osname.indexOf("mac") > -1);
 	private final static boolean is_windows = (osname.indexOf("windows") > -1);
+	private static String osarch = System.getProperty("os.arch").toLowerCase();
+	private final static boolean is_64bit = (osarch.indexOf("_64") > -1);
 	private static Properties prop = new Properties();
 	private static String mozilla_path = null;
 	private static enum Status {CONFIG, PENDING, FINAL};
@@ -104,11 +111,11 @@ public class PudgeBrowser implements VisualPlugin {
 			be.setEnginePath(mozilla_path);
 		}
 	}
-
+	private String resultURL = null;
 	@Subscribe
 	public void receive(ProjectEvent event, Object source) {
 
-		DSDataSet dataset = event.getDataSet();
+		DSDataSet<?> dataset = event.getDataSet();
 		if (dataset instanceof PudgeResultSet) {
 			resultData = (PudgeResultSet) dataset;
 			String r1 = resultData.getResult();
@@ -126,9 +133,15 @@ public class PudgeBrowser implements VisualPlugin {
 
 			// check job status from the pudge webserver only once, 
 			// instead of keeping track of it until the job is done
-			String resultURL = getCurrentURL(r1);
+			resultURL = getCurrentURL(r1);
 			if (resultURL != r1)
 				resultData.setResult(resultURL);
+			
+			if ((is_windows && is_64bit) || (is_mac && !is_64bit)) {
+				handleUnsupportedOS();
+				return;
+			}
+
 			jbInit(resultURL);
 		}
 	}
@@ -194,7 +207,7 @@ public class PudgeBrowser implements VisualPlugin {
 					// WebKitWebBrowser calls Mac-only
 					// com.apple.eawt.CocoaComponent
 					// load it with reflect to allow compilation under windows
-					Class wkwbc = Class
+					Class<?> wkwbc = Class
 							.forName("org.jdesktop.jdic.browser.WebKitWebBrowser");
 					wb = (IWebBrowser) wkwbc.newInstance();
 					wb.setContent("MacRoman");
@@ -401,6 +414,7 @@ public class PudgeBrowser implements VisualPlugin {
 	 * Check the current input URL string in the address text field, load it,
 	 * and update the status info and toolbar info.
 	 */
+	@SuppressWarnings("deprecation")
 	private void loadURL() {
 		String inputValue = jAddressTextField.getText();
 
@@ -527,5 +541,35 @@ public class PudgeBrowser implements VisualPlugin {
 		public void actionPerformed(ActionEvent e) {
 			adaptee.jGoButton_actionPerformed(e);
 		}
+	}
+
+	private void handleUnsupportedOS() {
+		mainPanel.removeAll();
+		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.PAGE_AXIS));
+		JPanel jp = new JPanel();
+		jp.add(new JLabel("Embedded browser doesn't support "+osname+" "+osarch+". "));
+		JLabel rstlb = new JLabel("<html><u>Click here to</u></html>");
+		jp.add(rstlb);
+		jp.add(new JLabel("access Pudge website directly"));
+		mainPanel.add(new JLabel(" "));
+		mainPanel.add(jp);
+		rstlb.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		rstlb.addMouseListener(new MouseAdapter() {
+				public void mousePressed(MouseEvent me) {
+					try {
+						BrowserLauncher.openURL(resultURL);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+				public void mouseEntered(MouseEvent evt) {
+					evt.getComponent().setForeground(new Color(0xC0, 0xC0, 0xF0));
+				}
+				public void mouseExited(MouseEvent evt) {
+					evt.getComponent().setForeground(Color.BLACK);
+				}
+			});
+		mainPanel.revalidate();
+		mainPanel.repaint();
 	}
 }
