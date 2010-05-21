@@ -1028,7 +1028,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		}
 
 		if (selectedAnalysis instanceof AbstractGridAnalysis) {
-			if (analysisComboBox.getSelectedIndex() != previousSelectedIndex) {
+			if (analysisComboBox.getSelectedIndex() != pidMap.get(currentDataType)) {
 				jGridServicePanel = new GridServicePanel(SERVICE);
 				jGridServicePanel.setAnalysisType(selectedAnalysis);
 				if (jAnalysisTabbedPane.getTabCount() > ANALYSIS_TAB_COUNT)
@@ -1043,7 +1043,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 			// service information every time.
 			// Should have a better implementation.
 		}
-		previousSelectedIndex = analysisComboBox.getSelectedIndex();
+		pidMap.put(currentDataType, analysisComboBox.getSelectedIndex());
 	}
 
 	/**
@@ -1300,6 +1300,9 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		}
 	}
 
+	private Class<?> currentDataType = null;
+	HashMap<Class<?>, Integer> pidMap = new HashMap<Class<?>, Integer>();
+
 	/**
 	 * Refresh the list of available analyses.
 	 */
@@ -1307,6 +1310,9 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	public void receive(org.geworkbench.events.ProjectEvent even, Object source) {
 		super.receive(even, source);
 		if (even.getDataSet() != null) {
+			currentDataType = even.getDataSet().getClass();
+			if (!pidMap.containsKey(currentDataType))
+				pidMap.put(currentDataType, previousSelectedIndex);
 			if (even.getDataSet().getClass().equals(CSProteinStructure.class)) {
 				getAvailableProteinStructureAnalyses();
 			} else if (even.getDataSet().getClass().equals(CSSequenceSet.class)) {
