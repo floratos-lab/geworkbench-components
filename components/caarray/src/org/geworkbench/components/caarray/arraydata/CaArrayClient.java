@@ -435,12 +435,13 @@ public class CaArrayClient {
 		maSet.setCompatibilityLabel(chipType);
 		AnnotationParser.setChipType(maSet, chipType);
 
-		microarray = new CSMicroarray(0, markerNo, name, null, null, true,
+		microarray = new CSMicroarray(0, markerNo, name, null, null, false,
 				DSMicroarraySet.geneExpType);
 		microarray.setLabel(name);
 		for (int i = 0; i < markerNo; i++) {
-			((DSMutableMarkerValue) microarray.getMarkerValue(i))
-					.setValue(valuesList.get(i));
+			DSMutableMarkerValue m = (DSMutableMarkerValue) microarray.getMarkerValue(i);
+			m.setValue(valuesList.get(i));
+			m.setMissing(false);
 		}
 		if (maSet != null && microarray != null) {
 			maSet.add(microarray);
