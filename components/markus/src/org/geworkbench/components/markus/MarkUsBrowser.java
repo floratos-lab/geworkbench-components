@@ -1,9 +1,13 @@
 package org.geworkbench.components.markus;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.Dimension;
 import java.io.FileInputStream;
 import java.lang.reflect.Method;
@@ -14,6 +18,8 @@ import java.util.Properties;
 import java.util.StringTokenizer;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JButton;
@@ -34,11 +40,11 @@ import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.events.ProjectNodeCompletedEvent;
+import org.geworkbench.util.BrowserLauncher;
 import org.jdesktop.jdic.browser.BrowserEngineManager;
 import org.jdesktop.jdic.browser.IBrowserEngine;
 import org.jdesktop.jdic.browser.WebBrowserEvent;
 import org.jdesktop.jdic.browser.WebBrowserListener;
-import org.jdesktop.jdic.browser.WebKitWebBrowser;
 import org.jdesktop.jdic.browser.WebBrowser;
 import org.jdesktop.jdic.browser.IWebBrowser;
 
@@ -77,6 +83,8 @@ public class MarkUsBrowser implements VisualPlugin {
 	private static String osname = System.getProperty("os.name").toLowerCase();
     private final static boolean is_mac = (osname.indexOf("mac") > -1);
     private final static boolean is_windows = (osname.indexOf("windows") > -1);
+	private static String osarch = System.getProperty("os.arch").toLowerCase();
+	private final static boolean is_64bit = (osarch.indexOf("_64") > -1);
 
 	// set true for jdic to use IE browser; false for Mozilla(FIXME: LINK in TAB
 	// NOT WORKING)
@@ -120,6 +128,10 @@ public class MarkUsBrowser implements VisualPlugin {
 			System.out.println("process_id: " + process_id);
 			musid4prt.put(proteinData, process_id);
 			if (process_id.startsWith("MUS")) {
+				if ((is_windows && is_64bit) || (is_mac && !is_64bit)) {
+					handleUnsupportedOS();
+					return;
+				}
 				showResults(process_id);
 			} else {
 				System.out.println("not displayable job ID '"+process_id+"'");
@@ -164,6 +176,12 @@ public class MarkUsBrowser implements VisualPlugin {
 			lastpid = process_id;
 			process_id = musid4prt.get(proteinData);
 			log.debug("proteinData found: "+process_id);
+
+			if ((is_windows && is_64bit) || (is_mac && !is_64bit)) {
+				handleUnsupportedOS();
+				return;
+			}
+
 			if (is_windows)
 			{
 			    if(tb==null || !tb.isInitialized()) {
@@ -234,7 +252,7 @@ public class MarkUsBrowser implements VisualPlugin {
 			    {
 			    	//WebKitWebBrowser calls Mac-only com.apple.eawt.CocoaComponent
 			    	//load it with reflect to allow compilation under windows
-				    Class wkwbc = Class.forName("org.jdesktop.jdic.browser.WebKitWebBrowser");
+				    Class<?> wkwbc = Class.forName("org.jdesktop.jdic.browser.WebKitWebBrowser");
 				    webBrowser = wkwbc.newInstance();
 				    Method setContent = wkwbc.getMethod("setContent", Class.forName("java.lang.String"));
 				    setURL = wkwbc.getMethod("setURL", Class.forName("java.net.URL"));
@@ -437,5 +455,35 @@ public class MarkUsBrowser implements VisualPlugin {
 
 	void updateStatusInfo(String statusMessage) {
 		statusBar.lblStatus.setText(statusMessage);
+	}
+
+	private void handleUnsupportedOS() {
+		mainPanel.removeAll();
+		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.PAGE_AXIS));
+		JPanel jp = new JPanel();
+		jp.add(new JLabel("Embedded browser doesn't support "+osname+" "+osarch+". "));
+		JLabel rstlb = new JLabel("<html><u>Click here to</u></html>");
+		jp.add(rstlb);
+		jp.add(new JLabel("access MarkUs website directly"));
+		mainPanel.add(new JLabel(" "));
+		mainPanel.add(jp);
+		rstlb.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		rstlb.addMouseListener(new MouseAdapter() {
+				public void mousePressed(MouseEvent me) {
+					try {
+						BrowserLauncher.openURL(MARKUS_RESULT_URL+process_id);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+				public void mouseEntered(MouseEvent evt) {
+					evt.getComponent().setForeground(new Color(0xC0, 0xC0, 0xF0));
+				}
+				public void mouseExited(MouseEvent evt) {
+					evt.getComponent().setForeground(Color.BLACK);
+				}
+			});
+		mainPanel.revalidate();
+		mainPanel.repaint();
 	}
 }
