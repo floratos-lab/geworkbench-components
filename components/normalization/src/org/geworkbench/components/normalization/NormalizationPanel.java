@@ -1,7 +1,6 @@
 package org.geworkbench.components.normalization;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -14,31 +13,30 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JList;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.ListSelectionModel;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.analysis.AbstractAnalysisLabelComparator;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
+import org.geworkbench.analysis.HighlightCurrentParameterThread;
 import org.geworkbench.analysis.ParameterKey;
+import org.geworkbench.analysis.ReHighlightable;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.NormalizingAnalysis;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.bison.model.analysis.ParameterPanel;
-import org.geworkbench.analysis.HighlightCurrentParameterThread;
-import org.geworkbench.analysis.ReHighlightable;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.ComponentRegistry;
@@ -61,7 +59,7 @@ import com.jgoodies.forms.layout.FormLayout;
  * options.
  * 
  * @author First Genetic Trust, keshav, yc2480
- * @version $ID$
+ * @version $Id$
  */
 @AcceptTypes( { DSMicroarraySet.class })
 public class NormalizationPanel implements VisualPlugin, ReHighlightable {
@@ -89,14 +87,10 @@ public class NormalizationPanel implements VisualPlugin, ReHighlightable {
 	 * The most recently used normalizer.
 	 */
 	protected AbstractAnalysis selectedNormalizer = null;
-	/**
-	 * JList used to display the normalizers.
-	 */
-	protected JList pluginNormalizers = new JList();
-	/**
-	 * JList used to display named parameter settings for a selected normalizer.
-	 */
-	protected JList namedParameters = new JList();
+
+	private JComboBox pluginNormalizers = new JComboBox();
+	private JComboBox namedParameters = new JComboBox();
+	
 	BorderLayout borderLayout1 = new BorderLayout();
 	JScrollPane jScrollPane2 = new JScrollPane();
 	JPanel jPanel3 = new JPanel();
@@ -116,9 +110,6 @@ public class NormalizationPanel implements VisualPlugin, ReHighlightable {
 	BorderLayout borderLayout5 = new BorderLayout();
 	BorderLayout borderLayout6 = new BorderLayout();
 	JPanel jPanel1 = new JPanel();
-	GridLayout gridLayout3 = new GridLayout();
-	JScrollPane jScrollPane1 = new JScrollPane();
-	JScrollPane jScrollPane3 = new JScrollPane();
 
 	/**
 	 * Default Constructor
@@ -181,33 +172,26 @@ public class NormalizationPanel implements VisualPlugin, ReHighlightable {
 			}
 
 		});
-		jPanel1.setLayout(gridLayout3);
-		jPanel1.setMinimumSize(new Dimension(0, 0));
-		jPanel1.setPreferredSize(new Dimension(50, 50));
-		jPanel1.setMaximumSize(new Dimension(50, 100));
-		jScrollPane1.setPreferredSize(new Dimension(248, 100));
-		/* Make sure that only one normalizer can be selected at a time; */
-		pluginNormalizers.getSelectionModel().setSelectionMode(
-				ListSelectionModel.SINGLE_SELECTION);
-		pluginNormalizers.addListSelectionListener(new ListSelectionListener() {
-			public void valueChanged(ListSelectionEvent e) {
+		jPanel1.setLayout(new BoxLayout(jPanel1, BoxLayout.LINE_AXIS));
+
+		pluginNormalizers.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
 				normalizerSelected_action(e);
 			}
 
 		});
-		pluginNormalizers
-				.setBorder(BorderFactory.createLineBorder(Color.black));
-		/* Make sure that only one parameter set can be selected at a time; */
-		namedParameters.getSelectionModel().setSelectionMode(
-				ListSelectionModel.SINGLE_SELECTION);
-		namedParameters.addListSelectionListener(new ListSelectionListener() {
-			public void valueChanged(ListSelectionEvent e) {
+
+		namedParameters.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
 				namedParameterSelection_action(e);
 			}
 
 		});
 		namedParameters.setAutoscrolls(true);
-		namedParameters.setBorder(BorderFactory.createLineBorder(Color.black));
 		normalizationPanel.add(jScrollPane2, BorderLayout.CENTER);
 		jScrollPane2.getViewport().add(jPanel3, null);
 		jPanel3.add(jSplitPane1, BorderLayout.CENTER);
@@ -234,10 +218,14 @@ public class NormalizationPanel implements VisualPlugin, ReHighlightable {
 		jPanelControl.add(builder.getPanel(), BorderLayout.EAST);
 
 		jSplitPane1.add(jPanel1, JSplitPane.TOP);
-		jPanel1.add(jScrollPane1, null);
-		jPanel1.add(jScrollPane3, null);
-		jScrollPane3.getViewport().add(namedParameters, null);
-		jScrollPane1.getViewport().add(pluginNormalizers, null);
+		jPanel1.add(Box.createRigidArea(new Dimension(5, 0)));
+		jPanel1.add(new JLabel("Filter"));
+		jPanel1.add(Box.createRigidArea(new Dimension(5, 0)));
+		jPanel1.add(pluginNormalizers, null);
+		jPanel1.add(Box.createRigidArea(new Dimension(50, 0)));
+		jPanel1.add(new JLabel("Saved Parameters"));
+		jPanel1.add(Box.createRigidArea(new Dimension(5, 0)));
+		jPanel1.add(namedParameters, null);
 	}
 
 	/**
@@ -251,12 +239,12 @@ public class NormalizationPanel implements VisualPlugin, ReHighlightable {
 				"Deleting Saved Parameters", JOptionPane.YES_NO_OPTION,
 				JOptionPane.WARNING_MESSAGE);
 		if ((selectedNormalizer != null) && (choice == 0)
-				&& (namedParameters.getSelectedIndex() >= 0)) {
+				&& (namedParameters.getSelectedIndex() > 0)) {
 			log.info("Deleting saved parameters: "
-					+ (String) namedParameters.getSelectedValue());
+					+ (String) namedParameters.getSelectedItem());
 			this.removeNamedParameter((String) namedParameters
-					.getSelectedValue());
-			if (namedParameters.getModel().getSize() < 1)
+					.getSelectedItem());
+			if (namedParameters.getItemCount() <= 1)
 				delete.setEnabled(false);
 		}
 	}
@@ -344,21 +332,26 @@ public class NormalizationPanel implements VisualPlugin, ReHighlightable {
 	 * Displays the list of available normalizers.
 	 */
 	private void displayNormalizers() {
+		String selectedName = null;
+		if(selectedNormalizer!=null) 
+			selectedName = selectedNormalizer.getLabel();
 		/* Clean the list */
-		pluginNormalizers.removeAll();
+		pluginNormalizers.removeAllItems();
 
 		/* Get the display names of the available normalizers. */
 		String[] names = new String[availableNormalizers.length];
 		for (int i = 0; i < availableNormalizers.length; i++) {
 			names[i] = availableNormalizers[i].getLabel();
+			pluginNormalizers.addItem(names[i]);
 		}
-		/* Show graphical components */
-		pluginNormalizers.setListData(names);
-
-		/* Highlight selected Normalizer */
-		if (selectedNormalizer != null)
-			pluginNormalizers.setSelectedValue(selectedNormalizer.getLabel(),
-					true);
+		
+		if (selectedName != null)
+			for(int i=0; i<pluginNormalizers.getItemCount(); i++) {
+				if(selectedName.equals(pluginNormalizers.getItemAt(i))) {
+					pluginNormalizers.setSelectedIndex(i);
+					break;
+				}
+			}
 		else {
 			setParametersPanel(this.emptyParameterPanel);
 			save.setEnabled(false);
@@ -391,11 +384,10 @@ public class NormalizationPanel implements VisualPlugin, ReHighlightable {
 	 *            Parameter names you want to shown in the parameter set list UI
 	 */
 	private void setNamedParameters(String[] storedParameters) {
-		namedParameters.removeAll();
-		namedParameters.setListData(storedParameters);
-		/* Make sure that only one parameter set can be selected at a time; */
-		namedParameters.getSelectionModel().setSelectionMode(
-				ListSelectionModel.SINGLE_SELECTION);
+		namedParameters.removeAllItems();
+		namedParameters.addItem("");
+		for(String n: storedParameters)
+			namedParameters.addItem(n);
 		normalizationPanel.revalidate();
 		highlightCurrentParameterGroup();
 	}
@@ -417,7 +409,7 @@ public class NormalizationPanel implements VisualPlugin, ReHighlightable {
 					.getParameterPanel();
 			String[] parametersNameList = selectedNormalizer
 					.getNamesOfStoredParameterSets();
-			namedParameters.clearSelection();
+			namedParameters.setSelectedIndex(0);
 			for (int i = 0; i < parametersNameList.length; i++) {
 				Map<Serializable, Serializable> parameter1 = ((AbstractSaveableParameterPanel) currentParameterPanel)
 						.getParameters();
@@ -426,8 +418,8 @@ public class NormalizationPanel implements VisualPlugin, ReHighlightable {
 						.getNamedParameterSet(parametersNameList[i]));
 				parameter2.remove(ParameterKey.class.getSimpleName());
 				if (parameter1.equals(parameter2)) {
-					String[] savedParameterSetNames = selectedNormalizer.getNamesOfStoredParameterSets();
-					namedParameters.setSelectedValue(savedParameterSetNames[i], true);
+					namedParameters.setSelectedIndex(i+1);
+					break;
 				}
 			}
 			calledFromProgram = false;
@@ -454,7 +446,7 @@ public class NormalizationPanel implements VisualPlugin, ReHighlightable {
 	 *            The <code>ListSelectionEvent</code> received from the list
 	 *            selection.
 	 */
-	private void normalizerSelected_action(ListSelectionEvent lse) {
+	private void normalizerSelected_action(ActionEvent actionEvent) {
 		if (pluginNormalizers.getSelectedIndex() == -1)
 			return;
 		delete.setEnabled(false);
@@ -470,10 +462,10 @@ public class NormalizationPanel implements VisualPlugin, ReHighlightable {
 		if ((paramPanel != null)
 				&& ((paramPanel instanceof AbstractSaveableParameterPanel) && (paramPanel
 						.getClass() != AbstractSaveableParameterPanel.class))) {
-			setParametersPanel(paramPanel);
 			String[] storedParameterSetNames = selectedNormalizer
 					.getNamesOfStoredParameterSets();
 			setNamedParameters(storedParameterSetNames);
+			setParametersPanel(paramPanel);
 			/*
 			 * If it's first time (means just after load from file) for this
 			 * normalizer, assign last saved parameters to current normalization
@@ -508,14 +500,13 @@ public class NormalizationPanel implements VisualPlugin, ReHighlightable {
 	 * This method will only be called once, when a normalizer been selected.
 	 */
 	private void selectLastSavedParameterSet() {
-		int lastIndex = namedParameters.getModel().getSize() - 1;
-		if (lastIndex >= 0) {
+		int lastIndex = namedParameters.getItemCount();
+		if (lastIndex > 0) {
 			String paramName = selectedNormalizer
 					.getLastSavedParameterSetName();
 			/* load from memory */
 			Map<Serializable, Serializable> parameters = selectedNormalizer
 					.getNamedParameterSet(paramName);
-			selectedNormalizer.setParameters(parameters);
 			if (parameters != null) // fix share directory issue in gpmodule
 				selectedNormalizer.setParameters(parameters);
 		} else {
@@ -532,17 +523,16 @@ public class NormalizationPanel implements VisualPlugin, ReHighlightable {
 	 *            <code>ListSelectionListener</code> listening to the
 	 *            namedParameters JList
 	 */
-	private void namedParameterSelection_action(ListSelectionEvent e) {
+	private void namedParameterSelection_action(ActionEvent e) {
 		if (selectedNormalizer == null) {
 			delete.setEnabled(false);
 			return;
 		}
 		int index = namedParameters.getSelectedIndex();
-		if (index != -1) {
+		if (index > 0) {
 			delete.setEnabled(true);
 
-			String paramName = (String) namedParameters.getModel()
-					.getElementAt(index);
+			String paramName = (String) namedParameters.getItemAt(index);
 			/* load from memory */
 			Map<Serializable, Serializable> parameters = selectedNormalizer
 					.getNamedParameterSet(paramName);
@@ -640,9 +630,8 @@ public class NormalizationPanel implements VisualPlugin, ReHighlightable {
 			 */
 			int index = namedParameters.getSelectedIndex();
 			String namedParameter = null;
-			if (index != -1) {
-				namedParameter = (String) namedParameters.getModel()
-						.getElementAt(index);
+			if (index > 0) {
+				namedParameter = (String) namedParameters.getItemAt(index);
 				if (currentParameterPanel.isDirty())
 					namedParameter = "New Parameter Setting Name";
 			} else {
