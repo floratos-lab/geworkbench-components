@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
-	<component  name="Log2 Tranformation"
+	<component  name="Log2 Transformation"
 				class="org.geworkbench.components.normalization.LogTransformationNormalizer"
 				version="1.0"
 				author="geWorkbench Development Team"
@@ -23,6 +23,6 @@
 
 	</component>
 
-	<plugin id="LogTransformationNormalizer" name="Log2 Tranformation" class="org.geworkbench.components.normalization.LogTransformationNormalizer" source="normalization"/>
+	<plugin id="LogTransformationNormalizer" name="Log2 Transformation" class="org.geworkbench.components.normalization.LogTransformationNormalizer" source="normalization"/>
 	
 </component-descriptor>
