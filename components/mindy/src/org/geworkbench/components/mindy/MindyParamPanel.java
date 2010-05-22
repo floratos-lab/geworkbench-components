@@ -271,6 +271,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 
 		modulatorsSets.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent actionEvent) {
+				if(!modulatorsSets.isEnabled())return;
 				String selectedLabel = (String) modulatorsSets
 						.getSelectedItem();
 				if (!StringUtils.isEmpty(selectedLabel))
@@ -748,6 +749,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 			}
 			calledFromProgram = false;
 		}
+        notifyAnalysisPanel();
     }
 
     /*
