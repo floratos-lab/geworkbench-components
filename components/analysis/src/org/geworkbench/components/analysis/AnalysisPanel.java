@@ -22,6 +22,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.ButtonModel;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
@@ -333,7 +334,14 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	 * Resets the list of analysis.
 	 */
 	private void reset() {
-		getAvailableAnalyses();
+		if (currentDataType == null) return;
+		if (currentDataType.equals(CSProteinStructure.class)) {
+			getAvailableProteinStructureAnalyses();
+		} else if (currentDataType.equals(CSSequenceSet.class)) {
+			getAvailableProteinSequenceAnalyses();
+		} else {
+			getAvailableAnalyses();
+		}
 		displayAnalyses();
 	}
 
@@ -768,9 +776,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		}
 		/* Show graphical components */
 		// populate the combo box
-		for(String n: names) {
-			analysisComboBox.addItem(n);
-		}
+		analysisComboBox.setModel(new DefaultComboBoxModel(names));
 
 		// use name to restore selectedAnalysis because addItem de-selected combo box, and thus de-select the analysis 
 		if (selectedAnalysisName != null) {
