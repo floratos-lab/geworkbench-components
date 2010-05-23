@@ -24,30 +24,35 @@ import org.apache.commons.logging.LogFactory;
 /**
  * @author zji
  * @version $Id$
- *
+ * 
  */
 public class FilterOptionPanel extends JPanel {
 	private static Log log = LogFactory.getLog(FilterOptionPanel.class);
-	enum Option { PERCENT_REMOVAL, NUMBER_REMOVAL };
+
+	enum Option {
+		PERCENT_REMOVAL, NUMBER_REMOVAL
+	};
 
 	private static final long serialVersionUID = -580698616635439456L;
 	JRadioButton percentRemovalButton;
 	JRadioButton numberRemovalButton;
-	
+
 	JTextField percentField = null;
 	JTextField numberField = null;
-	
-	public static int arrayNumber =0;
-	
+
+	public static int arrayNumber = 0;
+
 	FilterOptionPanel() {
 		super(new GridBagLayout());
-		
-		percentRemovalButton = new JRadioButton("Remove the marker if the percentage of matching arrays is more than");
-		numberRemovalButton = new JRadioButton("Remove the marker if the number of matching arrays is more than");
-		
+
+		percentRemovalButton = new JRadioButton(
+				"Remove the marker if the percentage of matching arrays is more than");
+		numberRemovalButton = new JRadioButton(
+				"Remove the marker if the number of matching arrays is more than");
+
 		percentField = new JTextField();
-		percentField.setText("40");	
-		percentField.setColumns(5);		 
+		percentField.setText("40");
+		percentField.setColumns(5);
 		numberField = new JTextField();
 		numberField.setText("0");
 		numberField.setColumns(5);
@@ -62,111 +67,113 @@ public class FilterOptionPanel extends JPanel {
 		add(numberField, c);
 		c.gridy = 2;
 		c.anchor = GridBagConstraints.LINE_START;
-		
-		//Group the radio buttons.
-	    ButtonGroup group = new ButtonGroup();
-	    group.add(percentRemovalButton);
-	    group.add(numberRemovalButton);
-	    
-	    // default choice 
-	    percentRemovalButton.setSelected(true);	    
-	    numberField.setEnabled(false);
-	    
-	    percentRemovalButton.addItemListener(new ItemListener() {
-			public void itemStateChanged(ItemEvent e) {
-				if (e.getStateChange() == ItemEvent.SELECTED) {
-		    			percentField.setEnabled(true);
-		    			numberField.setEnabled(false);
-					}
-				}
-	    });
-	    numberRemovalButton.addItemListener(new ItemListener() {
-			public void itemStateChanged(ItemEvent e) {
-				if (e.getStateChange() == ItemEvent.SELECTED) {
-		    			numberField.setEnabled(true);
-		    			percentField.setEnabled(false);
-					}
-				}
-	    });
-	    Border border1 = BorderFactory.createEtchedBorder(Color.white,
-	            new Color(165, 163, 151));
-	    setBorder(new TitledBorder(border1, "Filtering Options"));
 
-	    percentRemovalButton.setSelected(true);
+		// Group the radio buttons.
+		ButtonGroup group = new ButtonGroup();
+		group.add(percentRemovalButton);
+		group.add(numberRemovalButton);
+
+		// default choice
+		percentRemovalButton.setSelected(true);
+		numberField.setEnabled(false);
+
+		percentRemovalButton.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				if (e.getStateChange() == ItemEvent.SELECTED) {
+					percentField.setEnabled(true);
+					numberField.setEnabled(false);
+				}
+			}
+		});
+		numberRemovalButton.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				if (e.getStateChange() == ItemEvent.SELECTED) {
+					numberField.setEnabled(true);
+					percentField.setEnabled(false);
+				}
+			}
+		});
+		Border border1 = BorderFactory.createEtchedBorder(Color.white,
+				new Color(165, 163, 151));
+		setBorder(new TitledBorder(border1, "Filtering Options"));
+
+		percentRemovalButton.setSelected(true);
 	}
-	
+
 	Option getSelectedOption() {
-		if(percentRemovalButton.isSelected()) return Option.PERCENT_REMOVAL;
-		else if(numberRemovalButton.isSelected()) return Option.NUMBER_REMOVAL;
+		if (percentRemovalButton.isSelected())
+			return Option.PERCENT_REMOVAL;
+		else if (numberRemovalButton.isSelected())
+			return Option.NUMBER_REMOVAL;
 		else {
 			log.error("Invalid selection of filter option");
 			return null;
 		}
-		
+
 	}
-	
+
 	int getNumberThreshold() {
-		return Integer.parseInt(numberField.getText().trim());
+		try {
+			return Integer.parseInt(numberField.getText().trim());
+		} catch (Exception ex) {
+			// if numberRemovalButton is not selected and the input is invalid, then return default value
+			return 0;
+		}
+
 	}
 
 	double getPercentThreshold() {
-		return Double.parseDouble(percentField.getText().trim())*0.01;
+		try {
+			return Double.parseDouble(percentField.getText().trim()) * 0.01;
+		} catch (Exception ex) {
+			// if percentRemovalButton is not selected and the input is invalid, then return default value
+			return new Double(40.0);
+		}
 	}
-	
-	public String validateParameters()
-	{
+
+	public String validateParameters() {
 		String errorMessage = null;
-		if(percentRemovalButton.isSelected()) 
-		{	 
+		if (percentRemovalButton.isSelected()) {
 			Double percentNum = getDouble((percentField.getText()));
-			 if (percentNum == null || percentNum < 0 || percentNum > 100) {
-				 errorMessage = "Please enter 0 to 100 for percentage of matching arrays.";
-			 }
-	            
-		}
-		else if (numberRemovalButton.isSelected())
-		{
+			if (percentNum == null || percentNum < 0 || percentNum > 100) {
+				errorMessage = "Please enter 0 to 100 for percentage of matching arrays.";
+			}
+
+		} else if (numberRemovalButton.isSelected()) {
 			Integer num = getInteger((numberField.getText()));
-			 if (num == null || num < 0 || num > arrayNumber-1) {
-				 errorMessage = "Please enter 0 to " + (arrayNumber-1) + " for number of matching arrays.";
-			 }
+			if (num == null || num < 0 || num > arrayNumber - 1) {
+				errorMessage = "Please enter 0 to " + (arrayNumber - 1)
+						+ " for number of matching arrays.";
+			}
 		}
-			
+
 		return errorMessage;
 	}
-	
-	
-	private Double getDouble(String s)
-	{
-		try
-		{
-			if (s==null)
+
+	private Double getDouble(String s) {
+		try {
+			if (s == null)
 				return null;
 			else
 				return new Double(s.trim());
-		}catch(Exception ex)
-		{
+		} catch (Exception ex) {
 			return null;
-			
+
 		}
-		 
+
 	}
-	
-	private Integer getInteger(String s)
-	{
-		try
-		{
-			if (s==null)
+
+	private Integer getInteger(String s) {
+		try {
+			if (s == null)
 				return null;
 			else
 				return new Integer(s.trim());
-		}catch(Exception ex)
-		{
+		} catch (Exception ex) {
 			return null;
-			
+
 		}
-		 
+
 	}
-	 
 
 }
