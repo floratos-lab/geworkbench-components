@@ -40,7 +40,7 @@ public class DeviationBasedFilterPanel extends AbstractSaveableParameterPanel {
     final String IGNORE_OPTION = "Ignore";
 
     private GridLayout gridLayout1 = new GridLayout();
-    private JLabel deviationLabel = new JLabel("Deviation bound");
+    private JLabel deviationLabel = new JLabel(" Std. Deviation bound");
     private JLabel missingValuesLabel = new JLabel("Missing values");
     private JFormattedTextField deviationCutoff = new JFormattedTextField();
     private JComboBox missingValuesSelection = new JComboBox(new String[]{MARKER_OPTION, MICROARRAY_OPTION, IGNORE_OPTION});
@@ -169,7 +169,7 @@ public class DeviationBasedFilterPanel extends AbstractSaveableParameterPanel {
 		histStr += "----------------------------------------\n";
 		histStr += "Missing Values: ";
 		histStr += parameters.get("missingValues");
-		histStr += "\nDeviation Bound: ";
+		histStr += "\nStd. Deviation Bound: ";
 		histStr += parameters.get("bound");
 		histStr += "\n";
 		return histStr;
