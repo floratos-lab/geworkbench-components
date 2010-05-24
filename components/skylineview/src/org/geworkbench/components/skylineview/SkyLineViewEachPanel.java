@@ -110,10 +110,7 @@ public class SkyLineViewEachPanel extends JPanel implements VisualPlugin,
 	@Subscribe
 	public void receive(ProjectEvent event, Object source) {
 		DSDataSet dataset = event.getDataSet();
-		if (dataset instanceof DSProteinStructure) {
-			proteinData = (DSProteinStructure) dataset;
-			showResults(proteinData);
-		} else if (dataset instanceof SkyLineResultDataSet) {
+		if (dataset instanceof SkyLineResultDataSet) {
 			SkyLineResultDataSet r = (SkyLineResultDataSet) dataset;
 			proteinData = (DSProteinStructure) r.getParentDataSet();
 			showResults(proteinData);
