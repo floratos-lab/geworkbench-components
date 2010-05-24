@@ -672,7 +672,7 @@ public class FilteringPanel implements VisualPlugin, ReHighlightable {
 		}
 		
 		if (selectedFilter.parameterSetExist(selectedFilter.getParameters())) {
-			JOptionPane.showMessageDialog(null, "ParameterSet already exist.",
+			JOptionPane.showMessageDialog(null, "Parameter set already exists.",
 					"Canceled", JOptionPane.OK_OPTION);
 		} else {
 			int index = namedParameters.getSelectedIndex();
@@ -692,7 +692,7 @@ public class FilteringPanel implements VisualPlugin, ReHighlightable {
 				int answer = JOptionPane
 						.showConfirmDialog(
 								null,
-								"Parameter set name already used by other training panels in the same directory. Click OK to override it, or click Cancel to choose another name.",
+								"The requested parameter set name is already used by another set in the same directory. Click OK to override it, or click Cancel to choose another name.",
 								"Warning", JOptionPane.OK_CANCEL_OPTION);
 				if (answer == JOptionPane.CANCEL_OPTION) {
 					return;
