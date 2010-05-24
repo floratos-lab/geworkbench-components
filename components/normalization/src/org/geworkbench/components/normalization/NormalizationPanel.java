@@ -619,7 +619,7 @@ public class NormalizationPanel implements VisualPlugin, ReHighlightable {
 	private void save_actionPerformed(ActionEvent e) {
 		if (selectedNormalizer.parameterSetExist(selectedNormalizer
 				.getParameters())) {
-			JOptionPane.showMessageDialog(null, "ParameterSet already exists.",
+			JOptionPane.showMessageDialog(null, "Parameter set already exists.",
 					"Canceled", JOptionPane.OK_OPTION);
 		} else {
 			/*
