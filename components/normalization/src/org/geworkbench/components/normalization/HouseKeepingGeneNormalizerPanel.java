@@ -141,8 +141,10 @@ public class HouseKeepingGeneNormalizerPanel extends AbstractSaveableParameterPa
 		for (int i = 0; i < n; i++) {
 			select.add((String)selectedModel.get(i));
 		}
+		 
 		parameters.put("excluded", exclude);
 		parameters.put("selected", select);
+		parameters.put("missingvalues", missingValuesCombo.getSelectedIndex());
 		return parameters;
 	}
 
@@ -169,6 +171,9 @@ public class HouseKeepingGeneNormalizerPanel extends AbstractSaveableParameterPa
 	            for (int i = 0; i < select.size(); i++) {
 	                this.selectedModel.add(i, select.get(i));
 	            }
+			}
+			if (key.equals("missingvalues")){
+				this.missingValuesCombo.setSelectedIndex((Integer)value);
 			}
 		}
     }
