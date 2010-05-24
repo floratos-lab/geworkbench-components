@@ -11,7 +11,7 @@ import java.awt.event.ItemListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
-import javax.swing.JTextField;
+import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -37,8 +37,8 @@ public class FilterOptionPanel extends JPanel {
 	JRadioButton percentRemovalButton;
 	JRadioButton numberRemovalButton;
 
-	JTextField percentField = null;
-	JTextField numberField = null;
+	JFormattedTextField percentField = null;
+	JFormattedTextField numberField = null;
 
 	public static int arrayNumber = 0;
 
@@ -50,11 +50,11 @@ public class FilterOptionPanel extends JPanel {
 		numberRemovalButton = new JRadioButton(
 				"Remove the marker if the number of matching arrays is more than");
 
-		percentField = new JTextField();
-		percentField.setText("40");
+		percentField = new JFormattedTextField();
+		percentField.setValue(new Double(40.0));
 		percentField.setColumns(5);
-		numberField = new JTextField();
-		numberField.setText("0");
+		numberField = new JFormattedTextField();
+numberField.setValue(new Integer(0));
 		numberField.setColumns(5);
 
 		GridBagConstraints c = new GridBagConstraints();

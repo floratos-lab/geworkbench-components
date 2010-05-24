@@ -73,11 +73,11 @@ public class GenepixExpressionThresholdFilterPanel extends AbstractSaveableParam
 			} else if (key.equals("optionSelection")){
 				this.optionSelection.setSelectedIndex((Integer)value);
 			} else if (key.equals("numberThreshold")){
-	            this.filterOptionPanel.numberField.setText(value.toString());	           
+	            this.filterOptionPanel.numberField.setValue((Integer)value);	           
 	            this.filterOptionPanel.numberRemovalButton.setSelected(true);
 	            this.revalidate();
 			} else if (key.equals("percentThreshold")){
-	            this.filterOptionPanel.percentField.setText(value.toString());           
+	            this.filterOptionPanel.percentField.setValue((Double)value);	            
 	            this.filterOptionPanel.percentRemovalButton.setSelected(true);
 	            this.revalidate();
 			}
@@ -98,7 +98,7 @@ public class GenepixExpressionThresholdFilterPanel extends AbstractSaveableParam
 		if (this.filterOptionPanel.numberRemovalButton.isSelected())
 			parameters.put("numberThreshold", (Integer) this.filterOptionPanel.getNumberThreshold());
 		else
-			parameters.put("percentThreshold", new Double(this.filterOptionPanel.percentField.getText().trim()));
+			parameters.put("percentThreshold", (Double) this.filterOptionPanel.percentField.getValue());
 		parameters.put("Cy3MinValue", (Double)Cy3MinValue.getValue());
 		parameters.put("Cy3MaxValue", (Double)Cy3MaxValue.getValue());
 		parameters.put("Cy5MinValue", (Double)Cy5MinValue.getValue());

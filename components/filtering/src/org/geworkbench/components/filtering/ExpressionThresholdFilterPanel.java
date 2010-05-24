@@ -59,11 +59,11 @@ public class ExpressionThresholdFilterPanel extends AbstractSaveableParameterPan
 			} else if (key.equals("isInside")){
 				this.optionSelection.setSelectedIndex((Boolean)value ? 0 : 1);
 			} else if (key.equals("numberThreshold")){
-	            this.filterOptionPanel.numberField.setText(value.toString());	           
+	            this.filterOptionPanel.numberField.setValue((Integer)value);	           
 	            this.filterOptionPanel.numberRemovalButton.setSelected(true);
 	            this.revalidate();
 			} else if (key.equals("percentThreshold")){
-	            this.filterOptionPanel.percentField.setText(value.toString());	            
+	            this.filterOptionPanel.percentField.setValue((Double)value);	            
 	            this.filterOptionPanel.percentRemovalButton.setSelected(true);
 	            this.revalidate();
 			}
@@ -81,7 +81,7 @@ public class ExpressionThresholdFilterPanel extends AbstractSaveableParameterPan
 		if (this.filterOptionPanel.numberRemovalButton.isSelected())
 			parameters.put("numberThreshold", (Integer) this.filterOptionPanel.getNumberThreshold());
 		else
-			parameters.put("percentThreshold", new Double(this.filterOptionPanel.percentField.getText().trim()));
+			parameters.put("percentThreshold", (Double) this.filterOptionPanel.percentField.getValue());
 		parameters.put("rangeMin", (Number) rangeMinValue.getValue());
 		parameters.put("rangeMax", (Number) rangeMaxValue.getValue());
 		parameters.put("isInside", (optionSelection.getSelectedIndex() == 0));
