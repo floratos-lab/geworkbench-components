@@ -54,7 +54,7 @@ public class FilterOptionPanel extends JPanel {
 		percentField.setValue(new Double(40.0));
 		percentField.setColumns(5);
 		numberField = new JFormattedTextField();
-numberField.setValue(new Integer(0));
+        numberField.setValue(new Integer(0));
 		numberField.setColumns(5);
 
 		GridBagConstraints c = new GridBagConstraints();
@@ -114,7 +114,7 @@ numberField.setValue(new Integer(0));
 
 	int getNumberThreshold() {
 		try {
-			return Integer.parseInt(numberField.getText().trim());
+			return (Integer)numberField.getValue();
 		} catch (Exception ex) {
 			// if numberRemovalButton is not selected and the input is invalid, then return default value
 			return 0;
@@ -124,7 +124,7 @@ numberField.setValue(new Integer(0));
 
 	double getPercentThreshold() {
 		try {
-			return Double.parseDouble(percentField.getText().trim()) * 0.01;
+			return ((Double)percentField.getValue()) * 0.01;
 		} catch (Exception ex) {
 			// if percentRemovalButton is not selected and the input is invalid, then return default value
 			return new Double(40.0);
@@ -134,13 +134,13 @@ numberField.setValue(new Integer(0));
 	public String validateParameters() {
 		String errorMessage = null;
 		if (percentRemovalButton.isSelected()) {
-			Double percentNum = getDouble((percentField.getText()));
+			Double percentNum = getDouble((percentField.getValue()));
 			if (percentNum == null || percentNum < 0 || percentNum > 100) {
 				errorMessage = "Please enter 0 to 100 for percentage of matching arrays.";
 			}
 
 		} else if (numberRemovalButton.isSelected()) {
-			Integer num = getInteger((numberField.getText()));
+			Integer num = getInteger((numberField.getValue()));
 			if (num == null || num < 0 || num > arrayNumber - 1) {
 				errorMessage = "Please enter 0 to " + (arrayNumber - 1)
 						+ " for number of matching arrays.";
@@ -150,12 +150,12 @@ numberField.setValue(new Integer(0));
 		return errorMessage;
 	}
 
-	private Double getDouble(String s) {
+	private Double getDouble(Object s) {
 		try {
 			if (s == null)
 				return null;
 			else
-				return new Double(s.trim());
+				return new Double(s.toString());
 		} catch (Exception ex) {
 			return null;
 
@@ -163,12 +163,12 @@ numberField.setValue(new Integer(0));
 
 	}
 
-	private Integer getInteger(String s) {
+	private Integer getInteger(Object s) {
 		try {
 			if (s == null)
 				return null;
 			else
-				return new Integer(s.trim());
+				return new Integer(s.toString());
 		} catch (Exception ex) {
 			return null;
 
