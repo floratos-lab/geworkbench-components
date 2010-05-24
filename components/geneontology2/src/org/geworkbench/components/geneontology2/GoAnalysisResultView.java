@@ -361,6 +361,9 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 			GoTreeNode node = (GoTreeNode) tree.getLastSelectedPathComponent();
 			if(node==null || node.goId==0) {
 				geneListTableModel.setDataVector(null, geneListHeaders);
+				singleGeneTreeRoot.removeAllChildren();
+				singleGeneModel.reload();
+				geneDetails.setText("");
 				return;
 			}
 			Integer goId = node.goId;
