@@ -226,11 +226,16 @@ public class NCBIBlastParser {
 							/*
 							 * TODO use Match pattern later.
 							 */
+							String alignmentLengthString = line.substring("Identities = ".length(), line.indexOf("/"));
+							int alignmentLength = Integer.parseInt(alignmentLengthString);
+							if(0==each.getAlignmentLength())
+								each.setAlignmentLength(alignmentLength);
 							StringTokenizer st1 = new StringTokenizer(line, "(");
 							st1.nextToken();
 							String identity = st1.nextToken();
 							String[] s = identity.split("%");
-							each
+							if(0==each.getPercentAligned())
+								each
 									.setPercentAligned(new Integer(s[0])
 											.intValue());
 
@@ -241,7 +246,8 @@ public class NCBIBlastParser {
 							st = new StringTokenizer(line);
 							st.nextToken();
 							if (getStartPoint) {
-								each.setStartPoint(Integer.valueOf(
+								if(0==each.getStartPoint())
+									each.setStartPoint(Integer.valueOf(
 										st.nextToken()).intValue());
 								getStartPoint = false;
 							} else {
@@ -262,8 +268,8 @@ public class NCBIBlastParser {
 						}
 					}
 					each.setEndPoint(endPoint);
-					each.setAlignmentLength(Math.abs(each.getStartPoint()
-							- each.getEndPoint()) + 1);
+//					each.setAlignmentLength(Math.abs(each.getStartPoint()
+//							- each.getEndPoint()) + 1);
 					each.setSubject(subject.toString());
 
 					detaillines.append("</PRE>");
