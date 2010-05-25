@@ -1,13 +1,11 @@
 package org.geworkbench.util.session;
 
-import org.geworkbench.events.LoginPanelModelEvent;
-import org.geworkbench.util.PropertiesMonitor;
+import java.util.Set;
 
 import javax.swing.event.EventListenerList;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.StringTokenizer;
+
+import org.geworkbench.events.LoginPanelModelEvent;
+import org.geworkbench.util.PropertiesMonitor;
 
 /**
  * <p>Title: Sequence and Pattern Plugin</p>
@@ -18,11 +16,12 @@ import java.util.StringTokenizer;
  * <p>Company: </p>
  *
  * @author not attributable
- * @version 1.0
+ * @version $Id$
  */
-
 public class LoginPanelModel {
-    public LoginPanelModel() {
+	
+    @SuppressWarnings("unchecked")
+	public LoginPanelModel() {
         //parse initial Model data from the properties monitor
         PropertiesMonitor pm = org.geworkbench.util.PropertiesMonitor.getPropertiesMonitor();
         hostSet = pm.getHosts();
@@ -30,27 +29,18 @@ public class LoginPanelModel {
         normalizeHost(hostSet, currentHost);
         normalizePort(pm.getPort());
         normalizeUserName(pm.getUserName());
-        //get the type info directly now.
-        hostTypeList = getTypeList();
-        try {
-            jbInit();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
     }
 
     private String userName;
     private char[] password;
-    private Set hostSet;
+    private Set<String> hostSet;
     private String currentHost;
     private String port;
-    private List hostTypeList;
-    private String currentType;
 
     /**
      * List of listeners
      */
-    protected EventListenerList listenerList = new EventListenerList();
+    private EventListenerList listenerList = new EventListenerList();
 
     /**
      * This method add listener to LoginPanelModel events.
@@ -59,15 +49,6 @@ public class LoginPanelModel {
      */
     public void addLoginPanelModelListener(org.geworkbench.events.LoginPanelModelListener l) {
         listenerList.add(org.geworkbench.events.LoginPanelModelListener.class, l);
-    }
-
-    /**
-     * This method returns the listener to LoginPanelModel events.
-     *
-     * @param l
-     */
-    public void removeLoginPanelModelListener(org.geworkbench.events.LoginPanelModelListener l) {
-        listenerList.remove(org.geworkbench.events.LoginPanelModelListener.class, l);
     }
 
     /**
@@ -92,7 +73,7 @@ public class LoginPanelModel {
      * @param hostSet
      * @param host
      */
-    protected void normalizeHost(Set hostSet, String currentHost) {
+    private void normalizeHost(Set<String> hostSet, String currentHost) {
         this.hostSet = hostSet;
         this.currentHost = currentHost;
 
@@ -107,14 +88,14 @@ public class LoginPanelModel {
         }
     }
 
-    protected void normalizePort(String port) {
+    private void normalizePort(String port) {
         this.port = port;
         if (this.port == null) {
             this.port = "";
         }
     }
 
-    protected void normalizeUserName(String userName) {
+    private void normalizeUserName(String userName) {
         this.userName = userName;
         if (this.userName == null) {
             try {
@@ -134,7 +115,7 @@ public class LoginPanelModel {
     }
 
     /**
-     * This method retuns the host name.
+     * This method returns the host name.
      *
      * @return host name
      */
@@ -147,12 +128,12 @@ public class LoginPanelModel {
      *
      * @return host set. May return null.
      */
-    public Set getHostSet() {
+    public Set<String> getHostSet() {
         return hostSet;
     }
 
     /**
-     * This method retuns the user name.
+     * This method returns the user name.
      *
      * @return user name
      */
@@ -162,7 +143,7 @@ public class LoginPanelModel {
     }
 
     /**
-     * This method retuns the port number.
+     * This method returns the port number.
      *
      * @return port number
      */
@@ -171,7 +152,7 @@ public class LoginPanelModel {
     }
 
     /**
-     * This method retuns the password.
+     * This method returns the password.
      *
      * @return password
      */
@@ -206,7 +187,7 @@ public class LoginPanelModel {
      * @param hostSet     the set of host
      * @param currentHost the default selected host
      */
-    public void setHostNames(Set hostSet, String currentHost) {
+    public void setHostNames(Set<String> hostSet, String currentHost) {
         normalizeHost(hostSet, currentHost);
     }
 
@@ -216,44 +197,6 @@ public class LoginPanelModel {
 
     public void setUserName(String name) {
         normalizeUserName(name);
-    }
-
-    public String getCurrentType() {
-        return currentType;
-    }
-
-    public void setCurrentType(String currentType) {
-        this.currentType = currentType;
-    }
-
-    public List getTypeList() {
-        List hostList = new ArrayList();
-        String hostListStr = System.getProperties().getProperty("supported.host.type");
-        if (hostListStr != null) {
-            StringTokenizer st = new StringTokenizer(hostListStr);
-
-            while (st.hasMoreTokens()) {
-                hostList.add(st.nextToken());
-            }
-            return (hostList);
-
-        } else {
-            hostList.add("splash");
-            hostList.add("blast");
-
-        }
-        return hostList;
-    }
-
-    public List getHostTypeList() {
-        return hostTypeList;
-    }
-
-    public void setHostTypeList(List hostTypeList) {
-        this.hostTypeList = hostTypeList;
-    }
-
-    private void jbInit() throws Exception {
     }
 
 }
