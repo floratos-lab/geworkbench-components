@@ -29,6 +29,11 @@ public class LoginPanelModel {
         normalizeHost(hostSet, currentHost);
         normalizePort(pm.getPort());
         normalizeUserName(pm.getUserName());
+        
+        if(currentHost.equals("")) { // first time
+        	currentHost = "splash.cu-genome.org";
+        	port = "80";
+        }
     }
 
     private String userName;
