@@ -119,7 +119,8 @@ public class SkyBaseViewer implements VisualPlugin {
 	String pdburl;
 	String pdbroot = "http://156.145.102.40/";
 	String seqid = null;
-	String blastroot = "http://skyline.c2b2.columbia.edu:8080/SkyBaseData/tmpblast/";
+	//String blastroot = "http://skyline.c2b2.columbia.edu:8080/SkyBaseData/tmpblast/";
+	String blastroot = "http://cagridnode.c2b2.columbia.edu:8080/v2.0.0/SkyBaseData/tmpblast/";
 	String[] columnNames = { "Rank", "Id% Query-Model Sequence",
 			"Model Start-End", "Query Start-End", "Model SeqID",
 			"Model Sequence", "Query Sequence", "pG", "Coverage Template",
