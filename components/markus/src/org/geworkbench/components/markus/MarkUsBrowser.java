@@ -207,7 +207,7 @@ public class MarkUsBrowser implements VisualPlugin {
 			log.debug("process_id=" + process_id + "; proteinData="
 						+ proteinData + ";lastpid " + lastpid);
 
-			if (process_id.startsWith("MUS") && !lastpid.equals(process_id)) {
+			if ((process_id.startsWith("MUS") && !lastpid.equals(process_id)) || initial) {
 				showResults(process_id);
 			}
 			else if (!initial)
