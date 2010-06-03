@@ -174,7 +174,7 @@ public class MarkUsBrowser implements VisualPlugin {
 			}
 
 			lastpid = process_id;
-			process_id = musid4prt.get(proteinData);
+			process_id = resultData.getResult();
 			log.debug("proteinData found: "+process_id);
 
 			if ((is_windows && is_64bit) || is_mac) {
