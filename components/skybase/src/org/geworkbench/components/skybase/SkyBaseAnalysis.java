@@ -125,4 +125,9 @@ public class SkyBaseAnalysis extends AbstractGridAnalysis implements
 			DSDataSet refMASet) {
 		return new ParamValidationResults(true, "Not Checked");
 	}
+
+	@Override
+	public boolean isAuthorizationRequired() {
+		return false;
+	}
 }
