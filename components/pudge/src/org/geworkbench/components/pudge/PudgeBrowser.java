@@ -87,6 +87,8 @@ public class PudgeBrowser implements VisualPlugin {
 	private final static boolean is_windows = (osname.indexOf("windows") > -1);
 	private static String osarch = System.getProperty("os.arch").toLowerCase();
 	private final static boolean is_64bit = (osarch.indexOf("_64") > -1);
+    private static String osversion = System.getProperty("os.version").toLowerCase();
+    private final static boolean is_10_5 = (osversion.indexOf("10.5") > -1);
 	private static Properties prop = new Properties();
 	private static String mozilla_path = null;
 	private static enum Status {CONFIG, PENDING, FINAL};
@@ -137,7 +139,7 @@ public class PudgeBrowser implements VisualPlugin {
 			if (resultURL != r1)
 				resultData.setResult(resultURL);
 			
-			if ((is_windows && is_64bit) || (is_mac && !is_64bit)) {
+			if ((is_windows && is_64bit) || (is_mac && (!is_64bit||is_10_5))) {
 				handleUnsupportedOS();
 				return;
 			}
@@ -548,7 +550,7 @@ public class PudgeBrowser implements VisualPlugin {
 		mainPanel.removeAll();
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.PAGE_AXIS));
 		JPanel jp = new JPanel();
-		jp.add(new JLabel("Embedded browser doesn't support "+osname+" "+osarch+". "));
+		jp.add(new JLabel("Embedded browser doesn't support "+osname+" "+osversion+" "+osarch+". "));
 		JLabel rstlb = new JLabel("<html><u>Click here to</u></html>");
 		jp.add(rstlb);
 		jp.add(new JLabel("access Pudge website directly"));
