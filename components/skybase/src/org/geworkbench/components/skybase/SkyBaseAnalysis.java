@@ -54,10 +54,11 @@ public class SkyBaseAnalysis extends AbstractGridAnalysis implements
 	 * @see org.geworkbench.bison.model.analysis.Analysis#execute(java.lang.Object)
 	 */
 	public AlgorithmExecutionResults execute(Object input) {
-		if (input == null)
-			return new AlgorithmExecutionResults(false, "Invalid input. ", null);
-		assert input instanceof DSSequenceSet;
-		return new AlgorithmExecutionResults(true, "No errors", null);
+		// inform the user that only remote service is available
+		return new AlgorithmExecutionResults(
+				false,
+				"SkyBase does not have a local algorithm service.  Please choose \"Grid\" on the Medusa analysis panel.",
+				null);
 	}
 
 	/*
