@@ -57,7 +57,7 @@ public class SkyBaseAnalysis extends AbstractGridAnalysis implements
 		// inform the user that only remote service is available
 		return new AlgorithmExecutionResults(
 				false,
-				"SkyBase does not have a local algorithm service.  Please choose \"Grid\" on the Medusa analysis panel.",
+				"SkyBase does not have a local algorithm service.  Please choose \"Grid\" on the SkyBase analysis panel.",
 				null);
 	}
 
