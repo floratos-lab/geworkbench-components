@@ -1,34 +1,23 @@
 package org.geworkbench.components.genspace;
 
-import java.awt.*;
-
-import org.apache.ojb.odmg.NarrowTransaction;
-import org.geworkbench.components.genspace.ui.LoginManager;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.text.*;
-import javax.swing.table.*;
-
-import org.geworkbench.builtin.projects.remoteresources.query.GeWorkbenchCaARRAYAdaptor;
-import org.geworkbench.engine.config.*;
-import java.awt.Component;
-import org.jgraph.*;
-import org.jgraph.graph.*;
-
-import org.jgraph.event.*;
-import java.awt.*;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.geom.*;
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import java.util.*;
-import java.net.*;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+
+import org.geworkbench.components.genspace.ui.LoginManager;
 
 
 

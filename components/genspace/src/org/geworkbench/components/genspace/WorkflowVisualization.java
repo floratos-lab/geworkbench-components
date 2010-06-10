@@ -1,38 +1,48 @@
 package org.geworkbench.components.genspace;
 
-import javax.swing.*;
-
-import org.apache.commons.collections15.Transformer;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.geworkbench.builtin.projects.remoteresources.query.GeWorkbenchCaARRAYAdaptor;
-import org.geworkbench.components.genspace.rating.WorkflowVisualizationPopup;
-import org.geworkbench.engine.config.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
-import org.jgraph.*;
-import org.jgraph.graph.*;
-
-import org.jgraph.layout.TreeLayoutAlgorithm;
-import org.jgraph.event.*;
-import java.awt.*;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.geom.*;
-import java.io.IOException;
+import java.awt.geom.Rectangle2D;
 import java.io.PrintWriter;
-import java.util.*;
-import java.net.*;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Scanner;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.geworkbench.components.genspace.rating.WorkflowVisualizationPopup;
+import org.geworkbench.engine.config.VisualPlugin;
+import org.jgraph.JGraph;
+import org.jgraph.event.GraphModelEvent;
+import org.jgraph.event.GraphModelListener;
+import org.jgraph.event.GraphSelectionEvent;
+import org.jgraph.event.GraphSelectionListener;
+import org.jgraph.graph.DefaultCellViewFactory;
+import org.jgraph.graph.DefaultEdge;
+import org.jgraph.graph.DefaultGraphCell;
+import org.jgraph.graph.DefaultGraphModel;
+import org.jgraph.graph.DefaultPort;
+import org.jgraph.graph.GraphConstants;
+import org.jgraph.graph.GraphLayoutCache;
+import org.jgraph.graph.GraphModel;
 
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;
-import edu.uci.ics.jung.graph.DirectedGraph;
 import edu.uci.ics.jung.graph.DirectedOrderedSparseMultigraph;
-import edu.uci.ics.jung.graph.DirectedSparseGraph;
-import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.graph.util.Pair;
-
-import org.jdesktop.swingworker.*;
 
 
 

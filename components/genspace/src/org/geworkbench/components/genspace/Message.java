@@ -1,39 +1,13 @@
 package org.geworkbench.components.genspace;
 
-import java.awt.*;
-
-import org.geworkbench.components.genspace.Inbox;
-import org.geworkbench.components.genspace.Outbox;
-import org.geworkbench.components.genspace.ComposeMessage;
-
-import org.apache.ojb.odmg.NarrowTransaction;
-import org.geworkbench.components.genspace.ui.LoginManager;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.text.*;
-import javax.swing.table.*;
-
-import org.geworkbench.builtin.projects.remoteresources.query.GeWorkbenchCaARRAYAdaptor;
-import org.geworkbench.engine.config.*;
+import java.awt.BorderLayout;
 import java.awt.Component;
-import org.jgraph.*;
-import org.jgraph.graph.*;
 
-import org.jgraph.event.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.geom.*;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import java.util.*;
-import java.net.*;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+
+import org.geworkbench.engine.config.VisualPlugin;
 
 
 public class Message extends JPanel implements VisualPlugin
