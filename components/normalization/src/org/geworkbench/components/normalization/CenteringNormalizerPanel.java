@@ -1,18 +1,13 @@
 package org.geworkbench.components.normalization;
 
 import java.awt.BorderLayout;
-import java.awt.GridLayout;
-import java.io.IOException;
-import java.io.ObjectStreamException;
 import java.io.Serializable;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
 import javax.swing.JComboBox;
-import javax.swing.JLabel;
 
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.events.listeners.ParameterActionListener;
@@ -21,25 +16,29 @@ import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
 
 /**
- * <p>Copyright: Copyright (c) 2003</p>
- * <p>Company: First Genetic Trust Inc.</p>
- * @author First Genetic Trust
- * @version 1.0
+ * Parameters panel for the <code>MarkerCenteringNormalizer</code> and <code>MicroarrayCenteringNormalizer</code>.
+ * 
+ * @version $Id$
  */
+public class CenteringNormalizerPanel extends AbstractSaveableParameterPanel {
+	private static final long serialVersionUID = 6613986306658012899L;
 
-/**
- * Parameters panel for the <code>MarkerCenteringNormalizer</code>.
- */
-public class MarkerCenteringNormalizerPanel extends AbstractSaveableParameterPanel {
-    final String MEAN_OPTION = "Mean";
+	// Static fields used to designate the available user option within the
+    // normalizer's parameters panel.
+    public static final int MEAN = 0;
+    public static final int MEDIAN = 1;
+    public static final int MINIMUM = 0;
+    public static final int MAXIMUM = 1;
+    public static final int ZERO = 2;
+    public static final int IGNORE = 3;
+
+	final String MEAN_OPTION = "Mean";
     final String MEDIAN_OPTION = "Median";
     final String MIN_OPTION = "Min profile";
     final String MAX_OPTION = "Max profile";
     final String ZERO_OPTION = "Zero";
     final String IGNORE_OPTION = "Ignore";
-    private GridLayout gridLayout1 = new GridLayout();
-    private JLabel averagingLabel = new JLabel("Averaging method");
-    private JLabel missingValuesTreatmentLabel = new JLabel("Missing values");
+
     /**
      * Available options for computing the center to be
      */
@@ -77,7 +76,7 @@ public class MarkerCenteringNormalizerPanel extends AbstractSaveableParameterPan
 		}
     }
 
-    public MarkerCenteringNormalizerPanel() {
+    public CenteringNormalizerPanel() {
         try {
             jbInit();
         } catch (Exception e) {
@@ -109,14 +108,14 @@ public class MarkerCenteringNormalizerPanel extends AbstractSaveableParameterPan
      * Gets the user-specified preference for the averaging method to use (mean
      * or median).
      *
-     * @return <code>MarkerCenteringNormalizer.MEAN</code> or
-     *         <code>MarkerCenteringNormalizer.MEDIAN</code>.
+     * @return <code>CenteringNormalizer.MEAN</code> or
+     *         <code>CenteringNormalizer.MEDIAN</code>.
      */
     public int getAveragingSelection() {
         if (averagingSelection.getSelectedItem().equals(MEAN_OPTION))
-            return MarkerCenteringNormalizer.MEAN;
+            return MEAN;
         else
-            return MarkerCenteringNormalizer.MEDIAN;
+            return MEDIAN;
     }
 
     /**
@@ -131,13 +130,13 @@ public class MarkerCenteringNormalizerPanel extends AbstractSaveableParameterPan
      */
     public int getMissingValueTreatment() {
         if (missingValuesSelection.getSelectedItem().equals(MIN_OPTION))
-            return MarkerCenteringNormalizer.MINIMUM;
+            return MINIMUM;
         else if (missingValuesSelection.getSelectedItem().equals(MAX_OPTION))
-            return MarkerCenteringNormalizer.MAXIMUM;
+            return MAXIMUM;
         else if (missingValuesSelection.getSelectedItem().equals(ZERO_OPTION))
-            return MarkerCenteringNormalizer.ZERO;
+            return ZERO;
         else
-            return MarkerCenteringNormalizer.IGNORE;
+            return IGNORE;
     }
 
     /**

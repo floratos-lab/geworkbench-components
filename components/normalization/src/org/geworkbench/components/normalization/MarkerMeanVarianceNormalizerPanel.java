@@ -106,13 +106,13 @@ public class MarkerMeanVarianceNormalizerPanel extends AbstractSaveableParameter
      */
     public int getMissingValueTreatment() {
         if (missingValuesSelection.getSelectedItem().equals(MIN_OPTION))
-            return MarkerCenteringNormalizer.MINIMUM;
+            return MarkerMeanVarianceNormalizer.MINIMUM;
         else if (missingValuesSelection.getSelectedItem().equals(MAX_OPTION))
-            return MarkerCenteringNormalizer.MAXIMUM;
+            return MarkerMeanVarianceNormalizer.MAXIMUM;
         else if (missingValuesSelection.getSelectedItem().equals(ZERO_OPTION))
-            return MarkerCenteringNormalizer.ZERO;
+            return MarkerMeanVarianceNormalizer.ZERO;
         else
-            return MarkerCenteringNormalizer.IGNORE;
+            return MarkerMeanVarianceNormalizer.IGNORE;
     }
 
 	@Override
