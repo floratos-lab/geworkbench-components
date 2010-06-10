@@ -202,7 +202,7 @@ public class ExpressionThresholdFilterPanel extends AbstractSaveableParameterPan
 	@Override
 	public String getDataSetHistory() {
 		String histStr = "Expression Threshold Filter:\n";
-		histStr += "----------------------------------------\n";
+		
 		Map<Serializable, Serializable>parameters = null;
 		parameters = getParameters();
 		

@@ -86,7 +86,7 @@ public class MarkerMeanVarianceNormalizerPanel extends AbstractSaveableParameter
         DefaultFormBuilder builder = new DefaultFormBuilder(layout);
         builder.setDefaultDialogBorder();
 
-        builder.appendSeparator("Centering Parameters");
+        builder.appendSeparator("Mean-Variance Parameters");
 
         builder.append("Missing values", missingValuesSelection);
         this.add(builder.getPanel(), BorderLayout.CENTER);

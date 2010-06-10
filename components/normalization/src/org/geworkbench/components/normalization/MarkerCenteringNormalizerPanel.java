@@ -5,6 +5,7 @@ import java.awt.GridLayout;
 import java.io.IOException;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -55,7 +56,7 @@ public class MarkerCenteringNormalizerPanel extends AbstractSaveableParameterPan
 		parameters.put("missing", missingValuesSelection.getSelectedIndex());
 		return parameters;
 	}
-    
+
     /*
      * (non-Javadoc)
      * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
@@ -75,7 +76,7 @@ public class MarkerCenteringNormalizerPanel extends AbstractSaveableParameterPan
 			}
 		}
     }
-    
+
     public MarkerCenteringNormalizerPanel() {
         try {
             jbInit();
@@ -139,10 +140,21 @@ public class MarkerCenteringNormalizerPanel extends AbstractSaveableParameterPan
             return MarkerCenteringNormalizer.IGNORE;
     }
 
+    /**
+     *	used for history
+     */
+    public String getParamDetail() {
+    	String averagingSelectionLine = "Averaging method:  " + (String) averagingSelection.getSelectedItem() +"\n";
+    	String missingValuesSelectionLine = "Missing values:  " + (String) missingValuesSelection.getSelectedItem() +"\n";
+        String paramDetail = "Centering Parameters:\n" + averagingSelectionLine + missingValuesSelectionLine;
+
+        return paramDetail ;
+     }
+
 	@Override
 	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

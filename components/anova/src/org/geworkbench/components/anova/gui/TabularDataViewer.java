@@ -407,7 +407,7 @@ public class TabularDataViewer extends JPanel implements
         }
     }
 
-    private class BooleanBean extends Model {
+    public class BooleanBean extends Model {
         /**
 		 * 
 		 */

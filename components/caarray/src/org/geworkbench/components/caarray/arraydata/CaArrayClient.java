@@ -433,6 +433,7 @@ public class CaArrayClient {
 		}
 
 		maSet.setCompatibilityLabel(chipType);
+		maSet.setAnnotationFileName(AnnotationParser.getLastAnnotationFileName());
 		AnnotationParser.setChipType(maSet, chipType);
 
 		microarray = new CSMicroarray(0, markerNo, name, null, null, false,

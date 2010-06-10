@@ -1,0 +1,394 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html dir="ltr" xml:lang="en" xmlns="http://www.w3.org/1999/xhtml" 
+lang="en"><head>
+
+  
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="KEYWORDS" content="Normalization">
+<meta name="robots" content="index,follow">
+<link rel="shortcut icon" 
+href="http://wiki.c2b2.columbia.edu/favicon.ico">
+    <title>Normalization - Workbench</title>
+    <style type="text/css" media="screen,projection">/*<![CDATA[*/ @import "/workbench/skins/monobook/main.css"; /*]]>*/</style>
+    <link rel="stylesheet" type="text/css" 
+href="Normalization_files/commonPrint.css">
+
+<a name="Overview"></a><h1>Overview</h1>
+<p>Normalization is used to transform data in preparation for analysis. 
+ Many normalizers are oriented towards decreasing the effects of 
+systematic differences across a set of microarrays, aiding in 
+cross-microarray comparisons.  A log transformation of the data can be 
+used to improve its statistical distribution.  geWorkbench offers a 
+selection of pluggable normalization components (see list below).  The 
+Normalizer panel is located in the <b>Commands and Analysis</b> area in 
+the lower right side of the application.
+</p><p>All normalization operations directly alter the loaded data set 
+and are not reversible. A separate copy of the data is not generated. 
+Normalization operations do not respect any marker or array sets that 
+may be activated; normalization always acts on the entire data set. 
+</p><p>The <b>Missing Value Computation</b> normalizer can be used to 
+replace missing values with imputed values. Note that some analysis 
+routines also will optionally compute replacements for missing values if
+ needed.
+</p><p>Data preparation methods such as RMA and GCRMA are not directly 
+available in geWorkbench.  Affymetrix CEL files can be processed 
+externally to geWorkbench using a program such as RMAExpress or in 
+R/Bioconductor and then the processed data imported into geWorkbench.
+</p>
+<a name="Normalizer_Configuration"></a><h1>Normalizer Configuration</h1>
+<p>Some normalizers may not be loaded by default in geWorkbench.  To 
+configure which normalizers to load, use the <a 
+ Component Configuration Manager.  It is available in the top menu-bar under  <b>Tools-&gt;Component
+ Configuration</b>.
+ <br>
+</p><p><img 
+src="Normalization_files/Normalizers_in_CCM.png" 
+alt="Image:Normalizers_in_CCM.png" 
+longdesc="/workbench/index.php/Image:Normalizers_in_CCM.png" 
+</p>
+<a name="Available_Normalizers"></a><h1>Available Normalizers</h1>
+<p>geWorkbench comes with the following normalization routines 
+installed: 
+</p><p><br>
+</p>
+<table style="border: 1px solid lightGray;">
+<tbody><tr>
+<th>Normalizer</th><th>Description</th><th>
+</th></tr>
+<tr>
+<td><b>Housekeeping Genes Normalizer</b> </td><td> Normalize all values 
+such that the averaged expression value of specified house-keeping 
+markers is the same on each microarray.
+</td></tr>
+<tr>
+<td><b>Log2 Transformation</b>  </td><td>Applies a log2 transformation 
+to all measurements in a microarray.
+</td></tr>
+<tr>
+<td><b>Marker Centering Normalizer</b> </td><td>Subtracts the mean or 
+median measurement of a marker profile from every measurement in the 
+profile.
+</td></tr>
+<tr>
+<td><b>Mean-Variance Normalizer</b> </td><td>For every marker profile, 
+the mean measurement of the entire profile is subtracted from each 
+measurement in the profile and the resulting value is divided by the 
+standard deviation.
+</td></tr>
+<tr>
+<td><b>Microarray Centering Normalizer</b> </td><td>Subtracts the mean 
+or median measurement of a microarray from every measurement in that 
+microarray.
+</td></tr>
+<tr>
+<td><b>Missing Value Computation</b> </td><td>Replaces every missing 
+value with either the mean value of that marker across all microarrays 
+or with the mean measurement of all markers in the microarray where the 
+missing value is observed.
+</td></tr>
+<tr>
+<td><b>Quantile Normalizer</b> </td><td> Adjusts expression values so 
+that the distribution of values is the same on each microarray, though 
+which marker has which value varies.
+</td></tr>
+<tr>
+<td><b>Threshold Normalizer</b>  </td><td>All data points whose value is
+ less than (or greater than) a user-specified minimum (maximum) value 
+are raised (reduced) to that minimum (maximum) value.
+</td></tr>
+</tbody></table>
+<p><br>
+</p>
+<a name="Basic_Controls"></a><h1>Basic Controls</h1>
+<a name="Overview_2"></a><h2>Overview</h2>
+<p><img 
+src="Normalization_files/Normalization-Quantile_full.png" 
+alt="Image:Normalization-Quantile_full.png" 
+longdesc="/workbench/index.php/Image:Normalization-Quantile_full.png" 
+width="665" height="226">
+</p>
+<ul><li> <b>Normalizer</b> (menu) - Select the desired normalizer.
+</li></ul>
+<ul><li> <b>Saved Parameters</b> (menu) - Allows selection of stored 
+parameter settings.
+</li></ul>
+<ul><li> <b>Normalize</b> (button)- Run the selected transformation.
+</li></ul>
+<ul><li> <b>Save Settings</b> - Save the current settings (see following
+ section).
+</li></ul>
+<ul><li> <b>Delete Settings</b>- Delete the currently selected parameter
+ set.
+</li></ul>
+<a name="Saving_Parameters"></a><h2>Saving Parameters</h2>
+<p>The current parameter settings can be saved to a named parameter set.
+  The saved set will be displayed in the pull-down menu at upper right 
+in the component. Any number of parameter sets can be saved.  Selecting a
+ saved parameter set will load its settings.  If the currently set 
+parameters match a saved set, that set's entry will be shown in the 
+menu.
+</p>
+<ul><li> <b>Save Settings</b> - Save the current settings to a new 
+parameter set.
+</li><li> <b>Delete Settings</b> - Delete the currently selected 
+parameter set from the menu.
+</li></ul>
+<a name="Specific_Controls_for_each_Normalizer"></a><h1>Specific 
+Controls for each Normalizer</h1>
+<a name="Housekeeping_Genes_Normalizer"></a><h2>Housekeeping Genes 
+Normalizer</h2>
+<p><img 
+src="Normalization_files/Normalization-HouseKeeping.png" 
+alt="Image:Normalization-HouseKeeping.png" 
+longdesc="/workbench/index.php/Image:Normalization-HouseKeeping.png" 
+width="900" height="305">
+</p><p><br>
+The Housekeeping Genes normalization method normalizes data using the 
+expression values of selected housekeeping genes. In particular, for 
+each microarray, the average expression of all markers corresponding to 
+housekeeping genes is calculated and then all expression levels within 
+the microarray are divided by that average. To specify the housekeeping 
+gene markers, the user can load a CSV (comma separated values) file 
+containing these markers. The loaded markers are displayed in the <b>Current
+ Selected Genes</b> list box.  Markers can be moved back and forth 
+between this list and the list at left, <b>Excluded Genes</b> through 
+use of the right and left arrow buttons (<b>&lt; &gt;</b>), or simply by
+ double-clicking on a marker in either list.  The current contents of 
+the <b>Current Selected Genes</b> marker set can be saved as a CSV file 
+for later re-use.  
+</p><p><br>
+</p>
+<a name="Controls"></a><h3>Controls</h3>
+<ul><li> <b>&lt;, &gt;</b> = Shift selected markers between lists.  
+Double-clicking on a list item will also shift it to the opposite list.
+</li><li> <b>Clear All</b> - Clear both lists.
+</li><li> <b>Load</b> - Load a list of markers from a comma-separated 
+value (CSV) format file.  One marker per line is also an acceptable 
+format (.csv suffix).
+</li><li> <b>Save</b> - Save the list shown in the <b>Current Selected 
+Genes</b> list to a file.  The output file format is one marker per line
+ (suffix .csv).
+</li></ul>
+<ul><li> <b>Right-click menu</b> - If one right-clicks on a marker in 
+the <b>Current Selected Genes</b> list, a pop-up menu appears, offering 
+two choices:
+</li></ul>
+<ol><li> <b>Rename</b> - Rename the marker in the list.  Note that the 
+marker name must match a marker in the currently loaded dataset.
+</li><li> <b>Delete</b> - Delete a marker from the list.
+</li></ol>
+<a name="Missing_Value_Options_for_Housekeeping_Genes"></a><h3>Missing 
+Value Options for Housekeeping Genes</h3>
+<ul><li> <b>Ignore</b> - Do not replace missing values.
+</li><li> <b>Microarray Average</b> - Missing values are replaced for 
+the housekeeping gene normalization with the average of all values on 
+the microarray on which the missing value was found.
+</li></ul>
+<p><br>
+</p>
+<a name="Selected_Genes_Not_Available"></a><h3>Selected Genes Not 
+Available</h3>
+<p>When you have attempted to normalize the data with genes that are not
+ included in the data, the system generates a warning message and 
+highlights the missing genes in yellow in the <b>Current Selected Genes</b>
+ list box.  A pop-up dialog box will offer the following choices:
+</p>
+<ul><li>  <b>OK</b> – Proceeds to normalize the data using only the 
+markers that are present in the data set, disregarding the 
+yellow-highlighted markers.
+</li><li> <b>Cancel</b> – Cancels the normalization operation. The 
+markers in the list which are not in the dataset will remain highlighted
+ in yellow.
+</li><li> <b>Right-click menu options</b> - Right-clicking on a 
+highlighted marker will pop-up a menu with the following choices:
+<ul><li> <b>Exclude Highlighted</b> - Move the highlighted markers back 
+to the <b>Excluded Genes</b> list on left.
+</li><li> <b>Delete Highlighted</b> - Delete the highlighted markers 
+from the list.
+</li><li> <b>Clear Highlights</b> - Clear all highlights, leaving the 
+list unchanged.
+</li></ul>
+</li></ul>
+<p><img
+ 
+src="Normalization_files/Normalization-Housekeeping_invalid_marker_options.png"
+ alt="Image:Normalization-Housekeeping_invalid_marker_options.png" 
+longdesc="/workbench/index.php/Image:Normalization-Housekeeping_invalid_marker_options.png"
+ width="367" height="204">
+</p>
+<a name="Log2_Transformation"></a><h2>Log2 Transformation</h2>
+<p><a 
+<img 
+src="Normalization_files/Normalization-Log2_Transformation.png" 
+alt="Image:Normalization-Log2_Transformation.png" 
+longdesc="/workbench/index.php/Image:Normalization-Log2_Transformation.png"
+ width="668" height="191">
+</p><p>Transforms the expression values in all microarrays in the 
+current data set of taking the base 2 log of the data.  The 
+transformation is applied to all expression measurements in all 
+microarrays in the currently loaded data set. The operation is applied 
+only if all values in all microarrays are positive.  If this is not the 
+case, an error message appears indicating that the normalization could 
+not be performed.
+</p>
+<a name="Marker_Centering_Normalizer"></a><h2>Marker Centering 
+Normalizer</h2>
+<p><img 
+src="Normalization_files/Normalization-Marker_Centering.png" 
+alt="Image:Normalization-Marker_Centering.png" 
+longdesc="/workbench/index.php/Image:Normalization-Marker_Centering.png"
+ width="666" height="193">
+</p><p>This component allows normalizing using a choice of the mean or 
+median value for each marker profile across all arrays in the currently 
+loaded data set.  The calculated value for a given marker is subtracted 
+from each measurement for that marker across all arrays.
+</p>
+<a name="Centering_Parameters"></a><h3>Centering Parameters</h3>
+<ul><li> <b>Averaging method</b> - Designates if the mean or the median 
+should be used for centering. Mean and median values are computed from 
+the non-missing values within the profile.
+<ul><li> <b>Mean</b> - Use the mean value of each marker profile.
+</li><li> <b>Median</b> - Use the median value of each marker profile.
+</li></ul>
+</li><li> <b>Missing values</b> - Designates how to handle missing 
+values in a marker profile. Available options are:
+<ul><li> <b>Min profile</b>: Missing values are replaced with the 
+minimum (post-centering) profile value.
+</li><li> <b>Max profile</b>: Missing values are replaced with the 
+maximum (post-centering) profile value.
+</li><li> <b>Zero</b>: Missing values are set to 0.
+</li><li> <b>Ignore</b>: Missing values are left untouched.
+</li></ul>
+</li></ul>
+<a name="Mean-Variance_Normalizer"></a><h2>Mean-Variance Normalizer</h2>
+<p><img 
+src="Normalization_files/Normalization-Mean_Variance.png" 
+alt="Image:Normalization-Mean_Variance.png" 
+longdesc="/workbench/index.php/Image:Normalization-Mean_Variance.png" 
+width="721" height="198">
+</p><p><br>
+For each marker profile, the mean measurement of the entire profile is 
+subtracted from each measurement in the profile and the resulting value 
+is divided by the profile's standard deviation.
+</p>
+<a name="Mean-Variance_Parameters"></a><h3>Mean-Variance Parameters</h3>
+<ul><li> <b>Missing values</b> - Designates how to handle missing values
+ in a marker profile. Available options are:
+<ul><li> <b>Min profile</b>: Missing values are replaced with the 
+minimum (post-centering) profile value.
+</li><li> <b>Max profile</b>: Missing values are replaced with the 
+maximum (post-centering) profile value.
+</li><li> <b>Zero</b>: Missing values are set to 0.
+</li><li> <b>Ignore</b>: Missing values are left untouched.
+</li></ul>
+</li></ul>
+<a name="Microarray_Centering_Normalizer"></a><h2>Microarray Centering 
+Normalizer</h2>
+<p><img
+ src="Normalization_files/Normalization-Microarray_Centering.png" 
+alt="Image:Normalization-Microarray_Centering.png" 
+longdesc="/workbench/index.php/Image:Normalization-Microarray_Centering.png"
+ width="667" height="192">
+</p>
+<a name="Centering_Parameters_2"></a><h3>Centering Parameters</h3>
+<ul><li> <b>Averaging method</b> - Designates if the mean or the median 
+should be used for centering. Mean and median values are computed from 
+the non-missing values within the profile.
+<ul><li> <b>Mean</b> - Use the mean value of each marker profile.
+</li><li> <b>Median</b> - Use the median value of each marker profile.
+</li></ul>
+</li><li> <b>Missing values</b> - Designates how to handle missing 
+values in a marker profile. Available options are:
+<ul><li> <b>Min profile</b>: Missing values are replaced with the 
+minimum (post-centering) profile value.
+</li><li> <b>Max profile</b>: Missing values are replaced with the 
+maximum (post-centering) profile value.
+</li><li> <b>Zero</b>: Missing values are set to 0.
+</li><li> <b>Ignore</b>: Missing values are left untouched.
+</li></ul>
+</li></ul>
+<a name="Missing_Values_Normalizer"></a><h2>Missing Values 
+Normalizer</h2>
+<p><img 
+src="Normalization_files/Normalization-Missing_Values.png" 
+alt="Image:Normalization-Missing_Values.png" 
+longdesc="/workbench/index.php/Image:Normalization-Missing_Values.png" 
+width="668" height="195">
+</p><p>This normalizer replaces a missing measurement with a consensus 
+value. This value is computed based upon the selection at the drop-down 
+box titled "<b>Averaging method</b>". 
+</p>
+<a name="Averaging_method"></a><h3>Averaging method</h3>
+<ul><li> <b>Mean profile marker</b> - Replaces the missing measurement 
+with the average value (across all microarrays) of its corresponding 
+marker. The average is computed by taking into account only non-missing 
+values.
+</li><li> <b>Mean microarray value</b> - Replaces the missing 
+measurement with the average value of its corresponding microarray. The 
+average is computed by taking into account only non-missing values.
+</li></ul>
+<a name="Quantile_Normalizer"></a><h2>Quantile Normalizer</h2>
+<p><img 
+src="Normalization_files/Normalization-Quantile.png" 
+alt="Image:Normalization-Quantile.png" 
+longdesc="/workbench/index.php/Image:Normalization-Quantile.png" 
+width="665" height="207">
+</p><p><br>
+Quantile normalization adjusts the expression measurements in each 
+microarray so that the expression value distribution is the same for all
+ microarrays in the microarray set being normalized. This is a 
+non-linear normalization method which is not dependent upon the choice 
+of a reference or baseline array. A description of the underlying 
+computations can be found in: Bolstad, B<i> et al.</i> (2003). In 
+geWorkbench, the normalization is applied to the probeset level values 
+(not the individual probe values).
+</p>
+<a name="Missing_Values_Averaging_method"></a><h3>Missing Values 
+Averaging method</h3>
+<ul><li> <b>Mean profile marker</b> - Replaces the missing measurement 
+with the average value (across all microarrays) of its corresponding 
+marker. The average is computed by taking into account only non-missing 
+values.
+</li><li> <b>Mean microarray value</b> - Replaces the missing 
+measurement with the average value of its corresponding microarray. The 
+average is computed by taking into account only non-missing values.
+</li></ul>
+<p><br>
+</p>
+<a name="References:"></a><h3>References:</h3>
+<p>Bolstad BM, Irizarry RA, Astrand M, Speed TP (2003) A comparison of 
+normalization methods for high density oligonucleotide array data based 
+on variance and bias. Bioinformatics 19(2):185-93. (http://www.ncbi.nlm.nih.gov/pubmed/12538238)
+</p><p><br>
+Supplementary information:  
+http://bmbolstad.com/misc/normalize/normalize.html.
+</p>
+<a name="Threshold_Normalizer"></a><h2>Threshold Normalizer</h2>
+<p><img 
+src="Normalization_files/Normalization-Threshold.png" 
+alt="Image:Normalization-Threshold.png" 
+longdesc="/workbench/index.php/Image:Normalization-Threshold.png" 
+width="668" height="201">
+</p><p>Allows a minimum or maximum value for the data to be set.  If a 
+minimum value is specified, any value less than that will be set to the 
+given minimum value.  If a maximum value is specified, any value greater
+ than that will be set to the given maxium value.
+</p><p><br>
+</p>
+<a name="Threshold_Parameters"></a><h3>Threshold Parameters</h3>
+<ul><li> <b>Cut-off value</b> - Enter a real-number value for the 
+desired cut-off.
+</li><li> <b>Cut-off type</b>
+<ul><li> <b>Minimum</b> - Any expression value less than the specified 
+cut-off value is set equal to the cut-off value (floor).
+</li><li> <b>Maximum</b> - Any expression value greater than the 
+specified cut-off value is set equal to the cut-off value (ceiling).
+</li></ul>
+</li><li> <b>Missing values</b>
+<ul><li> <b>Ignore</b> - Do not change missing values.
+</li><li> <b>Replace</b> - Replace missing values with the specified 
+cut-off value.
+</li></ul>
+</li></ul>
+
+ </body></html>

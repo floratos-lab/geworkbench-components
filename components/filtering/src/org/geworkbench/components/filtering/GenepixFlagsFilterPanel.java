@@ -256,11 +256,15 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel {
         table1.getColumnModel().getColumn(0).setPreferredWidth(15);
         table1.getColumnModel().getColumn(1).setPreferredWidth(30);
         table1.getColumnModel().getColumn(2).setPreferredWidth(30);
-        table1.getColumnModel().getColumn(3).setPreferredWidth(30);
+        table1.getColumnModel().getColumn(3).setPreferredWidth(35);
         table1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         ListSelectionModel rowSM = table1.getSelectionModel();
         rowSM.addListSelectionListener(new listSelectionListener());
         table1.setSelectionModel(rowSM);
+        
+        ParameterActionListener parameterActionListener = new ParameterActionListener(this);        
+        table1.addMouseListener(parameterActionListener);
+       
 
         JScrollPane hitsPane = new JScrollPane(table1);
         container.add(
@@ -316,7 +320,7 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel {
 		
 		/* array of the column names in order from left to right*/
         final String[] columnNames = {"Filter", "Flags Name", "Description",
-                                     "# of probes",
+                                     "# of occurrences",
         };
         FlagDetail hit;
 
@@ -437,8 +441,7 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel {
 		String histStr = "";
 
 		// Header
-		histStr += "GenepixFlagsFilter parameters:\n";
-		histStr += "----------------------------------------\n";
+		histStr += "GenepixFlagsFilter parameters:\n";		
 		if(this.filterOptionPanel.numberRemovalButton.isSelected()){
 			histStr += "number threshold of missing arrays: ";
 			histStr += parameters.get("numberThreshold");			

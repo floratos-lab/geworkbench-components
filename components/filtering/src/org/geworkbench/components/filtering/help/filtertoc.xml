@@ -2,11 +2,13 @@
 
 <toc version="1.0">
 
-	<tocitem text="Filters">
+	<tocitem text="Filtering">
 
-		<tocitem target="overview" text="Filters Overview"/>
-
-		<tocitem target="missing.value.filter" text="Missing Values Filter"/>
+		<tocitem target="overview" text="Overview"/>
+		
+		<tocitem target="filter.configuration" text="Filter Configuration"/>
+		
+		<tocitem target="basic.controls" text="Basic Controls"/>
 
 		<tocitem target="single.value.filter" text="Affy Detection Filter"/>
 
@@ -17,6 +19,8 @@
 		<tocitem target="two.channel.filter" text="Genepix Expression Threshold Filter(Two Channel)"/>
 
 		<tocitem target="Genepix.filter" text="Genepix Flags Filter"/>
+		
+		<tocitem target="missing.value.filter" text="Missing Values Filter"/>
 	
 
 	</tocitem>

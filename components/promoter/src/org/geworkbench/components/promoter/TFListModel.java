@@ -101,9 +101,9 @@ class TFListModel extends AbstractListModel {
  			}
 			
 			/* Drop Down Filter */
-			if (taxonomyFilter != null && !taxonomyFilter.equals("All Taxonomies")){
+			if (taxonomyFilter != null && !taxonomyFilter.equals("All Taxa")){
 				String taxonomy = fullNameTaxGroupMap.get(tfNameSet.get(i));
-				if (taxonomy == null || !taxonomy.equals(taxonomyFilter)){
+				if (taxonomy == null || !taxonomy.equalsIgnoreCase(taxonomyFilter)){
 					continue;
 				}
 			}

@@ -78,7 +78,7 @@ public class PromoterViewPanel extends JPanel {
     JPanel jPanel2 = new JPanel();
     JPanel logoPanel = new JPanel();
     
-    Vector<String> uniqueTaxGroupVector = new Vector<String>();
+    private Vector<String> uniqueTaxGroupVector = new Vector<String>();
 	Vector<String> getUniqueTaxGroupVector() {
 		return uniqueTaxGroupVector;
 	}
@@ -319,6 +319,7 @@ public class PromoterViewPanel extends JPanel {
                 jaddNewTFB_actionPerformed(e);
             }
         });
+        jaddNewTFB.setEnabled(false);
         
         jScrollPane1.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         jScrollPane1.setAlignmentX((float) 0.5);
@@ -1086,7 +1087,7 @@ public class PromoterViewPanel extends JPanel {
 			
 			
 			String[] tax_groupArray = annotationsResults.get("tax_group");
-			String tax_group = tax_groupArray[ANNOTATIONS_VALUE]; 
+			String tax_group = CapitalizeFirstLetter(tax_groupArray[ANNOTATIONS_VALUE]); 
 			uniqueTaxGroupSet.add(tax_group);
 	
 			fullNameTaxGroupMap.put(fullName, tax_group);
@@ -1098,6 +1099,10 @@ public class PromoterViewPanel extends JPanel {
         Collections.sort(uniqueTaxGroupVector);
     }
 
+    private static String CapitalizeFirstLetter(String str) {
+    	return str.substring(0, 1).toUpperCase()+str.substring(1);
+    }
+    
     private void refreshTranscriptionFactorList(){
 
     	Iterator<TranscriptionFactor> it = tfMap.values().iterator();
