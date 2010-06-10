@@ -25,8 +25,8 @@
 			var="Commands.Sets.Activate" />
 		<menu-item path="Commands.Sets.Deactivate Set" mode="onFocus"
 			var="Commands.Sets.Deactivate" />
-		<menu-item path="Commands.Sets.Rename Set" mode="onFocus"
-			var="Commands.Sets.Rename" />
+		<!--  menu-item path="Commands.Sets.Rename Set" mode="onFocus"
+			var="Commands.Sets.Rename" / -->
 		<menu-item path="Commands.Sets.Add to Set" mode="onFocus"
 			var="Commands.Sets.Add to Set" />
 		<menu-item path="View.Clear Selection" mode="onFocus"

@@ -245,8 +245,7 @@ public class AffyDetectionCallFilterPanel extends AbstractSaveableParameterPanel
 		parameters = getParameters();
 		// Header
 		histStr += "AffyDetectionCallFilter parameters:\n";
-		histStr += "----------------------------------------\n";
-		
+				
 		if(this.filterOptionPanel.numberRemovalButton.isSelected()){
 			histStr += "number threshold of missing arrays: ";
 			histStr += parameters.get("numberThreshold");			

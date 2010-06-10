@@ -255,8 +255,7 @@ public class GenepixExpressionThresholdFilterPanel extends AbstractSaveableParam
 		GenepixExpressionThresholdFilterPanel genepixExpressionThresholdFilterPanel = this;
 		String histStr = "";
 		// Header
-		histStr += "GenepixExpressionThresholdFilter parameters:\n";
-		histStr += "----------------------------------------\n";
+		histStr += "GenepixExpressionThresholdFilter parameters:\n";		
 		if(this.filterOptionPanel.numberRemovalButton.isSelected()){
 			histStr += "number threshold of missing arrays: ";
 			histStr += parameters.get("numberThreshold");			

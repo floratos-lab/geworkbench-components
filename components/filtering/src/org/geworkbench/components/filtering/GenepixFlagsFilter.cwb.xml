@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
-	<component  name="Genepix Flag Filter"
+	<component  name="Genepix Flags Filter"
 				class="org.geworkbench.components.filtering.GenepixFlagsFilter"
 				version="1.0"
 				author="geWorkbench Development Team"
@@ -21,6 +21,6 @@
 
 	</component>
 
-	<plugin id="genepixflagsfilter" name="Genepix Flag Filter" class="org.geworkbench.components.filtering.GenepixFlagsFilter" source="filtering"/>
+	<plugin id="genepixflagsfilter" name="Genepix Flags Filter" class="org.geworkbench.components.filtering.GenepixFlagsFilter" source="filtering"/>
 
 </component-descriptor>

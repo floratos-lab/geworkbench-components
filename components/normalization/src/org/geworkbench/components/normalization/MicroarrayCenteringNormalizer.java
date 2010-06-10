@@ -7,6 +7,7 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.NormalizingAnalysis;
+import org.geworkbench.builtin.projects.ProjectPanel;
 
 import java.util.Arrays;
 
@@ -106,6 +107,9 @@ public class MicroarrayCenteringNormalizer extends AbstractAnalysis implements N
             }
 
         }
+
+		// add to history
+        ProjectPanel.addHistoryDetail(maSet,((MarkerCenteringNormalizerPanel) aspp).getParamDetail());
 
         return new AlgorithmExecutionResults(true, "No errors", input);
     }

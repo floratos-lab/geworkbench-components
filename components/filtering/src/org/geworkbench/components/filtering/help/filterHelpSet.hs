@@ -28,7 +28,7 @@
 
 		<name>TOC</name>
 
-		<label>Filters and normalizers</label>
+		<label>Filtering</label>
 
 		<type>javax.help.TOCView</type>
 

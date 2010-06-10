@@ -214,7 +214,6 @@ public class ParameterPanel extends JPanel {
 		jSimThresholdBox.setText("2");
 
 		// add a verifier
-		jSimThresholdBox.setPreferredSize(new Dimension(80, 20));
 		jSimThresholdBox.setInputVerifier(new RegularExpressionVerifier(
 				"(\\d){1,9}"));
 		// Groups Panel
@@ -249,7 +248,6 @@ public class ParameterPanel extends JPanel {
 		jMaxRunTimeLabel.setMinimumSize(new Dimension(60, 15));
 		jMaxRunTimeLabel.setText("Max. Run Time (sec.):");
 		jMaxRunTimeBox.setEnabled(false);
-		jMaxRunTimeBox.setPreferredSize(new Dimension(36, 21));
 		jMaxRunTimeBox.setText("0");
 		// input verifier
 		jMaxPatternNoBox.setInputVerifier(new RegularExpressionVerifier(
@@ -269,7 +267,6 @@ public class ParameterPanel extends JPanel {
 		jDecreaseDensitySupportBox.setSelectedItem("0");
 		jDecreaseSupportLabel.setMinimumSize(new Dimension(50, 15));
 		jDecreaseSupportLabel.setText("Dec. support (%):");
-		jDecreaseSupportBox.setPreferredSize(new Dimension(12, 20));
 		jDecreaseSupportBox.setText("5");
 		jSlidingWindowBox.setEnabled(true);
 		jSlidingWindowBox.setText("10");

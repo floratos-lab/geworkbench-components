@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.geworkbench.components.geneontology2;
 
@@ -33,11 +33,12 @@ import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.ProjectEvent;
+import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbench.util.ProgressBar;
 
 /**
  * Go Term Analysis component of geWorkbench.
- * 
+ *
  * @author zji
  * @version $Id: GoAnalysis.java,v 1.12 2009-10-01 16:49:50 jiz Exp $
  */
@@ -46,7 +47,7 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 	static Log log = LogFactory.getLog(GoAnalysis.class);
 
 	/**
-	 * 
+	 *
 	 */
 	public GoAnalysis() {
 		super();
@@ -62,7 +63,7 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 		/* not used, but required by the AbstractAnalysis interface */
 		return  AbstractAnalysis.ZERO_TYPE;
 	}
-	
+
 
 	@SuppressWarnings("unchecked")
 	public AlgorithmExecutionResults execute(Object input) {
@@ -72,7 +73,7 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 		progressBar.addObserver(this);
 		progressBar.setTitle("GO Terms Analysis");
 		progressBar.setMessage("GO Terms Analysis is ongoing. Please wait.");
-		
+
 		String associationFileName = parameterPanel.getAssociationFile();
 
 		// handle the exceptional cases - missing parameters
@@ -103,11 +104,14 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 
 		DSMicroarraySetView<DSGeneMarker, CSMicroarray> microArraySetView = (DSMicroarraySetView<DSGeneMarker, CSMicroarray>) input;
 		GoAnalysisResult analysisResult = new GoAnalysisResult(microArraySetView.getDataSet(), "Go Terms Analysis Result");
-		
+
 		final String studySetFileName = "STUDYSET_TEMPORARY";
 		final String populationSetFileName = "POPULATIONSET_TEMPORARY";
-		File studySet = new File(studySetFileName);
-		File populationSet = new File(populationSetFileName);
+		String	studySetFilePath = FilePathnameUtils.getTemporaryFilesDirectoryPath() + studySetFileName;
+		String	populationSetFilePath = FilePathnameUtils.getTemporaryFilesDirectoryPath() + populationSetFileName;
+
+		File studySet = new File(studySetFilePath);
+		File populationSet = new File(populationSetFilePath);
 		try {
 			PrintWriter pw = new PrintWriter(new FileWriter(studySet));
 			String[] changedGenesArray = parameterPanel.getChangedGeneList();
@@ -148,8 +152,8 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 		 * be set.
 		 */
 		arguments.goTermsOBOFile = parameterPanel.getOntologyFile();
-		arguments.studySet = studySetFileName;
-		arguments.populationFile = populationSetFileName;
+		arguments.studySet = studySetFilePath;
+		arguments.populationFile = populationSetFilePath;
 		arguments.associationFile = associationFileName;
 
 		arguments.calculationName = parameterPanel.getCalculationMethod();
@@ -209,7 +213,7 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 		EnrichedGOTermsResult studySetResult = null;
 		while ((studySetResult = ontologizerCore.calculateNextStudy()) != null) {
 			appendOntologizerResult(analysisResult, studySetResult);
-			
+
 			if (this.stopAlgorithm) {
 				progressBar.dispose();
 				return new AlgorithmExecutionResults(false,
@@ -286,10 +290,10 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 		histStr.append(aspp.getDataSetHistory() );
 
 		histStr.append( "\nGO Terms Analysis returned a results of "+resultSize+" rows." );
-		
+
 		return histStr.toString();
 	}
-	
+
 	/* this is needed to catch the current dataset and consequently the loaded annotation */
 	@SuppressWarnings("unchecked")
 	@Subscribe

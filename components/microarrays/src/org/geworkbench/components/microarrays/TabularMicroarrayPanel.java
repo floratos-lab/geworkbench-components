@@ -129,6 +129,8 @@ public class TabularMicroarrayPanel extends MicroarrayViewEventBase {
 					if (value instanceof DSGenotypicMarkerValue) {
 						return value.toString();
 					} else {
+						if (value.isMissing())
+							return "n/a";
 						return nf.format(maSetView.getValue(row, col - 1));
 					}
 				}

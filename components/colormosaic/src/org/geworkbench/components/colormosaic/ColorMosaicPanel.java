@@ -89,7 +89,7 @@ import org.geworkbench.util.associationdiscovery.cluster.CSMatrixPattern;
  * <p>Company: First Genetic Trust Inc.</p>
  *
  * @author Manjunath Kustagi
- * @version 1.0
+ * @version $Id$
  */
 
 @AcceptTypes({DSMicroarraySet.class, DSSignificanceResultSet.class})
@@ -113,9 +113,9 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
     private JLabel jLabel5 = new JLabel();
     private JButton exportButton = new JButton("Export Data");
     private JToggleButton jToolTipToggleButton = new JToggleButton();
-    private JTextField searchArray = new JTextField();
-    private JTextField searchAccession = new JTextField();
-    private JTextField searchLabel = new JTextField();
+    private JTextField searchArray = new JTextField(10);
+    private JTextField searchAccession = new JTextField(10);
+    private JTextField searchLabel = new JTextField(10);
     private JLabel searchArrayLbl = new JLabel("Search Array");
     private JLabel searchAccessionLbl = new JLabel("Search Accession");
     private JLabel searchLabelLbl = new JLabel("Search Label");
@@ -341,9 +341,6 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         });
 
 		searchArrayLbl.setForeground(Color.gray);
-		searchArray.setMinimumSize(new Dimension(80, 24));
-		searchArray.setPreferredSize(new Dimension(80, 24));
-		searchArray.setMaximumSize(new Dimension(80, 24));
 		searchArray.setEnabled(false);
 		searchArray.getDocument().addDocumentListener(new DocListener(searchBy.ARRAYNAME));
 		searchArray.addKeyListener(new java.awt.event.KeyAdapter() {
@@ -353,9 +350,6 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
 		});
 
 		searchAccessionLbl.setForeground(Color.gray);
-		searchAccession.setMinimumSize(new Dimension(80, 24));
-		searchAccession.setPreferredSize(new Dimension(80, 24));
-		searchAccession.setMaximumSize(new Dimension(80, 24));
 		searchAccession.setEnabled(false);
 		searchAccession.getDocument().addDocumentListener(new DocListener(searchBy.ACCESSION));
 		searchAccession.addKeyListener(new java.awt.event.KeyAdapter() {
@@ -364,9 +358,6 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
 			}
 		});
 
-		searchLabel.setMinimumSize(new Dimension(80, 24));
-		searchLabel.setPreferredSize(new Dimension(80, 24));
-		searchLabel.setMaximumSize(new Dimension(80, 24));
 		searchLabel.getDocument().addDocumentListener(new DocListener(searchBy.LABEL));
 		searchLabel.addKeyListener(new java.awt.event.KeyAdapter() {
 			public void keyPressed(KeyEvent e) {
@@ -746,6 +737,8 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
 			}
 			colRuler.repaint();
 		} else {
+			if(markerSet==null)return;
+			
 			int markerNo = markerSet.size();
 			if (colorMosaicImage.significanceResultSet != null)
 				markerNo = colorMosaicImage.markerList.size();
@@ -827,7 +820,6 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         colRuler.setClearDisplay(true);
     }
 
-    @SuppressWarnings("unchecked")
     private void displayMosaic() {
         colorMosaicImage.clearPatterns();
         DSMicroarraySet<DSMicroarray> mArraySet = colorMosaicImage.getGeneChips();

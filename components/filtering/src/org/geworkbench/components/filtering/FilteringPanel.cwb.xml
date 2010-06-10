@@ -1,12 +1,12 @@
 <component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
-	<component  name="Filtering Panel"
+	<component  name="Filtering"
 				class="org.geworkbench.components.filtering.FilteringPanel"
 				version="1.0"
 				author="geWorkbench Development Team"
 				authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 				toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
-				tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_Filtering_and_Normalizing"
+				tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Filtering"
 				description="A framework component which supports the various specific filtering method components."
 				loadByDefault="true"
 	 >

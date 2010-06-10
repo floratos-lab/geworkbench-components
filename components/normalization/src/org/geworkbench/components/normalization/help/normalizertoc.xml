@@ -2,15 +2,17 @@
 
 <toc version="1.0">
 
-	<tocitem text="Normalizers">
-		<tocitem target="overview" text="Normalizer Overview"/>
-		<tocitem target="array.mean.norm" text="Array-based Centering Normalizer"/>
-		<tocitem target="Housekeeping" text="Housekeeping Gene Normalizer"/>
+	<tocitem text="Normalization">
+		<tocitem target="overview" text="Overview"/>
+		<tocitem target="norm.config" text="Normalizer Configuration"/>
+		<tocitem target="basic.controls" text="Basic Controls"/>
+		<tocitem target="Housekeeping" text="Housekeeping Genes Normalizer"/>
 		<tocitem target="log.trans.norm" text="Log2 Transformation"/>
-		<tocitem target="marker.mean.norm" text="Marker-based Centering Normalizer"/>
+		<tocitem target="marker.mean.norm" text="Marker Centering Normalizer"/>
 		<tocitem target="mean.devi.norm" text="Mean-Variance Normalizer"/>
-		<tocitem target="mis.val.cal.norm" text="Missing Value Calculation"/>
-		<tocitem target="Quantile" text="Quantile Normalizer"/>
+		<tocitem target="array.mean.norm" text="Microarray Centering Normalizer"/>
+		<tocitem target="mis.val.calc.norm" text="Missing Values Calculation"/>
+		<tocitem target="quantile.norm" text="Quantile Normalizer"/>
 		<tocitem target="min.value.norm" text="Threshold Value Normalizer"/>
 	</tocitem>
 </toc>

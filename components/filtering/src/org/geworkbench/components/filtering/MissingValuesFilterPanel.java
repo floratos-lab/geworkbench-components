@@ -120,8 +120,7 @@ public class MissingValuesFilterPanel extends AbstractSaveableParameterPanel {
 	public String getDataSetHistory() {
 		String histStr = "Missing Values Filter parameter:\n";
 		Map<Serializable, Serializable>parameters = null;
-		parameters = getParameters();
-		histStr += "----------------------------------------\n";
+		parameters = getParameters();		
 		if(this.filterOptionPanel.numberRemovalButton.isSelected()){
 			histStr += "number threshold of missing arrays: ";
 			histStr += parameters.get("numberThreshold");			

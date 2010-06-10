@@ -887,6 +887,9 @@ public class BlastAppComponent implements VisualPlugin {
 	 */
 	@Subscribe(Asynchronous.class)
 	public void receive(GeneSelectorEvent e, Object source) {
+		if(e.getGenericMarker()!=null && e.getPanel() == null) // do nothing for single marker selection
+			return;
+		
 		if (e.getPanel() != null && e.getPanel().size() > 0) {
 			activatedMarkers = e.getPanel().activeSubset();
 		} else {

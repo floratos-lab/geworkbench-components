@@ -354,7 +354,6 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel {
         gridLayout3.setColumns(1);
         jPanel5.setLayout(borderLayout4);
         numCombs.setValue(new Long(100));
-        numCombs.setPreferredSize(new Dimension(35, 20));
         numCombs.setOpaque(true);
         numCombs.setMinimumSize(new Dimension(35, 20));
         pvaluesByTDistribution.setSelected(true);
@@ -365,7 +364,6 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel {
         jPanel6.setLayout(gridBagLayout1);
         allPerms.setText("Use all permutations");
         alpha.setValue(new Double(0.01));
-        alpha.setPreferredSize(new Dimension(35, 20));
         alpha.setMinimumSize(new Dimension(35, 20));
         pvaluesByPerm.setText("permutation:");
         jPanel7.setBorder(BorderFactory.createEtchedBorder());

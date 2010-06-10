@@ -557,7 +557,7 @@ public class HouseKeepingGeneNormalizerPanel extends AbstractSaveableParameterPa
         ParameterActionListener parameterActionListener = new ParameterActionListener(this);
         selectedModel.addListDataListener(parameterActionListener);
         markerModel.addListDataListener(parameterActionListener);
-
+        missingValuesCombo.addActionListener(parameterActionListener);
 
         jList2.setCellRenderer(new ListCellRenderer());
         jList1.setCellRenderer(new DefaultListCellRenderer());

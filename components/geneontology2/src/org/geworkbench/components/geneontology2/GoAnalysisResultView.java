@@ -8,6 +8,8 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -201,6 +203,24 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 			}
 			
 		});
+		
+		// this listener is particularly to support the feature requested in bug 2266
+		table.addFocusListener(new FocusListener() {
+
+			@Override
+			public void focusGained(FocusEvent e) {
+				int index = table.convertRowIndexToModel( table.getSelectedRow() );
+				if(index>=0 && index<=tableModel.getRowCount()) { // in case the selection is not in the new range
+					Integer goId = (Integer)tableModel.getValueAt(index, 0);
+					showTermDetail(goId);
+				}
+			}
+
+			@Override
+			public void focusLost(FocusEvent e) {
+			}
+		
+		});
 
 		treeTab.setLayout(new BorderLayout());
 		JPanel searchPanel = new JPanel();
@@ -329,6 +349,22 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 				if(index>=0 && index<=geneListTableModel.getRowCount()) { // in case the selection is not in the new range
 					showGeneDetail((String)geneListTableModel.getValueAt(index, 0));
 				}
+			}
+			
+		});
+		geneListTable.addFocusListener(new FocusListener() {
+
+			@Override
+			public void focusGained(FocusEvent e) {
+				// refresh gene detail panel
+				int index = geneListTable.getSelectedRow();
+				if(index>=0 && index<=geneListTableModel.getRowCount()) { // in case the selection is not in the new range
+					showGeneDetail((String)geneListTableModel.getValueAt(index, 0));
+				}
+			}
+
+			@Override
+			public void focusLost(FocusEvent e) {
 			}
 			
 		});

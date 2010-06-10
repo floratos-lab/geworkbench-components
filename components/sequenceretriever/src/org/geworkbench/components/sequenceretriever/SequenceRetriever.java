@@ -83,7 +83,7 @@ import org.geworkbench.util.sequences.GeneChromosomeMatcher;
  * @author Xuegong Wang
  * @author manjunath at genomecenter dot columbia dot edu
  * @author xiaoqing at genomecenter dot columbia dot edu
- * @version $Id: SequenceRetriever.java,v 1.61 2009-08-10 20:36:11 my2248 Exp $
+ * @version $Id$
  */
 
 @SuppressWarnings("unchecked")
@@ -312,9 +312,6 @@ public class SequenceRetriever implements VisualPlugin {
 		jPanel3.setPreferredSize(new Dimension(160, 240));
 		gridLayout1.setColumns(1);
 
-		jActivateBttn.setMaximumSize(new Dimension(100, 27));
-		jActivateBttn.setMinimumSize(new Dimension(100, 27));
-		jActivateBttn.setPreferredSize(new Dimension(100, 27));
 		jActivateBttn.setToolTipText("Add a data node to current project");
 		jActivateBttn.setText("Add To Project");
 		jActivateBttn.addActionListener(new java.awt.event.ActionListener() {

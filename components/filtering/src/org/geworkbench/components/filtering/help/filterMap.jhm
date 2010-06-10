@@ -6,20 +6,23 @@
 
 <map version="1.0">
 
-	<mapID target="overview" url="Filters Overview.htm"/>
+	<mapID target="overview" url="Filtering.htm#Overview"/>
 
-	<mapID target="deviation.filter" url="Deviation Filter.htm"/>
+	<mapID target="filter.configuration" url="Filtering.htm#Filter_Configuration"/>
 
-	<mapID target="expr.threshold.filter" url="ExprThreshold Filter.htm"/>
+	<mapID target="basic.controls" url="Filtering.htm#Basic_Controls"/>
 
-	<mapID target="missing.value.filter" url="Missing Value Filter.HTML"/>
+	<mapID target="single.value.filter" url="Filtering.htm#Affymetrix_Detection_Call_Filter"/>
 
-	<mapID target="single.value.filter" url="Affy Detection Filter.HTML"/>
+	<mapID target="deviation.filter" url="Filtering.htm#Deviation_Filter"/>
 
-	<mapID target="Genepix.filter" url="GenepixFilter.HTML"/>
+	<mapID target="expr.threshold.filter" url="Filtering.htm#Expression_Threshold_Filter"/>
 
-	<mapID target="two.channel.filter" url="TwoChannel.HTML"/>
+	<mapID target="two.channel.filter" url="Filtering.htm#GenePix_Expression_Threshold"/>
 
+	<mapID target="Genepix.filter" url="Filtering.htm#GenePix_Flags_Filter"/>
+
+	<mapID target="missing.value.filter" url="Filtering.htm#Missing_Values_Filter"/>
 
 
 </map>

@@ -585,10 +585,12 @@ public class FilteringPanel implements VisualPlugin, ReHighlightable {
 
 	private class FilterWorker extends
 			SwingWorker<AlgorithmExecutionResults, Void> {
+		private int count = 0;
 
 		@Override
 		protected AlgorithmExecutionResults doInBackground() throws Exception {
 			//Thread.sleep(5000);// just to make it slow to test the progress-bar
+			count = ((FilteringAnalysis)selectedFilter).getMarkersToBeRemoved(maSet).size();
 			return selectedFilter.execute(maSet);
 		}
 
@@ -627,10 +629,12 @@ public class FilteringPanel implements VisualPlugin, ReHighlightable {
 				historyString += selectedFilter.getLabel() + FileTools.NEWLINE;
 			/* to avoid printing null for panels  didn't implement this method. */
 			if (selectedFilter.createHistory() != null) 
-				historyString += selectedFilter.createHistory()
-						+ FileTools.NEWLINE;
-			 /* to separate with next section (if any) */			
+				historyString += selectedFilter.createHistory();
+			 /* to separate with next section (if any) */
+			historyString += count + " markers were removed."+FileTools.NEWLINE;
+			historyString += "----------------------------------------";
 			historyString += FileTools.NEWLINE;
+			
 			progressBar.stop();
 			publishFilteringEvent(new FilteringEvent(maSet, filteredData,
 					historyString));

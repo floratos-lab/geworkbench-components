@@ -6,22 +6,26 @@
 
 <map version="1.0">
 
-    <mapID target="overview" url="Normalizers_Overview.htm"/>
+    <mapID target="overview" url="Normalization.htm#Overview.htm"/>
 
-    <mapID target="log.trans.norm" url="Log2_Transformation_Normalizer.HTML"/>
+	<mapID target="norm.config" url="Normalization.htm#Normalizer_Configuration"/>
 
-    <mapID target="array.mean.norm" url="NOT AVAIL/ArrayMean Normalizer.htm"/>
+	<mapID target="basic.controls" url="Normalization.htm#Basic_Controls"/>
 
-    <mapID target="marker.mean.norm" url="Marker-based_centering_normalizer.HTML"/>
+    <mapID target="Housekeeping" url="Normalization.htm#Housekeeping_Genes_Normalizer"/>
 
-    <mapID target="mean.devi.norm" url="NOT AVAIL/MeanDeviNormalizer.htm"/>
+    <mapID target="log.trans.norm" url="Normalization.htm#Log2_Transformation"/>
 
-    <mapID target="min.value.norm" url="Threshold.HTML"/>
+    <mapID target="marker.mean.norm" url="Normalization.htm#Marker_Centering_Normalizer"/>
 
-    <mapID target="mis.val.cal.norm" url="Missing_Value_Normalizer.htm"/>
+    <mapID target="mean.devi.norm" url="Normalization.htm#Mean-Variance_Normalizer"/>
 
-    <mapID target="Housekeeping" url="Housekeeping_Gene_Normalization.htm"/>
+    <mapID target="array.mean.norm" url="Normalization.htm#Microarray_Centering_Normalizer"/>
 
-    <mapID target="Quantile" url="Quantile.HTML"/>
+    <mapID target="mis.val.calc.norm" url="Normalization.htm#Missing_Values_Normalizer"/>
+
+    <mapID target="quantile.norm" url="Normalization.htm#Quantile_Normalizer"/>
+
+    <mapID target="min.value.norm" url="Normalization.htm#Threshold_Normalizer"/>
 
 </map>

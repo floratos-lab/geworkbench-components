@@ -59,6 +59,7 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 	private ValueModel correctionHolder; //No correction, Standard Bonferroni, Adj Bonferroni
 	private JTextField pValueTextField = null;
 	private JTextField TFGeneListTextField = null; //Marker 1, Marker 2...
+	private JTextField networkTextField = null;
 	private HashMap<String,AdjacencyMatrixDataSet> adjMatrix=new HashMap<String,AdjacencyMatrixDataSet>();
 	private DSMicroarraySet<DSMicroarray> maSet=null;
 	private MRATtestPanel tTestPanel= new MRATtestPanel();
@@ -69,6 +70,8 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 	private JComboBox networkFrom = null;
 	private JComboBox tfFrom = null;
 	public MasterRegulatorPanel(){
+		networkTextField = new JTextField();
+		networkTextField.setEditable(false);
 		FormLayout layout = new FormLayout(
                 "left:max(100dlu;pref), 10dlu, 100dlu, 10dlu, "
               + "100dlu, 10dlu, 100dlu, 10dlu, 100dlu",
@@ -83,6 +86,9 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		builder.append(networkFrom);
 		networkMatrix.setEnabled(false);
 		builder.append(networkMatrix);
+		
+		builder.append(networkTextField);
+		
 		//JButton loadNetworkButton=new JButton("Load");
 		loadNetworkButton.addActionListener(new LoadNetworkButtonListener(adjMatrix));		
 		builder.append(loadNetworkButton);
@@ -95,6 +101,7 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		builder.append(tfFrom);
 		tfGroups.setEnabled(false);
 		builder.append(tfGroups);
+		
 		if (TFGeneListTextField == null)
 			TFGeneListTextField = new JTextField();
 		TFGeneListTextField.setText(TFGeneListDefault);
@@ -187,6 +194,7 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		                adjMatrix.readFromFile(adjMatrixFileStr, maSet);
 		                this.adjMatrixHolder.remove("adjMatrix");
 		                this.adjMatrixHolder.put("adjMatrix", adjMatrix);
+		                networkTextField.setText(adjMatrixFileStr);
 	                }else{
 	                	//user canceled
 	                }
@@ -210,6 +218,7 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
         		if (evt.getNewValue()=="From Project"){
         			networkMatrix.setEnabled(true);
         			loadNetworkButton.setEnabled(false);
+        			networkTextField.setEnabled(false);
         			//clear combo box 
         			//load adj matrix into the list
 /*        			
@@ -222,6 +231,7 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
         		}else if (evt.getNewValue()=="From File"){
         			networkMatrix.setEnabled(false);
         			loadNetworkButton.setEnabled(true);
+        			networkTextField.setEnabled(true);
         			//active load button
         			//show file name loaded
         		}

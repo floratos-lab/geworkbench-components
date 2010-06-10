@@ -24,7 +24,7 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.table.TableCellRenderer;
+import javax.swing.table.DefaultTableCellRenderer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -71,31 +71,8 @@ public class MindyTableTab extends JSplitPane {
 				MindyPlugin.DEFAULT_MODULATOR_LIMIT);
 		aggregateModel.setModulatorsLimited(
 				modulatorLimits.isSelected());
-		targetTable = new JTable(aggregateModel) {
-			private static final long serialVersionUID = -4062290686009171001L;
-
-			@Override
-			public Component prepareRenderer(
-					TableCellRenderer tableCellRenderer, int row, int col) {
-				Component component = super.prepareRenderer(tableCellRenderer,
-						row, col);
-				if (row % 2 == 0 && !isCellSelected(row, col)) {
-					component.setBackground(new Color(237, 237, 237));
-				} else {
-					// If not shaded, match the table's background
-					//component.setBackground(getBackground());
-				}
-				if (colorCheck.isSelected() && col > 1) {
-					float score = aggregateModel.getScoreAt(
-							row, col);
-					if (score != 0) {
-						component.setBackground(gradient.getColor(score));
-					}
-				}
-				return component;
-			}
-		};
-
+		targetTable = new JTable(aggregateModel);
+		targetTable.setDefaultRenderer(Object.class, new ColoredCellRenderer());
 		/* do not allow the user to reorder table columns */
 		targetTable.getTableHeader().setReorderingAllowed(
 				false);
@@ -158,7 +135,29 @@ public class MindyTableTab extends JSplitPane {
 		setOneTouchExpandable(false);
 		setContinuousLayout(true);
 	}
+	
+    private static DefaultTableCellRenderer defaultRenderer = new DefaultTableCellRenderer();
+    
+    private class ColoredCellRenderer extends DefaultTableCellRenderer {
+		private static final long serialVersionUID = -3923528011064944031L;
 
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
+            Component defaultComponent = defaultRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
+            Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
+			c.setBackground(defaultComponent.getBackground());
+			// note: because c is in fact reused, we need to start with a new background color (the only property we may change)
+			if (colorCheck.isSelected() && col > 1) {
+				float score = aggregateModel.getScoreAt(
+						row, col);
+				if (score != 0) {
+					c.setBackground(gradient.getColor(score));
+				}
+			}
+			
+            return c;
+        }
+    };
+    
 	private JLabel dl = new JLabel("Marker Display  ", SwingConstants.LEFT);
 	private JLabel ls = new JLabel("Modulator Sorting", SwingConstants.LEFT);
 	private JRadioButton showSymbol = new JRadioButton("Symbol");

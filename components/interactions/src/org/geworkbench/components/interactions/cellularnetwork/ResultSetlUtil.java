@@ -37,9 +37,7 @@ public class ResultSetlUtil {
 	// currently in two files
 	public static final int SPLIT_ALL = -2;
 	public static final String DEL = "|";
-	public static final String REGEX_DEL = "\\|";
-	public static final String ORACLE = "oracle";
-	public static final String MYSQL = "mysql";
+	public static final String REGEX_DEL = "\\|";	 
 	public static final String NULL_STR = "null";
 	public static final BigDecimal NULL_BIGDECIMAL = new BigDecimal(0);
 
@@ -158,17 +156,15 @@ public class ResultSetlUtil {
 		return aConnection;
 	}
 
-	public static ResultSetlUtil executeQuery(String aSQL, String db,
+	public static ResultSetlUtil executeQuery(String methodAndParams, 
 			String urlStr) throws IOException, UnAuthenticatedException {
 
-		HttpURLConnection aConnection = getConnection(urlStr);
-
-		String data = db + DEL + aSQL;
+		HttpURLConnection aConnection = getConnection(urlStr);	 
 
 		OutputStreamWriter out = new OutputStreamWriter(aConnection
 				.getOutputStream());
 
-		out.write(data);
+		out.write(methodAndParams);
 		out.close();
 
 		// errors, exceptions
@@ -216,7 +212,7 @@ public class ResultSetlUtil {
 				aSQL = "getPairWiseInteraction" + ResultSetlUtil.DEL + i
 					+ ResultSetlUtil.DEL + "BCi" + ResultSetlUtil.DEL + "1.0";
 			    
-				rs = ResultSetlUtil.executeQuery(aSQL, MYSQL,
+				rs = ResultSetlUtil.executeQuery(aSQL,  
 					INTERACTIONS_SERVLET_URL);
 			 
 			 while (rs.next()) {
