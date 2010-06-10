@@ -34,19 +34,11 @@ import java.util.Arrays;
  * </UL>
  */
 public class MicroarrayCenteringNormalizer extends AbstractAnalysis implements NormalizingAnalysis {
-    // Static fields used to designate the available user option within the
-    // normalizer's parameters panel.
-    public static final int MEAN = 0;
-    public static final int MEDIAN = 1;
-    public static final int MINIMUM = 0;
-    public static final int MAXIMUM = 1;
-    public static final int ZERO = 2;
-    public static final int IGNORE = 3;
     int meanMedianType;
     int missingValues;
 
     public MicroarrayCenteringNormalizer() {
-        setDefaultPanel(new MarkerCenteringNormalizerPanel());
+        setDefaultPanel(new CenteringNormalizerPanel());
     }
 
     public int getAnalysisType() {
@@ -57,8 +49,8 @@ public class MicroarrayCenteringNormalizer extends AbstractAnalysis implements N
         if (input == null)
             return new AlgorithmExecutionResults(false, "Invalid input.", null);
         // Collect the parameters needed for the execution of the normalizer
-        meanMedianType = ((MarkerCenteringNormalizerPanel) aspp).getAveragingSelection();
-        missingValues = ((MarkerCenteringNormalizerPanel) aspp).getMissingValueTreatment();
+        meanMedianType = ((CenteringNormalizerPanel) aspp).getAveragingSelection();
+        missingValues = ((CenteringNormalizerPanel) aspp).getMissingValueTreatment();
         // Variables needed for the computations.
         assert input instanceof DSMicroarraySet;
         DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet) input;
@@ -77,7 +69,7 @@ public class MicroarrayCenteringNormalizer extends AbstractAnalysis implements N
         for (int i = 0; i < arrayCount; i++) {
             arrayValues = getNonMissingValues(maSet, i);
             Arrays.sort(arrayValues);
-            meanMedian = (meanMedianType == MEAN ? getMean(arrayValues) : getMedian(arrayValues));
+            meanMedian = (meanMedianType == CenteringNormalizerPanel.MEAN ? getMean(arrayValues) : getMedian(arrayValues));
             // Calculate the (post-mean/median subtraction) minimum & maximum values.
             for (int j = 0; j < arrayValues.length; ++j)
                 arrayValues[j] -= meanMedian;
@@ -90,17 +82,17 @@ public class MicroarrayCenteringNormalizer extends AbstractAnalysis implements N
                     signal = markerValue.getValue();
                     markerValue.setValue(signal - meanMedian);
                 } else {
-                    if (missingValues == MINIMUM)
+                    if (missingValues == CenteringNormalizerPanel.MINIMUM)
                         markerValue.setValue(minValue);
-                    else if (missingValues == MAXIMUM)
+                    else if (missingValues == CenteringNormalizerPanel.MAXIMUM)
                         markerValue.setValue(maxValue);
-                    else if (missingValues == ZERO)
+                    else if (missingValues == CenteringNormalizerPanel.ZERO)
                         markerValue.setValue(0.0d);
-                    else if (missingValues == IGNORE) {
+                    else if (missingValues == CenteringNormalizerPanel.IGNORE) {
                         //Do nothing
                     }
 
-                    if (missingValues != IGNORE)
+                    if (missingValues != CenteringNormalizerPanel.IGNORE)
                         markerValue.setMissing(false);
                 }
 
@@ -109,7 +101,7 @@ public class MicroarrayCenteringNormalizer extends AbstractAnalysis implements N
         }
 
 		// add to history
-        ProjectPanel.addHistoryDetail(maSet,((MarkerCenteringNormalizerPanel) aspp).getParamDetail());
+        ProjectPanel.addHistoryDetail(maSet,((CenteringNormalizerPanel) aspp).getParamDetail());
 
         return new AlgorithmExecutionResults(true, "No errors", input);
     }
@@ -153,7 +145,6 @@ public class MicroarrayCenteringNormalizer extends AbstractAnalysis implements N
     private double getMean(double[] profile) {
         if (profile == null)
             return 0.0;
-        int totalPresent = 0;
         double sum = 0.0d;
         for (int i = 0; i < profile.length; i++)
             sum += profile[i];

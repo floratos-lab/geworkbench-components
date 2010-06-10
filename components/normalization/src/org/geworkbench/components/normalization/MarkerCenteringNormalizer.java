@@ -33,19 +33,11 @@ import java.util.Arrays;
  * </UL>
  */
 public class MarkerCenteringNormalizer extends AbstractAnalysis implements NormalizingAnalysis {
-    // Static fields used to designate the available user option within the
-    // normalizer's parameters panel.
-    public static final int MEAN = 0;
-    public static final int MEDIAN = 1;
-    public static final int MINIMUM = 0;
-    public static final int MAXIMUM = 1;
-    public static final int ZERO = 2;
-    public static final int IGNORE = 3;
     int meanMedianType;
     int missingValues;
 
     public MarkerCenteringNormalizer() {
-        setDefaultPanel(new MarkerCenteringNormalizerPanel());
+        setDefaultPanel(new CenteringNormalizerPanel());
     }
 
     public int getAnalysisType() {
@@ -56,8 +48,8 @@ public class MarkerCenteringNormalizer extends AbstractAnalysis implements Norma
         if (input == null)
             return new AlgorithmExecutionResults(false, "Invalid input.", null);
         // Collect the parameters needed for the execution of the normalizer
-        meanMedianType = ((MarkerCenteringNormalizerPanel) aspp).getAveragingSelection();
-        missingValues = ((MarkerCenteringNormalizerPanel) aspp).getMissingValueTreatment();
+        meanMedianType = ((CenteringNormalizerPanel) aspp).getAveragingSelection();
+        missingValues = ((CenteringNormalizerPanel) aspp).getMissingValueTreatment();
         // Variables needed for the computations.
         assert input instanceof DSMicroarraySet;
         DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet) input;
@@ -76,7 +68,7 @@ public class MarkerCenteringNormalizer extends AbstractAnalysis implements Norma
         for (int i = 0; i < markerCount; i++) {
             profile = getProfile(maSet, i);
             Arrays.sort(profile);
-            meanMedian = (meanMedianType == MEAN ? getMean(profile) : getMedian(profile));
+            meanMedian = (meanMedianType == CenteringNormalizerPanel.MEAN ? getMean(profile) : getMedian(profile));
             // Calculate the post-mean/median subtraction minimum & maximum values.
             for (int j = 0; j < profile.length; ++j)
                 profile[j] -= meanMedian;
@@ -88,17 +80,17 @@ public class MarkerCenteringNormalizer extends AbstractAnalysis implements Norma
                     signal = markerValue.getValue();
                     markerValue.setValue(signal - meanMedian);
                 } else {
-                    if (missingValues == MINIMUM)
+                    if (missingValues == CenteringNormalizerPanel.MINIMUM)
                         markerValue.setValue(minValue);
-                    else if (missingValues == MAXIMUM)
+                    else if (missingValues == CenteringNormalizerPanel.MAXIMUM)
                         markerValue.setValue(maxValue);
-                    else if (missingValues == ZERO)
+                    else if (missingValues == CenteringNormalizerPanel.ZERO)
                         markerValue.setValue(0.0d);
-                    else if (missingValues == IGNORE) {
+                    else if (missingValues == CenteringNormalizerPanel.IGNORE) {
                         //Do nothing
                     }
 
-                    if (missingValues != IGNORE)
+                    if (missingValues != CenteringNormalizerPanel.IGNORE)
                         markerValue.setMissing(false);
                 }
 
@@ -107,7 +99,7 @@ public class MarkerCenteringNormalizer extends AbstractAnalysis implements Norma
         }
 
 		// add to history
-        ProjectPanel.addHistoryDetail(maSet,((MarkerCenteringNormalizerPanel) aspp).getParamDetail());
+        ProjectPanel.addHistoryDetail(maSet,((CenteringNormalizerPanel) aspp).getParamDetail());
 
         return new AlgorithmExecutionResults(true, "No errors", input);
     }
@@ -150,7 +142,6 @@ public class MarkerCenteringNormalizer extends AbstractAnalysis implements Norma
     private double getMean(double[] profile) {
         if (profile == null)
             return 0.0;
-        int totalPresent = 0;
         double sum = 0.0d;
         for (int i = 0; i < profile.length; i++)
             sum += profile[i];
