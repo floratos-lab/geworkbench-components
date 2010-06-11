@@ -20,9 +20,9 @@ public class InteractionsConnectionImpl {
 	 */
 	private static final Log logger = LogFactory
 			.getLog(InteractionsConnectionImpl.class);
- 
+
 	private static final String ENTREZ_GENE = "Entrez Gene";
-	
+
 	public InteractionsConnectionImpl() {
 	}
 
@@ -59,42 +59,43 @@ public class InteractionsConnectionImpl {
 					+ context + ResultSetlUtil.DEL + version;
 			// String aSQL = "SELECT * FROM pairwise_interaction where ms_id1="
 			// + id1.toString() + " or ms_id2=" + id1.toString();
-			rs = ResultSetlUtil.executeQuery(methodAndParams,					 
+			rs = ResultSetlUtil.executeQuery(methodAndParams,
 					ResultSetlUtil.INTERACTIONS_SERVLET_URL);
 
-			while (rs.next()) {				
-			try
-			{
-				msid1 = rs.getString("ms_id1");
-				msid2 = rs.getString("ms_id2");
-				geneName1 = rs.getString("gene1");
-				geneName2 = rs.getString("gene2");
-				db1_xref = rs.getString("db1_xref");
-				db2_xref = rs.getString("db2_xref");
-				confidenceValue = rs.getDouble("confidence_value");
+			while (rs.next()) {
+				try {
+					msid1 = rs.getString("ms_id1");
+					msid2 = rs.getString("ms_id2");
+					geneName1 = rs.getString("gene1");
+					geneName2 = rs.getString("gene2");
+					db1_xref = rs.getString("db1_xref");
+					db2_xref = rs.getString("db2_xref");
+					confidenceValue = rs.getDouble("confidence_value");
 
-				interactionType = rs.getString("interaction_type").trim();
+					interactionType = rs.getString("interaction_type").trim();
 
-				if (db1_xref.trim().equalsIgnoreCase(ENTREZ_GENE))
-					isGene1EntrezId = true;
-				else
-					isGene1EntrezId = false;
-				
-				if (db2_xref.trim().equalsIgnoreCase(ENTREZ_GENE))
-					isGene2EntrezId = true;
-				else
-					isGene2EntrezId = false;
-				
-				InteractionDetail interactionDetail = new InteractionDetail(
-						msid1.toString(), msid2.toString(), geneName1,
-						geneName2, isGene1EntrezId.booleanValue(), isGene2EntrezId.booleanValue(), confidenceValue, interactionType);
-				arrayList.add(interactionDetail);
-			}catch(NullPointerException npe)
-			{
-				if (logger.isErrorEnabled()) {
-					logger.error("db row is dropped because a NullPointerException");
+					if (db1_xref.trim().equalsIgnoreCase(ENTREZ_GENE))
+						isGene1EntrezId = true;
+					else
+						isGene1EntrezId = false;
+
+					if (db2_xref.trim().equalsIgnoreCase(ENTREZ_GENE))
+						isGene2EntrezId = true;
+					else
+						isGene2EntrezId = false;
+
+					InteractionDetail interactionDetail = new InteractionDetail(
+							msid1.toString(), msid2.toString(), geneName1,
+							geneName2, isGene1EntrezId.booleanValue(),
+							isGene2EntrezId.booleanValue(), confidenceValue,
+							interactionType);
+					arrayList.add(interactionDetail);
+				} catch (NullPointerException npe) {
+					if (logger.isErrorEnabled()) {
+						logger
+								.error("db row is dropped because a NullPointerException");
+					}
 				}
-			}
 			}
 			rs.close();
 		} catch (UnAuthenticatedException uae) {
@@ -136,7 +137,7 @@ public class InteractionsConnectionImpl {
 		try {
 
 			String methodAndParams = "getInteractionTypes";
-			rs = ResultSetlUtil.executeQuery(methodAndParams,					 
+			rs = ResultSetlUtil.executeQuery(methodAndParams,
 					ResultSetlUtil.INTERACTIONS_SERVLET_URL);
 
 			while (rs.next()) {
@@ -165,25 +166,26 @@ public class InteractionsConnectionImpl {
 
 		} catch (Exception se) {
 			if (logger.isErrorEnabled()) {
-				logger.error("getInteractionTypes() - ResultSetlUtil: " + se.getMessage() ); //$NON-NLS-1$
+				logger
+						.error("getInteractionTypes() - ResultSetlUtil: " + se.getMessage()); //$NON-NLS-1$
 			}
-			 
+
 		}
 		return arrayList;
 	}
-	
-	public void closeDbConnection()   {
+
+	public void closeDbConnection() {
 		String methodAndParams = "closeDbConnection";
 		try {
 
-		     ResultSetlUtil.executeQuery(methodAndParams,			 
-				ResultSetlUtil.INTERACTIONS_SERVLET_URL);
-		 
+			ResultSetlUtil.executeQuery(methodAndParams,
+					ResultSetlUtil.INTERACTIONS_SERVLET_URL);
+
 		} catch (Exception se) {
 			if (logger.isErrorEnabled()) {
 				logger.error(se.getMessage()); //$NON-NLS-1$
 			}
-			 
+
 		}
 	}
 
@@ -197,7 +199,7 @@ public class InteractionsConnectionImpl {
 		try {
 
 			String methodAndParams = "getDatasetNames";
-			rs = ResultSetlUtil.executeQuery(methodAndParams,				 
+			rs = ResultSetlUtil.executeQuery(methodAndParams,
 					ResultSetlUtil.INTERACTIONS_SERVLET_URL);
 
 			while (rs.next()) {
@@ -228,7 +230,53 @@ public class InteractionsConnectionImpl {
 			if (logger.isErrorEnabled()) {
 				logger.error(se.getMessage()); //$NON-NLS-1$
 			}
-			 
+
+		}
+		return arrayList;
+	}
+
+	public ArrayList<String> getDatasetAndInteractioCount()
+			throws ConnectException, SocketTimeoutException, IOException {
+		ArrayList<String> arrayList = new ArrayList<String>();
+
+		ResultSetlUtil rs = null;
+		String datasetName = null;
+        int interactionCount = 0;
+		try {
+
+			String methodAndParams = "getDatasetNames";
+			rs = ResultSetlUtil.executeQuery(methodAndParams,
+					ResultSetlUtil.INTERACTIONS_SERVLET_URL);			
+			
+			while (rs.next()) {
+
+				datasetName = rs.getString("name").trim();
+				interactionCount = (int)rs.getDouble("interaction_count");
+				arrayList.add(datasetName + " (" + interactionCount + " interactions)");
+			}
+			rs.close();
+
+		} catch (ConnectException ce) {
+			if (logger.isErrorEnabled()) {
+				logger.error(ce.getMessage());
+			}
+			throw new ConnectException(ce.getMessage());
+		} catch (SocketTimeoutException se) {
+			if (logger.isErrorEnabled()) {
+				logger.error(se.getMessage());
+			}
+			throw new SocketTimeoutException(se.getMessage());
+		} catch (IOException ie) {
+			if (logger.isErrorEnabled()) {
+				logger.error(ie.getMessage());
+			}
+			throw new IOException(ie.getMessage());
+
+		} catch (Exception se) {
+			if (logger.isErrorEnabled()) {
+				logger.error(se.getMessage()); //$NON-NLS-1$
+			}
+
 		}
 		return arrayList;
 	}
@@ -246,7 +294,7 @@ public class InteractionsConnectionImpl {
 
 			String methodAndParams = "getVersionDescriptor"
 					+ ResultSetlUtil.DEL + datasetName;
-			rs = ResultSetlUtil.executeQuery(methodAndParams,					 
+			rs = ResultSetlUtil.executeQuery(methodAndParams,
 					ResultSetlUtil.INTERACTIONS_SERVLET_URL);
 			while (rs.next()) {
 				version = rs.getString("version").trim();
@@ -314,11 +362,4 @@ public class InteractionsConnectionImpl {
 
 	}
 
-	 
-	 
- 
-	 
-
-	 
-	 
 }

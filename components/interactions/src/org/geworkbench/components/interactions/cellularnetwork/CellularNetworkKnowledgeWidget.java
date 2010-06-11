@@ -1680,7 +1680,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 					String context = null;
 					if (jPreferencePanel.getContextComboBox().getSelectedItem() != null) {
 						context = jPreferencePanel.getContextComboBox()
-								.getSelectedItem().toString().trim();
+								.getSelectedItem().toString().split(" \\(")[0].trim();
 					}
 
 					String version = null;

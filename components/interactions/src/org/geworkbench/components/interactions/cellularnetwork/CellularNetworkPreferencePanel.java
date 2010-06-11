@@ -2,45 +2,45 @@ package org.geworkbench.components.interactions.cellularnetwork;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component; 
-import java.awt.FlowLayout; 
+import java.awt.Component;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener; 
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent; 
-import java.io.IOException; 
+import java.awt.event.MouseEvent;
+import java.io.IOException;
 import java.net.ConnectException;
-import java.net.SocketTimeoutException; 
-import java.util.ArrayList; 
-import java.util.Collections; 
-import java.util.List; 
-import java.util.Vector; 
-import javax.swing.AbstractListModel; 
+import java.net.SocketTimeoutException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Vector;
+import javax.swing.AbstractListModel;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.DefaultListModel; 
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
-import javax.swing.JCheckBox; 
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JList; 
+import javax.swing.JList;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel; 
-import javax.swing.JScrollPane; 
-import javax.swing.JTextField; 
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 import javax.swing.ListCellRenderer;
-import javax.swing.ListModel; 
+import javax.swing.ListModel;
 import javax.swing.DefaultListCellRenderer;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;  
- 
-import org.geworkbench.engine.properties.PropertiesManager;  
+import org.apache.commons.logging.LogFactory;
+
+import org.geworkbench.engine.properties.PropertiesManager;
 import org.geworkbench.util.Util;
-import org.geworkbench.util.network.CellularNetWorkElementInformation; 
-import org.geworkbench.components.interactions.cellularnetwork.Constants; 
+import org.geworkbench.util.network.CellularNetWorkElementInformation;
+import org.geworkbench.components.interactions.cellularnetwork.Constants;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
@@ -49,27 +49,24 @@ import com.jgoodies.forms.layout.FormLayout;
  * @author Min You
  * @version $Id$
  */
- 
+
 public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
-	private Log log = LogFactory.getLog(this.getClass());	 
-	 
+	private Log log = LogFactory.getLog(this.getClass());
+
 	private PropertiesManager pm = null;
- 
-	 
-	private boolean isUserSelected = true;	 
+
+	private boolean isUserSelected = true;
 
 	private JComboBox contextComboBox = new JComboBox();
 	private JComboBox versionComboBox = new JComboBox();
-	 
-	 
+
 	private JButton addButton;
 
 	private JButton networkAddButton;
- 
+
 	private JList availableInteractionTypeList;
 
 	private JList availableNetworkInteractionTypeList;
- 
 
 	private JButton removeButton;
 	private JButton networkRemoveButton;
@@ -78,8 +75,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 
 	private JList selectedInteractionTypeList;
 	private JList selectedNetworkInteractionTypeList;
-     
-  
+
 	private preferenceJCheckBox markerJCheckBox = new preferenceJCheckBox(
 			Constants.MARKERLABEL, true);
 	private preferenceJCheckBox geneTypeLCheckBox = new preferenceJCheckBox(
@@ -94,12 +90,9 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 	private JCheckBox networkJCheckBox2 = new JCheckBox(
 			"Use setting  from Column Display Preferences", true);
 
-	 
 	private JLabel serviceLabel = null;
-   
+
 	JDialog changeServicesDialog = null;
-	
-	
 
 	private List<String> contextList = new ArrayList<String>();
 	private List<VersionDescriptor> versionList = new ArrayList<VersionDescriptor>();
@@ -112,10 +105,9 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 
 	private List<String> networkAvailInteractionTypes = new ArrayList<String>();
 
-	private List<String> networkSelectedInteractionTypes = new ArrayList<String>(); 
-	 
+	private List<String> networkSelectedInteractionTypes = new ArrayList<String>();
+
 	private CellularNetworkKnowledgeWidget c;
-	
 
 	/**
 	 * Creates new form Interactions
@@ -123,84 +115,70 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 	public CellularNetworkPreferencePanel(CellularNetworkKnowledgeWidget c) {
 
 		pm = c.pm;
-        this.c = c;		 
+		this.c = c;
 		initComponent();
 
-	 
 	}
- 
- 
-	
-	public List<String> getAllInteractionTypes()
-	{
+
+	public List<String> getAllInteractionTypes() {
 		return this.allInteractionTypes;
 	}
 
-	public List<String> getDisplayAvailInteractionTypes()
-	{
+	public List<String> getDisplayAvailInteractionTypes() {
 		return this.displayAvailInteractionTypes;
 	}
-	public List<String> getDisplaySelectedInteractionTypes()
-	{
+
+	public List<String> getDisplaySelectedInteractionTypes() {
 		return this.displaySelectedInteractionTypes;
 	}
-	public List<String> getNetworkAvailInteractionTypes()
-	{
+
+	public List<String> getNetworkAvailInteractionTypes() {
 		return this.networkAvailInteractionTypes;
 	}
-	public List<String> getNetworkSelectedInteractionTypes() 
-	{
+
+	public List<String> getNetworkSelectedInteractionTypes() {
 		return this.networkSelectedInteractionTypes;
 	}
-	
-	
-	public boolean isMarkerJCheckBoxSelected()
-	{
+
+	public boolean isMarkerJCheckBoxSelected() {
 		return this.markerJCheckBox.isSelected();
 	}
-	 
-	public boolean isGeneJCheckBoxSelected()
-	{
+
+	public boolean isGeneJCheckBoxSelected() {
 		return this.geneJCheckBox.isSelected();
 	}
-	
-	public boolean isGeneTypeLCheckBoxSelected()
-	{
+
+	public boolean isGeneTypeLCheckBoxSelected() {
 		return this.geneTypeLCheckBox.isSelected();
 	}
-	
-	public boolean isGoTermJCheckBoxSelected()
-	{
+
+	public boolean isGoTermJCheckBoxSelected() {
 		return this.goTermJCheckBox.isSelected();
 	}
-	
-	public boolean isNetworkJCheckBox1Selected()
-	{
+
+	public boolean isNetworkJCheckBox1Selected() {
 		return this.networkJCheckBox1.isSelected();
 	}
-	
-	public boolean isNetworkJCheckBox2Selected()
-	{
+
+	public boolean isNetworkJCheckBox2Selected() {
 		return this.networkJCheckBox2.isSelected();
 	}
-	
-	public JComboBox getContextComboBox()
-	{
+
+	public JComboBox getContextComboBox() {
 		return this.contextComboBox;
 	}
-	public JComboBox getVersionComboBox()
-	{ 
-		return this.versionComboBox;	
+
+	public JComboBox getVersionComboBox() {
+		return this.versionComboBox;
 	}
-	
-	
+
 	/**
 	 * The old method to create the GUI. It was generated by IDE than edited
 	 * manually.
 	 */
 
-	private void initComponent() {		
-	  	 
+	private void initComponent() {
+
 		availableInteractionTypeList = new javax.swing.JList();
 		selectedInteractionTypeList = new javax.swing.JList();
 		availableNetworkInteractionTypeList = new javax.swing.JList();
@@ -208,11 +186,11 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 		addButton = new javax.swing.JButton();
 		removeButton = new javax.swing.JButton();
 		networkAddButton = new javax.swing.JButton();
-		networkRemoveButton = new javax.swing.JButton();	 
-		changeButton = new javax.swing.JButton();		 
+		networkRemoveButton = new javax.swing.JButton();
+		changeButton = new javax.swing.JButton();
 		contextComboBox.setSize(60, 10);
 
-		ListCellRenderer aRenderer = new ComboBoxCellRenderer();
+		ListCellRenderer aRenderer = new VersionComboBoxRenderer();
 		versionComboBox.setSize(80, 10);
 		versionComboBox.setRenderer(aRenderer);
 
@@ -227,7 +205,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 				String selectedCoxtext = Constants.SELECTCONTEXT;
 				if (selectedVersion != null)
 					selectedCoxtext = contextComboBox.getSelectedItem()
-							.toString();
+							.toString().split(" \\(")[0].trim();
 				if (versionList == null)
 					versionList = new ArrayList<VersionDescriptor>();
 				versionList.clear();
@@ -260,7 +238,8 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 
 				}
 
-				versionList.add(0, new VersionDescriptor(Constants.SELECTVERSION, false));
+				versionList.add(0, new VersionDescriptor(
+						Constants.SELECTVERSION, false));
 				versionComboBox.setModel(new DefaultComboBoxModel(versionList
 						.toArray()));
 				versionComboBox.revalidate();
@@ -281,7 +260,8 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 				}
 				if (selectedVersion != null
 						&& ((VersionDescriptor) selectedVersion).getVersion() != Constants.SELECTVERSION) {
-					Vector<CellularNetWorkElementInformation> hits = c.getHits();
+					Vector<CellularNetWorkElementInformation> hits = c
+							.getHits();
 					for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits)
 						cellularNetWorkElementInformation.setDirty(true);
 				}
@@ -296,7 +276,6 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 			}
 		});
 
-	 
 		availableInteractionTypeList.setModel(availableInteractionTypeModel);
 		availableInteractionTypeList.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent evt) {
@@ -460,28 +439,19 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				changeButtonHandler(evt);
 			}
-		});		 
-	  
-		 setLayout(new BorderLayout());
-		 add(buildInteractionsDatabasePanel(),
-				BorderLayout.NORTH);
-		 add(buildColumnDisplayPreferencesPanel(),
-				BorderLayout.CENTER);
-		 add(buildNetworkGenerationPreferencesPanel(),
-				BorderLayout.SOUTH);
+		});
 
-		 
+		setLayout(new BorderLayout());
+		add(buildInteractionsDatabasePanel(), BorderLayout.NORTH);
+		add(buildColumnDisplayPreferencesPanel(), BorderLayout.CENTER);
+		add(buildNetworkGenerationPreferencesPanel(), BorderLayout.SOUTH);
 
-		 
 		displaySelectedInteractionTypes.add(Constants.PROTEIN_DNA);
 		displaySelectedInteractionTypes.add(Constants.PROTEIN_PROTEIN);
 		readInteractionTypesProperties();
 
-	 
+	}
 
-	} 
-
-	 
 	/**
 	 * Respond to the select/unselect of Protein Protein interaction checkbox.
 	 * 
@@ -499,7 +469,6 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 
 	}
 
-	 
 	/**
 	 * 
 	 * 
@@ -514,16 +483,30 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 			if (!contextProperty.equals("")
 					&& contextList.contains(contextProperty))
 				contextComboBox.setSelectedItem(contextProperty);
-			else if (!contextProperty.equals("")
-					&& !contextList.contains(contextProperty))
-				JOptionPane
-						.showMessageDialog(
-								null,
-								"Database context: "
-										+ contextProperty
-										+ " is not in current database, so it is deleted from preference setting.",
-								"Info", JOptionPane.INFORMATION_MESSAGE);
+			else if (!contextProperty.equals("")) {
+				String context = contextProperty.split(" \\(")[0].trim();
+				boolean needRemove = true;
+				for (String cxt : contextList) {
+					if (cxt.split(" \\(")[0].trim().equals(context)) {
+						contextComboBox.setSelectedItem(cxt);
+						needRemove = false;
+						break;
+					}
 
+				}
+
+				if (needRemove) {
+					JOptionPane
+
+							.showMessageDialog(
+									null,
+									"Database context: "
+											+ contextProperty
+											+ " is not in current database, so it is deleted from preference setting.",
+									"Info", JOptionPane.INFORMATION_MESSAGE);
+				}
+
+			}
 			String versionProperty = pm.getProperty(this.getClass(),
 					Constants.SELECTVERSION, "");
 			for (VersionDescriptor vd : versionList) {
@@ -579,32 +562,37 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 
 			}
 
-			isChecked = pm.getProperty(this.getClass(), Constants.MARKERLABEL, "");
+			isChecked = pm.getProperty(this.getClass(), Constants.MARKERLABEL,
+					"");
 			if (isChecked != null && isChecked.equalsIgnoreCase("false")) {
 				markerJCheckBox.setSelected(false);
 			} else if (isChecked != null && isChecked.equalsIgnoreCase("true")) {
 				markerJCheckBox.setSelected(true);
 			}
-			isChecked = pm.getProperty(this.getClass(), Constants.GENELABEL, "");
+			isChecked = pm
+					.getProperty(this.getClass(), Constants.GENELABEL, "");
 			if (isChecked != null && isChecked.equalsIgnoreCase("false")) {
 				geneJCheckBox.setSelected(false);
 			} else if (isChecked != null && isChecked.equalsIgnoreCase("true")) {
 				geneJCheckBox.setSelected(true);
 			}
-			isChecked = pm.getProperty(this.getClass(), Constants.GENETYPELABEL, "");
+			isChecked = pm.getProperty(this.getClass(),
+					Constants.GENETYPELABEL, "");
 			if (isChecked != null && isChecked.equalsIgnoreCase("false")) {
 				geneTypeLCheckBox.setSelected(false);
 			} else if (isChecked != null && isChecked.equalsIgnoreCase("true")) {
 				geneTypeLCheckBox.setSelected(true);
 			}
-			isChecked = pm.getProperty(this.getClass(), Constants.GOTERMCOLUMN, "");
+			isChecked = pm.getProperty(this.getClass(), Constants.GOTERMCOLUMN,
+					"");
 			if (isChecked != null && isChecked.equalsIgnoreCase("false")) {
 				goTermJCheckBox.setSelected(false);
 			} else if (isChecked != null && isChecked.equalsIgnoreCase("true")) {
 				goTermJCheckBox.setSelected(true);
 			}
 
-			isChecked = pm.getProperty(this.getClass(), Constants.GOTERMCOLUMN, "");
+			isChecked = pm.getProperty(this.getClass(), Constants.GOTERMCOLUMN,
+					"");
 			if (isChecked != null && isChecked.equalsIgnoreCase("false")) {
 				goTermJCheckBox.setSelected(false);
 			} else if (isChecked != null && isChecked.equalsIgnoreCase("true")) {
@@ -667,8 +655,6 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 			e.printStackTrace();
 		}
 	}
-
-
 
 	private void interactionTypeListHandler(MouseEvent evt, JList jList1,
 			JList jList2, List<String> types1, List<String> types2, ListModel
@@ -799,7 +785,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 		changeServicesDialog.setVisible(true);
 
 	}
-	
+
 	private void reInitPreferences() {
 
 		try {
@@ -822,7 +808,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 		}
 
 	}
- 
+
 	public void savePreferences() {
 
 		try {
@@ -832,8 +818,8 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 			pm.setProperty(this.getClass(), "url",
 					ResultSetlUtil.INTERACTIONS_SERVLET_URL);
 
-			pm.setProperty(this.getClass(), Constants.SELECTCONTEXT, contextComboBox
-					.getSelectedItem().toString());
+			pm.setProperty(this.getClass(), Constants.SELECTCONTEXT,
+					contextComboBox.getSelectedItem().toString());
 			VersionDescriptor v = (VersionDescriptor) versionComboBox
 					.getSelectedItem();
 			String version = Constants.SELECTVERSION;
@@ -842,9 +828,11 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 
 			pm.setProperty(this.getClass(), Constants.SELECTVERSION, version);
 
-			pm.setProperty(this.getClass(), Constants.DISPLAYSELECTEDINTERACTIONTYPE,
+			pm.setProperty(this.getClass(),
+					Constants.DISPLAYSELECTEDINTERACTIONTYPE,
 					displaySelectedInteractionTypes.toString());
-			pm.setProperty(this.getClass(), Constants.NETWORKSELECTEDINTERACTIONTYPE,
+			pm.setProperty(this.getClass(),
+					Constants.NETWORKSELECTEDINTERACTIONTYPE,
 					networkSelectedInteractionTypes.toString());
 
 			if (!markerJCheckBox.isSelected())
@@ -857,9 +845,8 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 				pm.setProperty(this.getClass(), Constants.GENELABEL, String
 						.valueOf(false));
 			else
-				pm
-						.setProperty(this.getClass(), Constants.GENELABEL, String
-								.valueOf(true));
+				pm.setProperty(this.getClass(), Constants.GENELABEL, String
+						.valueOf(true));
 			if (!geneTypeLCheckBox.isSelected())
 				pm.setProperty(this.getClass(), Constants.GENETYPELABEL, String
 						.valueOf(false));
@@ -892,7 +879,6 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 		}
 	}
 
-	 
 	public void initPreferences() {
 
 		try {
@@ -901,7 +887,8 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 			if (contextList != null)
 				contextList.clear();
 			try {
-				contextList = interactionsConnection.getDatasetNames();
+				contextList = interactionsConnection
+						.getDatasetAndInteractioCount();
 				allInteractionTypes = interactionsConnection
 						.getInteractionTypes();
 			} catch (ConnectException ce) {
@@ -934,10 +921,12 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 
 			if (versionList != null) {
 				versionList.clear();
-				versionList.add(0, new VersionDescriptor(Constants.SELECTVERSION, false));
+				versionList.add(0, new VersionDescriptor(
+						Constants.SELECTVERSION, false));
 			} else {
 				versionList = new ArrayList<VersionDescriptor>();
-				versionList.add(new VersionDescriptor(Constants.SELECTVERSION, false));
+				versionList.add(new VersionDescriptor(Constants.SELECTVERSION,
+						false));
 			}
 			contextComboBox.setModel(new DefaultComboBoxModel(contextList
 					.toArray()));
@@ -954,15 +943,13 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 						.setAllInteractionTypes(allInteractionTypes);
 				displayAvailInteractionTypes.addAll(allInteractionTypes);
 				networkAvailInteractionTypes
-						.addAll(displayAvailInteractionTypes); 
+						.addAll(displayAvailInteractionTypes);
 				displaySelectedInteractionTypes.add(Constants.PROTEIN_DNA);
 				displaySelectedInteractionTypes.add(Constants.PROTEIN_PROTEIN);
 				networkSelectedInteractionTypes.add(Constants.PROTEIN_DNA);
 				networkSelectedInteractionTypes.add(Constants.PROTEIN_PROTEIN);
 				readPreferences();
-			}  
-
-		 
+			}
 
 			availableInteractionTypeList.setModel(new DefaultListModel());
 			availableInteractionTypeList
@@ -975,15 +962,13 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 			selectedInteractionTypeList.setModel(selectedInteractionTypeModel);
 			selectedNetworkInteractionTypeList.setModel(new DefaultListModel());
 			selectedNetworkInteractionTypeList
-					.setModel(selectedNetworkInteractionTypeModel);		 
+					.setModel(selectedNetworkInteractionTypeModel);
 
 		} catch (Exception e) {
 			log.error(e.getMessage());
 		}
 
 	}
-
-	 
 
 	ListModel availableInteractionTypeModel = new AbstractListModel() {
 		public Object getElementAt(int index) {
@@ -1025,8 +1010,6 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 		}
 	};
 
-	 
- 
 	private class preferenceJCheckBox extends JCheckBox {
 
 		public preferenceJCheckBox(String label, boolean isSelected) {
@@ -1042,7 +1025,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 		}
 	}
 
-	private class ComboBoxCellRenderer implements ListCellRenderer {
+	private class VersionComboBoxRenderer implements ListCellRenderer {
 		protected DefaultListCellRenderer defaultRenderer = new DefaultListCellRenderer();
 
 		public Component getListCellRendererComponent(JList list, Object value,
@@ -1071,8 +1054,6 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 			return renderer;
 		}
 	}
-
-	 
 
 	private JPanel buildInteractionsDatabasePanel() {
 		FormLayout layout = new FormLayout(
@@ -1221,7 +1202,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 		return builder.getPanel();
 
 	}
-	 
+
 	private List<String> processInteractionStr(String interactionStr) {
 		List<String> aList = new ArrayList<String>();
 		interactionStr = interactionStr.substring(1,
@@ -1236,5 +1217,5 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 
 		return aList;
 	}
-	
+
 }
