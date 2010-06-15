@@ -71,7 +71,7 @@ public class ThresholdNormalizerPanel extends AbstractSaveableParameterPanel {
 
     /*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
 	 */
     public Map<Serializable, Serializable> getParameters() {
@@ -81,7 +81,23 @@ public class ThresholdNormalizerPanel extends AbstractSaveableParameterPanel {
 		parameters.put("missingValuesSelection", missingValuesSelection.getSelectedIndex());
 		return parameters;
 	}
-    
+
+    /**
+     *	for dataset history
+     */
+	public String getParamDetail() {
+		String CutOffValueLine = "Cut-off value:  " + cutoffEdit.getValue()
+				+ "\n";
+		String CutOffTypeLine = "Cut-off type:  "
+				+ (String) cutoffTypeSelection.getSelectedItem() + "\n";
+		String MissingValuesSelectionLine = "Missing values:  "
+				+ (String) missingValuesSelection.getSelectedItem() + "\n";
+		String paramDetail = "Threshold Parameters:\n" + CutOffValueLine
+				+ CutOffTypeLine + MissingValuesSelectionLine;
+
+		return paramDetail;
+	}
+
     public ThresholdNormalizerPanel() {
         try {
             jbInit();
@@ -153,7 +169,7 @@ public class ThresholdNormalizerPanel extends AbstractSaveableParameterPanel {
 	@Override
 	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

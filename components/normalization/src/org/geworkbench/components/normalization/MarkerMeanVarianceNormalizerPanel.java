@@ -60,7 +60,7 @@ public class MarkerMeanVarianceNormalizerPanel extends AbstractSaveableParameter
 
     /*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
 	 */
     public Map<Serializable, Serializable> getParameters() {
@@ -69,7 +69,18 @@ public class MarkerMeanVarianceNormalizerPanel extends AbstractSaveableParameter
 		return parameters;
 	}
 
-    
+    /**
+     *	used for history
+     */
+	public String getParamDetail() {
+		String missingValuesSelectionLine = "Missing values:  "
+				+ (String) missingValuesSelection.getSelectedItem() + "\n";
+		String paramDetail = "Mean-Variance Parameters:\n"
+				+ missingValuesSelectionLine;
+
+		return paramDetail;
+	}
+
     public MarkerMeanVarianceNormalizerPanel() {
         try {
             jbInit();
@@ -118,7 +129,7 @@ public class MarkerMeanVarianceNormalizerPanel extends AbstractSaveableParameter
 	@Override
 	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

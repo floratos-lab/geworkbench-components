@@ -55,7 +55,7 @@ public class MissingValueNormalizerPanel extends AbstractSaveableParameterPanel 
 
     /*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
 	 */
     public Map<Serializable, Serializable> getParameters() {
@@ -64,7 +64,19 @@ public class MissingValueNormalizerPanel extends AbstractSaveableParameterPanel 
 		return parameters;
 	}
 
-    
+
+    /**
+     *	for dataset history
+     */
+	public String getParamDetail() {
+		String AveragingMethodSelectionLine = "Averaging method:  "
+				+ (String) averagingTypeSelection.getSelectedItem() + "\n";
+		String paramDetail = "Missing Value Parameters:\n"
+				+ AveragingMethodSelectionLine;
+
+		return paramDetail;
+	}
+
     public MissingValueNormalizerPanel() {
         try {
             jbInit();
@@ -107,7 +119,7 @@ public class MissingValueNormalizerPanel extends AbstractSaveableParameterPanel 
 	@Override
 	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }
