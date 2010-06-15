@@ -30,10 +30,10 @@ import com.jgoodies.forms.layout.FormLayout;
  */
 public class QuantileNormalizerPanel extends AbstractSaveableParameterPanel {
     /**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 4689662471445840601L;
-	
+
 	final String MARKER_OPTION = "Mean profile marker";
     final String MICROARRAY_OPTION = "Mean microarray value";
     private GridLayout gridLayout1 = new GridLayout();
@@ -62,7 +62,7 @@ public class QuantileNormalizerPanel extends AbstractSaveableParameterPanel {
 
     /*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
 	 */
     public Map<Serializable, Serializable> getParameters() {
@@ -70,7 +70,19 @@ public class QuantileNormalizerPanel extends AbstractSaveableParameterPanel {
 		parameters.put("averagingTypeSelection", averagingTypeSelection.getSelectedIndex());
 		return parameters;
 	}
-    
+
+    /**
+     *	for dataset history
+     */
+	public String getParamDetail() {
+		String MissingValuesAveragingMethodSelectionLine = "Missing values averaging method:  "
+				+ (String) averagingTypeSelection.getSelectedItem() + "\n";
+		String paramDetail = "Quantile Parameters:\n"
+				+ MissingValuesAveragingMethodSelectionLine;
+
+		return paramDetail;
+	}
+
     public QuantileNormalizerPanel() {
         try {
             jbInit();
@@ -125,7 +137,7 @@ public class QuantileNormalizerPanel extends AbstractSaveableParameterPanel {
 	@Override
 	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
 		// TODO Auto-generated method stub
-		
+
 	};
 
 }

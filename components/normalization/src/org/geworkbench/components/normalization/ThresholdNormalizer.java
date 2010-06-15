@@ -6,6 +6,7 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.NormalizingAnalysis;
+import org.geworkbench.builtin.projects.ProjectPanel;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>
@@ -71,6 +72,9 @@ public class ThresholdNormalizer extends AbstractAnalysis implements Normalizing
             }
 
         }
+
+        // add to history
+        ProjectPanel.addHistoryDetail(maSet,((ThresholdNormalizerPanel) aspp).getParamDetail());
 
         return new AlgorithmExecutionResults(true, "No errors", input);
     }

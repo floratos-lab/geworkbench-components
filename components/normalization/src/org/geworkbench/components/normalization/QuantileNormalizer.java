@@ -6,6 +6,7 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.NormalizingAnalysis;
+import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.engine.management.Script;
 
 import java.util.Arrays;
@@ -92,6 +93,9 @@ public class QuantileNormalizer extends AbstractAnalysis implements NormalizingA
             for (int arrayIndex = 0; arrayIndex < arrayCount; ++arrayIndex)
                 arrays[arrayIndex][markerIndex].setValue(mean);
         }
+
+		// add to history
+        ProjectPanel.addHistoryDetail((DSMicroarraySet) input,((QuantileNormalizerPanel) aspp).getParamDetail());
 
         return new AlgorithmExecutionResults(true, "No errors", input);
     }
