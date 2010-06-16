@@ -1,8 +1,6 @@
 package org.geworkbench.components.cytoscape;
 
 import giny.model.Node;
-import giny.util.ForceDirectedLayout;
-import giny.util.SpringEmbeddedLayouter;
 import giny.view.GraphViewChangeEvent;
 import giny.view.GraphViewChangeListener;
 import giny.view.NodeView;
@@ -43,23 +41,22 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.G
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
-import org.geworkbench.builtin.projects.DataSetNode;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
-import org.geworkbench.events.GeneTaggedEvent;
 import org.geworkbench.events.AdjacencyMatrixEvent;
+import org.geworkbench.events.GeneTaggedEvent;
 import org.geworkbench.events.ProjectNodeRemovedEvent;
 import org.geworkbench.util.Util;
 import org.geworkbench.util.annotation.Gene;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrix;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixDataSet;
 
-import com.jgoodies.plaf.FontSizeHints;
-import com.jgoodies.plaf.Options;
+import com.jgoodies.looks.Options;
 
+import csplugins.layout.algorithms.force.ForceDirectedLayout;
 import cytoscape.CyEdge;
 import cytoscape.CyNetwork;
 import cytoscape.CyNode;
@@ -67,6 +64,9 @@ import cytoscape.Cytoscape;
 import cytoscape.CytoscapeInit;
 import cytoscape.giny.FingCyNetwork;
 import cytoscape.init.CyInitParams;
+import cytoscape.layout.AbstractLayout;
+import cytoscape.layout.LayoutTask;
+import cytoscape.task.util.TaskManager;
 import cytoscape.util.CytoscapeToolBar;
 import cytoscape.view.CyNetworkView;
 import cytoscape.view.CytoscapeDesktop;
@@ -74,8 +74,9 @@ import cytoscape.view.NetworkPanel;
 import cytoscape.view.cytopanels.BiModalJSplitPane;
 import cytoscape.view.cytopanels.CytoPanel;
 import cytoscape.visual.CalculatorCatalog;
-import cytoscape.visual.ShapeNodeRealizer;
+import cytoscape.visual.NodeShape;
 import cytoscape.visual.VisualMappingManager;
+import cytoscape.visual.VisualPropertyType;
 import cytoscape.visual.VisualStyle;
 import cytoscape.visual.calculators.Calculator;
 import cytoscape.visual.mappings.DiscreteMapping;
@@ -141,11 +142,11 @@ public class CytoscapeWidget implements VisualPlugin {
 	private VisualStyle sample1VisualStyle;
 
 	private int shapeIndex = 0;
-	private byte[] shapes = { ShapeNodeRealizer.RECT,
-			ShapeNodeRealizer.DIAMOND, ShapeNodeRealizer.HEXAGON,
-			ShapeNodeRealizer.OCTAGON, ShapeNodeRealizer.PARALLELOGRAM,
-			ShapeNodeRealizer.ROUND_RECT, ShapeNodeRealizer.TRIANGLE,
-			ShapeNodeRealizer.TRAPEZOID_2 };
+	private NodeShape[] shapes = { NodeShape.RECT,
+			NodeShape.DIAMOND, NodeShape.HEXAGON,
+			NodeShape.OCTAGON, NodeShape.PARALLELOGRAM,
+			NodeShape.ROUND_RECT, NodeShape.TRIANGLE,
+			NodeShape.TRAPEZOID_2 };
 
 	private boolean uiSetup = false;
  
@@ -161,7 +162,6 @@ public class CytoscapeWidget implements VisualPlugin {
 
 	public CytoscapeWidget() {
 		UIManager.put(Options.USE_SYSTEM_FONTS_APP_KEY, Boolean.TRUE);
-		Options.setGlobalFontSizeHints(FontSizeHints.MIXED);
 		Options.setDefaultIconSize(new Dimension(18, 18));
 
 		init();
@@ -741,9 +741,9 @@ public class CytoscapeWidget implements VisualPlugin {
 			 * newFrame.setVisible(true); newFrame.pack();
 			 */
 			if (edges.size() > 0) {
-				test.getCytoPanel(SwingConstants.SOUTH).setSelectedIndex(1);
-			} else {
 				test.getCytoPanel(SwingConstants.SOUTH).setSelectedIndex(0);
+//			} else {
+//				test.getCytoPanel(SwingConstants.SOUTH).setSelectedIndex(0);
 			}
 			DSPanel<DSGeneMarker> selectedMarkers = new CSPanel<DSGeneMarker>(
 					"Selected Genes", "Cytoscape");
@@ -817,8 +817,8 @@ public class CytoscapeWidget implements VisualPlugin {
 		CalculatorCatalog catalog = manager.getCalculatorCatalog();
 		sample1VisualStyle = catalog.getVisualStyle("Sample1");
 
-		Calculator nc = catalog.getCalculator(
-				cytoscape.visual.ui.VizMapUI.NODE_SHAPE, "BasicDiscrete");
+		Calculator nc = catalog.getCalculator(VisualPropertyType.NODE_SHAPE,
+				"Nested Network Style-Node Shape-Discrete Mapper");
 		Vector<?> v = nc.getMappings();
 		for (int i = 0; i < v.size(); i++) {
 			if (v.get(i) instanceof DiscreteMapping)
@@ -837,7 +837,7 @@ public class CytoscapeWidget implements VisualPlugin {
 		sample1VisualStyle.getNodeAppearanceCalculator().setCalculator((nc));
 
 		Calculator ec = catalog.getCalculator(
-				cytoscape.visual.ui.VizMapUI.EDGE_COLOR, "BasicDiscrete");
+				VisualPropertyType.EDGE_COLOR, "BasicDiscrete");
 		v = ec.getMappings();
 		for (int i = 0; i < v.size(); i++) {
 			if (v.get(i) instanceof DiscreteMapping)
@@ -983,15 +983,16 @@ public class CytoscapeWidget implements VisualPlugin {
 			return;
 		}
 	 
-		new ForceDirectedLayout(Cytoscape.getCurrentNetworkView()).doLayout();
+		AbstractLayout layout = new ForceDirectedLayout();
+		TaskManager.executeTask( new LayoutTask(layout, Cytoscape.getCurrentNetworkView()), LayoutTask.getDefaultTaskConfig() ); 
 
 		if (cancelList.contains(adjMatrixId)) {
 			log.info("got cancel action");			 
 			return;
 		}
 	 
-		new SpringEmbeddedLayouter(Cytoscape.getCurrentNetworkView())
-				.doLayout();
+//		new SpringEmbeddedLayouter(Cytoscape.getCurrentNetworkView())
+//				.doLayout();
 
 		if (cancelList.contains(adjMatrixId)) {
 			log.info("got cancel action");			 
