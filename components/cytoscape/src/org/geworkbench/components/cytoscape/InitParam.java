@@ -55,26 +55,34 @@ public class InitParam implements CyInitParams {
 		return new ArrayList<String>();
 	}
 
-	// TODO it needs to be verified which jar files are really necessary
+	/**
+	 * Get the core plugins of cytoscape.
+	 */
+	// cytoscape supports specifying the plugin by teh directory name, 
+	// but geworkbench component classloader ony include jar files directly under lib directory in classpath
+	// so plugin jar files are exmaplcitly individually here because they can stays the lib directory
+	// with non-plugin jars
 	public List<String> getPlugins() {
 		List<String> plugins = new ArrayList<String>();
 		final String pluginDirectory = UILauncher.getComponentsDirectory()+"/cytoscape/lib/";
+		plugins.add(pluginDirectory+"AdvancedNetworkMerge.jar");
 		plugins.add(pluginDirectory+"AutomaticLayout.jar");
-		plugins.add(pluginDirectory+"yLayouts.jar");
-		plugins.add(pluginDirectory+"biopax.jar");
+		plugins.add(pluginDirectory+"biomartClient.jar");
+		//plugins.add(pluginDirectory+"biopax.jar"); // LinkageError due to its own collection15.MutilMap
 		plugins.add(pluginDirectory+"browser.jar");
 		plugins.add(pluginDirectory+"cPath.jar");
+		plugins.add(pluginDirectory+"cpath2.jar");
 		plugins.add(pluginDirectory+"CytoscapeEditor.jar");
-		plugins.add(pluginDirectory+"exesto.jar");
 		plugins.add(pluginDirectory+"filter.jar");
-		plugins.add(pluginDirectory+"GraphMerge.jar");
+		plugins.add(pluginDirectory+"filters.jar");
 		plugins.add(pluginDirectory+"linkout.jar");
 		plugins.add(pluginDirectory+"ManualLayout.jar");
+		plugins.add(pluginDirectory+"ncbiClient.jar");
 		plugins.add(pluginDirectory+"psi_mi.jar");
 		plugins.add(pluginDirectory+"quick_find.jar");
 		plugins.add(pluginDirectory+"SBMLReader.jar");
 		plugins.add(pluginDirectory+"TableImport.jar");
-		plugins.add(pluginDirectory+"yeast-context.jar");
+		plugins.add(pluginDirectory+"yLayouts.jar");
 		return plugins;
 	}
 
