@@ -24,7 +24,7 @@ public class InitParam implements CyInitParams {
 	private int mode;
 	
 	InitParam() {
-		mode = CyInitParams.TEXT;
+		mode = CyInitParams.EMBEDDED_WINDOW;
 		props = new Properties();
 
 		vizmapProps = new Properties();
@@ -72,7 +72,7 @@ public class InitParam implements CyInitParams {
 		plugins.add(pluginDirectory+"browser.jar");
 		plugins.add(pluginDirectory+"cPath.jar");
 		plugins.add(pluginDirectory+"cpath2.jar");
-		plugins.add(pluginDirectory+"CytoscapeEditor.jar");
+		//plugins.add(pluginDirectory+"CytoscapeEditor.jar"); // prevent blocking the network view 
 		plugins.add(pluginDirectory+"filter.jar");
 		plugins.add(pluginDirectory+"filters.jar");
 		plugins.add(pluginDirectory+"linkout.jar");
