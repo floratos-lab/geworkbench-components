@@ -1,18 +1,33 @@
 package org.geworkbench.components.plots;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.FlowLayout;
+import java.awt.Paint;
+import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
+import javax.swing.JButton;
+import javax.swing.JPanel;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.collections15.map.ReferenceMap;
 import org.geworkbench.bison.annotation.CSAnnotationContextManager;
 import org.geworkbench.bison.annotation.DSAnnotationContext;
-import org.geworkbench.bison.annotation.DSAnnotationContextManager;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
-import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView; 
+import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSTTestResultSet;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray; 
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSTTestResultSet;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
@@ -21,11 +36,14 @@ import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
-import org.geworkbench.events.ImageSnapshotEvent;
-import org.geworkbench.events.MarkerSelectedEvent; 
+import org.geworkbench.events.MarkerSelectedEvent;
 import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.util.BusySwingWorker;
-import org.jfree.chart.*;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartMouseEvent;
+import org.jfree.chart.ChartMouseListener;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
 import org.jfree.chart.entity.ChartEntity;
 import org.jfree.chart.entity.XYItemEntity;
 import org.jfree.chart.labels.StandardXYToolTipGenerator;
@@ -36,29 +54,21 @@ import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
-import javax.swing.*;
-import java.awt.*; 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.text.DecimalFormat;
-import java.util.*;
-import java.util.List;
-
 /**
  * Volcano plot.
  *
  * @author Matt Hall, John Watkinson
- * @version $Id: VolcanoPlot.java,v 1.15 2008-11-12 17:04:22 keshav Exp $
+ * @version $Id$
  */
-//@AcceptTypes({DSSignificanceResultSet.class})
 @AcceptTypes({DSTTestResultSet.class})
 public class VolcanoPlot implements VisualPlugin {
 
     static Log log = LogFactory.getLog(VolcanoPlot.class);
 
     private class MarkerXYToolTipGenerator extends StandardXYToolTipGenerator implements ChartMouseListener {
+		private static final long serialVersionUID = -6345314319585564074L;
 
-        private class MarkerAndStats implements Comparable<MarkerAndStats> {
+		private class MarkerAndStats implements Comparable<MarkerAndStats> {
 
             DSGeneMarker marker;
             double fold;
@@ -83,10 +93,8 @@ public class VolcanoPlot implements VisualPlugin {
 
         private SortedSet<MarkerAndStats> markers;         
         private List<MarkerAndStats> markerList;
-        private DSSignificanceResultSet<DSGeneMarker> sigSet;
                
-        public MarkerXYToolTipGenerator(DSSignificanceResultSet<DSGeneMarker> sigSet) {
-            this.sigSet = sigSet;
+        public MarkerXYToolTipGenerator() {
             markers = new TreeSet<MarkerAndStats>();            
         }
 
@@ -135,7 +143,6 @@ public class VolcanoPlot implements VisualPlugin {
 
     private JPanel mainPanel;
     private JPanel parentPanel;
-    private ReferenceMap<DSDataSet, Boolean> userOverrideMap = new ReferenceMap<DSDataSet, Boolean>(ReferenceMap.SOFT, ReferenceMap.HARD);
 
     /**
      * The dataset that holds the microarrayset and panels.
@@ -164,23 +171,11 @@ public class VolcanoPlot implements VisualPlugin {
         exportButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 if (significance != null && significance instanceof CSTTestResultSet) {
-                ((CSTTestResultSet)significance).saveDataToCSVFile();                     
+                ((CSTTestResultSet<DSGeneMarker>)significance).saveDataToCSVFile();                     
                 }
             }
         });
        
-    }
-
-    @Publish public ImageSnapshotEvent createImageSnapshot() {
-        // todo - fix
-//        Dimension panelSize = chartPanel.getSize();
-//        BufferedImage image = new BufferedImage(panelSize.width, panelSize.height, BufferedImage.TYPE_INT_RGB);
-//        Graphics g = image.getGraphics();
-//        chartPanel.paint(g);
-//        ImageIcon icon = new ImageIcon(image, "Volcano Plot");
-//        ImageSnapshotEvent event = new ImageSnapshotEvent("Volcano Plot Snapshot", icon, ImageSnapshotEvent.Action.SAVE);
-//        return event;
-        return null;
     }
 
     /**
@@ -189,8 +184,6 @@ public class VolcanoPlot implements VisualPlugin {
     public Component getComponent() {
         return parentPanel;
     }
-    
-    
 
     /**
      * Receives a project event.
@@ -198,38 +191,26 @@ public class VolcanoPlot implements VisualPlugin {
      * @param e      the event.
      * @param source the source of the event (unused).
      */
-    @Subscribe public void receive(ProjectEvent e, Object source) {
-        DSDataSet dataFile = e.getDataSet();
+    @SuppressWarnings("unchecked")
+	@Subscribe public void receive(ProjectEvent e, Object source) {
+        DSDataSet<DSMicroarray> dataFile = e.getDataSet();
 
         if (dataFile != null) {
             if (dataFile instanceof DSMicroarraySet) {
-                DSMicroarraySet set = (DSMicroarraySet) dataFile;
+                DSMicroarraySet<DSMicroarray> set = (DSMicroarraySet<DSMicroarray>) dataFile;
                 // If it is the same dataset as before, then don't reset everything
                 if (dataSetView.getDataSet() != set) {
                     dataSetView.setMicroarraySet(set);
                 }
             } else if (dataFile instanceof CSTTestResultSet) {
-/*            	
-            	if ((significance==null)||(significance.getLabels(DSTTestResultSet.CONTROL)==null)||(significance.getLabels(DSTTestResultSet.CASE)==null)){
-            		//since there are no control or no case, volcanoplot will not work, then we skip this one.
-            		//and we should show some messages for user.
-            		JLabel msg=new JLabel(
-            				"<html>Due to this result has more then two groups, or miss one of Control and Case groups,<br>"+
-            				"this result can not be shown in this version of Volcano Plot.</html>");
-            		mainPanel.add(msg, BorderLayout.NORTH);
-            	}else{
-*/            	
-	                significance = (CSTTestResultSet<DSGeneMarker>) dataFile;
-	                DSMicroarraySet<DSMicroarray> set = significance.getParentDataSet();
-	                	              
-	                
-	                generateChart();
-//            	}
+                significance = (CSTTestResultSet<DSGeneMarker>) dataFile;
+                generateChart();
             }
         }
     }
 
-    private void generateChart() {
+    @SuppressWarnings("unchecked")
+	private void generateChart() {
         DSMicroarraySet<DSMicroarray> set = significance.getParentDataSet();
         String[] caseLabels = significance.getLabels(DSTTestResultSet.CASE);
         String[] controlLabels = significance.getLabels(DSTTestResultSet.CONTROL);
@@ -268,7 +249,7 @@ public class VolcanoPlot implements VisualPlugin {
             public Object construct() {
                 setShowProgress(true);
                 setBusy(mainPanel);
-                MarkerXYToolTipGenerator toolTipGenerator = new MarkerXYToolTipGenerator(significance);
+                MarkerXYToolTipGenerator toolTipGenerator = new MarkerXYToolTipGenerator();
                 cpanel = new ChartPanel(createVolcanoChart(dataSetView, significance, false, false, this, toolTipGenerator));
                 cpanel.addChartMouseListener(toolTipGenerator);
                 return cpanel;
@@ -298,11 +279,7 @@ public class VolcanoPlot implements VisualPlugin {
     ) throws SeriesException {
     	
     	 
-        DSAnnotationContextManager manager = CSAnnotationContextManager.getInstance();
-        DSAnnotationContext<DSMicroarray> context = manager.getCurrentContext(dataSetView.getDataSet());
         XYSeriesCollection plots = new XYSeriesCollection();
-
-        //        int microarrayNo = maSet.size();
 
         // First put all the gene pairs in the xyValues array
         int numMarkers = dataSetView.getMarkerPanel().size();
@@ -310,17 +287,13 @@ public class VolcanoPlot implements VisualPlugin {
         if (worker != null) {
             worker.setProgressMax(numMarkers * 2);
         }
-        DSPanel<DSMicroarray> controlPanel = dataSetView.getItemPanel().panels().get(2);
-        DSPanel<DSMicroarray> casePanel = dataSetView.getItemPanel().panels().get(1);
 
         // First pass to determine negative value correction amount
-               
         
         XYSeries series = new XYSeries("All");
         List<Integer> underflowLocations = new ArrayList<Integer>();
         double validMinSigValue = Double.MAX_VALUE;
         double minPlotValue = Double.MAX_VALUE;
-        double validMaxSigValue = Double.MIN_VALUE;
         double maxPlotValue = Double.MIN_VALUE;
         for (int i = 0; i < numMarkers; i++) {
             DSGeneMarker marker = dataSetView.getMarkerPanel().get(i);
@@ -344,9 +317,7 @@ public class VolcanoPlot implements VisualPlugin {
             double xVal = significance.getFoldChange(marker);
                        
             if (!Double.isNaN(xVal) && !Double.isInfinite(xVal)) {
-//                log.debug("xVal = " + caseMean + " / " + controlMean);
                 double yVal = -Math.log10(sigValue);
-//                log.debug("Adding "+xVal+", "+yVal);
                 double plotVal = Math.abs(xVal) * Math.abs(yVal);
                 if (plotVal < minPlotValue) {
                     minPlotValue = plotVal;
@@ -354,8 +325,6 @@ public class VolcanoPlot implements VisualPlugin {
                 if (plotVal > maxPlotValue) {
                     maxPlotValue = plotVal;
                 }
-                
-                
 
                 series.add(xVal, yVal);
                 toolTipGenerator.addMarkerAndStats(marker, xVal, sigValue);
@@ -366,7 +335,6 @@ public class VolcanoPlot implements VisualPlugin {
             if (worker != null) {
                 worker.setCurrentProgress(numMarkers + i);
             }
-            //            map.put(new Integer(dataSetView.get(i).getSerial()), xyValues[i]);
         }
 
         // Fix underflow values
@@ -380,24 +348,16 @@ public class VolcanoPlot implements VisualPlugin {
 
 
         JFreeChart mainChart = ChartFactory.createScatterPlot(significance.getLabel(), "Fold Change (Log-2)", "Neg. Log-10 Significance", plots, PlotOrientation.VERTICAL, false, true, false); // Title, (, // X-Axis label,  Y-Axis label,  Dataset,  Show legend
-        //        mainChart.getXYPlot().setDomainAxis(new LogarithmicAxis("Fold Change"));
-        //        mainChart.getXYPlot().setRangeAxis(new LogarithmicAxis("Significance"));
-        //        XYLineAnnotation annotation = chartGroup.get(PlotType.MARKER).lineAnnotation;
-        //        if (annotation != null) {
-        //            mainChart.getXYPlot().addAnnotation(annotation);
-        //        }
-        //        chartData.setXyPoints(xyPoints);
         mainChart.getXYPlot().setRenderer(new VolcanoRenderer(plots, minPlotValue, maxPlotValue, toolTipGenerator));
-        //BufferedImage image = mainChart.createBufferedImage(width, height);
-        //return image;
-               
         
         return mainChart;
     }
 
     private static class VolcanoRenderer extends StandardXYItemRenderer {
-        XYDataset dataset;
-        GMTColorPalette colormap;
+		private static final long serialVersionUID = -8526944841096475280L;
+		
+		private XYDataset dataset;
+		private GMTColorPalette colormap;
 
         public VolcanoRenderer(XYDataset dataset, double min, double max, MarkerXYToolTipGenerator toolTipGenerator) {
             super(StandardXYItemRenderer.SHAPES, toolTipGenerator);
@@ -412,11 +372,8 @@ public class VolcanoPlot implements VisualPlugin {
             double x = dataset.getXValue(series, item);
             double y = dataset.getYValue(series, item);
             return colormap.getColor(Math.abs(x) * Math.abs(y));
-            //            return colormap.getColor(dataset.getZValue(series, item));
         }
 
     }
-
-   
 
 }
