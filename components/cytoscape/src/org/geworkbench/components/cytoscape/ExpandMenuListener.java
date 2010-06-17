@@ -7,8 +7,8 @@ import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.swing.AbstractAction;
@@ -17,7 +17,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JProgressBar;
 
-import org.apache.commons.collections15.MultiMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
@@ -38,7 +37,7 @@ public class ExpandMenuListener implements NodeContextMenuListener {
 	private CytoscapeWidget cytoscapeWidget = null;
 
 	// following fields are a temporary solution for refactoring
-	protected MultiMap<String, Integer> geneIdToMarkerIdMap = null;
+	protected Map<String, List<Integer>> geneIdToMarkerIdMap = null;
 	protected DSMicroarraySet<? extends DSMicroarray> maSet = null;
 	protected JProgressBar jProgressBar = null;
 	protected CyNetwork cytoNetwork = null;
@@ -88,7 +87,7 @@ public class ExpandMenuListener implements NodeContextMenuListener {
 			super(name);
 		}
 
-		@SuppressWarnings( { "unchecked", "deprecation" })
+		@SuppressWarnings( { "unchecked" })
 		public void actionPerformed(ActionEvent actionEvent) {
 			if (Cytoscape.getCurrentNetworkView() != null
 					&& Cytoscape.getCurrentNetwork() != null) {
@@ -168,7 +167,7 @@ public class ExpandMenuListener implements NodeContextMenuListener {
 			super(name);
 		}
 
-		@SuppressWarnings( { "unchecked", "deprecation" })
+		@SuppressWarnings( { "unchecked" })
 		public void actionPerformed(ActionEvent actionEvent) {
 			if (Cytoscape.getCurrentNetworkView() != null
 					&& Cytoscape.getCurrentNetwork() != null) {
@@ -211,7 +210,6 @@ public class ExpandMenuListener implements NodeContextMenuListener {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	private DSPanel<DSGeneMarker> nodesToMarkers(Set<Node> nodes) {
 		DSPanel<DSGeneMarker> selectedMarkers = new CSPanel<DSGeneMarker>(
 				"Selected Genes", "Cytoscape");

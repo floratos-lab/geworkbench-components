@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.Vector;
@@ -29,8 +30,6 @@ import javax.swing.JProgressBar;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 
-import org.apache.commons.collections15.MultiMap;
-import org.apache.commons.collections15.multimap.MultiHashMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
@@ -158,7 +157,7 @@ public class CytoscapeWidget implements VisualPlugin {
 	JProgressBar jProgressBar = new JProgressBar();
 	DSMicroarraySet<? extends DSMicroarray> maSet = null;
 	boolean publishEnabled = true;
-	MultiMap<String, Integer> geneIdToMarkerIdMap = new MultiHashMap<String, Integer>();
+	Map<String, List<Integer>> geneIdToMarkerIdMap = new HashMap<String, List<Integer>>();
 
 	public CytoscapeWidget() {
 		UIManager.put(Options.USE_SYSTEM_FONTS_APP_KEY, Boolean.TRUE);

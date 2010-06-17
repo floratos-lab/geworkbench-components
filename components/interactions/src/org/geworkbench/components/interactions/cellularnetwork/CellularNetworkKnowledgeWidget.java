@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -79,9 +80,6 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 //import javax.swing.SwingWorker;
 
-import org.apache.commons.collections15.MultiMap;
-import org.apache.commons.collections15.multimap.MultiHashMap;
-import org.apache.commons.collections15.set.ListOrderedSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
@@ -165,7 +163,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	private Vector<CellularNetWorkElementInformation> hits = null;
 
-	private MultiMap<String, Integer> geneIdToMarkerIdMap = new MultiHashMap<String, Integer>();
+	private Map<String, List<Integer>> geneIdToMarkerIdMap = new HashMap<String, List<Integer>>();
 
 	private JButton cancelButton;
 
@@ -2355,7 +2353,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				selectedGenes.clear();
 			}
 			allGenes.clear();
-			ListOrderedSet<DSGeneMarker> orderedSet = new ListOrderedSet<DSGeneMarker>();
+			Set<DSGeneMarker> orderedSet = new HashSet<DSGeneMarker>();
 
 			for (DSGeneMarker marker : panel) {
 				orderedSet.add(marker);
@@ -2398,7 +2396,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		return true;
 	}
 
-	private void updateAllMarkersList(ListOrderedSet<DSGeneMarker> orderedSet,
+	private void updateAllMarkersList(Set<DSGeneMarker> orderedSet,
 			Vector<CellularNetWorkElementInformation> vector) {
 		if (vector != null && orderedSet != null && vector.size() > 0
 				&& orderedSet.size() > 0) {
