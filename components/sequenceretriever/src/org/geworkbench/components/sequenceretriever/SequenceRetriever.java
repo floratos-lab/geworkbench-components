@@ -16,7 +16,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Vector;
@@ -50,7 +52,6 @@ import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.apache.commons.collections15.set.ListOrderedSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
@@ -1043,19 +1044,19 @@ public class SequenceRetriever implements VisualPlugin {
 				CSSequenceSet tempSequenceDB = new CSSequenceSet();
 				HashMap tempMap = new HashMap<String, RetrievedSequenceView>();
 				TreeMap tempSequencesList = new TreeMap<String, ArrayList<String>>();
-				ListOrderedSet<DSGeneMarker> orderedSet = new ListOrderedSet<DSGeneMarker>();
+				Set<DSGeneMarker> set = new HashSet<DSGeneMarker>();
 				for (int j = 0; j < markers.panels().size(); j++) {
 					DSPanel<DSGeneMarker> mrk = markers.panels().get(j);
 					if (mrk.isActive()) {
 						atLeastOneActive = true;
 						for (int i = 0; i < mrk.size(); i++) {
-							orderedSet.add(mrk.get(i));
+							set.add(mrk.get(i));
 							activeMarkers.add(mrk.get(i));
 						}
 					}
 				}
-				oldList.removeAll(orderedSet);
-				for (Iterator<DSGeneMarker> markerIter = orderedSet.iterator(); markerIter
+				oldList.removeAll(set);
+				for (Iterator<DSGeneMarker> markerIter = set.iterator(); markerIter
 						.hasNext();) {
 					DSGeneMarker mrk = markerIter.next();
 					ls2.addElement(mrk);
