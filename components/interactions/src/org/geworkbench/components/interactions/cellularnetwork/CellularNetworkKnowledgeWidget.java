@@ -83,6 +83,7 @@ import javax.swing.tree.TreeSelectionModel;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.bison.datastructure.biocollections.GoAnalysisResult;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.CSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
@@ -110,7 +111,7 @@ import org.geworkbench.util.ProgressBar;
 import org.geworkbench.util.network.CellularNetWorkElementInformation;
 import org.geworkbench.util.network.InteractionDetail;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrix;
-import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixDataSet;
+import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixDataSet; 
 import org.geworkbench.components.interactions.cellularnetwork.Constants;
 
 import org.jfree.chart.ChartFactory;
@@ -615,9 +616,11 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			Object[] array = treeMap.keySet().toArray();
 			JMenuItem[] jMenuItems = new JMenuItem[array.length];
 			for (int i = 0; i < array.length; i++) {
-				jMenuItems[i] = new JMenuItem((String) array[i]);
+				String s= (String)array[i];
+				jMenuItems[i] = new JMenuItem(s);
 				jMenu.add(jMenuItems[i]);
-				final Set<GOTerm> set = treeMap.get(array[i]);
+				final Set<GOTerm> set = treeMap.get(array[i]);	
+				
 				jMenuItems[i].addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						displayGoTree(set);
@@ -635,26 +638,63 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	 * @param set
 	 * @return
 	 */
-	private DefaultMutableTreeNode createNodes(Set<GOTerm> set) {
-		Object[] array = set.toArray();
+	 
+	private DefaultMutableTreeNode createNodes(Set<GOTerm> set) {	 
 		DefaultMutableTreeNode node = null;
-		if (array != null && array.length > 0) {
-			node = new DefaultMutableTreeNode(array[array.length - 1]);
-			DefaultMutableTreeNode[] childnode = new DefaultMutableTreeNode[array.length - 1];
-			if (array.length > 1) {
-				childnode[array.length - 2] = new DefaultMutableTreeNode(
-						array[array.length - 2]);
-				node.add(childnode[array.length - 2]);
-
-				for (int i = array.length - 3; i >= 0; i--) {
-					childnode[i] = new DefaultMutableTreeNode(array[i]);
-					childnode[i + 1].add(childnode[i]);
-				}
+		
+		for (GOTerm term : set)
+		{	 
+			if ( (term.getParents() == null) || (term.getParents().length == 0) )
+			{				
+				node = new DefaultMutableTreeNode(term);
+				Set<DefaultMutableTreeNode> childrenNodeSet = getChildrenNodes(term, set);
+	    		for (DefaultMutableTreeNode childrenNode : childrenNodeSet)
+	    			node.add(childrenNode);
+				break;
 			}
 		}
+		
+		 
+		 
 		return node;
 	}
+	
+	
+	private Set<DefaultMutableTreeNode> getChildrenNodes(GOTerm parent, Set<GOTerm> set) {
+		
+		Set<DefaultMutableTreeNode> childrenNodeSet = new HashSet<DefaultMutableTreeNode>();
+	 
+	    for (GOTerm term : set)
+	    {
+	    	GOTerm[] parentList = term.getParents();
+	    	boolean isChildNode = false;
+	        for (GOTerm aParent : parentList)
+	        {
+	        	if ( aParent.getId() == parent.getId())
+	        	{
+	        		isChildNode = true;
+	        		break;        		
+	            }
+	        }
+	    	
+	    	if (isChildNode)
+	    	{
+	    		DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(term);
+	    		Set<DefaultMutableTreeNode> grandChildrenNodeSet = getChildrenNodes(term, set);
+	    		for (DefaultMutableTreeNode grandChildrenNode : grandChildrenNodeSet)
+	    			childNode.add(grandChildrenNode);
+	    		childrenNodeSet.add(childNode);
+	    	
+	    	}
+	    	
+	    	
+	    }
+		
+		return childrenNodeSet;
+	}
+	
 
+	
 	/**
 	 * Display Go Tree.
 	 *
@@ -664,6 +704,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		if (set == null || set.size() == 0) {
 			return;
 		}
+		 
 		Frame frame = JOptionPane.getFrameForComponent(this);
 		goDialog = new JDialog(frame, "Display Gene Ontology Tree", true);
 
@@ -2353,7 +2394,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				selectedGenes.clear();
 			}
 			allGenes.clear();
-			Set<DSGeneMarker> orderedSet = new HashSet<DSGeneMarker>();
+		Set<DSGeneMarker> orderedSet = new HashSet<DSGeneMarker>();
 
 			for (DSGeneMarker marker : panel) {
 				orderedSet.add(marker);
