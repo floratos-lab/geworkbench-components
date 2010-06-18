@@ -36,10 +36,10 @@ import org.geworkbench.events.CaArraySuccessEvent;
 
 /**
  * The wrapper class for CaArray Component.
- * 
+ *
  * @author xiaoqing
  * @version $Id: CaArray2Component.java,v 1.15 2008/05/01 14:23:10 xiaoqing Exp $
- * 
+ *
  */
 @AcceptTypes( { DSMicroarraySet.class, CSSequenceSet.class })
 public class CaArray2Component implements VisualPlugin {
@@ -52,7 +52,7 @@ public class CaArray2Component implements VisualPlugin {
 	// process two types of queries: (1) the list of experiments; and (2) the
 	// actual data
 	/**
-	 * 
+	 *
 	 * @param ce
 	 * @param source
 	 */
@@ -168,6 +168,14 @@ public class CaArray2Component implements VisualPlugin {
 								hybridizationName, hybridizationId, qType,
 								chipType);
 						;
+
+						if (isCancelled
+								&& cancelledConnectionInfo != null
+								&& cancelledConnectionInfo
+										.equalsIgnoreCase(currentConnectionInfo)) {
+							return;
+						}
+
 						publishCaArraySuccessEvent(new CaArraySuccessEvent(
 								number++, hybridzations.size()));
 
@@ -273,7 +281,7 @@ public class CaArray2Component implements VisualPlugin {
 
 	// the event that data has been retrieved
 	/**
-	 * 
+	 *
 	 * @param event
 	 * @return
 	 */
@@ -284,10 +292,10 @@ public class CaArray2Component implements VisualPlugin {
 	}
 
 	/**
-	 * 
+	 *
 	 * process the query for filtering, publish the event with either the result
 	 * of all filter type-values or failure info
-	 * 
+	 *
 	 * @param ce
 	 * @param source
 	 */
@@ -333,7 +341,7 @@ public class CaArray2Component implements VisualPlugin {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param event:
 	 *            the list of experiment retrieved
 	 * @return
@@ -363,16 +371,16 @@ public class CaArray2Component implements VisualPlugin {
 	public Component getComponent() {
 		return mainPanel;
 	}
-	
+
 	@Publish
 	public CaArrayReturnHybridizationListEvent publishCaArrayReturnHybridizationListEvent(CaArrayReturnHybridizationListEvent event) {
 		return event;
 	}
-	
+
 	@Subscribe
 	public void receive(CaArrayRequestHybridizationListEvent event, Object source) {
 		CaArray2Experiment caArray2Experiment = event.getExperiment();
-		
+
 		String url = event.getUrl();
 		int port = event.getPort();
 		String username = event.getUsername();
@@ -408,5 +416,5 @@ public class CaArray2Component implements VisualPlugin {
 			publishCaArrayEvent(errorEvent);
 		}
 	}
-	
+
 }
