@@ -177,6 +177,7 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel {
         flagExplanationTable.put("-75", "Absent");
         flagExplanationTable.put("0", "Unflagged");
         flagExplanationTable.put("-99", "Flagged bad by user");
+        flagExplanationTable.put("99", "Flagged good by user");
         
         boxlayout = new BoxLayout(container, BoxLayout.Y_AXIS);
         container.setLayout(boxlayout);
