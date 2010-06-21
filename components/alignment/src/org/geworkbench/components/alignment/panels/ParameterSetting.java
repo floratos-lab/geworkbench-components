@@ -61,7 +61,17 @@ public class ParameterSetting {
         private int startPoint = -1;
         private int endPoint = -1;
 
-
+        private boolean excludeModelsOn;
+        private boolean excludeUncultureOn;
+        private boolean megaBlastOn;
+        private boolean discontiguousOn;
+        private boolean blastnBtnOn;
+        private boolean shortQueriesOn;
+        private String matchScores;
+        private String speciesRepeat;
+        private String templateLength;
+        private String templateType;
+        
     /**
      * No public constructor because this is only used in this package.
      * 
@@ -74,11 +84,23 @@ public class ParameterSetting {
      * @param maskLowCase
      * @param matrix
      * @param maskLookupTable
+     * 
+     * @param excludeModelsOn
+     * @param excludeUncultureOn
+     * @param megaBlastOn
+     * @param discontiguousOn
+     * @param blastnBtnOn
+     * @param shortQueriesOn
+     * @param matchScores
+     * @param speciesRepeat
+     * 
      */
     ParameterSetting(String dbName, String programName, boolean viewInBrowser,
 			double expect, boolean lowComplexityFilterOn,
 			boolean humanRepeatFilterOn, boolean maskLowCase, String matrix,
-			boolean maskLookupTable) {
+			boolean maskLookupTable, boolean excludeModelsOn, boolean excludeUncultureOn, 
+			boolean megaBlastOn, boolean discontiguousOn, boolean blastnBtnOn, boolean shortQueriesOn, 
+			String matchScores, String speciesRepeat, String templateLength, String templateType) {
         this.dbName = dbName;
         this.programName = programName;
         this.viewInBrowser = viewInBrowser;
@@ -87,6 +109,17 @@ public class ParameterSetting {
         this.humanRepeatFilterOn = humanRepeatFilterOn;
         this.matrix = matrix;
 		this.maskLookupTable = maskLookupTable;
+		
+		this.excludeModelsOn=excludeModelsOn;
+		this.excludeUncultureOn=excludeUncultureOn;
+		this.megaBlastOn=megaBlastOn;
+		this.discontiguousOn=discontiguousOn;
+		this.blastnBtnOn=blastnBtnOn;
+		this.shortQueriesOn=shortQueriesOn;
+		this.matchScores=matchScores;
+		this.speciesRepeat=speciesRepeat;
+		this.templateLength=templateLength;
+		this.templateType=templateType;
     }
 
     public void setPenalty(String penalty) {
@@ -175,5 +208,47 @@ public class ParameterSetting {
 	 */
 	public boolean isMaskLookupTable() {
 		return maskLookupTable;
+	}
+
+	public boolean isExcludeModelsOn() {
+		return excludeModelsOn;
+	}
+
+	public boolean isExcludeUncultureOn() {
+		return excludeUncultureOn;
+	}
+
+	public boolean isMegaBlastOn() {
+		return megaBlastOn;
+	}
+
+
+	public boolean isDiscontiguousOn() {
+		return discontiguousOn;
+	}
+
+
+	public boolean isShortQueriesOn() {
+		return shortQueriesOn;
+	}
+
+	public String getMatchScores() {
+		return matchScores;
+	}
+
+	public String getSpeciesRepeat() {
+		return speciesRepeat;
+	}
+	
+	public boolean isBlastnBtnOn() {
+		return blastnBtnOn;
+	}
+
+	public String getTemplateLength() {
+		return templateLength;
+	}
+	
+	public String getTemplateType() {
+		return templateType;
 	}
 }

@@ -16,6 +16,7 @@ import java.util.Date;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -26,6 +27,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
@@ -68,6 +70,7 @@ import com.borland.jbcl.layout.XYLayout;
  * @author not attributable
  * @version $Id$
  */
+//test
 @SuppressWarnings("unchecked")
 @AcceptTypes( {CSSequenceSet.class})
 public class BlastAppComponent implements VisualPlugin {
@@ -95,14 +98,32 @@ public class BlastAppComponent implements VisualPlugin {
     private JTabbedPane jTabbedPane1 = new JTabbedPane();
     private JTabbedPane jTabbedBlastPane = new JTabbedPane();
 
-    // five check boxes in filter panel
+    //boxes for bug2019
+    private JCheckBox excludeModels = null;
+    private JCheckBox excludeUnculture = null;
+    private JLabel jexcludeLabel = new JLabel("Exclude:");
+    private JLabel jexcludeLabel1 = new JLabel("(optional)");
+    
+    private JRadioButton megablastBtn=null;
+    private JLabel jmegablastLabel = new JLabel("Optimize for:");
+    private JRadioButton discontiguousBtn=null;
+    private JRadioButton blastnBtn=null;
+    private ButtonGroup programBtnGroup=new ButtonGroup();
+    
+    
+    // five check boxes in filter panel+...
+    private JCheckBox shortQueriesBox =null;
+    private JLabel shortQueriesLabel =new JLabel("Short Queries:");
+    private JLabel jFilterLabel =new JLabel("Filter:");    
     private JCheckBox lowComplexFilterBox = null;
+    private JCheckBox speciesRepeatFilter = null; 
+    private JLabel jMaskLabel =new JLabel("Mask:");    
     private JCheckBox maskLowCaseBox = null;
     private JCheckBox maskLookupOnlyBox = null;
-    private JCheckBox humanRepeatFilter = null;
+    private JLabel jDisplayLabel =new JLabel("Browser:");
     private JCheckBox jDisplayInWebBox = null;
     
-    JPanel jAdvancedPane = new JPanel();
+    JPanel jAdvancedPane = new JPanel();    
     JFileChooser jFileChooser1 = new JFileChooser();
 
     static final int BLAST = 0;//keep unchanged
@@ -116,19 +137,26 @@ public class BlastAppComponent implements VisualPlugin {
     private JScrollPane jScrollPane1 = new JScrollPane();
 
     private JComboBox jProgramBox = new JComboBox();
-
-    private JPanel filterPanel = new JPanel();
-    private JPanel blastxSettingPanel = new JPanel();
+   
+    private JPanel speciesRepeatPanel = new JPanel();
+    private JPanel blastxSettingPanel = new JPanel();   
     
-    // 4 pairs of label and combo box on blastxSettingPanel
-    private JLabel matrixLabel = new JLabel("Expect:");
+    // pairs of label and combo box on blastxSettingPanel
+    private JLabel matrixLabel = new JLabel("Matrix:");
     private JComboBox jMatrixBox = new JComboBox();
-    private JLabel expectLabel = new JLabel("Matrix:");
+    private JLabel expectLabel = new JLabel("Expect:");
     private JComboBox jExpectBox = new JComboBox();
     private JLabel jWordsizeLabel = new JLabel("Word size:");
     private JComboBox jWordsizeBox = new JComboBox();
+    private JLabel jScoresLabel=new JLabel("Match/mismatch Scores:");
+    private JComboBox jScoresBox=new JComboBox();
     private JLabel jGapcostsLabel = new JLabel("Gap costs:");
     private JComboBox jGapcostsBox = new JComboBox();
+    private JComboBox jSpeciesBox=new JComboBox();
+    private JLabel jTemplateLengthLabel = new JLabel("Template Length:");
+    private JComboBox jTemplateLengthBox=new JComboBox();
+    private JLabel jTemplateTypeLabel = new JLabel("Template Type:");
+    private JComboBox jTemplateTypeBox=new JComboBox();
     
     private CSSequenceSet fastaFile;
     private BlastAppComponent blastAppComponent = null;
@@ -140,10 +168,10 @@ public class BlastAppComponent implements VisualPlugin {
     private JProgressBar serviceProgressBar = new JProgressBar();
 
     private JComboBox jProgramBox1 = new JComboBox();
-
-    private GridBagLayout gridBagLayout3 = new GridBagLayout();
+   
     private GridBagLayout gridBagLayout2 = new GridBagLayout();
-
+    private GridBagLayout gridBagLayout3 = new GridBagLayout();
+       
     private JButton blastStopButton = new JButton();
 
     private JToolBar jToolBar2 = new JToolBar();
@@ -191,8 +219,6 @@ public class BlastAppComponent implements VisualPlugin {
 
         jScrollPane4 = new JScrollPane();
 
-        jAdvancedPane = new JPanel();
-
         databaseTable = new JTable() // customized only to hide the header
         {
 			private static final long serialVersionUID = -7546361375519248646L;
@@ -221,18 +247,16 @@ public class BlastAppComponent implements VisualPlugin {
         blastButton = new JButton();
         jScrollPane1 = new JScrollPane();
         jProgramBox = new JComboBox();
-
-        blastxSettingPanel = new JPanel();
-
+      
         jstartPointField = new JTextField();
         jendPointField = new JTextField();
         serviceProgressBar = new JProgressBar();
 
         jProgramBox1 = new JComboBox();
-
-        gridBagLayout3 = new GridBagLayout();
+        
         gridBagLayout2 = new GridBagLayout();
-
+        gridBagLayout3 = new GridBagLayout();        
+       
         blastStopButton = new JButton();
 
         jToolBar2 = new JToolBar();
@@ -268,7 +292,7 @@ public class BlastAppComponent implements VisualPlugin {
         
         jPanel3.setLayout(borderLayout3);
 
-        jAdvancedPane.setLayout(gridBagLayout3);
+        jAdvancedPane.setLayout(gridBagLayout3);        
         databaseTable.setToolTipText("Select a database");
         databaseTable.setVerifyInputWhenFocusTarget(true);
         databaseTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -315,28 +339,52 @@ public class BlastAppComponent implements VisualPlugin {
         // (3)
         jGapcostsBox.setVerifyInputWhenFocusTarget(true);
     	String defaulMatrixName = "BLOSUM62"; 
-        String[] model = AlgorithmMatcher.translateToGapcosts(defaulMatrixName
-                );
+        String[] model = AlgorithmMatcher.translateToGapcosts(defaulMatrixName);
        	jGapcostsBox.setModel(new DefaultComboBoxModel(model));
        	Integer index = AlgorithmMatcher.defaultGapcostIndex.get(defaulMatrixName);
        	if(index==null) index = 0;
        	jGapcostsBox.setSelectedIndex(index);
 
-        // (4)
+        // (4) 
         jWordsizeBox.addItem("3");
         jWordsizeBox.addItem("2");
         jWordsizeBox.addItem("7");
         jWordsizeBox.addItem("11");
         jWordsizeBox.addItem("15");
         
-        // update tooltip text
-        // based on information from http://blast.ncbi.nlm.nih.gov/Blast.cgi and http://www.ncbi.nlm.nih.gov/BLAST/matrix_info.html
-        jExpectBox.setToolTipText("Random background noise");
-        jWordsizeBox.setToolTipText("The length of the words governing the sensitivity");
-        jMatrixBox.setToolTipText("Assigns a score for aligning any possible pair of residues");
-        jGapcostsBox.setToolTipText("Score subtracted due to the gaps");
-
-        blastxSettingPanel.setLayout(gridBagLayout2);
+        //(5)        
+        jScoresBox.addItem("1,-2");
+        jScoresBox.addItem("1,-3");
+        jScoresBox.addItem("1,-4");
+        jScoresBox.addItem("2,-3");
+        jScoresBox.addItem("4,-5");
+        jScoresBox.addItem("1,-1");
+       
+        jSpeciesBox.addItem("Human");
+        jSpeciesBox.addItem("Rodents");
+        jSpeciesBox.addItem("Arabidopsis");
+        jSpeciesBox.addItem("Rice");
+        jSpeciesBox.addItem("Mammals");
+        jSpeciesBox.addItem("Fungi");
+        jSpeciesBox.addItem("C.elegans");
+        jSpeciesBox.addItem("A.gambiae");
+        jSpeciesBox.addItem("Zebrafish");
+        jSpeciesBox.addItem("Fruit fly"); 
+        
+        jTemplateLengthBox.addItem("None");
+        jTemplateLengthBox.addItem("16");
+        jTemplateLengthBox.addItem("18");
+        jTemplateLengthBox.addItem("21");
+        jTemplateLengthBox.setSelectedIndex(2);
+        
+        jTemplateTypeBox.addItem("Coding");
+        jTemplateTypeBox.addItem("Maximal");
+        jTemplateTypeBox.addItem("Two template");
+        jTemplateTypeBox.setSelectedIndex(0);        
+        
+        
+        
+        blastxSettingPanel.setLayout(gridBagLayout2);       
 
         jProgramBox.setAutoscrolls(false);
         jProgramBox.setMinimumSize(new Dimension(26, 21));
@@ -350,8 +398,8 @@ public class BlastAppComponent implements VisualPlugin {
         jProgramBox1.setMinimumSize(new Dimension(26, 21));
         //jProgramBox1.setPreferredSize(new Dimension(26, 21));
 
-        jAdvancedPane.setMinimumSize(new Dimension(5, 25));
-        blastxSettingPanel.setMinimumSize(new Dimension(5, 115));
+        jAdvancedPane.setMinimumSize(new Dimension(150, 250));        
+        blastxSettingPanel.setMinimumSize(new Dimension(50, 200));       
 
         blastStopButton.setFont(new java.awt.Font("Arial Black", 0, 11));
         blastStopButton.setVerifyInputWhenFocusTarget(true);
@@ -370,11 +418,52 @@ public class BlastAppComponent implements VisualPlugin {
 
         jTabbedPane1.add(jTabbedBlastPane, "BLAST");
         
-        // 5 check boxes on filter panel
+        excludeModels = new JCheckBox();
+        excludeModels.setMinimumSize(new Dimension(10, 23));
+        excludeModels.setMnemonic(0);       
+        excludeModels.setSelected(false);
+        excludeModels.setText("Models(XM/XP)");
+        
+        excludeUnculture = new JCheckBox();
+        excludeUnculture.setMinimumSize(new Dimension(10, 23));
+        excludeUnculture.setMnemonic(0);
+        excludeUnculture.setSelected(false);
+        excludeUnculture.setText("Uncultured/environmental sequences");
+        
+        megablastBtn=new JRadioButton();
+        megablastBtn.setMinimumSize(new Dimension(10,23));
+        megablastBtn.setMnemonic(0);        
+        megablastBtn.setSelected(true);
+        megablastBtn.setText("Megablast");
+        megablastBtn.addActionListener(new BlastAppComponent_megablastBtn_actionAdapter());        
+        
+        discontiguousBtn=new JRadioButton();
+        discontiguousBtn.setMinimumSize(new Dimension(10,23));
+        discontiguousBtn.setMnemonic(0);       
+        discontiguousBtn.setText("Discontiguous megablast");
+        discontiguousBtn.addActionListener(new BlastAppComponent_discontiguousBtn_actionAdapter());
+        
+        blastnBtn=new JRadioButton();
+        blastnBtn.setMinimumSize(new Dimension(10,23));
+        blastnBtn.setMnemonic(0);       
+        blastnBtn.setText("Blastn");
+        blastnBtn.addActionListener(new BlastAppComponent_discontiguousBtn_actionAdapter());
+        
+        programBtnGroup.add(megablastBtn);
+        programBtnGroup.add(discontiguousBtn);
+        programBtnGroup.add(blastnBtn);
+        
+        // 5 check boxes on filter panel+...
+        shortQueriesBox=new JCheckBox();
+        shortQueriesBox.setMinimumSize(new Dimension(10, 23));
+        shortQueriesBox.setMnemonic('0');
+        shortQueriesBox.setSelected(true);
+        shortQueriesBox.setText("Automatically adjust parameters for short input sequences");
+        
         lowComplexFilterBox = new JCheckBox();
         lowComplexFilterBox.setMinimumSize(new Dimension(10, 23));
         lowComplexFilterBox.setMnemonic('0');
-        lowComplexFilterBox.setSelected(true);
+        lowComplexFilterBox.setSelected(false);
         lowComplexFilterBox.setText("Low Complexity");
         
         maskLowCaseBox = new JCheckBox();
@@ -387,62 +476,44 @@ public class BlastAppComponent implements VisualPlugin {
         maskLookupOnlyBox.setMnemonic('0');
         maskLookupOnlyBox.setSelected(false);
         
-        humanRepeatFilter = new JCheckBox();
-        humanRepeatFilter.setToolTipText("Human Repeat Filter");
-        humanRepeatFilter.setSelected(false);
-        humanRepeatFilter.setText("Human Repeats Filter");
-        
+        speciesRepeatFilter = new JCheckBox();
+        speciesRepeatFilter.setToolTipText("Species_specific Repeat Filter");
+        speciesRepeatFilter.setSelected(false);
+        speciesRepeatFilter.setText("Species-specific repeats for");              
+       
         jDisplayInWebBox = new JCheckBox();
         jDisplayInWebBox.setMinimumSize(new Dimension(10, 23));
         jDisplayInWebBox.setSelected(true);
         jDisplayInWebBox.setText("Display result in your web browser");
-
-        // filter Panel: including five check boxes
-        filterPanel = new JPanel();
-        filterPanel.setMinimumSize(new Dimension(5, 10));
-        filterPanel.add(lowComplexFilterBox);
-        filterPanel.add(maskLowCaseBox);
-        filterPanel.add(maskLookupOnlyBox);
-        filterPanel.add(humanRepeatFilter);
-        filterPanel.add(jDisplayInWebBox);
+ 
+        // speciesRepeatPanel: including 2 items
+        speciesRepeatPanel = new JPanel();
+        speciesRepeatPanel.setMinimumSize(new Dimension(10, 23));
+        speciesRepeatPanel.add(speciesRepeatFilter);
+        speciesRepeatPanel.add(jSpeciesBox);
         
-        // blastxSettingPanel includes four pairs of label and combo box
-		blastxSettingPanel.add(matrixLabel, new GridBagConstraints(0, 0, 1, 1,
-				0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
-				new Insets(2, 2, 2, 2), 0, 0));
-        blastxSettingPanel.add(jMatrixBox, new GridBagConstraints(1, 2, 1, 1,
-				1.0, 0.0, GridBagConstraints.WEST,
-				GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
-		blastxSettingPanel.add(jWordsizeLabel, new GridBagConstraints(0, 1, 1,
-				1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
-				new Insets(2, 2, 2, 2), 0, 0));
-		blastxSettingPanel.add(jWordsizeBox, new GridBagConstraints(1, 1, 1, 1,
-				1.0, 0.0, GridBagConstraints.WEST,
-				GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
-		blastxSettingPanel.add(expectLabel, new GridBagConstraints(0, 2, 1, 1,
-				0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
-				new Insets(2, 2, 2, 2), 0, 0));
-		blastxSettingPanel.add(jExpectBox, new GridBagConstraints(1, 0, 1, 1,
-				1.0, 0.0, GridBagConstraints.WEST,
-				GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
-        blastxSettingPanel.add(jGapcostsLabel, new GridBagConstraints(0, 3, 1,
-				1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
-				new Insets(2, 2, 2, 6), 1, -2));
-		blastxSettingPanel.add(jGapcostsBox, new GridBagConstraints(1, 3, 1, 1,
-				1.0, 0.0, GridBagConstraints.WEST,
-				GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
-
-        // Advanced Pane contains two panels
-		jAdvancedPane.add(filterPanel, new GridBagConstraints(0, 1, 1, 1, 1.0,
-				1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-				new Insets(0, 0, 0, 0), -150, 82));
-		jAdvancedPane.add(blastxSettingPanel, new GridBagConstraints(0, 0, 1,
+     // update tooltip text
+        // based on information from http://blast.ncbi.nlm.nih.gov/Blast.cgi and http://www.ncbi.nlm.nih.gov/BLAST/matrix_info.html
+        jExpectBox.setToolTipText("Random background noise");
+        jWordsizeBox.setToolTipText("The length of the words governing the sensitivity");
+        jMatrixBox.setToolTipText("Assigns a score for aligning any possible pair of residues");
+        jGapcostsBox.setToolTipText("Score subtracted due to the gaps");
+        excludeModels.setToolTipText("Models(XM/XP)");
+        excludeUnculture.setToolTipText("Uncultured/environmental sample sequences");
+        megablastBtn.setToolTipText("Highly similar sequences (megablast)");
+        discontiguousBtn.setToolTipText("More dissimilar sequences (discontiguous megablast)");
+        blastnBtn.setToolTipText("Somewhat similar sequences(blastn)");
+        
+        
+        // Advanced Pane contains several panels
+		jAdvancedPane.add(blastxSettingPanel, new GridBagConstraints(0, 2, 1,
 				1, 1.0, 1.0, GridBagConstraints.CENTER,
-				GridBagConstraints.HORIZONTAL, new Insets(0, 2, 1, 3), 0, 23));
-
+				GridBagConstraints.HORIZONTAL, new Insets(0, 1, 1, 3), 0, 23));
+		
 		// jTabbedBlastPane contains two panels
 		jTabbedBlastPane.add(jBasicPane, "Main");
         jTabbedBlastPane.add(jAdvancedPane, "Advanced Options");
+        jAdvancedPane.setEnabled(false);
 
         // mainPanel contains one tabbed pane
         mainPanel.add(jTabbedPane1, java.awt.BorderLayout.CENTER);
@@ -455,8 +526,18 @@ public class BlastAppComponent implements VisualPlugin {
         textArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
         subSeqPanel2.add(textArea,new XYConstraints(0, 84, 352, 150));
         subSeqPanel.add(DatabaseLabel, new XYConstraints(0, 59, 61, 23));
-        subSeqPanel.add(jProgramBox, new XYConstraints(84, 36, 267, 25)); //edit for new class.
-       // subSeqPanel.add(jToolBar1, new XYConstraints( -1, 0, 353, 27));
+        subSeqPanel.add(jProgramBox, new XYConstraints(84, 36, 267, 25)); //edit for new class. 267
+        
+        subSeqPanel.add(jexcludeLabel, new XYConstraints(0, 190, 80, 23));
+        subSeqPanel.add(excludeModels, new XYConstraints(84, 190, 200, 23));
+        subSeqPanel.add(jexcludeLabel1, new XYConstraints(0, 210, 80, 23));
+        subSeqPanel.add(excludeUnculture, new XYConstraints(84, 220, 250, 23));
+        subSeqPanel.add(jmegablastLabel, new XYConstraints(0, 250, 80, 23));
+        subSeqPanel.add(megablastBtn, new XYConstraints(84, 250, 200, 23));
+        subSeqPanel.add(discontiguousBtn, new XYConstraints(84, 280, 200, 23));
+        subSeqPanel.add(blastnBtn, new XYConstraints(84, 310, 200, 23));
+        enableRelateOptions(false);
+      
         displayToolBar.add(Box.createHorizontalStrut(10), null);
         displayToolBar.add(blastButton);
         displayToolBar.add(Box.createHorizontalStrut(5), null);
@@ -509,20 +590,112 @@ public class BlastAppComponent implements VisualPlugin {
 		}
     }
 
+    private void enableRelateOptions(Boolean b){
+    	if(((String) jProgramBox.getSelectedItem()).equalsIgnoreCase("blastn")&&b){
+    		megablastBtn.setVisible(b);
+    		discontiguousBtn.setVisible(b);
+    		blastnBtn.setVisible(b);
+    		jmegablastLabel.setVisible(b);
+    	}
+    	else{
+    		megablastBtn.setVisible(false);
+    		discontiguousBtn.setVisible(false);
+    		blastnBtn.setVisible(false);
+    		jmegablastLabel.setVisible(false);
+    	}    	
+    	jexcludeLabel.setVisible(b);		
+		excludeModels.setVisible(b);		
+		jexcludeLabel1.setVisible(b);		
+		excludeUnculture.setVisible(b);		
+    }
+    
+   
     private void jProgramBox_actionPerformed(ActionEvent e) {
 
         JComboBox cb = (JComboBox) e.getSource();
-
 		// Get the new item
 		String selectedProgramName = (String) cb.getSelectedItem();
+		blastxSettingPanel.removeAll();		
 		if (selectedProgramName == null
 				|| selectedProgramName
 						.equalsIgnoreCase(SELECT_A_PROGRAM_PROMPT)) {
 			jScrollPane1.getViewport().removeAll();
-			textArea.setText( "" );			
+			textArea.setText( "" );
+			jAdvancedPane.setEnabled(false);
+			enableRelateOptions(false);
 			return;
 		}
+		
+		enableRelateOptions(true);
+        int beforeFilter=0;
+        blastxSettingPanel.add(shortQueriesLabel, new GridBagConstraints(0, beforeFilter, 1, 1,
+				1.0, 0.0, GridBagConstraints.WEST,
+				GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
+		blastxSettingPanel.add(shortQueriesBox, new GridBagConstraints(1, beforeFilter, 1, 1,
+				1.0, 0.0, GridBagConstraints.WEST,
+				GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
+        
+        blastxSettingPanel.add(expectLabel, new GridBagConstraints(0, 1+beforeFilter, 1, 1,
+				0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+				new Insets(2, 2, 2, 2), 0, 0));
+		blastxSettingPanel.add(jExpectBox, new GridBagConstraints(1, 1+beforeFilter, 1, 1,
+				1.0, 0.0, GridBagConstraints.WEST,
+				GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
+		
+		blastxSettingPanel.add(jWordsizeLabel, new GridBagConstraints(0, 2+beforeFilter, 1,
+				1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+				new Insets(2, 2, 2, 2), 0, 0));
+		blastxSettingPanel.add(jWordsizeBox, new GridBagConstraints(1, 2+beforeFilter, 1, 1,
+				1.0, 0.0, GridBagConstraints.WEST,
+				GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
 
+		blastxSettingPanel.add(matrixLabel, new GridBagConstraints(0, 3+beforeFilter, 1, 1,
+				0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+				new Insets(2, 2, 2, 2), 0, 0));		
+        blastxSettingPanel.add(jMatrixBox, new GridBagConstraints(1, 3+beforeFilter, 1, 1,
+				1.0, 0.0, GridBagConstraints.WEST,
+				GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0)); 
+		blastxSettingPanel.add(jScoresLabel, new GridBagConstraints(0, 4+beforeFilter, 1, 
+				1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+				new Insets(2, 2, 2, 6), 1, -2));
+		blastxSettingPanel.add(jScoresBox, new GridBagConstraints(1, 4+beforeFilter, 1, 1,
+				1.0, 0.0, GridBagConstraints.WEST,
+				GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));		
+        blastxSettingPanel.add(jGapcostsLabel, new GridBagConstraints(0, 5+beforeFilter, 1,
+				1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+				new Insets(2, 2, 2, 6), 1, -2));
+		blastxSettingPanel.add(jGapcostsBox, new GridBagConstraints(1, 5+beforeFilter, 1, 1,
+				1.0, 0.0, GridBagConstraints.WEST,
+				GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
+		
+		blastxSettingPanel.add(jFilterLabel, new GridBagConstraints(0, 6+beforeFilter, 1,
+				1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+				new Insets(2, 2, 2, 6), 1, -2));
+		blastxSettingPanel.add(lowComplexFilterBox, new GridBagConstraints(1, 6+beforeFilter, 1, 1,
+				1.0, 0.0, GridBagConstraints.WEST,
+				GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
+		
+		blastxSettingPanel.add(speciesRepeatPanel, new GridBagConstraints(1, 7+beforeFilter, 1, 1,
+				1.0, 0.0, GridBagConstraints.WEST,
+				GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+		
+		blastxSettingPanel.add(jMaskLabel, new GridBagConstraints(0, 8+beforeFilter, 1,
+				1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+				new Insets(2, 2, 2, 6), 1, -2));
+		blastxSettingPanel.add(maskLookupOnlyBox, new GridBagConstraints(1, 8+beforeFilter, 1, 1,
+				1.0, 0.0, GridBagConstraints.WEST,
+				GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
+		blastxSettingPanel.add(maskLowCaseBox, new GridBagConstraints(1, 9+beforeFilter, 1, 1,
+				1.0, 0.0, GridBagConstraints.WEST,
+				GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
+		blastxSettingPanel.add(jDisplayLabel, new GridBagConstraints(0, 10+beforeFilter, 1, 1,
+				1.0, 0.0, GridBagConstraints.WEST,
+				GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
+		blastxSettingPanel.add(jDisplayInWebBox, new GridBagConstraints(1, 10+beforeFilter, 1, 1,
+				1.0, 0.0, GridBagConstraints.WEST,
+				GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));		
+		
+		jAdvancedPane.setEnabled(true);
 		String[][] array = algorithmMatcher
 				.translateToArray((String) selectedProgramName);
 		if (array == null)
@@ -539,21 +712,96 @@ public class BlastAppComponent implements VisualPlugin {
 		(jScrollPane1.getViewport()).add(databaseTable, null);
 		String[] model = AlgorithmMatcher
 				.translateToMatrices(selectedProgramName);
-		jMatrixBox.setModel(new DefaultComboBoxModel(model));		
+		jMatrixBox.setModel(new DefaultComboBoxModel(model));
+		
+		jWordsizeBox.setVerifyInputWhenFocusTarget(true);		
+       	String defaultOptimizeFor="megablast";       
 		String[] model2 = AlgorithmMatcher
-				.translateToWordSize(selectedProgramName);
+				.translateToWordSize(selectedProgramName,defaultOptimizeFor);
 		jWordsizeBox.setModel(new DefaultComboBoxModel(model2));
+		
+		jTemplateLengthLabel.setVisible(false);
+		jTemplateLengthBox.setVisible(false);
+		jTemplateTypeLabel.setVisible(false);
+		jTemplateTypeBox.setVisible(false);
+		
 		if (selectedProgramName.equalsIgnoreCase("blastn")) {
-			humanRepeatFilter.setEnabled(true);
-			jGapcostsBox.setEditable(false);
-			jGapcostsBox.setVisible(false);
-			jGapcostsLabel.setVisible(false);
-		} else {
-			jMatrixBox.setSelectedIndex(3);//zheng
-			humanRepeatFilter.setEnabled(false);
+			String[] capModel = AlgorithmMatcher.translateToGapcosts("blastn","megablast");
+	       	jGapcostsBox.setModel(new DefaultComboBoxModel(capModel));
+	       	Integer index = AlgorithmMatcher.defaultGapcostIndex.get("megablast");
+	       	if(index==null) index = 0;
+	       	jGapcostsBox.setSelectedIndex(index);
+			jWordsizeBox.setSelectedIndex(3);//default selection		
+			jScoresBox.setSelectedIndex(0);		
+			speciesRepeatFilter.setEnabled(true);
+			jSpeciesBox.setEnabled(true);
 			jGapcostsBox.setEditable(false);
 			jGapcostsBox.setVisible(true);
 			jGapcostsLabel.setVisible(true);
+			maskLookupOnlyBox.setSelected(true);
+			
+		} else {
+			jMatrixBox.setSelectedIndex(3);
+			jWordsizeBox.setSelectedIndex(1);
+			speciesRepeatFilter.setEnabled(false);
+			jSpeciesBox.setEnabled(false);
+			jGapcostsBox.setEditable(false);
+			jGapcostsBox.setVisible(true);
+			jGapcostsLabel.setVisible(true);
+			lowComplexFilterBox.setSelected(false);
+			maskLookupOnlyBox.setSelected(false);
+			maskLowCaseBox.setSelected(false);
+		}
+    }
+    
+    private void jMegaBlastBtn_actionPerformed(ActionEvent e) {    	  	  
+		String[] model2 = AlgorithmMatcher
+				.translateToWordSize("blastn","megablast");
+		jWordsizeBox.setModel(new DefaultComboBoxModel(model2));		
+		jWordsizeBox.setSelectedIndex(3);
+		jScoresBox.setSelectedIndex(0);	
+		String[] capModel = AlgorithmMatcher.translateToGapcosts("blastn","megablast");
+       	jGapcostsBox.setModel(new DefaultComboBoxModel(capModel));
+       	Integer index = AlgorithmMatcher.defaultGapcostIndex.get("megablast");
+       	if(index==null) index = 0;
+       	jGapcostsBox.setSelectedIndex(index);
+       	lowComplexFilterBox.setSelected(false);
+       	speciesRepeatFilter.setSelected(false);
+		maskLookupOnlyBox.setSelected(true);
+		maskLowCaseBox.setSelected(false);
+		
+		jTemplateLengthLabel.setVisible(false);
+		jTemplateLengthBox.setVisible(false);
+		jTemplateTypeLabel.setVisible(false);
+		jTemplateTypeBox.setVisible(false);
+    }
+    private void jDiscontiguousBtn_actionPerformed(ActionEvent e) {    	  	  
+		String[] model2 = AlgorithmMatcher
+				.translateToWordSize("blastn","discontiguous");
+		jWordsizeBox.setModel(new DefaultComboBoxModel(model2));		
+		jWordsizeBox.setSelectedIndex(0);
+		jScoresBox.setSelectedIndex(3);
+		String[] capModel = AlgorithmMatcher.translateToGapcosts("blastn","discontiguous");
+       	jGapcostsBox.setModel(new DefaultComboBoxModel(capModel));
+       	Integer index = AlgorithmMatcher.defaultGapcostIndex.get("discontiguous");
+       	if(index==null) index = 0;
+       	jGapcostsBox.setSelectedIndex(index);
+       	lowComplexFilterBox.setSelected(true);
+       	speciesRepeatFilter.setSelected(true);
+		maskLookupOnlyBox.setSelected(true);
+		maskLowCaseBox.setSelected(false);
+		
+		if (discontiguousBtn.isSelected()){
+			jTemplateLengthLabel.setVisible(true);
+			jTemplateLengthBox.setVisible(true);
+			jTemplateTypeLabel.setVisible(true);
+			jTemplateTypeBox.setVisible(true);
+		}
+		else{
+			jTemplateLengthLabel.setVisible(false);
+			jTemplateLengthBox.setVisible(false);
+			jTemplateTypeLabel.setVisible(false);
+			jTemplateTypeBox.setVisible(false);
 		}
     }
 
@@ -639,8 +887,7 @@ public class BlastAppComponent implements VisualPlugin {
             return null;
         }
 
-        boolean lowComplexFilterOn = lowComplexFilterBox.isSelected();
-        boolean humanRepeatFilterOn = humanRepeatFilter.isSelected();
+        boolean lowComplexFilterOn = lowComplexFilterBox.isSelected();       
         boolean maskLowCaseOn = maskLowCaseBox.isSelected();
         String expectString = (String) jExpectBox.getSelectedItem();
         double expectValue = 10;
@@ -666,10 +913,27 @@ public class BlastAppComponent implements VisualPlugin {
             }
         }
         String wordsize = (String) jWordsizeBox.getSelectedItem();
+        
+        boolean humanRepeatFilterOn = speciesRepeatFilter.isSelected();
+        
+        boolean excludeModelsOn = excludeModels.isSelected();
+        boolean excludeUncultureOn = excludeUnculture.isSelected();
+        boolean megaBlastOn=megablastBtn.isSelected();
+        boolean discontiguousOn=discontiguousBtn.isSelected();
+        boolean blastnBtnOn=blastnBtn.isSelected();
+        boolean shortQueriesOn=shortQueriesBox.isSelected();       
+        String matchScores=(String) jScoresBox.getSelectedItem();
+        String speciesRepeat=(String) jSpeciesBox.getSelectedItem();
+        String templateLength=(String) jTemplateLengthBox.getSelectedItem();
+        String templateType=(String) jTemplateTypeBox.getSelectedItem();
+        
         ParameterSetting ps = new ParameterSetting(dbName, programName,
 				jDisplayInWebBox.isSelected(), expectValue, lowComplexFilterOn,
 				humanRepeatFilterOn, maskLowCaseOn, (String) jMatrixBox
-						.getSelectedItem(), maskLookupOnlyBox.isSelected());
+						.getSelectedItem(), maskLookupOnlyBox.isSelected(),
+						excludeModelsOn,excludeUncultureOn,megaBlastOn,
+						discontiguousOn,blastnBtnOn,shortQueriesOn,matchScores,
+						speciesRepeat, templateLength, templateType);
         if (startValue <= 1 && endValue >= fastaFile.getMaxLength()) {
             //just use whole sequence. No end to reset.
         } else {
@@ -914,6 +1178,23 @@ public class BlastAppComponent implements VisualPlugin {
 			jProgramBox_actionPerformed(e);
 		}
 	}
+    
+    
+    private class BlastAppComponent_megablastBtn_actionAdapter implements
+			java.awt.event.ActionListener {
+    		public void actionPerformed(ActionEvent e) {
+    		jMegaBlastBtn_actionPerformed(e);
+    	}
+    }
+    
+    private class BlastAppComponent_discontiguousBtn_actionAdapter implements
+	java.awt.event.ActionListener {
+	public void actionPerformed(ActionEvent e) {
+	jDiscontiguousBtn_actionPerformed(e);
+}
+}
+    
+    
     
     private class BlastAppComponent_blastButton_actionAdapter implements
 			java.awt.event.ActionListener {
