@@ -52,7 +52,8 @@ public class SkyLineViewAllPanel implements VisualPlugin, ActionListener {
 	private JScrollPane jScrollPane = new JScrollPane();
 	private Border border = jScrollPane.getBorder();
 	private String title = "";
-	private String rootdir = "http://luna.bioc.columbia.edu:8081/SkyLineData/output";
+	//private String rootdir = "http://luna.bioc.columbia.edu:8081/SkyLineData/output";
+	private String rootdir = "http://cagridnode.c2b2.columbia.edu:8080/luna/SkyLineData/output";
 	private String resultdir = "";
 	private String pname = "";
 	private JComboBox allmodels;// = new JComboBox();

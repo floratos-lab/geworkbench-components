@@ -74,7 +74,8 @@ public class SkyLineViewEachPanel extends JPanel implements VisualPlugin,
 	private Border border2 = jScrollPane2.getBorder();
 	private String title = "";
 	private String modelname = "";
-	private String rootdir = "http://luna.bioc.columbia.edu:8081/SkyLineData/output";
+	//private String rootdir = "http://luna.bioc.columbia.edu:8081/SkyLineData/output";
+	private String rootdir = "http://cagridnode.c2b2.columbia.edu:8080/luna/SkyLineData/output";
 	private String resultdir = "";
 	private String pname = "";
 	private JLabel choosefile = new JLabel();
