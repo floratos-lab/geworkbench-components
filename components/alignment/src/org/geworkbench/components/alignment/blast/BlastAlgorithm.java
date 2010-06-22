@@ -287,19 +287,37 @@ public class BlastAlgorithm extends SwingWorker<CSAlignmentResultSet, Integer> {
 
 			// Header
 			histStr += "Blast run with the following parameters:\n";
-			histStr += "----------------------------------------\n\n";
+			histStr += "----------------------------------------\n";
 
-
-				histStr += "Database: " + parameterSetting.getDbName() + LINEBREAK;
+				String dbName=parameterSetting.getDbName();
+				if (dbName.equalsIgnoreCase("dbindex/9606/rna")) dbName="Human G+T";
+				else if(dbName.equalsIgnoreCase("dbindex/10090/rna")) dbName="Mouse G+T";
+				histStr += "Database: " + dbName + LINEBREAK;
 				histStr += "BLAST Program: " + parameterSetting.getProgramName() + LINEBREAK;
+				
+				histStr += "Exclude of Models(XM/XP): " + parameterSetting.isExcludeModelsOn() + LINEBREAK;
+				histStr += "Exclude of Uncultured/environmental sequences: " + parameterSetting.isExcludeUncultureOn() + LINEBREAK;
+				String optimizeFor="";
+				if (parameterSetting.isMegaBlastOn()) optimizeFor="Highly similar sequences (megablast)";
+				else if(parameterSetting.isDiscontiguousOn()) optimizeFor="More dissimilar sequences (discontiguous megablast)";
+				else optimizeFor="Optimize for Somewhat similar sequences (blastn)";
+				histStr += "Optimize For: " + optimizeFor + LINEBREAK;
+				histStr += "Short Queries: " + parameterSetting.isShortQueriesOn()+ LINEBREAK;
+				
 				histStr += "Expect: " + parameterSetting.getExpect() + LINEBREAK;
 				histStr += "Matrix: " + parameterSetting.getMatrix() + LINEBREAK;
+				histStr += "Match/mismatch Scores: " + parameterSetting.getMatchScores() + LINEBREAK;
 				histStr += "Gap Cost: " + parameterSetting.getGapCost() + LINEBREAK;
 				histStr += "Word Size: " + parameterSetting.getWordsize() + LINEBREAK;
 				histStr += "Low Complexity Filter On: " + parameterSetting.isLowComplexityFilterOn() + LINEBREAK;
-				histStr += "Human Repeat Filter On: " + parameterSetting.isHumanRepeatFilterOn() + LINEBREAK;
+				histStr += "Species-specific repeats Filter On: " + parameterSetting.isHumanRepeatFilterOn() + LINEBREAK;
+				histStr += "Species-specific repeats Filter For: " + parameterSetting.getSpeciesRepeat() + LINEBREAK;
 				histStr += "Mask Low Case: " + parameterSetting.isMaskLowCase() + LINEBREAK;
 				histStr += "Mask Lookup Table: " + parameterSetting.isMaskLookupTable() + LINEBREAK + LINEBREAK;
+				if(parameterSetting.isDiscontiguousOn()){
+					histStr += "Template Length: " + parameterSetting.getTemplateLength() + LINEBREAK;
+					histStr += "Template Type: " + parameterSetting.getTemplateType() + LINEBREAK;
+				}
 
 				histStr += "Number of Sequences: " + activeSequenceDB.size() + LINEBREAK;
 				for (CSSequence marker : activeSequenceDB) {
