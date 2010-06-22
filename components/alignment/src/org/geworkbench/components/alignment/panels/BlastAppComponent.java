@@ -693,7 +693,25 @@ public class BlastAppComponent implements VisualPlugin {
 				GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
 		blastxSettingPanel.add(jDisplayInWebBox, new GridBagConstraints(1, 10+beforeFilter, 1, 1,
 				1.0, 0.0, GridBagConstraints.WEST,
-				GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));		
+				GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
+		
+		blastxSettingPanel.add(jTemplateLengthLabel, new GridBagConstraints(0, 11+beforeFilter, 1, 1,
+				1.0, 0.0, GridBagConstraints.WEST,
+				GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
+		blastxSettingPanel.add(jTemplateLengthBox, new GridBagConstraints(1, 11+beforeFilter, 1, 1,
+				1.0, 0.0, GridBagConstraints.WEST,
+				GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
+		blastxSettingPanel.add(jTemplateTypeLabel, new GridBagConstraints(0, 12+beforeFilter, 1, 1,
+				1.0, 0.0, GridBagConstraints.WEST,
+				GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
+		blastxSettingPanel.add(jTemplateTypeBox, new GridBagConstraints(1, 12+beforeFilter, 1, 1,
+				1.0, 0.0, GridBagConstraints.WEST,
+				GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));				
+		
+		jTemplateLengthLabel.setVisible(false);
+		jTemplateLengthBox.setVisible(false);
+		jTemplateTypeLabel.setVisible(false);
+		jTemplateTypeBox.setVisible(false);
 		
 		jAdvancedPane.setEnabled(true);
 		String[][] array = algorithmMatcher
@@ -718,13 +736,8 @@ public class BlastAppComponent implements VisualPlugin {
        	String defaultOptimizeFor="megablast";       
 		String[] model2 = AlgorithmMatcher
 				.translateToWordSize(selectedProgramName,defaultOptimizeFor);
-		jWordsizeBox.setModel(new DefaultComboBoxModel(model2));
-		
-		jTemplateLengthLabel.setVisible(false);
-		jTemplateLengthBox.setVisible(false);
-		jTemplateTypeLabel.setVisible(false);
-		jTemplateTypeBox.setVisible(false);
-		
+		jWordsizeBox.setModel(new DefaultComboBoxModel(model2));		
+	
 		if (selectedProgramName.equalsIgnoreCase("blastn")) {
 			String[] capModel = AlgorithmMatcher.translateToGapcosts("blastn","megablast");
 	       	jGapcostsBox.setModel(new DefaultComboBoxModel(capModel));

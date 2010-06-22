@@ -6,7 +6,7 @@
 		</detail>
 	</database>
 	<database name="dbindex/10090/rna" type="nucleotide">
-		<description>Mouse Genomic plus transcript(Mouse G+T)</description>
+		<description>Mouse Genomic + transcript(Mouse G+T)</description>
 		<detail>Mouse Genomic plus transcript from NCBI
 		</detail>
 	</database>
