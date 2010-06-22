@@ -16,6 +16,8 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.border.BevelBorder;
 
 import org.apache.axis.message.addressing.EndpointReferenceType;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
@@ -27,7 +29,7 @@ import com.jgoodies.forms.layout.FormLayout;
  *          15:41:35 keshav Exp $
  */
 public class IndexServiceSelectionButtonListener implements ActionListener {
-
+	private Log log = LogFactory.getLog(this.getClass());
 	private DefaultFormBuilder serviceDetailsBuilder = null;
 
 	private JScrollPane serviceDetailsBuilderScrollPane = null;
@@ -81,7 +83,12 @@ public class IndexServiceSelectionButtonListener implements ActionListener {
 				try {
 					commonMetadata = MetadataUtils.getServiceMetadata(service);
 				} catch (Exception e1) {
-					throw new RuntimeException(e1);
+					log.info("Unable to get metadata for "+url);
+					serviceDetailsBuilder.append("URL: ", new JLabel(url));
+					serviceDetailsBuilder.append("Research Center Name: ",
+						new JLabel("C2B2, Columbia University"));
+					serviceDetailsBuilderScrollPane.revalidate();
+					return;
 				}
 
 				String url = DiscoveryServiceUtil.getUrl(service);

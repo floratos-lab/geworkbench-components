@@ -1,11 +1,9 @@
 package org.geworkbench.components.cagrid.gui;
 
-import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionAdapter;
 import java.io.IOException;
 
 import javax.swing.ButtonGroup;
@@ -138,15 +136,19 @@ public class GridServicesButtonListener implements ActionListener {
 					for (EndpointReferenceType service : services) {
 
 						ServiceMetadata commonMetadata;
+						String researchCenter = "C2B2, Columbia University", description = null;
 						try {
 							commonMetadata = MetadataUtils
 									.getServiceMetadata(service);
-
-							String url = DiscoveryServiceUtil.getUrl(service);
-							String researchCenter = DiscoveryServiceUtil
+							researchCenter = DiscoveryServiceUtil
 									.getResearchCenterName(commonMetadata);
-							String description = DiscoveryServiceUtil
+							description = DiscoveryServiceUtil
 									.getDescription(commonMetadata);
+						} catch (Exception ec) {
+							log.info("Unable to get metadata for "+service.toString());
+						}
+						try {
+							String url = DiscoveryServiceUtil.getUrl(service);
 
 							JRadioButton button = new JRadioButton();
 							button
