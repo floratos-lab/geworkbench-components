@@ -22,6 +22,7 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.A
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.remoteresources.carraydata.CaArray2Experiment;
+import org.geworkbench.builtin.projects.util.CaARRAYPanel;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
@@ -46,9 +47,6 @@ public class CaArray2Component implements VisualPlugin {
 
 	private Log log = LogFactory.getLog(CaArray2Component.class);
 
-	private String cancelledConnectionInfo = null;
-	private boolean isCancelled = false;
-
 	// process two types of queries: (1) the list of experiments; and (2) the
 	// actual data
 	/**
@@ -68,22 +66,10 @@ public class CaArray2Component implements VisualPlugin {
 		String username = ce.getUsername();
 		String password = ce.getPassword();
 
-		if (ce.getRequestItem().equalsIgnoreCase(CaArrayRequestEvent.CANCEL)) {
-			cancelledConnectionInfo = url + port;
-			if (username != null && username.length() > 0) {
-				cancelledConnectionInfo = cancelledConnectionInfo + username
-						+ password;
-			}
-			isCancelled = true;
-			return;
-		} else {
-			isCancelled = false;
-		}
+		CaARRAYPanel.isCancelled = false;
 
-		String currentConnectionInfo = url + port;
-		if (username != null && username.length() > 0) {
-			currentConnectionInfo = currentConnectionInfo + username + password;
-		}
+		String currentConnectionInfo = CaARRAYPanel.createConnectonInfo(url, port, username,
+				password);
 		try {
 			CaArrayClient client = new CaArrayClient(url, port, username,
 					password);
@@ -123,9 +109,9 @@ public class CaArray2Component implements VisualPlugin {
 									+ url + ":" + port);
 				}
 
-				if (isCancelled
-						&& cancelledConnectionInfo != null
-						&& cancelledConnectionInfo
+				if (CaARRAYPanel.isCancelled
+						&& CaARRAYPanel.cancelledConnectionInfo != null
+						&& CaARRAYPanel.cancelledConnectionInfo
 								.equalsIgnoreCase(currentConnectionInfo)) {
 					return;
 				}
@@ -156,9 +142,9 @@ public class CaArray2Component implements VisualPlugin {
 					int number = 0; // index number out of total arrays
 					for (String hybridizationName : hybridzations.keySet()) {
 
-						if (isCancelled
-								&& cancelledConnectionInfo != null
-								&& cancelledConnectionInfo
+						if (CaARRAYPanel.isCancelled
+								&& CaARRAYPanel.cancelledConnectionInfo != null
+								&& CaARRAYPanel.cancelledConnectionInfo
 										.equalsIgnoreCase(currentConnectionInfo)) {
 							return;
 						}
@@ -169,9 +155,9 @@ public class CaArray2Component implements VisualPlugin {
 								chipType);
 						;
 
-						if (isCancelled
-								&& cancelledConnectionInfo != null
-								&& cancelledConnectionInfo
+						if (CaARRAYPanel.isCancelled
+								&& CaARRAYPanel.cancelledConnectionInfo != null
+								&& CaARRAYPanel.cancelledConnectionInfo
 										.equalsIgnoreCase(currentConnectionInfo)) {
 							return;
 						}
@@ -193,9 +179,9 @@ public class CaArray2Component implements VisualPlugin {
 				event.setPopulated(true);
 				event.setInfoType(CaArrayEvent.BIOASSAY); // this only disposes
 															// caARRAYPanel
-				if (isCancelled
-						&& cancelledConnectionInfo != null
-						&& cancelledConnectionInfo
+				if (CaARRAYPanel.isCancelled
+						&& CaARRAYPanel.cancelledConnectionInfo != null
+						&& CaARRAYPanel.cancelledConnectionInfo
 								.equalsIgnoreCase(currentConnectionInfo)) {
 					return;
 				}
@@ -208,9 +194,9 @@ public class CaArray2Component implements VisualPlugin {
 			event.setPopulated(false);
 			event.setSucceed(false);
 			se.printStackTrace();
-			if (isCancelled
-					&& cancelledConnectionInfo != null
-					&& cancelledConnectionInfo
+			if (CaARRAYPanel.isCancelled
+					&& CaARRAYPanel.cancelledConnectionInfo != null
+					&& CaARRAYPanel.cancelledConnectionInfo
 							.equalsIgnoreCase(currentConnectionInfo)) {
 				return;
 			}
@@ -224,9 +210,9 @@ public class CaArray2Component implements VisualPlugin {
 
 			event
 					.setErrorMessage("Either username or password is incorrect. Please check your login credentials. ");
-			if (isCancelled
-					&& cancelledConnectionInfo != null
-					&& cancelledConnectionInfo
+			if (CaARRAYPanel.isCancelled
+					&& CaARRAYPanel.cancelledConnectionInfo != null
+					&& CaARRAYPanel.cancelledConnectionInfo
 							.equalsIgnoreCase(currentConnectionInfo)) {
 				return;
 			}
@@ -261,9 +247,9 @@ public class CaArray2Component implements VisualPlugin {
 
 			sets[number].setLabel(experimentName + "_" + hybridizationName);
 
-			if (isCancelled
-					&& cancelledConnectionInfo != null
-					&& cancelledConnectionInfo
+			if (CaARRAYPanel.isCancelled
+					&& CaARRAYPanel.cancelledConnectionInfo != null
+					&& CaARRAYPanel.cancelledConnectionInfo
 							.equalsIgnoreCase(currentConnectionInfo)) {
 				return;
 			}
