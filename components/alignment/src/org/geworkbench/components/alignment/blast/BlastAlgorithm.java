@@ -297,11 +297,17 @@ public class BlastAlgorithm extends SwingWorker<CSAlignmentResultSet, Integer> {
 				
 				histStr += "Exclude of Models(XM/XP): " + parameterSetting.isExcludeModelsOn() + LINEBREAK;
 				histStr += "Exclude of Uncultured/environmental sequences: " + parameterSetting.isExcludeUncultureOn() + LINEBREAK;
-				String optimizeFor="";
-				if (parameterSetting.isMegaBlastOn()) optimizeFor="Highly similar sequences (megablast)";
-				else if(parameterSetting.isDiscontiguousOn()) optimizeFor="More dissimilar sequences (discontiguous megablast)";
-				else optimizeFor="Optimize for Somewhat similar sequences (blastn)";
-				histStr += "Optimize For: " + optimizeFor + LINEBREAK;
+				if(parameterSetting.getProgramName().equalsIgnoreCase("blastn")){
+					String optimizeFor="";
+					if (parameterSetting.isMegaBlastOn()) optimizeFor="Highly similar sequences (megablast)";					
+					else if(parameterSetting.isDiscontiguousOn()) optimizeFor="More dissimilar sequences (discontiguous megablast)";
+					else optimizeFor="Optimize for Somewhat similar sequences (blastn)";
+					histStr += "Optimize For: " + optimizeFor + LINEBREAK;
+				}
+				if (parameterSetting.getProgramName().equalsIgnoreCase("blastx")||parameterSetting.getProgramName().equalsIgnoreCase("tblastx")){
+					histStr += "Genetic Code: " + parameterSetting.getGeneticCode() + LINEBREAK;
+				}
+				
 				histStr += "Short Queries: " + parameterSetting.isShortQueriesOn()+ LINEBREAK;
 				
 				histStr += "Expect: " + parameterSetting.getExpect() + LINEBREAK;
@@ -310,13 +316,15 @@ public class BlastAlgorithm extends SwingWorker<CSAlignmentResultSet, Integer> {
 				histStr += "Gap Cost: " + parameterSetting.getGapCost() + LINEBREAK;
 				histStr += "Word Size: " + parameterSetting.getWordsize() + LINEBREAK;
 				histStr += "Low Complexity Filter On: " + parameterSetting.isLowComplexityFilterOn() + LINEBREAK;
-				histStr += "Species-specific repeats Filter On: " + parameterSetting.isHumanRepeatFilterOn() + LINEBREAK;
-				histStr += "Species-specific repeats Filter For: " + parameterSetting.getSpeciesRepeat() + LINEBREAK;
+				if(parameterSetting.getProgramName().equalsIgnoreCase("blastn")){
+					histStr += "Species-specific repeats Filter On: " + parameterSetting.isHumanRepeatFilterOn() + LINEBREAK;
+					histStr += "Species-specific repeats Filter For: " + parameterSetting.getSpeciesRepeat() + LINEBREAK;
+				}
 				histStr += "Mask Low Case: " + parameterSetting.isMaskLowCase() + LINEBREAK;
-				histStr += "Mask Lookup Table: " + parameterSetting.isMaskLookupTable() + LINEBREAK + LINEBREAK;
-				if(parameterSetting.isDiscontiguousOn()){
+				histStr += "Mask Lookup Table: " + parameterSetting.isMaskLookupTable() + LINEBREAK;
+				if(parameterSetting.isDiscontiguousOn()&&parameterSetting.getProgramName().equalsIgnoreCase("blastn")){
 					histStr += "Template Length: " + parameterSetting.getTemplateLength() + LINEBREAK;
-					histStr += "Template Type: " + parameterSetting.getTemplateType() + LINEBREAK;
+					histStr += "Template Type: " + parameterSetting.getTemplateType() + LINEBREAK+ LINEBREAK;
 				}
 
 				histStr += "Number of Sequences: " + activeSequenceDB.size() + LINEBREAK;

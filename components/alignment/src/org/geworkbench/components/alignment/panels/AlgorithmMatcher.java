@@ -149,13 +149,60 @@ public class AlgorithmMatcher {
 		program2type.put("tblastn", "nucleotide");
 		program2type.put("tblastx", "nucleotide");
 	}
+	
+	static private Map<String, String> template2number= new HashMap<String, String>();
+	static{
+		template2number.put("None", "0");
+		template2number.put("16", "16");
+		template2number.put("18", "18");
+		template2number.put("21", "21");
+		template2number.put("Coding", "0");
+		template2number.put("Maximal", "1");
+		template2number.put("Two template", "2");
+	}
+	
+	static private Map<String, String> geneticCode2number=new HashMap<String, String>();
+	static{
+		geneticCode2number.put("Standard(1)","1");
+		geneticCode2number.put("Vertebrate Mitochondrial(2)","2");
+		geneticCode2number.put("Yeast Mitochondrial(3)","3");
+		geneticCode2number.put("Mold Mitochondrial(4)","4");
+		geneticCode2number.put("Invertebrate Mitochondrial(5)","5");
+		geneticCode2number.put("Ciliate Nuclear(6)","6");
+		geneticCode2number.put("Echinoderm Mitochondrial(9)","9");
+		geneticCode2number.put("Euplotid Nuclear(10)","10");
+		geneticCode2number.put("Bacteria and Archaea(11)","11");
+		geneticCode2number.put("Alternative Yeast Nuclear(12)","12");
+		geneticCode2number.put("Ascidian Mitochondrial(13)","13");
+		geneticCode2number.put("Flatworm Mitochondrial(14)","14");
+		geneticCode2number.put("Blepharisma Macronuclear(15)","15");
+	}
 
+	private static final String GAPB0_1 = "Linear";
+    private static final String GAPB0_2 = "Existence: 5 Extension: 2";
+    private static final String GAPB0_3 = "Existence: 2 Extension: 2";
+    private static final String GAPB0_4 = "Existence: 1 Extension: 2";
+    private static final String GAPB0_5 = "Existence: 0 Extension: 2";
+    private static final String GAPB0_6 = "Existence: 3 Extension: 1";
+    private static final String GAPB0_7 = "Existence: 2 Extension: 1";
+    private static final String GAPB0_8 = "Existence: 1 Extension: 1";
+    
+    private static final String GAPB1_1 = "Existence: 4 Extension: 4";
+    private static final String GAPB1_2 = "Existence: 2 Extension: 4";
+    private static final String GAPB1_3 = "Existence: 0 Extension: 4";
+    private static final String GAPB1_4 = "Existence: 3 Extension: 3";
+    private static final String GAPB1_5 = "Existence: 6 Extension: 2";
+    private static final String GAPB1_6 = "Existence: 5 Extension: 2";
+    private static final String GAPB1_7 = "Existence: 4 Extension: 2";
+    private static final String GAPB1_8 = "Existence: 2 Extension: 2";	
+    
 	private static final String GAP0 = "Existence: 11 Extension: 1";
     private static final String GAP1 = "Existence:  9 Extension: 2";
     private static final String GAP2 = "Existence:  8 Extension: 2";
     private static final String GAP3 = "Existence:  7 Extension: 2";
     private static final String GAP4 = "Existence: 12 Extension: 1";
-    private static final String GAP5 = "Existence: 10 Extension: 1";
+    private static final String GAP5 = "Existence: 10 Extension: 1";    
+    
     private static final String GAPB45_1 = "Existence: 15 Extension: 2";
     private static final String GAPB45_2 = "Existence: 13 Extension: 3";
     private static final String GAPB45_3 = "Existence: 12 Extension: 3";
@@ -239,7 +286,7 @@ public class AlgorithmMatcher {
         if (programName.equalsIgnoreCase("blastn")) {
             return new String[] {MATRIX0};
         } else {        	
-            return new String[] {MATRIX4,MATRIX5, MATRIX3, MATRIX1, MATRIX2 //zheng
+            return new String[] {MATRIX4,MATRIX5, MATRIX3, MATRIX1, MATRIX2 
             };
         }
     }
@@ -250,7 +297,10 @@ public class AlgorithmMatcher {
      * @return String[]
      */
     static String[] translateToGapcosts(String programName) {
-        if (programName.equalsIgnoreCase(MATRIX1)) {
+    	if (programName.equalsIgnoreCase(MATRIX0)) {
+            return new String[] {GAPB0_1, GAPB0_2, GAPB0_3, GAPB0_4, GAPB0_5, GAPB0_6,GAPB0_7,GAPB0_8};
+
+        } else if (programName.equalsIgnoreCase(MATRIX1)) {
             return new String[] {GAP1, GAP2, GAP3, GAP4, GAP0, GAP5};
 
         } else if (programName.equalsIgnoreCase(MATRIX2)) {
@@ -274,30 +324,53 @@ public class AlgorithmMatcher {
 
     }
     
+    static String[] translateToGapcosts(String selectedProgramName, String optimizeFor) {
+    	if (selectedProgramName.equalsIgnoreCase("blastn")) {
+    		if (optimizeFor.equalsIgnoreCase("megablast")){
+    			return new String[] {GAPB0_1, GAPB0_2, GAPB0_3, GAPB0_4, GAPB0_5, GAPB0_6,GAPB0_7,GAPB0_8};
+    		}
+    		else {
+    			return new String[] {GAPB1_1, GAPB1_2, GAPB1_3, GAPB1_4, GAPB1_5, GAPB1_6,GAPB1_7,GAPB1_8};
+    		}
+    		
+    	}    	
+    	String[] defaultGAPCOSTS = new String[] {GAP1, GAP2, GAP3, GAP4, GAP0, GAP5};
+        return defaultGAPCOSTS;
+    }
+    
+    
     static Map<String, Integer> defaultGapcostIndex = new HashMap<String, Integer>();
-    static {
+    static {    	
     	defaultGapcostIndex.put(MATRIX1, 4);
     	defaultGapcostIndex.put(MATRIX2, 4);
     	defaultGapcostIndex.put(MATRIX3, 4);
     	defaultGapcostIndex.put(MATRIX4, 4);
     	defaultGapcostIndex.put(MATRIX5, 4);
-    }
-
+    	defaultGapcostIndex.put("megablast", 0);
+    	defaultGapcostIndex.put("discontiguous", 5);
+    }    
+   
     /**
      * Static utility ussed in BlastAppComponent: translate program name to word size.
      *
      * @param selectedProgramName String
      * @return String[]
      */
-    static String[] translateToWordSize(String selectedProgramName) {
+   
+    static String[] translateToWordSize(String selectedProgramName, String optimizeFor) {
         if (selectedProgramName.trim().equalsIgnoreCase("blastn")) {
-            return new String[] {"11", "7", "15"};
+            if(optimizeFor.trim().equalsIgnoreCase("megablast")){
+            	return new String[]{"16","20","24","28","32","48","64","128","256"};
+            }
+            else         	
+            	return new String[] {"11", "12"};
         } else {
-            return new String[] {"3", "2"};
+            return new String[] {"2", "3"};
         }
 
     }
-
+    
+   
     /**
      * Utility to create command-line parameter, only used by BlastAlgorithm.execute();
      * 
@@ -373,8 +446,6 @@ public class AlgorithmMatcher {
                         cmd += " -G 6 -E 2 ";
                     } else if (gapCost.equals(GAPP30_5)) {
                         cmd += " -G 8 -E 1 ";
-                    } else if (gapCost.equals(GAPB80_5)) {
-                        cmd += " -G 11 -E 1 ";
                     } else if (gapCost.equals(GAPB80_1)) {
                         cmd += " -G 10 -E 1 ";
                     } else if (gapCost.equals(GAPB80_2)) {
@@ -387,17 +458,52 @@ public class AlgorithmMatcher {
                         cmd += " -G 11 -E 1 ";
                     } else if (gapCost.equals(GAPB80_6)) {
                         cmd += " -G 9 -E 1 ";
+                    } else if (gapCost.equals(GAPB0_1)) {
+                        cmd += " -G 0 -E 0 ";
+                    }  else if (gapCost.equalsIgnoreCase("Linear")) {
+                        cmd += " -G 0 -E 0 ";
+                    } else if (gapCost.equals(GAPB0_2)) {
+                        cmd += " -G 5 -E 2 ";
+                    } else if (gapCost.equals(GAPB0_3)) {
+                        cmd += " -G 2 -E 2 ";
+                    } else if (gapCost.equals(GAPB0_4)) {
+                        cmd += " -G 1 -E 2 ";
+                    } else if (gapCost.equals(GAPB0_5)) {
+                        cmd += " -G 0 -E 2 ";
+                    } else if (gapCost.equals(GAPB0_6)) {
+                        cmd += " -G 3 -E 1 ";
+                    } else if (gapCost.equals(GAPB0_7)) {
+                        cmd += " -G 2 -E 1 ";
+                    } else if (gapCost.equals(GAPB0_8)) {
+                        cmd += " -G 1 -E 1 ";
+                    } else if (gapCost.equals(GAPB1_1)) {
+                        cmd += " -G 4 -E 4 ";
+                    } else if (gapCost.equals(GAPB1_2)) {
+                        cmd += " -G 2 -E 4 ";
+                    } else if (gapCost.equals(GAPB1_3)) {
+                        cmd += " -G 0 -E 4 ";
+                    } else if (gapCost.equals(GAPB1_4)) {
+                        cmd += " -G 3 -E 3 ";
+                    } else if (gapCost.equals(GAPB1_5)) {
+                        cmd += " -G 6 -E 2 ";
+                    } else if (gapCost.equals(GAPB1_6)) {
+                        cmd += " -G 5 -E 2 ";
+                    } else if (gapCost.equals(GAPB1_7)) {
+                        cmd += " -G 4 -E 2 ";
+                    } else if (gapCost.equals(GAPB1_8)) {
+                        cmd += " -G 2 -E 2 ";
                     }
-
                 }
 
             } else {
                 String dbName = ps.getDbName();
+                /*
                 String[] list = dbName.split("/");
                 if (list.length > 1) {
                     String[] dbNameWithSuffix = list[list.length - 1].split(" ");
                     dbName = dbNameWithSuffix[0];
                 }
+                */ //why split with "/"? , for bug 2019, it is commented out
                 cmd = "&DATABASE=" + dbName + "&PROGRAM=" +
                       ps.getProgramName();
                 if (ps.isLowComplexityFilterOn()) {
@@ -407,6 +513,46 @@ public class AlgorithmMatcher {
                     cmd += "&FILTER=R";
                 }
                 
+                if (ps.isExcludeModelsOn()){
+                	cmd += "&EXCLUDE_MODELS=yes";
+                }
+                if (ps.isExcludeUncultureOn()){
+                	cmd += "&EXCLUDE_SEQ_UNCULT=yes";
+                }
+                if(ps.getProgramName().equalsIgnoreCase("blastn")){
+	                if (ps.isMegaBlastOn()){
+	                	cmd += "&BLAST_PROGRAMS=megaBlast"; 
+	                	cmd+="&MEGABLAST=on";
+	            		cmd+="&SELECTED_PROG_TYPE=megaBlast";
+	                }
+	                else if (ps.isDiscontiguousOn()){
+	                	cmd += "&BLAST_PROGRAMS=discoMegablast";
+	                	cmd+="&SELECTED_PROG_TYPE=discoMegablast";
+	                	cmd+="&MEGABLAST=on";
+	                	//cmd+="&TEMPLATE_LENGTH=16";//key thing
+	                	//cmd+="&TEMPLATE_TYPE=1";
+	                	
+	                    if (ps.getTemplateLength() != null) {                        
+	                       cmd += "&TEMPLATE_LENGTH=" + template2number.get(ps.getTemplateLength());
+	                    }
+	                    if (ps.getTemplateType() != null) {
+	                        cmd += "&TEMPLATE_TYPE=" + template2number.get(ps.getTemplateType());
+	                    }
+	 
+	                }
+	                else if (ps.isBlastnBtnOn()){
+	                	cmd += "&BLAST_PROGRAMS=blastn";
+	                }
+                }                
+                else cmd += "&BLAST_PROGRAMS="+ps.getProgramName();
+                if (ps.getProgramName().equalsIgnoreCase("blastx")||ps.getProgramName().equalsIgnoreCase("tblastx")){
+                	cmd +="&GENETIC_CODE="+ geneticCode2number.get(ps.getGeneticCode());
+                }
+                
+                if (ps.isShortQueriesOn()){
+                	cmd += "&SHORT_QUERY_ADJUST=yes";
+                }
+               
                 if (ps.isMaskLowCase()) {
                     cmd += "&LCASE_MASK=yes";
                 }
@@ -420,20 +566,40 @@ public class AlgorithmMatcher {
                 if (ps.getWordsize() != null) {
                     cmd += "&WORD_SIZE=" + ps.getWordsize().trim();
                 }
-
-                if (!ps.getProgramName().equals("blastn")) {
-
                     String gapCost = ps.getGapCost();
                     if (gapCost != null) {
-
+                    	if(gapCost.equalsIgnoreCase("Linear")) gapCost="";
                         String[] s = gapCost.split(" ");
                         if (s.length > 3) {
                             cmd += "&GAPCOSTS=" + s[1].trim() + "%20" +
                                     s[3].trim();
                         }
-
                     }
-                }
+                                
+                String matchScores=ps.getMatchScores();
+                if(matchScores!=null){
+                	String[] s=matchScores.split(",");
+                	if(s.length>1){
+                		cmd+="&MATCH_SCORES=" + s[0].trim() + "%2C" + s[1].trim();                		
+                	}
+                }                
+        		cmd+="&PAGE_TYPE=BlastSearch";
+                
+                Map<String, String> specie_repeat=new HashMap<String,String>();
+                specie_repeat.put("Human","repeat_9606");
+                specie_repeat.put("Rodents","repeat_9989");
+                specie_repeat.put("Arabidopsis","repeat_3702");
+                specie_repeat.put("Rice","repeat_4530");
+                specie_repeat.put("Mammals","repeat_40674");
+                specie_repeat.put("Fungi","repeat_4751");
+                specie_repeat.put("C.elegans","repeat_6239");
+                specie_repeat.put("A.gambiae","repeat_7165");
+                specie_repeat.put("Zebrafish","repeat_7955");
+                specie_repeat.put("Fruit fly","repeat_7227");
+                if(ps.getSpeciesRepeat()!=null){                	
+                		cmd+="&REPEATS=" + specie_repeat.get(ps.getSpeciesRepeat());                
+                }                
+                
                 if (ps.getProgramName().equals("blastp")||ps.getProgramName().equals("tblastn"))	//COMPOSITION only applies to blastp and tblastn
                 	cmd += "&EXPECT=" + ps.getExpect() + "&MAX_NUM_SEQ=50&&COMPOSITION_BASED_STATISTICS=2&AUTO_FORMAT=Semiauto&CDD_SEARCH=on&SHOW_OVERVIEW=on&SERVICE=plain\r\n\r\n";
                 else

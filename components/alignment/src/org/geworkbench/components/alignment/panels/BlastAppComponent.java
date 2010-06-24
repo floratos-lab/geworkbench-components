@@ -110,6 +110,8 @@ public class BlastAppComponent implements VisualPlugin {
     private JRadioButton blastnBtn=null;
     private ButtonGroup programBtnGroup=new ButtonGroup();
     
+    private JLabel jgeneticCodeLabel = new JLabel("Genetic Code:");
+    private JComboBox jgeneticCodeBox=new JComboBox();
     
     // five check boxes in filter panel+...
     private JCheckBox shortQueriesBox =null;
@@ -382,8 +384,20 @@ public class BlastAppComponent implements VisualPlugin {
         jTemplateTypeBox.addItem("Two template");
         jTemplateTypeBox.setSelectedIndex(0);        
         
-        
-        
+        jgeneticCodeBox.addItem("Standard(1)");
+        jgeneticCodeBox.addItem("Vertebrate Mitochondrial(2)");
+        jgeneticCodeBox.addItem("Yeast Mitochondrial(3)");
+        jgeneticCodeBox.addItem("Mold Mitochondrial(4)");
+        jgeneticCodeBox.addItem("Invertebrate Mitochondrial(5)");
+        jgeneticCodeBox.addItem("Ciliate Nuclear(6)");
+        jgeneticCodeBox.addItem("Echinoderm Mitochondrial(9)");
+        jgeneticCodeBox.addItem("Euplotid Nuclear(10)");
+        jgeneticCodeBox.addItem("Bacteria and Archaea(11)");
+        jgeneticCodeBox.addItem("Alternative Yeast Nuclear(12)");
+        jgeneticCodeBox.addItem("Ascidian Mitochondrial(13)");
+        jgeneticCodeBox.addItem("Flatworm Mitochondrial(14)");
+        jgeneticCodeBox.addItem("Blepharisma Macronuclear(15)");
+                
         blastxSettingPanel.setLayout(gridBagLayout2);       
 
         jProgramBox.setAutoscrolls(false);
@@ -536,7 +550,11 @@ public class BlastAppComponent implements VisualPlugin {
         subSeqPanel.add(megablastBtn, new XYConstraints(84, 250, 200, 23));
         subSeqPanel.add(discontiguousBtn, new XYConstraints(84, 280, 200, 23));
         subSeqPanel.add(blastnBtn, new XYConstraints(84, 310, 200, 23));
-        enableRelateOptions(false);
+        enableBlastnRelateOptions(false);
+        subSeqPanel.add(jgeneticCodeLabel, new XYConstraints(0, 250, 80, 23));
+        subSeqPanel.add(jgeneticCodeBox, new XYConstraints(84, 250, 200, 23));
+        jgeneticCodeLabel.setVisible(false);
+        jgeneticCodeBox.setVisible(false);
       
         displayToolBar.add(Box.createHorizontalStrut(10), null);
         displayToolBar.add(blastButton);
@@ -590,7 +608,9 @@ public class BlastAppComponent implements VisualPlugin {
 		}
     }
 
-    private void enableRelateOptions(Boolean b){
+    private void enableBlastnRelateOptions(Boolean b){
+    	jgeneticCodeLabel.setVisible(false);
+        jgeneticCodeBox.setVisible(false);
     	if(((String) jProgramBox.getSelectedItem()).equalsIgnoreCase("blastn")&&b){
     		megablastBtn.setVisible(b);
     		discontiguousBtn.setVisible(b);
@@ -622,11 +642,15 @@ public class BlastAppComponent implements VisualPlugin {
 			jScrollPane1.getViewport().removeAll();
 			textArea.setText( "" );
 			jAdvancedPane.setEnabled(false);
-			enableRelateOptions(false);
+			enableBlastnRelateOptions(false);
 			return;
 		}
 		
-		enableRelateOptions(true);
+		enableBlastnRelateOptions(true);
+		if(selectedProgramName.equalsIgnoreCase("blastx")||selectedProgramName.equalsIgnoreCase("tblastx")){
+			jgeneticCodeLabel.setVisible(true);
+	        jgeneticCodeBox.setVisible(true);
+		}
         int beforeFilter=0;
         blastxSettingPanel.add(shortQueriesLabel, new GridBagConstraints(0, beforeFilter, 1, 1,
 				1.0, 0.0, GridBagConstraints.WEST,
@@ -939,6 +963,7 @@ public class BlastAppComponent implements VisualPlugin {
         String speciesRepeat=(String) jSpeciesBox.getSelectedItem();
         String templateLength=(String) jTemplateLengthBox.getSelectedItem();
         String templateType=(String) jTemplateTypeBox.getSelectedItem();
+        String geneticCode=(String) jgeneticCodeBox.getSelectedItem();
         
         ParameterSetting ps = new ParameterSetting(dbName, programName,
 				jDisplayInWebBox.isSelected(), expectValue, lowComplexFilterOn,
@@ -946,7 +971,7 @@ public class BlastAppComponent implements VisualPlugin {
 						.getSelectedItem(), maskLookupOnlyBox.isSelected(),
 						excludeModelsOn,excludeUncultureOn,megaBlastOn,
 						discontiguousOn,blastnBtnOn,shortQueriesOn,matchScores,
-						speciesRepeat, templateLength, templateType);
+						speciesRepeat, templateLength, templateType, geneticCode);
         if (startValue <= 1 && endValue >= fastaFile.getMaxLength()) {
             //just use whole sequence. No end to reset.
         } else {
