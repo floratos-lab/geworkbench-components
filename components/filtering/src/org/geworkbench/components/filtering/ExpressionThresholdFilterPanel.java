@@ -59,11 +59,11 @@ public class ExpressionThresholdFilterPanel extends AbstractSaveableParameterPan
 			} else if (key.equals("isInside")){
 				this.optionSelection.setSelectedIndex((Boolean)value ? 0 : 1);
 			} else if (key.equals("numberThreshold")){
-	            this.filterOptionPanel.numberField.setValue((Integer)value);	           
+	            this.filterOptionPanel.numberField.setText(value.toString());	           
 	            this.filterOptionPanel.numberRemovalButton.setSelected(true);
 	            this.revalidate();
 			} else if (key.equals("percentThreshold")){
-	            this.filterOptionPanel.percentField.setValue((Double)value);	            
+	            this.filterOptionPanel.percentField.setText(value.toString());	            
 	            this.filterOptionPanel.percentRemovalButton.setSelected(true);
 	            this.revalidate();
 			}
@@ -81,7 +81,7 @@ public class ExpressionThresholdFilterPanel extends AbstractSaveableParameterPan
 		if (this.filterOptionPanel.numberRemovalButton.isSelected())
 			parameters.put("numberThreshold", (Integer) this.filterOptionPanel.getNumberThreshold());
 		else
-			parameters.put("percentThreshold", (Double) this.filterOptionPanel.percentField.getValue());
+			parameters.put("percentThreshold", (Double) this.filterOptionPanel.getPercentThreshold()*100);
 		parameters.put("rangeMin", (Number) rangeMinValue.getValue());
 		parameters.put("rangeMax", (Number) rangeMaxValue.getValue());
 		parameters.put("isInside", (optionSelection.getSelectedIndex() == 0));
@@ -136,8 +136,8 @@ public class ExpressionThresholdFilterPanel extends AbstractSaveableParameterPan
         rangeMinValue.addPropertyChangeListener(parameterActionListener);
         rangeMaxValue.addPropertyChangeListener(parameterActionListener);
         optionSelection.addActionListener(parameterActionListener);
-        filterOptionPanel.numberField.addPropertyChangeListener(parameterActionListener);
-        filterOptionPanel.percentField.addPropertyChangeListener(parameterActionListener);
+        filterOptionPanel.numberField.addActionListener(parameterActionListener);
+        filterOptionPanel.percentField.addActionListener(parameterActionListener);
         filterOptionPanel.numberRemovalButton.addActionListener(parameterActionListener);
         filterOptionPanel.percentRemovalButton.addActionListener(parameterActionListener);
     }

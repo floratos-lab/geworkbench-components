@@ -11,12 +11,16 @@ import java.awt.event.ItemListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
+import javax.swing.JComponent;
+import javax.swing.JOptionPane;
 import javax.swing.JFormattedTextField;
+import javax.swing.JTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
+import javax.swing.InputVerifier;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -37,8 +41,8 @@ public class FilterOptionPanel extends JPanel {
 	JRadioButton percentRemovalButton;
 	JRadioButton numberRemovalButton;
 
-	JFormattedTextField percentField = null;
-	JFormattedTextField numberField = null;
+	JTextField percentField = null;
+	JTextField numberField = null;
 
 	public static int arrayNumber = 0;
 
@@ -51,11 +55,14 @@ public class FilterOptionPanel extends JPanel {
 				"Remove the marker if the number of matching arrays is more than");
 
 		percentField = new JFormattedTextField();
-		percentField.setValue(new Double(40.0));
+		percentField.setText("40");
 		percentField.setColumns(5);
+		percentField.setInputVerifier(new PercentRemovalVerifier());
+
 		numberField = new JFormattedTextField();
-        numberField.setValue(new Integer(0));
+		numberField.setText("0");
 		numberField.setColumns(5);
+		numberField.setInputVerifier(new NumberRemovalVerifier());
 
 		GridBagConstraints c = new GridBagConstraints();
 		add(percentRemovalButton);
@@ -114,9 +121,10 @@ public class FilterOptionPanel extends JPanel {
 
 	int getNumberThreshold() {
 		try {
-			return (Integer)numberField.getValue();
+			return (new Integer(numberField.getText()));
 		} catch (Exception ex) {
-			// if numberRemovalButton is not selected and the input is invalid, then return default value
+			// if numberRemovalButton is not selected and the input is invalid,
+			// then return default value
 			return 0;
 		}
 
@@ -124,9 +132,10 @@ public class FilterOptionPanel extends JPanel {
 
 	double getPercentThreshold() {
 		try {
-			return ((Double)percentField.getValue()) * 0.01;
+			return (new Double(percentField.getText())) * 0.01;
 		} catch (Exception ex) {
-			// if percentRemovalButton is not selected and the input is invalid, then return default value
+			// if percentRemovalButton is not selected and the input is invalid,
+			// then return default value
 			return new Double(40.0);
 		}
 	}
@@ -134,13 +143,13 @@ public class FilterOptionPanel extends JPanel {
 	public String validateParameters() {
 		String errorMessage = null;
 		if (percentRemovalButton.isSelected()) {
-			Double percentNum = getDouble((percentField.getValue()));
+			Double percentNum = getDouble((percentField.getText()));
 			if (percentNum == null || percentNum < 0 || percentNum > 100) {
 				errorMessage = "Please enter 0 to 100 for percentage of matching arrays.";
 			}
 
 		} else if (numberRemovalButton.isSelected()) {
-			Integer num = getInteger((numberField.getValue()));
+			Integer num = getInteger((numberField.getText()));
 			if (num == null || num < 0 || num > arrayNumber - 1) {
 				errorMessage = "Please enter 0 to " + (arrayNumber - 1)
 						+ " for number of matching arrays.";
@@ -172,6 +181,44 @@ public class FilterOptionPanel extends JPanel {
 		} catch (Exception ex) {
 			return null;
 
+		}
+
+	}
+
+	class PercentRemovalVerifier extends InputVerifier {
+		public boolean verify(JComponent input) {
+			JTextField tf = (JTextField) input;
+			Double percentNum = getDouble((tf.getText()));
+			if (percentNum == null || percentNum < 0 || percentNum > 100) {
+				String errorMessage = "Please enter 0 to 100 for percentage of matching arrays.";
+				JOptionPane.showMessageDialog(null, errorMessage, "",
+						JOptionPane.ERROR_MESSAGE);
+				return false;
+			}
+			return true;
+		}
+
+		public boolean shouldYieldFocus(JComponent input) {
+			return verify(input);
+		}
+	}
+
+	class NumberRemovalVerifier extends InputVerifier {
+		public boolean verify(JComponent input) {
+			JTextField tf = (JTextField) input;
+			Double num = getDouble((tf.getText()));
+			if (num == null || num < 0 || num > arrayNumber - 1) {
+				String errorMessage = "Please enter 0 to " + (arrayNumber - 1)
+						+ " for number of matching arrays.";
+				JOptionPane.showMessageDialog(null, errorMessage, "",
+						JOptionPane.ERROR_MESSAGE);
+				return false;
+			}
+			return true;
+		}
+
+		public boolean shouldYieldFocus(JComponent input) {
+			return verify(input);
 		}
 
 	}

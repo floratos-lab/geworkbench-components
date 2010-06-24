@@ -104,14 +104,16 @@ public class GenepixExpressionThresholdFilter extends FilteringAnalysis {
         
         FilterOptionPanel filterOptionPanel = parameterPanel.getFilterOptionPanel();
 		if(filterOptionPanel.getSelectedOption()==FilterOptionPanel.Option.NUMBER_REMOVAL) {
-	        criterionOption = CriterionOption.COUNT;	       
+	        criterionOption = CriterionOption.COUNT;	
+	        numberThreshold = filterOptionPanel.getNumberThreshold();
 		} else if(filterOptionPanel.getSelectedOption()==FilterOptionPanel.Option.PERCENT_REMOVAL) {
 	        criterionOption = CriterionOption.PERCENT;	       
+	        percentThreshold = filterOptionPanel.getPercentThreshold();
 		} else {
 	        log.error("Invalid filtering option");
 		}
 		
-        numberThreshold = filterOptionPanel.getNumberThreshold();
-        percentThreshold = filterOptionPanel.getPercentThreshold();
+        
+
 	}
 }

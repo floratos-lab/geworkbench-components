@@ -76,11 +76,11 @@ public class AffyDetectionCallFilterPanel extends AbstractSaveableParameterPanel
 			} else if (key.equals("marginal")){
 				this.marginalButton.setSelected((Boolean)value);
 			} else if (key.equals("numberThreshold")){
-	            this.filterOptionPanel.numberField.setValue((Integer)value);	           
+	            this.filterOptionPanel.numberField.setText(value.toString());	           
 	            this.filterOptionPanel.numberRemovalButton.setSelected(true);
 	            this.revalidate();
 			} else if (key.equals("percentThreshold")){
-	            this.filterOptionPanel.percentField.setValue((Double)value);	            
+	            this.filterOptionPanel.percentField.setText(value.toString());	            
 	            this.filterOptionPanel.percentRemovalButton.setSelected(true);
 	            this.revalidate();
 			}
@@ -97,7 +97,7 @@ public class AffyDetectionCallFilterPanel extends AbstractSaveableParameterPanel
 		if (this.filterOptionPanel.numberRemovalButton.isSelected())
 			parameters.put("numberThreshold", (Integer) this.filterOptionPanel.getNumberThreshold());
 		else
-			parameters.put("percentThreshold", (Double) this.filterOptionPanel.percentField.getValue());
+			parameters.put("percentThreshold", (Double)this.filterOptionPanel.getPercentThreshold() * 100);
 		parameters.put("present", presentButton.isSelected());
 		parameters.put("absent", absentButton.isSelected());
 		parameters.put("marginal", marginalButton.isSelected());

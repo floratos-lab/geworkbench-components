@@ -77,13 +77,14 @@ public class AffyDetectionCallFilter extends FilteringAnalysis {
         FilterOptionPanel filterOptionPanel = affyDetectionCallFilterPanel.getFilterOptionPanel();
 		if(filterOptionPanel.getSelectedOption()==FilterOptionPanel.Option.NUMBER_REMOVAL) {
 	        criterionOption = CriterionOption.COUNT;
+	        numberThreshold = filterOptionPanel.getNumberThreshold();
 		} else if(filterOptionPanel.getSelectedOption()==FilterOptionPanel.Option.PERCENT_REMOVAL) {
 	        criterionOption = CriterionOption.PERCENT;
+	        percentThreshold = filterOptionPanel.getPercentThreshold();
 		} else {
 	        log.error("Invalid filtering option");
 		}
 
-        numberThreshold = filterOptionPanel.getNumberThreshold();
-        percentThreshold = filterOptionPanel.getPercentThreshold();
+        
 	}
 }
