@@ -71,6 +71,7 @@ public class ParameterSetting {
         private String speciesRepeat;
         private String templateLength;
         private String templateType;
+        private String geneticCode;
         
     /**
      * No public constructor because this is only used in this package.
@@ -93,6 +94,7 @@ public class ParameterSetting {
      * @param shortQueriesOn
      * @param matchScores
      * @param speciesRepeat
+     * @param geneticCode
      * 
      */
     ParameterSetting(String dbName, String programName, boolean viewInBrowser,
@@ -100,7 +102,7 @@ public class ParameterSetting {
 			boolean humanRepeatFilterOn, boolean maskLowCase, String matrix,
 			boolean maskLookupTable, boolean excludeModelsOn, boolean excludeUncultureOn, 
 			boolean megaBlastOn, boolean discontiguousOn, boolean blastnBtnOn, boolean shortQueriesOn, 
-			String matchScores, String speciesRepeat, String templateLength, String templateType) {
+			String matchScores, String speciesRepeat, String templateLength, String templateType, String geneticCode) {
         this.dbName = dbName;
         this.programName = programName;
         this.viewInBrowser = viewInBrowser;
@@ -120,6 +122,7 @@ public class ParameterSetting {
 		this.speciesRepeat=speciesRepeat;
 		this.templateLength=templateLength;
 		this.templateType=templateType;
+		this.geneticCode=geneticCode;
     }
 
     public void setPenalty(String penalty) {
@@ -250,5 +253,9 @@ public class ParameterSetting {
 	
 	public String getTemplateType() {
 		return templateType;
+	}
+	
+	public String getGeneticCode() {
+		return geneticCode;
 	}
 }
