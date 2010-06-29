@@ -671,15 +671,16 @@ public class SkyLineViewEachPanel extends JPanel implements VisualPlugin,
 		final Rectangle rectClip = new Rectangle();
 
 		public void paint(Graphics g) {
-			double zoom = getZoom();
-    		if (zoom != 100) viewer.evalString("zoom "+zoom);
+			//double zoom = getZoom();
+    		//if (zoom != 100) viewer.evalString("zoom "+zoom);
 
 			getSize(currentSize);
 			g.getClipBounds(rectClip);
 			viewer.renderScreenImage(g, currentSize, rectClip);
 		}
 
-        private double getZoom() {
+/*
+		private double getZoom() {
         	double zoom = zoomNorm;
         	int width = getVisibleRect().width;
         	int height = getVisibleRect().height;
@@ -688,6 +689,7 @@ public class SkyLineViewEachPanel extends JPanel implements VisualPlugin,
         	if (zoom < zoomMin || zoom > zoomMax) zoom = zoomNorm;
         	return zoom;
         }
+*/
 	}
 
 }
