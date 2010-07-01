@@ -154,6 +154,8 @@ public class BlastAppComponent implements VisualPlugin {
     private JComboBox jScoresBox=new JComboBox();
     private JLabel jGapcostsLabel = new JLabel("Gap costs:");
     private JComboBox jGapcostsBox = new JComboBox();
+    private JLabel jCompositionalLabel= new JLabel("Compositional Adjustments:");
+    private JComboBox jCompositionalBox=new JComboBox();
     private JComboBox jSpeciesBox=new JComboBox();
     private JLabel jTemplateLengthLabel = new JLabel("Template Length:");
     private JComboBox jTemplateLengthBox=new JComboBox();
@@ -361,6 +363,11 @@ public class BlastAppComponent implements VisualPlugin {
         jScoresBox.addItem("2,-3");
         jScoresBox.addItem("4,-5");
         jScoresBox.addItem("1,-1");
+        
+        jCompositionalBox.addItem("No adjustment");
+        jCompositionalBox.addItem("Composition-based statistics");
+        jCompositionalBox.addItem("Conditional compositional score matrix adjustment");
+        jCompositionalBox.addItem("Universal compositional score matrix adjustment");
        
         jSpeciesBox.addItem("Human");
         jSpeciesBox.addItem("Rodents");
@@ -692,43 +699,50 @@ public class BlastAppComponent implements VisualPlugin {
 				1.0, 0.0, GridBagConstraints.WEST,
 				GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
 		
-		blastxSettingPanel.add(jFilterLabel, new GridBagConstraints(0, 6+beforeFilter, 1,
+		blastxSettingPanel.add(jCompositionalLabel, new GridBagConstraints(0, 6+beforeFilter, 1,
 				1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
 				new Insets(2, 2, 2, 6), 1, -2));
-		blastxSettingPanel.add(lowComplexFilterBox, new GridBagConstraints(1, 6+beforeFilter, 1, 1,
+		blastxSettingPanel.add(jCompositionalBox, new GridBagConstraints(1, 6+beforeFilter, 1, 1,
+				1.0, 0.0, GridBagConstraints.WEST,
+				GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));		
+		
+		blastxSettingPanel.add(jFilterLabel, new GridBagConstraints(0, 7+beforeFilter, 1,
+				1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
+				new Insets(2, 2, 2, 6), 1, -2));
+		blastxSettingPanel.add(lowComplexFilterBox, new GridBagConstraints(1, 7+beforeFilter, 1, 1,
 				1.0, 0.0, GridBagConstraints.WEST,
 				GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
 		
-		blastxSettingPanel.add(speciesRepeatPanel, new GridBagConstraints(1, 7+beforeFilter, 1, 1,
+		blastxSettingPanel.add(speciesRepeatPanel, new GridBagConstraints(1, 8+beforeFilter, 1, 1,
 				1.0, 0.0, GridBagConstraints.WEST,
 				GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
 		
-		blastxSettingPanel.add(jMaskLabel, new GridBagConstraints(0, 8+beforeFilter, 1,
+		blastxSettingPanel.add(jMaskLabel, new GridBagConstraints(0, 9+beforeFilter, 1,
 				1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
 				new Insets(2, 2, 2, 6), 1, -2));
-		blastxSettingPanel.add(maskLookupOnlyBox, new GridBagConstraints(1, 8+beforeFilter, 1, 1,
+		blastxSettingPanel.add(maskLookupOnlyBox, new GridBagConstraints(1, 9+beforeFilter, 1, 1,
 				1.0, 0.0, GridBagConstraints.WEST,
 				GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
-		blastxSettingPanel.add(maskLowCaseBox, new GridBagConstraints(1, 9+beforeFilter, 1, 1,
+		blastxSettingPanel.add(maskLowCaseBox, new GridBagConstraints(1, 10+beforeFilter, 1, 1,
 				1.0, 0.0, GridBagConstraints.WEST,
 				GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
-		blastxSettingPanel.add(jDisplayLabel, new GridBagConstraints(0, 10+beforeFilter, 1, 1,
+		blastxSettingPanel.add(jDisplayLabel, new GridBagConstraints(0, 11+beforeFilter, 1, 1,
 				1.0, 0.0, GridBagConstraints.WEST,
 				GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
-		blastxSettingPanel.add(jDisplayInWebBox, new GridBagConstraints(1, 10+beforeFilter, 1, 1,
+		blastxSettingPanel.add(jDisplayInWebBox, new GridBagConstraints(1, 11+beforeFilter, 1, 1,
 				1.0, 0.0, GridBagConstraints.WEST,
 				GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
 		
-		blastxSettingPanel.add(jTemplateLengthLabel, new GridBagConstraints(0, 11+beforeFilter, 1, 1,
+		blastxSettingPanel.add(jTemplateLengthLabel, new GridBagConstraints(0, 12+beforeFilter, 1, 1,
 				1.0, 0.0, GridBagConstraints.WEST,
 				GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
-		blastxSettingPanel.add(jTemplateLengthBox, new GridBagConstraints(1, 11+beforeFilter, 1, 1,
+		blastxSettingPanel.add(jTemplateLengthBox, new GridBagConstraints(1, 12+beforeFilter, 1, 1,
 				1.0, 0.0, GridBagConstraints.WEST,
 				GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
-		blastxSettingPanel.add(jTemplateTypeLabel, new GridBagConstraints(0, 12+beforeFilter, 1, 1,
+		blastxSettingPanel.add(jTemplateTypeLabel, new GridBagConstraints(0, 13+beforeFilter, 1, 1,
 				1.0, 0.0, GridBagConstraints.WEST,
 				GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
-		blastxSettingPanel.add(jTemplateTypeBox, new GridBagConstraints(1, 12+beforeFilter, 1, 1,
+		blastxSettingPanel.add(jTemplateTypeBox, new GridBagConstraints(1, 13+beforeFilter, 1, 1,
 				1.0, 0.0, GridBagConstraints.WEST,
 				GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));				
 		
@@ -737,10 +751,38 @@ public class BlastAppComponent implements VisualPlugin {
 		jTemplateTypeLabel.setVisible(false);
 		jTemplateTypeBox.setVisible(false);
 		
+		jCompositionalLabel.setVisible(false);
+		jCompositionalBox.setVisible(false);
+		
 		jAdvancedPane.setEnabled(true);
-		String[][] array = algorithmMatcher
+		String[][] arrayT = algorithmMatcher
 				.translateToArray((String) selectedProgramName);
-		if (array == null)
+		String[][] array = null;
+		/*though blastn, tblastn, tblastx are all type "nucleotide", however, their database choices are different.
+		 * for tblastn, tblastx, there are no database choices:dbindex/9606/rna and dbindex/10090/rna
+		 */
+		if(arrayT!=null){			
+			if(selectedProgramName.equalsIgnoreCase("tblastn")||selectedProgramName.equalsIgnoreCase("tblastx")){
+				int num=0;
+				for(int i=0;i<arrayT.length;i++){
+					if(arrayT[i][1].equalsIgnoreCase("dbindex/9606/rna")||arrayT[i][1].equalsIgnoreCase("dbindex/10090/rna")){
+						num++;
+					}
+				}				
+				array=new String[arrayT.length-num][2];
+				int i=0;
+				for(int j=0;j<arrayT.length;j++){			
+					if (!(arrayT[j][1].equalsIgnoreCase("dbindex/9606/rna")||arrayT[j][1].equalsIgnoreCase("dbindex/10090/rna"))){
+						array[i]=arrayT[j];					
+						i++;
+					}
+				}
+			}
+			else {
+				array=arrayT;
+			}
+		}
+		else
 			return;
 
 		TableModel listModel = new UneditableTableModel(array);
@@ -770,8 +812,8 @@ public class BlastAppComponent implements VisualPlugin {
 	       	jGapcostsBox.setSelectedIndex(index);
 			jWordsizeBox.setSelectedIndex(3);//default selection		
 			jScoresBox.setSelectedIndex(0);		
-			speciesRepeatFilter.setEnabled(true);
-			jSpeciesBox.setEnabled(true);
+			speciesRepeatFilter.setVisible(true);
+			jSpeciesBox.setVisible(true);
 			jGapcostsBox.setEditable(false);
 			jGapcostsBox.setVisible(true);
 			jGapcostsLabel.setVisible(true);
@@ -780,14 +822,25 @@ public class BlastAppComponent implements VisualPlugin {
 		} else {
 			jMatrixBox.setSelectedIndex(3);
 			jWordsizeBox.setSelectedIndex(1);
-			speciesRepeatFilter.setEnabled(false);
-			jSpeciesBox.setEnabled(false);
+			speciesRepeatFilter.setVisible(false);
+			jSpeciesBox.setVisible(false);
 			jGapcostsBox.setEditable(false);
 			jGapcostsBox.setVisible(true);
-			jGapcostsLabel.setVisible(true);
-			lowComplexFilterBox.setSelected(false);
+			jGapcostsLabel.setVisible(true);			
 			maskLookupOnlyBox.setSelected(false);
 			maskLowCaseBox.setSelected(false);
+			if (selectedProgramName.equalsIgnoreCase("blastp")||selectedProgramName.equalsIgnoreCase("tblastn")){
+				jCompositionalLabel.setVisible(true);
+				jCompositionalBox.setVisible(true);
+				jCompositionalBox.setSelectedIndex(2);
+				
+			}
+			if (selectedProgramName.equalsIgnoreCase("blastp")){
+				lowComplexFilterBox.setSelected(false);
+			}
+			else{
+				lowComplexFilterBox.setSelected(true);
+			}
 		}
     }
     
@@ -960,6 +1013,7 @@ public class BlastAppComponent implements VisualPlugin {
         boolean blastnBtnOn=blastnBtn.isSelected();
         boolean shortQueriesOn=shortQueriesBox.isSelected();       
         String matchScores=(String) jScoresBox.getSelectedItem();
+        String compositionalAdjustment=(String) jCompositionalBox.getSelectedItem();
         String speciesRepeat=(String) jSpeciesBox.getSelectedItem();
         String templateLength=(String) jTemplateLengthBox.getSelectedItem();
         String templateType=(String) jTemplateTypeBox.getSelectedItem();
@@ -970,7 +1024,7 @@ public class BlastAppComponent implements VisualPlugin {
 				humanRepeatFilterOn, maskLowCaseOn, (String) jMatrixBox
 						.getSelectedItem(), maskLookupOnlyBox.isSelected(),
 						excludeModelsOn,excludeUncultureOn,megaBlastOn,
-						discontiguousOn,blastnBtnOn,shortQueriesOn,matchScores,
+						discontiguousOn,blastnBtnOn,shortQueriesOn,matchScores,compositionalAdjustment,
 						speciesRepeat, templateLength, templateType, geneticCode);
         if (startValue <= 1 && endValue >= fastaFile.getMaxLength()) {
             //just use whole sequence. No end to reset.

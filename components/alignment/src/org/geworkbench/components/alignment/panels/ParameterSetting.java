@@ -68,6 +68,7 @@ public class ParameterSetting {
         private boolean blastnBtnOn;
         private boolean shortQueriesOn;
         private String matchScores;
+        private String compositionalAdjustment;
         private String speciesRepeat;
         private String templateLength;
         private String templateType;
@@ -93,6 +94,7 @@ public class ParameterSetting {
      * @param blastnBtnOn
      * @param shortQueriesOn
      * @param matchScores
+     * @param compositionalAdjustment
      * @param speciesRepeat
      * @param geneticCode
      * 
@@ -102,7 +104,8 @@ public class ParameterSetting {
 			boolean humanRepeatFilterOn, boolean maskLowCase, String matrix,
 			boolean maskLookupTable, boolean excludeModelsOn, boolean excludeUncultureOn, 
 			boolean megaBlastOn, boolean discontiguousOn, boolean blastnBtnOn, boolean shortQueriesOn, 
-			String matchScores, String speciesRepeat, String templateLength, String templateType, String geneticCode) {
+			String matchScores, String compositionalAdjustment, String speciesRepeat, String templateLength, 
+			String templateType, String geneticCode) {
         this.dbName = dbName;
         this.programName = programName;
         this.viewInBrowser = viewInBrowser;
@@ -119,6 +122,7 @@ public class ParameterSetting {
 		this.blastnBtnOn=blastnBtnOn;
 		this.shortQueriesOn=shortQueriesOn;
 		this.matchScores=matchScores;
+		this.compositionalAdjustment=compositionalAdjustment;
 		this.speciesRepeat=speciesRepeat;
 		this.templateLength=templateLength;
 		this.templateType=templateType;
@@ -257,5 +261,9 @@ public class ParameterSetting {
 	
 	public String getGeneticCode() {
 		return geneticCode;
+	}
+	
+	public String getCompositionalAdjustment() {
+		return compositionalAdjustment;
 	}
 }
