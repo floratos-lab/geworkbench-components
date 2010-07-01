@@ -62,6 +62,10 @@ import JSci.maths.statistics.TDistribution;
 public class TtestAnalysis extends AbstractAnalysis implements
 		ClusteringAnalysis {
 	private static final long serialVersionUID = 1302806024752128407L;
+	
+	private static final int GROUP_A = 1;
+	private static final int GROUP_B = 2;
+	private static final int NEITHER_GROUP = 3;
 
 	private int localAnalysisType;
 	private static Log log = LogFactory.getLog(TtestAnalysis.class);
@@ -163,20 +167,20 @@ public class TtestAnalysis extends AbstractAnalysis implements
 			DSMicroarray ma = data.items().get(i);
 			String[] labels = context.getLabelsForItem(ma);
 			if ((labels.length == 0) && allArrays) {
-				groupAssignments[i] = TtestAnalysisPanel.GROUP_B;
+				groupAssignments[i] = GROUP_B;
 				numberGroupB++;
 			}
 			for (String label : labels) {
 				if (context.isLabelActive(label) || allArrays) {
 					String v = context.getClassForLabel(label);
 					if (v.equals(CSAnnotationContext.CLASS_CASE)) {
-						groupAssignments[i] = TtestAnalysisPanel.GROUP_A;
+						groupAssignments[i] = GROUP_A;
 						numberGroupA++;
 					} else if (v.equals(CSAnnotationContext.CLASS_CONTROL)) {
-						groupAssignments[i] = TtestAnalysisPanel.GROUP_B;
+						groupAssignments[i] = GROUP_B;
 						numberGroupB++;
 					} else {
-						groupAssignments[i] = TtestAnalysisPanel.NEITHER_GROUP;
+						groupAssignments[i] = NEITHER_GROUP;
 					}
 				}
 			}
@@ -624,10 +628,10 @@ public class TtestAnalysis extends AbstractAnalysis implements
 		int groupedExptsCounter = 0;
 
 		for (int i = 0; i < groupAssignments.length; i++) {
-			if (groupAssignments[i] == TtestAnalysisPanel.GROUP_A) {
+			if (groupAssignments[i] == GROUP_A) {
 				groupedExpts[groupedExptsCounter] = i;
 				groupedExptsCounter++;
-			} else if (groupAssignments[i] == TtestAnalysisPanel.GROUP_B) {
+			} else if (groupAssignments[i] == GROUP_B) {
 				groupedExpts[groupedExptsCounter] = i;
 				groupedExptsCounter++;
 			}
@@ -704,14 +708,14 @@ public class TtestAnalysis extends AbstractAnalysis implements
 		int groupedExptsCounter = 0;
 
 		for (int i = 0; i < groupAssignments.length; i++) {
-			if (groupAssignments[i] == TtestAnalysisPanel.GROUP_A) {
+			if (groupAssignments[i] == GROUP_A) {
 				if (!Float.isNaN(geneValues[i])) {
 					numbValidValuesA++;
 				}
 				groupACounter++;
 				groupedExpts[groupedExptsCounter] = i;
 				groupedExptsCounter++;
-			} else if (groupAssignments[i] == TtestAnalysisPanel.GROUP_B) {
+			} else if (groupAssignments[i] == GROUP_B) {
 				if (!Float.isNaN(geneValues[i])) {
 					numbValidValuesB++;
 				}
@@ -851,11 +855,11 @@ public class TtestAnalysis extends AbstractAnalysis implements
 		int numbValidValuesB = 0;
 
 		for (int i = 0; i < groupAssignments.length; i++) {
-			if (groupAssignments[i] == TtestAnalysisPanel.GROUP_A) {
+			if (groupAssignments[i] == GROUP_A) {
 				if (!Float.isNaN(geneValues[i])) {
 					numbValidValuesA++;
 				}
-			} else if (groupAssignments[i] == TtestAnalysisPanel.GROUP_B) {
+			} else if (groupAssignments[i] == GROUP_B) {
 				if (!Float.isNaN(geneValues[i])) {
 					numbValidValuesB++;
 				}
@@ -1306,7 +1310,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 				pbTtest.dispose();
 				return null;
 			}
-			if (groupAssignments[j] != TtestAnalysisPanel.NEITHER_GROUP) {
+			if (groupAssignments[j] != NEITHER_GROUP) {
 				validExpts.add(new Integer(j));
 			}
 		}
@@ -1336,7 +1340,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 		Vector<Integer> usedExptsVector = new Vector<Integer>();
 
 		for (int i = 0; i < groupAssignments.length; i++) {
-			if (groupAssignments[i] != TtestAnalysisPanel.NEITHER_GROUP) {
+			if (groupAssignments[i] != NEITHER_GROUP) {
 				usedExptsVector.add(new Integer(i));
 			}
 		}
@@ -1819,10 +1823,10 @@ public class TtestAnalysis extends AbstractAnalysis implements
 		int groupBCounter = 0;
 
 		for (int i = 0; i < numExps; i++) {
-			if (groupAssignments[i] == TtestAnalysisPanel.GROUP_A) {
+			if (groupAssignments[i] == GROUP_A) {
 				groupAValues[groupACounter] = geneValues[i];
 				groupACounter++;
-			} else if (groupAssignments[i] == TtestAnalysisPanel.GROUP_B) {
+			} else if (groupAssignments[i] == GROUP_B) {
 				groupBValues[groupBCounter] = geneValues[i];
 				groupBCounter++;
 			}
