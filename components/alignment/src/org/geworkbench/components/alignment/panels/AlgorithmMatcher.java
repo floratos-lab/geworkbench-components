@@ -159,6 +159,14 @@ public class AlgorithmMatcher {
 		template2number.put("Coding", "0");
 		template2number.put("Maximal", "1");
 		template2number.put("Two template", "2");
+	}	
+	 
+	static private Map<String, String> compositional2number= new HashMap<String, String>();
+	static{
+		compositional2number.put("No adjustment", "0");
+		compositional2number.put("Composition-based statistics", "1");
+		compositional2number.put("Conditional compositional score matrix adjustment", "2");
+		compositional2number.put("Universal compositional score matrix adjustment", "3");		
 	}
 	
 	static private Map<String, String> geneticCode2number=new HashMap<String, String>();
@@ -547,6 +555,9 @@ public class AlgorithmMatcher {
                 else cmd += "&BLAST_PROGRAMS="+ps.getProgramName();
                 if (ps.getProgramName().equalsIgnoreCase("blastx")||ps.getProgramName().equalsIgnoreCase("tblastx")){
                 	cmd +="&GENETIC_CODE="+ geneticCode2number.get(ps.getGeneticCode());
+                }
+                if (ps.getProgramName().equalsIgnoreCase("blastp")||ps.getProgramName().equalsIgnoreCase("tblastn")){
+                	cmd +="&COMPOSITION_BASED_STATISTICS="+ compositional2number.get(ps.getCompositionalAdjustment());
                 }
                 
                 if (ps.isShortQueriesOn()){

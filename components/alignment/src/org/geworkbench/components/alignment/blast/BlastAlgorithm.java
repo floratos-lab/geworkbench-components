@@ -311,10 +311,13 @@ public class BlastAlgorithm extends SwingWorker<CSAlignmentResultSet, Integer> {
 				histStr += "Short Queries: " + parameterSetting.isShortQueriesOn()+ LINEBREAK;
 				
 				histStr += "Expect: " + parameterSetting.getExpect() + LINEBREAK;
+				histStr += "Word Size: " + parameterSetting.getWordsize() + LINEBREAK;
 				histStr += "Matrix: " + parameterSetting.getMatrix() + LINEBREAK;
 				histStr += "Match/mismatch Scores: " + parameterSetting.getMatchScores() + LINEBREAK;
 				histStr += "Gap Cost: " + parameterSetting.getGapCost() + LINEBREAK;
-				histStr += "Word Size: " + parameterSetting.getWordsize() + LINEBREAK;
+				if (parameterSetting.getProgramName().equalsIgnoreCase("blastp")||parameterSetting.getProgramName().equalsIgnoreCase("tblastn")){
+					histStr += "Compositional Adjustment: " + parameterSetting.getCompositionalAdjustment()+ LINEBREAK;
+				}
 				histStr += "Low Complexity Filter On: " + parameterSetting.isLowComplexityFilterOn() + LINEBREAK;
 				if(parameterSetting.getProgramName().equalsIgnoreCase("blastn")){
 					histStr += "Species-specific repeats Filter On: " + parameterSetting.isHumanRepeatFilterOn() + LINEBREAK;
@@ -324,7 +327,7 @@ public class BlastAlgorithm extends SwingWorker<CSAlignmentResultSet, Integer> {
 				histStr += "Mask Lookup Table: " + parameterSetting.isMaskLookupTable() + LINEBREAK;
 				if(parameterSetting.isDiscontiguousOn()&&parameterSetting.getProgramName().equalsIgnoreCase("blastn")){
 					histStr += "Template Length: " + parameterSetting.getTemplateLength() + LINEBREAK;
-					histStr += "Template Type: " + parameterSetting.getTemplateType() + LINEBREAK+ LINEBREAK;
+					histStr += "Template Type: " + parameterSetting.getTemplateType() + LINEBREAK;
 				}
 
 				histStr += "Number of Sequences: " + activeSequenceDB.size() + LINEBREAK;
