@@ -5,8 +5,6 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.HashMap;
@@ -42,66 +40,57 @@ import com.jgoodies.forms.layout.FormLayout;
  */
 
 public class TtestAnalysisPanel extends AbstractSaveableParameterPanel {
-
-    public static final int GROUP_A = 1;
-    public static final int GROUP_B = 2;
-    public static final int NEITHER_GROUP = 3;
-    public static final int JUST_ALPHA = 4;
-    public static final int STD_BONFERRONI = 5;
-    public static final int ADJ_BONFERRONI = 6;
-    public static final int BETWEEN_SUBJECTS = 7;
-    public static final int ONE_CLASS = 8;
-    public static final int MAX_T = 9;
-    public static final int MIN_P = 10;
-    ButtonGroup group1 = new ButtonGroup();
-    ButtonGroup group2 = new ButtonGroup();
-    ButtonGroup group3 = new ButtonGroup();
-    ButtonGroup group4 = new ButtonGroup();
-    ButtonGroup group5 = new ButtonGroup();
-    JTabbedPane jTabbedPane1 = new JTabbedPane();
-    JPanel jPanel1 = new JPanel();
-    JPanel jPanel4 = new JPanel();
-    JRadioButton welch = new JRadioButton();
-    GridLayout gridLayout2 = new GridLayout();
-    JRadioButton equalVariances = new JRadioButton();
-    BorderLayout borderLayout1 = new BorderLayout();
-    JRadioButton randomlyGroup = new JRadioButton();
-    FlowLayout flowLayout1 = new FlowLayout();
-    BorderLayout borderLayout2 = new BorderLayout();
-    JLabel jLabel3 = new JLabel();
-    JPanel jPanel7 = new JPanel();
-    JRadioButton pvaluesByPerm = new JRadioButton();
-    JFormattedTextField alpha = new JFormattedTextField(new DecimalFormat("0.###E00"));
-    //JFormattedTextField alpha = new JFormattedTextField(NumberFormat.getNumberInstance());
-    GridBagLayout gridBagLayout1 = new GridBagLayout();
-    JRadioButton allPerms = new JRadioButton();
-    JPanel jPanel6 = new JPanel();
-    BorderLayout borderLayout4 = new BorderLayout();
-    JLabel jLabel6 = new JLabel();
-    JPanel jPanel2 = new JPanel();
-    JRadioButton pvaluesByTDistribution = new JRadioButton();
-    JFormattedTextField numCombs = new JFormattedTextField(new DecimalFormat());
-    JPanel jPanel5 = new JPanel();
-    JPanel jPanel11 = new JPanel();
-    JPanel jPanel12 = new JPanel();
-    GridLayout gridLayout3 = new GridLayout();
-    JRadioButton stepdownMaxT = new JRadioButton();
-    JPanel jPanel8 = new JPanel();
-    JRadioButton adjustedBonferroni = new JRadioButton();
-    JPanel jPanel3 = new JPanel();
-    JPanel jPanel10 = new JPanel();
-    JRadioButton noCorrection = new JRadioButton();
-    JRadioButton bonferroni = new JRadioButton();
-    JPanel jPanel9 = new JPanel();
-    BorderLayout borderLayout6 = new BorderLayout();
-    JRadioButton stepdownMinP = new JRadioButton();
-    JLabel jLabel5 = new JLabel();
-    BorderLayout borderLayout3 = new BorderLayout();
-    BorderLayout borderLayout5 = new BorderLayout();
+	private static final long serialVersionUID = 2626991982723835444L;
+	
+	// significance method
+	static final int JUST_ALPHA = 4;
+	static final int STD_BONFERRONI = 5;
+	static final int ADJ_BONFERRONI = 6;
+	static final int MAX_T = 9;
+	static final int MIN_P = 10;
+	
+    private ButtonGroup group1 = new ButtonGroup();
+    private ButtonGroup group2 = new ButtonGroup();
+    private ButtonGroup group3 = new ButtonGroup();
+    private ButtonGroup group4 = new ButtonGroup();
+    private JTabbedPane jTabbedPane1 = new JTabbedPane();
+    private JPanel jPanel1 = new JPanel();
+    private JPanel jPanel4 = new JPanel();
+    private JRadioButton welch = new JRadioButton();
+    private GridLayout gridLayout2 = new GridLayout();
+    private JRadioButton equalVariances = new JRadioButton();
+    private BorderLayout borderLayout1 = new BorderLayout();
+    private JRadioButton randomlyGroup = new JRadioButton();
+    private FlowLayout flowLayout1 = new FlowLayout();
+    private BorderLayout borderLayout2 = new BorderLayout();
+    private JLabel jLabel3 = new JLabel();
+    private JPanel jPanel7 = new JPanel();
+    private JRadioButton pvaluesByPerm = new JRadioButton();
+    private JFormattedTextField alpha = new JFormattedTextField(new DecimalFormat("0.###E00"));
+    private GridBagLayout gridBagLayout1 = new GridBagLayout();
+    private JRadioButton allPerms = new JRadioButton();
+    private JPanel jPanel6 = new JPanel();
+    private BorderLayout borderLayout4 = new BorderLayout();
+    private JLabel jLabel6 = new JLabel();
+    private JPanel jPanel2 = new JPanel();
+    private JRadioButton pvaluesByTDistribution = new JRadioButton();
+    private JFormattedTextField numCombs = new JFormattedTextField(new DecimalFormat());
+    private JPanel jPanel5 = new JPanel();
+    private GridLayout gridLayout3 = new GridLayout();
+    private JRadioButton stepdownMaxT = new JRadioButton();
+    private JPanel jPanel8 = new JPanel();
+    private JRadioButton adjustedBonferroni = new JRadioButton();
+    private JPanel jPanel3 = new JPanel();
+    private JRadioButton noCorrection = new JRadioButton();
+    private JRadioButton bonferroni = new JRadioButton();
+    private JPanel jPanel9 = new JPanel();
+    private BorderLayout borderLayout6 = new BorderLayout();
+    private JRadioButton stepdownMinP = new JRadioButton();
+    private JLabel jLabel5 = new JLabel();
+    private BorderLayout borderLayout3 = new BorderLayout();
+    private BorderLayout borderLayout5 = new BorderLayout();
     
-    JCheckBox logCheckbox;
-    
-    private boolean useroverride = false;
+    private JCheckBox logCheckbox;
     
 	/*
 	 * (non-Javadoc)
@@ -191,42 +180,6 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel {
         configure();
     }
 
-    public int getDistanceFunction() {
-        return 0;
-    }
-
-    public float getDistanceFactor() {
-        return 1.0f;
-    }
-
-    public boolean isDistanceAbsolute() {
-        return false;
-    }
-
-    public boolean computeHierarchicalTree() {
-        return false;
-    }
-
-    public int getLinkageMethod() {
-        return 0;
-    }
-
-    public boolean calculateGenes() {
-        return true;
-    }
-
-    public boolean calculateExperiments() {
-        return true;
-    }
-
-    public float getOneClassMean() {
-        return 1.0f;
-    }
-
-    public int getTtestDesign() {
-        return BETWEEN_SUBJECTS;
-    }
-
     public double getAlpha() {
         if (alpha.getValue() instanceof Double)
             return ((Double) alpha.getValue()).doubleValue();
@@ -236,43 +189,13 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel {
             return Double.parseDouble(alpha.getText());
     }
 
-    public void setAlpha(double alphaValue){
-        alpha.setValue(alphaValue);
-    }
-
-     public void setPValuesDistribution(String value){
-       if(value.startsWith("t-dist")){
-           pvaluesByTDistribution.setSelected(true);
-       }else{
-           pvaluesByPerm.setSelected(true);
-       }
-    }
-    public void setSignificanceMethod(String value){
-        if(value.startsWith("noCorrection")){
-            noCorrection.setSelected(true);
-        }
-         if(value.startsWith("Bonferroni")){
-           bonferroni.setSelected(true);
-        }
-        if(value.startsWith("adjustedBonferroni")){
-           adjustedBonferroni.setSelected(true);
-        }
-    }
-    public void setUseWalch(String methods){
-        if(methods.startsWith("Welch")){
-            welch.setSelected(true);
-        }else{
-          equalVariances.setSelected(true);   
-        }
-    }
-
     public int getSignificanceMethod() {
         if (noCorrection.isSelected())
             return JUST_ALPHA;
         else if (bonferroni.isSelected())
-            return this.STD_BONFERRONI;
+            return STD_BONFERRONI;
         else if (adjustedBonferroni.isSelected())
-            return this.ADJ_BONFERRONI;
+            return ADJ_BONFERRONI;
         else if (stepdownMaxT.isSelected())
             return MAX_T;
         else
@@ -300,20 +223,10 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel {
         return allPerms.isSelected();
     }
     
-    public boolean isUseroverride()
-    {
-    	return this.useroverride;
-    }
-    
     public boolean isLogNormalized() {         
     	return logCheckbox.isSelected();
     }
     
-
-    public int[] getGroupAssignments() {
-        return new int[1];
-    }
-
     private void configure() {
         group1.add(welch);
         group1.add(equalVariances);
@@ -345,7 +258,6 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel {
         noCorrection.setSelected(true);
         noCorrection.setText("Just alpha (no correction)");
         jPanel3.setLayout(borderLayout6);
-//        jPanel3.setBorder(BorderFactory.createLineBorder(Color.black));
         adjustedBonferroni.setText("Adjusted Bonferroni Correction");
         jPanel8.setLayout(gridLayout3);
         stepdownMaxT.setText("maxT");
@@ -359,7 +271,6 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel {
         pvaluesByTDistribution.setSelected(true);
         pvaluesByTDistribution.setText("t-distribution");
         jPanel2.setLayout(borderLayout2);
-//        jPanel2.setBorder(BorderFactory.createLineBorder(Color.black));
         jLabel6.setText("times");
         jPanel6.setLayout(gridBagLayout1);
         allPerms.setText("Use all permutations");
@@ -380,24 +291,11 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel {
         welch.setSelected(true);
         welch.setText("Unequal (Welch approximation)");
         jPanel4.setLayout(gridLayout2);
-//        jPanel1.setBorder(BorderFactory.createLineBorder(Color.black));
         jPanel1.setLayout(borderLayout1);
         this.setLayout(borderLayout3);
-//        this.setMinimumSize(new Dimension(451, 154));
-//        this.setPreferredSize(new Dimension(451, 154));
         this.add(jTabbedPane1, BorderLayout.CENTER);
 
-      
-//        jPanel4.add(welch, null);
-//        jPanel4.add(equalVariances, null);
-        
-        logCheckbox = logCheckbox = new JCheckBox("Data is log2-transformed", false);
-        logCheckbox.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-            	useroverride = true;                              
-                 
-            }
-        });
+        logCheckbox = new JCheckBox("Data is log2-transformed", false);
 
         // P-Value pane
         jTabbedPane1.add(jPanel2, "P-Value Parameters");
@@ -407,7 +305,6 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel {
                   + "right:max(10dlu;pref), 3dlu, pref, 7dlu, "
                   + "right:max(10dlu;pref), 3dlu, pref, 7dlu ",
                     "");
-//            layout.setColumnGroups(new int[][]{ {3, 7} });
             DefaultFormBuilder builder = new DefaultFormBuilder(layout);
             builder.setDefaultDialogBorder();
 
@@ -434,7 +331,6 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel {
                   + "right:max(10dlu;pref), 3dlu, pref, 7dlu, "
                   + "right:max(10dlu;pref), 3dlu, pref, 7dlu ",
                     "");
-//            layout.setColumnGroups(new int[][]{ {3, 7} });
             DefaultFormBuilder builder = new DefaultFormBuilder(layout);
             builder.setDefaultDialogBorder();
 
@@ -444,21 +340,6 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel {
 
             jPanel2.add(builder.getPanel(), BorderLayout.LINE_END);
         }
-
-/*
-        jPanel5.add(pvaluesByTDistribution, BorderLayout.NORTH);
-        jPanel5.add(pvaluesByPerm, BorderLayout.CENTER);
-        jPanel5.add(jPanel11, BorderLayout.SOUTH);
-        jPanel11.add(jPanel7, null);
-        jPanel7.add(randomlyGroup, null);
-        jPanel7.add(numCombs, null);
-        jPanel7.add(jLabel6, null);
-        jPanel7.add(allPerms, null);
-        jPanel2.add(jPanel6, BorderLayout.SOUTH);
-        jPanel2.add(jPanel5, BorderLayout.CENTER);
-        jPanel6.add(jLabel3, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 1, 5, 0), 0, 0));
-        jPanel6.add(alpha, new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 16, 5, 91), 0, 0));
-*/
 
         // Alpha corrections pane
         jTabbedPane1.add(jPanel3, "Alpha Corrections");
@@ -492,7 +373,6 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel {
         
         // Degree of freedom pane
         jTabbedPane1.add(jPanel1, "Degree of freedom");
-//        jPanel1.add(jPanel4, BorderLayout.CENTER);
         {
             FormLayout layout = new FormLayout(
                     "right:max(40dlu;pref), 3dlu, pref",
@@ -507,21 +387,6 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel {
             jPanel1.add(builder.getPanel(), BorderLayout.CENTER);
 
         }
-
-        
-
-/*
-        jPanel8.add(noCorrection, null);
-        jPanel8.add(bonferroni, null);
-        jPanel8.add(adjustedBonferroni, null);
-        jPanel3.add(jPanel12, BorderLayout.SOUTH);
-        jPanel12.add(jPanel9, null);
-        jPanel3.add(jPanel8, BorderLayout.CENTER);
-        jPanel9.add(jPanel10, BorderLayout.SOUTH);
-        jPanel10.add(stepdownMinP, null);
-        jPanel10.add(stepdownMaxT, null);
-        jPanel9.add(jLabel5, BorderLayout.CENTER);
-*/
         
        ParameterActionListener parameterActionListener = new ParameterActionListener(this);
        welch.addActionListener(parameterActionListener);
