@@ -15,6 +15,7 @@ import org.geworkbench.events.PhenotypeSelectorEvent;
 import org.geworkbench.events.PhenotypeSelectedEvent;
 import org.geworkbench.events.SingleMicroarrayEvent;
 import org.geworkbench.events.GeneSelectorEvent;
+import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbench.util.Util;
  
 
@@ -131,6 +132,17 @@ public class PhenotypePanel extends SelectorPanel<DSMicroarray> {
         }
         lowerPanel.add(legend);
     }
+
+    protected void setSelectorLastDirConf() {
+		selectorLastDirConf = FilePathnameUtils.getUserSettingDirectoryPath()
+				+ "selectors" + FilePathnameUtils.FILE_SEPARATOR
+				+ "selectorPhenoLastDir.conf";
+	}
+
+    protected SelectorHelper<DSMicroarray> getSelectorHelper() {
+		helper = new SelectorHelper<DSMicroarray>(this);
+		return helper;
+	}
 
     private static int getIndexForClass(String clazz) {
         for (int i = 0; i < CLASSES.length; i++) {

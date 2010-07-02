@@ -68,8 +68,6 @@ import com.Ostermiller.util.ExcelCSVParser;
 public class GenePanel extends SelectorPanel<DSGeneMarker> {
 	private String taggedSelection = null; // tagged for cytoscape visualization
 	private boolean tagEventEnabled = true;
-	private static String osname = System.getProperty("os.name").toLowerCase();
-    private final static boolean is_mac = (osname.indexOf("mac") > -1);
 
 	/**
 	 * <code>FileFilter</code> that is used by the <code>JFileChoose</code>
@@ -100,68 +98,16 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 		}
 	}
 
-	/*
-	 * config file to store last used directory for marker set saving/loading
-	 */
-	private static final String selectorLastDirConf = FilePathnameUtils
-			.getUserSettingDirectoryPath()
-			+ "selectors"
-			+ FilePathnameUtils.FILE_SEPARATOR
-			+ "selectorLastDir.conf";
-
-	private static String getLastDataDirectory() {
-		String dir = FilePathnameUtils.getDataFilesDirPath();
-		try {
-			File file = new File(selectorLastDirConf);
-			if (file.exists()) {
-				BufferedReader br = new BufferedReader(new FileReader(file));
-				dir = br.readLine();
-				br.close();
-			}
-		} catch (IOException ex) {
-			ex.printStackTrace();
-		}
-		return dir;
-	}
-
-	private static void setLastDataDirectory(String dir) {
-		try {
-			BufferedWriter br = new BufferedWriter(new FileWriter(
-					selectorLastDirConf));
-			br.write(dir);
-			br.close();
-		} catch (IOException ex) {
-			ex.printStackTrace();
-		}
-	}
-
 	public GenePanel() {
 		super(DSGeneMarker.class, "Marker");
 		tagEventEnabled = true;
-		lastDir = getLastDataDirectory();
 		// Add gene panel specific menu items.
 		treePopup.insert(newPanelItem2, 4);
-		savePanelItem.add(saveMergeSets);
-		savePanelItem.add(saveMultiSets);
 		treePopup.add(tagPanelItem);
 		rootPopup.add(loadPanelItem);
 		rootPopup.add(newPanelItem);
 		rootPopup.add(deleteSetGroupItem);
-		saveOneItem.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				saveMergePressed(rightClickedPath, "Save Marker Set");
-			}
-		});
-		saveMergeSets.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				saveMergePressed(rightClickedPath, "Save Merged Marker Set");
-			}
-		});
-		saveMultiSets.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				saveMultiPressed(rightClickedPath);
-			}
-		});
+
 		tagPanelItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (!tagEventEnabled) return; // to avoid event cycle
@@ -220,8 +166,6 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 		setTreeRenderer(new CustomizedRenderer());
 	}
 
-	private JMenuItem saveMergeSets = new JMenuItem("Merge into one set");
-	private JMenuItem saveMultiSets = new JMenuItem("Save as multiple sets");
 	private JMenuItem loadPanelItem = new JMenuItem("Load Set");
 	private JMenuItem deleteSetGroupItem = new JMenuItem("Delete Group");
 	private JMenuItem exportPanelItem = new JMenuItem("Export");
@@ -229,159 +173,18 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 	private JMenuItem newPanelItem = new JMenuItem("New Set");
 	private JMenuItem newPanelItem2 = new JMenuItem("New Set");
 
-	private void saveMergePressed(TreePath path, String title) {
-		String[] labels = getSelectedTreesFromTree();
-		if (labels != null && labels.length > 0) {
-			JFileChooser fc = new JFileChooser(".");
-			if (!lastDir.equals("")) {
-				fc.setCurrentDirectory(new File(lastDir));
-			}
-			FileFilter filter = new MarkerPanelSetFileFilter();
-			fc.setAcceptAllFileFilterUsed(false);
-			fc.setFileFilter(filter);
-			fc.setDialogTitle(title);
-			String extension = ((MarkerPanelSetFileFilter) filter)
-					.getExtension();
-			int choice = fc.showSaveDialog(mainPanel.getParent());
-			if (choice == JFileChooser.APPROVE_OPTION) {
-				String filename = fc.getSelectedFile().getAbsolutePath();
-				if (!filename.endsWith(extension)) {
-					filename += extension;
-				}
-				boolean confirmed = true;
-				if (new File(filename).exists()) {
-					int confirm = JOptionPane.showConfirmDialog(getComponent(),
-							"Replace existing file?");
-					if (confirm != JOptionPane.YES_OPTION) {
-						confirmed = false;
-					}
-				}
-				if (confirmed) {
-					lastDir = filename;
-					try {
-						setLastDataDirectory(fc.getCurrentDirectory()
-								.getCanonicalPath());
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-					serializePanel(filename, labels);
-				}
-			}
-		}
+	protected void setSelectorLastDirConf(){
+		selectorLastDirConf = FilePathnameUtils.getUserSettingDirectoryPath()
+				+ "selectors" + FilePathnameUtils.FILE_SEPARATOR
+				+ "selectorLastDir.conf";
 	}
 
-	protected static class DirectoryFileFilter extends javax.swing.filechooser.FileFilter {
-		public String getDescription() {
-			return "Directory Only";
-		}	
-		public boolean accept(File f) {
-			return f.isDirectory(); 
-		}
+	protected SelectorHelper<DSGeneMarker> getSelectorHelper() {
+		helper = new SelectorHelper<DSGeneMarker>(this);
+		return helper;
 	}
-
-	public static void searchNDestroy(Container cont) {
-        if(!(cont instanceof Container)) {
-            return;
-        }
-        int n = cont.getComponentCount();
-        for(int i=0; i<n; i++) {
-            JComponent comp;
-            try{
-                comp = (JComponent)cont.getComponent(i);
-            }catch(Exception e){
-                continue;
-            }
-            if(comp instanceof JLabel) {
-                JLabel lbl= (JLabel)comp;
-                if (lbl.getText().startsWith("File Name") || lbl.getText().startsWith("File:")) {
-                    cont.setVisible(false);
-                    continue;
-                }
-            } else if (is_mac && comp instanceof JTextField) {
-				JTextField tf = (JTextField) comp;
-				tf.setText(".");
-            }
-             if(comp instanceof Container) {
-                try{
-                    searchNDestroy((Container)comp);
-                }catch(Exception e){
-                }
-            }
-        }    
-	}
-
-	private void saveMultiPressed(TreePath path) {
-		String[] labels = getSelectedTreesFromTree();
-		if (labels != null && labels.length > 0) {
-			JFileChooser fc = new JFileChooser(".");
-			searchNDestroy(fc);
-			if (!lastDir.equals("")) {
-				fc.setCurrentDirectory(new File(lastDir));
-			}
-			fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-			FileFilter filter = new MarkerPanelSetFileFilter();
-			FileFilter dff = new DirectoryFileFilter();
-			fc.setFileFilter(dff);
-			fc.setAcceptAllFileFilterUsed(false);
-			fc.setDialogTitle("Save Multiple Marker Sets");
-			String extension = ((MarkerPanelSetFileFilter) filter)
-					.getExtension();
-			int choice = fc.showSaveDialog(mainPanel.getParent());
-			if (choice == JFileChooser.APPROVE_OPTION) {
-				File selectedFile = fc.getSelectedFile();
-				if (is_mac) {
-					while (selectedFile.getName().equals(".")) {
-						selectedFile = selectedFile.getParentFile();
-					}
-					if (selectedFile.getName().equals(
-							selectedFile.getParentFile().getName())) {
-						selectedFile = selectedFile.getParentFile();
-					}
-				}
-				String pathname = selectedFile.getAbsolutePath();
-				if (!selectedFile.isDirectory()) {
-					JOptionPane.showMessageDialog(null, "Not a valid directory!", "Warning", JOptionPane.ERROR_MESSAGE);
-					return;
-				}
-				boolean confirmedAll = false;
-				for (String label: labels) {
-					boolean confirmed = true;
-					String filename = pathname+FilePathnameUtils.FILE_SEPARATOR+label;
-					if (!filename.endsWith(extension)) {
-						filename += extension;
-					}
-					if (new File(filename).exists() && !confirmedAll) {
-						int confirm = JOptionPane.showOptionDialog(getComponent(),
-								"Replace existing file "+filename+"?", "File Exists", 
-								JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null,
-								new String[]{"Yes", "Yes to All", "No", "Cancel"}, "No");
-						if (confirm == 1)  confirmedAll = true;
-						else if (confirm == 2) confirmed = false;
-						else if (confirm == 3)  break;
-					}
-					if (confirmed) {
-					    lastDir = filename;
-						try {
-							setLastDataDirectory(selectedFile
-									.getCanonicalPath());
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-
-						String[] labelSet = {label};
-						serializePanel(filename, labelSet);						
-					}
-				}
-			}
-		}
-	}
-
-	/**
-	 * The variable will store last visited directory
-	 */
-	private String lastDir = "";
-
 	private void loadButtonPressed() {
+		helper = getSelectorHelper();
 		/**
 		 * The line below sets root directory for JFileChooser to set to home
 		 * directory user commented line JFileChooser without any parameters
@@ -400,7 +203,7 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 		if (choice == JFileChooser.APPROVE_OPTION) {
 			lastDir = fc.getSelectedFile().getPath();
 			try {
-				setLastDataDirectory(fc.getCurrentDirectory()
+				helper.setLastDataDirectory(fc.getCurrentDirectory()
 						.getCanonicalPath());
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -435,6 +238,7 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 	
 	/** action for load symbols button */
 	private void loadSymbols() {
+		helper = getSelectorHelper();
 		JFileChooser fc = new JFileChooser(".");
 		javax.swing.filechooser.FileFilter filter = new MarkerPanelSetFileFilter();
 		fc.setFileFilter(filter);
@@ -447,7 +251,7 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 		if (choice == JFileChooser.APPROVE_OPTION) {
 			lastDir = fc.getSelectedFile().getPath();
 			try {
-				setLastDataDirectory(fc.getCurrentDirectory()
+				helper.setLastDataDirectory(fc.getCurrentDirectory()
 						.getCanonicalPath());
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -471,46 +275,6 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 		}
 	}
 
-	/**
-	 * Utility to save a panel to the filesystem as CSV. <p/> Format: <p/> File
-	 * name (without .CSV extension) is the name of the panel. <p/> Rows of the
-	 * file contains the label of markers, in order. Only the first column is
-	 * used.
-	 * 
-	 * @param filename
-	 *            filename to which the current panel is to be saved.
-	 */
-	private void serializePanel(String filename, String[] labels) {
-		FileWriter fileWriter = null;
-		try {
-			fileWriter = new FileWriter(filename);
-			CSVPrinter out = new CSVPrinter(fileWriter);
-			TreeSet<String> set = new TreeSet<String>();
-			for (int i = 0; i < labels.length; i++) {
-				DSPanel<DSGeneMarker> panel = context
-						.getItemsWithLabel(labels[i]);
-				if (panel != null && panel.size() > 0) {
-					for (int j = 0; j < panel.size(); j++) {
-						DSGeneMarker marker = panel.get(j);
-						set.add(marker.getLabel());
-					}
-				}
-			}
-			for (Iterator<String> it = set.iterator(); it.hasNext();) {
-				out.println(it.next());
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			if (fileWriter != null) {
-				try {
-					fileWriter.close();
-				} catch (IOException e) {
-					// Lost cause-- ignore
-				}
-			}
-		}
-	}
 
 	/**
 	 * Utility to obtain the stored panel sets from the filesystem
