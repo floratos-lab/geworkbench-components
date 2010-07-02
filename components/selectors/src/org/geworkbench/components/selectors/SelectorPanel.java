@@ -93,11 +93,26 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 
 	protected Class<T> panelType;
 	protected SelectorTreeRenderer treeRenderer;
+	protected JMenuItem saveMergeSets = new JMenuItem("Merge into one set");
+	protected JMenuItem saveMultiSets = new JMenuItem("Save as multiple sets");
+	protected SelectorHelper<T> helper = null;
+	protected abstract SelectorHelper<T> getSelectorHelper();
+	/*
+	 * config file to store last used directory for marker set saving/loading
+	 */
+	protected String selectorLastDirConf = null;
+	protected abstract void setSelectorLastDirConf();
+	/**
+	 * The variable will store last visited directory
+	 */
+	protected String lastDir = "";
+	protected String typeName = null;
 
 	private HashMap<String, ActionListener> menuListeners;
 
 	public SelectorPanel(Class<T> panelType, String name) {
 		this.panelType = panelType;
+		this.typeName = name;
 		listModel = new ItemListModel();
 		itemAutoList = new ItemList(listModel);
 		// Initialize data models
@@ -164,6 +179,10 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 		// treePopup.add(exportPanelItem);
 
 		treePopup.add(visualPropertiesItem);
+
+		savePanelItem.add(saveMergeSets);
+		savePanelItem.add(saveMultiSets);
+
 		// todo - move to a new gui setup
 		itemPopup.add(removeFromPanelItem);
 		// combinePopup.add(combineMenuItem);
@@ -575,6 +594,10 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 			treePopup.remove(savePanelItem);
 		}
 		treePopup.show(e.getComponent(), e.getX(), e.getY());
+		if (saveOneItem.getActionListeners().length == 0) {
+			helper = getSelectorHelper();
+			helper.addListeners();
+		}
 	}
 
 	protected void activateOrDeactivateLabelPressed(boolean value) {
