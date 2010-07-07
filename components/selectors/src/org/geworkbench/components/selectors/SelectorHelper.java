@@ -28,7 +28,7 @@ import org.geworkbench.util.FilePathnameUtils;
 import com.Ostermiller.util.CSVPrinter;
 /**
  * Helper class for saving marker or array sets in selector panel
- * $Id: $
+ * $Id$
  */
 public class SelectorHelper<T extends DSSequential> {
 
