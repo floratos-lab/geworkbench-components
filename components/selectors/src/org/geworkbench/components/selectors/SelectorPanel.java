@@ -1,5 +1,50 @@
 package org.geworkbench.components.selectors;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.print.PageFormat;
+import java.awt.print.Printable;
+import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+
+import javax.swing.AbstractListModel;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JToggleButton;
+import javax.swing.JTree;
+import javax.swing.ListModel;
+import javax.swing.SwingUtilities;
+import javax.swing.tree.TreePath;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.annotation.CSAnnotationContext;
@@ -24,23 +69,9 @@ import org.geworkbench.util.visualproperties.PanelVisualProperties;
 import org.geworkbench.util.visualproperties.PanelVisualPropertiesManager;
 import org.geworkbench.util.visualproperties.VisualPropertiesDialog;
 
-import javax.swing.*;
-import javax.swing.tree.TreePath;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.print.PageFormat;
-import java.awt.print.Printable;
-import java.awt.print.PrinterException;
-import java.awt.print.PrinterJob;
-import java.lang.reflect.Array;
-import java.text.DecimalFormat;
-import java.util.*;
-
 /**
  * @author John Watkinson
+ * @version $Id$
  */
 public abstract class SelectorPanel<T extends DSSequential> implements
 		VisualPlugin, MenuListener {
@@ -88,8 +119,6 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 	protected JButton newContextButton;
 	// Context info for right-click events
 	TreePath rightClickedPath = null;
-
-	private JCheckBox bypassCheckbox;
 
 	protected Class<T> panelType;
 	protected SelectorTreeRenderer treeRenderer;
@@ -146,9 +175,7 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 		labelPanel.setLayout(new BoxLayout(labelPanel, BoxLayout.X_AXIS));
 		labelPanel.add(groupLabel);
 		labelPanel.add(Box.createHorizontalGlue());
-		bypassCheckbox = new JCheckBox("Bypass", false);
-		// Temporarily not in use for 3.1 release - watkin
-		// labelPanel.add(bypassCheckbox);
+
 		lowerPanel.add(labelPanel);
 		lowerPanel.add(contextPanel);
 		JScrollPane panelTreePane = new JScrollPane(panelTree);
@@ -1053,7 +1080,6 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 	private class PrintListingPainter implements Printable {
 		private Font fnt = new Font("Helvetica", Font.PLAIN, 8);
 		private int rememberedPageIndex = -1;
-		private long rememberedFilePointer = -1;
 		private boolean rememberedEOF = false;
 		private int index = 0;
 		private int lastIndex = 0;
@@ -1068,7 +1094,6 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 		 */
 		public int print(Graphics g, PageFormat pf, int pageIndex)
 				throws PrinterException {
-			DecimalFormat format = new DecimalFormat("#.####");
 			try {
 				int itemNo = Math.min(panel.size(), 500);
 				// For catching IOException
@@ -1241,17 +1266,6 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 				component.setFont(boldFont);
 			}
 
-		 
-			 
-			// if (!isSelected) {
-			// if (context.hasLabel(itemList.get(index), SELECTION_LABEL)) {
-			// component.setBackground(Color.YELLOW);
-			// }
-			// } else {
-			// if (context.hasLabel(itemList.get(index), SELECTION_LABEL)) {
-			// component.setBackground(Color.GREEN);
-			// }
-			// }
 			return component;
 		}
 	}
@@ -1302,6 +1316,9 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 
 	protected void createNewContext() {
 		String name = JOptionPane.showInputDialog("New group name:");
+		if( name==null || name.length()==0 )
+			return;
+
 		DSAnnotationContextManager manager = CSAnnotationContextManager
 				.getInstance();
 		if (manager.hasContext(itemList, name)) {
