@@ -24,7 +24,7 @@ public class InitParam implements CyInitParams {
 	private int mode;
 	
 	InitParam() {
-		mode = CyInitParams.EMBEDDED_WINDOW;
+		mode = CyInitParams.TEXT;
 		props = new Properties();
 
 		vizmapProps = new Properties();
