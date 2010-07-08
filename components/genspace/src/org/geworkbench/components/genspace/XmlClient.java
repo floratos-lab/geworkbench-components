@@ -70,7 +70,7 @@ public class XmlClient
 			// this is the string we'll send to the server
 			// it starts with the filename in the first line
 			// before we send it, though, we need to strip out the path stuff
-			String[] split = filename.split("/");
+			String[] split = filename.split("/|\\\\");
 			String fileContent = split[split.length - 1];
 			
 			Date d = new Date();
@@ -104,6 +104,7 @@ public class XmlClient
 		catch (FileNotFoundException e)
 		{
 			//System.out.println("That file doesn't exist");
+			success = false;
 		}
 		catch (Exception e)
 		{
