@@ -138,13 +138,13 @@ public class CytoscapeWidget implements VisualPlugin {
 	private volatile Set<Integer> cancelList = new HashSet<Integer>();
 	private DiscreteMapping nodeDm = null, edgeDm = null;	 
 
-	private VisualStyle sample1VisualStyle;
+	private VisualStyle visualStyle;
 
 	private int shapeIndex = 0;
-	private NodeShape[] shapes = { NodeShape.RECT,
-			NodeShape.DIAMOND, NodeShape.HEXAGON,
+	private NodeShape[] shapes = {NodeShape.HEXAGON, NodeShape.RECT,
+			NodeShape.DIAMOND, NodeShape.ELLIPSE,NodeShape.TRIANGLE,
 			NodeShape.OCTAGON, NodeShape.PARALLELOGRAM,
-			NodeShape.ROUND_RECT, NodeShape.TRIANGLE,
+			NodeShape.ROUND_RECT, 
 			NodeShape.TRAPEZOID_2 };
 
 	private boolean uiSetup = false;
@@ -641,6 +641,14 @@ public class CytoscapeWidget implements VisualPlugin {
 			cytoNetwork.addNode(cyNode);
 			log.debug("I add " + cyNode.getIdentifier());
 		}
+		
+		if (isInSelectedMicroarray == false)
+		{
+			Cytoscape.getNodeAttributes().setAttribute(
+					cyNode.getIdentifier(), "geneType", "null");
+		}
+		
+		
 		return cyNode;
 	}
 
@@ -814,26 +822,28 @@ public class CytoscapeWidget implements VisualPlugin {
 				new GenewaysNetworkListener());
 		VisualMappingManager manager = Cytoscape.getVisualMappingManager();
 		CalculatorCatalog catalog = manager.getCalculatorCatalog();
-		sample1VisualStyle = catalog.getVisualStyle("Sample1");
+		visualStyle = catalog.getVisualStyle("Nested Network Style");
 
 		Calculator nc = catalog.getCalculator(VisualPropertyType.NODE_SHAPE,
 				"Nested Network Style-Node Shape-Discrete Mapper");
+		        
 		Vector<?> v = nc.getMappings();
 		for (int i = 0; i < v.size(); i++) {
 			if (v.get(i) instanceof DiscreteMapping)
 				nodeDm = (DiscreteMapping) v.get(i);
 			break;
 		}
+	
 		nodeDm.setControllingAttributeName("geneType", cytoNetwork, false);
-
-		nodeDm.putMapValue("K", shapes[shapeIndex]);
+		nodeDm.putMapValue("null", shapes[shapeIndex]);
+		nodeDm.putMapValue("K", shapes[++shapeIndex]);
 		nodeDm.putMapValue("P", shapes[++shapeIndex]);
 		nodeDm.putMapValue("TF", shapes[++shapeIndex]);
 		// non K/E/TF, in microarray set
 		nodeDm.putMapValue("non K/P/TF, in microarray set",
 				shapes[++shapeIndex]);
 
-		sample1VisualStyle.getNodeAppearanceCalculator().setCalculator((nc));
+		visualStyle.getNodeAppearanceCalculator().setCalculator((nc));
 
 		Calculator ec = catalog.getCalculator(
 				VisualPropertyType.EDGE_COLOR, "BasicDiscrete");
@@ -845,7 +855,9 @@ public class CytoscapeWidget implements VisualPlugin {
 		}
 		edgeDm.setControllingAttributeName("type", cytoNetwork, false);
 
-		sample1VisualStyle.setName("geneways-interactions");
+		visualStyle.getEdgeAppearanceCalculator().setCalculator(ec);
+		
+		 
 	}
 
 	private void receiveMatrix(int adjMatrixId) {
@@ -891,7 +903,9 @@ public class CytoscapeWidget implements VisualPlugin {
 		
 		}
 	 
-		Cytoscape.getCurrentNetworkView().applyVizmapper(sample1VisualStyle);
+		Cytoscape.getCurrentNetworkView().applyVizmapper(visualStyle);
+		
+	 
 		if (cancelList.contains(adjMatrixId))
 		{
 			log.info("got cancel action");
@@ -922,7 +936,7 @@ public class CytoscapeWidget implements VisualPlugin {
 			});
 
 		}
-
+	 
 		log.info("DrawAction finished.");
 
 	}
