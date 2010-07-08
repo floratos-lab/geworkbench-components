@@ -11,6 +11,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.bison.model.analysis.Analysis;
+import org.geworkbench.util.FilePathnameUtils;
 import org.jdesktop.swingworker.*;
 
 /**
@@ -143,7 +144,7 @@ public class ObjectHandler {
 	 */
 	private boolean sendLogFile(ObjectLogger logger) {
 		XmlClient x = new XmlClient(host, port);
-		boolean success = x.readAndSendFile("geworkbench_log.xml");
+		boolean success = x.readAndSendFile(FilePathnameUtils.getUserSettingDirectoryPath() + "geworkbench_log.xml");
 
 		if (success == true) {
 			log.info("");
