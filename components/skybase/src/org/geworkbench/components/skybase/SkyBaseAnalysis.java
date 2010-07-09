@@ -1,8 +1,5 @@
 package org.geworkbench.components.skybase;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -11,15 +8,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractGridAnalysis;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.bison.model.analysis.ProteinSequenceAnalysis;
-
-import edu.columbia.geworkbench.cagrid.skybase.client.SkyBaseWebClient;
 
 /**
  * AbstractGridAnalysis for blast skybase on grid service on web1
@@ -34,19 +28,10 @@ public class SkyBaseAnalysis extends AbstractGridAnalysis implements
 	private static final long serialVersionUID = 1L;
 	SkyBaseConfigPanel scp;
 	String seqname, seqfilename, seqcontent;
-	private static final String skybaseweb = "http://skyline.c2b2.columbia.edu:8080/wsrf/services/cagrid/SkyBaseWeb";
-	public SkyBaseWebClient client;
 
 	SkyBaseAnalysis() {
 		scp = new SkyBaseConfigPanel();
 		setDefaultPanel(scp);
-		try {
-			log.info("skybaseweb: " + skybaseweb);
-			client = new SkyBaseWebClient(skybaseweb);
-		} catch (Exception e) {
-			e.printStackTrace();
-			log.info("SkyBaseWeb connection refused: " + skybaseweb);
-		}
 	}
 
 	/*
@@ -101,7 +86,7 @@ public class SkyBaseAnalysis extends AbstractGridAnalysis implements
 	 * (non-Javadoc)
 	 * @see org.geworkbench.analysis.AbstractGridAnalysis#getBisonReturnType()
 	 */
-	public Class getBisonReturnType() {
+	public Class<?> getBisonReturnType() {
 		return String.class;
 	}
 
@@ -120,6 +105,7 @@ public class SkyBaseAnalysis extends AbstractGridAnalysis implements
 		return parameterMap;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public ParamValidationResults validInputData(
 			DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView,
