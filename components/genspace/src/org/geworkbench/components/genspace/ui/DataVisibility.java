@@ -96,9 +96,9 @@ ListSelectionListener {
 
 		logPreferences = new JComboBox();
 		logPreferences.addItem("-- Select Log Preferences --");
-		logPreferences.addItem("Do Not Log My Analysis Events");
-		logPreferences.addItem("Log My Analysis Events Anonymously");
 		logPreferences.addItem("Log My Analysis Events");
+		logPreferences.addItem("Log My Analysis Events Anonymously");
+		logPreferences.addItem("Do Not Log My Analysis Events");
 		add(logPreferences);
 		logPreferences.addActionListener(this);
 
@@ -140,9 +140,9 @@ ListSelectionListener {
 
 		logPreferences = new JComboBox();
 		logPreferences.addItem("-- Select Log Preferences --");
-		logPreferences.addItem("Do Not Log My Analysis Events");
-		logPreferences.addItem("Log My Analysis Events Anonymously");
 		logPreferences.addItem("Log My Analysis Events");
+		logPreferences.addItem("Log My Analysis Events Anonymously");
+		logPreferences.addItem("Do Not Log My Analysis Events");
 		logPreferences.setSelectedIndex(bean.getLogData()+1);
 		c.gridwidth = GridBagConstraints.REMAINDER;
 		gridbag.setConstraints(logPreferences, c);
@@ -265,7 +265,7 @@ ListSelectionListener {
 				}*/
 					else {
 
-						preference = logPreferences.getSelectedIndex();
+						preference = logPreferences.getSelectedIndex()-1;
 						ObjectHandler.setLogStatus(preference);
 						ObjectHandler.setUserName(username);
 
@@ -273,7 +273,7 @@ ListSelectionListener {
 						try
 						{
 							PropertiesManager properties = PropertiesManager.getInstance();
-							properties.setProperty(DataVisibility.class, PROPERTY_KEY, ""+logPreferences.getSelectedIndex());
+							properties.setProperty(DataVisibility.class, PROPERTY_KEY, ""+(logPreferences.getSelectedIndex()-1));
 						}
 						catch (Exception ex) { }
 
