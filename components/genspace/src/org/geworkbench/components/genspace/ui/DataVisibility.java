@@ -152,7 +152,7 @@ ListSelectionListener {
 		} catch (Exception e) {}
 		
 		ObjectHandler.setLogStatus(preference);
-		ObjectHandler.setUserName(bean.getUsername());
+		ObjectHandler.setUserName(username);
 		
 		c.gridwidth = GridBagConstraints.REMAINDER;
 		gridbag.setConstraints(logPreferences, c);

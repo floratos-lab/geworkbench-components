@@ -217,7 +217,9 @@ public class ObjectHandler {
 		//System.out.println(logStatus);
 	}
 
-	public static void setUserName(String userName) {
-		userName = userName;
+	public static void setUserName(String name) {
+		//System.out.println(userName);
+		userName = name;
+		//System.out.println(userName);
 	}
 }
