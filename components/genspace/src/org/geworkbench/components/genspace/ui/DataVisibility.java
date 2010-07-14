@@ -143,7 +143,17 @@ ListSelectionListener {
 		logPreferences.addItem("Log My Analysis Events");
 		logPreferences.addItem("Log My Analysis Events Anonymously");
 		logPreferences.addItem("Do Not Log My Analysis Events");
-		logPreferences.setSelectedIndex(bean.getLogData()+1);
+		int preference = bean.getLogData();
+		logPreferences.setSelectedIndex(preference+1);
+		
+		try {
+		PropertiesManager properties = PropertiesManager.getInstance();
+		properties.setProperty(DataVisibility.class, PROPERTY_KEY, ""+(logPreferences.getSelectedIndex()-1));
+		} catch (Exception e) {}
+		
+		ObjectHandler.setLogStatus(preference);
+		ObjectHandler.setUserName(bean.getUsername());
+		
 		c.gridwidth = GridBagConstraints.REMAINDER;
 		gridbag.setConstraints(logPreferences, c);
 		add(logPreferences);
