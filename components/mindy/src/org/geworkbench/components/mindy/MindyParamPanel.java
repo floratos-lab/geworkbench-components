@@ -415,6 +415,10 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 		builder.append(this.unconditional);
 		builder.append("Correction", this.unconditionalCorrection, 3);
 		builder.append(new JLabel(""));
+		
+		unconditionalCombo.setEnabled(false);
+		unconditional.setEnabled(false);
+		unconditionalCorrection.setEnabled(false);
 
 		builder.append("DPI Target List", dpiAnnotationList, 3);
 		builder.append(loadDPIAnnotationFile);
@@ -425,6 +429,10 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 		builder.append("", new JLabel(""));
 		builder.append("", new JLabel(""));
 		builder.append("", new JLabel(""));
+
+		dpiAnnotationList.setEnabled(false);
+		loadDPIAnnotationFile.setEnabled(false);
+		dpiTolerance.setEnabled(false);
 
 		builder.nextRow();
 		result.add(builder.getPanel());
@@ -449,20 +457,6 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 				} else {
 					conditionalCorrection.setSelectedIndex(0);
 					conditionalCorrection.setEnabled(false);
-				}
-			}
-		});
-		this.unconditionalCombo.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent actionEvent) {
-				unconditional
-						.setText(""
-								+ UNCONDITIONAL_DEFAULT_VALUES[unconditionalCombo
-										.getSelectedIndex()]);
-				if (getUnconditional().trim().equals(P_VALUE)) {
-					unconditionalCorrection.setEnabled(true);
-				} else {
-					unconditionalCorrection.setSelectedIndex(0);
-					unconditionalCorrection.setEnabled(false);
 				}
 			}
 		});
@@ -570,26 +564,6 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 
 	public String getConditionalCorrection() {
 		return (String) this.conditionalCorrection.getSelectedItem();
-	}
-
-	public String getUnconditional() {
-		return (String) this.unconditionalCombo.getSelectedItem();
-	}
-
-	public String getUnconditionalCorrection() {
-		return (String) this.unconditionalCorrection.getSelectedItem();
-	}
-
-	public float getUnconditionalValue() {
-		float result = new Double(
-				UNCONDITIONAL_DEFAULT_VALUES[this.unconditionalCombo
-						.getSelectedIndex()]).floatValue();
-		try {
-			result = new Double(this.unconditional.getText()).floatValue();
-		} catch (NumberFormatException e) {
-			log.debug("Failed to get the conditional value. " + e.getMessage());
-		}
-		return result;
 	}
 
 	/**
@@ -771,25 +745,6 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 					this.conditionalCorrection
 							.setSelectedIndex(conditionalCorrection);
 			}
-			if (key.equals("unconditionalType")){
-				int unconditionalType = (Integer)value;
-				if ((unconditionalType >= 0)
-						&& (unconditionalType < this.unconditionalCombo
-								.getModel().getSize()))
-					this.unconditionalCombo
-							.setSelectedIndex(unconditionalType);
-			}
-			if (key.equals("unconditionalValue")){
-				this.unconditional.setText((String)value);
-			}
-			if (key.equals("unconditionalCorrection")){
-				int unconditionalCorrection = (Integer)value;
-				if ((unconditionalCorrection >= 0)
-						&& (unconditionalCorrection < this.unconditionalCorrection
-								.getModel().getSize()))
-					this.unconditionalCorrection
-							.setSelectedIndex(unconditionalCorrection);
-			}
 			if (key.equals("dpitargets")){
 				this.dpiAnnotationList.setText((String)value);
 			}
@@ -825,10 +780,6 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 				.getText());
 		parameters.put("conditionalCorrection", this.conditionalCorrection
 				.getSelectedIndex());
-		parameters.put("unconditionalType", this.unconditionalCombo
-				.getSelectedIndex());
-		parameters.put("unconditionalValue", this.unconditional.getText());
-		parameters.put("unconditionalCorrection", this.unconditionalCorrection.getSelectedIndex());
 		parameters.put("dpitargets", this.dpiAnnotationList.getText());
 		parameters.put("dpitolerance", (Double)this.dpiTolerance.getValue());
 		return parameters;
