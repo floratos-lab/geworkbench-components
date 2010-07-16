@@ -1,5 +1,16 @@
 package org.geworkbench.components.hierarchicalclustering;
 
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
+import java.lang.reflect.Array;
+
+import javax.swing.JPanel;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
@@ -8,12 +19,6 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.model.clusters.Cluster;
 import org.geworkbench.bison.model.clusters.HierCluster;
 import org.geworkbench.bison.model.clusters.MicroarrayHierCluster;
-
-import javax.swing.*;
-import java.awt.*;
-import java.awt.geom.AffineTransform;
-import java.awt.image.BufferedImage;
-import java.lang.reflect.Array;
 
 
 /**
@@ -27,17 +32,18 @@ import java.lang.reflect.Array;
  * <p>Company: Columbia University</p>
  *
  * @author manjunath at genomecenter dot columbia dot edu
- * @version 3.0
+ * @version $Id$
  */
 
 public class HierClusterLabels extends JPanel {
+	private static final long serialVersionUID = -7687279206082169906L;
 
-    static Log log = LogFactory.getLog(HierClusterLabels.class);
+	static Log log = LogFactory.getLog(HierClusterLabels.class);
 
     /**
      * Value for width of marker in pixels
      */
-    protected static int geneWidth = 20;
+    private static int geneWidth = 20;
 
     /**
      * The underlying micorarray set used in the hierarchical clustering
@@ -91,42 +97,9 @@ public class HierClusterLabels extends JPanel {
     private int resolution = defaultResolution;
 
     /**
-     * Space from eisenplot where the accession is printed
-     */
-    private int labelGutter = 5;
-
-    /**
      * To be set for labels
      */
     int leftOffset = 0;
-
-    /**
-     * Maximum height in pixels of the tree given the number of leaves,
-     * computed based on the visual height of each leaf. This would be attained
-     * only if the Heirarchical tree is a strict binary tree
-     */
-    private int maxHeight;
-
-    /**
-     * Maximum depth of the tree in terms of the nodes between the root and
-     * a leaf, both inclusive
-     */
-    private int maxDepth;
-
-    /**
-     * Offset from top left corner of the canvas in canvas for drawing the tree
-     */
-    private int offSet = 5;
-
-    /**
-     * Height in pixels used for drawing a leaf
-     */
-    private int leafHeight = HierClusterDisplay.geneHeight;
-
-    /**
-     * Width in pixels used drawing a leaf
-     */
-    private int leafWidth = HierClusterDisplay.geneWidth;
 
     /**
      * Width of the dendrogram
@@ -134,23 +107,14 @@ public class HierClusterLabels extends JPanel {
     private int width = 50;
 
     /**
-     * Container holding this dendrogram tree
-     */
-    private JPanel parent = null;
-
-    /**
      * Check to call setSizes in paint only if the canvas has been resized
      */
-    protected boolean resizingMarker = false;
-
-    /**
-     * Result of Hierarchical Clustering
-     */
-    private HierCluster clusterRoot = null;
+    boolean resizingMarker = false;
 
     public HierClusterLabels(JPanel parent) {
         super();
-        this.parent = parent;
+        // TODO parent is not used
+        //this.parent = parent;
     }
 
     /**
@@ -176,8 +140,6 @@ public class HierClusterLabels extends JPanel {
             java.util.List<Cluster> leaves = currentArrayCluster.getLeafChildren();
             leafArrays = (Cluster[]) Array.newInstance(Cluster.class, leaves.size());
             leaves.toArray(leafArrays);
-
-//            leafArrays = currentArrayCluster.getLeafChildren();
         }
     }
 
@@ -188,12 +150,12 @@ public class HierClusterLabels extends JPanel {
      *
      * @param g Graphics used for painting
      */
+    @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
        
         //default value
         width = 100;
-        
         
         try {
             if (microarraySet != null) {
@@ -242,10 +204,7 @@ public class HierClusterLabels extends JPanel {
                     }
                      
                 }
-                
-                
-                
-                
+
                 for (int j = 0; j < chipNo; j++) {
                     DSMicroarray mArray = null;
 
@@ -304,7 +263,7 @@ public class HierClusterLabels extends JPanel {
         }
         
         if (resizingMarker) {
-            setSizes(clusterRoot);
+            setSizes();
         }
     }
 
@@ -337,8 +296,8 @@ public class HierClusterLabels extends JPanel {
      *                 Hierarchical clustering tree
      */
     void setTreeData(HierCluster treeData) {
-        clusterRoot = treeData;
-        setSizes(clusterRoot);
+    	// TODO treeData is not used
+        setSizes();
         resizingMarker = true;
     }
 
@@ -348,20 +307,9 @@ public class HierClusterLabels extends JPanel {
      *
      * @param hc root node used for setting sizes
      */
-    private void setSizes(HierCluster hc) {
-        if (hc != null) {
-            maxDepth = hc.getDepth();
-        } else {
-            maxDepth = 1;
-        }
+    private void setSizes() {
 
         if (microarraySet != null) {
-            if (hc != null) {
-                maxHeight = hc.getLeafChildrenCount() * HierClusterDisplay.geneWidth;
-            } else {
-                maxHeight = microarraySet.items().size() * HierClusterDisplay.geneWidth;
-            }
-             
             geneWidth = HierClusterDisplay.geneWidth;
             setPreferredSize(new Dimension(this.getParent().getWidth(), width));
             setSize(new Dimension(this.getParent().getWidth(), width));
