@@ -1,5 +1,6 @@
 package org.geworkbench.components.cytoscape;
 
+ 
 import giny.model.Node;
 import giny.view.GraphViewChangeEvent;
 import giny.view.GraphViewChangeListener;
@@ -55,7 +56,7 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixData
 
 import com.jgoodies.looks.Options;
 
-import csplugins.layout.algorithms.force.ForceDirectedLayout;
+import csplugins.layout.algorithms.force.ForceDirectedLayout; 
 import cytoscape.CyEdge;
 import cytoscape.CyNetwork;
 import cytoscape.CyNode;
@@ -250,7 +251,7 @@ public class CytoscapeWidget implements VisualPlugin {
 					.toUpperCase();
 			log.debug("Check if " + selected + " contains " + nodeLabel);
 			if (selected.contains(nodeLabel)) {
-				nodeView.select();
+				nodeView.select();		 
 				log.debug("^^^Select^^^");
 			} else
 				nodeView.unselect();
@@ -748,15 +749,17 @@ public class CytoscapeWidget implements VisualPlugin {
 			 * newFrame.setVisible(true); newFrame.pack();
 			 */
 			if (edges.size() > 0) {
-				test.getCytoPanel(SwingConstants.SOUTH).setSelectedIndex(0);
-//			} else {
-//				test.getCytoPanel(SwingConstants.SOUTH).setSelectedIndex(0);
+				test.getCytoPanel(SwingConstants.SOUTH).setSelectedIndex(1);
+   	     	} else {
+ 			test.getCytoPanel(SwingConstants.SOUTH).setSelectedIndex(0);
 			}
+			
 			DSPanel<DSGeneMarker> selectedMarkers = new CSPanel<DSGeneMarker>(
 					"Selected Genes", "Cytoscape");
 			for (int i = 0; i < nodes.size(); i++) {
-				DNodeView pnode = (DNodeView) nodes.get(i);
-				Node node = pnode.getNode();
+				DNodeView pnode = (DNodeView) nodes.get(i);			
+				
+				Node node = pnode.getNode();			 
 				if (node instanceof CyNode) {
 					String id = node.getIdentifier();
 					// System.out.println("id = "+id);
@@ -1004,8 +1007,8 @@ public class CytoscapeWidget implements VisualPlugin {
 			return;
 		}
 	 
-//		new SpringEmbeddedLayouter(Cytoscape.getCurrentNetworkView())
-//				.doLayout();
+      	//new SpringEmbeddedLayouter(Cytoscape.getCurrentNetworkView())
+ 			//	.doLayout();
 
 		if (cancelList.contains(adjMatrixId)) {
 			log.info("got cancel action");			 
