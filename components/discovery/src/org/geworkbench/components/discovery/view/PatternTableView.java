@@ -1,6 +1,7 @@
 package org.geworkbench.components.discovery.view;
 
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
+import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSMatchedSeqPattern;
 import org.geworkbench.bison.datastructure.complex.pattern.Parameters;
 import org.geworkbench.components.discovery.PatFilter;
@@ -32,11 +33,13 @@ import java.io.IOException;
  * <p>Company: </p>
  *
  * @author not attributable
- * @version 1.0
+ * @version $Id$
  */
 
 public class PatternTableView extends JPanel {
-    //For property changes
+	private static final long serialVersionUID = 1451645981046343519L;
+	
+	//For property changes
     static final public String ROWSELECTION = "rowselection";
     static final public String PATTERN_ADDTO_PROJECT = "patternAddToProject";
     //the model for this table
@@ -55,8 +58,10 @@ public class PatternTableView extends JPanel {
     private JMenuItem addPatToProj = new JMenuItem();
     private SequenceDiscoveryViewWidget widget = null;
 
-    class JPTable extends JTable {
-        protected void paintComponent(Graphics g) {
+    private static class JPTable extends JTable {
+		private static final long serialVersionUID = -8375106946681259570L;
+
+		protected void paintComponent(Graphics g) {
             setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             super.paintComponent(g);
             setCursor(Cursor.getDefaultCursor());
@@ -64,7 +69,7 @@ public class PatternTableView extends JPanel {
     }
 
 
-    class RegxFilter extends javax.swing.filechooser.FileFilter {
+    private static class RegxFilter extends javax.swing.filechooser.FileFilter {
 
         public String getDescription() {
             return "Regex patterns only (*.regx)";
@@ -293,7 +298,7 @@ public class PatternTableView extends JPanel {
     }
 
     private PatternDB getPatternDB() {
-        DSSequenceSet db = widget.getSequenceDB();
+        DSSequenceSet<? extends DSSequence> db = widget.getSequenceDB();
         org.geworkbench.util.patterns.PatternDB patternDB = new PatternDB(db.getFile(), null);
 
         for (int i = 0; i < model.size(); i++) {
@@ -301,13 +306,13 @@ public class PatternTableView extends JPanel {
             PatternOperations.fill(pattern, db);
             patternDB.add(pattern);
         }
-        Parameters parameters = ParameterTranslation.getParameterTranslation().translate(widget.getParameters());
+		Parameters parameters = ParameterTranslation.translate(widget.getParameters());
         patternDB.setParameters(parameters);
         return patternDB;
     }
 
     private org.geworkbench.util.patterns.PatternDB getPatternDB(int[] rows) {
-        DSSequenceSet db = widget.getSequenceDB();
+        DSSequenceSet<? extends DSSequence> db = widget.getSequenceDB();
         org.geworkbench.util.patterns.PatternDB patternDB = new PatternDB(db.getFile(), null);
 
         for (int i = 0; i < rows.length; i++) {
@@ -315,7 +320,7 @@ public class PatternTableView extends JPanel {
             PatternOperations.fill(pattern, db);
             patternDB.add(pattern);
         }
-        Parameters parameters = ParameterTranslation.getParameterTranslation().translate(widget.getParameters());
+		Parameters parameters = ParameterTranslation.translate(widget.getParameters());
 
         patternDB.setParameters(parameters);
         return patternDB;
@@ -323,7 +328,7 @@ public class PatternTableView extends JPanel {
 
     private void addPatToProj_actionPerformed() {
         org.geworkbench.util.patterns.PatternDB db = getPatternDB();
-        firePropertyChange(this.PATTERN_ADDTO_PROJECT, null, db);
+        firePropertyChange(PatternTableView.PATTERN_ADDTO_PROJECT, null, db);
     }
 
     /**
