@@ -46,7 +46,7 @@ public class ParametersHandler {
 
 			String supportString = parmsPanel.getMinSupport();
 			String supportType = parmsPanel.getCurrentSupportMenuStr();
-			if (supportType.equalsIgnoreCase(parmsPanel.SUPPORT_PERCENT_1_100)) {
+			if (supportType.equalsIgnoreCase(ParameterPanel.SUPPORT_PERCENT_1_100)) {
 				double minSupport = Double.parseDouble(supportString.replace(
 						'%', ' ')) / 100.0;
 				parms.setMinPer100Support(minSupport);
@@ -55,7 +55,7 @@ public class ParametersHandler {
 						* (double) seqNo)));
 				parms.setCountSeq(1);
 			}
-			if (supportType.equalsIgnoreCase(parmsPanel.SUPPORT_SEQUENCES)) {
+			if (supportType.equalsIgnoreCase(ParameterPanel.SUPPORT_SEQUENCES)) {
 				// parms.setMinPer100Support(0);
 				int minSupport = (int) Double.parseDouble(supportString);
 				parms.setMinSupport(minSupport);
@@ -64,7 +64,7 @@ public class ParametersHandler {
 				parms.setCountSeq(1);
 
 			}
-			if (supportType.equalsIgnoreCase(parmsPanel.SUPPORT_OCCURANCES)) {
+			if (supportType.equalsIgnoreCase(ParameterPanel.SUPPORT_OCCURANCES)) {
 				// parms.setMinPer100Support(0);
 				int minSupport = (int) Double.parseDouble(supportString);
 				parms.setMinSupport(minSupport);
