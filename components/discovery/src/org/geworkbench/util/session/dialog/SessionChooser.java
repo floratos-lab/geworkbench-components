@@ -14,7 +14,7 @@ import java.awt.event.WindowEvent;
  * <p>Company:Califano Lab </p>
  *
  * @author Aner
- * @version 1.0
+ * @version $Id$
  */
 
 public class SessionChooser {
@@ -58,7 +58,7 @@ public class SessionChooser {
             }
         });
 
-        dialog.show();
+        dialog.setVisible(true);
         int ret = dialog.getReturnValue();
 
         if (ret == CreateSessionDialog.CONNECT_OPTION) {
