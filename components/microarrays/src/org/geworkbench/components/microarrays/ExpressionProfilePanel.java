@@ -162,9 +162,11 @@ public class ExpressionProfilePanel extends MicroarrayViewEventBase implements
 
 			setPlotRefresh(false);
 
-			BusySwingWorker worker = new BusySwingWorker() {
+			BusySwingWorker<Void, Void> worker = new BusySwingWorker<Void, Void>() {
 				ProgressBar pb = null;
-				public Object construct() {
+
+				@Override
+				protected Void doInBackground() throws Exception {
 					setBusy(graphPanel);
 					DSPanel<DSGeneMarker> genes = new CSPanel<DSGeneMarker>("");
 					genes.addAll(maSetView.markers());
@@ -233,7 +235,8 @@ public class ExpressionProfilePanel extends MicroarrayViewEventBase implements
 
 				}
 
-				public void finished() {
+				@Override
+				public void done() {
 					graphPanel.removeAll();
 					chartPanel
 							.addChartMouseListener(new MicroarrayChartMouseListener());
@@ -247,7 +250,7 @@ public class ExpressionProfilePanel extends MicroarrayViewEventBase implements
 
 			};
 
-			worker.start();
+			worker.execute();
 
 		}
 	}

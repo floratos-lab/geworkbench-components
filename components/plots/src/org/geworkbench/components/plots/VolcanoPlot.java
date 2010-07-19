@@ -243,10 +243,11 @@ public class VolcanoPlot implements VisualPlugin {
 
     private void generateChartAndDisplay() {
         mainPanel.removeAll();
-        final BusySwingWorker worker = new BusySwingWorker() {
+        final BusySwingWorker<ChartPanel, Void> worker = new BusySwingWorker<ChartPanel, Void>() {
             ChartPanel cpanel = null;
 
-            public Object construct() {
+            @Override
+            protected ChartPanel doInBackground() {
                 setShowProgress(true);
                 setBusy(mainPanel);
                 MarkerXYToolTipGenerator toolTipGenerator = new MarkerXYToolTipGenerator();
@@ -255,13 +256,14 @@ public class VolcanoPlot implements VisualPlugin {
                 return cpanel;
             }
 
-            public void finished() {
+            @Override
+            public void done() {
                 mainPanel.removeAll();
                 mainPanel.add(cpanel);
                 mainPanel.revalidate();
             }
         };
-        worker.start();
+        worker.execute();
     }
 
 
