@@ -2,7 +2,7 @@ package org.geworkbench.components.annotations;
 
 import org.geworkbench.util.annotation.Pathway;
 
-public class PathwayData implements Comparable {
+public class PathwayData implements Comparable<PathwayData> {
 
     public String name;
     public Pathway pathway;
@@ -12,10 +12,8 @@ public class PathwayData implements Comparable {
         this.pathway = pathway;
     }
 
-    public int compareTo(Object o) {
-        if (o instanceof PathwayData) {
-            return name.compareTo(((PathwayData) o).name);
-        }
-        return -1;
+    @Override
+    public int compareTo(PathwayData pathwayData) {
+    	return name.compareTo(pathwayData.name);
     }
 }

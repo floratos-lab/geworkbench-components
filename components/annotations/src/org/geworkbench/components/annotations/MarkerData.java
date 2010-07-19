@@ -2,7 +2,7 @@ package org.geworkbench.components.annotations;
 
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 
-public class MarkerData implements Comparable {
+public class MarkerData implements Comparable<MarkerData> {
 
     public String name;
     public DSGeneMarker marker;
@@ -14,10 +14,8 @@ public class MarkerData implements Comparable {
         this.numOutOfNum = numOutOfNum;
     }
 
-    public int compareTo(Object o) {
-        if (o instanceof MarkerData) {
-            return name.compareTo(((MarkerData) o).name);
-        }
-        return -1;
+    @Override
+    public int compareTo(MarkerData markerData) {
+    	return name.compareTo(markerData.name);
     }
 }

@@ -1,6 +1,6 @@
 package org.geworkbench.components.annotations;
 
-public class SentenceData implements Comparable {
+public class SentenceData implements Comparable<SentenceData> {
 
     public String sentence;
 
@@ -8,10 +8,8 @@ public class SentenceData implements Comparable {
         this.sentence = sentence;
     }
 
-    public int compareTo(Object o) {
-        if (o instanceof SentenceData) {
-            return sentence.compareTo(((SentenceData) o).sentence);
-        }
-        return -1;
+    @Override
+    public int compareTo(SentenceData sentenceData) {
+    	return sentence.compareTo(sentenceData.sentence);
     }
 }

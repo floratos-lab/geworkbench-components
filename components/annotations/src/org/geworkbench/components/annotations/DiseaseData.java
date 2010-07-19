@@ -2,7 +2,7 @@ package org.geworkbench.components.annotations;
 
 import gov.nih.nci.cabio.domain.DiseaseOntology;
 
-public class DiseaseData implements Comparable {
+public class DiseaseData implements Comparable<DiseaseData> {
 
     public String name;
     public DiseaseOntology diseaseOntology;
@@ -13,10 +13,8 @@ public class DiseaseData implements Comparable {
         this.evsId = evsId;
     }
 
-    public int compareTo(Object o) {
-        if (o instanceof DiseaseData) {
-            return name.compareTo(((DiseaseData) o).name);
-        }
-        return -1;
+    @Override
+    public int compareTo(DiseaseData diseaseData) {
+    	return name.compareTo(diseaseData.name);
     }
 }
