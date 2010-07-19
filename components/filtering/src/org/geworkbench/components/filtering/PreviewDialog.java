@@ -55,7 +55,14 @@ public class PreviewDialog extends JDialog {
 		int count = list.size();
 		double percent = (double)count/total;
 		
-		markerTableModel = new DefaultTableModel(new String[]{"Marker Name", "Gene Symbol (if known)"}, count);
+		markerTableModel = new DefaultTableModel(new String[]{"Marker Name", "Gene Symbol (if known)"}, count) {
+			private static final long serialVersionUID = -6270626249396521904L;
+
+			@Override
+			public boolean isCellEditable(int row, int column) {
+				return false;
+			}  
+		};
 		markers = new JTable(markerTableModel);
 		markers.setAutoCreateRowSorter(true);
 
