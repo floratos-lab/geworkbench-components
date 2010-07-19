@@ -1295,7 +1295,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		}
 	}
 
-	private Class<?> currentDataType = null;
+	private Class<?> currentDataType = null, lastDataType = null;
 	HashMap<Class<?>, Integer> pidMap = new HashMap<Class<?>, Integer>();
 
 	/**
@@ -1304,9 +1304,10 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	@Subscribe
 	public void receive(org.geworkbench.events.ProjectEvent even, Object source) {
 		super.receive(even, source);
-		if (even.getDataSet() != null) {
+		if (even.getDataSet() != null && even.getParent() == null) {
+			lastDataType = currentDataType;
 			currentDataType = even.getDataSet().getClass();
-			if (!pidMap.containsKey(currentDataType))
+			if (!pidMap.containsKey(currentDataType) || lastDataType != currentDataType)
 				pidMap.put(currentDataType, previousSelectedIndex);
 			if (even.getDataSet().getClass().equals(CSProteinStructure.class)) {
 				getAvailableProteinStructureAnalyses();
