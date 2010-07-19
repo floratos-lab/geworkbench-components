@@ -24,7 +24,7 @@ import org.apache.commons.logging.LogFactory;
  * <p/> Implementation of the <code>GeneSearchCriteria</code> contract
  * 
  * @author First Genetic Trust
- * @version 1.0
+ * @version $Id$
  */
 public class GeneSearchCriteriaImpl implements GeneSearchCriteria {
 	static Log log = LogFactory.getLog(GeneSearchCriteriaImpl.class);
@@ -58,7 +58,7 @@ public class GeneSearchCriteriaImpl implements GeneSearchCriteria {
 		// gene.setClusterId(Long.parseLong(bcid));
 		try {
 			
-			List results = appService.search(Gene.class, gene); 		
+			List<Gene> results = appService.search(Gene.class, gene); 		
 			return GeneAnnotationImpl.toUniqueArray(results);
 			
 		} catch (ApplicationException e) {
@@ -80,7 +80,7 @@ public class GeneSearchCriteriaImpl implements GeneSearchCriteria {
 
 		try {
 		 
-			List results = appService.search(Gene.class, gene);			
+			List<Gene> results = appService.search(Gene.class, gene);			
 			return GeneAnnotationImpl.toUniqueArray(results);
 			
 		} catch (ApplicationException e) {
@@ -95,7 +95,7 @@ public class GeneSearchCriteriaImpl implements GeneSearchCriteria {
 
 		try {
 		 
-			List results = appService.search(Gene.class, gene);			
+			List<Gene> results = appService.search(Gene.class, gene);			
 			return GeneAnnotationImpl.toUniqueArray(results, organism);
 			
 		} catch (ApplicationException e) {
@@ -116,14 +116,14 @@ public class GeneSearchCriteriaImpl implements GeneSearchCriteria {
 
 		try {
 		 
-			List results = appService.search(Pathway.class, searchPathway);			 
+			List<Pathway> results = appService.search(Pathway.class, searchPathway);			 
 			if (results.size() > 1) {
 				log.warn("Found more than 1 pathway for "
 						+ pathway.getPathwayName());
 			}
 			Pathway resultPathway = (Pathway)results.get(0);
 
-			return GeneAnnotationImpl.toUniqueArray(new ArrayList(resultPathway
+			return GeneAnnotationImpl.toUniqueArray(new ArrayList<Gene>(resultPathway
 					.getGeneCollection()));
 		} catch (Exception e) {
 			log.error(e);
