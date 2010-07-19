@@ -3,7 +3,7 @@ package org.geworkbench.components.annotations;
 import gov.nih.nci.cabio.domain.Gene;
 
 
-public class GeneData implements Comparable {
+public class GeneData implements Comparable<GeneData> {
     /**
      * Web URL prefix for obtaining CGAP annotation
      */
@@ -37,11 +37,9 @@ public class GeneData implements Comparable {
     	return this.organism;
     }
 
-    public int compareTo(Object o) {
-        if (o instanceof GeneData) {
-            return name.compareTo(((GeneData) o).name);
-        }
-        return -1;
-    }
+    @Override
+	public int compareTo(GeneData geneData) {
+		return name.compareTo(geneData.name);
+	}
 
 }
