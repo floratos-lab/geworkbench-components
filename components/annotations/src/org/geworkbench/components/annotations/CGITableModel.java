@@ -20,6 +20,8 @@ import com.Ostermiller.util.CSVPrinter;
 
 /**
  * Use by Cancer Gene Index tables, both disease and agent table.
+ * 
+ * @version $Id$
  */
 public class CGITableModel extends SortableTableModel {
 	private static final long serialVersionUID = -1894565199518094545L;
@@ -234,7 +236,7 @@ public class CGITableModel extends SortableTableModel {
 			}
 		}
 	}
-    Map collapsedDisease = new HashMap(); //key index
+    Map<Integer, String> collapsedDisease = new HashMap<Integer, String>(); //key index
 
     /**
 	 * This method will collapse given gene-disease pairs in the given
@@ -264,7 +266,7 @@ public class CGITableModel extends SortableTableModel {
 		filteredSize = 0;
 		String collapsedKey = gene+disease;
 		expandedByKeys.remove(collapsedKey);
-		Map uniqList = new HashMap();
+		Map<String, Integer> uniqList = new HashMap<String, Integer>();
 		for (int i = 0; i < markerData.length; i++) {
 			filterIndices[i]=-1;
 		}
@@ -489,7 +491,7 @@ public class CGITableModel extends SortableTableModel {
 
         //repExpandedDiseaseList = new Boolean[size];
         //expandedDiseaseList = new Boolean[size];
-		Map uniqList = new HashMap();
+		Map<String, Integer> uniqList = new HashMap<String, Integer>();
         Boolean[] newRepExpandedDiseaseList = new Boolean[newSize];
         Boolean[] newExpandedDiseaseList = new Boolean[newSize];
         for (int i = 0; i < newRepExpandedDiseaseList.length; i++) {
@@ -713,7 +715,9 @@ public class CGITableModel extends SortableTableModel {
     	return markerData[filterIndices[rowIndex]];
     }
 
-    public void sortByColumn(final int column, final boolean ascending) {
+    // TODO This method depends on the anonymity of which column used to sort. There could be a better way to implement.
+    @SuppressWarnings("unchecked")
+	public void sortByColumn(final int column, final boolean ascending) {
         resetIndices();
         final Comparable[][] columns = {markerData, geneData, diseaseData, roleData, sentenceData, pubmedData};
         Comparator<Integer> comparator = new Comparator<Integer>() {
