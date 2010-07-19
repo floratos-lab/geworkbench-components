@@ -6,20 +6,13 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Map;
 
-import org.geworkbench.analysis.AbstractGridAnalysis;
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
-import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.structure.PudgeResultSet;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
-import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.bison.model.analysis.ProteinSequenceAnalysis;
 
 /**
@@ -28,7 +21,7 @@ import org.geworkbench.bison.model.analysis.ProteinSequenceAnalysis;
  * @author mw2518
  * @version $Id: PudgeAnalysis.java,v 1.4 2009-09-10 16:40:26 chiangy Exp $
  */
-public class PudgeAnalysis extends AbstractGridAnalysis implements
+public class PudgeAnalysis extends AbstractAnalysis implements
 		ProteinSequenceAnalysis {
 	private static final long serialVersionUID = 1L;
 	public PudgeConfigPanel pcp;
@@ -47,6 +40,7 @@ public class PudgeAnalysis extends AbstractGridAnalysis implements
 		setDefaultPanel(pcp);
 	}
 
+	@SuppressWarnings("unchecked")
 	public AlgorithmExecutionResults execute(Object input) {
 		if (input == null)
 			return new AlgorithmExecutionResults(false, "Invalid input. ", null);
@@ -123,40 +117,4 @@ public class PudgeAnalysis extends AbstractGridAnalysis implements
 		return PUDGE_TYPE;
 	}
 
-	public String getType() {
-		return "PudgeAnalysis";
-	}
-
-	public String getAnalysisName() {
-		return "Pudge";
-	}
-
-	@Override
-	protected Map<Serializable, Serializable> getBisonParameters() {
-		return null;
-	}
-
-	@Override
-	public Class<?> getBisonReturnType() {
-		return null;
-	}
-
-	@Override
-	protected boolean useMicroarraySetView() {
-		return false;
-	}
-
-	@Override
-	protected boolean useOtherDataSet() {
-		return true;
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public ParamValidationResults validInputData(
-			DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView,
-			DSDataSet refMASet) {
-		// TODO Auto-generated method stub
-		return new ParamValidationResults(true, null);
-	}
 }
