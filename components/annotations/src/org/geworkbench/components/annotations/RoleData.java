@@ -1,6 +1,6 @@
 package org.geworkbench.components.annotations;
 
-public class RoleData implements Comparable {
+public class RoleData implements Comparable<RoleData> {
 
     public String role;
 
@@ -8,10 +8,8 @@ public class RoleData implements Comparable {
         this.role = role;
     }
 
-    public int compareTo(Object o) {
-        if (o instanceof RoleData) {
-            return role.compareTo(((RoleData) o).role);
-        }
-        return -1;
+    @Override
+    public int compareTo(RoleData roleData) {
+    	return role.compareTo(roleData.role);
     }
 }
