@@ -1,6 +1,6 @@
 package org.geworkbench.components.annotations;
 
-public class EvsIdData implements Comparable {
+public class EvsIdData implements Comparable<EvsIdData> {
 
     public String evsId;
 
@@ -8,10 +8,8 @@ public class EvsIdData implements Comparable {
         this.evsId = evsId;
     }
 
-    public int compareTo(Object o) {
-        if (o instanceof AgentData) {
-            return evsId.compareTo(((EvsIdData) o).evsId);
-        }
-        return -1;
-    }
+	@Override
+	public int compareTo(EvsIdData evsIdData) {
+        return evsId.compareTo(evsIdData.evsId);
+	}
 }
