@@ -264,8 +264,8 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 		paramDescB.append("\n");
 
 		float setFraction = params.getSetFraction() / 100f;
-		paramDescB.append("Sample per Condition(%): ");
-		paramDescB.append(setFraction);
+		paramDescB.append("Sample per Condition(%): ");		
+		paramDescB.append((int)(setFraction*100f));
 		paramDescB.append("\n");
 		if (Math.round(setFraction * 2 * numMarkers) < 2) {
 			errMsgB
