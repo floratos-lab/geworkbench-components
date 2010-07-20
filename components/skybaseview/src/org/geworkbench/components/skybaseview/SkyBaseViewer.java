@@ -424,7 +424,7 @@ public class SkyBaseViewer implements VisualPlugin {
 		CSProteinStructure dsp = new CSProteinStructure(null, seqid);
 		dsp.setFile(new File(ofname));
 		ProjectNodeAddedEvent event = new ProjectNodeAddedEvent(
-				"skybase model", null, dsp);
+				"skybase model", dsp, null);
 		publishProjectNodeAddedEvent(event);
 	}
 
