@@ -22,12 +22,12 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.Vector;
- 
+
 import javax.swing.Box;
 import javax.swing.JInternalFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
-import javax.swing.JProgressBar; 
+import javax.swing.JProgressBar;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 
@@ -50,13 +50,12 @@ import org.geworkbench.events.AdjacencyMatrixEvent;
 import org.geworkbench.events.GeneTaggedEvent;
 import org.geworkbench.events.ProjectNodeRemovedEvent;
 import org.geworkbench.util.Util;
-import org.geworkbench.util.annotation.Gene;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrix;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixDataSet;
 
 import com.jgoodies.looks.Options;
 
-import csplugins.layout.algorithms.force.ForceDirectedLayout; 
+import csplugins.layout.algorithms.force.ForceDirectedLayout;
 import cytoscape.CyEdge;
 import cytoscape.CyNetwork;
 import cytoscape.CyNode;
@@ -212,6 +211,7 @@ public class CytoscapeWidget implements VisualPlugin {
 		return event;
 	}
 
+	private static final String GENE_SEPARATOR = " /// ";
 	/**
 	 * Update selection in visualization when the gene selection is changed
 	 * 
@@ -231,8 +231,8 @@ public class CytoscapeWidget implements VisualPlugin {
 		List<String> selected = new ArrayList<String>();
 		for (DSGeneMarker m : panel) {
 			String name = m.getShortName().trim().toUpperCase();
-			if (name.contains(Gene.genesSeparator)) {
-				String[] names = name.split(Gene.genesSeparator);
+			if (name.contains(GENE_SEPARATOR)) {
+				String[] names = name.split(GENE_SEPARATOR);
 				for (int i = 0; i < names.length; i++) {
 					selected.add(names[i]);
 				}
