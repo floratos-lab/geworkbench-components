@@ -41,7 +41,7 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyDataSet;
  * @author mhall
  * @author ch2514
  * @author oshteynb
- * @version $Id: MindyVisualComponent.java,v 1.35 2009-05-27 16:43:49 oshteynb Exp $
+ * @version $Id$
  */
 @AcceptTypes(MindyDataSet.class)
 public class MindyVisualComponent implements VisualPlugin, java.util.Observer {
@@ -102,11 +102,14 @@ public class MindyVisualComponent implements VisualPlugin, java.util.Observer {
         	return;
         }
 
-        log.debug("MINDY received project event.");
 		DSDataSet data = projectEvent.getDataSet();
+		if ( data == null || !(data instanceof MindyDataSet) ) 
+			return;
+		
+        log.debug("MINDY received project event.");
 
 		MindyPlugin mindyPlugin = null;
-		if ((data != null) && (data instanceof MindyDataSet)) {
+
 			/*
 			 * moved some code inside if statement and after checks for preconditions
 			 * to leave code in usable state in case there were null pointers
@@ -190,7 +193,6 @@ public class MindyVisualComponent implements VisualPlugin, java.util.Observer {
 			progressBar.stop();
 			plugin.revalidate();
 			plugin.repaint();
-		}
 	}
 
 	/**
@@ -204,11 +206,10 @@ public class MindyVisualComponent implements VisualPlugin, java.util.Observer {
 	 */
 	@Subscribe(Asynchronous.class)
 	public void receive(GeneSelectorEvent e, Object source) {
-		log.debug("***Received gene selector event ");
 		if (dataSet != null) {
 
 			if (e.getPanel() != null) {
-//				DSPanel<DSGeneMarker> selectorPanel = e.getPanel();
+				log.debug("Received gene selector event ");
 				selectorPanel = e.getPanel();
 
 				Iterator<MindyPlugin> it = ht.values().iterator();
@@ -225,65 +226,10 @@ public class MindyVisualComponent implements VisualPlugin, java.util.Observer {
 
 		.debug("Received Gene Selector Event: Selection panel sent was null");
 
-// TODO
 			{
 
-/*			if (e.getPanel() != null)
-				this.selectorPanel = e.getPanel();
-			else
-				log
-						.debug("Received Gene Selector Event: Selection panel sent was null");
-*/
-
-/*			DSMicroarraySetView<DSGeneMarker, DSMicroarray> maView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(
-					dataSet.getData().getArraySet());
-			maView.setMarkerPanel(e.getPanel());
-			maView.useMarkerPanel(true);
-			if ((maView.getMarkerPanel() != null)
-					&& (maView.getMarkerPanel().activeSubset() != null)
-					&& (maView.getMarkerPanel().activeSubset().size() == 0)) {
-				selectedMarkers = null;
-				this.prevStateMarkers = this.currentStateMarkers;
-				this.currentStateMarkers = this.maxMarkers;
-				if (this.currentStateMarkers == this.prevStateMarkers)
-					return;
-			} else {
-				try {
-					if ((maView != null) && (maView.getUniqueMarkers() != null)) {
-						DSItemList<DSGeneMarker> uniqueMarkers = maView
-								.getUniqueMarkers();
-						if (uniqueMarkers.size() > 0) {
-							selectedMarkers = (List<DSGeneMarker>) uniqueMarkers;
-							this.prevStateMarkers = this.currentStateMarkers;
-							this.currentStateMarkers = selectedMarkers.size();
-						}
-					}
-				} catch (NullPointerException npe) {
-					selectedMarkers = null;
-					this.prevStateMarkers = this.currentStateMarkers;
-					this.currentStateMarkers = this.maxMarkers;
-					log.debug("Gene Selector Event contained no marker data.");
-				}
-			}
-*/
 		}
 
-/*			Iterator it = ht.values().iterator();
-			if (selectedMarkers != null) {
-				while (it.hasNext()) {
-					log
-							.debug("***received gene selector event::calling limitMarkers: "
-									+ selectedMarkers.size());
-					((MindyPlugin) it.next()).limitMarkers(selectedMarkers);
-				}
-			} else {
-				while (it.hasNext()) {
-					log
-							.debug("***received gene selector event::calling limitMarkers with null");
-					((MindyPlugin) it.next()).limitMarkers(null);
-				}
-			}
-*/
 		} else {
 			log
 					.debug("Received Gene Selector Event: Dataset in this component is null");
