@@ -1,5 +1,16 @@
 package org.geworkbench.components.hierarchicalclustering;
 
+import java.awt.AlphaComposite;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.swing.JPanel;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
@@ -7,14 +18,6 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.model.clusters.Cluster;
 import org.geworkbench.bison.model.clusters.HierCluster;
-
-import javax.swing.*;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Vector;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>
@@ -24,26 +27,29 @@ import java.util.Vector;
  * results are painted on. This class draws both Marker and Microarray Dendrograms
  *
  * @author manjunath at genomecenter dot columbia dot edu
- * @version 3.0
+ * @version $Id$
  */
 public class HierClusterTree extends JPanel {
+	private static final long serialVersionUID = 948216707369486985L;
 
-    static Log log = LogFactory.getLog(HierClusterTree.class);
+	static Log log = LogFactory.getLog(HierClusterTree.class);
+
+    public static enum Orientation { Horizontal, Vertical} ;
 
     /**
      * HORIZONTAL orientation
      */
-    public static final int HORIZONTAL = 0;
+    public static final Orientation HORIZONTAL = Orientation.Horizontal;
 
     /**
      * VERTICAL orientation
      */
-    public static final int VERTICAL = 1;
+    public static final Orientation VERTICAL = Orientation.Vertical;
 
     /**
      * Tree Orientation: either HORIZONTAL or VERTICAL
      */
-    protected int orientation = HORIZONTAL;
+    protected Orientation orientation = Orientation.Horizontal;
 
     /**
      * Dataset on which clustering was performed
@@ -64,7 +70,7 @@ public class HierClusterTree extends JPanel {
     /**
      * Maximum height in pixels of the tree given the number of leaves,
      * computed based on the visual height of each leaf. This would be attained
-     * only if the Heirarchical tree is a strict binary tree
+     * only if the Hierarchical tree is a strict binary tree
      */
     private int maxHeight;
 
@@ -91,11 +97,6 @@ public class HierClusterTree extends JPanel {
     private JPanel parent = null;
 
     /**
-     * Vector containing the "brackets" used for rendering the dendrogram
-     */
-    private Vector brackets = new Vector();
-
-    /**
      * Check to call setSizes in paint only if the canvas has been resized
      */
     protected boolean resizingMarker = false;
@@ -106,20 +107,9 @@ public class HierClusterTree extends JPanel {
     int leftOffset = 0;
 
     /**
-     * <code>Image</code> painted on synchronously with this panel
-     */
-//    BufferedImage image = null;
-//    BufferedImage highlightImage = null;
-
-    /**
      * Bit to paint the offline image
      */
     boolean imageSnapshot = false;
-
-    /**
-     * Image obtained before scaling
-     */
-//    private Graphics2D ig = null;
 
     /**
      * An array that represents the parts of the display that are under the specified node, used for selecting subtrees
@@ -132,16 +122,6 @@ public class HierClusterTree extends JPanel {
     private int lastMouseX = -1, lastMouseY = -1;
 
     /**
-     * Constructor
-     *
-     * @param parent Widget containing this dendrogram
-     */
-    public HierClusterTree(JPanel parent) {
-        super();
-        this.parent = parent;
-    }
-
-    /**
      * Constructs a <code>HierClusterTree</code> for passed result and
      * with specified orientation.
      *
@@ -149,10 +129,9 @@ public class HierClusterTree extends JPanel {
      * @param treeData    the result of a hcl calculation.
      * @param orientation the tree orientation.
      */
-    public HierClusterTree(JPanel parent, HierCluster treeData, int orientation) {
+    public HierClusterTree(JPanel parent, HierCluster treeData, Orientation orientation) {
         super();
         this.parent = parent;
-//        setBackground(Color.white);
         this.clusterRoot = treeData;
         this.orientation = orientation;
         setTreeData(treeData);
@@ -187,16 +166,9 @@ public class HierClusterTree extends JPanel {
      * @return <code>HierCluster</code> representing the root of the subtree that
      *         was clicked
      */
-    HierCluster getNodeClicked(int x, int y) {
-        if (orientation == VERTICAL) {
-            log.debug("Vertical click.");
-            return currentHighlight;
-        } else if (orientation == HORIZONTAL) {
-            log.debug("Horizontal click");
-            return currentHighlight;
-        }
-        return null;
-    }
+	HierCluster getNodeClicked(int x, int y) {
+		return currentHighlight;
+	}
 
     /**
      * Sets the <code>MicroarraySet</code> on which the Hierachical Clustering
@@ -220,21 +192,19 @@ public class HierClusterTree extends JPanel {
     void setTreeData(HierCluster treeData) {
         clusterRoot = treeData;
         setSizes(clusterRoot);
-        brackets.clear();
         resizingMarker = true;
-        //paintImmediately(0, 0, this.getWidth(), this.getHeight());
     }
 
     /**
      * Utility method to get the height of the rendered dendrogram
      */
     int getMaxHeight() {
-        if (orientation == HORIZONTAL && microarraySet != null) {
+        if (orientation == Orientation.Horizontal && microarraySet != null) {
             if (clusterRoot != null)
                 maxHeight = clusterRoot.getLeafChildrenCount() * HierClusterDisplay.geneHeight;
             else
                 maxHeight = microarraySet.markers().size() * HierClusterDisplay.geneHeight;
-        } else if (orientation == VERTICAL && microarraySet != null) {
+        } else if (orientation == Orientation.Vertical && microarraySet != null) {
             if (clusterRoot != null)
                 maxHeight = clusterRoot.getLeafChildrenCount() * HierClusterDisplay.geneWidth;
             else
@@ -250,14 +220,15 @@ public class HierClusterTree extends JPanel {
      * @param hc root node used for setting sizes
      */
     private void setSizes(HierCluster hc) {
-        brackets.clear();
         if (hc != null) {
             maxDepth = hc.getDepth();
-//            System.out.println("Max Depth: "+maxDepth);
         } else {
             maxDepth = 1;
         }
-        if (orientation == HORIZONTAL && microarraySet != null) {
+        
+        if(microarraySet==null) return;
+        
+        if (orientation == Orientation.Horizontal) {
             if (hc != null)
                 maxHeight = hc.getLeafChildrenCount() * HierClusterDisplay.geneHeight;
             else
@@ -269,7 +240,7 @@ public class HierClusterTree extends JPanel {
             width = (int) branchWidth * maxDepth + offSet;
             setPreferredSize(new Dimension((int) width, maxHeight));
             setSize(new Dimension((int) width, maxHeight));
-        } else if (orientation == VERTICAL && microarraySet != null) {
+        } else if (orientation == Orientation.Vertical) {
             if (hc != null)
                 maxHeight = hc.getLeafChildrenCount() * HierClusterDisplay.geneWidth;
             else
@@ -281,7 +252,6 @@ public class HierClusterTree extends JPanel {
             width = (int) branchWidth * maxDepth + offSet;
             setPreferredSize(new Dimension(this.getParent().getWidth(), width));
             setSize(new Dimension(this.getParent().getWidth(), width));
-            // branchWidth = (double) width / (double) maxDepth;
         }
 
     }
@@ -313,9 +283,9 @@ public class HierClusterTree extends JPanel {
     }
 
     public void setCurrentHighlightForMouseLocation(int x, int y) {
-        if (orientation == HORIZONTAL) {
+        if (orientation == Orientation.Horizontal) {
             repaintHighlightImage(x, y);
-        } else if (orientation == VERTICAL) {
+        } else if (orientation == Orientation.Vertical) {
             if (x > leftOffset) {
                 repaintHighlightImage(x, y);
             }
@@ -335,56 +305,59 @@ public class HierClusterTree extends JPanel {
         ArrayList<NodePaintingInstructions> nodesToPaint = new ArrayList<NodePaintingInstructions>();
         Map<Cluster, Integer> childCounts = nodeParam.getLeafChildrenCountMap();
         nodesToPaint.add(new NodePaintingInstructions(nodeParam, startYparam, endYparam, false));
-        while (!nodesToPaint.isEmpty()) {
-            NodePaintingInstructions instr = nodesToPaint.remove(0);
-            HierCluster node = instr.node;
-            int startY = instr.startY;
-            int endY = instr.endY;
-            if (!node.isLeaf()) {
-                int depth = node.getDepth();
-                HierCluster child1 = node.getNode(0);
-                HierCluster child2 = node.getNode(1);
-                int numChild1 = Math.max(childCounts.get(child1), 1);
-                int numChild2 = Math.max(childCounts.get(child2), 1);
+		while (!nodesToPaint.isEmpty()) {
+			NodePaintingInstructions instr = nodesToPaint.remove(0);
+			HierCluster node = instr.node;
 
-                int totalChildren = numChild1 + numChild2;
-                int depth1 = child1.getDepth();
-                int depth2 = child2.getDepth();
-                int yTemp = (numChild1 * (endY - startY) / totalChildren);
-                int yTemp2 = (numChild2 * (endY - startY) / totalChildren);
-                int y0 = startY + (yTemp / 2);
-                int x0 = offSet + (int) Math.ceil((maxDepth - depth) * branchWidth);
-                int y1 = startY + yTemp + (yTemp2 / 2);
-                int x1 = offSet + (int) Math.ceil((maxDepth - depth1) * branchWidth);
-                int x2 = offSet + (int) Math.ceil((maxDepth - depth2) * branchWidth);
-                if (orientation == HORIZONTAL) {
-                    ig.drawLine(x0, y0, x0, y1);
-                    ig.drawLine(x0, y0, x1, y0);
-                    ig.drawLine(x0, y1, x2, y1);
-                    renderInfo.put(node, new RenderedNodeInfo(startY, endY, x0, new Dimension(getWidth() - x0, endY - startY)));
-//                    ig.setColor(Color.blue);
-//                    ig.drawRect(x0, y0, 1, endY - startY);
-//                    ig.setColor(Color.black);
-                    brackets.add(new Bracket(node, x0, x1, x2, y0, y1));
-                } else if (orientation == VERTICAL) {
-                    ig.drawLine(leftOffset + y0, x0, leftOffset + y1, x0);
-                    ig.drawLine(leftOffset + y0, x0, leftOffset + y0, x1);
-                    ig.drawLine(leftOffset + y1, x0, leftOffset + y1, x2);
-                    renderInfo.put(node, new RenderedNodeInfo(leftOffset + startY, leftOffset + endY, x0, new Dimension(endY - startY, getHeight() - x0)));
-                    brackets.add(new Bracket(node, x0, x1, x2, leftOffset + y0, leftOffset + y1));
-                }
-                ig.setColor(Color.black);
+			if (node.isLeaf())
+				continue;
 
-                int sY = startY, eY = startY + yTemp;
-//                paintNode(g, child1, sY, eY);
-                nodesToPaint.add(new NodePaintingInstructions(child1, sY, eY, false));
-                sY = eY;
-                eY = endY;
-//                paintNode(g, child2, sY, eY);
-                nodesToPaint.add(new NodePaintingInstructions(child2, sY, eY, false));
-            }
-        }
-    }
+			int startY = instr.startY;
+			int endY = instr.endY;
+
+			int depth = node.getDepth();
+			HierCluster child1 = node.getNode(0);
+			HierCluster child2 = node.getNode(1);
+			int numChild1 = Math.max(childCounts.get(child1), 1);
+			int numChild2 = Math.max(childCounts.get(child2), 1);
+
+			int totalChildren = numChild1 + numChild2;
+			int depth1 = child1.getDepth();
+			int depth2 = child2.getDepth();
+			int yTemp = (numChild1 * (endY - startY) / totalChildren);
+			int yTemp2 = (numChild2 * (endY - startY) / totalChildren);
+			int y0 = startY + (yTemp / 2);
+			int x0 = offSet + (int) Math.ceil((maxDepth - depth) * branchWidth);
+			int y1 = startY + yTemp + (yTemp2 / 2);
+			int x1 = offSet
+					+ (int) Math.ceil((maxDepth - depth1) * branchWidth);
+			int x2 = offSet
+					+ (int) Math.ceil((maxDepth - depth2) * branchWidth);
+			if (orientation == Orientation.Horizontal) {
+				ig.drawLine(x0, y0, x0, y1);
+				ig.drawLine(x0, y0, x1, y0);
+				ig.drawLine(x0, y1, x2, y1);
+				renderInfo.put(node, new RenderedNodeInfo(startY, endY, x0,
+						new Dimension(getWidth() - x0, endY - startY)));
+			} else if (orientation == Orientation.Vertical) {
+				ig.drawLine(leftOffset + y0, x0, leftOffset + y1, x0);
+				ig.drawLine(leftOffset + y0, x0, leftOffset + y0, x1);
+				ig.drawLine(leftOffset + y1, x0, leftOffset + y1, x2);
+				renderInfo.put(node, new RenderedNodeInfo(leftOffset + startY,
+						leftOffset + endY, x0, new Dimension(endY - startY,
+								getHeight() - x0)));
+			}
+			ig.setColor(Color.black);
+
+			int sY = startY, eY = startY + yTemp;
+			nodesToPaint
+					.add(new NodePaintingInstructions(child1, sY, eY, false));
+			sY = eY;
+			eY = endY;
+			nodesToPaint
+					.add(new NodePaintingInstructions(child2, sY, eY, false));
+		}
+	}
 
     private void paintHighlight(Graphics g, HierCluster startNode, int mouseX, int mouseY) {
         if (renderInfo.size() == 0) {
@@ -392,7 +365,6 @@ public class HierClusterTree extends JPanel {
             return;
         }
         if (mouseX < 0 || mouseY < 0) {
-//            log.debug("Mouse has left component, not painting highlight.");
             return;
         }
         ArrayList<HierCluster> nodesToCheck = new ArrayList<HierCluster>();
@@ -420,13 +392,12 @@ public class HierClusterTree extends JPanel {
                     nodeToPaint = node;
                 }
                 if (nodeToPaint != currentHighlight) {
-//                    log.debug("Found new highlight node at depth " + nodeToPaint.getDepth());
                     this.currentHighlight = nodeToPaint;
                 }
                 if (this.currentHighlight != null) {
                     RenderedNodeInfo paintInfo = renderInfo.get(this.currentHighlight);
                     g.setColor(Color.blue);
-                    if (orientation == HORIZONTAL) {
+                    if (orientation == Orientation.Horizontal) {
                         g.fillRect(paintInfo.y, paintInfo.startX, (int) paintInfo.highlightDim.getWidth(), (int) paintInfo.highlightDim.getHeight());
                     } else {
                         g.fillRect(paintInfo.startX, paintInfo.y, (int) paintInfo.highlightDim.getWidth(), (int) paintInfo.highlightDim.getHeight());
@@ -437,20 +408,18 @@ public class HierClusterTree extends JPanel {
         }
     }
 
-    private class NodePaintingInstructions {
+    private static class NodePaintingInstructions {
         public HierCluster node;
         public int startY, endY;
-        public boolean highlighted = false;
 
         public NodePaintingInstructions(HierCluster node, int startY, int endY, boolean highlighted) {
             this.node = node;
             this.startY = startY;
             this.endY = endY;
-            this.highlighted = highlighted;
         }
     }
 
-    private class RenderedNodeInfo {
+    private static class RenderedNodeInfo {
         public int startX, endX;
         public int y;
         public Dimension highlightDim;
@@ -477,7 +446,6 @@ public class HierClusterTree extends JPanel {
 
         g.setColor(Color.white);
         g.fillRect(0, 0, this.getWidth(), this.getHeight());
-        //            ig.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
         g.setColor(Color.black);
 
         if (clusterRoot != null) {
@@ -500,42 +468,8 @@ public class HierClusterTree extends JPanel {
     }
 
     private void repaintHighlightImage(int mouseX, int mouseY) {
-//        log.debug("Redraw highlight image");
-
         lastMouseX = mouseX;
         lastMouseY = mouseY;
         repaint();
-
-    }
-
-    /**
-     * Encapsulates graphical portions of the Dendrogram covered by a single node
-     */
-    class Bracket {
-        HierCluster root = null;
-        int x0, x1, x2, y0, y1;
-
-        public Bracket(HierCluster root, int x0, int x1, int x2, int y0, int y1) {
-            this.root = root;
-            this.x0 = x0;
-            this.x1 = x1;
-            this.x2 = x2;
-            this.y0 = y0;
-            this.y1 = y1;
-        }
-
-        public HierCluster getRoot() {
-            return root;
-        }
-
-        public boolean contains(int x, int y) {
-            if (x == x0)
-                return (y >= y0) && (y <= y1);
-            else if (y == y0)
-                return (x >= x0) && (x <= x1);
-            else if (y == y1)
-                return (x >= x0) && (x <= x2);
-            return false;
-        }
     }
 }
