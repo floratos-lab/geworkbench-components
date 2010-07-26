@@ -5,9 +5,11 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -115,8 +117,6 @@ public class BlastAppComponent implements VisualPlugin {
     
     // five check boxes in filter panel+...
     private JCheckBox shortQueriesBox =null;
-    private JLabel shortQueriesLabel =new JLabel("Short Queries:");
-    private JLabel jFilterLabel =new JLabel("Filter:");    
     private JCheckBox lowComplexFilterBox = null;
     private JCheckBox speciesRepeatFilter = null; 
     private JLabel jMaskLabel =new JLabel("Mask:");    
@@ -141,18 +141,15 @@ public class BlastAppComponent implements VisualPlugin {
     private JComboBox jProgramBox = new JComboBox();
    
     private JPanel speciesRepeatPanel = new JPanel();
-    private JPanel blastxSettingPanel = new JPanel();   
     
     // pairs of label and combo box on blastxSettingPanel
-    private JLabel matrixLabel = new JLabel("Matrix:");
     private JComboBox jMatrixBox = new JComboBox();
     private JLabel maxTargetLabel= new JLabel("Max target sequences:");
     private JComboBox jMaxTargetBox=new JComboBox();
-    private JLabel expectLabel = new JLabel("Expect:");
+
     private JComboBox jExpectBox = new JComboBox();
-    private JLabel jWordsizeLabel = new JLabel("Word size:");
     private JComboBox jWordsizeBox = new JComboBox();
-    private JLabel jScoresLabel=new JLabel("Match/mismatch Scores:");
+
     private JComboBox jScoresBox=new JComboBox();
     private JLabel jGapcostsLabel = new JLabel("Gap costs:");
     private JComboBox jGapcostsBox = new JComboBox();
@@ -174,9 +171,6 @@ public class BlastAppComponent implements VisualPlugin {
     private JProgressBar serviceProgressBar = new JProgressBar();
 
     private JComboBox jProgramBox1 = new JComboBox();
-   
-    private GridBagLayout gridBagLayout2 = new GridBagLayout();
-    private GridBagLayout gridBagLayout3 = new GridBagLayout();
        
     private JButton blastStopButton = new JButton();
 
@@ -205,6 +199,8 @@ public class BlastAppComponent implements VisualPlugin {
     private static final int SERVER = 2;
 
     private boolean stopButtonPushed;
+
+	private JPanel discontiguousWordOptionsPanel;
     
     private static JLabel DatabaseLabel = new JLabel("Database:");
     
@@ -260,9 +256,6 @@ public class BlastAppComponent implements VisualPlugin {
 
         jProgramBox1 = new JComboBox();
         
-        gridBagLayout2 = new GridBagLayout();
-        gridBagLayout3 = new GridBagLayout();        
-       
         blastStopButton = new JButton();
 
         jToolBar2 = new JToolBar();
@@ -298,7 +291,6 @@ public class BlastAppComponent implements VisualPlugin {
         
         jPanel3.setLayout(borderLayout3);
 
-        jAdvancedPane.setLayout(gridBagLayout3);        
         databaseTable.setToolTipText("Select a database");
         databaseTable.setVerifyInputWhenFocusTarget(true);
         databaseTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -417,7 +409,7 @@ public class BlastAppComponent implements VisualPlugin {
         jMaxTargetBox.addItem("10000");
         jMaxTargetBox.addItem("20000");
                 
-        blastxSettingPanel.setLayout(gridBagLayout2);       
+        jAdvancedPane.setLayout(new GridBagLayout());       
 
         jProgramBox.setAutoscrolls(false);
         jProgramBox.setMinimumSize(new Dimension(26, 21));
@@ -429,10 +421,6 @@ public class BlastAppComponent implements VisualPlugin {
 
         jProgramBox1.setAutoscrolls(false);
         jProgramBox1.setMinimumSize(new Dimension(26, 21));
-        //jProgramBox1.setPreferredSize(new Dimension(26, 21));
-
-        jAdvancedPane.setMinimumSize(new Dimension(150, 250));        
-        blastxSettingPanel.setMinimumSize(new Dimension(50, 200));       
 
         blastStopButton.setFont(new java.awt.Font("Arial Black", 0, 11));
         blastStopButton.setVerifyInputWhenFocusTarget(true);
@@ -467,19 +455,19 @@ public class BlastAppComponent implements VisualPlugin {
         megablastBtn.setMinimumSize(new Dimension(10,23));
         megablastBtn.setMnemonic(0);        
         megablastBtn.setSelected(true);
-        megablastBtn.setText("Megablast");
+        megablastBtn.setText("Highly similar sequences");
         megablastBtn.addActionListener(new BlastAppComponent_megablastBtn_actionAdapter());        
         
         discontiguousBtn=new JRadioButton();
         discontiguousBtn.setMinimumSize(new Dimension(10,23));
         discontiguousBtn.setMnemonic(0);       
-        discontiguousBtn.setText("Discontiguous megablast");
+        discontiguousBtn.setText("More dissimilar sequences");
         discontiguousBtn.addActionListener(new BlastAppComponent_discontiguousBtn_actionAdapter());
         
         blastnBtn=new JRadioButton();
         blastnBtn.setMinimumSize(new Dimension(10,23));
         blastnBtn.setMnemonic(0);       
-        blastnBtn.setText("Blastn");
+        blastnBtn.setText("Somewhat similar sequences");
         blastnBtn.addActionListener(new BlastAppComponent_discontiguousBtn_actionAdapter());
         
         programBtnGroup.add(megablastBtn);
@@ -488,13 +476,11 @@ public class BlastAppComponent implements VisualPlugin {
         
         // 5 check boxes on filter panel+...
         shortQueriesBox=new JCheckBox();
-        shortQueriesBox.setMinimumSize(new Dimension(10, 23));
         shortQueriesBox.setMnemonic('0');
         shortQueriesBox.setSelected(true);
         shortQueriesBox.setText("Automatically adjust parameters for short input sequences");
         
         lowComplexFilterBox = new JCheckBox();
-        lowComplexFilterBox.setMinimumSize(new Dimension(10, 23));
         lowComplexFilterBox.setMnemonic('0');
         lowComplexFilterBox.setSelected(false);
         lowComplexFilterBox.setText("Low Complexity");
@@ -505,7 +491,6 @@ public class BlastAppComponent implements VisualPlugin {
 
         maskLookupOnlyBox = new JCheckBox();
         maskLookupOnlyBox.setText("Mask for lookup table only");
-        maskLookupOnlyBox.setMinimumSize(new Dimension(5, 23));
         maskLookupOnlyBox.setMnemonic('0');
         maskLookupOnlyBox.setSelected(false);
         
@@ -515,17 +500,17 @@ public class BlastAppComponent implements VisualPlugin {
         speciesRepeatFilter.setText("Species-specific repeats for");              
        
         jDisplayInWebBox = new JCheckBox();
-        jDisplayInWebBox.setMinimumSize(new Dimension(10, 23));
         jDisplayInWebBox.setSelected(true);
         jDisplayInWebBox.setText("Display result in your web browser");
  
         // speciesRepeatPanel: including 2 items
         speciesRepeatPanel = new JPanel();
-        speciesRepeatPanel.setMinimumSize(new Dimension(10, 23));
+        speciesRepeatPanel.setLayout(new FlowLayout(FlowLayout.LEADING));
+        speciesRepeatPanel.add(new JLabel("          "));
         speciesRepeatPanel.add(speciesRepeatFilter);
         speciesRepeatPanel.add(jSpeciesBox);
         
-     // update tooltip text
+        // update tooltip text
         // based on information from http://blast.ncbi.nlm.nih.gov/Blast.cgi and http://www.ncbi.nlm.nih.gov/BLAST/matrix_info.html
         jMaxTargetBox.setToolTipText("Select the maximum number of aligned sequences to display");
         jExpectBox.setToolTipText("Random background noise");
@@ -536,14 +521,8 @@ public class BlastAppComponent implements VisualPlugin {
         excludeUnculture.setToolTipText("Uncultured/environmental sample sequences");
         megablastBtn.setToolTipText("Highly similar sequences (megablast)");
         discontiguousBtn.setToolTipText("More dissimilar sequences (discontiguous megablast)");
-        blastnBtn.setToolTipText("Somewhat similar sequences(blastn)");
+        blastnBtn.setToolTipText("Somewhat similar sequences (blastn)");
         
-        
-        // Advanced Pane contains several panels
-		jAdvancedPane.add(blastxSettingPanel, new GridBagConstraints(0, 2, 1,
-				1, 1.0, 1.0, GridBagConstraints.CENTER,
-				GridBagConstraints.HORIZONTAL, new Insets(0, 1, 1, 3), 0, 23));
-		
 		// jTabbedBlastPane contains two panels
 		jTabbedBlastPane.add(jBasicPane, "Main");
         jTabbedBlastPane.add(jAdvancedPane, "Advanced Options");
@@ -655,7 +634,7 @@ public class BlastAppComponent implements VisualPlugin {
         JComboBox cb = (JComboBox) e.getSource();
 		// Get the new item
 		String selectedProgramName = (String) cb.getSelectedItem();
-		blastxSettingPanel.removeAll();		
+		jAdvancedPane.removeAll();		
 		if (selectedProgramName == null
 				|| selectedProgramName
 						.equalsIgnoreCase(SELECT_A_PROGRAM_PROMPT)) {
@@ -671,111 +650,120 @@ public class BlastAppComponent implements VisualPlugin {
 			jgeneticCodeLabel.setVisible(true);
 	        jgeneticCodeBox.setVisible(true);
 		}
-		
-		blastxSettingPanel.add(maxTargetLabel, new GridBagConstraints(0, 0, 1, 1,
-				1.0, 0.0, GridBagConstraints.WEST,
-				GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
-		blastxSettingPanel.add(jMaxTargetBox, new GridBagConstraints(1, 0, 1, 1,
-				1.0, 0.0, GridBagConstraints.WEST,
-				GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
-		
-        int beforeFilter=1;
-        blastxSettingPanel.add(shortQueriesLabel, new GridBagConstraints(0, beforeFilter, 1, 1,
-				1.0, 0.0, GridBagConstraints.WEST,
-				GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
-		blastxSettingPanel.add(shortQueriesBox, new GridBagConstraints(1, beforeFilter, 1, 1,
-				1.0, 0.0, GridBagConstraints.WEST,
-				GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
-        
-        blastxSettingPanel.add(expectLabel, new GridBagConstraints(0, 1+beforeFilter, 1, 1,
-				0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
-				new Insets(2, 2, 2, 2), 0, 0));
-		blastxSettingPanel.add(jExpectBox, new GridBagConstraints(1, 1+beforeFilter, 1, 1,
-				1.0, 0.0, GridBagConstraints.WEST,
-				GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
-		
-		blastxSettingPanel.add(jWordsizeLabel, new GridBagConstraints(0, 2+beforeFilter, 1,
-				1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
-				new Insets(2, 2, 2, 2), 0, 0));
-		blastxSettingPanel.add(jWordsizeBox, new GridBagConstraints(1, 2+beforeFilter, 1, 1,
-				1.0, 0.0, GridBagConstraints.WEST,
-				GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
 
-		blastxSettingPanel.add(matrixLabel, new GridBagConstraints(0, 3+beforeFilter, 1, 1,
-				0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
-				new Insets(2, 2, 2, 2), 0, 0));		
-        blastxSettingPanel.add(jMatrixBox, new GridBagConstraints(1, 3+beforeFilter, 1, 1,
-				1.0, 0.0, GridBagConstraints.WEST,
-				GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0)); 
-		blastxSettingPanel.add(jScoresLabel, new GridBagConstraints(0, 4+beforeFilter, 1, 
-				1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
-				new Insets(2, 2, 2, 6), 1, -2));
-		blastxSettingPanel.add(jScoresBox, new GridBagConstraints(1, 4+beforeFilter, 1, 1,
-				1.0, 0.0, GridBagConstraints.WEST,
-				GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));		
-        blastxSettingPanel.add(jGapcostsLabel, new GridBagConstraints(0, 5+beforeFilter, 1,
-				1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
-				new Insets(2, 2, 2, 6), 1, -2));
-		blastxSettingPanel.add(jGapcostsBox, new GridBagConstraints(1, 5+beforeFilter, 1, 1,
-				1.0, 0.0, GridBagConstraints.WEST,
-				GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
+        JPanel generalParametersPanel = new JPanel();
+        generalParametersPanel.setBorder( new TitledBorder(border1, "General Parameters"));
+        generalParametersPanel.setLayout(new BoxLayout(generalParametersPanel, BoxLayout.Y_AXIS));
+        JPanel maxTargetPanel = new JPanel();
+        maxTargetPanel.setLayout(new FlowLayout(FlowLayout.LEADING) );
+        maxTargetPanel.add(maxTargetLabel);
+        maxTargetPanel.add(jMaxTargetBox);
+        maxTargetPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        generalParametersPanel.add(maxTargetPanel);
+        shortQueriesBox.setAlignmentX(Component.LEFT_ALIGNMENT);
+        generalParametersPanel.add(shortQueriesBox);
+        JPanel expectThresholdPanel = new JPanel();
+        expectThresholdPanel.setLayout(new FlowLayout(FlowLayout.LEADING) );
+		expectThresholdPanel.add(new JLabel("Expect threshold:"));
+        expectThresholdPanel.add(jExpectBox);
+        expectThresholdPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        generalParametersPanel.add(expectThresholdPanel);
+        JPanel wordSizePanel = new JPanel();
+        wordSizePanel.setLayout(new FlowLayout(FlowLayout.LEADING) );
+        wordSizePanel.add(new JLabel("Word size:"));
+        wordSizePanel.add(jWordsizeBox);
+        wordSizePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        generalParametersPanel.add(wordSizePanel);
+        
+        GridBagConstraints c = new GridBagConstraints(0, 0, 1, 1,
+				0.0, 0.0, GridBagConstraints.WEST,
+				GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0);
+        jAdvancedPane.add(generalParametersPanel, c);
 		
-		blastxSettingPanel.add(jCompositionalLabel, new GridBagConstraints(0, 6+beforeFilter, 1,
-				1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
-				new Insets(2, 2, 2, 6), 1, -2));
-		blastxSettingPanel.add(jCompositionalBox, new GridBagConstraints(1, 6+beforeFilter, 1, 1,
-				1.0, 0.0, GridBagConstraints.WEST,
-				GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));		
+        JPanel scoringParametersPanel = new JPanel();
+        scoringParametersPanel.setBorder(new TitledBorder(border1, "Scoring Paremeters"));
+        scoringParametersPanel.setLayout(new BoxLayout(scoringParametersPanel, BoxLayout.Y_AXIS));
+        JPanel maxtrixPanel = new JPanel();
+        maxtrixPanel.setLayout(new FlowLayout(FlowLayout.LEADING) );
+        maxtrixPanel.add(new JLabel("Matrix:"));
+        maxtrixPanel.add(jMatrixBox);
+        maxtrixPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        scoringParametersPanel.add(maxtrixPanel);	
+        JPanel scoresPanel = new JPanel();
+        scoresPanel.setLayout(new FlowLayout(FlowLayout.LEADING));
+        scoresPanel.add(new JLabel("Match/mismatch Scores:"));
+        scoresPanel.add(jScoresBox);
+        scoresPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        scoringParametersPanel.add(scoresPanel);
+        JPanel gapCostsPanel = new JPanel();
+        gapCostsPanel.setLayout(new FlowLayout(FlowLayout.LEADING));
+        gapCostsPanel.add(jGapcostsLabel);
+        gapCostsPanel.add(jGapcostsBox);
+        gapCostsPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        scoringParametersPanel.add(gapCostsPanel);
+        JPanel compositionalPanel = new JPanel();
+        compositionalPanel.setLayout(new FlowLayout(FlowLayout.LEADING));
+        compositionalPanel.add(jCompositionalLabel);
+        compositionalPanel.add(jCompositionalBox);
+        compositionalPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        scoringParametersPanel.add(compositionalPanel);
+        c.gridy = 1;
+        jAdvancedPane.add(scoringParametersPanel, c);
 		
-		blastxSettingPanel.add(jFilterLabel, new GridBagConstraints(0, 7+beforeFilter, 1,
-				1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
-				new Insets(2, 2, 2, 6), 1, -2));
-		blastxSettingPanel.add(lowComplexFilterBox, new GridBagConstraints(1, 7+beforeFilter, 1, 1,
-				1.0, 0.0, GridBagConstraints.WEST,
-				GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
+        JPanel filterAndMaskPanel = new JPanel();
+        filterAndMaskPanel.setBorder(new TitledBorder(border1, "Filters and Masking"));
+        filterAndMaskPanel.setLayout(new BoxLayout(filterAndMaskPanel, BoxLayout.Y_AXIS));
+        JPanel filter1Panel = new JPanel();
+        filter1Panel.setLayout(new FlowLayout(FlowLayout.LEADING));
+        filter1Panel.add(new JLabel("Filter:"));
+        filter1Panel.add(lowComplexFilterBox);
+        filterAndMaskPanel.add(filter1Panel);
+        filterAndMaskPanel.add(speciesRepeatPanel);
+        JPanel mask1Panel = new JPanel();
+        mask1Panel.setLayout(new FlowLayout(FlowLayout.LEADING));
+        mask1Panel.add(jMaskLabel);
+        mask1Panel.add(maskLookupOnlyBox);
+        filterAndMaskPanel.add(mask1Panel);
+        JPanel mask2Panel = new JPanel();
+        mask2Panel.setLayout(new FlowLayout(FlowLayout.LEADING));
+        mask2Panel.add(new JLabel("          "));
+        mask2Panel.add(maskLowCaseBox);
+        filterAndMaskPanel.add(mask2Panel);
+        c.gridx = 1;
+        c.gridy = 0;
+        jAdvancedPane.add(filterAndMaskPanel, c);
+        
+        JPanel browserPanel = new JPanel();
+        browserPanel.setLayout(new FlowLayout(FlowLayout.LEADING) );
+        browserPanel.add(jDisplayLabel);
+        browserPanel.add(jDisplayInWebBox);
+        browserPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        c.gridx = 0;
+        c.gridy = 2;
+        jAdvancedPane.add(browserPanel, c);
+        
+        discontiguousWordOptionsPanel = new JPanel();
+        discontiguousWordOptionsPanel.setBorder(new TitledBorder(border1, "Discontiguous Word Options"));
+        discontiguousWordOptionsPanel.setLayout( new BoxLayout(discontiguousWordOptionsPanel, BoxLayout.Y_AXIS) );
+        JPanel templeateLengthPanel = new JPanel();
+        templeateLengthPanel.setLayout(new FlowLayout(FlowLayout.LEADING) );
+        templeateLengthPanel.add(jTemplateLengthLabel);
+        templeateLengthPanel.add(jTemplateLengthBox);
+        discontiguousWordOptionsPanel.add(templeateLengthPanel);
+        JPanel templeateTypePanel = new JPanel();
+        templeateTypePanel.setLayout(new FlowLayout(FlowLayout.LEADING) );
+        templeateTypePanel.add(jTemplateTypeLabel);
+        templeateTypePanel.add(jTemplateTypeBox);
+        discontiguousWordOptionsPanel.add(templeateTypePanel);
+        c.gridx = 1;
+        c.gridy = 1;
+        jAdvancedPane.add(discontiguousWordOptionsPanel, c);
 		
-		blastxSettingPanel.add(speciesRepeatPanel, new GridBagConstraints(1, 8+beforeFilter, 1, 1,
-				1.0, 0.0, GridBagConstraints.WEST,
-				GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-		
-		blastxSettingPanel.add(jMaskLabel, new GridBagConstraints(0, 9+beforeFilter, 1,
-				1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
-				new Insets(2, 2, 2, 6), 1, -2));
-		blastxSettingPanel.add(maskLookupOnlyBox, new GridBagConstraints(1, 9+beforeFilter, 1, 1,
-				1.0, 0.0, GridBagConstraints.WEST,
-				GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
-		blastxSettingPanel.add(maskLowCaseBox, new GridBagConstraints(1, 10+beforeFilter, 1, 1,
-				1.0, 0.0, GridBagConstraints.WEST,
-				GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
-		blastxSettingPanel.add(jDisplayLabel, new GridBagConstraints(0, 11+beforeFilter, 1, 1,
-				1.0, 0.0, GridBagConstraints.WEST,
-				GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
-		blastxSettingPanel.add(jDisplayInWebBox, new GridBagConstraints(1, 11+beforeFilter, 1, 1,
-				1.0, 0.0, GridBagConstraints.WEST,
-				GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
-		
-		blastxSettingPanel.add(jTemplateLengthLabel, new GridBagConstraints(0, 12+beforeFilter, 1, 1,
-				1.0, 0.0, GridBagConstraints.WEST,
-				GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
-		blastxSettingPanel.add(jTemplateLengthBox, new GridBagConstraints(1, 12+beforeFilter, 1, 1,
-				1.0, 0.0, GridBagConstraints.WEST,
-				GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
-		blastxSettingPanel.add(jTemplateTypeLabel, new GridBagConstraints(0, 13+beforeFilter, 1, 1,
-				1.0, 0.0, GridBagConstraints.WEST,
-				GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
-		blastxSettingPanel.add(jTemplateTypeBox, new GridBagConstraints(1, 13+beforeFilter, 1, 1,
-				1.0, 0.0, GridBagConstraints.WEST,
-				GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));				
-		
-		jTemplateLengthLabel.setVisible(false);
-		jTemplateLengthBox.setVisible(false);
-		jTemplateTypeLabel.setVisible(false);
-		jTemplateTypeBox.setVisible(false);
+        discontiguousWordOptionsPanel.setVisible(false);
 		
 		jCompositionalLabel.setVisible(false);
 		jCompositionalBox.setVisible(false);
 		
-		shortQueriesLabel.setVisible(false);
 		shortQueriesBox.setVisible(false);
 		
 		jAdvancedPane.setEnabled(true);
@@ -837,20 +825,17 @@ public class BlastAppComponent implements VisualPlugin {
 	       	jGapcostsBox.setSelectedIndex(index);
 			jWordsizeBox.setSelectedIndex(3);//default selection		
 			jScoresBox.setSelectedIndex(0);		
-			speciesRepeatFilter.setVisible(true);
-			jSpeciesBox.setVisible(true);
+			speciesRepeatPanel.setVisible(true);
 			jGapcostsBox.setEditable(false);
 			jGapcostsBox.setVisible(true);
 			jGapcostsLabel.setVisible(true);
 			maskLookupOnlyBox.setSelected(true);
-			shortQueriesLabel.setVisible(true);
 			shortQueriesBox.setVisible(true);
 			
 		} else {
 			jMatrixBox.setSelectedIndex(3);
 			jWordsizeBox.setSelectedIndex(1);
-			speciesRepeatFilter.setVisible(false);
-			jSpeciesBox.setVisible(false);
+			speciesRepeatPanel.setVisible(false);
 			jGapcostsBox.setEditable(false);
 			jGapcostsBox.setVisible(true);
 			jGapcostsLabel.setVisible(true);			
@@ -864,7 +849,6 @@ public class BlastAppComponent implements VisualPlugin {
 			}
 			if (selectedProgramName.equalsIgnoreCase("blastp")){
 				lowComplexFilterBox.setSelected(false);
-				shortQueriesLabel.setVisible(true);
 				shortQueriesBox.setVisible(true);
 			}
 			else{
@@ -889,10 +873,7 @@ public class BlastAppComponent implements VisualPlugin {
 		maskLookupOnlyBox.setSelected(true);
 		maskLowCaseBox.setSelected(false);
 		
-		jTemplateLengthLabel.setVisible(false);
-		jTemplateLengthBox.setVisible(false);
-		jTemplateTypeLabel.setVisible(false);
-		jTemplateTypeBox.setVisible(false);
+		discontiguousWordOptionsPanel.setVisible(false);
     }
     private void jDiscontiguousBtn_actionPerformed(ActionEvent e) {    	  	  
 		String[] model2 = AlgorithmMatcher
@@ -911,16 +892,10 @@ public class BlastAppComponent implements VisualPlugin {
 		maskLowCaseBox.setSelected(false);
 		
 		if (discontiguousBtn.isSelected()){
-			jTemplateLengthLabel.setVisible(true);
-			jTemplateLengthBox.setVisible(true);
-			jTemplateTypeLabel.setVisible(true);
-			jTemplateTypeBox.setVisible(true);
+			discontiguousWordOptionsPanel.setVisible(true);
 		}
 		else{
-			jTemplateLengthLabel.setVisible(false);
-			jTemplateLengthBox.setVisible(false);
-			jTemplateTypeLabel.setVisible(false);
-			jTemplateTypeBox.setVisible(false);
+			discontiguousWordOptionsPanel.setVisible(false);
 		}
     }
 
