@@ -73,6 +73,7 @@ public class ParameterSetting {
         private String templateLength;
         private String templateType;
         private String geneticCode;
+        private String maxTargetNumber;
         
     /**
      * No public constructor because this is only used in this package.
@@ -97,6 +98,7 @@ public class ParameterSetting {
      * @param compositionalAdjustment
      * @param speciesRepeat
      * @param geneticCode
+     * @param maxTargetNumber
      * 
      */
     ParameterSetting(String dbName, String programName, boolean viewInBrowser,
@@ -105,7 +107,7 @@ public class ParameterSetting {
 			boolean maskLookupTable, boolean excludeModelsOn, boolean excludeUncultureOn, 
 			boolean megaBlastOn, boolean discontiguousOn, boolean blastnBtnOn, boolean shortQueriesOn, 
 			String matchScores, String compositionalAdjustment, String speciesRepeat, String templateLength, 
-			String templateType, String geneticCode) {
+			String templateType, String geneticCode, String maxTargetNumber) {
         this.dbName = dbName;
         this.programName = programName;
         this.viewInBrowser = viewInBrowser;
@@ -127,6 +129,7 @@ public class ParameterSetting {
 		this.templateLength=templateLength;
 		this.templateType=templateType;
 		this.geneticCode=geneticCode;
+		this.maxTargetNumber=maxTargetNumber;
     }
 
     public void setPenalty(String penalty) {
@@ -261,6 +264,10 @@ public class ParameterSetting {
 	
 	public String getGeneticCode() {
 		return geneticCode;
+	}
+	
+	public String getMaxTargetNumber() {
+		return maxTargetNumber;
 	}
 	
 	public String getCompositionalAdjustment() {
