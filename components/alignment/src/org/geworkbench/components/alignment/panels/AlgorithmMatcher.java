@@ -609,7 +609,11 @@ public class AlgorithmMatcher {
                 specie_repeat.put("Fruit fly","repeat_7227");
                 if(ps.getSpeciesRepeat()!=null){                	
                 		cmd+="&REPEATS=" + specie_repeat.get(ps.getSpeciesRepeat());                
-                }                
+                }
+                
+                if(ps.getMaxTargetNumber()!=null){
+                	cmd+="&MAX_NUM_SEQ=" + ps.getMaxTargetNumber();
+                }
                 
                 if (ps.getProgramName().equals("blastp")||ps.getProgramName().equals("tblastn"))	//COMPOSITION only applies to blastp and tblastn
                 	cmd += "&EXPECT=" + ps.getExpect() + "&MAX_NUM_SEQ=50&&COMPOSITION_BASED_STATISTICS=2&AUTO_FORMAT=Semiauto&CDD_SEARCH=on&SHOW_OVERVIEW=on&SERVICE=plain\r\n\r\n";

@@ -146,6 +146,8 @@ public class BlastAppComponent implements VisualPlugin {
     // pairs of label and combo box on blastxSettingPanel
     private JLabel matrixLabel = new JLabel("Matrix:");
     private JComboBox jMatrixBox = new JComboBox();
+    private JLabel maxTargetLabel= new JLabel("Max target sequences:");
+    private JComboBox jMaxTargetBox=new JComboBox();
     private JLabel expectLabel = new JLabel("Expect:");
     private JComboBox jExpectBox = new JComboBox();
     private JLabel jWordsizeLabel = new JLabel("Word size:");
@@ -404,6 +406,16 @@ public class BlastAppComponent implements VisualPlugin {
         jgeneticCodeBox.addItem("Ascidian Mitochondrial(13)");
         jgeneticCodeBox.addItem("Flatworm Mitochondrial(14)");
         jgeneticCodeBox.addItem("Blepharisma Macronuclear(15)");
+        
+        jMaxTargetBox.addItem("10");
+        jMaxTargetBox.addItem("50");
+        jMaxTargetBox.addItem("100");
+        jMaxTargetBox.addItem("250");
+        jMaxTargetBox.addItem("500");
+        jMaxTargetBox.addItem("1000");
+        jMaxTargetBox.addItem("5000");
+        jMaxTargetBox.addItem("10000");
+        jMaxTargetBox.addItem("20000");
                 
         blastxSettingPanel.setLayout(gridBagLayout2);       
 
@@ -515,6 +527,7 @@ public class BlastAppComponent implements VisualPlugin {
         
      // update tooltip text
         // based on information from http://blast.ncbi.nlm.nih.gov/Blast.cgi and http://www.ncbi.nlm.nih.gov/BLAST/matrix_info.html
+        jMaxTargetBox.setToolTipText("Select the maximum number of aligned sequences to display");
         jExpectBox.setToolTipText("Random background noise");
         jWordsizeBox.setToolTipText("The length of the words governing the sensitivity");
         jMatrixBox.setToolTipText("Assigns a score for aligning any possible pair of residues");
@@ -658,7 +671,15 @@ public class BlastAppComponent implements VisualPlugin {
 			jgeneticCodeLabel.setVisible(true);
 	        jgeneticCodeBox.setVisible(true);
 		}
-        int beforeFilter=0;
+		
+		blastxSettingPanel.add(maxTargetLabel, new GridBagConstraints(0, 0, 1, 1,
+				1.0, 0.0, GridBagConstraints.WEST,
+				GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
+		blastxSettingPanel.add(jMaxTargetBox, new GridBagConstraints(1, 0, 1, 1,
+				1.0, 0.0, GridBagConstraints.WEST,
+				GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
+		
+        int beforeFilter=1;
         blastxSettingPanel.add(shortQueriesLabel, new GridBagConstraints(0, beforeFilter, 1, 1,
 				1.0, 0.0, GridBagConstraints.WEST,
 				GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
@@ -754,6 +775,9 @@ public class BlastAppComponent implements VisualPlugin {
 		jCompositionalLabel.setVisible(false);
 		jCompositionalBox.setVisible(false);
 		
+		shortQueriesLabel.setVisible(false);
+		shortQueriesBox.setVisible(false);
+		
 		jAdvancedPane.setEnabled(true);
 		String[][] arrayT = algorithmMatcher
 				.translateToArray((String) selectedProgramName);
@@ -802,7 +826,8 @@ public class BlastAppComponent implements VisualPlugin {
        	String defaultOptimizeFor="megablast";       
 		String[] model2 = AlgorithmMatcher
 				.translateToWordSize(selectedProgramName,defaultOptimizeFor);
-		jWordsizeBox.setModel(new DefaultComboBoxModel(model2));		
+		jWordsizeBox.setModel(new DefaultComboBoxModel(model2));
+		jMaxTargetBox.setSelectedIndex(2);
 	
 		if (selectedProgramName.equalsIgnoreCase("blastn")) {
 			String[] capModel = AlgorithmMatcher.translateToGapcosts("blastn","megablast");
@@ -818,6 +843,8 @@ public class BlastAppComponent implements VisualPlugin {
 			jGapcostsBox.setVisible(true);
 			jGapcostsLabel.setVisible(true);
 			maskLookupOnlyBox.setSelected(true);
+			shortQueriesLabel.setVisible(true);
+			shortQueriesBox.setVisible(true);
 			
 		} else {
 			jMatrixBox.setSelectedIndex(3);
@@ -837,6 +864,8 @@ public class BlastAppComponent implements VisualPlugin {
 			}
 			if (selectedProgramName.equalsIgnoreCase("blastp")){
 				lowComplexFilterBox.setSelected(false);
+				shortQueriesLabel.setVisible(true);
+				shortQueriesBox.setVisible(true);
 			}
 			else{
 				lowComplexFilterBox.setSelected(true);
@@ -1011,13 +1040,14 @@ public class BlastAppComponent implements VisualPlugin {
         boolean megaBlastOn=megablastBtn.isSelected();
         boolean discontiguousOn=discontiguousBtn.isSelected();
         boolean blastnBtnOn=blastnBtn.isSelected();
-        boolean shortQueriesOn=shortQueriesBox.isSelected();       
+        boolean shortQueriesOn=shortQueriesBox.isSelected();        
         String matchScores=(String) jScoresBox.getSelectedItem();
         String compositionalAdjustment=(String) jCompositionalBox.getSelectedItem();
         String speciesRepeat=(String) jSpeciesBox.getSelectedItem();
         String templateLength=(String) jTemplateLengthBox.getSelectedItem();
         String templateType=(String) jTemplateTypeBox.getSelectedItem();
         String geneticCode=(String) jgeneticCodeBox.getSelectedItem();
+        String maxTargetNumber=(String) jMaxTargetBox.getSelectedItem();
         
         ParameterSetting ps = new ParameterSetting(dbName, programName,
 				jDisplayInWebBox.isSelected(), expectValue, lowComplexFilterOn,
@@ -1025,7 +1055,7 @@ public class BlastAppComponent implements VisualPlugin {
 						.getSelectedItem(), maskLookupOnlyBox.isSelected(),
 						excludeModelsOn,excludeUncultureOn,megaBlastOn,
 						discontiguousOn,blastnBtnOn,shortQueriesOn,matchScores,compositionalAdjustment,
-						speciesRepeat, templateLength, templateType, geneticCode);
+						speciesRepeat, templateLength, templateType, geneticCode, maxTargetNumber);
         if (startValue <= 1 && endValue >= fastaFile.getMaxLength()) {
             //just use whole sequence. No end to reset.
         } else {
