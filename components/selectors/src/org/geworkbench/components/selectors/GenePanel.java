@@ -2,35 +2,24 @@ package org.geworkbench.components.selectors;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
+import java.awt.event.ActionListener; 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.io.FileInputStream; 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
+import java.util.HashSet; 
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
-import java.awt.Container;
-
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
+import javax.swing.JButton; 
+import javax.swing.JFileChooser; 
 import javax.swing.JList;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JTree;
-import javax.swing.JTextField;
-import javax.swing.filechooser.FileFilter;
+import javax.swing.JTree; 
 import javax.swing.tree.TreePath;
 
 import org.geworkbench.bison.annotation.DSAnnotationContext;
@@ -103,20 +92,35 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 		tagEventEnabled = true;
 		// Add gene panel specific menu items.
 		treePopup.insert(newPanelItem2, 4);
-		treePopup.add(tagPanelItem);
+		treePopup.add(tagPanelMenuItem);
 		rootPopup.add(loadPanelItem);
 		rootPopup.add(newPanelItem);
 		rootPopup.add(deleteSetGroupItem);
 
-		tagPanelItem.addActionListener(new ActionListener() {
+		tagPanelMenuItem.add(highlightPanelItem);
+		tagPanelMenuItem.add(useVisualProPanelItem);
+		highlightPanelItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (!tagEventEnabled) return; // to avoid event cycle
 				String selected = (String)panelTree.getSelectionPath().getLastPathComponent();
 				taggedSelection = selected;
 				panelTree.repaint();
-				publishGeneTaggedEvent(new GeneTaggedEvent(context.getItemsWithLabel(taggedSelection)));
+				publishGeneTaggedEvent(new GeneTaggedEvent(context.getItemsWithLabel(taggedSelection), GeneTaggedEvent.HIGHLIGHT));
 			}
 		});
+		
+		 
+		useVisualProPanelItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (!tagEventEnabled) return; // to avoid event cycle
+				String selected = (String)panelTree.getSelectionPath().getLastPathComponent();
+				taggedSelection = selected;
+				panelTree.repaint();
+				DSPanel<DSGeneMarker> panel = context.getItemsWithLabel(taggedSelection);
+				publishGeneTaggedEvent(new GeneTaggedEvent(panel, GeneTaggedEvent.USE_VISUAL_PROPERTY, getPanelIndex(panel)));
+			}
+		});
+		
 		exportPanelItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				exportPanelPressed();
@@ -169,7 +173,9 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 	private JMenuItem loadPanelItem = new JMenuItem("Load Set");
 	private JMenuItem deleteSetGroupItem = new JMenuItem("Delete Group");
 	private JMenuItem exportPanelItem = new JMenuItem("Export");
-	private JMenuItem tagPanelItem = new JMenuItem("Tag for visualization");
+	private JMenuItem tagPanelMenuItem = new JMenu("Tag for visualization");
+	private JMenuItem highlightPanelItem = new JMenuItem("Highlight");
+	private JMenuItem useVisualProPanelItem = new JMenuItem("Use visual properties color");
 	private JMenuItem newPanelItem = new JMenuItem("New Set");
 	private JMenuItem newPanelItem2 = new JMenuItem("New Set");
 
