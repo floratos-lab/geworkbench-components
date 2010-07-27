@@ -851,23 +851,9 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 		String label = getLabelForPath(path);
 		DSPanel panel = contextManager.getCurrentContext(itemList)
 				.getItemsWithLabel(label);
-		if (panel != null) {
-			// Get current active index of panel for default visual properties
-			int index = 0;
-			if (context.isLabelActive(label)) {
-				int n = context.getNumberOfLabels();
-				for (int i = 0; i < n; i++) {
-					String l = context.getLabel(i);
-					if (context.isLabelActive(l)) {
-						index++;
-					}
-					if (label.equals(l)) {
-						break;
-					}
-				}
-			}
+		if (panel != null) {			 
 			VisualPropertiesDialog dialog = new VisualPropertiesDialog(null,
-					"Change Visual Properties", panel, index);
+					"Change Visual Properties", panel, getPanelIndex(panel));
 			dialog.pack();
 			dialog.setSize(600, 600);
 			dialog.setVisible(true);
@@ -885,6 +871,28 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 			}
 		}
 	}
+	
+	
+	protected int getPanelIndex(DSPanel panel)
+	{
+		int index = 0;
+		String label = panel.getLabel();
+		if (context.isLabelActive(label)) {
+			int n = context.getNumberOfLabels();
+			for (int i = 0; i < n; i++) {
+				String l = context.getLabel(i);
+				if (context.isLabelActive(l)) {
+					index++;
+				}
+				if (label.equals(l)) {
+					break;
+				}
+			}
+		}
+		
+		return index;
+	}
+	
 
 	/**
 	 * Convenience method to get all the selected items in the item list.
