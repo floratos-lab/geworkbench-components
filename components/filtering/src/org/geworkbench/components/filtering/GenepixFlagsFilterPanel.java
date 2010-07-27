@@ -20,11 +20,9 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 
-import org.geworkbench.analysis.AbstractSaveableParameterPanel; 
+import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.events.listeners.ParameterActionListener;
  
@@ -50,21 +48,15 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel {
 		private static final long serialVersionUID = 6505401364167035460L;
 		
 		private String label;
-		private String number;
 		private boolean isFiltered;
 
         FlagDetail(String theLabel) {
             label = theLabel;
             isFiltered = false;
-            number = "0";
         }
 
         public String getLabel() {
             return label;
-        }
-
-        public String getNumber() {
-            return number;
         }
 
         public void setIsFiltered(boolean filtered) {
@@ -260,7 +252,6 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel {
         table1.getColumnModel().getColumn(3).setPreferredWidth(35);
         table1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         ListSelectionModel rowSM = table1.getSelectionModel();
-        rowSM.addListSelectionListener(new listSelectionListener());
         table1.setSelectionModel(rowSM);
         
         ParameterActionListener parameterActionListener = new ParameterActionListener(this);        
@@ -290,28 +281,6 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel {
         }
         return selectedFlags;
     }
-
-
-    /**
-     * For the FlagsTable.
-     */
-    private class listSelectionListener implements ListSelectionListener {
-        int selectedRow;
-
-        public void valueChanged(ListSelectionEvent e) {
-            //Ignore extra messages.
-            if (e.getValueIsAdjusting()) {
-                return;
-            }
-            ListSelectionModel lsm = (ListSelectionModel) e.getSource();
-            if (lsm.isSelectionEmpty()) {
-            } else {
-                selectedRow = lsm.getMinSelectionIndex();
-
-            }
-        }
-    }
-
 
     /**
      * This class extends AbstractTableModel and creates a table view of Flags.
