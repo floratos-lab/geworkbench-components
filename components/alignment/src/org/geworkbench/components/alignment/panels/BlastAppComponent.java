@@ -525,7 +525,7 @@ public class BlastAppComponent implements VisualPlugin {
         
 		// jTabbedBlastPane contains two panels
 		jTabbedBlastPane.add(jBasicPane, "Main");
-        jTabbedBlastPane.add(jAdvancedPane, "Advanced Options");
+        jTabbedBlastPane.add(new JScrollPane(jAdvancedPane), "Advanced Options");
         jAdvancedPane.setEnabled(false);
 
         // mainPanel contains one tabbed pane
