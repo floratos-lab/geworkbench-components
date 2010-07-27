@@ -5,15 +5,15 @@ import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.FilteringAnalysis;
 
-
+/**
+ * 
+ * @author zji
+ * @version $Id$
+ */
 public class CoefficientOfVariationFilter extends FilteringAnalysis{
-
-	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -5549903964783210746L;
 	
 	private static Log log = LogFactory.getLog(CoefficientOfVariationFilter.class);
@@ -209,7 +209,32 @@ public class CoefficientOfVariationFilter extends FilteringAnalysis{
         numberThreshold = 0;
       }
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public AlgorithmExecutionResults execute(Object input) {
+		if (input == null || !(input instanceof DSMicroarraySet))
+			return new AlgorithmExecutionResults(false, "Invalid input.", null);
 
+		maSet = (DSMicroarraySet<DSMicroarray>) input;
+        int markerCount = maSet.getMarkers().size();
+        int arrayCount = maSet.size();
 
+        for(int i=0; i<markerCount; i++) {
+            for (int j = 0; j < arrayCount; j++) {
+                DSMarkerValue mv = maSet.get(j).getMarkerValue(i);
+                if (mv.isMissing()) {
+            		return new AlgorithmExecutionResults(false,
+        					"This dataset contains missing value, so Coefficient of Variant filter does not apply.", null);
+                } else {
+                	double v = mv.getValue();
+                	if(v<0)
+                		return new AlgorithmExecutionResults(false,
+            					"This dataset contains negative value, so Coefficient of Variant filter does not apply.", null);
+                }
+            }
+        }
+		
+		return super.execute(input);
+	}
 
 }
