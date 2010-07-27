@@ -3,10 +3,14 @@ package org.geworkbench.components.cytoscape;
 import giny.model.Node;
 import giny.view.NodeView;
 
+import java.awt.Paint;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -23,17 +27,22 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
-import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.bison.datastructure.complex.panels.DSPanel; 
 import org.geworkbench.events.SubpanelChangedEvent;
 
 import cytoscape.CyNetwork;
 import cytoscape.CyNode;
 import cytoscape.Cytoscape;
+import cytoscape.data.CyAttributes; 
+import cytoscape.view.CyNetworkView;
 import ding.view.DNodeView;
 import ding.view.NodeContextMenuListener;
 
-public class ExpandMenuListener implements NodeContextMenuListener {
-	final static Log log = LogFactory.getLog(ExpandMenuListener.class);
+
+public class ExpandMenuListener implements NodeContextMenuListener,
+		MouseListener {
+	final static Log log = LogFactory.getLog(ExpandMenuListener.class);	
+ 
 	private CytoscapeWidget cytoscapeWidget = null;
 
 	// following fields are a temporary solution for refactoring
@@ -43,6 +52,8 @@ public class ExpandMenuListener implements NodeContextMenuListener {
 	protected CyNetwork cytoNetwork = null;
 
 	protected List<Long> runningThreads = null;
+	
+	private CyAttributes attrs = null;
 
 	public ExpandMenuListener(CytoscapeWidget cytoscapeWidget) {
 
@@ -74,6 +85,39 @@ public class ExpandMenuListener implements NodeContextMenuListener {
 		addToSetMenu.add(menuItemIntersection);
 		addToSetMenu.add(menuItemUnion);
 		menu.add(addToSetMenu);
+	}
+
+	public void mousePressed(MouseEvent e) {
+
+	}
+
+	public void mouseReleased(MouseEvent e) {
+
+	}
+
+	public void mouseEntered(MouseEvent e) {
+
+	}
+
+	public void mouseExited(MouseEvent e) {
+
+	}
+
+	public void mouseClicked(MouseEvent e) {
+		if (e.isMetaDown()) {
+
+			JPopupMenu menu = new JPopupMenu();
+
+			JMenuItem menuItemTTestResults = new JMenuItem(
+					new IntersectionAction("Show t-test results"));
+			JMenuItem menuItemClear = new JMenuItem(new ClearNodeColorAction(
+					"Clear node colors"));
+			menu.add(menuItemTTestResults);
+			menu.add(menuItemClear);
+
+			menu.show(e.getComponent(), e.getPoint().x, e.getPoint().y);
+
+		}
 	}
 
 	private class IntersectionAction extends AbstractAction {
@@ -206,6 +250,44 @@ public class ExpandMenuListener implements NodeContextMenuListener {
 							UnionMarkers,
 							org.geworkbench.events.SubpanelChangedEvent.SET_CONTENTS));
 
+			}
+		}
+	}
+
+	private class ClearNodeColorAction extends AbstractAction {
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 5057482753345747182L;
+
+		public ClearNodeColorAction(String name) {
+			super(name);
+		}
+
+		@SuppressWarnings( { "unchecked" })
+		public void actionPerformed(ActionEvent actionEvent) {
+			CyNetworkView view = Cytoscape.getCurrentNetworkView();
+			if (view != null
+					&& Cytoscape.getCurrentNetwork() != null) {
+				attrs = Cytoscape.getNodeAttributes();
+				Iterator<?> iter = view
+						.getNodeViewsIterator();
+
+				Paint defaultSelectedNodeColor = cytoscapeWidget.getSelectedNodeColor();
+				Paint defaultUnSelectedNodeColor = cytoscapeWidget.getUnSelectedNodeColor();
+				while (iter.hasNext()) {
+					NodeView nodeView = (NodeView) iter.next();				 
+				    nodeView.setSelectedPaint(defaultSelectedNodeColor);
+					nodeView.setUnselectedPaint(defaultUnSelectedNodeColor);			 
+					nodeView.unselect();
+					String id  = nodeView.getNode().getIdentifier();
+					if (attrs.hasAttribute(id, CytoscapeWidget.NODE_FILL_COLOR))
+					 	attrs.deleteAttribute(id, CytoscapeWidget.NODE_FILL_COLOR);
+					      
+				}				 
+				
+				cytoscapeWidget.getComponent().repaint();
 			}
 		}
 	}

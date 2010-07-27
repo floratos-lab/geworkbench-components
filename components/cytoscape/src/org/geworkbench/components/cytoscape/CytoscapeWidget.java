@@ -1,15 +1,16 @@
 package org.geworkbench.components.cytoscape;
 
- 
 import giny.model.Node;
 import giny.view.GraphViewChangeEvent;
 import giny.view.GraphViewChangeListener;
 import giny.view.NodeView;
 
 import java.awt.Color;
+import java.awt.Paint;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Shape;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -52,6 +53,8 @@ import org.geworkbench.events.ProjectNodeRemovedEvent;
 import org.geworkbench.util.Util;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrix;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixDataSet;
+import org.geworkbench.util.visualproperties.PanelVisualProperties;
+import org.geworkbench.util.visualproperties.PanelVisualPropertiesManager;
 
 import com.jgoodies.looks.Options;
 
@@ -61,6 +64,7 @@ import cytoscape.CyNetwork;
 import cytoscape.CyNode;
 import cytoscape.Cytoscape;
 import cytoscape.CytoscapeInit;
+import cytoscape.data.CyAttributes;
 import cytoscape.giny.FingCyNetwork;
 import cytoscape.init.CyInitParams;
 import cytoscape.layout.AbstractLayout;
@@ -79,6 +83,7 @@ import cytoscape.visual.VisualPropertyType;
 import cytoscape.visual.VisualStyle;
 import cytoscape.visual.calculators.Calculator;
 import cytoscape.visual.mappings.DiscreteMapping;
+import cytoscape.visual.parsers.ObjectToString;
 import ding.view.DNodeView;
 
 /**
@@ -92,7 +97,8 @@ import ding.view.DNodeView;
 @SuppressWarnings("deprecation")
 @AcceptTypes( { AdjacencyMatrixDataSet.class })
 public class CytoscapeWidget implements VisualPlugin {
-
+	
+	public final static String NODE_FILL_COLOR = "node.fillColor";
 	private class GenewaysNetworkListener implements PropertyChangeListener {
 		public void propertyChange(PropertyChangeEvent evnt) {
 			if (evnt.getPropertyName() == cytoscape.view.CytoscapeDesktop.NETWORK_VIEW_CREATED) {
@@ -136,23 +142,24 @@ public class CytoscapeWidget implements VisualPlugin {
 	private AdjacencyMatrix adjMatrix = null;
 	private Set<String> dataSetIDs = new HashSet<String>();
 	private volatile Set<Integer> cancelList = new HashSet<Integer>();
-	private DiscreteMapping nodeDm = null, edgeDm = null;	 
+	private DiscreteMapping nodeDm = null, edgeDm = null;
 
 	private VisualStyle visualStyle;
+	private Paint defaultSelectedNodeColor;
+	private Paint defaultUnSelectedNodeColor;
 
 	private int shapeIndex = 0;
-	private NodeShape[] shapes = {NodeShape.HEXAGON, NodeShape.RECT,
-			NodeShape.DIAMOND, NodeShape.ELLIPSE,NodeShape.TRIANGLE,
-			NodeShape.OCTAGON, NodeShape.PARALLELOGRAM,
-			NodeShape.ROUND_RECT, 
+	private NodeShape[] shapes = { NodeShape.HEXAGON, NodeShape.RECT,
+			NodeShape.DIAMOND, NodeShape.ELLIPSE, NodeShape.TRIANGLE,
+			NodeShape.OCTAGON, NodeShape.PARALLELOGRAM, NodeShape.ROUND_RECT,
 			NodeShape.TRAPEZOID_2 };
 
 	private boolean uiSetup = false;
- 
+
 	private CyNetworkView view = null;
-	
+
 	// these are default because ExpandMenuListener needs access
-	
+
 	CyNetwork cytoNetwork = null;
 	JProgressBar jProgressBar = new JProgressBar();
 	DSMicroarraySet<? extends DSMicroarray> maSet = null;
@@ -174,12 +181,15 @@ public class CytoscapeWidget implements VisualPlugin {
 	 * @return <code>Component</code> the view for this component
 	 */
 	public Component getComponent() {
-		JMenuBar menuBar = Cytoscape.getDesktop().getCyMenus().getMenuBar();
-		JMenu fileMenu = menuBar.getMenu(0);
-		fileMenu.remove(fileMenu.getItemCount() - 1); // remove the last item
+
 		// quit
 		Container contentPane = Cytoscape.getDesktop().getContentPane();
 		if (!uiSetup) {
+			JMenuBar menuBar = Cytoscape.getDesktop().getCyMenus().getMenuBar();
+			JMenu fileMenu = menuBar.getMenu(0);
+			fileMenu.remove(fileMenu.getItemCount() - 1); // remove the last
+															// item
+
 			Component[] components = contentPane.getComponents();
 			contentPane.removeAll();
 			Box box = Box.createVerticalBox();
@@ -198,10 +208,11 @@ public class CytoscapeWidget implements VisualPlugin {
 			box.add(comp4);
 
 			contentPane.add(box);
+
 			jProgressBar.setVisible(false);
 			uiSetup = true;
 		}
-
+		 
 		return contentPane;
 	}
 
@@ -212,6 +223,7 @@ public class CytoscapeWidget implements VisualPlugin {
 	}
 
 	private static final String GENE_SEPARATOR = " /// ";
+
 	/**
 	 * Update selection in visualization when the gene selection is changed
 	 * 
@@ -221,11 +233,29 @@ public class CytoscapeWidget implements VisualPlugin {
 	@Subscribe
 	public void receive(GeneTaggedEvent e, Object source) {
 
+		Color color = null;
+		Shape shape = null;
+		CyAttributes attrs = null;
 		DSPanel<DSGeneMarker> panel = e.getPanel();
 		if (panel == null) {
 			log.error("panel is null in "
 					+ new Exception().getStackTrace()[0].getMethodName());
 			return;
+		}
+
+		if (e.getType() == GeneTaggedEvent.USE_VISUAL_PROPERTY) {
+			PanelVisualPropertiesManager propertiesManager = PanelVisualPropertiesManager
+					.getInstance();
+			PanelVisualProperties properties = propertiesManager
+					.getVisualProperties(panel);
+			if (properties == null) {
+				properties = propertiesManager.getDefaultVisualProperties(e
+						.getPanelIndex());
+			}
+
+			color = properties.getColor();
+			shape = properties.getShape();
+			attrs = Cytoscape.getNodeAttributes();
 		}
 
 		List<String> selected = new ArrayList<String>();
@@ -251,12 +281,24 @@ public class CytoscapeWidget implements VisualPlugin {
 					.toUpperCase();
 			log.debug("Check if " + selected + " contains " + nodeLabel);
 			if (selected.contains(nodeLabel)) {
-				nodeView.select();		 
+				if (e.getType() == GeneTaggedEvent.USE_VISUAL_PROPERTY) {
+					attrs.setAttribute(nodeView.getNode().getIdentifier(), NODE_FILL_COLOR, ObjectToString.getStringValue(color));					 
+					nodeView.setSelectedPaint(color);
+					nodeView.setUnselectedPaint(color);
+					nodeView.select();
+				} else {
+					nodeView.select();
+
+				}
 				log.debug("^^^Select^^^");
+
 			} else
+
 				nodeView.unselect();
 		}
+
 		this.getComponent().repaint();
+
 		publishEnabled = true;
 	}
 
@@ -264,19 +306,17 @@ public class CytoscapeWidget implements VisualPlugin {
 	public void receive(AdjacencyMatrixEvent ae, Object source) {
 		if (ae.getAction() != null
 				&& ae.getAction().equals(AdjacencyMatrixEvent.Action.CANCEL)) {
-			cancelList.add(ae.getAdjacencyMatrix().hashCode());			 
-			log.info("got AdjacencyMatrixEvent.action.CANCEL event");			 
-			try
-			{
+			cancelList.add(ae.getAdjacencyMatrix().hashCode());
+			log.info("got AdjacencyMatrixEvent.action.CANCEL event");
+			try {
 				Thread.sleep(100);
-			}catch(Exception ex)
-			{
+			} catch (Exception ex) {
 				log.error(ex.getMessage());
 			}
-			if ( ae.getAdjacencyMatrix() == adjMatrix)
-			    ProjectPanel.getInstance().removeAddedSubNode(adjSet);
-	     }
-		 
+			if (ae.getAdjacencyMatrix() == adjMatrix)
+				ProjectPanel.getInstance().removeAddedSubNode(adjSet);
+		}
+
 	}
 
 	/**
@@ -287,7 +327,7 @@ public class CytoscapeWidget implements VisualPlugin {
 	 */
 	@Subscribe
 	public void receive(org.geworkbench.events.ProjectEvent e, Object source) {
-        int adjMatrixId;
+		int adjMatrixId;
 		try {
 			DSDataSet<?> dataSet = e.getDataSet();
 
@@ -332,26 +372,26 @@ public class CytoscapeWidget implements VisualPlugin {
 				}
 
 				if (!found) {
-					receiveMatrix(adjMatrixId);					
+					receiveMatrix(adjMatrixId);
 				} else {
 					Cytoscape.getDesktop().getNetworkPanel().focusNetworkNode(
 							foundID);
 				}
 				if (cancelList.contains(adjMatrixId))
 					cancelList.remove(adjMatrixId);
-			 
+
 			}
 
 		} catch (Exception ex) {
-			log.error(ex.getMessage());		 
-		}  
+			log.error(ex.getMessage());
+		}
 
 	}
 
 	@SuppressWarnings("unchecked")
 	@Subscribe
 	public void receive(ProjectNodeRemovedEvent event, Object source) {
-		log.info("receive ProjectNodeRemovedEvent event");		 
+		log.info("receive ProjectNodeRemovedEvent event");
 		DSDataSet dataSet = event.getAncillaryDataSet();
 		if (!(dataSet instanceof AdjacencyMatrixDataSet)) {
 			// if the event is published by other types, do nothing.
@@ -366,7 +406,7 @@ public class CytoscapeWidget implements VisualPlugin {
 				id = ((FingCyNetwork) network).getIdentifier();
 				CyNetwork cyNetwork = Cytoscape.getNetwork(id);
 				if (cyNetwork.getTitle().equals(
-						adjMatrixDataSet.getNetworkName())) {					 
+						adjMatrixDataSet.getNetworkName())) {
 					Cytoscape.destroyNetwork(cyNetwork);
 					return;
 				}
@@ -642,14 +682,12 @@ public class CytoscapeWidget implements VisualPlugin {
 			cytoNetwork.addNode(cyNode);
 			log.debug("I add " + cyNode.getIdentifier());
 		}
-		
-		if (isInSelectedMicroarray == false)
-		{
-			Cytoscape.getNodeAttributes().setAttribute(
-					cyNode.getIdentifier(), "geneType", "null");
+
+		if (isInSelectedMicroarray == false) {
+			Cytoscape.getNodeAttributes().setAttribute(cyNode.getIdentifier(),
+					"geneType", "null");
 		}
-		
-		
+
 		return cyNode;
 	}
 
@@ -750,16 +788,16 @@ public class CytoscapeWidget implements VisualPlugin {
 			 */
 			if (edges.size() > 0) {
 				test.getCytoPanel(SwingConstants.SOUTH).setSelectedIndex(1);
-   	     	} else {
- 			test.getCytoPanel(SwingConstants.SOUTH).setSelectedIndex(0);
+			} else {
+				test.getCytoPanel(SwingConstants.SOUTH).setSelectedIndex(0);
 			}
-			
+
 			DSPanel<DSGeneMarker> selectedMarkers = new CSPanel<DSGeneMarker>(
 					"Selected Genes", "Cytoscape");
 			for (int i = 0; i < nodes.size(); i++) {
-				DNodeView pnode = (DNodeView) nodes.get(i);			
-				
-				Node node = pnode.getNode();			 
+				DNodeView pnode = (DNodeView) nodes.get(i);
+
+				Node node = pnode.getNode();
 				if (node instanceof CyNode) {
 					String id = node.getIdentifier();
 					// System.out.println("id = "+id);
@@ -809,6 +847,7 @@ public class CytoscapeWidget implements VisualPlugin {
 	}
 
 	private void init() {
+
 		Cytoscape.getDesktop().setVisible(false);
 
 		CytoscapeInit initializer = new CytoscapeInit();
@@ -825,18 +864,18 @@ public class CytoscapeWidget implements VisualPlugin {
 				new GenewaysNetworkListener());
 		VisualMappingManager manager = Cytoscape.getVisualMappingManager();
 		CalculatorCatalog catalog = manager.getCalculatorCatalog();
-		visualStyle = catalog.getVisualStyle("Nested Network Style");
-
+		// visualStyle = catalog.getVisualStyle("Nested Network Style");
+		visualStyle = catalog.getVisualStyle("Sample1");
 		Calculator nc = catalog.getCalculator(VisualPropertyType.NODE_SHAPE,
 				"Nested Network Style-Node Shape-Discrete Mapper");
-		        
+
 		Vector<?> v = nc.getMappings();
 		for (int i = 0; i < v.size(); i++) {
 			if (v.get(i) instanceof DiscreteMapping)
 				nodeDm = (DiscreteMapping) v.get(i);
 			break;
 		}
-	
+
 		nodeDm.setControllingAttributeName("geneType", cytoNetwork, false);
 		nodeDm.putMapValue("null", shapes[shapeIndex]);
 		nodeDm.putMapValue("K", shapes[++shapeIndex]);
@@ -848,8 +887,8 @@ public class CytoscapeWidget implements VisualPlugin {
 
 		visualStyle.getNodeAppearanceCalculator().setCalculator((nc));
 
-		Calculator ec = catalog.getCalculator(
-				VisualPropertyType.EDGE_COLOR, "BasicDiscrete");
+		Calculator ec = catalog.getCalculator(VisualPropertyType.EDGE_COLOR,
+				"BasicDiscrete");
 		v = ec.getMappings();
 		for (int i = 0; i < v.size(); i++) {
 			if (v.get(i) instanceof DiscreteMapping)
@@ -859,8 +898,7 @@ public class CytoscapeWidget implements VisualPlugin {
 		edgeDm.setControllingAttributeName("type", cytoNetwork, false);
 
 		visualStyle.getEdgeAppearanceCalculator().setCalculator(ec);
-		
-		 
+
 	}
 
 	private void receiveMatrix(int adjMatrixId) {
@@ -887,7 +925,7 @@ public class CytoscapeWidget implements VisualPlugin {
 					.getNetworkViewManager().getDesktopPane().getAllFrames();
 
 			for (int i = 0; i < frames.length; i++) {
-				frames[i].setMaximum(true);
+				frames[i].setMaximum(true);				 
 			}
 
 		} catch (Exception e) {
@@ -895,30 +933,27 @@ public class CytoscapeWidget implements VisualPlugin {
 			// we just try to maximize the window, if failed, no big
 			// deal
 		}
- 
-		// 2) DRAW NETWORK event	  
+
+		// 2) DRAW NETWORK event
 		drawCompleteNetwork(adjMatrixId, getGeneIdToNameMap(), adjSet
 				.getThreshold());
-		if (cancelList.contains(adjMatrixId))
-		{
+		if (cancelList.contains(adjMatrixId)) {
 			log.info("got cancel action");
 			return;
-		
+
 		}
-	 
+
 		Cytoscape.getCurrentNetworkView().applyVizmapper(visualStyle);
-		
-	 
-		if (cancelList.contains(adjMatrixId))
-		{
+
+		if (cancelList.contains(adjMatrixId)) {
 			log.info("got cancel action");
 			return;
-		
-		}		
-		 
+
+		}
+
 		CytoPanel temp = Cytoscape.getDesktop().getCytoPanel(
 				SwingConstants.WEST);
-	 
+
 		NetworkPanel tempp = null;
 		for (int cx = 0; cx < temp.getCytoPanelComponentCount(); cx++) {
 			if (temp.getComponentAt(cx) instanceof NetworkPanel)
@@ -926,20 +961,31 @@ public class CytoscapeWidget implements VisualPlugin {
 		}
 		tempp.hide(); // this line fixed wrong node number and wrong
 		// edge
-         
+
 		// number.
 		// 3) FINISH event
 		if (maSet != null) {
-			view = Cytoscape.createNetworkView(cytoNetwork, maSet.getLabel());
+			view = Cytoscape.createNetworkView(cytoNetwork, maSet.getLabel());		
 			view.addGraphViewChangeListener(new GraphViewChangeListener() {
 				public void graphViewChanged(
 						GraphViewChangeEvent graphViewChangeEvent) {
 					cyNetWorkView_graphViewChanged(graphViewChangeEvent);
 				}
 			});
+			
+			Iterator<?> iter = view.getNodeViewsIterator();
 
+			while (iter.hasNext()) {
+				NodeView nodeView = (NodeView) iter.next();
+				defaultSelectedNodeColor = nodeView.getSelectedPaint();
+				defaultUnSelectedNodeColor = nodeView.getUnselectedPaint();
+			    break;
+			}
+			view.getComponent().addMouseListener(
+					new ExpandMenuListener(CytoscapeWidget.this));
+			
 		}
-	 
+
 		log.info("DrawAction finished.");
 
 	}
@@ -961,17 +1007,18 @@ public class CytoscapeWidget implements VisualPlugin {
 
 	}
 
-	void drawCompleteNetwork(int adjMatrixId, HashMap<String, String> geneIdToNameMap, double threshold) {
+	void drawCompleteNetwork(int adjMatrixId,
+			HashMap<String, String> geneIdToNameMap, double threshold) {
 
 		for (int cx = 0; cx < Cytoscape.getCurrentNetwork().getEdgeCount(); cx++) {
 			Cytoscape.getCurrentNetwork().removeEdge(cx, true);
 		}
-		
+
 		Iterator<Integer> keysIt = adjMatrix.getGeneRows().keySet().iterator();
 		int i = 0;
 		while (keysIt.hasNext()) {
 			if (cancelList.contains(adjMatrixId)) {
-				log.info("got cancel action");				 
+				log.info("got cancel action");
 				return;
 			}
 			i++;
@@ -985,7 +1032,7 @@ public class CytoscapeWidget implements VisualPlugin {
 
 		while (keysNotInMicroarray.hasNext()) {
 			if (cancelList.contains(adjMatrixId)) {
-				log.info("got cancel action");			 
+				log.info("got cancel action");
 				return;
 			}
 			i++;
@@ -995,28 +1042,41 @@ public class CytoscapeWidget implements VisualPlugin {
 		}
 
 		if (cancelList.contains(adjMatrixId)) {
-			log.info("got cancel action");		 
+			log.info("got cancel action");
 			return;
 		}
-	 
+
 		AbstractLayout layout = new ForceDirectedLayout();
-		TaskManager.executeTask( new LayoutTask(layout, Cytoscape.getCurrentNetworkView()), LayoutTask.getDefaultTaskConfig() ); 
+		TaskManager.executeTask(new LayoutTask(layout, Cytoscape
+				.getCurrentNetworkView()), LayoutTask.getDefaultTaskConfig());
 
 		if (cancelList.contains(adjMatrixId)) {
-			log.info("got cancel action");			 
+			log.info("got cancel action");
 			return;
 		}
-	 
-      	//new SpringEmbeddedLayouter(Cytoscape.getCurrentNetworkView())
- 			//	.doLayout();
+
+		// new SpringEmbeddedLayouter(Cytoscape.getCurrentNetworkView())
+		// .doLayout();
 
 		if (cancelList.contains(adjMatrixId)) {
-			log.info("got cancel action");			 
+			log.info("got cancel action");
 			return;
 		}
-	 
+
 		Cytoscape.getCurrentNetworkView().fitContent();
 
 	}
 
+	public Paint getSelectedNodeColor() {
+		return this.defaultSelectedNodeColor;
+	}
+
+	public Paint getUnSelectedNodeColor() {
+		return this.defaultUnSelectedNodeColor;
+	}
+
+	public VisualStyle getVisualStyle() {
+		return this.visualStyle;
+	}
+	
 }
