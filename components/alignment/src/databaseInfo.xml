@@ -2,36 +2,35 @@
 <database_list>
 	<database name="dbindex/9606/rna" type="nucleotide">
 		<description>Human Genomic plus transcript(Human G+T)</description>
-		<detail>Human Genomic + transcript from NCBI
+		<detail>Human Genomic + transcript from NCBI.
 		</detail>
 	</database>
 	
 	<database name="dbindex/10090/rna" type="nucleotide">
 		<description>Mouse Genomic plus transcript(Mouse G+T)</description>
-		<detail>Mouse Genomic + transcript from NCBI
+		<detail>Mouse Genomic + transcript from NCBI.
 		</detail>
 	</database>
 
 	<database name="nr" type="nucleotide">
 		<description>Nucleotide collection</description>
-		<detail>All GenBank+EMBL+DDBJ+PDB sequences
-(but no EST, STS, GSS, or phase 0,
-1 or 2 HTGS sequences).
-No longer 'non-redundant'
-due to computational cost.</detail>
+		<detail>All GenBank + RefSeq Nucleotides + EMBL
++ DDBJ + PDB sequences (excluding HTGS0,1,2,
+EST, GSS, STS, PAT, WGS).
+No longer "non-redundant".</detail>
 	</database>
 	
 	<database name="refseq_rna" type="nucleotide">
 		<description>Reference mRNA sequences</description>
-		<detail>mRNA sequences from NCBI
-Reference Sequence Project.
+		<detail>RNA entries from NCBI's Reference Sequence
+project.
 		</detail>
 	</database>
 	
 	<database name="refseq_genomic" type="nucleotide">
 		<description>Reference genomic sequences</description>
-		<detail>Genomic sequences from
-NCBI Reference Sequence Project.</detail>
+		<detail>Genomic entries from NCBI's
+Reference Sequence project.</detail>
 	</database>
 	
 	<database name="chromosome" type="nucleotide">
@@ -44,7 +43,7 @@ It overlaps with refseq_genomic.</detail>
 	<database name="est" type="nucleotide">
 		<description>Expressed Sequence Tags</description>
 		<detail>Database of GenBank + EMBL + DDBJ
-sequences from EST division.</detail>
+sequences from EST Divisions.</detail>
 	</database>
 	
 	<database name="est_human" type="nucleotide">
@@ -54,7 +53,7 @@ sequences from EST division.</detail>
 	
 	<database name="est_mouse" type="nucleotide">
 		<description>Mouse subset of EST</description>
-		<detail>Mouse subset of EST</detail>
+		<detail>Mouse subset of EST.</detail>
 	</database>
 	
 	<database name="est_others" type="nucleotide">
@@ -64,24 +63,23 @@ sequences from EST division.</detail>
 	
 	<database name="gss" type="nucleotide">
 		<description>Genomic survey sequences</description>
-		<detail>Genome Survey Sequence, includes
-single-pass genomic data,
-nexon-trapped sequences,
+		<detail>Genome Survey Sequence,
+includes single-pass genomic data,
+exon-trapped sequences,
 and Alu PCR sequences.</detail>
 	</database>
 	
 	<database name="htgs" type="nucleotide">
 		<description>High throughput genomic sequences</description>
-		<detail>Unfinished High Throughput
-Genomic Sequences:
-phases 0, 1 and 2. Finished,
-phase 3 HTG sequences are in nr.</detail>
+		<detail>Unfinished High Throughput Genomic Sequences:
+phases 0, 1 and 2. (Finished, phase 3 HTG
+sequences are in nr).</detail>
 	</database>
 	
 	<database name="pat" type="nucleotide">
 		<description>Patent sequences</description>
-		<detail>Nucleotides from the
-Patent division of GenBank.</detail>
+		<detail>Nucleotides from the Patent division
+of GenBank.</detail>
 	</database>
 	
 	<database name="pdb" type="nucleotide">
@@ -95,58 +93,56 @@ PDB record.</detail>
 
 	<database name="alu" type="nucleotide">
 		<description>Human ALU repeat elements</description>
-		<detail>Select Alu repeats from REPBASE,
-suitable for masking Alu repeats
-from query sequences.
-See 'Alu alert' by Claverie and Makalowski,
-Nature 371: 752 (1994).</detail>
+		<detail>alu repeat elements.</detail>
 	</database>
 	
 <database name="dbsts" type="nucleotide">
 	<description>Sequence tagged sites</description>
-	<detail>Database of Sequence Tag Site entries
-from the STS division of
-GenBank + EMBL + DDBJ.</detail>
+	<detail>Database of GenBank+EMBL+DDBJ
+sequences from STS Divisions.</detail>
 </database>
 
 <database name="wgs" type="nucleotide">
 	<description>Whole Genome Shotgun reads</description>
-	<detail>Assemblies of Whole Genome Shotgun sequences.
+	<detail>A database for whole genome
+shotgun sequence entries.
 	</detail>
 </database>
 
 <database name="env_nt" type="nucleotide">
 		<description>Environmental samples</description>
-		<detail>Sequences from environmental samples,
-such as uncultured bacterial samples
-isolated from soil or marine samples.
-The largest single source is the
-Sagarsso Sea project. 
-This does NOT overlap with nucleotide nr.</detail>
+		<detail>Nucleotide sequences from environmental
+samples(e.g. uncultured bacterial samples
+isolated from soil or marine sources),
+including those from the Sargasso Sea and
+Mine Drainage projects.
+Does not overlap with nr.
+</detail>
 	</database>
 
 	<database name="nr" type="protein">
 		<description>Non-redundant protein sequences</description>
-		<detail>Non-redundant GenBank CDS translations
-+ PDB + SwissProt + PIR + PRF, 
-excluding those in env_nr.</detail>
+		<detail>All non-redundant GenBank CDS translations
++ RefSeq Proteins + PDB + SwissProt + PIR
++ PRF.</detail>
 	</database>
 	
 	<database name="refseq_protein" type="protein">
 		<description>Reference proteins</description>
-		<detail>Protein sequences from NCBI Reference
-Sequence project.</detail>
+		<detail>RefSeq protein sequences from NCBI's
+Reference Sequence Project.</detail>
 	</database>
 	
 	<database name="swissprot" type="protein">
 		<description>Swissprot protein sequences</description>
-		<detail>Last major release of the SWISS-PROT protein
-sequence database (no incremental updates).</detail>
+		<detail>Lastest major release of the SWISS-PROT
+protein sequence database 
+(no incremental updates).</detail>
 	</database>
 	
 	<database name="pat" type="protein">
 		<description>Patented protein sequences</description>
-		<detail>Proteins from the Patent division of GenBank.</detail>
+		<detail>Proteins from the Patent division of GenPept.</detail>
 	</database>
 	
 	<database name="pdb" type="protein">
@@ -157,8 +153,8 @@ structure records from the Protein Data Bank.</detail>
 	
 	<database name="env_nr" type="protein">
 		<description>Environmental samples</description>
-		<detail>Non-redundant CDS translations
-from env_nt entries.</detail>
+		<detail>Protein sequences from environmental
+samples.</detail>
 	</database>
 
 </database_list>
