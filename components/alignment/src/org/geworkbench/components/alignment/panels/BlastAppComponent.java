@@ -9,7 +9,6 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -104,7 +103,6 @@ public class BlastAppComponent implements VisualPlugin {
     private JCheckBox excludeModels = null;
     private JCheckBox excludeUnculture = null;
     private JLabel jexcludeLabel = new JLabel("Exclude:");
-    private JLabel jexcludeLabel1 = new JLabel("(optional)");
     
     private JRadioButton megablastBtn=null;
     private JLabel jmegablastLabel = new JLabel("Optimize for:");
@@ -183,7 +181,6 @@ public class BlastAppComponent implements VisualPlugin {
     private Border border3 = new TitledBorder(border1, "Database Details");
     private JTextArea textArea = new JTextArea();
 
-    private JLabel jLabel9 = new JLabel();
     private XYLayout xYLayout1 = new XYLayout();
     private ImageIcon startButtonIcon = new ImageIcon(this.getClass().getResource(
             "start.gif"));
@@ -201,6 +198,8 @@ public class BlastAppComponent implements VisualPlugin {
     private boolean stopButtonPushed;
 
 	private JPanel discontiguousWordOptionsPanel;
+
+	private JPanel geneticCodePanel;
     
     private static JLabel DatabaseLabel = new JLabel("Database:");
     
@@ -265,7 +264,6 @@ public class BlastAppComponent implements VisualPlugin {
         border2 = new TitledBorder(border1,
                                    "Please specify Program and Database");
 
-        jLabel9 = new JLabel();
         xYLayout1 = new XYLayout();
         startButtonIcon = new ImageIcon(this.getClass().getResource(
                 "start.gif"));
@@ -277,14 +275,14 @@ public class BlastAppComponent implements VisualPlugin {
 
         borderLayout3 = new BorderLayout();
 
+        geneticCodePanel = new JPanel();
+
         //above is part of code to get rid of npe.
         //sgePanel.setPv(this);
         subSeqPanel = new JPanel();
         subSeqPanel.setBorder(border2);
         subSeqPanel2 = new JPanel();
         subSeqPanel2.setBorder(border3);
-
-        jLabel9.setText("Program: ");
 
         jBasicPane.setPreferredSize(new Dimension(364, 250));
         jBasicPane.setLayout(borderLayout2);
@@ -412,8 +410,7 @@ public class BlastAppComponent implements VisualPlugin {
         jAdvancedPane.setLayout(new GridBagLayout());       
 
         jProgramBox.setAutoscrolls(false);
-        jProgramBox.setMinimumSize(new Dimension(26, 21));
-        subSeqPanel.setLayout(xYLayout1);
+        subSeqPanel.setLayout(new BoxLayout(subSeqPanel, BoxLayout.Y_AXIS));
         subSeqPanel2.setLayout(xYLayout1);
 
         jstartPointField.setText("1");
@@ -455,19 +452,19 @@ public class BlastAppComponent implements VisualPlugin {
         megablastBtn.setMinimumSize(new Dimension(10,23));
         megablastBtn.setMnemonic(0);        
         megablastBtn.setSelected(true);
-        megablastBtn.setText("Highly similar sequences");
+        megablastBtn.setText("Highly similar sequences (megablast)");
         megablastBtn.addActionListener(new BlastAppComponent_megablastBtn_actionAdapter());        
         
         discontiguousBtn=new JRadioButton();
         discontiguousBtn.setMinimumSize(new Dimension(10,23));
         discontiguousBtn.setMnemonic(0);       
-        discontiguousBtn.setText("More dissimilar sequences");
+        discontiguousBtn.setText("More dissimilar sequences (discontiguous megablast)");
         discontiguousBtn.addActionListener(new BlastAppComponent_discontiguousBtn_actionAdapter());
         
         blastnBtn=new JRadioButton();
         blastnBtn.setMinimumSize(new Dimension(10,23));
         blastnBtn.setMnemonic(0);       
-        blastnBtn.setText("Somewhat similar sequences");
+        blastnBtn.setText("Somewhat similar sequences (blastn)");
         blastnBtn.addActionListener(new BlastAppComponent_discontiguousBtn_actionAdapter());
         
         programBtnGroup.add(megablastBtn);
@@ -531,37 +528,69 @@ public class BlastAppComponent implements VisualPlugin {
         // mainPanel contains one tabbed pane
         mainPanel.add(jTabbedPane1, java.awt.BorderLayout.CENTER);
 
-        subSeqPanel.add(jScrollPane1, new XYConstraints(0, 89, 352, 97));
-        subSeqPanel.add(jLabel9, new XYConstraints(0, 36, 60, 23));
+        JPanel programPanel = new JPanel();
+        programPanel.setLayout(new FlowLayout(FlowLayout.LEADING) );
+        programPanel.add(new JLabel("Program: "));
+        programPanel.add(jProgramBox);
+        programPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        subSeqPanel.add(programPanel);
+        DatabaseLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        subSeqPanel.add(DatabaseLabel);
+        jScrollPane1.setPreferredSize(new Dimension(300, 100));
+        jScrollPane1.setAlignmentX(Component.LEFT_ALIGNMENT);
+        subSeqPanel.add(jScrollPane1);
+        
         textArea.setBackground(subSeqPanel2.getBackground());
         textArea.setEditable(false);
         textArea.setLineWrap(true); //wrap text around
         textArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
         subSeqPanel2.add(textArea,new XYConstraints(0, 84, 352, 150));
-        subSeqPanel.add(DatabaseLabel, new XYConstraints(0, 59, 61, 23));
-        subSeqPanel.add(jProgramBox, new XYConstraints(84, 36, 267, 25)); //edit for new class. 267
         
-        subSeqPanel.add(jexcludeLabel, new XYConstraints(0, 190, 80, 23));
-        subSeqPanel.add(excludeModels, new XYConstraints(84, 190, 200, 23));
-        subSeqPanel.add(jexcludeLabel1, new XYConstraints(0, 210, 80, 23));
-        subSeqPanel.add(excludeUnculture, new XYConstraints(84, 220, 250, 23));
-        subSeqPanel.add(jmegablastLabel, new XYConstraints(0, 250, 80, 23));
-        subSeqPanel.add(megablastBtn, new XYConstraints(84, 250, 200, 23));
-        subSeqPanel.add(discontiguousBtn, new XYConstraints(84, 280, 200, 23));
-        subSeqPanel.add(blastnBtn, new XYConstraints(84, 310, 200, 23));
+        JPanel excludePanel = new JPanel();
+        excludePanel.setLayout(new BoxLayout(excludePanel, BoxLayout.X_AXIS) );
+        excludePanel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+        jexcludeLabel.setAlignmentY(Component.TOP_ALIGNMENT);
+        excludePanel.add(jexcludeLabel);
+        JPanel excludeOptionsPanel = new JPanel();
+        excludeOptionsPanel.setLayout(new BoxLayout(excludeOptionsPanel, BoxLayout.Y_AXIS));
+        excludeOptionsPanel.add(excludeModels);
+        excludeOptionsPanel.add(excludeUnculture);
+        excludeOptionsPanel.setAlignmentY(Component.TOP_ALIGNMENT);
+        excludePanel.add(excludeOptionsPanel);
+        
+        excludePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        subSeqPanel.add(excludePanel);
+        
+        JPanel discontinguousPanel = new JPanel();
+        discontinguousPanel.setLayout(new BoxLayout(discontinguousPanel, BoxLayout.X_AXIS) );
+        discontinguousPanel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+        jmegablastLabel.setAlignmentY(Component.TOP_ALIGNMENT);
+        discontinguousPanel.add(jmegablastLabel);
+        JPanel discontinguousOptionsPanel = new JPanel();
+        discontinguousOptionsPanel.setLayout(new BoxLayout(discontinguousOptionsPanel, BoxLayout.Y_AXIS));
+        discontinguousOptionsPanel.add(megablastBtn);
+        discontinguousOptionsPanel.add(discontiguousBtn);
+        discontinguousOptionsPanel.add(blastnBtn);
+        discontinguousOptionsPanel.setAlignmentY(Component.TOP_ALIGNMENT);
+        discontinguousPanel.add(discontinguousOptionsPanel);
+        discontinguousPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        subSeqPanel.add(discontinguousPanel);
         enableBlastnRelateOptions(false);
-        subSeqPanel.add(jgeneticCodeLabel, new XYConstraints(0, 250, 80, 23));
-        subSeqPanel.add(jgeneticCodeBox, new XYConstraints(84, 250, 200, 23));
-        jgeneticCodeLabel.setVisible(false);
-        jgeneticCodeBox.setVisible(false);
+        
+        geneticCodePanel.setLayout(new FlowLayout(FlowLayout.LEADING));
+        geneticCodePanel.add(jgeneticCodeLabel);
+        geneticCodePanel.add(jgeneticCodeBox);
+        geneticCodePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        subSeqPanel.add(geneticCodePanel);
+        geneticCodePanel.setVisible(false);
       
         displayToolBar.add(Box.createHorizontalStrut(10), null);
         displayToolBar.add(blastButton);
         displayToolBar.add(Box.createHorizontalStrut(5), null);
         displayToolBar.add(blastStopButton);
         jScrollPane4.getViewport().add(jPanel3);
-        jPanel3.add(subSeqPanel, java.awt.BorderLayout.WEST);
-        jPanel3.add(subSeqPanel2, java.awt.BorderLayout.CENTER);
+        jPanel3.add(subSeqPanel, BorderLayout.CENTER);
+        jPanel3.add(subSeqPanel2, BorderLayout.EAST);
         jBasicPane.add(jScrollPane4, java.awt.BorderLayout.CENTER);
         jBasicPane.add(jToolBar2, java.awt.BorderLayout.NORTH);
 
@@ -608,8 +637,7 @@ public class BlastAppComponent implements VisualPlugin {
     }
 
     private void enableBlastnRelateOptions(Boolean b){
-    	jgeneticCodeLabel.setVisible(false);
-        jgeneticCodeBox.setVisible(false);
+    	geneticCodePanel.setVisible(false);
     	if(((String) jProgramBox.getSelectedItem()).equalsIgnoreCase("blastn")&&b){
     		megablastBtn.setVisible(b);
     		discontiguousBtn.setVisible(b);
@@ -623,8 +651,7 @@ public class BlastAppComponent implements VisualPlugin {
     		jmegablastLabel.setVisible(false);
     	}    	
     	jexcludeLabel.setVisible(b);		
-		excludeModels.setVisible(b);		
-		jexcludeLabel1.setVisible(b);		
+		excludeModels.setVisible(b);
 		excludeUnculture.setVisible(b);		
     }
     
@@ -647,8 +674,7 @@ public class BlastAppComponent implements VisualPlugin {
 		
 		enableBlastnRelateOptions(true);
 		if(selectedProgramName.equalsIgnoreCase("blastx")||selectedProgramName.equalsIgnoreCase("tblastx")){
-			jgeneticCodeLabel.setVisible(true);
-	        jgeneticCodeBox.setVisible(true);
+			geneticCodePanel.setVisible(true);
 		}
 
         JPanel generalParametersPanel = new JPanel();
