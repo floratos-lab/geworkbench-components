@@ -21,7 +21,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -68,7 +67,7 @@ public class NormalizationPanel implements VisualPlugin, ReHighlightable {
 	 * The underlying panel for the normalization component
 	 */
 	protected JPanel normalizationPanel = new JPanel();
-	private JSplitPane jSplitPane1 = new JSplitPane();
+	private JPanel mainPanel = new JPanel();
 
 	/**
 	 * Contains the pluggable normalizers available to the user to choose from.
@@ -141,9 +140,8 @@ public class NormalizationPanel implements VisualPlugin, ReHighlightable {
 	 * 
 	 */
 	private void jbInit() throws Exception {
-		jSplitPane1 = new JSplitPane();
-		jSplitPane1.setOrientation(JSplitPane.VERTICAL_SPLIT);
-		jSplitPane1.setDividerSize(3);
+		mainPanel = new JPanel();
+		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 
 		jPanel4.setLayout(borderLayout5);
 		normalizationPanel.setLayout(borderLayout2);
@@ -194,9 +192,8 @@ public class NormalizationPanel implements VisualPlugin, ReHighlightable {
 		namedParameters.setAutoscrolls(true);
 		normalizationPanel.add(jScrollPane2, BorderLayout.CENTER);
 		jScrollPane2.getViewport().add(jPanel3, null);
-		jPanel3.add(jSplitPane1, BorderLayout.CENTER);
+		jPanel3.add(mainPanel, BorderLayout.CENTER);
 		currentParameterPanel.setLayout(borderLayout6);
-		jSplitPane1.add(jPanelControl, JSplitPane.BOTTOM);
 		jPanelControl.add(jPanel4, BorderLayout.WEST);
 		jPanel4.add(currentParameterPanel, BorderLayout.CENTER);
 
@@ -217,7 +214,7 @@ public class NormalizationPanel implements VisualPlugin, ReHighlightable {
 
 		jPanelControl.add(builder.getPanel(), BorderLayout.EAST);
 
-		jSplitPane1.add(jPanel1, JSplitPane.TOP);
+		mainPanel.add(jPanel1);
 		jPanel1.add(Box.createRigidArea(new Dimension(5, 0)));
 		jPanel1.add(new JLabel("Normalizer"));
 		jPanel1.add(Box.createRigidArea(new Dimension(5, 0)));
@@ -226,6 +223,8 @@ public class NormalizationPanel implements VisualPlugin, ReHighlightable {
 		jPanel1.add(new JLabel("Saved Parameters"));
 		jPanel1.add(Box.createRigidArea(new Dimension(5, 0)));
 		jPanel1.add(namedParameters, null);
+
+		mainPanel.add(jPanelControl);
 	}
 
 	/**
