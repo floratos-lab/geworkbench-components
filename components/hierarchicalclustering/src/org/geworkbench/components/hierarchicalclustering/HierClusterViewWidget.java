@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -767,4 +768,17 @@ public class HierClusterViewWidget extends JPanel implements HierClusterModelEve
             this.repaint();
         }
     }
+
+	// this is necessary because arrayDendrogram.leftOffset depends the width of
+	// markerDendrogram, which is known only after painting
+	@Override
+	protected void paintChildren(Graphics g) {
+		super.paintChildren(g);
+
+		int mdw = markerDendrogram.getWidth();
+		if (arrayDendrogram.leftOffset != mdw) {
+			arrayDendrogram.leftOffset = mdw;
+			arrayNames.leftOffset = mdw;
+		}
+	}
 }
