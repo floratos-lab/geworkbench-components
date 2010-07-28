@@ -24,7 +24,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
 import javax.swing.SwingWorker;
 
 import org.apache.commons.logging.Log;
@@ -69,7 +68,7 @@ public class FilteringPanel implements VisualPlugin, ReHighlightable {
 	 * The underlying GUI panel for the filtering component
 	 */
 	protected JPanel filteringPanel = new JPanel();
-	private JSplitPane jSplitPane1 = new JSplitPane();
+	private JPanel mainPane1 = new JPanel();
 
 	/**
 	 * Contains the pluggable filters available to the user to choose from.
@@ -136,9 +135,8 @@ public class FilteringPanel implements VisualPlugin, ReHighlightable {
 	 * 
 	 */
 	private void jbInit() throws Exception {
-		jSplitPane1 = new JSplitPane();
-		jSplitPane1.setOrientation(JSplitPane.VERTICAL_SPLIT);
-		jSplitPane1.setDividerSize(3);
+		mainPane1 = new JPanel();
+		mainPane1.setLayout(new BoxLayout(mainPane1, BoxLayout.Y_AXIS));
 
 		jPanel4.setLayout(borderLayout5);
 		filteringPanel.setLayout(borderLayout2);
@@ -190,13 +188,12 @@ public class FilteringPanel implements VisualPlugin, ReHighlightable {
 		namedParameters.setAutoscrolls(true);
 		filteringPanel.add(jScrollPane2, BorderLayout.CENTER);
 		jScrollPane2.getViewport().add(jPanel3, null);
-		jPanel3.add(jSplitPane1, BorderLayout.CENTER);
+		jPanel3.add(mainPane1, BorderLayout.CENTER);
 		currentParameterPanel.setLayout(borderLayout6);
-		jSplitPane1.add(jPanelControl, JSplitPane.BOTTOM);
 		jPanelControl.add(jPanel4, BorderLayout.WEST);
 		jPanel4.add(currentParameterPanel, BorderLayout.CENTER);
 
-		jSplitPane1.add(jPanel1, JSplitPane.TOP);
+		mainPane1.add(jPanel1);
 		jPanel1.add(Box.createRigidArea(new Dimension(5, 0)));
 		jPanel1.add(new JLabel("Filter"));
 		jPanel1.add(Box.createRigidArea(new Dimension(5, 0)));
@@ -205,6 +202,8 @@ public class FilteringPanel implements VisualPlugin, ReHighlightable {
 		jPanel1.add(new JLabel("Saved Parameters"));
 		jPanel1.add(Box.createRigidArea(new Dimension(5, 0)));
 		jPanel1.add(namedParameters, null);
+
+		mainPane1.add(jPanelControl);
 
 		save.setPreferredSize(deleteSetting.getPreferredSize());
 		filter.setPreferredSize(deleteSetting.getPreferredSize());
