@@ -31,7 +31,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 
@@ -98,7 +97,7 @@ import edu.columbia.geworkbench.cagrid.dispatcher.client.DispatcherClient;
  * @author First Genetic Trust Inc.
  * @author keshav
  * @author yc2480
- * @version $Id: AnalysisPanel.java,v 1.86 2009-08-26 18:24:42 my2248 Exp $
+ * @version $Id$
  * 
  */
 @AcceptTypes( { DSMicroarraySet.class, EdgeListDataSet.class,
@@ -141,7 +140,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 
 	private ParameterPanel emptyParameterPanel = null;
 
-	private JSplitPane analysisParameterSplitPane = null;
+	private JPanel analysisMainPanel = null;
 
 	private JPanel selectedAnalysisParameterPanel = null;
 
@@ -220,7 +219,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		analysisPanelBorderLayout = new BorderLayout();
 		borderLayout3 = new BorderLayout();
 		emptyParameterPanel = new ParameterPanel();
-		analysisParameterSplitPane = new JSplitPane();
+		analysisMainPanel = new JPanel();
 		save = new JButton("Save Settings");
 		delete = new JButton("Delete Settings");
 		selectedAnalysisParameterPanel = new JPanel();
@@ -263,8 +262,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 			}
 
 		});
-		analysisParameterSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
-		analysisParameterSplitPane.setDividerSize(3);
+		analysisMainPanel.setLayout(new BoxLayout(analysisMainPanel, BoxLayout.Y_AXIS));
 
 		parameterComboBox.addActionListener(new ActionListener() {
 
@@ -285,10 +283,8 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		});
 		analysisPanel.add(analysisScrollPane, BorderLayout.CENTER);
 		analysisScrollPane.getViewport().add(innerAnalysisPanel, null);
-		innerAnalysisPanel.add(analysisParameterSplitPane, BorderLayout.CENTER);
-		analysisParameterSplitPane.add(parameterPanel, JSplitPane.BOTTOM);
+		innerAnalysisPanel.add(analysisMainPanel, BorderLayout.CENTER);
 
-		// FIXME - this doesn't seem to do anything
 		selectedAnalysisParameterPanel.add(currentParameterPanel,
 				BorderLayout.CENTER);
 
@@ -311,7 +307,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 
 		parameterPanel.add(buttonsBuilder.getPanel(), BorderLayout.LINE_END);
 
-		analysisParameterSplitPane.add(jPanel1, JSplitPane.TOP);
+		analysisMainPanel.add(jPanel1);
 		jPanel1.setLayout(new BoxLayout(jPanel1, BoxLayout.LINE_AXIS));
 		jPanel1.add(Box.createRigidArea(new Dimension(5, 0)));
 		jPanel1.add(new JLabel("Analysis"));
@@ -321,11 +317,14 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		jPanel1.add(new JLabel("Saved Parameters"));
 		jPanel1.add(Box.createRigidArea(new Dimension(5, 0)));
 		jPanel1.add(parameterComboBox, null);
+		jPanel1.setMaximumSize(new Dimension(1000, 50));
+		jPanel1.setAlignmentX(Component.LEFT_ALIGNMENT);
 
 		jAnalysisTabbedPane = new JTabbedPane();
 		parameterPanel.setName(PARAMETERS);
 		jAnalysisTabbedPane.add(parameterPanel);
-		analysisParameterSplitPane.add(jAnalysisTabbedPane);
+		jAnalysisTabbedPane.setAlignmentX(Component.LEFT_ALIGNMENT);
+		analysisMainPanel.add(jAnalysisTabbedPane);
 
 		mainPanel.add(analysisPanel, BorderLayout.CENTER);
 	}
@@ -384,8 +383,8 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		Arrays.sort(availableAnalyses, comparator);
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Publish
-	@SuppressWarnings("unchecked")
 	public org.geworkbench.events.SubpanelChangedEvent publishSubpanelChangedEvent(
 			org.geworkbench.events.SubpanelChangedEvent event) {
 		return event;
