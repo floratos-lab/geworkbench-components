@@ -273,13 +273,9 @@ public class ExpandMenuListener implements NodeContextMenuListener,
 				attrs = Cytoscape.getNodeAttributes();
 				Iterator<?> iter = view
 						.getNodeViewsIterator();
-
-				Paint defaultSelectedNodeColor = cytoscapeWidget.getSelectedNodeColor();
-				Paint defaultUnSelectedNodeColor = cytoscapeWidget.getUnSelectedNodeColor();
+ 
 				while (iter.hasNext()) {
-					NodeView nodeView = (NodeView) iter.next();				 
-				    nodeView.setSelectedPaint(defaultSelectedNodeColor);
-					nodeView.setUnselectedPaint(defaultUnSelectedNodeColor);			 
+					NodeView nodeView = (NodeView) iter.next();					 
 					nodeView.unselect();
 					String id  = nodeView.getNode().getIdentifier();
 					if (attrs.hasAttribute(id, CytoscapeWidget.NODE_FILL_COLOR))
@@ -287,7 +283,7 @@ public class ExpandMenuListener implements NodeContextMenuListener,
 					      
 				}				 
 				
-				cytoscapeWidget.getComponent().repaint();
+				Cytoscape.getCurrentNetworkView().redrawGraph(false, true);
 			}
 		}
 	}
