@@ -85,10 +85,7 @@ of GenBank.</detail>
 	<database name="pdb" type="nucleotide">
 		<description>Protein Data Bank</description>
 		<detail>Sequences derived from the 3-dimensional
-structure records from Protein Data Bank.
-They are NOT the coding sequences for the
-coresponding proteins found in the same
-PDB record.</detail>
+structure records from Protein Data Bank.</detail>
 	</database>
 
 	<database name="alu" type="nucleotide">
@@ -112,11 +109,8 @@ shotgun sequence entries.
 <database name="env_nt" type="nucleotide">
 		<description>Environmental samples</description>
 		<detail>Nucleotide sequences from environmental
-samples(e.g. uncultured bacterial samples
-isolated from soil or marine sources),
-including those from the Sargasso Sea and
-Mine Drainage projects.
-Does not overlap with nr.
+samples, including those from Sargasso Sea
+and Mine Drainage projects.
 </detail>
 	</database>
 
