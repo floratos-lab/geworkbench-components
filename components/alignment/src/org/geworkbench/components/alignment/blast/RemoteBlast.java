@@ -168,6 +168,7 @@ public class RemoteBlast {
 
 		String submitURLString = "http://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Put"
 				+ cmdLine;
+		LOG.debug("query URL string: '"+submitURLString+"'");
 		PostMethod post = new PostMethod(submitURLString);
 		NameValuePair[] data = {
 		          new NameValuePair("QUERY", query)
