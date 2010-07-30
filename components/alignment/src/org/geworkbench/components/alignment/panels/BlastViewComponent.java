@@ -10,6 +10,7 @@ import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
+import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSAlignmentResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSAlignmentResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
@@ -77,7 +78,7 @@ public class BlastViewComponent implements
         }
 
         ProjectSelection selection = ((ProjectPanel) source).getSelection();
-        DSAncillaryDataSet df = selection.getDataSubSet();
+        DSAncillaryDataSet<DSBioObject> df = selection.getDataSubSet();
         //Get the sequenceDb from DAncillaryDataset not from project.
         DSDataSet<? extends DSSequence> sequenceDB = selection.getDataSet();
         if (df != null && df instanceof CSAlignmentResultSet) {
@@ -93,7 +94,7 @@ public class BlastViewComponent implements
 						((DSAlignmentResultSet) df).getResultFilePath());
 
 				blastViewPanel
-						.setSequenceDB((CSSequenceSet<? extends DSSequence>) sequenceDB);
+						.setSequenceDB((CSSequenceSet<DSSequence>) sequenceDB);
 				blastViewPanel.setBlastDataSet(nbp.parseResults());
 
 				String summary = nbp.getSummary();

@@ -54,6 +54,8 @@ import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
+import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.components.alignment.blast.BlastAlgorithm;
 import org.geworkbench.engine.config.VisualPlugin;
@@ -84,8 +86,8 @@ public class BlastAppComponent implements VisualPlugin {
 	private static AlgorithmMatcher algorithmMatcher = AlgorithmMatcher.getInstance();
 
 	// members from the base class in the previous version
-	private DSSequenceSet sequenceDB = null;
-	private CSSequenceSet activeSequenceDB = null;
+	private DSSequenceSet<DSSequence> sequenceDB = null;
+	private CSSequenceSet<?> activeSequenceDB = null;
 	private boolean activateMarkers = true;
 	private DSPanel<? extends DSGeneMarker> activatedMarkers = null;
 	
@@ -159,7 +161,7 @@ public class BlastAppComponent implements VisualPlugin {
     private JLabel jTemplateTypeLabel = new JLabel("Template Type:");
     private JComboBox jTemplateTypeBox=new JComboBox();
     
-    private CSSequenceSet fastaFile;
+    private CSSequenceSet<?> fastaFile;
     private BlastAppComponent blastAppComponent = null;
     private JPanel subSeqPanel;
     private JPanel subSeqPanel2;
@@ -935,10 +937,6 @@ public class BlastAppComponent implements VisualPlugin {
        	jGapcostsBox.setSelectedIndex(index);
     }
 
-    public CSSequenceSet getFastaFile() {
-        return fastaFile;
-    }
-
     public void reportError(String message, String title) {
         JOptionPane.showMessageDialog(null, message, title,
                                       JOptionPane.ERROR_MESSAGE);
@@ -965,7 +963,7 @@ public class BlastAppComponent implements VisualPlugin {
 
                     updateProgressBar(10, "Wait...");
                     if (fastaFile == null && activeSequenceDB != null) {
-                        fastaFile = (CSSequenceSet) activeSequenceDB;
+                        fastaFile = activeSequenceDB;
                     }
 
                     blastAlgo = new BlastAlgorithm();
@@ -973,7 +971,7 @@ public class BlastAppComponent implements VisualPlugin {
 
                     blastAlgo.setBlastAppComponent(this);
 
-                    blastAlgo.setSequenceDB(activeSequenceDB);
+                    blastAlgo.setSequenceDB((CSSequenceSet<CSSequence>) activeSequenceDB);
                     blastAlgo.setParentSequenceDB(sequenceDB);
                     
                     blastAlgo.execute();
@@ -1017,9 +1015,9 @@ public class BlastAppComponent implements VisualPlugin {
         String endPoint = jendPointField.getSelectedText();
         String startPoint = jstartPointField.getSelectedText();
         if (fastaFile == null && activeSequenceDB != null) {
-            fastaFile = (CSSequenceSet) activeSequenceDB;
+            fastaFile = activeSequenceDB;
         } else if (fastaFile == null && sequenceDB != null) {
-            fastaFile = (CSSequenceSet) sequenceDB;
+            fastaFile = (CSSequenceSet<?>) sequenceDB;
         }
 
         int endValue = -1;
@@ -1223,7 +1221,7 @@ public class BlastAppComponent implements VisualPlugin {
 			if (activatedMarkers != null && activatedMarkers.size() > 0) {
 
 				if (activateMarkers && (sequenceDB != null)) {
-					activeSequenceDB = (CSSequenceSet) ((CSSequenceSet) sequenceDB)
+					activeSequenceDB = (CSSequenceSet<?>) ((CSSequenceSet<?>) sequenceDB)
 							.getActiveSequenceSet(activatedMarkers);
 					sequenceNumberField.setText("Activated Sequence Number: "
 							+ activeSequenceDB.size());
@@ -1233,7 +1231,7 @@ public class BlastAppComponent implements VisualPlugin {
 				sequenceNumberField.setText("Total Sequence Number: "
 						+ sequenceDB.size());
 
-				activeSequenceDB = (CSSequenceSet) sequenceDB;
+				activeSequenceDB = (CSSequenceSet<?>) sequenceDB;
 			}
 
 		} else if (sequenceDB != null) {
@@ -1249,6 +1247,7 @@ public class BlastAppComponent implements VisualPlugin {
 	 * @param e -
 	 *            ProjectEvent
 	 */
+	@SuppressWarnings("rawtypes")
 	@Subscribe
 	public void receive(org.geworkbench.events.ProjectEvent e, Object source) {
 		if (e.getMessage().equals(org.geworkbench.events.ProjectEvent.CLEARED)) {
@@ -1257,7 +1256,7 @@ public class BlastAppComponent implements VisualPlugin {
 			DSDataSet dataSet = e.getDataSet();
 			if (dataSet instanceof DSSequenceSet) {
 				if (sequenceDB != dataSet) {
-					this.sequenceDB = (DSSequenceSet) dataSet;
+					this.sequenceDB = (DSSequenceSet<DSSequence>) dataSet;
 
 					activatedMarkers = null;
 				}
