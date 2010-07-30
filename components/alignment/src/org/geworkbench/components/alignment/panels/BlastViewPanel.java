@@ -31,11 +31,8 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
-import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
-import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
+import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.util.RandomNumberGenerator;
 import org.geworkbench.components.alignment.blast.BlastObj;
 import org.geworkbench.engine.management.Subscribe;
@@ -48,7 +45,6 @@ import org.geworkbench.util.JAutoList;
  * @author XZ
  * @version $Id$
  */
-@SuppressWarnings("unchecked")
 public class BlastViewPanel extends JPanel implements HyperlinkListener {
 	private static final long serialVersionUID = -5271804907456553741L;
 
@@ -62,7 +58,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 	private JLabel summaryLabel = new JLabel();
 	private JButton resetButton = new JButton();
 	private JEditorPane singleAlignmentArea = new JEditorPane();
-	private Vector hits;
+	private Vector<BlastObj> hits;
 	private String summaryStr;
 	private BorderLayout borderLayout1 = new BorderLayout();
 	private JScrollPane jScrollPane1 = new JScrollPane();
@@ -78,8 +74,8 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 	private JSplitPane mainPanel = new JSplitPane();
 	private GeneListModel geneListModel = new GeneListModel();
 	private JSplitPane rightPanel = new JSplitPane();
-	private CSSequenceSet sequenceDB;
-	private ArrayList blastDataSet = new ArrayList();
+	private CSSequenceSet<DSSequence> sequenceDB;
+	private ArrayList<Vector<BlastObj>> blastDataSet = new ArrayList<Vector<BlastObj>>();
 	private final double jSplitPane1DividerLocation = 0.5;
 
 	/**
@@ -211,7 +207,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 		this.add(mainPanel, java.awt.BorderLayout.CENTER);
 	}
 
-	private void setResults(Vector hits) {
+	private void setResults(Vector<BlastObj> hits) {
 		this.hits = hits;
 		displayResults();
 	}
@@ -329,7 +325,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 			} else {
 				selectedRow = lsm.getMinSelectionIndex();
 				if (hits != null && hits.size() > selectedRow) {
-					selectedHit = (BlastObj) hits.get(selectedRow);
+					selectedHit = hits.get(selectedRow);
 					showAlignment(selectedHit);
 				}
 
@@ -340,7 +336,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 	public boolean foundAtLeastOneSelected() {
 
 		for (int i = 0; i < hits.size(); i++) {
-			BlastObj hit = (BlastObj) hits.get(i);
+			BlastObj hit = hits.get(i);
 			if (hit.getInclude()) {
 				return true;
 			}
@@ -408,7 +404,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 		}
 
 		/* returns the Class type of the column c */
-		public Class getColumnClass(int c) {
+		public Class<?> getColumnClass(int c) {
 			return getValueAt(0, c).getClass();
 		}
 
@@ -431,7 +427,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 		 * table
 		 */
 		public void setValueAt(Object value, int row, int col) {
-			hit = (BlastObj) hits.get(row);
+			hit = hits.get(row);
 			hit.setInclude(((Boolean) value).booleanValue());
 			fireTableCellUpdated(row, col);
 		}
@@ -453,7 +449,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 
 		public void run() {
 
-			CSSequenceSet db = new CSSequenceSet();
+			CSSequenceSet<DSSequence> db = new CSSequenceSet<DSSequence>();
 
 			try {
 
@@ -473,7 +469,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 				PrintWriter out = new PrintWriter(
 						new FileOutputStream(tempFile));
 				for (int i = 0; i < hits.size(); i++) {
-					BlastObj hit = (BlastObj) hits.get(i);
+					BlastObj hit = hits.get(i);
 					progressMonitor.setProgress(retrievedSequenceNum);
 
 					if (progressMonitor.isCanceled()) {
@@ -535,16 +531,16 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 		protected void elementClicked(int index, MouseEvent e) {
 			if (blastDataSet != null && blastDataSet.size() > index) {
 				if (blastDataSet.get(index) != null) {
-					setResults((Vector) blastDataSet.get(index));
+					setResults( blastDataSet.get(index));
 					displaySummaryLabel(" " + summaryStr + " Sequence "
 							+ ((CSSequence) sequenceDB.get(index)).getLabel()
 							+ " has "
-							+ ((Vector) blastDataSet.get(index)).size()
+							+ blastDataSet.get(index).size()
 							+ " hits.");
 
 				} else {
 
-					setResults(new Vector());
+					setResults(new Vector<BlastObj>());
 					resetToWhite("No hits found");
 					displaySummaryLabel(" " + summaryStr + " Sequence "
 							+ ((CSSequence) sequenceDB.get(index)).getLabel()
@@ -552,8 +548,8 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 
 				}
 			} else if (blastDataSet != null && blastDataSet.size()>0
-					&& (Vector) blastDataSet.get(0) != null) {
-				setResults((Vector) blastDataSet.get(0));
+					&& blastDataSet.get(0) != null) {
+				setResults(blastDataSet.get(0));
 			}
 		}
 
@@ -582,14 +578,6 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 			return ((CSSequence) sequenceDB.get(index)).getLabel();
 		}
 
-		public DSGeneMarker getMarker(int index) {
-			return dataSetView.getMicroarraySet().getMarkers().get(index);
-		}
-
-		public Object getItem(int index) {
-			return sequenceDB.get(index);
-		}
-
 		/**
 		 * Indicates to the associated JList that the contents need to be
 		 * redrawn.
@@ -602,16 +590,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 			}
 		}
 
-		public void refreshItem(int index) {
-			fireContentsChanged(this, index, index);
-		}
-
 	}
-
-	/**
-	 * The dataset that holds the microarrayset and panels.
-	 */
-	private DSMicroarraySetView<DSGeneMarker, DSMicroarray> dataSetView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>();
 
 	/**
 	 * setSequenceDB
@@ -619,7 +598,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 	 * @param sequenceDB
 	 *            DSDataSet
 	 */
-	public void setSequenceDB(CSSequenceSet sequenceDB) {
+	public void setSequenceDB(CSSequenceSet<DSSequence> sequenceDB) {
 		this.sequenceDB = sequenceDB;
 		geneListModel.refresh();
 	}
@@ -630,7 +609,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 	 * @param arrayList
 	 *            ArrayList
 	 */
-	public void setBlastDataSet(ArrayList arrayList) {
+	public void setBlastDataSet(ArrayList<Vector<BlastObj>> arrayList) {
 		blastDataSet = arrayList;
 		if (markerList != null && blastDataSet != null && sequenceDB != null) {
 			markerList.setHighlightedIndex(sequenceDB.size() - 1);
@@ -648,7 +627,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 				return;
 			}
 			for (int i = 0; i < hits.size(); i++) {
-				BlastObj hit = (BlastObj) hits.get(i);
+				BlastObj hit = hits.get(i);
 				hit.setInclude(true);
 
 			}
@@ -690,7 +669,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 			}
 
 			for (int i = 0; i < hits.size(); i++) {
-				BlastObj hit = (BlastObj) hits.get(i);
+				BlastObj hit = hits.get(i);
 				hit.setInclude(false);
 			}
 
