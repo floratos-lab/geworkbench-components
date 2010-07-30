@@ -1,6 +1,7 @@
 package org.geworkbench.components.sequenceretriever;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
@@ -47,20 +48,19 @@ import org.geworkbench.util.patterns.CSMatchedSeqPattern;
 import org.geworkbench.util.patterns.PatternLocations;
 import org.geworkbench.util.patterns.PatternOperations;
 import org.geworkbench.util.patterns.PatternSequenceDisplayUtil;
-import org.geworkbench.util.sequences.SequenceViewWidgetPanel;
 
 /**
  * Originally created by IntelliJ IDEA.
  * 
  * @author xiaoqing
- * @version $Id: RetrievedSequencesPanel.java,v 1.15 2008-11-24 21:37:12 jiz Exp $
+ * @version $Id$
  */
 
 /**
  * The main GUI class for sequence display panel.
+ * 
+ * @version $Id$
  */
-
-@SuppressWarnings("unchecked")
 public class RetrievedSequencesPanel extends JPanel {
 	private static final long serialVersionUID = 430612435863058186L;
 	
@@ -704,8 +704,7 @@ public class RetrievedSequencesPanel extends JPanel {
                                             PatternLocations.
                                                     TFTYPE)) {
 
-                                        g.setColor(SequenceViewWidgetPanel.
-                                                DRECTIONCOLOR);
+                                        g.setColor(Color.RED);
 
                                         int shape = 3;
                                         int[] xi = new int[shape];
