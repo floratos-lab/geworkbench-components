@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
 	<component  name="Sequence Viewer"
@@ -9,7 +10,7 @@
 				description="The sequence viewer can display either a line
  or sequence-level display of loaded sequences.  Results of pattern discovery can
  be projected onto this display."
-				visualizer="true"
+				category="visualizer"
 				loadByDefault="true"
 	 >
 		<license><![CDATA[
