@@ -90,6 +90,7 @@ public class MasterRegulatorAnalysis extends AbstractAnalysis implements
 		};
 		TtestAnalysisPanel tTestAnalysisPanel = mraAnalysisPanel.getTTestPanel();
 		TtestAnalysis tTestAnalysis= new TtestAnalysis(tTestAnalysisPanel);
+		tTestAnalysisPanel.setVisible(false);
 		// validate data and parameters.
 		ParamValidationResults validation = validateParameters();
 		if (!validation.isValid()) {
