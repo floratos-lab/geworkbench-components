@@ -171,19 +171,19 @@ public class AlgorithmMatcher {
 	
 	static private Map<String, String> geneticCode2number=new HashMap<String, String>();
 	static{
-		geneticCode2number.put("Standard(1)","1");
-		geneticCode2number.put("Vertebrate Mitochondrial(2)","2");
-		geneticCode2number.put("Yeast Mitochondrial(3)","3");
-		geneticCode2number.put("Mold Mitochondrial(4)","4");
-		geneticCode2number.put("Invertebrate Mitochondrial(5)","5");
-		geneticCode2number.put("Ciliate Nuclear(6)","6");
-		geneticCode2number.put("Echinoderm Mitochondrial(9)","9");
-		geneticCode2number.put("Euplotid Nuclear(10)","10");
-		geneticCode2number.put("Bacteria and Archaea(11)","11");
-		geneticCode2number.put("Alternative Yeast Nuclear(12)","12");
-		geneticCode2number.put("Ascidian Mitochondrial(13)","13");
-		geneticCode2number.put("Flatworm Mitochondrial(14)","14");
-		geneticCode2number.put("Blepharisma Macronuclear(15)","15");
+		geneticCode2number.put("Standard (1)","1");
+		geneticCode2number.put("Vertebrate Mitochondrial (2)","2");
+		geneticCode2number.put("Yeast Mitochondrial (3)","3");
+		geneticCode2number.put("Mold Mitochondrial (4)","4");
+		geneticCode2number.put("Invertebrate Mitochondrial (5)","5");
+		geneticCode2number.put("Ciliate Nuclear (6)","6");
+		geneticCode2number.put("Echinoderm Mitochondrial (9)","9");
+		geneticCode2number.put("Euplotid Nuclear (10)","10");
+		geneticCode2number.put("Bacteria and Archaea (11)","11");
+		geneticCode2number.put("Alternative Yeast Nuclear (12)","12");
+		geneticCode2number.put("Ascidian Mitochondrial (13)","13");
+		geneticCode2number.put("Flatworm Mitochondrial (14)","14");
+		geneticCode2number.put("Blepharisma Macronuclear (15)","15");
 	}
 
 	private static final String GAPB0_1 = "Linear";
@@ -527,6 +527,10 @@ public class AlgorithmMatcher {
                 if (ps.isExcludeUncultureOn()){
                 	cmd += "&EXCLUDE_SEQ_UNCULT=yes";
                 }
+                if (!(ps.getEntrezQuery()==null)||(ps.getEntrezQuery().trim()=="")){
+                	cmd += "&EQ_TEXT="+ps.getEntrezQuery();
+                }
+                
                 if(ps.getProgramName().equalsIgnoreCase("blastn")){
 	                if (ps.isMegaBlastOn()){
 	                	cmd += "&BLAST_PROGRAMS=megaBlast"; 
@@ -607,7 +611,7 @@ public class AlgorithmMatcher {
                 specie_repeat.put("A.gambiae","repeat_7165");
                 specie_repeat.put("Zebrafish","repeat_7955");
                 specie_repeat.put("Fruit fly","repeat_7227");
-                if(ps.getSpeciesRepeat()!=null){                	
+                if((ps.getSpeciesRepeat()!=null)&&(ps.isHumanRepeatFilterOn())){                	
                 		cmd+="&REPEATS=" + specie_repeat.get(ps.getSpeciesRepeat());                
                 }
                 
@@ -616,9 +620,9 @@ public class AlgorithmMatcher {
                 }
                 
                 if (ps.getProgramName().equals("blastp")||ps.getProgramName().equals("tblastn"))	//COMPOSITION only applies to blastp and tblastn
-                	cmd += "&EXPECT=" + ps.getExpect() + "&MAX_NUM_SEQ=50&&COMPOSITION_BASED_STATISTICS=2&AUTO_FORMAT=Semiauto&CDD_SEARCH=on&SHOW_OVERVIEW=on&SERVICE=plain\r\n\r\n";
+                	cmd += "&EXPECT=" + ps.getExpect() + "&COMPOSITION_BASED_STATISTICS=2&AUTO_FORMAT=Semiauto&CDD_SEARCH=on&SHOW_OVERVIEW=on&SERVICE=plain\r\n\r\n";
                 else
-                	cmd += "&EXPECT=" + ps.getExpect() + "&MAX_NUM_SEQ=50&AUTO_FORMAT=Semiauto&SHOW_OVERVIEW=on&SERVICE=plain\r\n\r\n";
+                	cmd += "&EXPECT=" + ps.getExpect() + "&AUTO_FORMAT=Semiauto&SHOW_OVERVIEW=on&SERVICE=plain\r\n\r\n";
             }
 
         }

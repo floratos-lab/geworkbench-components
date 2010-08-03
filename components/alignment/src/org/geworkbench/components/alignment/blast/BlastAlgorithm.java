@@ -290,13 +290,15 @@ public class BlastAlgorithm extends SwingWorker<CSAlignmentResultSet, Integer> {
 			histStr += "----------------------------------------\n";
 
 				String dbName=parameterSetting.getDbName();
-				if (dbName.equalsIgnoreCase("dbindex/9606/rna")) dbName="Human G+T";
-				else if(dbName.equalsIgnoreCase("dbindex/10090/rna")) dbName="Mouse G+T";
+				if (dbName.equalsIgnoreCase("dbindex/9606/allcontig_and_rna")) dbName="Human G+T";
+				else if(dbName.equalsIgnoreCase("dbindex/10090/allcontig_and_rna")) dbName="Mouse G+T";
 				histStr += "Database: " + dbName + LINEBREAK;
 				histStr += "BLAST Program: " + parameterSetting.getProgramName() + LINEBREAK;
 				
 				histStr += "Exclude of Models(XM/XP): " + parameterSetting.isExcludeModelsOn() + LINEBREAK;
 				histStr += "Exclude of Uncultured/environmental sequences: " + parameterSetting.isExcludeUncultureOn() + LINEBREAK;
+				if(parameterSetting.getEntrezQuery()!=null)
+					histStr += "Entrez Query: "+parameterSetting.getEntrezQuery() + LINEBREAK;
 				if(parameterSetting.getProgramName().equalsIgnoreCase("blastn")){
 					String optimizeFor="";
 					if (parameterSetting.isMegaBlastOn()) optimizeFor="Highly similar sequences (megablast)";					
@@ -312,7 +314,8 @@ public class BlastAlgorithm extends SwingWorker<CSAlignmentResultSet, Integer> {
 				
 				histStr += "Expect: " + parameterSetting.getExpect() + LINEBREAK;
 				histStr += "Word Size: " + parameterSetting.getWordsize() + LINEBREAK;
-				histStr += "Matrix: " + parameterSetting.getMatrix() + LINEBREAK;
+				if(!parameterSetting.getProgramName().equalsIgnoreCase("blastn"))
+					histStr += "Matrix: " + parameterSetting.getMatrix() + LINEBREAK;
 				histStr += "Match/mismatch Scores: " + parameterSetting.getMatchScores() + LINEBREAK;
 				histStr += "Gap Cost: " + parameterSetting.getGapCost() + LINEBREAK;
 				if (parameterSetting.getProgramName().equalsIgnoreCase("blastp")||parameterSetting.getProgramName().equalsIgnoreCase("tblastn")){
