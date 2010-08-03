@@ -3,42 +3,40 @@ package org.geworkbench.components.ttest;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Hashtable;
 
 import javax.swing.JPanel;
 
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.commons.math.stat.regression.SimpleRegression;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMasterRagulatorResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
-import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.math.stat.regression.SimpleRegression;
 
 public class DetailedTFGraphViewer extends JPanel {
+	private static final long serialVersionUID = -9131829017081209680L;
+	
 	private Log log = LogFactory.getLog(this.getClass());
-	DSMasterRagulatorResultSet mraResultSet;
+	
 	DSGeneMarker tfA;
-	DSItemList<DSGeneMarker> targetGenes;
-	DSMicroarraySet<DSMicroarray> mSet;
-	int numberOfMarkers;
-	HashMap<Integer, DSGeneMarker> Rank2GeneMap;
-	HashMap<DSGeneMarker, Integer> Gene2RankMap;
-	double pValue = 1;
-	double minTValue = 0;
-	double maxTValue = 0;
-	int numOfPositiveTValues = 0; //included 0
+	
+	private DSMasterRagulatorResultSet<DSGeneMarker> mraResultSet;
+	private DSMicroarraySet<DSMicroarray> mSet;
+	private int numberOfMarkers;
+	private HashMap<Integer, DSGeneMarker> Rank2GeneMap;
+	private HashMap<DSGeneMarker, Integer> Gene2RankMap;
+	private double pValue = 1;
+	private double minTValue = 0;
+	private double maxTValue = 0;
+	private int numOfPositiveTValues = 0; //included 0
 
-	public void setTFA(DSMasterRagulatorResultSet mraResultSet, DSGeneMarker tfA) {
+	public void setTFA(DSMasterRagulatorResultSet<DSGeneMarker> mraResultSet, DSGeneMarker tfA) {
 		this.mraResultSet = mraResultSet;
 		this.tfA = tfA;
-		targetGenes = new CSItemList();
 		if (mraResultSet != null) {
 			mSet = mraResultSet.getMicroarraySet();
 			numberOfMarkers = mSet.getMarkers().size();
@@ -47,7 +45,7 @@ public class DetailedTFGraphViewer extends JPanel {
 			numberOfMarkers = 0;
 		}
 		numOfPositiveTValues = 0;
-		Hashtable<Double, DSGeneMarker> hash = new Hashtable();
+		Hashtable<Double, DSGeneMarker> hash = new Hashtable<Double, DSGeneMarker>();
 		for (int cx = 0; cx < numberOfMarkers; cx++) {
 			DSGeneMarker marker = (DSGeneMarker) mSet.getMarkers().get(cx);
 			double tValue = mraResultSet.getSignificanceResultSet().getTValue(marker);
@@ -100,7 +98,7 @@ public class DetailedTFGraphViewer extends JPanel {
 			for (int i = 0; i < numMarkers; i++) {
 				int geneNum = i;
 				int center = (int) (width * (geneNum + 0.5) / numMarkers);
-				DSItemList genesInTargetList = mraResultSet
+				DSItemList<DSGeneMarker> genesInTargetList = mraResultSet
 						.getGenesInTargetList(tfA);
 				if (genesInTargetList == null){	//if user selected wrong TF, which doesn't have neighbors
 					System.out.println("Wrong TF");
@@ -112,7 +110,7 @@ public class DetailedTFGraphViewer extends JPanel {
 					if (rank!=null && rank.intValue() == i) {
 						if (mraResultSet.getPValueOf(tfA, marker) <= pValue) {
 							SimpleRegression SR = new SimpleRegression();
-							DSMicroarraySet maSet = mraResultSet
+							DSMicroarraySet<DSMicroarray> maSet = mraResultSet
 									.getMicroarraySet();
 							double[] arrayData1 = maSet.getRow(tfA);
 							double[] arrayData2 = maSet.getRow(marker);

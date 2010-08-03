@@ -19,9 +19,7 @@ import java.awt.event.MouseEvent;
 import java.beans.Expression;
 import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.EventObject;
 
-import javax.swing.AbstractCellEditor;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -33,13 +31,12 @@ import javax.swing.JTextArea;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
-import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
 public class TableViewer extends JPanel {
-
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = -5229999809803617742L;
+	
 	protected JTable table;
 	protected TableModel model;
 	protected JScrollPane pane;
@@ -261,6 +258,7 @@ public class TableViewer extends JPanel {
 				return compareToOther(other) * (-1);
 			}
 
+			@SuppressWarnings("unchecked")
 			public int compareToOther(Object other) {
 				Row otherRow = (Row) other;
 				Object myObject = tableData[index][colToSort];

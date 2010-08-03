@@ -1,18 +1,8 @@
 package org.geworkbench.components.ttest;
 
-import java.awt.Component;
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
 import java.util.StringTokenizer;
-
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreePath;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -36,9 +26,7 @@ import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.builtin.projects.ProjectPanel;
-import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.Subscribe;
-import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrix;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixDataSet;
 
@@ -48,11 +36,8 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixData
  */
 public class MasterRegulatorAnalysis extends AbstractAnalysis implements
 		ClusteringAnalysis {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 940204157465957195L;
+	
 	private Log log = LogFactory.getLog(this.getClass());
 	private final String analysisName = "MRA";
 	private MasterRegulatorPanel mraAnalysisPanel = new MasterRegulatorPanel();
@@ -66,6 +51,7 @@ public class MasterRegulatorAnalysis extends AbstractAnalysis implements
 		return AbstractAnalysis.MRA_TYPE;
 	}
 
+	@SuppressWarnings("unchecked")
 	public AlgorithmExecutionResults execute(Object input) {
 		// read input data, dataset view, dataset, etc.
 		if (!(input instanceof DSMicroarraySetView)){
@@ -80,8 +66,7 @@ public class MasterRegulatorAnalysis extends AbstractAnalysis implements
 			return new AlgorithmExecutionResults(false,
 					"Network (Adjacency Matrix) has not been loaded yet.", null);
 		};		
-		String correction = mraAnalysisPanel.getCorrection();
-		//double pValue = mraAnalysisPanel.getPValue();
+
 		String transcriptionFactorsStr = mraAnalysisPanel.getTranscriptionFactor();
 		if (transcriptionFactorsStr.equals("")){
 			return new AlgorithmExecutionResults(false,
@@ -98,7 +83,7 @@ public class MasterRegulatorAnalysis extends AbstractAnalysis implements
 					validation.getMessage(), null);
 		}
 		// analysis
-		DSMasterRagulatorResultSet mraResultSet = new CSMasterRegulatorResultSet(
+		DSMasterRagulatorResultSet<DSGeneMarker> mraResultSet = new CSMasterRegulatorResultSet<DSGeneMarker>(
 				maSet, analysisName, view.markers().size());		
 		//t-test
 		log.info("Executing T-Test...");
@@ -111,21 +96,6 @@ public class MasterRegulatorAnalysis extends AbstractAnalysis implements
 			log.info("Significant markers: "+marker.getLabel());
 		}
 		
-		
-		log.info("Get network from adj matrix...");
-		for (Iterator iterator = amSet.getMatrix().getKeys().iterator(); iterator
-				.hasNext();) { // for each from node
-			Integer id1 = (Integer) iterator.next();
-			HashMap<Integer, Float> neighbors = amSet.getMatrix().get(id1);
-			if (neighbors!=null)
-			for (Iterator iterator2 = neighbors.keySet().iterator(); iterator2
-					.hasNext();) { // for each end node
-				Integer id2 = (Integer) iterator2.next();
-				//log.info("Got an edge:("+id1+")"+maSet.getMarkers().get(id1).getLabel()
-				//		+ " - " + maSet.getMarkers().get(id2).getLabel());
-			}
-		}
-
 		//get TFs
 		ArrayList<DSGeneMarker> transcriptionFactors=new ArrayList<DSGeneMarker>();
 		StringTokenizer st = new StringTokenizer(transcriptionFactorsStr, ", ");
@@ -159,10 +129,8 @@ public class MasterRegulatorAnalysis extends AbstractAnalysis implements
 			//int geneid = tfA.getSerial();
 			AdjacencyMatrix adjMatrix = amSet.getMatrix();
 			int geneid = adjMatrix.getMappedId(tfA.getSerial());
-			HashMap test = adjMatrix.get(geneid);
-			if (test!=null){
-				Set test2 = test.keySet();
-				for (Object key : amSet.getMatrix().get(tfA.getSerial()).keySet()){//for each neighbor
+			if (adjMatrix.get(geneid)!=null){
+				for (Object key : adjMatrix.get(tfA.getSerial()).keySet()){//for each neighbor
 					Integer neighborId = (Integer)key;
 					DSGeneMarker neighbor = maSet.getMarkers().get(neighborId);
 					nA.add(neighbor);
@@ -285,6 +253,7 @@ public class MasterRegulatorAnalysis extends AbstractAnalysis implements
 		return histStr;
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Subscribe
 	public void receive(org.geworkbench.events.ProjectNodeAddedEvent e,
 			Object source) {
@@ -294,6 +263,7 @@ public class MasterRegulatorAnalysis extends AbstractAnalysis implements
 					.addAdjMatrixToCombobox((AdjacencyMatrixDataSet) dataSet);
 		}
 	}
+	@SuppressWarnings("rawtypes")
 	@Subscribe
 	public void receive(org.geworkbench.events.ProjectNodeRemovedEvent e,
 			Object source) {
@@ -303,6 +273,7 @@ public class MasterRegulatorAnalysis extends AbstractAnalysis implements
 					.removeAdjMatrixToCombobox((AdjacencyMatrixDataSet) dataSet);
 		}
 	}
+	@SuppressWarnings("rawtypes")
 	@Subscribe
 	public void receive(org.geworkbench.events.ProjectNodeRenamedEvent e,
 			Object source) {
@@ -312,13 +283,14 @@ public class MasterRegulatorAnalysis extends AbstractAnalysis implements
 					.renameAdjMatrixToCombobox((AdjacencyMatrixDataSet)dataSet, e.getOldName(),e.getNewName());
 		}
 	}
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Subscribe
 	public void receive(org.geworkbench.events.ProjectEvent e,
 			Object source) {
 		if (e.getMessage().equals(org.geworkbench.events.ProjectEvent.SELECTED)){
 			DSDataSet dataSet = e.getDataSet();
 			if (dataSet instanceof DSMicroarraySet) {
-				this.mraAnalysisPanel.setMicroarraySet((DSMicroarraySet)dataSet);
+				this.mraAnalysisPanel.setMicroarraySet((DSMicroarraySet<DSMicroarray>)dataSet);
 			}else{
 				this.mraAnalysisPanel.setMicroarraySet(null);
 			}
