@@ -443,12 +443,12 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		}
 	};
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Subscribe
 	public void receive(ProjectEvent event, Object source) {
 		DSDataSet dataSet = event.getDataSet();
 		if (dataSet instanceof DSMasterRagulatorResultSet) {
-			MRAResultSet = (DSMasterRagulatorResultSet) dataSet;
+			MRAResultSet = (DSMasterRagulatorResultSet<DSGeneMarker>) dataSet;
 			currentSelectedRadioButton = null;
 			updateTable();
 			useSymbol = true;
@@ -572,9 +572,8 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 	 * Add to Set
 	 */
 	@Publish
-	@SuppressWarnings("unchecked")
-	public org.geworkbench.events.SubpanelChangedEvent publishSubpanelChangedEvent(
-			org.geworkbench.events.SubpanelChangedEvent event) {
+	public org.geworkbench.events.SubpanelChangedEvent<DSGeneMarker> publishSubpanelChangedEvent(
+			org.geworkbench.events.SubpanelChangedEvent<DSGeneMarker> event) {
 		return event;
 	}
 

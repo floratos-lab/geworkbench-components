@@ -33,7 +33,6 @@ import org.geworkbench.events.listeners.ParameterActionListener;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixDataSet;
 
 import com.jgoodies.binding.adapter.BasicComponentFactory;
-import com.jgoodies.binding.adapter.ComboBoxAdapter;
 import com.jgoodies.binding.list.ArrayListModel;
 import com.jgoodies.binding.list.SelectionInList;
 import com.jgoodies.binding.value.ValueHolder;
@@ -46,8 +45,8 @@ import com.jgoodies.forms.layout.FormLayout;
  *  @version $Id$
  */
 public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
-
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = -6160058089960168299L;
+	
 	private static final float PValueThresholdDefault = 0.05f;
 	private static final String TFGeneListDefault = ("AFFX-HUMGAPDH/M33197_3_at, AFFX-HUMGAPDH/M33197_5_at, AFFX-HUMGAPDH/M33197_M_at, AFFX-HUMRGE/M10098_3_at, AFFX-HUMRGE/M10098_M_at");
 
@@ -154,19 +153,12 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		correctionComboBoxStrings.add("Standard Bonferroni");
 		correctionComboBoxStrings.add("Adjusted Bonferroni");
 		correctionHolder = new ValueHolder("No correction");
-        ComboBoxAdapter comboBoxAdapter = new ComboBoxAdapter(correctionComboBoxStrings, correctionHolder);
-        JComboBox correctionComboBox = new JComboBox();
-        correctionComboBox.setModel(comboBoxAdapter);
-//        builder.append(correctionComboBox);
 
         builder.nextLine();
         JTabbedPane jTabbedPane1 = new JTabbedPane();
         jTabbedPane1.add(builder.getPanel(),"Main");
         jTabbedPane1.add(tTestPanel,"T-test");
         //t-test panel
-//        builder.appendSeparator("P-value parameters");
-//        builder.append(tTestPanel,9);
-//		this.add(builder.getPanel());
         this.add(jTabbedPane1,BorderLayout.CENTER);
         
         ParameterActionListener parameterActionListener = new ParameterActionListener(this);
@@ -208,7 +200,7 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		networkFromModel.add("From Project");
 		networkFromModel.add("From File");
 		NetworkFromListener networkFromListener= new NetworkFromListener();
-		SelectionInList<String> selectionInList=new SelectionInList((ListModel)networkFromModel);
+		SelectionInList<String> selectionInList=new SelectionInList<String>((ListModel)networkFromModel);
 		selectionInList.addPropertyChangeListener(networkFromListener);
 		return BasicComponentFactory.createComboBox(selectionInList);
 	}
@@ -260,7 +252,7 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		adjModel = new ArrayListModel<String>();
 		//we'll generate network list in addAdjMatrixToCombobox() 
 		AdjListener adjListener= new AdjListener(this.adjMatrix);
-		SelectionInList<String> selectionInList=new SelectionInList((ListModel)adjModel);
+		SelectionInList<String> selectionInList=new SelectionInList<String>((ListModel)adjModel);
 		selectionInList.addPropertyChangeListener(adjListener);
 		return BasicComponentFactory.createComboBox(selectionInList);
 	}
@@ -269,7 +261,7 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		tfFromModel.add("From Sets");
 		tfFromModel.add("From File");
 		TFFromListener tfFromListener= new TFFromListener();
-		SelectionInList<String> selectionInList=new SelectionInList((ListModel)tfFromModel);
+		SelectionInList<String> selectionInList=new SelectionInList<String>((ListModel)tfFromModel);
 		selectionInList.addPropertyChangeListener(tfFromListener);
 		return BasicComponentFactory.createComboBox(selectionInList);
 	}
@@ -277,7 +269,7 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		groupModel = new ArrayListModel<String>();
 		//we'll generate group list in getGroups() 
 		GroupListener groupListener= new GroupListener();
-		SelectionInList<String> selectionInList=new SelectionInList((ListModel)groupModel);
+		SelectionInList<String> selectionInList=new SelectionInList<String>((ListModel)groupModel);
 		selectionInList.addPropertyChangeListener(groupListener);
 		return BasicComponentFactory.createComboBox(selectionInList);
 	}
@@ -338,7 +330,7 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		TFGeneListTextField.setText(TFString);
 	}
 	public TtestAnalysisPanel getTTestPanel(){
-		return this.tTestPanel;
+		return tTestPanel;
 	}
 	
 	ArrayList<AdjacencyMatrixDataSet> adjacencymatrixDataSets=new ArrayList<AdjacencyMatrixDataSet>();
@@ -377,8 +369,6 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 	public void getGroups(){
 		DSAnnotationContextManager manager = CSAnnotationContextManager
 		.getInstance();
-		DSAnnotationContext<DSMicroarray> microArrayGroups = manager
-				.getCurrentContext(maSet);
 		DSAnnotationContext<DSGeneMarker> markerGroups = manager
 				.getCurrentContext(maSet.getMarkers());
 		groupModel.clear();
