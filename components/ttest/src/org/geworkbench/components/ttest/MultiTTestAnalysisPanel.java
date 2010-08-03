@@ -20,6 +20,7 @@ import org.geworkbench.bison.annotation.CSAnnotationContextManager;
 import org.geworkbench.bison.annotation.DSAnnotationContext;
 import org.geworkbench.bison.annotation.DSAnnotationContextManager;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
@@ -28,13 +29,14 @@ import com.jgoodies.forms.layout.FormLayout;
  * <p>Copyright: Copyright (c) 2003</p>
  * <p>Company: First Genetic Trust Inc.</p>
  * @author First Genetic Trust
- * @version 1.0
+ * @version $Id$
  */
 
 /**
  * Parameters panel used by the <code>ThresholdNormalizer</code>.
  */
 public class MultiTTestAnalysisPanel extends AbstractSaveableParameterPanel {
+	private static final long serialVersionUID = -4829462519463439143L;
 
 	private Log log = LogFactory.getLog(this.getClass());
 
@@ -42,7 +44,7 @@ public class MultiTTestAnalysisPanel extends AbstractSaveableParameterPanel {
 
     private JFormattedTextField pValue = new JFormattedTextField();
 
-    private DSMicroarraySet maSet = null;
+    private DSMicroarraySet<DSMicroarray> maSet = null;
 
     private ArrayList<JCheckBox> checkBoxes = new ArrayList<JCheckBox>();
 
@@ -62,7 +64,7 @@ public class MultiTTestAnalysisPanel extends AbstractSaveableParameterPanel {
         pValue = new JFormattedTextField(DEFAULT_P_VALUE);
         setLayout(new BorderLayout());
         
-        logCheckbox = logCheckbox = new JCheckBox("Data is log2-transformed", false);
+        logCheckbox = new JCheckBox("Data is log2-transformed", false);
         logCheckbox.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
             	useroverride = true;                              
@@ -96,7 +98,7 @@ public class MultiTTestAnalysisPanel extends AbstractSaveableParameterPanel {
         if (maSet != null) {
             // Get existing selections, if any
             DSAnnotationContextManager manager = CSAnnotationContextManager.getInstance();
-            DSAnnotationContext context = manager.getCurrentContext(maSet);
+            DSAnnotationContext<DSMicroarray> context = manager.getCurrentContext(maSet);
             int n = context.getNumberOfLabels();
             for (int i = 0; i < n; i++) {
                 String label = context.getLabel(i);
@@ -135,7 +137,7 @@ public class MultiTTestAnalysisPanel extends AbstractSaveableParameterPanel {
         return result;
     }
 
-    public void setMaSet(DSMicroarraySet maSet) {
+    public void setMaSet(DSMicroarraySet<DSMicroarray> maSet) {
         this.maSet = maSet;
     }
     

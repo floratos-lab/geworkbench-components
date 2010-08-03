@@ -1,8 +1,6 @@
 package org.geworkbench.components.ttest;
 
-import java.io.Serializable;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.math.MathException;
@@ -18,10 +16,8 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSTTestResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSTTestResultSet;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
-import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue; 
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSTTestResultSet; 
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
@@ -40,14 +36,9 @@ import org.geworkbench.util.ProgressBarT;
  */
 public class MultiTTestAnalysis extends AbstractAnalysis implements
 		ClusteringAnalysis {
+	private static final long serialVersionUID = -940107149844721836L;
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
-	@SuppressWarnings("unchecked")
-	private static class Indexable implements Comparable {
+	private static class Indexable implements Comparable<Indexable> {
 
 		private double[] data;
 		private int index;
@@ -57,10 +48,7 @@ public class MultiTTestAnalysis extends AbstractAnalysis implements
 			this.index = index;
 		}
 
-		public int compareTo(Object o) {
-			// Assumes that the other object is an indexable referencing the
-			// same data
-			Indexable other = (Indexable) o;
+		public int compareTo(Indexable other) {
 			if (data[index] > data[other.index]) {
 				return 1;
 			} else if (data[index] < data[other.index]) {
@@ -91,7 +79,7 @@ public class MultiTTestAnalysis extends AbstractAnalysis implements
 		ProgressBarT pbMTtest = null;
 		try {
 			DSMicroarraySetView<DSGeneMarker, DSMicroarray> view = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
-			DSMicroarraySet maSet = view.getMicroarraySet();
+			DSMicroarraySet<DSMicroarray> maSet = view.getMicroarraySet();
 			TTest tTest = new TTestImpl();
 			// Get params
 			Set<String> labelSet = panel.getLabels();
@@ -250,23 +238,23 @@ public class MultiTTestAnalysis extends AbstractAnalysis implements
 		return null;
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Subscribe
 	public void receive(ProjectEvent event, Object source) {
 		DSDataSet dataSet = event.getDataSet();
 		if ((dataSet != null) && (dataSet instanceof DSMicroarraySet)) {
-			panel.setMaSet((DSMicroarraySet) dataSet);
+			panel.setMaSet((DSMicroarraySet<DSMicroarray>) dataSet);
 			panel.rebuildForm();
 		}
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	@Subscribe
 	public void receive(PhenotypeSelectorEvent event, Object source) {
 		panel.rebuildForm();
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	@Publish
 	public SubpanelChangedEvent publishSubpanelChangedEvent(
 			SubpanelChangedEvent event) {
@@ -389,9 +377,6 @@ public class MultiTTestAnalysis extends AbstractAnalysis implements
                      }
                      controlMean = controlMean / controlPanel.size() + minValue;
 
-                     double sigValue = resultSet.getSignificance(marker);
-                     
-                     String isLogNormalizedStr ="";
                      double fold_change = 0;
                      double ratio =0;
                      if (!isLogNormalized) {
@@ -402,10 +387,8 @@ public class MultiTTestAnalysis extends AbstractAnalysis implements
                          } else {
                         	 fold_change = Math.log(ratio) / Math.log(2.0);
                          }
-                         isLogNormalizedStr = "false";
                      } else {;
                     	 fold_change = caseMean - controlMean;
-                    	 isLogNormalizedStr = "true";
                      }          
                                 
                      
