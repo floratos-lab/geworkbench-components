@@ -54,8 +54,6 @@ import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
-import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.components.alignment.blast.BlastAlgorithm;
 import org.geworkbench.engine.config.VisualPlugin;
@@ -86,8 +84,8 @@ public class BlastAppComponent implements VisualPlugin {
 	private static AlgorithmMatcher algorithmMatcher = AlgorithmMatcher.getInstance();
 
 	// members from the base class in the previous version
-	private DSSequenceSet<DSSequence> sequenceDB = null;
-	private CSSequenceSet<?> activeSequenceDB = null;
+	private DSSequenceSet sequenceDB = null;
+	private CSSequenceSet activeSequenceDB = null;
 	private boolean activateMarkers = true;
 	private DSPanel<? extends DSGeneMarker> activatedMarkers = null;
 	
@@ -104,15 +102,17 @@ public class BlastAppComponent implements VisualPlugin {
     //boxes for bug2019
     private JCheckBox excludeModels = null;
     private JCheckBox excludeUnculture = null;
-    private JLabel jexcludeLabel = new JLabel("Exclude:");
+    private JLabel jexcludeLabel = new JLabel("Exclude: ");
+    private JLabel jEntrezQueryLabel=new JLabel("Entrez Query: ");
+    private JTextField jEntrezQueryText=new JTextField(20);    
     
     private JRadioButton megablastBtn=null;
-    private JLabel jmegablastLabel = new JLabel("Optimize for:");
+    private JLabel jmegablastLabel = new JLabel("Optimize for: ");
     private JRadioButton discontiguousBtn=null;
     private JRadioButton blastnBtn=null;
     private ButtonGroup programBtnGroup=new ButtonGroup();
     
-    private JLabel jgeneticCodeLabel = new JLabel("Genetic Code:");
+    private JLabel jgeneticCodeLabel = new JLabel("Genetic Code: ");
     private JComboBox jgeneticCodeBox=new JComboBox();
     
     // five check boxes in filter panel+...
@@ -143,6 +143,7 @@ public class BlastAppComponent implements VisualPlugin {
     private JPanel speciesRepeatPanel = new JPanel();
     
     // pairs of label and combo box on blastxSettingPanel
+    private JLabel jMatrixLabel= new JLabel("Matrix:");
     private JComboBox jMatrixBox = new JComboBox();
     private JLabel maxTargetLabel= new JLabel("Max target sequences:");
     private JComboBox jMaxTargetBox=new JComboBox();
@@ -161,7 +162,7 @@ public class BlastAppComponent implements VisualPlugin {
     private JLabel jTemplateTypeLabel = new JLabel("Template Type:");
     private JComboBox jTemplateTypeBox=new JComboBox();
     
-    private CSSequenceSet<?> fastaFile;
+    private CSSequenceSet fastaFile;
     private BlastAppComponent blastAppComponent = null;
     private JPanel subSeqPanel;
     private JPanel subSeqPanel2;
@@ -385,19 +386,19 @@ public class BlastAppComponent implements VisualPlugin {
         jTemplateTypeBox.addItem("Two template");
         jTemplateTypeBox.setSelectedIndex(0);        
         
-        jgeneticCodeBox.addItem("Standard(1)");
-        jgeneticCodeBox.addItem("Vertebrate Mitochondrial(2)");
-        jgeneticCodeBox.addItem("Yeast Mitochondrial(3)");
-        jgeneticCodeBox.addItem("Mold Mitochondrial(4)");
-        jgeneticCodeBox.addItem("Invertebrate Mitochondrial(5)");
+        jgeneticCodeBox.addItem("Standard (1)");
+        jgeneticCodeBox.addItem("Vertebrate Mitochondrial (2)");
+        jgeneticCodeBox.addItem("Yeast Mitochondrial (3)");
+        jgeneticCodeBox.addItem("Mold Mitochondrial (4)");
+        jgeneticCodeBox.addItem("Invertebrate Mitochondrial (5)");
         jgeneticCodeBox.addItem("Ciliate Nuclear(6)");
-        jgeneticCodeBox.addItem("Echinoderm Mitochondrial(9)");
-        jgeneticCodeBox.addItem("Euplotid Nuclear(10)");
-        jgeneticCodeBox.addItem("Bacteria and Archaea(11)");
-        jgeneticCodeBox.addItem("Alternative Yeast Nuclear(12)");
-        jgeneticCodeBox.addItem("Ascidian Mitochondrial(13)");
-        jgeneticCodeBox.addItem("Flatworm Mitochondrial(14)");
-        jgeneticCodeBox.addItem("Blepharisma Macronuclear(15)");
+        jgeneticCodeBox.addItem("Echinoderm Mitochondrial (9)");
+        jgeneticCodeBox.addItem("Euplotid Nuclear (10)");
+        jgeneticCodeBox.addItem("Bacteria and Archaea (11)");
+        jgeneticCodeBox.addItem("Alternative Yeast Nuclear (12)");
+        jgeneticCodeBox.addItem("Ascidian Mitochondrial (13)");
+        jgeneticCodeBox.addItem("Flatworm Mitochondrial (14)");
+        jgeneticCodeBox.addItem("Blepharisma Macronuclear (15)");
         
         jMaxTargetBox.addItem("10");
         jMaxTargetBox.addItem("50");
@@ -486,7 +487,7 @@ public class BlastAppComponent implements VisualPlugin {
         
         maskLowCaseBox = new JCheckBox();
         maskLowCaseBox.setToolTipText("Filterl lower case sequences.");
-        maskLowCaseBox.setText("Mask lower case");
+        maskLowCaseBox.setText("Mask lower case letter");
 
         maskLookupOnlyBox = new JCheckBox();
         maskLookupOnlyBox.setText("Mask for lookup table only");
@@ -518,9 +519,10 @@ public class BlastAppComponent implements VisualPlugin {
         jGapcostsBox.setToolTipText("Score subtracted due to the gaps");
         excludeModels.setToolTipText("Models(XM/XP)");
         excludeUnculture.setToolTipText("Uncultured/environmental sample sequences");
+        jEntrezQueryText.setToolTipText("Enter an Entrez query to limit search ");
         megablastBtn.setToolTipText("Highly similar sequences (megablast)");
         discontiguousBtn.setToolTipText("More dissimilar sequences (discontiguous megablast)");
-        blastnBtn.setToolTipText("Somewhat similar sequences (blastn)");
+        blastnBtn.setToolTipText("Somewhat similar sequences (blastn)");        
         
 		// jTabbedBlastPane contains two panels
 		jTabbedBlastPane.add(jBasicPane, "Main");
@@ -536,6 +538,30 @@ public class BlastAppComponent implements VisualPlugin {
         programPanel.add(jProgramBox);
         programPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         subSeqPanel.add(programPanel);
+        
+        JPanel discontinguousPanel = new JPanel();
+        discontinguousPanel.setLayout(new BoxLayout(discontinguousPanel, BoxLayout.X_AXIS) );
+        discontinguousPanel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+        jmegablastLabel.setAlignmentY(Component.TOP_ALIGNMENT);
+        discontinguousPanel.add(jmegablastLabel);
+        JPanel discontinguousOptionsPanel = new JPanel();
+        discontinguousOptionsPanel.setLayout(new BoxLayout(discontinguousOptionsPanel, BoxLayout.Y_AXIS));
+        discontinguousOptionsPanel.add(megablastBtn);
+        discontinguousOptionsPanel.add(discontiguousBtn);
+        discontinguousOptionsPanel.add(blastnBtn);
+        discontinguousOptionsPanel.setAlignmentY(Component.TOP_ALIGNMENT);
+        discontinguousPanel.add(discontinguousOptionsPanel);
+        discontinguousPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        subSeqPanel.add(discontinguousPanel);
+        enableBlastnRelateOptions(false); 
+        
+        geneticCodePanel.setLayout(new FlowLayout(FlowLayout.LEADING));
+        geneticCodePanel.add(jgeneticCodeLabel);
+        geneticCodePanel.add(jgeneticCodeBox);
+        geneticCodePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        subSeqPanel.add(geneticCodePanel);
+        geneticCodePanel.setVisible(false);      
+        
         DatabaseLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
         subSeqPanel.add(DatabaseLabel);
         jScrollPane1.setPreferredSize(new Dimension(300, 100));
@@ -561,31 +587,17 @@ public class BlastAppComponent implements VisualPlugin {
         excludePanel.add(excludeOptionsPanel);
         
         excludePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        subSeqPanel.add(excludePanel);
+        subSeqPanel.add(excludePanel);  
         
-        JPanel discontinguousPanel = new JPanel();
-        discontinguousPanel.setLayout(new BoxLayout(discontinguousPanel, BoxLayout.X_AXIS) );
-        discontinguousPanel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
-        jmegablastLabel.setAlignmentY(Component.TOP_ALIGNMENT);
-        discontinguousPanel.add(jmegablastLabel);
-        JPanel discontinguousOptionsPanel = new JPanel();
-        discontinguousOptionsPanel.setLayout(new BoxLayout(discontinguousOptionsPanel, BoxLayout.Y_AXIS));
-        discontinguousOptionsPanel.add(megablastBtn);
-        discontinguousOptionsPanel.add(discontiguousBtn);
-        discontinguousOptionsPanel.add(blastnBtn);
-        discontinguousOptionsPanel.setAlignmentY(Component.TOP_ALIGNMENT);
-        discontinguousPanel.add(discontinguousOptionsPanel);
-        discontinguousPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        subSeqPanel.add(discontinguousPanel);
-        enableBlastnRelateOptions(false);
+        JPanel entrezQueryPanel = new JPanel();
+        entrezQueryPanel.setLayout(new FlowLayout(FlowLayout.LEADING) );
+        entrezQueryPanel.add(jEntrezQueryLabel);
+        entrezQueryPanel.add(jEntrezQueryText);
+        entrezQueryPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        subSeqPanel.add(entrezQueryPanel); 
+        jEntrezQueryLabel.setVisible(false);
+		jEntrezQueryText.setVisible(false);
         
-        geneticCodePanel.setLayout(new FlowLayout(FlowLayout.LEADING));
-        geneticCodePanel.add(jgeneticCodeLabel);
-        geneticCodePanel.add(jgeneticCodeBox);
-        geneticCodePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        subSeqPanel.add(geneticCodePanel);
-        geneticCodePanel.setVisible(false);
-      
         displayToolBar.add(Box.createHorizontalStrut(10), null);
         displayToolBar.add(blastButton);
         displayToolBar.add(Box.createHorizontalStrut(5), null);
@@ -671,9 +683,14 @@ public class BlastAppComponent implements VisualPlugin {
 			textArea.setText( "" );
 			jAdvancedPane.setEnabled(false);
 			enableBlastnRelateOptions(false);
+			jEntrezQueryLabel.setVisible(false);
+			jEntrezQueryText.setVisible(false);
 			return;
 		}
 		
+		jEntrezQueryLabel.setVisible(true);
+		jEntrezQueryText.setVisible(true);
+		jEntrezQueryText.setText("");
 		enableBlastnRelateOptions(true);
 		if(selectedProgramName.equalsIgnoreCase("blastx")||selectedProgramName.equalsIgnoreCase("tblastx")){
 			geneticCodePanel.setVisible(true);
@@ -713,7 +730,7 @@ public class BlastAppComponent implements VisualPlugin {
         scoringParametersPanel.setLayout(new BoxLayout(scoringParametersPanel, BoxLayout.Y_AXIS));
         JPanel maxtrixPanel = new JPanel();
         maxtrixPanel.setLayout(new FlowLayout(FlowLayout.LEADING) );
-        maxtrixPanel.add(new JLabel("Matrix:"));
+        maxtrixPanel.add(jMatrixLabel);
         maxtrixPanel.add(jMatrixBox);
         maxtrixPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         scoringParametersPanel.add(maxtrixPanel);	
@@ -859,6 +876,8 @@ public class BlastAppComponent implements VisualPlugin {
 			jGapcostsLabel.setVisible(true);
 			maskLookupOnlyBox.setSelected(true);
 			shortQueriesBox.setVisible(true);
+			jMatrixLabel.setVisible(false);
+			jMatrixBox.setVisible(false);
 			
 		} else {
 			jMatrixBox.setSelectedIndex(3);
@@ -869,6 +888,8 @@ public class BlastAppComponent implements VisualPlugin {
 			jGapcostsLabel.setVisible(true);			
 			maskLookupOnlyBox.setSelected(false);
 			maskLowCaseBox.setSelected(false);
+			jMatrixLabel.setVisible(true);
+			jMatrixBox.setVisible(true);
 			if (selectedProgramName.equalsIgnoreCase("blastp")||selectedProgramName.equalsIgnoreCase("tblastn")){
 				jCompositionalLabel.setVisible(true);
 				jCompositionalBox.setVisible(true);
@@ -937,6 +958,10 @@ public class BlastAppComponent implements VisualPlugin {
        	jGapcostsBox.setSelectedIndex(index);
     }
 
+    public CSSequenceSet getFastaFile() {
+        return fastaFile;
+    }
+
     public void reportError(String message, String title) {
         JOptionPane.showMessageDialog(null, message, title,
                                       JOptionPane.ERROR_MESSAGE);
@@ -963,7 +988,7 @@ public class BlastAppComponent implements VisualPlugin {
 
                     updateProgressBar(10, "Wait...");
                     if (fastaFile == null && activeSequenceDB != null) {
-                        fastaFile = activeSequenceDB;
+                        fastaFile = (CSSequenceSet) activeSequenceDB;
                     }
 
                     blastAlgo = new BlastAlgorithm();
@@ -971,7 +996,7 @@ public class BlastAppComponent implements VisualPlugin {
 
                     blastAlgo.setBlastAppComponent(this);
 
-                    blastAlgo.setSequenceDB((CSSequenceSet<CSSequence>) activeSequenceDB);
+                    blastAlgo.setSequenceDB(activeSequenceDB);
                     blastAlgo.setParentSequenceDB(sequenceDB);
                     
                     blastAlgo.execute();
@@ -1015,9 +1040,9 @@ public class BlastAppComponent implements VisualPlugin {
         String endPoint = jendPointField.getSelectedText();
         String startPoint = jstartPointField.getSelectedText();
         if (fastaFile == null && activeSequenceDB != null) {
-            fastaFile = activeSequenceDB;
+            fastaFile = (CSSequenceSet) activeSequenceDB;
         } else if (fastaFile == null && sequenceDB != null) {
-            fastaFile = (CSSequenceSet<?>) sequenceDB;
+            fastaFile = (CSSequenceSet) sequenceDB;
         }
 
         int endValue = -1;
@@ -1047,12 +1072,13 @@ public class BlastAppComponent implements VisualPlugin {
         String templateType=(String) jTemplateTypeBox.getSelectedItem();
         String geneticCode=(String) jgeneticCodeBox.getSelectedItem();
         String maxTargetNumber=(String) jMaxTargetBox.getSelectedItem();
+        String entrezQuery=jEntrezQueryText.getText().trim();
         
         ParameterSetting ps = new ParameterSetting(dbName, programName,
 				jDisplayInWebBox.isSelected(), expectValue, lowComplexFilterOn,
 				humanRepeatFilterOn, maskLowCaseOn, (String) jMatrixBox
 						.getSelectedItem(), maskLookupOnlyBox.isSelected(),
-						excludeModelsOn,excludeUncultureOn,megaBlastOn,
+						excludeModelsOn,excludeUncultureOn, entrezQuery,megaBlastOn,
 						discontiguousOn,blastnBtnOn,shortQueriesOn,matchScores,compositionalAdjustment,
 						speciesRepeat, templateLength, templateType, geneticCode, maxTargetNumber);
         if (startValue <= 1 && endValue >= fastaFile.getMaxLength()) {
@@ -1221,7 +1247,7 @@ public class BlastAppComponent implements VisualPlugin {
 			if (activatedMarkers != null && activatedMarkers.size() > 0) {
 
 				if (activateMarkers && (sequenceDB != null)) {
-					activeSequenceDB = (CSSequenceSet<?>) ((CSSequenceSet<?>) sequenceDB)
+					activeSequenceDB = (CSSequenceSet) ((CSSequenceSet) sequenceDB)
 							.getActiveSequenceSet(activatedMarkers);
 					sequenceNumberField.setText("Activated Sequence Number: "
 							+ activeSequenceDB.size());
@@ -1231,7 +1257,7 @@ public class BlastAppComponent implements VisualPlugin {
 				sequenceNumberField.setText("Total Sequence Number: "
 						+ sequenceDB.size());
 
-				activeSequenceDB = (CSSequenceSet<?>) sequenceDB;
+				activeSequenceDB = (CSSequenceSet) sequenceDB;
 			}
 
 		} else if (sequenceDB != null) {
@@ -1247,7 +1273,6 @@ public class BlastAppComponent implements VisualPlugin {
 	 * @param e -
 	 *            ProjectEvent
 	 */
-	@SuppressWarnings("rawtypes")
 	@Subscribe
 	public void receive(org.geworkbench.events.ProjectEvent e, Object source) {
 		if (e.getMessage().equals(org.geworkbench.events.ProjectEvent.CLEARED)) {
@@ -1256,7 +1281,7 @@ public class BlastAppComponent implements VisualPlugin {
 			DSDataSet dataSet = e.getDataSet();
 			if (dataSet instanceof DSSequenceSet) {
 				if (sequenceDB != dataSet) {
-					this.sequenceDB = (DSSequenceSet<DSSequence>) dataSet;
+					this.sequenceDB = (DSSequenceSet) dataSet;
 
 					activatedMarkers = null;
 				}
