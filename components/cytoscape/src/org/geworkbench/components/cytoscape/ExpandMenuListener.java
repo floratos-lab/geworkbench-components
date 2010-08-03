@@ -2,13 +2,14 @@ package org.geworkbench.components.cytoscape;
 
 import giny.model.Node;
 import giny.view.NodeView;
-
-import java.awt.Paint;
-import java.awt.event.ActionEvent;
+ 
+import java.awt.event.ActionEvent; 
 import java.awt.event.MouseListener;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -16,33 +17,43 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.swing.AbstractAction;
+import javax.swing.JDialog;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JProgressBar;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
+import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker; 
+import org.geworkbench.bison.datastructure.bioobjects.microarray.CSSignificanceResultSet;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.CSTTestResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
-import org.geworkbench.bison.datastructure.complex.panels.DSPanel; 
+import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.builtin.projects.DataSetNode;
+import org.geworkbench.builtin.projects.DataSetSubNode;
+import org.geworkbench.builtin.projects.ProjectPanel;
+import org.geworkbench.builtin.projects.ProjectTreeNode;
 import org.geworkbench.events.SubpanelChangedEvent;
+import org.geworkbench.util.Util;
 
 import cytoscape.CyNetwork;
 import cytoscape.CyNode;
 import cytoscape.Cytoscape;
-import cytoscape.data.CyAttributes; 
+import cytoscape.data.CyAttributes;
 import cytoscape.view.CyNetworkView;
 import ding.view.DNodeView;
 import ding.view.NodeContextMenuListener;
 
-
 public class ExpandMenuListener implements NodeContextMenuListener,
 		MouseListener {
-	final static Log log = LogFactory.getLog(ExpandMenuListener.class);	
- 
+	final static Log log = LogFactory.getLog(ExpandMenuListener.class);
+
 	private CytoscapeWidget cytoscapeWidget = null;
 
 	// following fields are a temporary solution for refactoring
@@ -52,7 +63,7 @@ public class ExpandMenuListener implements NodeContextMenuListener,
 	protected CyNetwork cytoNetwork = null;
 
 	protected List<Long> runningThreads = null;
-	
+
 	private CyAttributes attrs = null;
 
 	public ExpandMenuListener(CytoscapeWidget cytoscapeWidget) {
@@ -64,6 +75,7 @@ public class ExpandMenuListener implements NodeContextMenuListener,
 		cytoNetwork = cytoscapeWidget.cytoNetwork;
 
 		runningThreads = new ArrayList<Long>();
+
 	}
 
 	/**
@@ -109,7 +121,7 @@ public class ExpandMenuListener implements NodeContextMenuListener,
 			JPopupMenu menu = new JPopupMenu();
 
 			JMenuItem menuItemTTestResults = new JMenuItem(
-					new IntersectionAction("Show t-test results"));
+					new ShowTTestResultAction("Show t-test results"));
 			JMenuItem menuItemClear = new JMenuItem(new ClearNodeColorAction(
 					"Clear node colors"));
 			menu.add(menuItemTTestResults);
@@ -254,6 +266,51 @@ public class ExpandMenuListener implements NodeContextMenuListener,
 		}
 	}
 
+	private class ShowTTestResultAction extends AbstractAction {
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 5057482753345747183L;
+
+		public ShowTTestResultAction(String name) {
+			super(name);
+		}
+
+		@SuppressWarnings( { "unchecked" })
+		public void actionPerformed(ActionEvent actionEvent) {
+
+			Map<String, CSSignificanceResultSet<DSGeneMarker>> map = new HashMap<String, CSSignificanceResultSet<DSGeneMarker>>();
+			DataSetNode dataSetNode = ProjectPanel.getInstance().getSelection()
+					.getSelectedDataSetNode();
+			searchTestResultNodes(dataSetNode, map, CSTTestResultSet.class);
+
+			if (map.size() == 0)
+			{
+				JOptionPane
+				.showMessageDialog(
+						null,
+						"There are no T-Test result nodes associated with the currently selected microarray set.",
+
+						"Information",
+						JOptionPane.INFORMATION_MESSAGE);
+			}
+			else
+			{
+				JDialog dialog = new JDialog();
+				dialog.add(new TTestResultSelectionPanel(dialog, cytoscapeWidget, map, maSet));
+				dialog.setModal(true);
+				dialog.setTitle("Please Select T-Test Result");					 
+				dialog.pack();
+				Util.centerWindow(dialog);
+				dialog.setVisible(true);
+			}
+				
+			
+		
+		}
+	}
+
 	private class ClearNodeColorAction extends AbstractAction {
 
 		/**
@@ -268,21 +325,20 @@ public class ExpandMenuListener implements NodeContextMenuListener,
 		@SuppressWarnings( { "unchecked" })
 		public void actionPerformed(ActionEvent actionEvent) {
 			CyNetworkView view = Cytoscape.getCurrentNetworkView();
-			if (view != null
-					&& Cytoscape.getCurrentNetwork() != null) {
+			if (view != null && Cytoscape.getCurrentNetwork() != null) {
 				attrs = Cytoscape.getNodeAttributes();
-				Iterator<?> iter = view
-						.getNodeViewsIterator();
- 
+				Iterator<?> iter = view.getNodeViewsIterator();
+
 				while (iter.hasNext()) {
-					NodeView nodeView = (NodeView) iter.next();					 
+					NodeView nodeView = (NodeView) iter.next();
 					nodeView.unselect();
-					String id  = nodeView.getNode().getIdentifier();
+					String id = nodeView.getNode().getIdentifier();
 					if (attrs.hasAttribute(id, CytoscapeWidget.NODE_FILL_COLOR))
-					 	attrs.deleteAttribute(id, CytoscapeWidget.NODE_FILL_COLOR);
-					      
-				}				 
-				
+						attrs.deleteAttribute(id,
+								CytoscapeWidget.NODE_FILL_COLOR);
+
+				}
+
 				Cytoscape.getCurrentNetworkView().redrawGraph(false, true);
 			}
 		}
@@ -314,6 +370,25 @@ public class ExpandMenuListener implements NodeContextMenuListener,
 			}
 		}
 		return selectedMarkers;
+	}
+
+	@SuppressWarnings("unchecked")
+	private static void searchTestResultNodes(ProjectTreeNode pnode,
+			Map<String, CSSignificanceResultSet<DSGeneMarker>> map,
+			Class<? extends CSSignificanceResultSet> clazz) {
+		if (pnode instanceof DataSetSubNode) {
+			DSAncillaryDataSet<DSBioObject> dNodeFile = ((DataSetSubNode) pnode)._aDataSet;
+			if (clazz.isInstance(dNodeFile)) {
+				map.put(dNodeFile.getDataSetName(),
+						(CSSignificanceResultSet) dNodeFile);
+			}
+		}
+
+		Enumeration children = pnode.children();
+		while (children.hasMoreElements()) {
+			ProjectTreeNode child = (ProjectTreeNode) children.nextElement();
+			searchTestResultNodes(child, map, clazz);
+		}
 	}
 
 }

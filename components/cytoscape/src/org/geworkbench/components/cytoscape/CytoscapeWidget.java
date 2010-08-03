@@ -219,7 +219,7 @@ public class CytoscapeWidget implements VisualPlugin {
 		return event;
 	}
 
-	private static final String GENE_SEPARATOR = " /// ";
+	public static final String GENE_SEPARATOR = " /// ";
 
 	/**
 	 * Update selection in visualization when the gene selection is changed
@@ -859,10 +859,9 @@ public class CytoscapeWidget implements VisualPlugin {
 	 
 		Cytoscape.getSwingPropertyChangeSupport().addPropertyChangeListener(
 				new GenewaysNetworkListener());
-		VisualMappingManager manager = Cytoscape.getVisualMappingManager();
+		VisualMappingManager manager = Cytoscape.getVisualMappingManager();		 
 		CalculatorCatalog catalog = manager.getCalculatorCatalog();
-		// visualStyle = catalog.getVisualStyle("Nested Network Style");
-		visualStyle = catalog.getVisualStyle("Sample1");
+	    visualStyle = catalog.getVisualStyle("Nested Network Style");		 
 		Calculator nc = catalog.getCalculator(VisualPropertyType.NODE_SHAPE,
 				"Nested Network Style-Node Shape-Discrete Mapper");
 	 
@@ -883,7 +882,7 @@ public class CytoscapeWidget implements VisualPlugin {
 				shapes[++shapeIndex]);
 
 		visualStyle.getNodeAppearanceCalculator().setCalculator((nc));
-
+	 
 		Calculator ec = catalog.getCalculator(VisualPropertyType.EDGE_COLOR,
 				"BasicDiscrete");
 		v = ec.getMappings();
@@ -894,8 +893,12 @@ public class CytoscapeWidget implements VisualPlugin {
 		}
 		edgeDm.setControllingAttributeName("type", cytoNetwork, false);
 
-		visualStyle.getEdgeAppearanceCalculator().setCalculator(ec);
-
+		for (VisualStyle vs : catalog.getVisualStyles())
+		{
+			vs.getNodeAppearanceCalculator().setCalculator((nc));
+			vs.getEdgeAppearanceCalculator().setCalculator(ec);
+		 
+		}
 	}
 
 	private void receiveMatrix(int adjMatrixId) {
