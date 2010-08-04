@@ -46,9 +46,10 @@ import cytoscape.CyNetwork;
 import cytoscape.CyNode;
 import cytoscape.Cytoscape;
 import cytoscape.data.CyAttributes;
-import cytoscape.view.CyNetworkView;
-import ding.view.DNodeView;
+import cytoscape.view.CyNetworkView;  
+import ding.view.DNodeView;  
 import ding.view.NodeContextMenuListener;
+ 
 
 public class ExpandMenuListener implements NodeContextMenuListener,
 		MouseListener {
@@ -60,8 +61,7 @@ public class ExpandMenuListener implements NodeContextMenuListener,
 	protected Map<String, List<Integer>> geneIdToMarkerIdMap = null;
 	protected DSMicroarraySet<? extends DSMicroarray> maSet = null;
 	protected JProgressBar jProgressBar = null;
-	protected CyNetwork cytoNetwork = null;
-
+	protected CyNetwork cytoNetwork = null;  
 	protected List<Long> runningThreads = null;
 
 	private CyAttributes attrs = null;
@@ -85,11 +85,11 @@ public class ExpandMenuListener implements NodeContextMenuListener,
 	 *            popup menu to add the Bypass menu
 	 */
 	public void addNodeContextMenuItems(final NodeView nodeView, JPopupMenu menu) {
-
+		 
 		if (menu == null) {
 			menu = new JPopupMenu();
 		}
-
+  
 		JMenu addToSetMenu = new JMenu("Add to set ");
 		JMenuItem menuItemIntersection = new JMenuItem(new IntersectionAction(
 				"Intersection"));
@@ -98,13 +98,15 @@ public class ExpandMenuListener implements NodeContextMenuListener,
 		addToSetMenu.add(menuItemUnion);
 		menu.add(addToSetMenu);
 	}
+	
+ 
 
 	public void mousePressed(MouseEvent e) {
-
+		
 	}
 
 	public void mouseReleased(MouseEvent e) {
-
+		
 	}
 
 	public void mouseEntered(MouseEvent e) {
@@ -115,8 +117,13 @@ public class ExpandMenuListener implements NodeContextMenuListener,
 
 	}
 
-	public void mouseClicked(MouseEvent e) {
-		if (e.isMetaDown()) {
+	public void mouseClicked(MouseEvent e) {		
+		List<?> nodes = Cytoscape.getCurrentNetworkView().getSelectedNodes();
+        List<?>  edges = Cytoscape.getCurrentNetworkView().getSelectedEdges();
+		if (nodes.size() > 0 || edges.size() > 0)
+			return;
+        
+        if (e.isMetaDown()) {
 
 			JPopupMenu menu = new JPopupMenu();
 
@@ -129,7 +136,7 @@ public class ExpandMenuListener implements NodeContextMenuListener,
 
 			menu.show(e.getComponent(), e.getPoint().x, e.getPoint().y);
 
-		}
+		} 
 	}
 
 	private class IntersectionAction extends AbstractAction {
