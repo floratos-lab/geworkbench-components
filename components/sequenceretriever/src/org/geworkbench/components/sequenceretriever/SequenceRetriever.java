@@ -20,7 +20,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
@@ -42,7 +41,6 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.ListCellRenderer;
-import javax.swing.ListModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
@@ -58,7 +56,6 @@ import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
-import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
@@ -79,7 +76,7 @@ import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbench.util.sequences.GeneChromosomeMatcher;
 
 /**
- * Widget to retrieve Promoter sequence from UCSC's DAS sequence server.
+ *  The plug-in component to retrieve sequences.
  *
  * @author Xuegong Wang
  * @author manjunath at genomecenter dot columbia dot edu
@@ -113,13 +110,13 @@ public class SequenceRetriever implements VisualPlugin {
 
 	private DSPanel<DSGeneMarker> activeMarkers = null;
 
-	private CSSequenceSet sequenceDB = new CSSequenceSet<DSSequence>();
+	private CSSequenceSet<DSSequence> sequenceDB = new CSSequenceSet<DSSequence>();
 
-	private CSSequenceSet dnaSequenceDB = new CSSequenceSet<DSSequence>();
+	private CSSequenceSet<DSSequence> dnaSequenceDB = new CSSequenceSet<DSSequence>();
 
-	private CSSequenceSet proteinSequenceDB = new CSSequenceSet<DSSequence>();
+	private CSSequenceSet<DSSequence> proteinSequenceDB = new CSSequenceSet<DSSequence>();
 
-	private DSItemList markerList;
+	private DSItemList<DSGeneMarker> markerList;
 
 	private static final String NOANNOTATION = "---";
 
@@ -207,8 +204,6 @@ public class SequenceRetriever implements VisualPlugin {
 
 	private JLabel jLabel4 = new JLabel();
 
-	private DefaultListModel ls1 = new DefaultListModel();
-
 	private DefaultListModel ls2 = new DefaultListModel();
 
 	private JList jSelectedList = new JList();
@@ -217,11 +212,7 @@ public class SequenceRetriever implements VisualPlugin {
 
 	private JComboBox jSourceCategory = new JComboBox();
 
-	private JPanel jPanel6 = new JPanel();
-
 	private JProgressBar jProgressBar1 = new JProgressBar();
-
-	private GridLayout gridLayout2 = new GridLayout();
 
 	private JLabel jLabel6 = new JLabel();
 
@@ -272,11 +263,10 @@ public class SequenceRetriever implements VisualPlugin {
 	}
 
 	@SuppressWarnings("serial")
-	void jbInit() throws Exception {
+	private void jbInit() throws Exception {
 		// jProgressBar1.setForeground(Color.green);
 		jProgressBar1.setMinimumSize(new Dimension(10, 16));
 		jProgressBar1.setBorderPainted(true);
-		jPanel6.setLayout(gridLayout2);
 		jLabel6.setHorizontalAlignment(SwingConstants.LEFT);
 		jLabel6.setText("Type");
 		rightPanel = new JSplitPane();
@@ -331,13 +321,15 @@ public class SequenceRetriever implements VisualPlugin {
 		stopButton.setText(STOP);
 		stopButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				stopButton_actionPerformed(e);
+				status = STOP;
+				stopButton.setEnabled(false);
 			}
 		});
 		clearButton.setText(CLEAR);
 		clearButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				clearButton_actionPerformed(e);
+				status = CLEAR;
+				cleanUp();
 			}
 		});
 		jPanel4.setLayout(borderLayout5);
@@ -347,7 +339,7 @@ public class SequenceRetriever implements VisualPlugin {
 				int index = locationToIndex(e.getPoint());
 				if (-1 < index) {
 					String item = getModel().getElementAt(index).toString();
-					ArrayList arraylist = currentRetrievedSequences.get(item);
+					ArrayList<String> arraylist = currentRetrievedSequences.get(item);
 					if (arraylist != null && arraylist.size() > 0) {
 						if (arraylist.size() == 1) {
 							return arraylist.size() + " sequence found.";
@@ -421,21 +413,11 @@ public class SequenceRetriever implements VisualPlugin {
 		jPanel1.add(jLabel6, null);
 		jPanel1.add(jComboCategory, null);
 		jPanel1.add(jSourceCategory, null);
-		main.add(jPanel6, BorderLayout.NORTH);
-		jPanel6.add(jProgressBar1, null);
+		main.add(jProgressBar1, BorderLayout.NORTH);
 		seqScrollPane.getViewport().add(seqDisPanel, null);
 		main.add(jPanel2, BorderLayout.CENTER);
 		jComboCategory.addItem(DNAVIEW);
 		jComboCategory.addItem(PROTEINVIEW);
-	}
-
-	public void setSequenceDB(CSSequenceSet db2) {
-		sequenceDB = db2;
-
-	}
-
-	public DSSequenceSet getSequenceDB() {
-		return sequenceDB;
 	}
 
 	private void changeSequenceCategory() {
@@ -477,7 +459,7 @@ public class SequenceRetriever implements VisualPlugin {
 	private void updateSelectedSequenceDB(int[] indices) {
 		seqDisPanel.initialize();
 		
-		CSSequenceSet displaySequenceDB = new CSSequenceSet();
+		CSSequenceSet<CSSequence> displaySequenceDB = new CSSequenceSet<CSSequence>();
 		for (int i = 0; i < indices.length; i++) {
 			int index = indices[i];
 
@@ -522,19 +504,8 @@ public class SequenceRetriever implements VisualPlugin {
 		SwingUtilities.invokeLater(r);
 	}
 
-	void stopButton_actionPerformed(ActionEvent e) {
-		status = STOP;
-		stopButton.setEnabled(false);
-	}
-
-	void clearButton_actionPerformed(ActionEvent e) {
-		status = CLEAR;
-		cleanUp();
-
-	}
-
 	void cleanUp() {
-		sequenceDB = new CSSequenceSet();
+		sequenceDB = new CSSequenceSet<DSSequence>();
 		currentRetrievedMap = new HashMap<String, RetrievedSequenceView>();
 		currentRetrievedSequences = new TreeMap<String, ArrayList<String>>();
 		cleanUp(DNAVIEW);
@@ -542,14 +513,14 @@ public class SequenceRetriever implements VisualPlugin {
 
 	}
 
-	void cleanUp(String theView) {
+	private void cleanUp(String theView) {
 
 		if (theView == DNAVIEW) {
-			dnaSequenceDB = new CSSequenceSet();
+			dnaSequenceDB = new CSSequenceSet<DSSequence>();
 			retrievedDNAMap = new HashMap<String, RetrievedSequenceView>();
 			retrievedDNASequences = new TreeMap<String, ArrayList<String>>();
 		} else {
-			proteinSequenceDB = new CSSequenceSet();
+			proteinSequenceDB = new CSSequenceSet<DSSequence>();
 			retrievedProteinMap = new HashMap<String, RetrievedSequenceView>();
 			retrievedProteinSequences = new TreeMap<String, ArrayList<String>>();
 		}
@@ -560,7 +531,7 @@ public class SequenceRetriever implements VisualPlugin {
 		jSelectedList.repaint();
 	}
 
-	void jButton2_actionPerformed(ActionEvent e) {
+	private void jButton2_actionPerformed(ActionEvent e) {
 		currentView = (String) jComboCategory.getSelectedItem();
 		currentSource = (String) jSourceCategory.getSelectedItem();
 		cleanUp(currentView);
@@ -574,10 +545,10 @@ public class SequenceRetriever implements VisualPlugin {
 			jProgressBar1.setStringPainted(true);
 			updateProgressBar(0, "");
 			if (sequenceDB != null) {
-				sequenceDB = new CSSequenceSet();
+				sequenceDB = new CSSequenceSet<DSSequence>();
 			}
 			
-			String annotationFileName = ((CSMicroarraySet)refMASet).getAnnotationFileName(); 
+			String annotationFileName = ((CSMicroarraySet<?>)refMASet).getAnnotationFileName(); 
 			if(annotationFileName==null) {
 				JOptionPane.showMessageDialog(null, "No annotation file was loaded for this dataset, cannot retrieve sequences.");
 				return;
@@ -588,10 +559,10 @@ public class SequenceRetriever implements VisualPlugin {
 				@Override
 				protected Void doInBackground() throws Exception {
 					int size = ls2.getSize();
-					Vector list = new Vector();
+					Vector<DSGeneMarker> list = new Vector<DSGeneMarker>();
 					for (int x = 0; x < size; ++x) {
-						Object o = ls2.get(x);
-						list.addElement(o);
+						DSGeneMarker marker = (DSGeneMarker)ls2.get(x);
+						list.addElement(marker);
 					}
 
 					if (!getSequences(list)){
@@ -603,7 +574,7 @@ public class SequenceRetriever implements VisualPlugin {
 				@Override
 				public void done() {
 					if (status.equalsIgnoreCase(STOP)) {
-						sequenceDB = new CSSequenceSet();
+						sequenceDB = new CSSequenceSet<DSSequence>();
 						updateProgressBar(100, "Stopped on " + new Date());
 					} else {
 						updateProgressBar(100, "Finished on " + new Date());
@@ -627,7 +598,7 @@ public class SequenceRetriever implements VisualPlugin {
 	void jActivateBttn_actionPerformed(ActionEvent e) {
 		if ((sequenceDB != null) && (sequenceDB.getSequenceNo() >= 1)) {
 
-			CSSequenceSet selectedSequenceDB = new CSSequenceSet();
+			CSSequenceSet<DSSequence> selectedSequenceDB = new CSSequenceSet<DSSequence>();
 			for (Object sequence : sequenceDB) {
 				if (sequence != null) {
 					RetrievedSequenceView retrievedSequenceView = currentRetrievedMap
@@ -684,7 +655,7 @@ public class SequenceRetriever implements VisualPlugin {
 		}
 	}
 
-	private boolean getSequences(Vector selectedList) {
+	private boolean getSequences(Vector<DSGeneMarker> selectedList) {
 
 		if (selectedList != null) {
 
@@ -717,7 +688,7 @@ public class SequenceRetriever implements VisualPlugin {
 					String currentChipType = AnnotationParser
 							.getCurrentChipType();
 					String database = "";
-					String annotationFileName = ((CSMicroarraySet)refMASet).getAnnotationFileName(); 
+					String annotationFileName = ((CSMicroarraySet<?>)refMASet).getAnnotationFileName(); 
 					database = SequenceFetcher.matchChipType(currentChipType, annotationFileName);
 
 					/* No selection was made */
@@ -749,7 +720,7 @@ public class SequenceRetriever implements VisualPlugin {
 										|| geneName.equals(NOANNOTATION)) {
 									continue;
 								}
-								Vector geneChromosomeMatchers = null;
+								Vector<GeneChromosomeMatcher> geneChromosomeMatchers = null;
 								try {
 									geneChromosomeMatchers = SequenceFetcher
 											.getGeneChromosomeMatchers(
@@ -825,7 +796,7 @@ public class SequenceRetriever implements VisualPlugin {
 				postProcessSequences();
 
 			} else {
-				proteinSequenceDB = new CSSequenceSet();
+				proteinSequenceDB = new CSSequenceSet<DSSequence>();
 
 				if (selectedList != null) {
 					try {
@@ -841,7 +812,7 @@ public class SequenceRetriever implements VisualPlugin {
 								/ (double) (selectedList.size());
 						if (affyid.endsWith("_at")) { // if this is affyid
 							updateProgressBar(progress, "Retrieving " + affyid);
-							CSSequenceSet sequenceSet = SequenceFetcher
+							CSSequenceSet<CSSequence> sequenceSet = SequenceFetcher
 									.getAffyProteinSequences(affyid);
 
 							String[] uniprotids = AnnotationParser.getInfo(
@@ -924,7 +895,7 @@ public class SequenceRetriever implements VisualPlugin {
 		}
 		if (sequenceDB.getSequenceNo() != 0) {
 			sequenceDB.writeToFile(fileName);
-			sequenceDB = new CSSequenceSet();
+			sequenceDB = new CSSequenceSet<DSSequence>();
 			sequenceDB.readFASTAFile(new File(fileName));
 			
 			updateDisplay(sequenceDB, currentRetrievedMap);
@@ -946,7 +917,7 @@ public class SequenceRetriever implements VisualPlugin {
 		} 
 	}
 	
-	private void updateDisplay(CSSequenceSet selectedSet,
+	private void updateDisplay(CSSequenceSet<DSSequence> selectedSet,
 			HashMap<String, RetrievedSequenceView> newMap) {
 		if (selectedSet == null || newMap == null || selectedSet.size()==0 || newMap.size()==0 ) {
 			cleanUp(currentView);
@@ -970,6 +941,7 @@ public class SequenceRetriever implements VisualPlugin {
 	 * @param e
 	 *            ProjectEvent
 	 */
+	@SuppressWarnings("rawtypes")
 	@Subscribe
 	public void receive(org.geworkbench.events.ProjectEvent e, Object source) {
 
@@ -983,9 +955,9 @@ public class SequenceRetriever implements VisualPlugin {
 			DSDataSet dataSet = e.getDataSet();
 			if (dataSet instanceof DSMicroarraySet) {
 				if (refMASet != dataSet) {
-					this.refMASet = (DSMicroarraySet) dataSet;
+					this.refMASet = (DSMicroarraySet<DSMicroarray>) dataSet;
 					cleanUp();
-					sequenceDB = new CSSequenceSet();
+					sequenceDB = new CSSequenceSet<DSSequence>();
 					markerList = refMASet.getMarkers();
 				}
 			}
@@ -1024,26 +996,19 @@ public class SequenceRetriever implements VisualPlugin {
 	 * @param e
 	 *            GeneSelectorEvent
 	 */
-
-	public void processEvent() {
+	private void processEvent() {
 		// log.debug("process GeneSelectorEvent::source="
 		// + publisher.getClass().getName());
 
-		activeMarkers = new CSPanel();
+		activeMarkers = new CSPanel<DSGeneMarker>();
 		if (markers != null) {
 			log.debug(markers.size() + " " + markers.isActive());
-			TreeSet oldList = new TreeSet();
-			if (ls2.size() > 0) {
-				for (Object o : ls2.toArray()) {
-					oldList.add(o);
-				}
-			}
 			ls2.clear();
 			boolean atLeastOneActive = false;
 			if (markers.size() > 0) {
-				CSSequenceSet tempSequenceDB = new CSSequenceSet();
-				HashMap tempMap = new HashMap<String, RetrievedSequenceView>();
-				TreeMap tempSequencesList = new TreeMap<String, ArrayList<String>>();
+				CSSequenceSet<DSSequence> tempSequenceDB = new CSSequenceSet<DSSequence>();
+				HashMap<String, RetrievedSequenceView> tempMap = new HashMap<String, RetrievedSequenceView>();
+				TreeMap<String, ArrayList<String>> tempSequencesList = new TreeMap<String, ArrayList<String>>();
 				Set<DSGeneMarker> set = new HashSet<DSGeneMarker>();
 				for (int j = 0; j < markers.panels().size(); j++) {
 					DSPanel<DSGeneMarker> mrk = markers.panels().get(j);
@@ -1055,7 +1020,7 @@ public class SequenceRetriever implements VisualPlugin {
 						}
 					}
 				}
-				oldList.removeAll(set);
+
 				for (Iterator<DSGeneMarker> markerIter = set.iterator(); markerIter
 						.hasNext();) {
 					DSGeneMarker mrk = markerIter.next();
@@ -1117,22 +1082,9 @@ public class SequenceRetriever implements VisualPlugin {
 	 *
 	 * @return Component
 	 */
+	@Override
 	public Component getComponent() {
 		return main;
-	}
-
-	void jResultList_mouseClicked(MouseEvent e) {
-	}
-
-	/**
-	 * todo sdfsd
-	 *
-	 * @param e
-	 *            ActionEvent
-	 */
-
-	void jClearAllItem_actionPerformed(ActionEvent e) {
-		ls1.removeAllElements();
 	}
 
 	private String getRandomFileName() {
@@ -1160,8 +1112,6 @@ public class SequenceRetriever implements VisualPlugin {
 		private JScrollPane scrollPane;
 
 		private boolean lastSearchFailed = false;
-
-		private boolean prefixMode = false;
 
 		public TFListPanel() {
 			super();
@@ -1262,20 +1212,20 @@ public class SequenceRetriever implements VisualPlugin {
 						jProgressBar1.setStringPainted(true);
 						updateProgressBar(0, "");
 						if (sequenceDB != null) {
-							sequenceDB = new CSSequenceSet();
+							sequenceDB = new CSSequenceSet<DSSequence>();
 						}
 						Thread t = new Thread() {
 
 							public void run() {
 								int size = model.getSize();
-								Vector list = new Vector();
+								Vector<DSGeneMarker> list = new Vector<DSGeneMarker>();
 								for (int x = 0; x < size; ++x) {
-									Object o = model.get(x);
-									list.addElement(o);
+									DSGeneMarker marker = (DSGeneMarker)model.get(x);
+									list.addElement(marker);
 								}
 								getSequences(list);
 								if (status.equalsIgnoreCase(STOP)) {
-									sequenceDB = new CSSequenceSet();
+									sequenceDB = new CSSequenceSet<DSSequence>();
 									updateProgressBar(100, "Stopped on "
 											+ new Date());
 								} else {
@@ -1356,49 +1306,6 @@ public class SequenceRetriever implements VisualPlugin {
 		protected void elementRightClicked(int index, MouseEvent e) {
 		}
 
-		public JList getList() {
-			return list;
-		}
-
-		public ListModel getModel() {
-			return model;
-		}
-
-		public int getHighlightedIndex() {
-			return list.getSelectedIndex();
-		}
-
-		/**
-		 * Set the highlightedIndex automatically.
-		 *
-		 * @param theIndex
-		 *            int
-		 * @return boolean
-		 */
-		public boolean setHighlightedIndex(int theIndex) {
-			if (model != null && model.getSize() > theIndex) {
-				list.setSelectedIndex(theIndex);
-				list
-						.scrollRectToVisible(list.getCellBounds(theIndex,
-								theIndex));
-
-				return true;
-			}
-			return false;
-		}
-
-		public boolean isPrefixMode() {
-			return prefixMode;
-		}
-
-		public void setPrefixMode(boolean prefixMode) {
-			this.prefixMode = prefixMode;
-		}
-
-	}
-
-	public void matrixDetailButton_actionPerformed(ActionEvent e) {
-
 	}
 
 	private class SequenceListSelectionListener implements
@@ -1419,7 +1326,7 @@ public class SequenceRetriever implements VisualPlugin {
 
 	}
 
-	String generateHistStr()
+	private String generateHistStr()
 	{
 		String histStr = "Sequence Retriever\n";
 		histStr += "get sequence parameters:\n";
@@ -1436,9 +1343,5 @@ public class SequenceRetriever implements VisualPlugin {
 		histStr += "------------------------------------\n";
 		return histStr;
 	}
-
-
-
-
 
 }
