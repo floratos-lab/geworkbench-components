@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
 	<component  name="Sequence Retriever"
@@ -9,7 +10,7 @@
 				tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_Sequence_Retrieval"
 				description="For a set of markers/genes, retrieves protein or
  genomic nucleotide sequences from EBI/UC Santa Cruz."
-				visualizer="true"
+				category="visualizer"
 				loadByDefault="true"
 	 >
 	 
