@@ -141,6 +141,7 @@ public class BlastAppComponent implements VisualPlugin {
     private JComboBox jProgramBox = new JComboBox();
    
     private JPanel speciesRepeatPanel = new JPanel();
+    private JButton defaultButton = new JButton();
     
     // pairs of label and combo box on blastxSettingPanel
     private JLabel jMatrixLabel= new JLabel("Matrix:");
@@ -170,9 +171,7 @@ public class BlastAppComponent implements VisualPlugin {
     private JTextField jstartPointField = new JTextField();
     private JTextField jendPointField = new JTextField();
     private JProgressBar serviceProgressBar = new JProgressBar();
-
-    private JComboBox jProgramBox1 = new JComboBox();
-       
+    
     private JButton blastStopButton = new JButton();
 
     private JToolBar jToolBar2 = new JToolBar();
@@ -205,6 +204,8 @@ public class BlastAppComponent implements VisualPlugin {
 	private JPanel geneticCodePanel;
     
     private static JLabel DatabaseLabel = new JLabel("Database:");
+    
+    private String programForDefaultButton="blastn";
     
     public BlastAppComponent() {
         try {
@@ -255,8 +256,6 @@ public class BlastAppComponent implements VisualPlugin {
         jstartPointField = new JTextField();
         jendPointField = new JTextField();
         serviceProgressBar = new JProgressBar();
-
-        jProgramBox1 = new JComboBox();
         
         blastStopButton = new JButton();
 
@@ -301,6 +300,11 @@ public class BlastAppComponent implements VisualPlugin {
         jProgramBox.addItem("blastx");
         jProgramBox.addItem("tblastn");
         jProgramBox.addItem("tblastx");
+        
+        defaultButton.setText("Restore Defaults");
+        defaultButton.addActionListener(new
+                BlastAppComponent_default_actionAdapter());
+        
         blastButton.setFont(new java.awt.Font("Arial Black", 0, 11));
         blastButton.setHorizontalAlignment(SwingConstants.LEFT);
         blastButton.setHorizontalTextPosition(SwingConstants.CENTER);
@@ -378,13 +382,11 @@ public class BlastAppComponent implements VisualPlugin {
         jTemplateLengthBox.addItem("None");
         jTemplateLengthBox.addItem("16");
         jTemplateLengthBox.addItem("18");
-        jTemplateLengthBox.addItem("21");
-        jTemplateLengthBox.setSelectedIndex(2);
+        jTemplateLengthBox.addItem("21");        
         
         jTemplateTypeBox.addItem("Coding");
         jTemplateTypeBox.addItem("Maximal");
-        jTemplateTypeBox.addItem("Two template");
-        jTemplateTypeBox.setSelectedIndex(0);        
+        jTemplateTypeBox.addItem("Two template");        
         
         jgeneticCodeBox.addItem("Standard (1)");
         jgeneticCodeBox.addItem("Vertebrate Mitochondrial (2)");
@@ -419,9 +421,6 @@ public class BlastAppComponent implements VisualPlugin {
         jstartPointField.setText("1");
         jendPointField.setText("");
 
-        jProgramBox1.setAutoscrolls(false);
-        jProgramBox1.setMinimumSize(new Dimension(26, 21));
-
         blastStopButton.setFont(new java.awt.Font("Arial Black", 0, 11));
         blastStopButton.setVerifyInputWhenFocusTarget(true);
         //blastStopButton.setText("STOP");
@@ -449,8 +448,8 @@ public class BlastAppComponent implements VisualPlugin {
         excludeUnculture.setMinimumSize(new Dimension(10, 23));
         excludeUnculture.setMnemonic(0);
         excludeUnculture.setSelected(false);
-        excludeUnculture.setText("Uncultured/environmental sequences");
-        
+        excludeUnculture.setText("Uncultured/environmental sequences");        
+       
         megablastBtn=new JRadioButton();
         megablastBtn.setMinimumSize(new Dimension(10,23));
         megablastBtn.setMnemonic(0);        
@@ -594,7 +593,8 @@ public class BlastAppComponent implements VisualPlugin {
         entrezQueryPanel.add(jEntrezQueryLabel);
         entrezQueryPanel.add(jEntrezQueryText);
         entrezQueryPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        subSeqPanel.add(entrezQueryPanel); 
+        subSeqPanel.add(entrezQueryPanel);
+        jEntrezQueryText.setText("");
         jEntrezQueryLabel.setVisible(false);
 		jEntrezQueryText.setVisible(false);
         
@@ -610,13 +610,6 @@ public class BlastAppComponent implements VisualPlugin {
 
         jTabbedPane1.setSelectedComponent(jTabbedBlastPane);
         jTabbedBlastPane.setSelectedComponent(jBasicPane);
-
-        jProgramBox1.addItem("ecoli.nt");
-        jProgramBox1.addItem("pdb.nt");
-        jProgramBox1.addItem("pdbaa");
-        jProgramBox1.addItem("yeast.aa");
-        jProgramBox1.addItem("nr");
-
     }
     
     static private class UneditableTableModel extends AbstractTableModel {
@@ -669,28 +662,11 @@ public class BlastAppComponent implements VisualPlugin {
 		excludeUnculture.setVisible(b);		
     }
     
-   
-    private void jProgramBox_actionPerformed(ActionEvent e) {
-
-        JComboBox cb = (JComboBox) e.getSource();
-		// Get the new item
-		String selectedProgramName = (String) cb.getSelectedItem();
-		jAdvancedPane.removeAll();		
-		if (selectedProgramName == null
-				|| selectedProgramName
-						.equalsIgnoreCase(SELECT_A_PROGRAM_PROMPT)) {
-			jScrollPane1.getViewport().removeAll();
-			textArea.setText( "" );
-			jAdvancedPane.setEnabled(false);
-			enableBlastnRelateOptions(false);
-			jEntrezQueryLabel.setVisible(false);
-			jEntrezQueryText.setVisible(false);
-			return;
-		}
-		
+    private void setAdvancedOptions(){
+    	String selectedProgramName = programForDefaultButton;
+		jAdvancedPane.removeAll();
 		jEntrezQueryLabel.setVisible(true);
-		jEntrezQueryText.setVisible(true);
-		jEntrezQueryText.setText("");
+		jEntrezQueryText.setVisible(true);		
 		enableBlastnRelateOptions(true);
 		if(selectedProgramName.equalsIgnoreCase("blastx")||selectedProgramName.equalsIgnoreCase("tblastx")){
 			geneticCodePanel.setVisible(true);
@@ -781,11 +757,19 @@ public class BlastAppComponent implements VisualPlugin {
         JPanel browserPanel = new JPanel();
         browserPanel.setLayout(new FlowLayout(FlowLayout.LEADING) );
         browserPanel.add(jDisplayLabel);
-        browserPanel.add(jDisplayInWebBox);
+        browserPanel.add(jDisplayInWebBox);        
         browserPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         c.gridx = 0;
         c.gridy = 2;
-        jAdvancedPane.add(browserPanel, c);
+        jAdvancedPane.add(browserPanel, c);        
+        
+        JPanel defaultButtonPanel = new JPanel();
+        defaultButtonPanel.setLayout(new FlowLayout(FlowLayout.LEADING) );
+        defaultButtonPanel.add(defaultButton);          
+        defaultButtonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        c.gridx = 1;
+        c.gridy = 2;
+        jAdvancedPane.add(defaultButtonPanel, c);        
         
         discontiguousWordOptionsPanel = new JPanel();
         discontiguousWordOptionsPanel.setBorder(new TitledBorder(border1, "Discontiguous Word Options"));
@@ -794,11 +778,13 @@ public class BlastAppComponent implements VisualPlugin {
         templeateLengthPanel.setLayout(new FlowLayout(FlowLayout.LEADING) );
         templeateLengthPanel.add(jTemplateLengthLabel);
         templeateLengthPanel.add(jTemplateLengthBox);
+        jTemplateLengthBox.setSelectedIndex(2);
         discontiguousWordOptionsPanel.add(templeateLengthPanel);
         JPanel templeateTypePanel = new JPanel();
         templeateTypePanel.setLayout(new FlowLayout(FlowLayout.LEADING) );
         templeateTypePanel.add(jTemplateTypeLabel);
         templeateTypePanel.add(jTemplateTypeBox);
+        jTemplateTypeBox.setSelectedIndex(0);        
         discontiguousWordOptionsPanel.add(templeateTypePanel);
         c.gridx = 1;
         c.gridy = 1;
@@ -812,6 +798,93 @@ public class BlastAppComponent implements VisualPlugin {
 		shortQueriesBox.setVisible(false);
 		
 		jAdvancedPane.setEnabled(true);
+	
+		String[] model = AlgorithmMatcher
+				.translateToMatrices(selectedProgramName);
+		jMatrixBox.setModel(new DefaultComboBoxModel(model));
+		
+		jWordsizeBox.setVerifyInputWhenFocusTarget(true);		
+       	String defaultOptimizeFor="megablast";       
+		String[] model2 = AlgorithmMatcher
+				.translateToWordSize(selectedProgramName,defaultOptimizeFor);
+		jWordsizeBox.setModel(new DefaultComboBoxModel(model2));
+		jMaxTargetBox.setSelectedIndex(2);
+		jExpectBox.setSelectedIndex(0);
+		jSpeciesBox.setSelectedIndex(0);
+		shortQueriesBox.setSelected(true);
+		jDisplayInWebBox.setSelected(true);		
+	
+		if (selectedProgramName.equalsIgnoreCase("blastn")) {
+			String[] capModel = AlgorithmMatcher.translateToGapcosts("blastn","megablast");
+	       	jGapcostsBox.setModel(new DefaultComboBoxModel(capModel));
+	       	Integer index = AlgorithmMatcher.defaultGapcostIndex.get("megablast");
+	       	if(index==null) index = 0;
+	       	jGapcostsBox.setSelectedIndex(index);
+			jWordsizeBox.setSelectedIndex(3);//default selection		
+			jScoresBox.setSelectedIndex(0);		
+			speciesRepeatPanel.setVisible(true);
+			jGapcostsBox.setEditable(false);
+			jGapcostsBox.setVisible(true);
+			jGapcostsLabel.setVisible(true);
+			maskLookupOnlyBox.setSelected(true);
+			shortQueriesBox.setVisible(true);
+			jMatrixLabel.setVisible(false);
+			jMatrixBox.setVisible(false);
+			if (megablastBtn.isSelected())
+				megaBlastSet();
+			else
+				discontiguosSet();
+			
+		} else {
+			jMatrixBox.setSelectedIndex(3);
+			jWordsizeBox.setSelectedIndex(1);
+			speciesRepeatPanel.setVisible(false);
+			jGapcostsBox.setEditable(false);
+			jGapcostsBox.setVisible(true);
+			jGapcostsLabel.setVisible(true);			
+			maskLookupOnlyBox.setSelected(false);
+			maskLowCaseBox.setSelected(false);
+			jMatrixLabel.setVisible(true);
+			jMatrixBox.setVisible(true);
+			if (selectedProgramName.equalsIgnoreCase("blastp")||selectedProgramName.equalsIgnoreCase("tblastn")){
+				jCompositionalLabel.setVisible(true);
+				jCompositionalBox.setVisible(true);
+				jCompositionalBox.setSelectedIndex(2);
+				
+			}
+			if (selectedProgramName.equalsIgnoreCase("blastp")){
+				lowComplexFilterBox.setSelected(false);
+				shortQueriesBox.setVisible(true);
+			}
+			else{
+				lowComplexFilterBox.setSelected(true);
+			}			
+		}
+    }
+    
+    private void jDefaultButton_actionPerformed(ActionEvent e) {
+    	setAdvancedOptions(); 
+    }    
+   
+    private void jProgramBox_actionPerformed(ActionEvent e) {
+
+        JComboBox cb = (JComboBox) e.getSource();
+		// Get the new item
+		String selectedProgramName = (String) cb.getSelectedItem();
+		programForDefaultButton=selectedProgramName;
+		jAdvancedPane.removeAll();		
+		if (selectedProgramName == null
+				|| selectedProgramName
+						.equalsIgnoreCase(SELECT_A_PROGRAM_PROMPT)) {
+			jScrollPane1.getViewport().removeAll();
+			textArea.setText( "" );
+			jAdvancedPane.setEnabled(false);
+			enableBlastnRelateOptions(false);			
+			jEntrezQueryLabel.setVisible(false);
+			jEntrezQueryText.setVisible(false);
+			return;
+		}	
+		
 		String[][] arrayT = algorithmMatcher
 				.translateToArray((String) selectedProgramName);
 		String[][] array = null;
@@ -850,96 +923,57 @@ public class BlastAppComponent implements VisualPlugin {
 		TableColumn col = databaseTable.getColumnModel().getColumn(vColIndex);
 		int width = 250;
 		col.setPreferredWidth(width);
-		(jScrollPane1.getViewport()).add(databaseTable, null);
-		String[] model = AlgorithmMatcher
-				.translateToMatrices(selectedProgramName);
-		jMatrixBox.setModel(new DefaultComboBoxModel(model));
-		
-		jWordsizeBox.setVerifyInputWhenFocusTarget(true);		
-       	String defaultOptimizeFor="megablast";       
-		String[] model2 = AlgorithmMatcher
-				.translateToWordSize(selectedProgramName,defaultOptimizeFor);
-		jWordsizeBox.setModel(new DefaultComboBoxModel(model2));
-		jMaxTargetBox.setSelectedIndex(2);
-	
-		if (selectedProgramName.equalsIgnoreCase("blastn")) {
-			String[] capModel = AlgorithmMatcher.translateToGapcosts("blastn","megablast");
-	       	jGapcostsBox.setModel(new DefaultComboBoxModel(capModel));
-	       	Integer index = AlgorithmMatcher.defaultGapcostIndex.get("megablast");
-	       	if(index==null) index = 0;
-	       	jGapcostsBox.setSelectedIndex(index);
-			jWordsizeBox.setSelectedIndex(3);//default selection		
-			jScoresBox.setSelectedIndex(0);		
-			speciesRepeatPanel.setVisible(true);
-			jGapcostsBox.setEditable(false);
-			jGapcostsBox.setVisible(true);
-			jGapcostsLabel.setVisible(true);
-			maskLookupOnlyBox.setSelected(true);
-			shortQueriesBox.setVisible(true);
-			jMatrixLabel.setVisible(false);
-			jMatrixBox.setVisible(false);
-			
-		} else {
-			jMatrixBox.setSelectedIndex(3);
-			jWordsizeBox.setSelectedIndex(1);
-			speciesRepeatPanel.setVisible(false);
-			jGapcostsBox.setEditable(false);
-			jGapcostsBox.setVisible(true);
-			jGapcostsLabel.setVisible(true);			
-			maskLookupOnlyBox.setSelected(false);
-			maskLowCaseBox.setSelected(false);
-			jMatrixLabel.setVisible(true);
-			jMatrixBox.setVisible(true);
-			if (selectedProgramName.equalsIgnoreCase("blastp")||selectedProgramName.equalsIgnoreCase("tblastn")){
-				jCompositionalLabel.setVisible(true);
-				jCompositionalBox.setVisible(true);
-				jCompositionalBox.setSelectedIndex(2);
-				
-			}
-			if (selectedProgramName.equalsIgnoreCase("blastp")){
-				lowComplexFilterBox.setSelected(false);
-				shortQueriesBox.setVisible(true);
-			}
-			else{
-				lowComplexFilterBox.setSelected(true);
-			}
-		}
+		(jScrollPane1.getViewport()).add(databaseTable, null);		
+		excludeModels.setSelected(false);
+	    excludeUnculture.setSelected(false);
+	    jEntrezQueryText.setText("");
+	    megablastBtn.setSelected(true);
+	    
+		setAdvancedOptions();
     }
     
     private void jMegaBlastBtn_actionPerformed(ActionEvent e) {    	  	  
-		String[] model2 = AlgorithmMatcher
-				.translateToWordSize("blastn","megablast");
+    	megaBlastSet();
+    }
+    private void megaBlastSet(){
+    	String[] model2 = AlgorithmMatcher
+		.translateToWordSize("blastn","megablast");
 		jWordsizeBox.setModel(new DefaultComboBoxModel(model2));		
 		jWordsizeBox.setSelectedIndex(3);
 		jScoresBox.setSelectedIndex(0);	
 		String[] capModel = AlgorithmMatcher.translateToGapcosts("blastn","megablast");
-       	jGapcostsBox.setModel(new DefaultComboBoxModel(capModel));
-       	Integer index = AlgorithmMatcher.defaultGapcostIndex.get("megablast");
-       	if(index==null) index = 0;
-       	jGapcostsBox.setSelectedIndex(index);
-       	lowComplexFilterBox.setSelected(false);
-       	speciesRepeatFilter.setSelected(false);
+		jGapcostsBox.setModel(new DefaultComboBoxModel(capModel));
+		Integer index = AlgorithmMatcher.defaultGapcostIndex.get("megablast");
+		if(index==null) index = 0;
+		jGapcostsBox.setSelectedIndex(index);
+		lowComplexFilterBox.setSelected(false);
+		speciesRepeatFilter.setSelected(false);
 		maskLookupOnlyBox.setSelected(true);
 		maskLowCaseBox.setSelected(false);
 		
 		discontiguousWordOptionsPanel.setVisible(false);
     }
+    
     private void jDiscontiguousBtn_actionPerformed(ActionEvent e) {    	  	  
-		String[] model2 = AlgorithmMatcher
-				.translateToWordSize("blastn","discontiguous");
-		jWordsizeBox.setModel(new DefaultComboBoxModel(model2));		
-		jWordsizeBox.setSelectedIndex(0);
-		jScoresBox.setSelectedIndex(3);
-		String[] capModel = AlgorithmMatcher.translateToGapcosts("blastn","discontiguous");
-       	jGapcostsBox.setModel(new DefaultComboBoxModel(capModel));
-       	Integer index = AlgorithmMatcher.defaultGapcostIndex.get("discontiguous");
-       	if(index==null) index = 0;
-       	jGapcostsBox.setSelectedIndex(index);
-       	lowComplexFilterBox.setSelected(true);
-       	speciesRepeatFilter.setSelected(true);
+    	discontiguosSet();
+    }
+    
+    private void discontiguosSet(){
+    	String[] model2 = AlgorithmMatcher
+		.translateToWordSize("blastn","discontiguous");
+    	jWordsizeBox.setModel(new DefaultComboBoxModel(model2));		
+    	jWordsizeBox.setSelectedIndex(0);
+    	jScoresBox.setSelectedIndex(3);
+    	String[] capModel = AlgorithmMatcher.translateToGapcosts("blastn","discontiguous");
+		jGapcostsBox.setModel(new DefaultComboBoxModel(capModel));
+		Integer index = AlgorithmMatcher.defaultGapcostIndex.get("discontiguous");
+		if(index==null) index = 0;
+		jGapcostsBox.setSelectedIndex(index);
+		lowComplexFilterBox.setSelected(true);
+		speciesRepeatFilter.setSelected(true);
 		maskLookupOnlyBox.setSelected(true);
 		maskLowCaseBox.setSelected(false);
-		
+	
 		if (discontiguousBtn.isSelected()){
 			discontiguousWordOptionsPanel.setVisible(true);
 		}
@@ -1325,6 +1359,14 @@ public class BlastAppComponent implements VisualPlugin {
 			jProgramBox_actionPerformed(e);
 		}
 	}
+    
+    private class BlastAppComponent_default_actionAdapter implements	
+			java.awt.event.ActionListener {
+
+    	public void actionPerformed(ActionEvent e) {
+    		jDefaultButton_actionPerformed(e);
+    	}
+    }
     
     
     private class BlastAppComponent_megablastBtn_actionAdapter implements
