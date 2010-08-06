@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.swing.JComboBox;
-import javax.swing.JFormattedTextField;
+import javax.swing.JTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -35,7 +35,7 @@ public class CoefficientOfVariationFilterPanel extends AbstractSaveableParameter
     private GridLayout gridLayout1 = new GridLayout();
     private JLabel deviationLabel = new JLabel("Coefficient of variation bound");
     private JLabel missingValuesLabel = new JLabel("Missing values");
-    private JFormattedTextField deviationCutoff = new JFormattedTextField();
+    private JTextField deviationCutoff = new JTextField();
     private JComboBox missingValuesSelection = new JComboBox(new String[]{MARKER_OPTION, MICROARRAY_OPTION, IGNORE_OPTION});
     private ParameterActionListener parameterActionListener = null;
 
@@ -94,8 +94,7 @@ public class CoefficientOfVariationFilterPanel extends AbstractSaveableParameter
         container.add(missingValuesSelection);
         container.setPreferredSize(new Dimension(350, 55));
         this.add(container);
-        deviationCutoff.setValue(new Double(0.0));
-        deviationCutoff.setFocusLostBehavior(JFormattedTextField.COMMIT_OR_REVERT);
+        deviationCutoff.setText("0.0");       
         ParameterActionListener parameterActionListener = new ParameterActionListener(this);
         missingValuesSelection.addActionListener(parameterActionListener);
         deviationCutoff.addActionListener(parameterActionListener);
@@ -111,7 +110,14 @@ public class CoefficientOfVariationFilterPanel extends AbstractSaveableParameter
      * @return The cutoff value.
      */
     public double getDeviationCutoff() {
-        return ((Number) deviationCutoff.getValue()).doubleValue();
+    	try {
+			return (new Double(deviationCutoff.getText()));
+		} catch (Exception ex) {
+			 
+			return new Double(-1);
+		}
+    	
+    	 
     }
 
     public int getMissingValueTreatment() {
@@ -130,7 +136,7 @@ public class CoefficientOfVariationFilterPanel extends AbstractSaveableParameter
 
     public ParamValidationResults validateParameters() {
         if (getDeviationCutoff() < 0)
-            return new ParamValidationResults(false, "The coefficient of variation is supposed to be positive.");
+            return new ParamValidationResults(false, "The coefficient of variation is supposed to be 0 or a positive number.");
         else
             return new ParamValidationResults(true, "No Error");
     }
