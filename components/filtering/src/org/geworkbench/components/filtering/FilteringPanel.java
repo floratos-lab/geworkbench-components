@@ -501,11 +501,12 @@ public class FilteringPanel implements VisualPlugin, ReHighlightable {
 		int lastIndex = namedParameters.getItemCount();
 		if (lastIndex > 0) {
 			String paramName = selectedFilter.getLastSavedParameterSetName();
-			/* load from memory */
+			/* load from memory */			
 			Map<Serializable, Serializable> parameters = selectedFilter
 					.getNamedParameterSet(paramName);
 			if (parameters != null) // fix share directory issue in gpmodule
 				selectedFilter.setParameters(parameters);
+			namedParameters.setSelectedItem(paramName);
 		} else {
 			/* nothing saved, so select nothing */
 		}
