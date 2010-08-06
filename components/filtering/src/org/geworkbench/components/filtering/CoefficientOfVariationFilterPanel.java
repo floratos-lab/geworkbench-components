@@ -98,10 +98,7 @@ public class CoefficientOfVariationFilterPanel extends AbstractSaveableParameter
         ParameterActionListener parameterActionListener = new ParameterActionListener(this);
         missingValuesSelection.addActionListener(parameterActionListener);
         deviationCutoff.addActionListener(parameterActionListener);
-        //missingValuesLabel, missingValuesSelection are temporarily no use, so turn them off
-        missingValuesLabel.setVisible(false);
-        missingValuesSelection.setVisible(false);
-    }
+   }
 
     /**
      * Get the deviation cutoff threshold that will be used for deciding which
@@ -151,8 +148,10 @@ public class CoefficientOfVariationFilterPanel extends AbstractSaveableParameter
 	public String getDataSetHistory() {
 		String histStr = "Coefficient of Variation Filter parameters:\n";
 		Map<Serializable, Serializable>parameters = null;
-		parameters = getParameters();
-		histStr += "Coefficient of Variation Bound: ";
+		parameters = getParameters();		
+		histStr += "Missing Values: ";
+		histStr += parameters.get("missingValues");
+		histStr += "\nCoefficient of Variation Bound: ";
 		histStr += parameters.get("bound");
 		histStr += "\n";
 		return histStr;
