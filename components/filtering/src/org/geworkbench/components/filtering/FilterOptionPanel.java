@@ -54,15 +54,15 @@ public class FilterOptionPanel extends JPanel {
 		numberRemovalButton = new JRadioButton(
 				"Remove the marker if the number of matching arrays is more than");
 
-		percentField = new JFormattedTextField();
+		percentField = new JTextField();
 		percentField.setText("40");
 		percentField.setColumns(5);
-		percentField.setInputVerifier(new PercentRemovalVerifier());
+		//percentField.setInputVerifier(new PercentRemovalVerifier());
 
-		numberField = new JFormattedTextField();
+		numberField = new JTextField();
 		numberField.setText("0");
 		numberField.setColumns(5);
-		numberField.setInputVerifier(new NumberRemovalVerifier());
+		//numberField.setInputVerifier(new NumberRemovalVerifier());
 
 		GridBagConstraints c = new GridBagConstraints();
 		add(percentRemovalButton);
@@ -125,7 +125,7 @@ public class FilterOptionPanel extends JPanel {
 		} catch (Exception ex) {
 			// if numberRemovalButton is not selected and the input is invalid,
 			// then return default value
-			return 0;
+			return -1;
 		}
 
 	}
@@ -136,7 +136,7 @@ public class FilterOptionPanel extends JPanel {
 		} catch (Exception ex) {
 			// if percentRemovalButton is not selected and the input is invalid,
 			// then return default value
-			return new Double(40.0);
+			return new Double(-1);
 		}
 	}
 
@@ -165,7 +165,7 @@ public class FilterOptionPanel extends JPanel {
 				return null;
 			else
 				return new Double(s.toString());
-		} catch (Exception ex) {
+		} catch (Exception ex) {		 
 			return null;
 
 		}
@@ -179,48 +179,12 @@ public class FilterOptionPanel extends JPanel {
 			else
 				return new Integer(s.toString());
 		} catch (Exception ex) {
-			return null;
-
+			
+            return null;
 		}
 
 	}
 
-	class PercentRemovalVerifier extends InputVerifier {
-		public boolean verify(JComponent input) {
-			JTextField tf = (JTextField) input;
-			Double percentNum = getDouble((tf.getText()));
-			if (percentNum == null || percentNum < 0 || percentNum > 100) {
-				String errorMessage = "Please enter 0 to 100 for percentage of matching arrays.";
-				JOptionPane.showMessageDialog(null, errorMessage, "",
-						JOptionPane.ERROR_MESSAGE);
-				return false;
-			}
-			return true;
-		}
-
-		public boolean shouldYieldFocus(JComponent input) {
-			return verify(input);
-		}
-	}
-
-	class NumberRemovalVerifier extends InputVerifier {
-		public boolean verify(JComponent input) {
-			JTextField tf = (JTextField) input;
-			Double num = getDouble((tf.getText()));
-			if (num == null || num < 0 || num > arrayNumber - 1) {
-				String errorMessage = "Please enter 0 to " + (arrayNumber - 1)
-						+ " for number of matching arrays.";
-				JOptionPane.showMessageDialog(null, errorMessage, "",
-						JOptionPane.ERROR_MESSAGE);
-				return false;
-			}
-			return true;
-		}
-
-		public boolean shouldYieldFocus(JComponent input) {
-			return verify(input);
-		}
-
-	}
+	 
 
 }

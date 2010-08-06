@@ -11,7 +11,7 @@ import java.util.Set;
 
 import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
-import javax.swing.JFormattedTextField;
+import javax.swing.JTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -32,8 +32,8 @@ public class ExpressionThresholdFilterPanel extends AbstractSaveableParameterPan
     private JLabel rangeMinLabel = new JLabel("Range Min");
     private JLabel rangeMaxLabel = new JLabel("Range Max");
     private JLabel rangeOptionLabel = new JLabel("Filter-out values");
-    private JFormattedTextField rangeMinValue = new JFormattedTextField();
-    private JFormattedTextField rangeMaxValue = new JFormattedTextField(NumberFormat.getNumberInstance());
+    private JTextField rangeMinValue = new JTextField("0");
+    private JTextField rangeMaxValue = new JTextField("0");
     private JComboBox optionSelection = new JComboBox(new String[]{INSIDE_RANGE, OUTSIDE_RANGE});
     private GridLayout gridLayout1 = new GridLayout();
 
@@ -53,9 +53,9 @@ public class ExpressionThresholdFilterPanel extends AbstractSaveableParameterPan
 			Object key = parameter.getKey();
 			Object value = parameter.getValue();
 			if (key.equals("rangeMin")){
-	            this.rangeMinValue.setValue((Number)value);
+	            this.rangeMinValue.setText(value.toString());
 			} else if (key.equals("rangeMax")){
-				this.rangeMaxValue.setValue((Number)value);
+				this.rangeMaxValue.setText(value.toString());
 			} else if (key.equals("isInside")){
 				this.optionSelection.setSelectedIndex((Boolean)value ? 0 : 1);
 			} else if (key.equals("numberThreshold")){
@@ -82,8 +82,8 @@ public class ExpressionThresholdFilterPanel extends AbstractSaveableParameterPan
 			parameters.put("numberThreshold", (Integer) this.filterOptionPanel.getNumberThreshold());
 		else
 			parameters.put("percentThreshold", (Double) this.filterOptionPanel.getPercentThreshold()*100);
-		parameters.put("rangeMin", (Number) rangeMinValue.getValue());
-		parameters.put("rangeMax", (Number) rangeMaxValue.getValue());
+		parameters.put("rangeMin", getLowerBound());
+		parameters.put("rangeMax", getUpperBound());
 		parameters.put("isInside", (optionSelection.getSelectedIndex() == 0));
 		return parameters;
 	}
@@ -125,16 +125,11 @@ public class ExpressionThresholdFilterPanel extends AbstractSaveableParameterPan
         wrapperPanel.setLayout(boxLayout);
         wrapperPanel.add(topPanel);
         wrapperPanel.add(bottomPanel);
-        this.add(wrapperPanel);
-        
-        rangeMinValue.setValue(new Double(0.0));
-        rangeMinValue.setFocusLostBehavior(JFormattedTextField.COMMIT_OR_REVERT);
-        rangeMaxValue.setValue(new Double(0.0));
-        rangeMaxValue.setFocusLostBehavior(JFormattedTextField.COMMIT_OR_REVERT);
+        this.add(wrapperPanel);      
         
         parameterActionListener = new ParameterActionListener(this);
-        rangeMinValue.addPropertyChangeListener(parameterActionListener);
-        rangeMaxValue.addPropertyChangeListener(parameterActionListener);
+        rangeMinValue.addActionListener(parameterActionListener);
+        rangeMaxValue.addActionListener(parameterActionListener);
         optionSelection.addActionListener(parameterActionListener);
         filterOptionPanel.numberField.addActionListener(parameterActionListener);
         filterOptionPanel.percentField.addActionListener(parameterActionListener);
@@ -148,8 +143,14 @@ public class ExpressionThresholdFilterPanel extends AbstractSaveableParameterPan
      *
      * @return
      */
-    public double getLowerBound() {
-        return ((Number) rangeMinValue.getValue()).doubleValue();
+    public Double getLowerBound() {
+    	try {
+			return (new Double(rangeMinValue.getText()));
+		} catch (Exception ex) {
+			 
+			return null;
+		}
+    	 
     }
 
     /**
@@ -158,8 +159,13 @@ public class ExpressionThresholdFilterPanel extends AbstractSaveableParameterPan
      *
      * @return
      */
-    public double getUpperBound() {
-        return ((Number) rangeMaxValue.getValue()).doubleValue();
+    public Double getUpperBound() {        
+        try {
+			return (new Double(rangeMaxValue.getText()));
+		} catch (Exception ex) {
+			 
+			return null;
+		}
     }
 
     /**
@@ -188,7 +194,11 @@ public class ExpressionThresholdFilterPanel extends AbstractSaveableParameterPan
     	 String error = filterOptionPanel.validateParameters();
     	 if ( error != null)
     		 return new ParamValidationResults(false, error);
-    	 else if (getUpperBound() < getLowerBound())
+    	 else if (getLowerBound() == null)
+    		 return new ParamValidationResults(false, "Lower bound must be a number.");
+    	 else if (getUpperBound() == null)
+    		 return new ParamValidationResults(false, "Upper bound must be a number.");
+    	 else if (getUpperBound() < getLowerBound())    	 
             return new ParamValidationResults(false, "Upper bound must be larger than lower bound.");
          else return new ParamValidationResults(true, "No Error");
     }

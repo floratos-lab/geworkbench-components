@@ -10,7 +10,7 @@ import java.util.Set;
 
 import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
-import javax.swing.JFormattedTextField;
+import javax.swing.JTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -40,10 +40,10 @@ public class GenepixExpressionThresholdFilterPanel extends AbstractSaveableParam
     private JLabel Cy5MinLabel = new JLabel("Cy5 Range Min");
     private JLabel Cy5MaxLabel = new JLabel("Cy5 Range Max");
     private JLabel optionLabel = new JLabel("Filter-out values");
-    private JFormattedTextField Cy3MinValue = new JFormattedTextField();
-    private JFormattedTextField Cy3MaxValue = new JFormattedTextField();
-    private JFormattedTextField Cy5MinValue = new JFormattedTextField();
-    private JFormattedTextField Cy5MaxValue = new JFormattedTextField();
+    private JTextField Cy3MinValue = new JTextField("0");
+    private JTextField Cy3MaxValue = new JTextField("0");
+    private JTextField Cy5MinValue = new JTextField("0");
+    private JTextField Cy5MaxValue = new JTextField("0");
     private JComboBox optionSelection = new JComboBox(new String[]{INSIDE_RANGE, OUTSIDE_RANGE});
     private GridLayout gridLayout1 = new GridLayout();
     private ParameterActionListener parameterActionListener = null;
@@ -63,13 +63,13 @@ public class GenepixExpressionThresholdFilterPanel extends AbstractSaveableParam
 			Object key = parameter.getKey();
 			Object value = parameter.getValue();
 			if (key.equals("Cy3MinValue")){
-	            this.Cy3MinValue.setValue((Double)value);
+	            this.Cy3MinValue.setText(value.toString());
 			} else if (key.equals("Cy3MaxValue")){
-				this.Cy3MaxValue.setValue((Double)value);
+				this.Cy3MaxValue.setText(value.toString());
 			} else if (key.equals("Cy5MinValue")){
-				this.Cy5MinValue.setValue((Double)value);
+				this.Cy5MinValue.setText(value.toString());
 			} else if (key.equals("Cy5MaxValue")){
-				this.Cy5MaxValue.setValue((Double)value);
+				this.Cy5MaxValue.setText(value.toString());
 			} else if (key.equals("optionSelection")){
 				this.optionSelection.setSelectedIndex((Integer)value);
 			} else if (key.equals("numberThreshold")){
@@ -99,10 +99,10 @@ public class GenepixExpressionThresholdFilterPanel extends AbstractSaveableParam
 			parameters.put("numberThreshold", (Integer) this.filterOptionPanel.getNumberThreshold());
 		else
 			parameters.put("percentThreshold", (Double) this.filterOptionPanel.getPercentThreshold()*100);
-		parameters.put("Cy3MinValue", (Double)Cy3MinValue.getValue());
-		parameters.put("Cy3MaxValue", (Double)Cy3MaxValue.getValue());
-		parameters.put("Cy5MinValue", (Double)Cy5MinValue.getValue());
-		parameters.put("Cy5MaxValue", (Double)Cy5MaxValue.getValue());
+		parameters.put("Cy3MinValue",  getCy3Min());
+		parameters.put("Cy3MaxValue", getCy3Max());
+		parameters.put("Cy5MinValue", getCy5Min());
+		parameters.put("Cy5MaxValue", getCy5Max());
 		parameters.put("optionSelection", optionSelection.getSelectedIndex());
 		return parameters;
 	}
@@ -150,20 +150,12 @@ public class GenepixExpressionThresholdFilterPanel extends AbstractSaveableParam
         wrapperPanel.add(topPanel);
         wrapperPanel.add(bottomPanel);
         this.add(wrapperPanel);
-
-        Cy3MinValue.setValue(new Double(0.0));
-        Cy3MinValue.setFocusLostBehavior(JFormattedTextField.COMMIT_OR_REVERT);
-        Cy3MaxValue.setValue(new Double(0.0));
-        Cy3MaxValue.setFocusLostBehavior(JFormattedTextField.COMMIT_OR_REVERT);
-        Cy5MinValue.setValue(new Double(0.0));
-        Cy5MinValue.setFocusLostBehavior(JFormattedTextField.COMMIT_OR_REVERT);
-        Cy5MaxValue.setValue(new Double(0.0));
-        Cy5MaxValue.setFocusLostBehavior(JFormattedTextField.COMMIT_OR_REVERT);
+         
         parameterActionListener = new ParameterActionListener(this);
-        Cy3MinValue.addPropertyChangeListener(parameterActionListener);
-        Cy3MaxValue.addPropertyChangeListener(parameterActionListener);
-        Cy5MinValue.addPropertyChangeListener(parameterActionListener);
-        Cy5MaxValue.addPropertyChangeListener(parameterActionListener);
+        Cy3MinValue.addActionListener(parameterActionListener);
+        Cy3MaxValue.addActionListener(parameterActionListener);
+        Cy5MinValue.addActionListener(parameterActionListener);
+        Cy5MaxValue.addActionListener(parameterActionListener);
         optionSelection.addActionListener(parameterActionListener);
         filterOptionPanel.numberField.addActionListener(parameterActionListener);
         filterOptionPanel.percentField.addActionListener(parameterActionListener);
@@ -176,8 +168,13 @@ public class GenepixExpressionThresholdFilterPanel extends AbstractSaveableParam
      *
      * @return
      */
-    public double getCy3Min() {
-        return ((Number) Cy3MinValue.getValue()).doubleValue();
+    public Integer getCy3Min() {
+        try {
+			return (new Integer(Cy3MinValue.getText()));
+		} catch (Exception ex) {
+			 
+			return -1;
+		}
     }
 
     /**
@@ -185,8 +182,13 @@ public class GenepixExpressionThresholdFilterPanel extends AbstractSaveableParam
      *
      * @return
      */
-    public double getCy3Max() {
-        return ((Number) Cy3MaxValue.getValue()).doubleValue();
+    public Integer getCy3Max() {        
+        try {
+			return (new Integer(Cy3MaxValue.getText()));
+		} catch (Exception ex) {
+			 
+			return -1;
+		}
     }
 
     /**
@@ -194,8 +196,14 @@ public class GenepixExpressionThresholdFilterPanel extends AbstractSaveableParam
      *
      * @return
      */
-    public double getCy5Min() {
-        return ((Number) Cy5MinValue.getValue()).doubleValue();
+    public Integer getCy5Min() {
+       
+        try {
+			return (new Integer(Cy5MinValue.getText()));
+		} catch (Exception ex) {
+			 
+			return -1;
+		}
     }
 
     /**
@@ -203,8 +211,14 @@ public class GenepixExpressionThresholdFilterPanel extends AbstractSaveableParam
      *
      * @return
      */
-    public double getCy5Max() {
-        return ((Number) Cy5MaxValue.getValue()).doubleValue();
+    public Integer getCy5Max() {        
+        try {
+			return (new Integer(Cy5MaxValue.getText()));
+		} catch (Exception ex) {
+			 
+			return -1;
+		}
+    
     }
 
     /**
@@ -234,6 +248,14 @@ public class GenepixExpressionThresholdFilterPanel extends AbstractSaveableParam
     	String error = filterOptionPanel.validateParameters();
     	if ( error != null)
     		 return new ParamValidationResults(false, error);
+    	else if (getCy3Min() < 0 )
+    		 return new ParamValidationResults(false, "Cy3 Range Min is supposed to be zero or a positive interger.");
+    	else if (getCy3Max() < 0 )
+   		 return new ParamValidationResults(false, "Cy3 Range Max is supposed to be zero or a positive interger.");
+    	else if (getCy5Min() < 0 )
+   		 return new ParamValidationResults(false, "Cy5 Range Min is supposed to be zero or a positive interger.");
+    	else if (getCy5Max() < 0 )
+   		 return new ParamValidationResults(false, "Cy5 Range Max is supposed to be zero or a positive interger.");
     	else if (getCy3Min() > getCy3Max())
             return new ParamValidationResults(false, "Invalid range for Cy3 channel.");
         else if (getCy5Min() > getCy5Max())
