@@ -219,28 +219,15 @@ public class CoefficientOfVariationFilter extends FilteringAnalysis{
         int markerCount = maSet.getMarkers().size();
         int arrayCount = maSet.size();
        
-        for(int i=0; i<markerCount; i++) {
-        	double mean=0.0;
+        for(int i=0; i<markerCount; i++) {        	
             for (int j = 0; j < arrayCount; j++) {
-                DSMarkerValue mv = maSet.get(j).getMarkerValue(i);
-                if (mv.isMissing()) {
-            		return new AlgorithmExecutionResults(false,
-        					"This dataset contains missing value, so Coefficient of Variant filter does not apply.", null);
-                } else {
-                	double v = mv.getValue();
-                	if(v<0) 
-                		return new AlgorithmExecutionResults(false,
-            					"This dataset contains negative value, so Coefficient of Variant filter does not apply.", null);
-                	
-                }
-                mean+=mv.getValue();
+                DSMarkerValue mv = maSet.get(j).getMarkerValue(i);                
+               	double v = mv.getValue();
+               	if(v<0) 
+               		return new AlgorithmExecutionResults(false,
+     					"This dataset contains negative value, so Coefficient of Variant filter does not apply.", null); 
             }
-            if(arrayCount>0) {
-            	mean /=arrayCount;
-            	if(mean<=0)
-            		return new AlgorithmExecutionResults(false,
-        					"This dataset contains zero mean, so Coefficient of Variant filter does not apply.", null);
-            	}
+           
         }
 		
 		return super.execute(input);
