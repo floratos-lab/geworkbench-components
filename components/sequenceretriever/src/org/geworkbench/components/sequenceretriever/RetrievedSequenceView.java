@@ -1,121 +1,114 @@
 package org.geworkbench.components.sequenceretriever;
 
-import javax.swing.*;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.event.MouseEvent;
 
-import org.geworkbench.util.sequences.GeneChromosomeMatcher;
+import javax.swing.JPanel;
+
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 import org.geworkbench.bison.util.SequenceUtils;
-
-import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.awt.font.FontRenderContext;
+import org.geworkbench.util.sequences.GeneChromosomeMatcher;
 
 /**
  * Created by IntelliJ IDEA. User: xiaoqing Date: Sep 6, 2006 Time: 5:07:02 PM
  * To change this template use File | Settings | File Templates.
+ * 
+ * The view of one cell in the display table of retrieved sequences.
+ * 
+ * @version $Id$
  */
-public class RetrievedSequenceView extends JPanel {
-	int xOff = 0;
-	double scale = 1;
-	static int maxSeqLen = 20000; // default is 20000.
-	static int currentLocation = -1;
-	private CSSequence sequence;
-	private GeneChromosomeMatcher geneChromosomeMatcher;
-	static int upstreamTotal = -1;
-	static int downstreamTotal = -1;
+public final class RetrievedSequenceView extends JPanel {
+	private static final long serialVersionUID = -4686885853878188788L;
 
-	private String url;
-	public static final int HEIGHT = 30;
+	// constants
+	static final int HEIGHT = 30; // used in RetreivedSequenceDisplayPabel
 	private static final Color SEQUENCEBACKGROUDCOLOR = Color.BLUE;
 	private static final Color SEQUENCEDOWNSTREAMCOLOR = Color.RED;
 	private final static String BASEUNIURLSTR = "http://www.ebi.ac.uk/cgi-bin/dbfetch?db=uniprot&id=";
+	
+	// static variables // FIXME the decision to make these static is problematic
+	private static int maxSeqLen = 20000; // default is 20000.
+	private static int currentLocation = -1;
+	private static int upstreamTotal = -1;
+	
+	private int xOff = 0;
+	private double scale = 1;
+	private CSSequence sequence;
+	private GeneChromosomeMatcher geneChromosomeMatcher;
+	
+	// the following members have no effects on this object other being set and get
+	private boolean isIncluded = false;
+	private String url;
 
-	public static int getMaxSeqLen() {
-		return maxSeqLen;
-	}
-
-	public static void setMaxSeqLen(int maxSeqLen) {
+	// called only from RetrivedSequenceDisplayPanel
+	static void setMaxSeqLen(int maxSeqLen) {
 		RetrievedSequenceView.maxSeqLen = maxSeqLen;
 	}
 
-	public static int getUpstreamTotal() {
-		return upstreamTotal;
+	// called only from SequenceRereiver.getSequences
+	static void setDownstreamTotal(int downstreamTotal) {
+		// no effect
 	}
 
-	public static int getDownstreamTotal() {
-		return downstreamTotal;
-	}
-
-	public static void setDownstreamTotal(int downstreamTotal) {
-		RetrievedSequenceView.downstreamTotal = downstreamTotal;
-	}
-
-	public static void setUpstreamTotal(int upstreamTotal) {
+	// called only from SequenceRereiver.getSequences
+	static void setUpstreamTotal(int upstreamTotal) {
 		RetrievedSequenceView.upstreamTotal = upstreamTotal;
 	}
 
-	public static int getCurrentLocation() {
+	// called only from RetrivedSequenceDisplayPanel
+	static int getCurrentLocation() {
 		return currentLocation;
 	}
 
-	public static void setCurrentLocation(int currentLocation) {
-		RetrievedSequenceView.currentLocation = currentLocation;
-	}
-
-	public void setGeneChromosomeMatcher(
+	// called only from SequenceRereiver.getSequences
+	void setGeneChromosomeMatcher(
 			GeneChromosomeMatcher geneChromosomeMatcher) {
 		this.geneChromosomeMatcher = geneChromosomeMatcher;
 	}
 
-	public GeneChromosomeMatcher getGeneChromosomeMatcher() {
-		return geneChromosomeMatcher;
-	}
-
-	public void setUrl(String url) {
+	// called only from SequenceRereiver.getSequences
+	void setUrl(String url) {
 		this.url = BASEUNIURLSTR + url.trim();
 	}
 
-	public String getUrl() {
+	// called only from RetrivedSequenceDisplayPanel
+	String getUrl() {
 		return url;
 	}
 
-	public void setSequence(CSSequence sequence) {
-		this.sequence = sequence;
-	}
-
-	public CSSequence getSequence() {
+	// called from SequenceRetreiver
+	CSSequence getSequence() {
 		return sequence;
 	}
 
-	public void setIncluded(boolean included) {
+	// called only from RetrivedSequenceDisplayPanel
+	void setIncluded(boolean included) {
 		isIncluded = included;
 	}
 
-	public boolean isIncluded() {
+	// called from SequenceRetreiver and RetrivedSequenceDisplayPanel
+	boolean isIncluded() {
 		return isIncluded;
 	}
 
-	private boolean isIncluded = false;
-
-	public RetrievedSequenceView() {
-		super(true);
-		repaint();
-
-	}
-
+	// called from SequenceRetreiver and RetrivedSequenceDisplayPanel
 	public RetrievedSequenceView(CSSequence theSeq) {
 		super(true);
 		sequence = theSeq;
 
 	}
 
+	@Override
 	public void paintComponent(Graphics g1d) {
 		super.paintComponent(g1d);
 		scale = Math.min(5.0, (double) (this.getWidth() - 20 - xOff)
 				/ (double) maxSeqLen);
 
 		Graphics2D g = (Graphics2D) g1d;
-		int width = getWidth() - 4;
+
 		if (sequence != null) {
 			int x = xOff + (int) (sequence.length() * scale / 2);
 			if (upstreamTotal > -1) {
@@ -168,10 +161,11 @@ public class RetrievedSequenceView extends JPanel {
 		}
 		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
 				RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-	 	 	g.setColor(Color.BLACK);
+		g.setColor(Color.BLACK);
 
 	}
 
+	@Override
 	public String getToolTipText(MouseEvent event) {
 		float x = event.getX() - xOff;
 		int index = (int) (x / scale);
