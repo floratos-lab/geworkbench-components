@@ -1,0 +1,816 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html dir="ltr" xml:lang="en" xmlns="http://www.w3.org/1999/xhtml" 
+lang="en"><head>
+
+  
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="KEYWORDS" content="Tutorial - MINDy">
+<meta name="robots" content="index,follow">
+<link rel="shortcut icon" 
+href="http://wiki.c2b2.columbia.edu/favicon.ico">
+    <title>Tutorial - MINDy - Workbench</title>
+    <style type="text/css" media="screen,projection">/*<![CDATA[*/ @import "/workbench/skins/monobook/main.css"; /*]]>*/</style>
+    <link rel="stylesheet" type="text/css" 
+href="mindy_files/commonPrint.css">
+ 
+    <style type="text/css">/*<![CDATA[*/
+@import "/workbench/index.php?title=MediaWiki:Monobook.css&action=raw&ctype=text/css&smaxage=18000";
+@import "/workbench/index.php?title=-&action=raw&gen=css&maxage=18000";
+/*]]>*/</style>              </head><body class="ns-0">
+<a name="top" id="top"></a>
+	  	  <h1 class="firstHeading">MINDy<br>
+</h1>
+<a name="MINDy_Analysis" id="MINDy_Analysis"></a>
+<h2>MINDy Analysis </h2>
+<p>The MINDy algorithm (Modulator Inference by Network Dynamics) uses 
+gene expression data to determine whether a putative modulator gene (Mj)
+ influences the regulatory activity of a transcription factor gene (TF) 
+over a set of target genes (Ti).  This influence is measured in terms of
+ whether there is a <b>change in the correlation (measured as mutual 
+information)</b> of expression between the TF and its targets Ti 
+conditional on a change in the expression of Mj.  The change in 
+correlation is calculated as the difference in mutual information (<b>delta
+ (MI)</b>) for each TF-Ti pair between the two conditions (modulator 
+high or low).  The mutual information values used in MINDy are 
+calculated using the <a 
+href="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_ARACNE"
+ title="Tutorial - ARACNE">ARACNe</a> algorithm, which is also a part of
+ geWorkbench.
+</p><p><br>
+</p>
+<a name="Outline_of_MINDy_calculations"></a><h3>Outline of MINDy 
+calculations</h3>
+<ol><li> A microarray gene expression dataset is selected.
+</li><li> The user specifies a set of one or more candidate modulator 
+genes (Mj), a hub transcription factor (TF), and a set of putative 
+targets of the transcription factor (Ti).
+</li><li> Parameters for the MINDy run are set.
+</li><li> Using the expression value of the chosen modulator gene Mj, 
+the arrays in the experiment are ordered (as columns in the data 
+matrix), from lowest to highest.  
+</li><li> Two subsets of arrays are then chosen from each end (tail) of 
+the ordered list. One subset contains arrays in which Mj shows the 
+lowest expression, and the other subset contains arrays in which Mj 
+shows the highest expression.  The subsets are non-overlapping. A 
+typical trial might involve assigning the lowest 35% of the arrays to 
+the low group (M-), as measured by expression of Mj, and the highest 35%
+ to the high group (M+).  The remaining arrays are not further 
+considered.
+</li><li> For each target Ti, the conditional mutual information between
+ the hub TF and the target is then calculated for the array subsets M+ 
+and M- separately, and the difference is taken (delta (MI)).
+</li><li> The resulting delta (MI)s are displayed.  At present, a 
+p-value is not calculated on the delta (MI).  Larger values of delta 
+(MI) may indicate an interesting change in the mutual information 
+conditional on the expression of the modulator, that is, the modulator 
+has an effect on the <b>correlation of expression</b> between the hub TF
+ and the target gene.  
+</li><li> The sign of the influence of the modulator is also displayed. 
+ A positive modulation effect (+) is where high expression of the 
+modulator gene Mj <b>increases </b> the correlation of expression 
+between the hub TF and the target gene.  Likewise, A negative modulation
+ effect (+) is where increasing the expression of the modulator gene Mj <b>decreases</b>
+ the correlation of expression between the hub TF and the target gene.
+</li></ol>
+<a name="Prerequisites_for_MINDy_calculations"></a><h3>Prerequisites for
+ MINDy calculations</h3>
+<ol><li> <b>Number of arrays</b> - A microarray gene expression data set
+ with a sufficient number of arrays must be present.  For optimal 
+results, at least 250 to 300 microarrays of a homogenous cellular system
+ should be used, for example, isolable tumor cells or cell lines, with a
+ range of different expression conditions (distinct cellular 
+phenotypes).  (300 arrays has been found to give good results, while 250
+ has been found to be an absolute minimum).
+</li><li> <b>Modulator expression variation</b> - The expression of the 
+modulator (Mj) must have a sufficient expression range to separate its 
+two expression tails compared to the experimental noise level.  Low 
+variation markers can be removed by running the deviation filter 
+(Filtering component) on the dataset before starting the MINDy 
+calculation.
+</li><li> <b>Independence of modulator and TF hub</b> - Any modulator 
+(Mj) whose expression profile  is not statistically independent of that 
+of the hub transcription factor (TF) must be excluded.  This can be 
+determined using a mutual information calculation (ARACNe).  This 
+functionality is not currently directly implemented within MINDy in 
+geWorkbench, but can be run directly using the ARACNe component.
+</li></ol>
+<p><br>
+</p>
+<a name="Parameters_-_Main"></a><h3>Parameters - Main</h3>
+<p><br>
+  <img 
+src="mindy_files/MINDy_Parameters_Main.png" 
+alt="Image:MINDy_Parameters_Main.png" 
+longdesc="/workbench/index.php/Image:MINDy_Parameters_Main.png" 
+width="1186" height="403">
+</p>
+<p><br>
+The Modulators List, Target List, and Hub Marker fields are populated 
+using marker IDs as represented in the Markers component.  Note that 
+these are not gene names, but the identifiers of the particular markers 
+(e.g. Affymetrix probesets) from the expression platform used to collect
+ the data.
+</p><p><br>
+</p>
+<a name="Modulators_List"></a><h4>Modulators List</h4> 
+<p>The list of candidate modulators can either be loaded from a file as a
+ comma separated list, or a set of markers can be selected from the 
+Markers component.  The gene expression profiles of the modulators 
+should be independent of that of the hub TF gene as measured by mutual 
+information.  This could be determined using a preliminary run of ARACNE
+ including just the modulators and the transcription factor.
+</p><p><br>
+Modulators List pulldown menu options are:
+</p>
+<ul><li> <b>From File</b> - Load a list of candidate modulators from a 
+file (containing a comma separated list).
+</li><li> <b>From Set</b> - Select a set of candidate modulators defined
+ in the Markers component.  When <b>From Set</b> is selected, entries 
+can also be typed directly into the text box.
+</li></ul>
+<p><b>Note</b> - any markers in the modulator list must also appear in 
+the target set (see Target List).
+</p><p><br>
+</p>
+<a name="Target_List"></a><h4>Target List</h4>
+<p>The target list can include all markers or can be restricted to some 
+subset of candidates e.g. thought to be regulated by the Hub Marker 
+transcription factor. 
+</p><p>Target List pulldown menu options are:
+</p>
+<ul><li> <b>All Markers</b> - Run MINDy on all markers in the data set.
+</li><li> <b>From File</b> - Load a list of target markers from a file 
+(containing a comma separated list).
+</li><li> <b>From Set</b> - Select a target marker set defined in the 
+Markers component.
+</li></ul>
+<p><br>
+</p>
+<ul><li> <b>Important - Target list must also include the Hub Marker and
+ all Modulator markers</b> 
+<ul><li> The MINDy main parameters tab requires the selection of 
+Modulators, Targets, and a hub marker.  The Target List must also 
+contain the Hub Marker and all the Modulator markers, because a single 
+expression profile dataset is transferred to the algorithm for 
+calculations.   
+</li><li> If "All Markers" is chosen, then no further attention to this 
+point is required.
+</li></ul>
+</li></ul>
+<ul><li> Note - the "<b>All Markers</b>" <i>checkbox</i> at the bottom 
+of the Analysis component should <b>not</b> be used in the MINDy 
+component.
+</li></ul>
+<p><br>
+</p>
+<a name="Hub_Marker"></a><h4>Hub Marker</h4>
+<p>Enter the marker ID for a known or putative transcription factor 
+gene. 
+</p>
+<ul><li> The Hub marker can be entered directly in the text field, or 
+the most recently selected marker in the Markers component will be used,
+ selected either in the list or in the default Marker set "Selection". 
+</li><li> <b>Note</b> - Even if one directly types in a marker name, it 
+will be replaced if any selection is made in the Markers component.
+</li><li> <b>Note</b> - The hub marker must also appear in the target 
+set (see Target List).
+</li></ul>
+<p><br>
+</p>
+<a name="Parameters_-_Advanced"></a><h3>Parameters - Advanced</h3>
+<p><br>
+  <img 
+src="mindy_files/MINDy_Parameters_Advanced.png" 
+alt="Image:MINDy_Parameters_Advanced.png" 
+longdesc="/workbench/index.php/Image:MINDy_Parameters_Advanced.png" 
+width="1184" height="314">
+</p>
+<p><br>
+</p>
+<a name="Sample_per_Condition_.28.25.29"></a><h4>Sample per Condition 
+(%)</h4>
+<p>MINDy calculates the difference in mutual information for the 
+TF-Target interaction between the set where the modulator gene is most 
+expressed (+) and the set where the modulator gene is least expressed 
+(-). This parameter specifies the percentage of the available samples to
+ include in each group. E.g. 35% means that the top and bottom 35% of a 
+list of samples ranked by expression would be used.
+</p><p><br>
+</p>
+<a name="Conditional_.28threshold_settings.29"></a><h4>Conditional 
+(threshold settings)</h4> 
+<p>The underlying ARACNe calculation of the conditional mutual 
+information allows a threshold to be set.  This allows TF-target pairs 
+with low MI to be screened out - an MI value will only be returned for a
+ target when it exceeds this value.  The threshold for the conditional 
+calculations can be specified as a raw mutual information score or as a 
+P-value.  
+</p><p>Options:
+</p>
+<ul><li> <b>Mutual Info </b>- If selected, the user specifies a 
+threshold for the mutual information (MI) estimates in terms of the raw 
+MI score. For example, a value of 0.1 filters out target genes with a MI
+ score of less than 0.1 in both the high and low modulator expression 
+sets.  By default, a MI threshold of 0.1 is set.
+<ul><li> Note - if the MI score is above threshold in one condition but 
+not the other, the lower score will be set to zero when calculating 
+delta (MI).  If the threshold is set too high, there may be 
+artefactually large delta (MI) results as values below the threshold are
+ set to zero before delta (MI) is calculated.
+</li></ul>
+</li></ul>
+<ul><li> <b>P-value</b> - If selected, the user specifies a threshold 
+for the conditional mutual information estimate in terms of a p-value.  
+This is a value between 0 and 1, with 1 indicating no threshold. By 
+default, the value is 0.01.  The specified p-value is converted to a MI 
+threshold.
+</li></ul>
+<ul><li> <b>Correction</b> -  correct for multiple testing if a p-value 
+is specified.  The choices are
+<ul><li> None - no correction of the p-value
+</li><li> Bonferroni -  apply the Bonferroni correction to the p-value 
+before its is converted to a threshold MI score.
+</li></ul>
+</li></ul>
+<p><br>
+</p>
+<a name="Unconditional_.28threshold_settings.29_.28Not_used_in_MINDy.29"></a><h4>Unconditional
+ (threshold settings) (Not used in MINDy)</h4> 
+<p>The unconditional MI is intended for use in the calculation of 
+statistical significance of the final delta (MI) score and is not 
+currently used.  This control is disabled.
+</p><p><br>
+</p>
+<a name="DPI_settings_.28Not_used_in_MINDy.29"></a><h4>DPI settings (Not
+ used in MINDy)</h4>
+<h5>DPI Target 
+List (Not used in MINDy)<a name="DPI_Tolerance_.28Not_used_in_MINDy.29"></a></h5>
+<h5>DPI Tolerance 
+(Not used in MINDy)<br>
+</h5>
+<a name="Advanced_-_setting_ARACNe_dataset_parameters"></a><h4>Advanced -
+ setting ARACNe dataset parameters</h4>
+<p>MINDy makes use of the original Fixed Bandwidth implementation of 
+ARACNe.  This algorithm can make use of parameters which are data set 
+specific, if available (by separate calculation), and which can be used 
+in setting the Kernel Width and Threshold. ARACNe includes default 
+values with which to calculate these parameters, which also depend on 
+the number of arrays in the dataset.   However, it is possible to use 
+the newer version of ARACNe (also called ARACNe2), which is included in 
+geWorkbench as a separate component, to calculate the needed values for a
+ particular dataset.  The key is that ARACNe looks for two parameter 
+files with the fitted parameters, and will use these if they are found. 
+ The files are called "config_kernel.txt" and "config_threshold.txt".  
+If you want to use custom parameters in MINDy, you must create these two
+ files by using a separate PREPROCESSING run of ARACNe on your dataset.
+</p><p>Running ARACNe in PREPROCESSING mode, with algorithm 
+FIXED_BANDWIDTH, will create two files in the geWorkbench root 
+directory, named according to the following template:
+</p>
+<ul><li> DatasetName_ARACNe_FBW_kernel.txt
+</li><li> DatasetName_ARACNe_FBW_threshold.txt
+</li></ul>
+<p>where "DatasetName" is the name of the microrarray dataset for which 
+you ran ARACNe.  For example, for the Bcell-100.exp dataset, the 
+following two files would be generated:
+</p>
+<ul><li> Bcell-100.exp_ARACNe_FBW_kernel.txt
+</li><li> Bcell-100.exp_ARACNe_FBW_threshold.txt
+</li></ul>
+<p>To make these file available to MINDy, just rename them to 
+"config_kernel.txt" and "config_threshold.txt".
+</p><p>Note that these default file names will be seen and the contents 
+used by all versions of ARACNe, both standalone and within MINDy.  So 
+you should remove or rename these files before doing any other work with
+ ARACNe/MINDy.
+</p><p><br>
+</p>
+<a name="Important_notes_on_the_calculation"></a><h3>Important notes on 
+the calculation</h3>
+<a name="MI_Thresholds"></a><h4>MI Thresholds</h4>
+<ul><li> <b>Unconditional</b> - The unconditional ARACNe mutual 
+information calculation is intended to be used in calculating a 
+significance value on the final delta MI score.  This feature is not yet
+ implemented.  However, the unconditional run is still performed to 
+initialize ARACNe for the following conditional runs.  In particular, 
+parameters for the conditional MI runs are calculated  using the number 
+of arrays present in the full dataset, before partitioning for the 
+conditional runs.
+</li><li> <b>Conditional</b> -   The conditional MI score set will 
+influence how many target markers are returned - the lower the 
+threshold, the more targets will be returned.  A target has to have a 
+value above the set threshold in at least one of the two conditional 
+ARACNe runs in order to be included in the output data.  The threshold 
+should be kept as close to zero as practical to avoid truncation effects
+ on sub-threshold values.
+</li></ul>
+<p><br>
+</p>
+<a name="delta_.28MI.29"></a><h4>delta (MI)</h4>
+<p>As implemented in geWorkbench, the significance of the delta (MI) 
+values is not calculated.
+</p><p><br>
+</p>
+<a name="Marker_and_Array_Selection"></a><h4>Marker and Array Selection</h4>
+<ul><li> <b>Marker Sets</b> - All marker selection is done within the 
+MINDy component interface.  If the option "From Sets" is chosen, one 
+marker set from the Markers component can be selected.  MINDy <b>does 
+not</b> respect activated marker subsets in the Markers component - that
+ is, checking the box next to a marker subset in the Markers component 
+has no effect on the markers used for the Mindy calculation or display.
+</li></ul>
+<ul><li> <b>Array Sets</b> - MINDy <b>does</b> respect array subsets 
+activated in the Arrays component.  That is, the arrays used can be 
+limited to particular subsets by activating those subsets in the Arrays 
+component (by checking the boxes next to them).
+</li></ul>
+<ul><li> <b>Important - Target list must also include the Hub Marker and
+ all Modulator markers</b> 
+<ul><li> The MINDy main parameters tab requires the selection of 
+Modulators, Targets, and a hub marker.  The Target List must also 
+contain the Hub Marker and all the Modulator markers, because a single 
+expression profile dataset is transferred to the algorithm for 
+calculations.   
+</li><li> If "All Markers" is chosen, then no further attention to this 
+point is required.
+</li></ul>
+</li></ul>
+<ul><li> <b>Testing of multiple modulators</b> - When testing multiple 
+modulators, consider the false-positive implications of multiple tests, 
+even though no significance value is being calculated.
+</li></ul>
+<p><br>
+</p>
+<a name="Services_.28Grid.29"></a><h2>Services (Grid)</h2>
+<p>MINDy can be run either locally within geWorkbench, or remotely as a 
+grid job on caGrid.  See the <a 
+href="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_Grid_Services"
+ title="Tutorial - Grid Services"> Grid Services</a> section for further
+ details on setting up a grid job.  A Columbia grid login must be 
+obtained to use the Columbia grid service.
+</p><p><br>
+</p>
+<a name="Running_an_example_MINDy_Analysis"></a><h2>Running an example 
+MINDy Analysis</h2>
+<a name="Analysis_Framework"></a><h3>Analysis Framework</h3>
+<p>For general details on saving and storing parameter settings, and 
+launching the analysis, see the <a 
+href="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_Analysis"
+ title="Tutorial - Analysis">Analysis</a> tutorial page.
+</p><p><br>
+</p>
+<a name="Setup"></a><h3>Setup</h3>
+<ul><li> For this example, we use a list of four candidate MAPK markers,
+ contained in a CSV format file. Right-click on the following link and 
+save the file <a 
+href="http://wiki.c2b2.columbia.edu/workbench/images/4/4f/Mapk_list.csv"
+ class="internal" title="Mapk list.csv">Mapk_list.csv</a> to disk.
+</li><li> In the Component Configuration Manager, check whether the 
+MINDy component has been loaded, and if not, load it.
+</li></ul>
+<p><br>
+</p>
+<a name="Run"></a><h3>Run</h3>
+<p>The figure illustrates the MINDy main parameter tab set up to run the
+ example below.
+</p><p><br>
+  <img 
+src="mindy_files/MINDy_parameters_mapk_run.png" 
+alt="Image:MINDy_parameters_mapk_run.png" 
+longdesc="/workbench/index.php/Image:MINDy_parameters_mapk_run.png" 
+width="1188" height="270">
+</p>
+<p><br>
+</p>
+<ol><li> Load the Bcell-100.exp microarray dataset, which is available 
+in the geWorkbench data directory under "public_data".  If you wish to 
+see gene names in the results, you must also load the associated 
+annotation file.  See e.g. the tutorial <a 
+href="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_Local_Data_Files"
+ title="Tutorial - Local Data Files">Local Data Files</a> for further 
+details.
+</li><li> In the analysis tab (at lower right in the application), 
+select<b> MINDy Analysis</b>.
+</li><li> In the MINDy Parameters Main tab, populate the <b> Modulators 
+List</b> by loading the file <a 
+href="http://wiki.c2b2.columbia.edu/workbench/images/4/4f/Mapk_list.csv"
+ class="internal" title="Mapk list.csv">Mapk_list.csv</a>.
+</li><li> Populate the <b>Target List</b> textbox by selecting the 
+choice "All Markers".   
+</li><li> Set the hub gene to be marker (probeset) name 1973_s_at (the 
+MYC gene).  Type in the marker name directly, or search for and select 
+it in the Markers component. 
+</li><li> Parameter values for the conditional mutual information 
+calculation can be set in the Advanced Tab.  The values will depend on 
+the specifics of the data set being used, in terms of number of arrays 
+and number of markers.   Here we use the default parameters:
+<ol><li> Sample per Condition: 35%
+</li><li> Conditional: MI 0.1
+</li><li> Unconditional: not used, control disabled.
+</li><li> DPI target list: blank
+</li><li> DPI tolerance: 0.1
+</li></ol>
+</li><li>Click <b>Analyze</b>. If successful, the Project Folders 
+component is updated to add the MINDy result node.  The result node is 
+shown as a child node of the input dataset Bcell-100.exp. Please note 
+that the Dataset History tab captures the analysis parameters.
+</li></ol>
+<p><br>
+</p>
+<a name="Viewing_MINDy_Results"></a><h2>Viewing MINDy Results</h2>
+<a name="General"></a><h3>General</h3>
+<p>1. The MINDy result node should be automatically selected in the 
+Project Folder once the result is available. If not, select it.  This 
+will display the MINDy result viewer.
+</p><p>2. In the Modulator Tab, indicate the modulators of interest 
+using the checkboxes or click on <b>Select All</b> to display all 
+modulators in the Table, List, and Heat Map views. The <b>Modulators 
+Selected</b> is updated to reflect the number of modulators selected. 
+Only selected Modulators are displayed on the Table, List and Heat Map 
+views. 
+</p><p><br>
+</p>
+<a name="Common_Features"></a><h3>Common Features</h3>
+<a name="Net_modulatory_effect_values"></a><h4>Net modulatory effect 
+values</h4>
+<p>The first step of the MINDy algorithm is to sort the input expression
+ arrays by the expression value for the candidate modulator.  It then 
+forms two groups of arrays, those where the candidate modulator is most 
+highly expressed, and those where it is least expressed.  Here we will 
+refer to these as the "conditional high set" and the "conditional low 
+set" - that is, they are sets of arrays conditioned on the expression of
+ the candidate modulator.
+</p><p>The following symbols are used to break out the total, positive, 
+and negative effects:
+</p>
+<ul><li> <b>M#</b> - For reach modulator, the total number of 
+above-threshold transcription-factor-target (TF-Ti) MI scores found.
+</li><li> <b>M+</b> - The number of targets for which the TF-Ti pairs 
+showed higher MI in the conditional high set compared with the MI in the
+ conditional low set.
+</li><li> <b>M-</b> - The number of targets for which the TF-Ti pairs 
+showed lower MI in the conditional high set compared with the MI in the 
+conditional low set.
+</li></ul>
+<p><br>
+</p>
+<a name="Controls"></a><h4>Controls</h4>
+<a name="Marker_Display"></a><h5>Marker Display</h5>
+<p>Controls how the marker name is displayed.  Options are:
+</p>
+<ul><li> <b>Symbol</b> - If an annotation file has been loaded, use the 
+Gene Symbol associated with each marker. 
+</li><li> <b>Probe Name</b> - Use the marker probe name as given in the 
+dataset.
+</li></ul>
+<a name="Add_to_Set"></a><h5>Add to Set</h5>
+<p>(Except Heat Map) -  Adds selected markers to a Marker Set. You can 
+select one or more Targets and/or Modulators, using the selection 
+check-boxes.
+</p>
+<a name="Displayed_targets_filter"></a><h4>Displayed targets filter</h4>
+<p>This menu is located at the bottom of the MINDy viewer component and 
+controls the target markers displayed in the various view tabs just 
+described. It contains a list of all markers sets available in the 
+Markers component.  Any one set can be chosen, and only MINDy targets 
+which are also in this selected subset will be displayed (the 
+intersection of the MINDy result set and the Marker set). 
+</p><p><b>Note</b> - Marker sets do not need to be activated to be used 
+for result filtering here.
+</p>
+<a name="Values"></a><h5>Values</h5>
+<ul><li> <b>All non-zero markers</b> - all markers with delta (MI) &gt; 0
+ are displayed.
+</li><li> <b>Selection</b> - This refers to the default "Selection" set 
+in the Markers component. 
+</li><li> any other marker set name - all available marker sets will be 
+listed in the menu and any one can be chosen.
+</li></ul>
+<p><br>
+</p>
+<a name="All_Markers"></a><h5>All Markers</h5>
+<p>(Except Modulators tab) - This check-box overrides any marker set 
+selected in the "Displayed targets filter".  If checked, all results 
+will be displayed.
+</p><p><br>
+</p>
+<a name="Modulator_tab"></a><h3>Modulator tab</h3>
+<p><img
+ src="mindy_files/MINDy_mapk_initial_result_modulator_tab.png" 
+alt="Image:MINDy_mapk_initial_result_modulator_tab.png" 
+longdesc="/workbench/index.php/Image:MINDy_mapk_initial_result_modulator_tab.png"
+ width="1186" height="378">	
+</p>
+<p>This table-based view contains one row per modulator gene.  It 
+summarizes the results, and is used to control the targets displayed in 
+the other view tabs.
+</p>
+<a name="Controls_2"></a><h4>Controls</h4>
+<ul><li> <b>List Selections</b>
+<ul><li> <b>Select All</b> checkbox - When checked, all modulators will 
+be selected.  If not checked, the individual markers can be selected 
+using the individual check boxes in the table.
+</li></ul>
+</li><li> <b>Modulators selected</b> - Shows a count of the number of 
+individual modulators that have been selected in the table.
+</li></ul>
+<p><br>
+</p>
+<a name="Columns"></a><h4>Columns</h4>
+<ul><li> M#, M+ and M- have already been described above under <a 
+href="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_MINDy#Net_modulatory_effect_values"
+ title="Tutorial - MINDy">"Net modulatory effect values"</a>. 
+</li></ul>
+<ul><li> <b>Check-boxes</b> - Use these to select which modulators to 
+include in generating the data views on the other tabs (Table, List, and
+ Heat Map). 
+</li><li> <b>Modulator</b> - The gene symbol or probe name for the 
+putative modulators tested.
+</li></ul>
+<ul><li> <b>Mode</b> - Shows whether the net sum effect of the modulator
+ over all its targets was enhancing or negative. 
+<ul><li>  If M+ - M- &gt; 0, the result is "+", that is the candidate 
+had a net positive modulatory effect (increased MI).
+</li><li>  If M+ - M- &lt; 0, the result is "-", that is the candidate 
+had a net negative modulatory effect (decreased MI).
+</li><li>  If M+ - M- = 0, the result is "0", that is the candidate 
+modulator had a balanced effect.
+</li></ul>
+</li></ul>
+<p><br>
+Here all four modulators in the example have been selected, activating 
+the other tabs.
+</p><p><img
+ 
+src="mindy_files/MINDy_mapk_initial_result_modulator_tab_select_all.png"
+ alt="Image:MINDy_mapk_initial_result_modulator_tab_select_all.png" 
+longdesc="/workbench/index.php/Image:MINDy_mapk_initial_result_modulator_tab_select_all.png"
+ width="558" height="300">
+</p>
+<p><br>
+</p>
+<a name="Table"></a><h3>Table</h3>
+<p><br>
+  <img 
+src="mindy_files/MINDy_mapk_Table.png" alt="Image:MINDy_mapk_Table.png" 
+longdesc="/workbench/index.php/Image:MINDy_mapk_Table.png" width="1034" 
+height="790">
+</p>
+<p><br>
+The column "Target" represents the target genes and the remaining 
+columns represent the modulators tested. 
+</p>
+<ul><li> <b>Discretization of scores</b> - By default, the MI scores are
+ discretized to +1 and -1 for positive and negative scores, 
+respectively. Discretized scores are used to quantify the number of 
+positive and negative modulation effects, as shown e.g. in the numbers 
+in the column headers. If the "Score View" option is chosen, the actual 
+scores, in the range from -1.0 to 1.0, will be shown.  
+</li></ul>
+<p><br>
+</p>
+<a name="Controls_3"></a><h4>Controls</h4>
+<p>If many modulators were tested, it may be desirable to sort the 
+display by their results.
+</p>
+<ul><li> <b>Display Options:</b>
+<ul><li> <b>Color View:</b> Enables a heat map display of each cell 
+based on the value of the score.  Positive values are displayed in 
+shades of red, while negative values are displayed in shades of blue. 
+The saturation of the color increases (starting from white for 0) with 
+increasing absolute value of the score.
+</li><li> <b>Score View:</b> Displays the actual score values rather 
+than the default discretized values.
+</li></ul>
+</li></ul>
+<p><br>
+Here, both the "Color View" and "Score View" options have been checked.
+</p><p><br>
+  <img 
+src="mindy_files/MINDy_mapk_Table_display_options1.png" 
+alt="Image:MINDy_mapk_Table_display_options1.png" 
+longdesc="/workbench/index.php/Image:MINDy_mapk_Table_display_options1.png"
+ width="1037" height="794">
+</p>
+<p><br>
+The modulators in the above figure are by default sorted by the 
+aggregate count of targets for which a modulatory effect was seen (M#).
+</p><p>The table can be sorted on the values in any column by clicking 
+on its header.  In addition, the column headers (the modulators) can be 
+sorted as described next:
+</p>
+<ul><li> <b>Modulator Sorting:</b> - Displays columns (modulators) from 
+left to right in descending order by the counts of: Aggregate ( M#), 
+Enhancing (M+) or Negative (M-).
+<ul><li> <b>Aggregate (M#)</b>: The column header displays "M#" and the 
+count of all targets for which a positive or negative modulatory effect 
+was seen. 
+</li><li> <b>Enhancing (M+)</b>: The column header displays "M+" and the
+ count of all targets for which a positive modulatory effect was seen. 
+</li><li> <b>Negative (M-)</b>: The column header displays "M-" and the 
+count of all targets for which a negative modulatory effect was seen. 
+</li></ul>
+</li></ul>
+<p>Example of sorting by "Enhancing":  The first modulator column header
+ is "MAP4K4 (M+ 103).
+</p><p><br>
+  <img 
+src="mindy_files/MINDy_mapk_Table_display_options_enhancing.png" 
+alt="Image:MINDy_mapk_Table_display_options_enhancing.png" 
+longdesc="/workbench/index.php/Image:MINDy_mapk_Table_display_options_enhancing.png"
+ width="1033" height="297">
+</p>
+<p><br>
+Example of sorting by "Negative":  The first modulator column header is 
+"MAP4K2 (M- 54).
+</p><p><br>
+  <img 
+src="mindy_files/MINDy_mapk_Table_display_options_negative.png" 
+alt="Image:MINDy_mapk_Table_display_options_negative.png" 
+longdesc="/workbench/index.php/Image:MINDy_mapk_Table_display_options_negative.png"
+ width="1035" height="302">
+</p>
+<p><br>
+</p>
+<ul><li> <b>Modulator Limits:</b> When the checkbox is selected, the 
+number of columns (modulators) is limited to the value set in the 
+selector box.
+</li></ul>
+<ul><li> <b>Marker Selection</b> (checkbox) - controls which markers are
+ used by the "Add to Set" button.
+<ul><li> <b>Enable Selection</b> - When checked, a column of checkboxes 
+appears in the table to allow individual selection of targets.  Shows a 
+count of all selected modulators and targets.
+</li><li> <b>Select all Modulators</b> - Selects all modulators (table 
+columns).
+</li><li> <b>Select all Targets</b> - Selects all targets (table rows).
+</li><li> <b>Add to Set</b> (button) - All selected markers (modulators 
+and/or targets) will be added to a new set in the Markers component.
+</li></ul>
+</li></ul>
+<p><br>
+</p>
+<ul><li> <b>Displayed targets filter</b>  - The displayed target markers
+ can be filtered using a defined marker set.
+</li></ul>
+<p>Here we show an example of selecting about every 10th target...
+</p><p><br>
+  <img 
+src="mindy_files/MINDy_mapk_Table_select_markers.png" 
+alt="Image:MINDy_mapk_Table_select_markers.png" 
+longdesc="/workbench/index.php/Image:MINDy_mapk_Table_select_markers.png"
+ width="1029" height="803">
+</p>
+<p><br>
+Click "Add to Set" to create a new Marker set in the Markers component.
+</p><p><br>
+  <img 
+src="mindy_files/MINDy_mapk_Table_target_selected.png" 
+alt="Image:MINDy_mapk_Table_target_selected.png" 
+longdesc="/workbench/index.php/Image:MINDy_mapk_Table_target_selected.png"
+ width="229" height="248">
+</p>
+<p><br>
+The new marker set can now be used to filter the displayed targets.  On 
+the pulldown menu at the bottom of the MINDy viewer, choose the desired 
+set of markers to use to restrict the display:
+</p><p><br>
+  <img 
+src="mindy_files/MINDy_mapk_Table_Displayed_targets_filter_menu.png" 
+alt="Image:MINDy_mapk_Table_Displayed_targets_filter_menu.png" 
+longdesc="/workbench/index.php/Image:MINDy_mapk_Table_Displayed_targets_filter_menu.png"
+ width="174" height="130">
+</p>
+<p><br>
+After the filter is selected, only those markers contained in the 
+selected set will appear:
+</p><p><br>
+  <img 
+src="mindy_files/MINDy_mapk_Table_Displayed_targets_filtered.png" 
+alt="Image:MINDy_mapk_Table_Displayed_targets_filtered.png" 
+longdesc="/workbench/index.php/Image:MINDy_mapk_Table_Displayed_targets_filtered.png"
+ width="1035" height="587">
+</p>
+<p><br>
+</p>
+<a name="List"></a><h3>List</h3>
+<p>In the list view, all modulators are listed in the first column, 
+their targets in the second column, while the third column contains the 
+delta (MI) scores.  That is, each modulator/target pair is listed 
+individually.  
+</p><p>This view has the advantage of displaying only actual data 
+values.  This contrasts with the Table view, where the results are 
+displayed in a spreadsheet format.  Because each modulator will have its
+ own set of targets, not each modulator/target cell in the table will 
+have a value.  Results in the Table view are padded with zeros as 
+necessary.
+</p><p><br>
+  <img 
+src="mindy_files/MINDy_mapk_List_tab.png" 
+alt="Image:MINDy_mapk_List_tab.png" 
+longdesc="/workbench/index.php/Image:MINDy_mapk_List_tab.png" 
+width="1037" height="455">
+</p>
+<p><br>
+</p>
+<ul><li> <b>Marker Selection</b> (checkbox) - Controls which markers are
+ used by the "Add to Set" button.
+<ul><li> <b>Enable Selection</b> - When checked, a column of checkboxes 
+appears beside each target and beside each marker to allow individual 
+selection of each.  Shows a count of all selected modulators and 
+targets.
+</li><li> <b>Select all Modulators</b> - Selects all modulators.
+</li><li> <b>Select all Targets</b> - Selects all targets.
+</li><li> <b>Add to Set</b> (button) - All selected markers will be 
+added to a new set in the Markers component.
+</li></ul>
+</li></ul>
+<p><br>
+</p>
+<a name="Heat_Map"></a><h3>Heat Map</h3>
+<p>The Heat Map represents the expression values for individual markers 
+(target genes).  It contains two color mosaic panels. The rows 
+correspond to target genes and the columns (arrays) are ordered 
+according to the expression of the TF gene (low to high). The mosaic at 
+left corresponds to the arrays where modulator was least expressed.  The
+ mosaic at right corresponds to the arrays where the modulator 
+expression was highest. 
+</p>
+<a name="Controls_4"></a><h4>Controls</h4>
+<ul><li> <b>Transcription Factor:</b> Displays the TF hub gene entered 
+in the MINDy Analysis parameters.
+</li></ul>
+<ul><li> <b>Modulators: </b> - The heat map is generated for the targets
+ of only one modulator at a time.  The list shows the available 
+modulators, and the text box above it shows the selected modulator.
+</li></ul>
+<p>Here the first modulator on the list is selected:
+</p><p><br>
+  <img 
+src="mindy_files/MINDy_mapk_Heat_Map_tab.png" 
+alt="Image:MINDy_mapk_Heat_Map_tab.png" 
+longdesc="/workbench/index.php/Image:MINDy_mapk_Heat_Map_tab.png" 
+width="1036" height="601">
+</p>
+<p><br>
+As shown below, scrolling to the bottom of the Heat Map image shows how 
+the sense of the modulation is reversed for these markers compared to 
+those at the top of the list:
+</p><p><br>
+  <img
+ src="mindy_files/MINDy_mapk_Heat_Map_tab_MAP4K4_lower.png" 
+alt="Image:MINDy_mapk_Heat_Map_tab_MAP4K4_lower.png" 
+longdesc="/workbench/index.php/Image:MINDy_mapk_Heat_Map_tab_MAP4K4_lower.png"
+ width="1035" height="569">
+</p>
+<p><br>
+Here the second modulator is selected, generating a new heat map:
+</p><p><br>
+  <img 
+src="mindy_files/MINDy_mapk_Heat_Map_tab_mod2.png" 
+alt="Image:MINDy_mapk_Heat_Map_tab_mod2.png" 
+longdesc="/workbench/index.php/Image:MINDy_mapk_Heat_Map_tab_mod2.png" 
+width="1036" height="516">
+</p>
+<p><br>
+</p>
+<ul><li> "Displayed targets filter" - The Heat Map view can be filtered 
+using the "Displayed targets filter".  When the marker set generated 
+above, "mapk_targets_every10" is selected, a reduced heat map is 
+generated which illustrates a transition from positive to negative 
+effect of MYC when MAP4K4 is low, but not when MAP4K4 is high.
+</li></ul>
+<p><br>
+  <img
+ src="mindy_files/MINDy_mapk_Heat_Map_tab_target_filtered.png" 
+alt="Image:MINDy_mapk_Heat_Map_tab_target_filtered.png" 
+longdesc="/workbench/index.php/Image:MINDy_mapk_Heat_Map_tab_target_filtered.png"
+ width="1035" height="582">
+</p>
+<p><br>
+</p>
+<ul><li> <b>Refresh HeatMap: </b> - Resets the Heat Map display.
+</li></ul>
+<ul><li> <b>Image Snapshot:</b> - Captures the Heat Map as an image node
+ in the Project Folder.
+</li></ul>
+<p><br>
+  <img 
+src="mindy_files/MINDy_Heat_Map_node.png" 
+alt="Image:MINDy_Heat_Map_node.png" 
+longdesc="/workbench/index.php/Image:MINDy_Heat_Map_node.png" 
+width="231" height="155">
+</p>
+<p><br>
+</p>
+<a name="References"></a><h2>References</h2>
+<ol><li> Margolin, A., Wang, K., Lim, W.K., Kustagi, M., Nemenman, I., 
+and Califano, A. (2006) Reverse Engineering Cellular Networks. Nature 
+Protocols 1(2):662-671.</li><li> Wang K, Saito M, Bisikirska BC, Alvarez MJ, Lim WK, 
+Rajbhandari P, Shen Q, Nemenman I, Basso K, Margolin AA, Klein U, 
+Dalla-Favera R, Califano A. (2009)  Genome-wide identification of 
+post-translational modulators of transcription factor activity in human B
+ cells.  Nat Biotechnol. 27(9):829-39.</li>
+</ol>
+
+  </body></html>
