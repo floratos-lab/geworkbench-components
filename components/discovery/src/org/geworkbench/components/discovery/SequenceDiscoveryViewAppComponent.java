@@ -68,7 +68,7 @@ import polgara.soapPD_wsdl.Parameters;
  * <p>
  * Company: Califano Lab
  * </p>
- * 
+ *
  * @version $Id$
  */
 
@@ -221,7 +221,7 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 
 	/**
 	 * geneSelectorAction
-	 * 
+	 *
 	 * @param e
 	 *            GeneSelectorEvent
 	 */
@@ -279,18 +279,24 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 				} else {
 					sDiscoveryViewWidget.setSequenceDB((DSSequenceSet) df,
 							withSubNode, subNodeID, parms, resultFile);
-
 				}
 			} else {
 				currentStatus = NONSEQUENCE;
 			}
+
+			if (e.getParent()==null) {
+				sDiscoveryViewWidget.setCurrentView(SequenceDiscoveryViewWidget.DEFAULT_VIEW);
+			} else {
+				sDiscoveryViewWidget.setCurrentView(SequenceDiscoveryViewWidget.PATTERN_TABLE);
+			}
+
 		}
 	}
 
 	/**
 	 * The method returns a session. Note: The method will pop up a dialog to
 	 * create a session.
-	 * 
+	 *
 	 * @return the active session.
 	 */
 	synchronized DiscoverySession getSession() {
@@ -343,7 +349,7 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 
 	/**
 	 * copy the data from one LoginPanelModel to the other.
-	 * 
+	 *
 	 * @param from
 	 * @param to
 	 */
@@ -355,7 +361,7 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 
 	/**
 	 * This method passes the session properties to the Properties manager.
-	 * 
+	 *
 	 * @param host
 	 *            host name
 	 * @param port
@@ -375,7 +381,7 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 
 	/**
 	 * This method returns a true if a discovery file is selected.
-	 * 
+	 *
 	 * @return true if and only if a file is selected in the project pannel.
 	 */
 	private boolean isDiscoveryFileSet() {
@@ -384,7 +390,7 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 
 	/**
 	 * This method is used to fire events from the SequenceDiscoveryViewWidget
-	 * 
+	 *
 	 * @param evt
 	 *            property event
 	 */
@@ -396,9 +402,9 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 						.equalsIgnoreCase(SequenceDiscoveryViewWidget.PATTERN_DB)) {
 			DSAncillaryDataSet<? extends DSBioObject> dataset = (DSAncillaryDataSet<? extends DSBioObject>) evt
 					.getNewValue();
-			org.geworkbench.events.ProjectNodeAddedEvent event = new org.geworkbench.events.ProjectNodeAddedEvent(
-					"message", null, dataset);
-			publishProjectNodeAddedEvent(event);
+				org.geworkbench.events.ProjectNodeAddedEvent event = new org.geworkbench.events.ProjectNodeAddedEvent(
+						"message", null, dataset);
+				publishProjectNodeAddedEvent(event);
 		} else if (property
 				.equalsIgnoreCase(SequenceDiscoveryViewWidget.TABLE_EVENT)) {
 			notifyTableEvent(evt);
@@ -442,7 +448,7 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 
 	/**
 	 * This method is used to trigger HistoryPanel to refresh.
-	 * 
+	 *
 	 * @param event
 	 * @return
 	 */
