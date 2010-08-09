@@ -1,6 +1,7 @@
 package org.geworkbench.components.discovery.algorithm;
 
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSMatchedSeqPattern;
+import org.geworkbench.components.discovery.SequenceDiscoveryViewWidget;
 import org.geworkbench.events.ProgressChangeEvent;
 import org.geworkbench.util.patterns.*;
 import org.geworkbench.util.remote.SPLASHDefinition;
@@ -9,6 +10,8 @@ import org.geworkbench.util.session.SessionOperationException;
 import polgara.soapPD_wsdl.Parameters;
 
 import java.util.ArrayList;
+
+import javax.swing.JOptionPane;
 
 /**
  * <p>Title: Sequence and Pattern Plugin</p>
@@ -101,6 +104,15 @@ public final class ExhaustiveDiscovery extends ServerBaseDiscovery implements Se
             ex.printStackTrace();
         }
         fireDisplayUpdate();
+		int viewId = SequenceDiscoveryViewWidget.DEFAULT_VIEW;
+        if (discoveredPattern == 0){
+			JOptionPane.showMessageDialog(null, "No patterns were found");
+		} else {
+			viewWidget.firePropertyChangeAlgo();
+			viewId = SequenceDiscoveryViewWidget.PATTERN_TABLE;
+		}
+		// replace the view and model
+		viewWidget.setCurrentView(viewId);
     }
 
     private void fireStatusEvent() {
@@ -111,6 +123,7 @@ public final class ExhaustiveDiscovery extends ServerBaseDiscovery implements Se
             try {
                 discoveredPattern = discoverySession.getPatternNo();
             } catch (SessionOperationException ex) {
+            	ex.printStackTrace();
             }
         }
 

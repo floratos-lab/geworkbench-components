@@ -5,6 +5,7 @@ import org.geworkbench.events.StatusBarEvent;
 import org.geworkbench.events.listeners.ProgressChangeListener;
 import org.geworkbench.events.listeners.StatusChangeListener;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
+import org.geworkbench.components.discovery.SequenceDiscoveryViewWidget;
 
 import javax.swing.event.EventListenerList;
 import java.util.EventListener;
@@ -29,6 +30,17 @@ public abstract class AbstractSequenceDiscoveryAlgorithm {
 
     File resultFile;
     DSSequenceSet sequenceInputData;
+
+    // SequenceDiscoveryViewWidget which created this stub
+    protected SequenceDiscoveryViewWidget viewWidget = null;
+    public SequenceDiscoveryViewWidget getViewWidget() {
+		return viewWidget;
+	}
+
+	public void setViewWidget(SequenceDiscoveryViewWidget viewWidget) {
+		this.viewWidget = viewWidget;
+	}
+
     /**
      * Adds a listener to the list that's notified each time a change
      * to the progress of the algorithm occurs.
@@ -242,7 +254,7 @@ public abstract class AbstractSequenceDiscoveryAlgorithm {
     	//System.out.println("IN ASDAlgo: " + sequenceInputData.size());
         this.sequenceInputData = sequenceInputData;
     }
-    
+
     /**
      * Start the algorithm.
      */
