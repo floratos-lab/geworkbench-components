@@ -76,7 +76,7 @@ import polgara.soapPD_wsdl.Parameters;
  * <p>
  * Company: Califano Lab
  * </p>
- * 
+ *
  * @author
  * @version $Id$
  */
@@ -99,14 +99,14 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 	private AlgorithmSelectionPanel algoPanel = new org.geworkbench.util.AlgorithmSelectionPanel();
 
 	// property changes
-	static final String PATTERN_DB = "patternDB";
-	static final String PARAMETERS = "parameters";
-	static final String TABLE_EVENT = "tableEvent";
+	public static final String PATTERN_DB = "patternDB";
+	public static final String PARAMETERS = "parameters";
+	public static final String TABLE_EVENT = "tableEvent";
 
 	// the displayed view component in this widget
 	private Component currentViewComponent = new JPanel();
-	private final int DEFAULT_VIEW = -1;
-	private final int PATTERN_TABLE = 0;
+	public static final int DEFAULT_VIEW = -1;
+	public static final int PATTERN_TABLE = 0;
 
 	// view and model
 	private JPanel view;
@@ -118,7 +118,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 
 	private DSSequenceSet<? extends DSSequence> sequenceDB = new CSSequenceSet<CSSequence>();
 	private SequenceDiscoveryViewAppComponent appComponent = null;
-	
+
 	private JPanel panelView = new JPanel();
 	private JProgressBar progressBar = new JProgressBar(0, 100);
 
@@ -212,7 +212,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		sequenceViewPanel.add(algoPanel, java.awt.BorderLayout.NORTH);
 
 		this.add(sequenceViewPanel);
-		
+
 		jToolBar1.setLayout(new BoxLayout(jToolBar1, BoxLayout.LINE_AXIS));
 		jToolBar1.add(executeButton);
 		jToolBar1.add(stopButton);
@@ -225,7 +225,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 	/**
 	 * The method updates the progress bar. It is called by the different
 	 * algorithms.
-	 * 
+	 *
 	 * @param evt
 	 *            the event for updating the progress bar.
 	 * @see org.geworkbench.events.ProgressBarEvent.
@@ -247,7 +247,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 	/**
 	 * The method updates the Status bar. It is called by the different
 	 * algorithms.
-	 * 
+	 *
 	 * @param evt
 	 *            the event for updating the status bar.
 	 * @see StatusBarEvent.
@@ -260,7 +260,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 
 	/**
 	 * The dispatch of the different algorithms starts here.
-	 * 
+	 *
 	 * @param e
 	 *            ActionEvent
 	 */
@@ -317,6 +317,8 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		algorithmStubMap.put(currentStubId, stub);
 
 		algorithm.addStatusChangeListener(this);
+		algorithm.setViewWidget(this);
+
 
 		stub.gainedFocus(model);
 		model.attach(stub.getResultDataSource());
@@ -330,13 +332,32 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 
 	private DSAncillaryDataSet<? extends DSBioObject> resultData = null;
 
+	public void setResultData(DSAncillaryDataSet<? extends DSBioObject> resultData) {
+		this.resultData = resultData;
+	}
+
 	/**
 	 * Reads the parameters from the parameter panel.
-	 * 
+	 *
 	 * @param type
 	 */
 	@SuppressWarnings("unchecked")
 	private File readParameterAndCreateResultfile(String type) {
+		SoapParmsDataSet pds = getParamsDataSet(type);
+		String id = pds.getID();
+		File resultFile = pds.getResultFile();
+		currentStubId = currentNodeID + id;
+		resultData = pds;
+//		firePropertyChange(PARAMETERS, null, pds);
+		return resultFile;
+	}
+
+	public void firePropertyChangeAlgo(){
+		firePropertyChange(PARAMETERS, null, resultData);
+		firePropertyChange(TABLE_EVENT, null, null);
+	}
+
+	private SoapParmsDataSet getParamsDataSet(String type) {
 		Parameters p = parmsHandler.readParameter(parameterPanel,
 				getSequenceDB().getSequenceNo(), type);
 		parms = p;
@@ -350,17 +371,12 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 
 		SoapParmsDataSet pds = new SoapParmsDataSet(pp, "Pattern Discovery",
 				getSequenceDB());
-		String id = pds.getID();
-		File resultFile = pds.getResultFile();
-		currentStubId = currentNodeID + id;
-		resultData = pds;
-		firePropertyChange(PARAMETERS, null, pds);
-		return resultFile;
+		return pds;
 	}
 
 	/**
 	 * The views communicate with this widget through property changes.
-	 * 
+	 *
 	 * @param evt
 	 */
 	@Override
@@ -377,7 +393,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 	/**
 	 * The method changes the algorithm stub and the view in the widget. It is
 	 * called when a file is selected in the project.
-	 * 
+	 *
 	 * @param stub
 	 *            the id of the selected file.
 	 */
@@ -419,7 +435,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 			// algo.
 			algoPanel.setSelectedAlgorithm(newStub.getDescription());
 		} else {
-			// set Default View 
+			// set Default View
 			setCurrentView(DEFAULT_VIEW);
 			setCurrentParameterPanel(new ParameterPanel());
 		}
@@ -427,13 +443,13 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 
 	/**
 	 * Replaces the view for this component.
-	 * 
+	 *
 	 * @param i
 	 *            the index of a view.
 	 */
-	private void setCurrentView(int i) {
+	public void setCurrentView(int i) {
 		Component comp = null;
-		if (i==DEFAULT_VIEW) {
+		if (i == DEFAULT_VIEW) {
 			comp = DefaultLook.panel;
 			statusBarChanged(DefaultLook.statusEvt);
 			progressBarChanged(DefaultLook.progressEvt);
@@ -464,7 +480,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 
 	/**
 	 * Sets a new parameter panel into view.
-	 * 
+	 *
 	 * @param panel
 	 */
 	private void setCurrentParameterPanel(JPanel panel) {
@@ -507,7 +523,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 
 	/**
 	 * Initialize the stub.
-	 * 
+	 *
 	 * @param stub
 	 *            AlgorithmStub
 	 * @param algorithm
@@ -703,7 +719,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 			e1.printStackTrace();
 		}
 
-		AbstractSequenceDiscoveryAlgorithm loader = null;
+		RegularDiscoveryFileLoader loader = null;
 		String algoPanelName = "";
 		int id = DEFAULT_VIEW;
 		if (type != null
@@ -743,7 +759,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 	}
 
 	private String parametersText() {
-		return 
+		return
 		   "   Compute P-value: "+parms.getComputePValue()
 		+"\n   Count of sequences: "+parms.getCountSeq()
 		+"\n   Exact: "+parms.getExact()
