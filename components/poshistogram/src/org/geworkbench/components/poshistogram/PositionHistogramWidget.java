@@ -33,7 +33,7 @@ import java.util.Iterator;
  * <p>Company: </p>
  *
  * @author not attributable
- * @version 1.0
+ * @version $Id$
  */
 
 public class PositionHistogramWidget extends JPanel {
@@ -96,14 +96,14 @@ public class PositionHistogramWidget extends JPanel {
         component6 = Box.createHorizontalStrut(8);
         component7 = Box.createHorizontalStrut(8);
         this.setLayout(borderLayout1);
-        plotButton.setPreferredSize(new Dimension(80, 27));
+
         plotButton.setText("Plot Position");
         plotButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 plotAction(e);
             }
         });
-        imageSnapshotButton.setPreferredSize(new Dimension(80, 27));
+
         imageSnapshotButton.setHorizontalAlignment(SwingConstants.CENTER);
         imageSnapshotButton.setText("Image Snapshot");
         imageSnapshotButton.addActionListener(new java.awt.event.ActionListener() {
@@ -111,25 +111,7 @@ public class PositionHistogramWidget extends JPanel {
                 imageSnapshotAction(e);
             }
         });
-        // mantis issue 0000792
-        //jAbsRelBtn.setPreferredSize(new Dimension(80, 27));
-        //jAbsRelBtn.setText("Abs/Rel");
-        //filterButton.setPreferredSize(new Dimension(80, 27));
-        //filterButton.setText("Filter");
-        /*
-        filterButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                filterAction(e);
-            }
-        });
-        
-        jAvgPeakBtn.setPreferredSize(new Dimension(80, 27));
-        jAvgPeakBtn.setText("Avg/Peak");
-        jAvgPeakBtn.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                jAvgPeakBtn_actionPerformed(e);
-            }
-        });*/
+
         pairsButton.setToolTipText("");
         pairsButton.setText("Pairs");
         pairsButton.addActionListener(new java.awt.event.ActionListener() {
@@ -346,33 +328,6 @@ public class PositionHistogramWidget extends JPanel {
     }
 
     void pairsAction(ActionEvent e) {
-        /*  RepeatFilter filter = new RepeatFilter();
-          int flexiSupport = Integer.parseInt(jFlexiSupportBox.getText());
-          PatternTableModel model    = new PatternTableModel(null, -1);
-          JTable            table    = patternTable;
-          PatternTableModel model_0  = (PatternTableModel)table.getModel();
-          int s1 = model_0.getPatterns().size();
-          ArrayList patterns = filter.filter(model_0.getPatterns(), sequenceDB);
-          s1 = patterns.size();
-          for(int i = 0; i < patterns.size(); i++) {
-            IPattern pat0 = (Pattern)patterns.get(i);
-            if (pat0.getClass().isAssignableFrom(Pattern.class)) {
-              Pattern p0 = (Pattern) pat0;
-              for(int j = i + 1; j < patterns.size(); j++) {
-                IPattern pat1 = (Pattern)patterns.get(j);
-                if (pat1.getClass().isAssignableFrom(Pattern.class)) {
-                  Pattern p1 = (Pattern) pat1;
-                  FlexiPattern fp = new FlexiPattern(p0, p1);
-                  int size = fp.getSupport();
-                  if(size >  flexiSupport) {
-                    model.addPattern(fp);
-                  }
-                }
-              }
-            }
-          }
-          table.setModel(model);
-          model.fireTableDataChanged(); */
     }
 
     void jStepBox_actionPerformed(ActionEvent e) {
@@ -387,13 +342,6 @@ public class PositionHistogramWidget extends JPanel {
         //XQ changed to fix bug 252
         setPatterns(e.getPatternMatchCollection());
     }
-
-//    public void setPatterns(DSMatchedSeqPattern[] _patterns) {
-//        patterns.clear();
-//        for (int i = 0; i < _patterns.length; i++) {
-//            patterns.add(_patterns[i]);
-//        }
-//    }
 
     public void setPatterns(DSCollection<DSMatchedPattern<DSSequence, CSSeqRegistration>> matches) {
         patterns.clear();
