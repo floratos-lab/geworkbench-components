@@ -1,13 +1,28 @@
 package org.geworkbench.components.poshistogram;
 
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
+import javax.swing.Box;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.JToolBar;
+import javax.swing.SwingConstants;
+
 import org.geworkbench.bison.datastructure.biocollections.Collection;
 import org.geworkbench.bison.datastructure.biocollections.DSCollection;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.datastructure.complex.pattern.DSMatchedPattern;
-import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSMatchedSeqPattern;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.CSSeqRegistration;
-import org.geworkbench.events.SequenceDiscoveryTableEvent;
+import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSMatchedSeqPattern;
 import org.geworkbench.util.patterns.CSMatchedSeqPattern;
 import org.geworkbench.util.patterns.FlexiblePattern;
 import org.geworkbench.util.patterns.PatternOperations;
@@ -17,14 +32,6 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.io.ByteArrayOutputStream;
-import java.util.Iterator;
 
 /**
  * <p>PositionHistogramWidget</p>
@@ -36,14 +43,12 @@ import java.util.Iterator;
  * @version $Id$
  */
 
-public class PositionHistogramWidget extends JPanel {
-    //JPanel jPanel1 = new JPanel();
-    //private ArrayList patterns = new ArrayList();
+public final class PositionHistogramWidget extends JPanel {
+	private static final long serialVersionUID = -1642260844923573623L;
 
-    private DSCollection<DSMatchedPattern<DSSequence, CSSeqRegistration>>
+	private DSCollection<DSMatchedPattern<DSSequence, CSSeqRegistration>>
             patterns = new Collection<DSMatchedPattern<DSSequence,
             CSSeqRegistration>>();
-
 
     private JLabel lblChart = new JLabel();
     private JFreeChart chart = null;
@@ -53,27 +58,17 @@ public class PositionHistogramWidget extends JPanel {
     private JButton imageSnapshotButton = new JButton();
     private Component component1;
     private Component component2;
-    // mantis issue 0000792
-    //private JToggleButton jAbsRelBtn = new JToggleButton();
     private Component component3;
-    // mantis issue 0000792
-    //private JButton filterButton = new JButton();
-    // mantis issue 0000792
-    //private JToggleButton jAvgPeakBtn = new JToggleButton();
-    private JButton pairsButton = new JButton();
-    // mantis issue 0000792
-    //private JTextField jFlexiSupportBox = new JTextField();
+
     private JLabel jLabel1 = new JLabel();
     private Component component4;
     private Component component5;
     private JTextField jStepBox = new JTextField();
-    // mantis issue 0000792
-    //private JLabel jLabel2 = new JLabel();
     private Component component6;
     private Component component7;
-    private DSSequenceSet sequenceDB = null;
+    @SuppressWarnings("rawtypes")
+	private DSSequenceSet sequenceDB = null;
     private PositionHistogramAppComponent parentComponent;
-
 
     public PositionHistogramWidget(PositionHistogramAppComponent positionHistogramAppComponent) {
         this.parentComponent = positionHistogramAppComponent;
@@ -83,8 +78,6 @@ public class PositionHistogramWidget extends JPanel {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-
     }
 
     private void jbInit() throws Exception {
@@ -112,43 +105,18 @@ public class PositionHistogramWidget extends JPanel {
             }
         });
 
-        pairsButton.setToolTipText("");
-        pairsButton.setText("Pairs");
-        pairsButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                pairsAction(e);
-            }
-        });
-        // mantis issue 0000792
-        //jFlexiSupportBox.setText("100");
         jLabel1.setText("Step:");
         jStepBox.setText("2");
-        jStepBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                jStepBox_actionPerformed(e);
-            }
-        });
-        // mantis issue 0000792
-        //jLabel2.setText("flex thr.");
+
         this.add(lblChart, BorderLayout.CENTER);
         this.add(jToolBar1, BorderLayout.NORTH);
         jToolBar1.add(plotButton, null);
         jToolBar1.add(component1, null);
         jToolBar1.add(imageSnapshotButton, null);
         jToolBar1.add(component2, null);
-        // mantis issue 0000792
-        //jToolBar1.add(filterButton, null);
         jToolBar1.add(component3, null);
-        // mantis issue 0000792
-        //jToolBar1.add(jAbsRelBtn, null);
-        //jToolBar1.add(jAvgPeakBtn, null);
-        // jToolBar1.add(pairsButton, null);
         jToolBar1.add(component7, null);
-        // mantis issue 0000792
-        //jToolBar1.add(jLabel2, null);
         jToolBar1.add(component6, null);
-        // mantis issue 0000792
-        //jToolBar1.add(jFlexiSupportBox, null);
         jToolBar1.add(component5, null);
         jToolBar1.add(jLabel1, null);
         jToolBar1.add(component4, null);
@@ -157,20 +125,18 @@ public class PositionHistogramWidget extends JPanel {
 
     private int getMaxLength() {
         int maxLen = 0;
-        for (Iterator iter = patterns.iterator(); iter.hasNext();) {
-            DSMatchedSeqPattern item = (DSMatchedSeqPattern) iter.next();
-            maxLen = Math.max(maxLen, item.getMaxLength());
+        for (DSMatchedPattern<DSSequence, CSSeqRegistration> item : patterns) {
+            maxLen = Math.max(maxLen, ((DSMatchedSeqPattern)item).getMaxLength());
         }
         return maxLen;
     }
 
-    void plotAction(ActionEvent e) {
+    private void plotAction(ActionEvent e) {
         int maxLen = getMaxLength();
         int step = Integer.parseInt(jStepBox.getText());
         int wind = 1;
         int maxBin = maxLen / step + 1;
-        // mantis issue 0000792
-        //boolean isAbs = !jAbsRelBtn.isSelected();
+
         int factor = 1;
         XYSeriesCollection plots = new XYSeriesCollection();
         for (int rowId = 0; rowId < patterns.size(); rowId++) {
@@ -208,20 +174,11 @@ public class PositionHistogramWidget extends JPanel {
                 }
                 XYSeries series = new XYSeries(ascii);
                 for (int i = 0; i < maxBin * factor; i++) {
-                	/* mantis issue 0000792
-                    if (isAbs) {
-                        if (factor == 1) {
-                            series.add((double) i * step, (double) yMean[i]);
-                        } else {
-                            series.add((double) ((i - maxBin) * step), (double) yMean[i]);
-                        }
-                    } else {*/
                         if (factor == 1) {
                             series.add((double) i * step, (double) yMean[i] / pat.getSupport());
                         } else {
                             series.add((double) ((i - maxBin) * step), (double) yMean[i] / pat.getSupport());
                         }
-                    //}
                 }
                 plots.addSeries(series);
             }
@@ -252,97 +209,6 @@ public class PositionHistogramWidget extends JPanel {
 
     }
 
-
-    public void computeAllPatternStatistics() {
-        // Assuming a binomial model, the average density should be given by the likelyhood * SeqNo * size of step
-        // and the variance should be sqrt of that. For the time being, we assume a uniform likelihood
-        int step = Integer.parseInt(jStepBox.getText());
-        int rows = patterns.size();
-        int maxLen = getMaxLength();
-        int maxBin = maxLen / step + 1;
-        // mantis issue 0000792
-        //boolean isAverage = !jAvgPeakBtn.isSelected();
-        int maxIdNo = 1;
-        for (int i = 0; i < rows; i++) {
-            DSMatchedSeqPattern pattern = (DSMatchedSeqPattern) patterns.get(i);
-            if (pattern != null) {
-                maxIdNo = Math.max(maxIdNo, pattern.getSupport());
-            }
-        }
-        int maxCBin = (int) Math.log(maxIdNo) + 1;
-        int[] y = new int[maxBin * 2 + 1];
-        double[][] x = new double[maxCBin][];
-        double[][] xx = new double[maxCBin][];
-        double[] n = new double[maxCBin];
-        for (int i = 0; i < maxCBin; i++) {
-            x[i] = new double[maxBin];
-            xx[i] = new double[maxBin];
-        }
-        int factor = 1;
-        for (int i = 0; i < rows; i++) {
-            DSMatchedSeqPattern pattern = (DSMatchedSeqPattern) patterns.get(i);
-            if (pattern != null) {
-                for (int j = 0; j < 2 * maxBin + 1; j++) {
-                    y[j] = 0;
-                }
-                if (pattern instanceof org.geworkbench.util.patterns.CSMatchedSeqPattern) {
-                    org.geworkbench.util.patterns.CSMatchedSeqPattern p = (CSMatchedSeqPattern) pattern;
-                    for (int id = 0; id < p.getSupport(); id++) {
-                        int dx = p.getOffset(id) / step;
-                        if (dx < maxBin) {
-                            y[dx]++;
-                        }
-                    }
-                } else if (pattern instanceof org.geworkbench.util.patterns.FlexiblePattern) {
-                    factor = 2;
-                    org.geworkbench.util.patterns.FlexiblePattern p = (org.geworkbench.util.patterns.FlexiblePattern) pattern;
-                    p.buildHistogram(y, step, maxBin);
-                }
-                // Compute the expected density
-                double idNo = (double) pattern.getSupport();
-                double mean = (double) pattern.getSupport() / maxLen * step / idNo;
-                double sdev = Math.sqrt(mean) / Math.sqrt(idNo);
-
-                int cBin = (int) Math.log(idNo);
-                double zScore = 0;
-                for (int j = 0; j < maxBin * factor; j++) {
-                    double m0 = y[j] / idNo;
-                    double p = (double) (m0 - mean) / (sdev + 0.000000001);
-                    /* mantis issue 0000792
-                    if (isAverage) {
-                        if (p > 0) {
-                            zScore += p;
-                        }
-                    } else {*/
-                        zScore = Math.max(zScore, p);
-                    //}
-                }
-                pattern.setPValue(zScore);
-            }
-        }
-        //model.fireTableDataChanged();
-    }
-
-    void filterAction(ActionEvent e) {
-        computeAllPatternStatistics();
-    }
-
-    void pairsAction(ActionEvent e) {
-    }
-
-    void jStepBox_actionPerformed(ActionEvent e) {
-
-    }
-
-
-    public void sequenceDiscoveryTableRowSelected(SequenceDiscoveryTableEvent e) {
-
-        //    setSequenceDB(e.getSequenceDB());
-        //    setPatterns(e.getPatterns());
-        //XQ changed to fix bug 252
-        setPatterns(e.getPatternMatchCollection());
-    }
-
     public void setPatterns(DSCollection<DSMatchedPattern<DSSequence, CSSeqRegistration>> matches) {
         patterns.clear();
         for (int i = 0; i < matches.size(); i++) {
@@ -350,16 +216,8 @@ public class PositionHistogramWidget extends JPanel {
         }
     }
 
-
-    public void setSequenceDB(DSSequenceSet sDB) {
+    @SuppressWarnings("rawtypes")
+	public void setSequenceDB(DSSequenceSet sDB) {
         sequenceDB = sDB;
-    }
-
-    public DSSequenceSet getSequenceDB() {
-        return sequenceDB;
-    }
-
-    void jAvgPeakBtn_actionPerformed(ActionEvent e) {
-
     }
 }
