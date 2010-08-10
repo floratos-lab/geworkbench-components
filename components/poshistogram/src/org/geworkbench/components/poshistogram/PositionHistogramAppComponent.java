@@ -1,23 +1,24 @@
 package org.geworkbench.components.poshistogram;
 
+import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.complex.pattern.SoapParmsDataSet;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.ProjectSelection;
-import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.config.MenuListener;
+import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
-import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.engine.management.Publish;
+import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.events.ImageSnapshotEvent;
 import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.events.SequenceDiscoveryTableEvent;
-import org.geworkbench.events.ImageSnapshotEvent;
-
-import java.awt.*;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import java.util.HashMap;
 
 /**
  * <p>Title: Sequence and Pattern Plugin</p>
@@ -26,14 +27,13 @@ import java.util.HashMap;
  * <p>Company: </p>
  *
  * @author Saroja Hanasoge
- * @version 1.0
+ * @version $Id$
  */
-
 @AcceptTypes({SoapParmsDataSet.class})
 public class PositionHistogramAppComponent implements VisualPlugin, MenuListener {
 
     PositionHistogramWidget pHistogramWidget = null;
-    HashMap listeners = new HashMap();
+    Map<String, ActionListener> listeners = new HashMap<String, ActionListener>();
 
     public PositionHistogramAppComponent() {
         pHistogramWidget = new PositionHistogramWidget(this);
@@ -49,19 +49,22 @@ public class PositionHistogramAppComponent implements VisualPlugin, MenuListener
 
     @Subscribe
     public void sequenceDiscoveryTableRowSelected(SequenceDiscoveryTableEvent e, Object publisher) {
-        /** todo Fix patterns */
+        /** TODO Fix patterns */
         pHistogramWidget.setPatterns(e.getPatternMatchCollection());
     }
 
+    @Override
     public Component getComponent() {
         return pHistogramWidget;
     }
 
+    @Override
     public ActionListener getActionListener(String var) {
-        return (ActionListener) getListeners().get(var);
+        return listeners.get(var);
     }
 
-    @Subscribe
+    @SuppressWarnings("rawtypes")
+	@Subscribe
     public void receiveProjectSelection(ProjectEvent e, Object source) {
         ProjectSelection selection = ((ProjectPanel) source).getSelection();
         DSDataSet dataFile = selection.getDataSet();
@@ -75,7 +78,4 @@ public class PositionHistogramAppComponent implements VisualPlugin, MenuListener
         return event;
     }
 
-    public HashMap getListeners() {
-        return listeners;
-    }
 }
