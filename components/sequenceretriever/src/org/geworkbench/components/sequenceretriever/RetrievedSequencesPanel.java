@@ -85,9 +85,7 @@ public final class RetrievedSequencesPanel extends SequenceViewWidget {
 	void setDisplaySequenceDB(DSSequenceSet<?> displaySequenceDB) {
         this.displaySequenceDB = (DSSequenceSet<DSSequence>) displaySequenceDB;
 
-        if (orgSequenceDB != null) {
-            activeSequenceDB = (CSSequenceSet<DSSequence>) orgSequenceDB;
-        }
+        activeSequenceDB = (CSSequenceSet<DSSequence>) displaySequenceDB;
         if (activeSequenceDB != null) {
             sequenceDB = (DSSequenceSet<DSSequence>) activeSequenceDB;
             initPanelView();
