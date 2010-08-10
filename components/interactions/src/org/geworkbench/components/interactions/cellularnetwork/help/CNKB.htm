@@ -1,0 +1,564 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html dir="ltr" xml:lang="en" xmlns="http://www.w3.org/1999/xhtml" 
+lang="en"><head>
+
+  
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="KEYWORDS" content="Tutorial - Cellular Networks 
+KnowledgeBase">
+<meta name="robots" content="index,follow">
+<link rel="shortcut icon" 
+href="http://wiki.c2b2.columbia.edu/favicon.ico">
+    <title>Tutorial - Cellular Networks KnowledgeBase - Workbench</title>
+    <style type="text/css" media="screen,projection">/*<![CDATA[*/ @import "/workbench/skins/monobook/main.css"; /*]]>*/</style>
+    <link rel="stylesheet" type="text/css" 
+href="CNKB_files/commonPrint.css">
+
+/*]]>*/</style>              </head><body class="ns-0">
+    <div id="globalWrapper">
+      <div id="column-content">
+	<div id="content">
+	  <a name="top" id="top"></a>
+	  	  <h1 class="firstHeading">Tutorial - Cellular Networks 
+KnowledgeBase</h1>
+	  <div id="bodyContent">
+      <a name="Overview"></a>
+      <h1>Overview</h1>
+<p>This material describes the graphical interface and functionality of 
+the CNKB component released with geWorkbench 2.0.0.  This component has 
+been extensively enhanced from the version available in geWorkbench 1.8 
+and earlier.
+</p>
+<a name="General"></a><h2>General</h2>
+<p>The Cellular Network Knowledge Base (CNKB) is a repository of 
+molecular interactions, including those both computationally and 
+experimentally derived.  Sources for interactions include both publicly 
+available databases such as BioGRID and HPRD, as well as 
+reverse-engineered cellular regulatory interactomes developed in the lab
+ of Dr. Andrea Califano at Columbia University.
+</p><p>Each pairwise interaction may have an associated confidence 
+indicator (a value between 0 and 1) reflecting the strength of the 
+underlying data, whether experimental or computational.   Details on the
+ methodology used to construct the CNKB are available in <a 
+href="http://www.ncbi.nlm.nih.gov/pubmed/18277385" class="external text"
+ title="http://www.ncbi.nlm.nih.gov/pubmed/18277385" rel="nofollow">Mani
+ et al. 2008</a>. 
+</p><p>Gene interaction information from the CNKB can be used, for 
+example, in order to assess the plausibility of a hypothesis of 
+concerted molecular action represented by a gene set that has been 
+discovered using computational approaches (e.g., by running a clustering
+ analysis on a microarray set to identify tandems of co-expressed 
+genes). If the genes in such a set are reported in the CNKB to have 
+several direct interactions (or several common targets) then this may be
+ evidence that the gene set indeed reflects at some level a real 
+biological process.
+</p><p>The CNKB component allows the user to select a group of markers 
+of interest, specify the interaction types  (e.g. Protein-Protein, 
+Protein-DNA etc.), and choose a particular interaction data source.  
+After a query of the Knowledge Base, results are displayed  both in the 
+CNKB component and as interaction graphs in the Cytoscape component.
+</p>
+<a name="The_CNKB_graphical_interface"></a><h2>The CNKB graphical 
+interface</h2>
+<p><img 
+src="CNKB_files/CNKB_with_markers.png" alt="Image:CNKB_with_markers.png" width="930" 
+height="611" border="0"
+ longdesc="/workbench/index.php/Image:CNKB_with_markers.png">
+</p>
+<p><br>
+The graphical user interface (GUI) of the CNKB component has three areas
+ of distinct functionality: The "Activated Marker List", the "Selected 
+Marker List", and the "Throttle Graph".  The data source, version, and 
+interaction types are specified on a separate "Preferences" tab.
+</p><p>The "Activated Marker List" displays markers activated in the <a 
+href="http://wiki.c2b2.columbia.edu/workbench/index.php/Data_Subsets_-_Markers"
+ title="Data Subsets - Markers">Markers</a> component.  From this list, 
+the user can select markers to use in querying the CNKB database.  This 
+can be done either by double-clicking on desired markers, or through use
+ of a right-click menu (see below); those selected will be added to the 
+"Selected Marker List" just below.
+</p><p>The "Selected Marker List" displays which markers will be queried
+ on, and also displays the query results. 
+</p><p>Interactions which will be used to build a network graph can be 
+adjusted using the "Throttle Graph".  It is used to set a minimum 
+confidence threshold for inclusion in the network.
+</p><p>Communication with the CNKB database is initiated by clicking on 
+the "Refresh" button and all pairwise interactions in the chosen data 
+source that involve any marker in the "Selected Marker List" are 
+retrieved. 
+</p><p>An interaction network can be constructed by pushing the "Create 
+Network" button.  The network will be automatically displayed in the 
+Cytoscape component. 
+</p>
+<a name="Working_with_the_CNKB_graphical_interface"></a><h1>Working with
+ the CNKB graphical interface</h1> 
+<p>The figures in this section correspond to the   example &quot;Creating an interaction network and viewing it in Cytoscape&quot; in the 
+final section of this tutorial.
+</p>
+<a name="Activated_Marker_List"></a><h2>Activated Marker List</h2>
+<p><br>
+  <img 
+src="CNKB_files/CNKB_add_all_markers.png" 
+alt="Image:CNKB_add_all_markers.png" 
+longdesc="/workbench/index.php/Image:CNKB_add_all_markers.png" 
+height="385" width="544">
+</p>
+<p><br>
+The "Activated Marker List" contains the markers that belong to 
+activated marker sets from the Markers component. It contains 3 columns:
+</p>
+<a name="Marker"></a><h3>Marker</h3>
+<p>The marker name (comes from the microarray set node selected in the 
+Project Folders area).
+</p>
+<a name="Gene"></a><h3>Gene</h3> 
+<p>The gene name corresponding to the marker, if loaded from an 
+annotation file.
+</p>
+<a name="Type"></a><h3>Type</h3> 
+<p>A gene type designation, derived from the gene's GO annotation: 
+</p>
+<ul><li> <b>TF</b> - Transcription Factor,
+</li><li> <b>K</b> - Kinase,
+</li><li> <b>P</b> - Phosphatase, and
+</li><li> (no entry) - type is unknown.
+</li></ul>
+<p>Individual markers in the Activated Marker List can be moved to the 
+Selected Markers List by double-clicking on them.
+</p><p>Alternatively, a right-click menu (shown above) allow a group of 
+highlighted markers, or all markers, to be moved to the "Selected 
+Markers List".
+</p>
+<a name="Selected_Marker_List"></a><h2>Selected Marker List</h2>
+<a name="Main"></a><h3>Main</h3>
+<p><br>
+  <img 
+src="CNKB_files/CNKB_markers_transfered.png" 
+alt="Image:CNKB_markers_transfered.png" 
+longdesc="/workbench/index.php/Image:CNKB_markers_transfered.png" 
+height="547" width="934">
+</p>
+<p><br>
+Markers which have been moved from the Activated Markers List to the 
+Selected Markers List can be used to query the CNKB database. Until a 
+query is run, the list items are shown in red and in italics.
+</p><p>After a query has been run against the CNKB database, the marker 
+entries are shown in regular font, blue letters.
+</p><p><br>
+  <img 
+src="CNKB_files/CNKB_query_result.png" alt="Image:CNKB_query_result.png"
+ longdesc="/workbench/index.php/Image:CNKB_query_result.png" 
+height="668" width="935">
+</p>
+<p><br>
+Items that have been added to the Selected Markers list can be removed 
+and sent back to the Activated Markers list by double clicking on their 
+entries or through a right-click menu.  The right-click menu (shown 
+below) gives the choice of moving only highlighted, or all markers back 
+to the Activated Markers list.
+</p><p><br>
+  <img
+ src="CNKB_files/CNKB_Selected_Marker_List_Right_click.png" 
+alt="Image:CNKB_Selected_Marker_List_Right_click.png" 
+longdesc="/workbench/index.php/Image:CNKB_Selected_Marker_List_Right_click.png"
+ height="300" width="498">
+</p>
+<p><br>
+</p><p>The Selected Marker List table contains the following columns:
+</p><p><br>
+</p>
+<a name="Marker_2"></a><h4>Marker</h4>
+<p>The marker name (same as in the "Activated Marker List"). Appears 
+italicized to indicate that interaction information has not yet been 
+retrieved. Bold face font indicates that interaction information has 
+been retrieved (and is displayed).
+</p>
+<a name="Gene_2"></a><h4>Gene</h4> 
+<p>The gene name corresponding to the marker, if loaded from an 
+annotation file (same as in the "Activated Marker List").
+</p>
+<a name="Gene_Type"></a><h4>Gene Type</h4>
+<p>A gene type designation, derived from the gene's GO annotation The 
+list of type codes is the same as that under <b>Type</b> under 
+"Activated Marker List".
+</p>
+<a name="GO_Annotation"></a><h4>GO Annotation</h4>
+<p>The GO annotation of the gene. Right clicking on the column brings up
+ the the gene GO classification of the gene across the 3 top-level GO 
+categories: Component, Function and Process.
+</p><p>Hovering the mouse cursor over an entry in the GO Description 
+column will display a short summary of the Gene Ontology terms 
+associated with that entry.
+</p><p><img 
+src="CNKB_files/CNKB_Selected_Marker_List_GO_Anno.png" 
+alt="Image:CNKB_Selected_Marker_List_GO_Anno.png" 
+longdesc="/workbench/index.php/Image:CNKB_Selected_Marker_List_GO_Anno.png"
+ height="277" width="919">
+</p>
+<p><br>
+More extensive GO annotations can be viewed for desired genes in the 
+Selected Marker list by right-clicking on its entry.  A pop-up menu will
+ offer a choice of the three categories of GO annotation: Component, 
+Function and Process.  Expanding one of these terms will show the 
+available annotations for that gene.
+</p><p><br>
+  <img
+ src="CNKB_files/CNKB_Selected_Marker_List_GO_Anno_RC.png" 
+alt="Image:CNKB_Selected_Marker_List_GO_Anno_RC.png" 
+longdesc="/workbench/index.php/Image:CNKB_Selected_Marker_List_GO_Anno_RC.png"
+ height="269" width="445">
+</p>
+<p><br>
+</p>
+<a name="Interaction_Query_columns"></a><h4>Interaction Query columns</h4>
+<p>A column will display interaction results for each data source 
+selected in the Preferences tab.  It will show, for each marker, the 
+number of interactions that meet the threshold currently set in the 
+throttle graph slider control.
+</p><p>The illustrations above depict a Protein-DNA interaction column.
+</p>
+<a name="Preferences"></a><h3>Preferences</h3>
+<p><img 
+src="CNKB_files/CNKB_Preferences.png" alt="Image:CNKB_Preferences.png" 
+longdesc="/workbench/index.php/Image:CNKB_Preferences.png" height="556" 
+width="806">
+</p>
+<p><br>
+</p>
+<a name="Interactions_Database"></a><h4>Interactions Database</h4>
+<p>Here the desired interaction data source and version can be chosen.
+</p><p><b>Change</b> - This button allows the address of the CNKB 
+servlet to be changed.  This should not normally be necessary.
+</p><p><b>Database pulldown menu</b> - This menu contains all data 
+sources available via the CNKB component.
+</p><p><b>Select Version</b> - Each data source has a version associated
+ with it.  Versions may be updates or may contain different types of 
+interactions from a particular system.  The exact contents of each data 
+source are available on the <a 
+href="http://wiki.c2b2.columbia.edu/workbench/index.php/CNKB_Data" 
+title="CNKB Data"> CNKB data sources</a> page.
+</p><p><br>
+  <img 
+src="CNKB_files/CNKB_Selected_Interactions_Types.png" 
+alt="Image:CNKB_Selected_Interactions_Types.png" 
+longdesc="/workbench/index.php/Image:CNKB_Selected_Interactions_Types.png"
+ height="139" width="483">
+</p>
+<a name="Column_Display_Preferences"></a><h4>Column Display Preferences</h4>
+<p>These selections control which data columns will be displayed in the 
+main "Selected Markers" pane.
+</p>
+<ul><li> <b>Marker</b>
+</li><li> <b>Gene</b>
+</li><li> <b>Gene Type</b>
+</li><li> <b>GO Annotation</b>
+</li></ul>
+<ul><li> <b>Available Interaction Types</b> - Contains a list of all 
+interaction types used in the CNKB component that have not been already 
+moved to the "Selected Interaction Types" list to the right.  Note that 
+this list is not specific to the particular data source chosen.  
+</li></ul>
+<ul><li> <b>Selected Interaction Types</b> - A column in the Main tab 
+"Selected Marker List" will appear for each interaction type appearing 
+in this list.
+</li></ul>
+<p>List entries can be moved between the "Available" and "Selected" 
+lists by either double-clicking directly on an entry, or through use of 
+the right and left triple arrows "&lt;&lt;&lt;", "&gt;&gt;&gt;" located 
+between them.
+</p>
+<a name="Network_Generation_Preferences"></a><h4>Network Generation 
+Preferences</h4>
+<p>This section controls how the interactions returned by the database 
+query will be used in creating a network.  It allows, if desired, 
+separate control of query and display.
+</p>
+<ul><li> <b>Restrict to genes present in microarray set</b> - queries to
+ the CNKB database may return interaction partners that are not members 
+of the microarray dataset from which the original query markers were 
+chosen.  Checking this box will cause such markers NOT to be used in 
+generating a network graph.
+</li></ul>
+<ul><li> <b>Use setting from column display preferences</b> 
+<ul><li> If checked, the same interaction types that have been selected 
+in the "Column Display Preferences" control above will be used in 
+generating the network graph.
+</li><li> If unchecked, only those interaction types added to the 
+"Selected Interaction Types" list will be used to construct a network 
+graph.
+</li></ul>
+</li></ul>
+<a name="Throttle_Graph"></a><h2>Throttle Graph</h2>
+<p>This interactive graph allows users to "throttle" (for the genes in 
+the Selected Markers table) which interactions to work with, using as a 
+criterion the interactions’ confidence indicator.  As the required 
+threshold of likelihood of the interactions is increased, the sum of 
+interactions meeting this criterion decreases.
+</p><p><br>
+  <img 
+src="CNKB_files/CNKB_throttle_slider.png" 
+alt="Image:CNKB_throttle_slider.png" 
+longdesc="/workbench/index.php/Image:CNKB_throttle_slider.png" 
+height="666" width="932">
+</p>
+<p><br>
+</p>
+<ul><li> <b>Right-click menu</b> - Right-clicking on the Throttle Graph 
+will bring up a menu which allows the graph to be customized.
+</li></ul>
+<p><br>
+  <img 
+src="CNKB_files/CNKB_throttle_graph_RC.png" 
+alt="Image:CNKB_throttle_graph_RC.png" 
+longdesc="/workbench/index.php/Image:CNKB_throttle_graph_RC.png" 
+height="299" width="427">
+</p>
+<p><br>
+</p>
+<ul><li> <b>Properties</b> - 
+</li><li> <b>Save as</b> - 
+</li><li> <b>Print</b> - 
+</li><li> <b>Zoom in</b> - 
+</li><li> <b>Zoom out</b> - 
+</li><li> <b>Auto Range</b> - return to an automatically calculated 
+range e.g. after use of Zoom function.
+</li></ul>
+<a 
+name="Example_-_Creating_an_interaction_network_and_viewing_it_in_Cytoscape"></a><h1>Example
+ - Creating an interaction network and viewing it in Cytoscape</h1>
+<p>Once the desired set of markers is present and its interaction data 
+has been retrieved from the database, an adjacency matrix can be 
+computed by clicking the "<b>Create Network</b>" button.  The resulting 
+matrix is placed in the Project Folders component under its parent 
+microarray dataset.  The adjacency matrix is visualized in the <a 
+href="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_Cytoscape_Network_Viewer"
+ title="Tutorial - Cytoscape Network Viewer"> Cytoscape Viewer</a>.
+</p><p>Please note that if the targets retrieved from the Knowledge Base
+ include markers/genes not present in the active microarray dataset, 
+then whether those markers will be used in creating the network graph in
+ Cytoscape is determined by the setting of the "<b>Restrict to genes 
+present in microarray set</b>" checkbox under "<b>Network Generation 
+Preferences</b>" on the CNKB <b>Preferences</b> tab.
+</p><p>The Cytoscape Viewer maintains a list of networks which it has 
+currently loaded.  It allows individual loaded networks to be deleted.  
+However, the network can be reloaded by clicking on its entry in the 
+Project Folders component.  Cytoscape controls are more fully described 
+in the <a 
+href="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_Cytoscape_Network_Viewer"
+ title="Tutorial - Cytoscape Network Viewer"> Cytoscape</a> component 
+tutorial.
+</p><p><br>
+</p>
+<a name="Prerequisites"></a><h2>Prerequisites</h2>
+<ul><li> This example uses the Bcell-100.exp dataset available in the 
+data/public_data directory of geWorkbench, and further described on the <a
+ href="http://wiki.c2b2.columbia.edu/workbench/index.php/Download" 
+title="Download">Download</a> page.  Briefly, this dataset is composed 
+of 100 Affymetrix HG-U95Av2 arrays on which various B-cell lines, both 
+normal and cancerous, were analyzed.  Thus it explores a potentially 
+wide variety of expression phenotypes. 
+</li></ul>
+<ul><li> Obtain the annotation file for the HG-U95Av2 array type from 
+the Affymetrix NetAffx website (<a 
+href="http://www.affymetrix.com/analysis/index.affx" class="external 
+free" title="http://www.affymetrix.com/analysis/index.affx" 
+rel="nofollow">http://www.affymetrix.com/analysis/index.affx</a>). The 
+name will be similar to "HG_U95Av2.na30.annot.csv", where "na30" is the 
+version number. Loading the annotation file associates gene names and 
+Gene Ontology information with the Affymetrix probeset IDs (see the 
+geWorkbench FAQ for details on obtaining these files).
+</li></ul>
+<a name="Loading_the_example_data"></a><h2>Loading the example data</h2>
+<ol><li> Load the Bcell-100.exp dataset into geWorkbench as type 
+"Affymetrix File Matrix".  (See <a 
+href="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_Local_Data_Files"
+ title="Tutorial - Local Data Files"> Local Data Files</a>).
+</li><li> When prompted, load the annotation file.
+</li><li> Create and activate a set of markers in the Markers component.
+  For this example, save the file <a 
+href="http://wiki.c2b2.columbia.edu/workbench/images/f/fa/GBM_MR_Markers.csv"
+ class="internal" title="GBM MR Markers.csv"> GBM_MR_Markers</a> to disk
+ and then load it directly into the Markers component by pushing its "<b>Load
+ Set</b>" button and browsing to the file located in the geWorkbench 
+directory data/public_data.
+</li></ol>
+<p><br>
+  <img 
+src="CNKB_files/CNKB_marker_setup.png" alt="Image:CNKB_marker_setup.png"
+ longdesc="/workbench/index.php/Image:CNKB_marker_setup.png" 
+height="616" width="284">
+</p>
+<p><br>
+When the set is activated by checking the box to the left of its name, 
+the transcription factor markers will appear in the "Activate Markers" 
+list in the CNKB component.
+</p>
+<a name="Setting_up_the_query_in_the_CNKB_component"></a><h2>Setting up 
+the query in the CNKB component</h2>
+<p>(The steps shown below are also depicted in the screenshots for the 
+individual control descriptions above).
+</p><p>1.  On the CNKB Main tab, right-clicking on the "Activated 
+Markers" list will bring up a menu which allows one to move all 
+activated markers or just the highlighted markers to the "Selected 
+Markers List" for querying.  
+</p><p>2. Select the desired data source and interaction types in the 
+CNKB <b>Preferences</b> tab.
+</p><p>3.  Now hit the "<b>Refresh</b>" button to perform the query 
+against the Cellular Networks Knowledge Base database. 
+</p><p>4. Adjust the Throttle Graph allows to set a minimum confidence 
+requirement on interactions that will be used to create a network. In 
+the example images above, a value of 0.22 was used.
+</p><p>5. Hit the "<b>Create Network</b>" button.
+</p><p>6. The resulting adjacency matrix is displayed in the <b>Cytoscape</b>
+ component.
+</p><p><br>
+</p><p><br>
+  <img 
+src="CNKB_files/CNKB_Cytoscape_display.png" 
+alt="Image:CNKB_Cytoscape_display.png" 
+longdesc="/workbench/index.php/Image:CNKB_Cytoscape_display.png" 
+height="720" width="932">
+</p>
+<p><br>
+</p>
+<a name="Integration_of_Cytoscape_and_geWorkbench"></a><h2>Integration 
+of Cytoscape and geWorkbench</h2>
+<p>The use of Cytoscape for network visualization is covered in detail 
+in the Cytoscape tutorial <a 
+href="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_Cytoscape_Network_Viewer"
+ title="Tutorial - Cytoscape Network Viewer">at www.geworkbench.org</a>.
+  Here we show a few ways in which the Cytoscape component can be used 
+to investigate the interaction results.
+</p>
+<a name="Selecting_interactions_.28edges.29"></a><h3>Selecting 
+interactions (edges)</h3>
+<p>Using the mouse, a group of edges can be selected.
+</p><p><br>
+  <img 
+src="CNKB_files/CNKB_Cytoscape_select_edges.png" 
+alt="Image:CNKB_Cytoscape_select_edges.png" 
+longdesc="/workbench/index.php/Image:CNKB_Cytoscape_select_edges.png" 
+height="415" width="618">
+</p>
+<p>The list of selected edges is displayed in a list below the 
+graph, in a tab titled "Edge Attribute Browser".
+</p><p><br>
+  <img 
+src="CNKB_files/CNKB_Cytoscape_edges_selected.png" 
+alt="Image:CNKB_Cytoscape_edges_selected.png" 
+longdesc="/workbench/index.php/Image:CNKB_Cytoscape_edges_selected.png" 
+height="660" width="623">
+</p>
+<p><br>
+</p>
+<a name="Selecting_nodes"></a><h3>Selecting nodes</h3>
+<p>Multiple nodes/genes can be selected by holding down the Shift key 
+while left-clicking on individual nodes.
+</p><p><img 
+src="CNKB_files/CNKB_Cytoscape_intersection.png" 
+alt="Image:CNKB_Cytoscape_intersection.png" 
+longdesc="/workbench/index.php/Image:CNKB_Cytoscape_intersection.png" 
+height="542" width="623">
+</p>
+<p><br>
+The markers corresponding to the selected genes will be displayed 
+directly in the Markers component in a new subset called "Cytoscape 
+selection".  Note that this set is dynamically updated - it displays 
+markers corresponding to whatever nodes are currently highlighted in the
+ network graph.
+</p><p><img 
+src="CNKB_files/CNKB_Cytoscape_two_genes_markers.png" 
+alt="Image:CNKB_Cytoscape_two_genes_markers.png" 
+longdesc="/workbench/index.php/Image:CNKB_Cytoscape_two_genes_markers.png"
+ height="436" width="282">
+</p>
+<p>To make a permanent copy of a particular set of dynamically 
+chosen markers in the "Cytoscape Selection" subset, right-click on it 
+and select "Copy".
+</p>
+<a name="Options_for_selected_nodes"></a><h3>Options for selected nodes</h3>
+<p>Right-clicking on a particular node in the network graph brings up a 
+menu with three options:
+</p>
+<ul><li> Visual Mapping Bypass
+</li><li> LinkOut
+</li><li> Add to set
+</li></ul>
+<a name="Visual_Mapping_Bypass"></a><h4>Visual Mapping Bypass</h4>
+<p><img
+ src="CNKB_files/CNKB_Cytoscape_visual_mapping_bypass.png" 
+alt="Image:CNKB_Cytoscape_visual_mapping_bypass.png" 
+longdesc="/workbench/index.php/Image:CNKB_Cytoscape_visual_mapping_bypass.png"
+ height="407" width="614">
+</p>
+<p><br>
+</p>
+<a name="LinkOut"></a><h4>LinkOut</h4>
+<p><img 
+src="CNKB_files/CNKB_Cytoscape_LinkOut.png" 
+alt="Image:CNKB_Cytoscape_LinkOut.png" 
+longdesc="/workbench/index.php/Image:CNKB_Cytoscape_LinkOut.png" 
+height="411" width="402">
+</p>
+<p><br>
+This menu option provides hyperlinks to a number of external sources of 
+gene annotation.
+</p>
+<a name="Add_to_set"></a><h4>Add to set</h4>
+<p>If one or more graph nodes have been selected (highlighted in yellow 
+in figure below), the markers they directly interact with (via edges) 
+can be copied to the default "Cytoscape selection" subset in the Markers
+ component at lower left in the geWorkbench graphical interface.
+</p><p><br>
+  <img 
+src="CNKB_files/CNKB_Cytoscape_add_to_set.png" 
+alt="Image:CNKB_Cytoscape_add_to_set.png" 
+longdesc="/workbench/index.php/Image:CNKB_Cytoscape_add_to_set.png" 
+height="408" width="617">
+</p>
+<p><br>
+Two options are available under "Add to Set".  These are
+</p>
+<ul><li> <b>Intersection</b> - find the set of markers that have 
+interactions (edges) with ALL selected nodes.  Such markers are placed 
+into the Markers component, in the "Cytoscape selection" subset.
+</li></ul>
+<ul><li> <b>Union</b> - find the set of markers that have interactions 
+(edges) with ANY of the selected nodes.  Such markers are placed into 
+the Markers component, in the "Cytoscape selection" subset.
+</li></ul>
+<p><br>
+This image shows the <b>intersection</b> set of markers for the two 
+selected genes:
+</p><p><img
+ src="CNKB_files/CNKB_Cytoscape_intersection_markers.png" 
+alt="Image:CNKB_Cytoscape_intersection_markers.png" 
+longdesc="/workbench/index.php/Image:CNKB_Cytoscape_intersection_markers.png"
+ height="432" width="284">
+</p>
+<p><br>
+This image shows the <b>union</b> set of markers for the two selected 
+genes.
+</p><p><br>
+  <img 
+src="CNKB_files/CNKB_Cytoscape_union_markers_list.png" 
+alt="Image:CNKB_Cytoscape_union_markers_list.png" 
+longdesc="/workbench/index.php/Image:CNKB_Cytoscape_union_markers_list.png"
+ height="257" width="285">
+</p>
+<a name="Appendix_-_Data_Sources"></a><h1>Appendix - Data Sources</h1>
+<p>Please see the <a 
+href="http://wiki.c2b2.columbia.edu/workbench/index.php/CNKB_Data" 
+title="CNKB Data"> CNKB data </a> page for a list of currently available
+ data sources and types of interactions.
+</p>
+<a name="References"></a><h1>References</h1>
+<ul><li> Mani KM, Lefebvre C, Wang K, Lim WK, Basso K, Dalla-Favera R, 
+Califano A., " A systems biology approach to prediction of oncogenes and
+ molecular perturbation targets in B-cell lymphomas", Molecular Systems 
+Biology 4:169, 2008.  <a 
+href="http://www.ncbi.nlm.nih.gov/pubmed/18277385" class="external text"
+ title="http://www.ncbi.nlm.nih.gov/pubmed/18277385" rel="nofollow">link
+ to paper</a>
+</li></ul>
+ </body></html>

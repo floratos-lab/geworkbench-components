@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="yes"?>
+<toc version="1.0">
+		<tocitem text="Cellular Network Knowledge Base">
+		
+		<tocitem target="Overview" text="Overview"/>
+		<tocitem target="The_CNKB_graphical_interface" text="The CNKB graphical interface"/>
+		<tocitem target="Working_with_the_CNKB_graphical_interface" text="Working with the CNKB graphical interface"/>
+		<tocitem target="Example_-_Creating_an_interaction_network_and_viewing_it_in_Cytoscape" text="Creating an interaction network and viewing it in Cytoscape"/>
+		<tocitem target="Appendix_-_Data_Sources" text="Appendix - Data Sources"/>
+		<tocitem target="References" text="References"/>
+		
+	</tocitem>
+</toc>
