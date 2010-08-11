@@ -13,6 +13,7 @@ import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Asynchronous;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.GeneSelectorEvent;
+import org.geworkbench.util.patterns.PatternDB;
 import org.geworkbench.util.sequences.SequenceViewWidget;
 
 /**
@@ -31,7 +32,7 @@ import org.geworkbench.util.sequences.SequenceViewWidget;
  * @author
  * @version $Id$
  */
-@AcceptTypes({ CSSequenceSet.class, SoapParmsDataSet.class })
+@AcceptTypes({ CSSequenceSet.class, SoapParmsDataSet.class, PatternDB.class })
 public class SequenceViewAppComponent implements VisualPlugin {
 	private SequenceViewWidget sViewWidget;
 

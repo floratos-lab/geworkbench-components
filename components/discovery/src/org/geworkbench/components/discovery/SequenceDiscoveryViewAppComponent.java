@@ -27,6 +27,7 @@ import org.geworkbench.bison.datastructure.complex.pattern.SoapParmsDataSet;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.CSSeqRegistration;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.ProjectSelection;
+import org.geworkbench.components.discovery.algorithm.RegularDiscoveryFileLoader;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Asynchronous;
@@ -38,6 +39,7 @@ import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.events.SequenceDiscoveryTableEvent;
 import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbench.util.PropertiesMonitor;
+import org.geworkbench.util.patterns.PatternDB;
 import org.geworkbench.util.patterns.SequencePatternUtils;
 import org.geworkbench.util.remote.Connection;
 import org.geworkbench.util.remote.ConnectionCreationException;
@@ -72,7 +74,7 @@ import polgara.soapPD_wsdl.Parameters;
  * @version $Id$
  */
 
-@AcceptTypes( { CSSequenceSet.class, SoapParmsDataSet.class })
+@AcceptTypes( { CSSequenceSet.class, SoapParmsDataSet.class, PatternDB.class } )
 public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 		PropertyChangeListener {
 	private Log log = LogFactory
@@ -100,6 +102,7 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 		try {
 			sDiscoveryViewWidget = new SequenceDiscoveryViewWidget();
 			sDiscoveryViewWidget.addPropertyChangeListener(this);
+			RegularDiscoveryFileLoader.propertyChangeUpdater.addPropertyChangeListener(this);
 			sDiscoveryViewWidget.setSequenceDiscoveryViewAppComponent(this);
 		} catch (Exception ex) {
 			ex.printStackTrace();
