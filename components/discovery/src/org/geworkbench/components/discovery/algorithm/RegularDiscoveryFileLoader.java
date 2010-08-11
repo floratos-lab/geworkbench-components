@@ -1,12 +1,15 @@
 package org.geworkbench.components.discovery.algorithm;
 
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSMatchedSeqPattern;
+import org.geworkbench.components.discovery.SequenceDiscoveryViewWidget;
 import org.geworkbench.events.ProgressChangeEvent;
 import org.geworkbench.events.StatusBarEvent;
 import org.geworkbench.util.patterns.PatternSorter;
 import org.geworkbench.util.patterns.SequentialPatternSource;
 
 import javax.swing.*;
+
+import java.awt.Component;
 import java.io.File;
 import java.util.Arrays;
 
@@ -18,7 +21,7 @@ import java.util.Arrays;
  * <p>Company: Columbia University</p>
  *
  * @author not attributable
- * @version 1.0
+ * @version $Id$
  */
 public class RegularDiscoveryFileLoader extends AbstractSequenceDiscoveryAlgorithm implements org.geworkbench.util.patterns.SequentialPatternSource {
     FileDataSource PatternSource = null;
@@ -53,11 +56,22 @@ public class RegularDiscoveryFileLoader extends AbstractSequenceDiscoveryAlgorit
             patternNumber = patternDB.getPatternNo();
             progressChange();
 
+            propertyChangeUpdater.publishPropertyChange(SequenceDiscoveryViewWidget.PATTERN_DB, null, patternDB);
+
         } else {
             JOptionPane.showMessageDialog(null, "The file " + patternDB.getDataSetName() + " could not be loaded.\n " + "Please make sure that the sequence file" + " is loaded and selected in the project.");
         }
 
     }
+
+    public static class PropertyChangeUpdater extends Component {
+		private static final long serialVersionUID = -5916145162629975774L;
+
+		void publishPropertyChange(String s, Object o1, Object o2) {
+    		firePropertyChange(s, o1, o2);
+    	}
+    }
+    public static PropertyChangeUpdater propertyChangeUpdater = new PropertyChangeUpdater();
 
     /* This class is not for loading file instead of getting results, so ProgressChangeEvent is always set to be initial.  */
     private void progressChange() {
