@@ -396,6 +396,7 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
     	String TF = (String)parameters.get("TF");
     	setTranscriptionFactor(TF);
     	networkFrom.setSelectedIndex((Integer)parameters.get("networkFrom"));
+    	networkTextField.setText((String)parameters.get("networkField"));
     	tfFrom.setSelectedIndex((Integer)parameters.get("tfFrom"));
     	stopNotifyAnalysisPanelTemporary(false);
     }
@@ -410,6 +411,7 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
     	answer.put("alpha",getPValue());
     	answer.put("TF",getTranscriptionFactor());
     	answer.put("networkFrom", networkFrom.getSelectedIndex());
+    	answer.put("networkField", networkTextField.getText());
     	answer.put("tfFrom", tfFrom.getSelectedIndex());
     	return answer;
     }
