@@ -39,9 +39,8 @@ import org.geworkbench.bison.datastructure.complex.pattern.SoapParmsDataSet;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.components.discovery.algorithm.AbstractSequenceDiscoveryAlgorithm;
 import org.geworkbench.components.discovery.algorithm.AlgorithmStub;
-import org.geworkbench.components.discovery.algorithm.ExhaustiveDiscovery;
-import org.geworkbench.components.discovery.algorithm.RegularDiscovery;
 import org.geworkbench.components.discovery.algorithm.RegularDiscoveryFileLoader;
+import org.geworkbench.components.discovery.algorithm.ServerBaseDiscovery;
 import org.geworkbench.components.discovery.model.GenericModel;
 import org.geworkbench.components.discovery.model.PatternTableModelWrapper;
 import org.geworkbench.components.discovery.view.PatternTableView;
@@ -52,6 +51,7 @@ import org.geworkbench.events.StatusBarEvent;
 import org.geworkbench.events.listeners.ProgressChangeListener;
 import org.geworkbench.events.listeners.StatusChangeListener;
 import org.geworkbench.util.AlgorithmSelectionPanel;
+import org.geworkbench.util.remote.SPLASHDefinition;
 import org.geworkbench.util.session.DiscoverySession;
 
 import polgara.soapPD_wsdl.Parameters;
@@ -513,8 +513,8 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 	private AbstractSequenceDiscoveryAlgorithm createDiscoveryAlgorithm(
 			DiscoverySession session) {
 		File resultFile = readParameterAndCreateResultfile("Discovery");
-		AbstractSequenceDiscoveryAlgorithm abstractSequenceDiscoveryAlgorithm = new RegularDiscovery(
-				session, getParameters());
+		AbstractSequenceDiscoveryAlgorithm abstractSequenceDiscoveryAlgorithm = new ServerBaseDiscovery(
+				session, getParameters(), SPLASHDefinition.Algorithm.REGULAR);
 		abstractSequenceDiscoveryAlgorithm.setResultFile(resultFile);
 		abstractSequenceDiscoveryAlgorithm.setSequenceInputData(this
 				.getSequenceDB());
@@ -544,8 +544,8 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 	private AbstractSequenceDiscoveryAlgorithm createExhaustive(
 			DiscoverySession discoverySession) {
 		File resultFile = readParameterAndCreateResultfile("Exhaustive");
-		AbstractSequenceDiscoveryAlgorithm abstractSequenceDiscoveryAlgorithm = new ExhaustiveDiscovery(
-				discoverySession, getParameters());
+		AbstractSequenceDiscoveryAlgorithm abstractSequenceDiscoveryAlgorithm = new ServerBaseDiscovery(
+				discoverySession, getParameters(), SPLASHDefinition.Algorithm.EXHAUSTIVE);
 		abstractSequenceDiscoveryAlgorithm.setResultFile(resultFile);
 		abstractSequenceDiscoveryAlgorithm.setSequenceInputData(this
 				.getSequenceDB());
