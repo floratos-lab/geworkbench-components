@@ -63,7 +63,7 @@ public final class PositionHistogramWidget extends JPanel {
     private JLabel jLabel1 = new JLabel();
     private Component component4;
     private Component component5;
-    private JTextField jStepBox = new JTextField();
+    private JTextField jStepBox = new JTextField(5);
     private Component component6;
     private Component component7;
     @SuppressWarnings("rawtypes")
