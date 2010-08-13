@@ -14,11 +14,11 @@ import edu.columbia.geworkbench.cagrid.dispatcher.client.DispatcherClient;
  * A thread that handles remote service polling.
  * 
  * @author keshav
- * @version $Id: PollingThread.java,v 1.8 2009-02-24 18:12:18 keshav Exp $
+ * @version $Id$
  */
 public class PollingThread extends Thread {
 
-	private Log log = LogFactory.getLog(this.getClass());
+	private Log log = LogFactory.getLog(PollingThread.class);
 
 	private AnalysisPanel panel = null;
 
@@ -26,7 +26,7 @@ public class PollingThread extends Thread {
 
 	private DispatcherClient dispatcherClient = null;
 
-	private boolean cancelled = false;
+	volatile private boolean cancelled = false;
 
 	public PollingThread(AnalysisPanel panel,
 			GridEndpointReferenceType gridEPR, DispatcherClient dispatcherClient) {
@@ -37,7 +37,7 @@ public class PollingThread extends Thread {
 
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	public void run() {
 
 		try {
