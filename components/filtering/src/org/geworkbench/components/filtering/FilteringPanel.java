@@ -244,6 +244,9 @@ public class FilteringPanel implements VisualPlugin, ReHighlightable {
 		}
 
 		List<Integer> indexList = ((FilteringAnalysis)selectedFilter).getMarkersToBeRemoved(maSet);
+		if (indexList==null){			
+			return;
+			}
 		List<DSGeneMarker> list = new ArrayList<DSGeneMarker>();
 		for(Integer index: indexList)
 			list.add(maSet.getMarkers().get(index));
@@ -556,6 +559,11 @@ public class FilteringPanel implements VisualPlugin, ReHighlightable {
 					"Parameter Validation Error", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
+		
+		List<Integer> indexList = ((FilteringAnalysis)selectedFilter).getMarkersToBeRemoved(maSet);
+		if (indexList==null){			
+			return;
+			}
 
 		Object[] options = { "Proceed", "Cancel" };
 		int n = JOptionPane

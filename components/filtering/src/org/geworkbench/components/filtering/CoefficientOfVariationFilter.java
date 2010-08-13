@@ -1,11 +1,15 @@
 package org.geworkbench.components.filtering;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.JOptionPane;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.FilteringAnalysis;
 
 /**
@@ -209,28 +213,42 @@ public class CoefficientOfVariationFilter extends FilteringAnalysis{
         numberThreshold = 0;
       }
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked")	
 	@Override
-	public AlgorithmExecutionResults execute(Object input) {
-		if (input == null || !(input instanceof DSMicroarraySet))
-			return new AlgorithmExecutionResults(false, "Invalid input.", null);
+	public List<Integer> getMarkersToBeRemoved(DSMicroarraySet<?> input) {
 
 		maSet = (DSMicroarraySet<DSMicroarray>) input;
-        int markerCount = maSet.getMarkers().size();
+		
+		int markerCount = maSet.getMarkers().size();
         int arrayCount = maSet.size();
        
         for(int i=0; i<markerCount; i++) {        	
             for (int j = 0; j < arrayCount; j++) {
                 DSMarkerValue mv = maSet.get(j).getMarkerValue(i);                
                	double v = mv.getValue();
-               	if(v<0) 
-               		return new AlgorithmExecutionResults(false,
-     					"This dataset contains negative value, so Coefficient of Variant filter does not apply.", null); 
+               	if(v<0){
+               		JOptionPane.showMessageDialog(null, "This dataset contains negative value, so Coefficient of Variant filter does not apply.",
+        					"Coefficient of Variation Error", JOptionPane.ERROR_MESSAGE);  		
+               		return null; 
+               		
+               	} 
             }
            
         }
+
+		getParametersFromPanel();
 		
-		return super.execute(input);
+
+		// Identify the markers that do not meet the cutoff value.
+		List<Integer> removeList = new ArrayList<Integer>();
+		for (int i = 0; i < markerCount; i++) {
+			if ((criterionOption == CriterionOption.COUNT && countMissing(i) > numberThreshold)
+					|| (criterionOption == CriterionOption.PERCENT && 
+							(double) countMissing(i) / arrayCount > percentThreshold)) {
+				removeList.add(i);
+			}
+		}
+		return removeList;
 	}
 
 }
