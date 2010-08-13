@@ -289,14 +289,16 @@ public class BlastAlgorithm extends SwingWorker<CSAlignmentResultSet, Integer> {
 			histStr += "Blast run with the following parameters:\n";
 			histStr += "----------------------------------------\n";
 
-				String dbName=parameterSetting.getDbName();
-				if (dbName.equalsIgnoreCase("dbindex/9606/allcontig_and_rna")) dbName="Human G+T";
-				else if(dbName.equalsIgnoreCase("dbindex/10090/allcontig_and_rna")) dbName="Mouse G+T";
+				String dbName=parameterSetting.getDbName();				
 				histStr += "Database: " + dbName + LINEBREAK;
 				histStr += "BLAST Program: " + parameterSetting.getProgramName() + LINEBREAK;
 				
 				histStr += "Exclude of Models(XM/XP): " + parameterSetting.isExcludeModelsOn() + LINEBREAK;
 				histStr += "Exclude of Uncultured/environmental sequences: " + parameterSetting.isExcludeUncultureOn() + LINEBREAK;
+				if (parameterSetting.getFromQuery()!=null)
+					histStr +="Query subrange from: "+parameterSetting.getFromQuery() +LINEBREAK;
+				if (parameterSetting.getToQuery()!=null)
+					histStr +="Query subrange to: "+parameterSetting.getToQuery() +LINEBREAK;
 				if(parameterSetting.getEntrezQuery()!=null)
 					histStr += "Entrez Query: "+parameterSetting.getEntrezQuery() + LINEBREAK;
 				if(parameterSetting.getProgramName().equalsIgnoreCase("blastn")){

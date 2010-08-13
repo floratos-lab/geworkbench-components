@@ -104,7 +104,9 @@ public class BlastAppComponent implements VisualPlugin {
     private JCheckBox excludeUnculture = null;
     private JLabel jexcludeLabel = new JLabel("Exclude: ");
     private JLabel jEntrezQueryLabel=new JLabel("Entrez Query: ");
-    private JTextField jEntrezQueryText=new JTextField(20);    
+    private JTextField jEntrezQueryText=new JTextField(10);
+    private JTextField jQueryFromText=new JTextField(5); 
+    private JTextField jQueryToText=new JTextField(5); 
     
     private JRadioButton megablastBtn=null;
     private JLabel jmegablastLabel = new JLabel("Optimize for: ");
@@ -206,6 +208,8 @@ public class BlastAppComponent implements VisualPlugin {
     private static JLabel DatabaseLabel = new JLabel("Database:");
     
     private String programForDefaultButton="blastn";
+    
+    private JPanel chooseSearchPanel=new JPanel();
     
     public BlastAppComponent() {
         try {
@@ -519,6 +523,8 @@ public class BlastAppComponent implements VisualPlugin {
         excludeModels.setToolTipText("Models(XM/XP)");
         excludeUnculture.setToolTipText("Uncultured/environmental sample sequences");
         jEntrezQueryText.setToolTipText("Enter an Entrez query to limit search ");
+        jQueryFromText.setToolTipText("Sequence coordinates are from 1 to the sequence length");
+        jQueryToText.setToolTipText("Sequence coordinates are from 1 to the sequence length");
         megablastBtn.setToolTipText("Highly similar sequences (megablast)");
         discontiguousBtn.setToolTipText("More dissimilar sequences (discontiguous megablast)");
         blastnBtn.setToolTipText("Somewhat similar sequences (blastn)");        
@@ -573,30 +579,63 @@ public class BlastAppComponent implements VisualPlugin {
         textArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
         subSeqPanel2.add(textArea,new XYConstraints(0, 84, 352, 150));
         
-        JPanel excludePanel = new JPanel();
-        excludePanel.setLayout(new BoxLayout(excludePanel, BoxLayout.X_AXIS) );
-        excludePanel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
-        jexcludeLabel.setAlignmentY(Component.TOP_ALIGNMENT);
-        excludePanel.add(jexcludeLabel);
-        JPanel excludeOptionsPanel = new JPanel();
-        excludeOptionsPanel.setLayout(new BoxLayout(excludeOptionsPanel, BoxLayout.Y_AXIS));
-        excludeOptionsPanel.add(excludeModels);
-        excludeOptionsPanel.add(excludeUnculture);
-        excludeOptionsPanel.setAlignmentY(Component.TOP_ALIGNMENT);
-        excludePanel.add(excludeOptionsPanel);
         
-        excludePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        subSeqPanel.add(excludePanel);  
+        chooseSearchPanel.setLayout(new GridBagLayout());       
+        
+        JPanel excludePanel = new JPanel();
+        excludePanel.setLayout(new BoxLayout(excludePanel, BoxLayout.Y_AXIS) );
+        excludePanel.setBorder(new TitledBorder(border1, "Search Choice (optional)"));
+       
+        JPanel excludeOptions1Panel = new JPanel();
+        excludeOptions1Panel.setLayout(new FlowLayout(FlowLayout.LEADING) );
+        excludeOptions1Panel.add(jexcludeLabel);        
+        excludeOptions1Panel.add(excludeModels);
+        excludePanel.add(excludeOptions1Panel);
+        JPanel excludeOptions2Panel = new JPanel();
+        excludeOptions2Panel.setLayout(new FlowLayout(FlowLayout.LEADING) );
+        excludeOptions2Panel.add(new JLabel("                "));        
+        excludeOptions2Panel.add(excludeUnculture);
+        excludePanel.add(excludeOptions2Panel);              
         
         JPanel entrezQueryPanel = new JPanel();
         entrezQueryPanel.setLayout(new FlowLayout(FlowLayout.LEADING) );
         entrezQueryPanel.add(jEntrezQueryLabel);
         entrezQueryPanel.add(jEntrezQueryText);
-        entrezQueryPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        subSeqPanel.add(entrezQueryPanel);
+        
         jEntrezQueryText.setText("");
         jEntrezQueryLabel.setVisible(false);
 		jEntrezQueryText.setVisible(false);
+        excludePanel.add(entrezQueryPanel);
+        
+        GridBagConstraints b = new GridBagConstraints(0, 0, 1, 1,
+				0.0, 0.0, GridBagConstraints.WEST,
+				GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0);
+        b.gridx = 0;
+        b.gridy = 0;
+        chooseSearchPanel.add(excludePanel,b);		
+	
+		JPanel querySubrangePanel=new JPanel();
+		querySubrangePanel.setBorder(new TitledBorder(border1, "Query Subrange"));
+		querySubrangePanel.setLayout(new BoxLayout(querySubrangePanel, BoxLayout.Y_AXIS) );		
+		//querySubrangePanel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+		
+		JPanel queryFromPanel = new JPanel();
+		queryFromPanel.setLayout(new FlowLayout(FlowLayout.LEADING));
+		queryFromPanel.add(new JLabel("From:"));
+		queryFromPanel.add(jQueryFromText);		
+		querySubrangePanel.add(queryFromPanel);
+		
+		JPanel queryToPanel = new JPanel();
+		queryToPanel.setLayout(new FlowLayout(FlowLayout.LEADING));
+		queryToPanel.add(new JLabel("To:     "));
+		queryToPanel.add(jQueryToText);
+		querySubrangePanel.add(queryToPanel);		
+        b.gridx = 1;
+        b.gridy = 0;
+        chooseSearchPanel.add(querySubrangePanel,b); 
+        chooseSearchPanel.setAlignmentX(Component.LEFT_ALIGNMENT);		
+		subSeqPanel.add(chooseSearchPanel);
+		chooseSearchPanel.setVisible(false);
         
         displayToolBar.add(Box.createHorizontalStrut(10), null);
         displayToolBar.add(blastButton);
@@ -882,6 +921,7 @@ public class BlastAppComponent implements VisualPlugin {
 			enableBlastnRelateOptions(false);			
 			jEntrezQueryLabel.setVisible(false);
 			jEntrezQueryText.setVisible(false);
+			chooseSearchPanel.setVisible(false);
 			return;
 		}	
 		
@@ -895,14 +935,14 @@ public class BlastAppComponent implements VisualPlugin {
 			if(selectedProgramName.equalsIgnoreCase("tblastn")||selectedProgramName.equalsIgnoreCase("tblastx")){
 				int num=0;
 				for(int i=0;i<arrayT.length;i++){
-					if(arrayT[i][1].equalsIgnoreCase("dbindex/9606/rna")||arrayT[i][1].equalsIgnoreCase("dbindex/10090/rna")){
+					if(arrayT[i][1].equalsIgnoreCase("dbindex/9606/allcontig_and_rna")||arrayT[i][1].equalsIgnoreCase("dbindex/10090/allcontig_and_rna")){
 						num++;
 					}
 				}				
 				array=new String[arrayT.length-num][2];
 				int i=0;
 				for(int j=0;j<arrayT.length;j++){			
-					if (!(arrayT[j][1].equalsIgnoreCase("dbindex/9606/rna")||arrayT[j][1].equalsIgnoreCase("dbindex/10090/rna"))){
+					if (!(arrayT[j][1].equalsIgnoreCase("dbindex/9606/allcontig_and_rna")||arrayT[j][1].equalsIgnoreCase("dbindex/10090/allcontig_and_rna"))){
 						array[i]=arrayT[j];					
 						i++;
 					}
@@ -927,7 +967,10 @@ public class BlastAppComponent implements VisualPlugin {
 		excludeModels.setSelected(false);
 	    excludeUnculture.setSelected(false);
 	    jEntrezQueryText.setText("");
+	    jQueryFromText.setText("");
+		jQueryToText.setText("");
 	    megablastBtn.setSelected(true);
+	    chooseSearchPanel.setVisible(true);
 	    
 		setAdvancedOptions();
     }
@@ -1107,12 +1150,14 @@ public class BlastAppComponent implements VisualPlugin {
         String geneticCode=(String) jgeneticCodeBox.getSelectedItem();
         String maxTargetNumber=(String) jMaxTargetBox.getSelectedItem();
         String entrezQuery=jEntrezQueryText.getText().trim();
+        String fromQuery=jQueryFromText.getText().trim();
+        String toQuery=jQueryToText.getText().trim();
         
         ParameterSetting ps = new ParameterSetting(dbName, programName,
 				jDisplayInWebBox.isSelected(), expectValue, lowComplexFilterOn,
 				humanRepeatFilterOn, maskLowCaseOn, (String) jMatrixBox
 						.getSelectedItem(), maskLookupOnlyBox.isSelected(),
-						excludeModelsOn,excludeUncultureOn, entrezQuery,megaBlastOn,
+						excludeModelsOn,excludeUncultureOn, entrezQuery, fromQuery, toQuery, megaBlastOn,
 						discontiguousOn,blastnBtnOn,shortQueriesOn,matchScores,compositionalAdjustment,
 						speciesRepeat, templateLength, templateType, geneticCode, maxTargetNumber);
         if (startValue <= 1 && endValue >= fastaFile.getMaxLength()) {
@@ -1414,6 +1459,10 @@ public class BlastAppComponent implements VisualPlugin {
 	        if(selectedRow!=-1) {
 		        String dbName = (String)databaseTable.getModel().getValueAt(selectedRow, DATABASE_NAME_INDEX);
 		        dbDetails = algorithmMatcher.getDatabaseDetail(program, dbName);
+		        if(dbName.equalsIgnoreCase("dbindex/10090/rna"))
+		        	jSpeciesBox.setSelectedIndex(1);
+		        else
+		        	jSpeciesBox.setSelectedIndex(0);
 	        }
 	        
 	        textArea.setText( dbDetails );

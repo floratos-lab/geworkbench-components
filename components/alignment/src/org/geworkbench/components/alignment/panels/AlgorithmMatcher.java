@@ -505,6 +505,7 @@ public class AlgorithmMatcher {
 
             } else {
                 String dbName = ps.getDbName();
+                cmd="";
                 /*
                 String[] list = dbName.split("/");
                 if (list.length > 1) {
@@ -512,8 +513,18 @@ public class AlgorithmMatcher {
                     dbName = dbNameWithSuffix[0];
                 }
                 */ //why split with "/"? , for bug 2019, it is commented out
-                cmd = "&DATABASE=" + dbName + "&PROGRAM=" +
-                      ps.getProgramName();
+                ///cmd +="&db=nucleotide&stype=protein&GENETIC_CODE=1&DBTYPE=nr&NUM_ORG=1&HSP_RANGE_MAX=0";//debug
+                ///cmd +="&UNGAPPED_ALIGNMENT=no&BLAST_PROGRAMS=blastx&SELECTED_PROG_TYPE=blastx";
+                //cmd +="&SHOW_OVERVIEW=true&SHOW_LINKOUT=true&GET_SEQUENCE=true&FORMAT_OBJECT=Alignment";
+                //cmd +="&FORMAT_TYPE=HTML&ALIGNMENT_VIEW=Pairwise&MASK_CHAR=2&MASK_COLOR=1&DESCRIPTIONS=100&ALIGNMENTS=100&NEW_VIEW=true&OLD_BLAST=false&NCBI_GI=false&SHOW_CDS_FEATURE=false&NUM_OVERVIEW=100";                
+                ///cmd +="&CLIENT=web&SERVICE=plain&CMD=request&SAVED_SEARCH=true";
+                //cmd +="&NUM_DIFFS=0&NUM_OPTS_DIFFS=0&UNIQ_DEFAULTS_NAME=A_SearchDefaults_1OjY85_zDC_DRGnXTKy2N7_23ttSh_c9WM6&PAGE_TYPE=BlastSearch&USER_DEFAULT_PROG_TYPE=megaBlast&USER_DEFAULT_MATCH_SCORES=0";
+                //cmd +="&DB_ABBR=Human20%G+T";
+                //cmd +="&SELECTED_PROG_TYPE=megaBlast";                
+                ///cmd +="USER_DEFAULT_PROG_TYPE=blastx";
+                //above are some arguments may need in the future
+                
+                cmd += "&DATABASE=" + dbName + "&PROGRAM=" +ps.getProgramName();
                 if (ps.isLowComplexityFilterOn()) {
                     cmd += "&FILTER=L";
                 }
@@ -527,11 +538,18 @@ public class AlgorithmMatcher {
                 if (ps.isExcludeUncultureOn()){
                 	cmd += "&EXCLUDE_SEQ_UNCULT=yes";
                 }
-                if (!(ps.getEntrezQuery()==null)||(ps.getEntrezQuery().trim()=="")){
+                if (!(ps.getEntrezQuery()==null)||(ps.getEntrezQuery().trim()!="")){
                 	cmd += "&EQ_TEXT="+ps.getEntrezQuery();
+                }
+                if (!(ps.getFromQuery()==null)||(ps.getFromQuery().trim()!="")){
+                	cmd += "&QUERY_FROM="+ps.getFromQuery();
+                }
+                if (!(ps.getToQuery()==null)||(ps.getToQuery().trim()!="")){
+                	cmd += "&QUERY_TO="+ps.getToQuery();
                 }
                 
                 if(ps.getProgramName().equalsIgnoreCase("blastn")){
+                	cmd +="&PAGE=MegaBlast";
 	                if (ps.isMegaBlastOn()){
 	                	cmd += "&BLAST_PROGRAMS=megaBlast"; 
 	                	cmd+="&MEGABLAST=on";
@@ -541,8 +559,6 @@ public class AlgorithmMatcher {
 	                	cmd += "&BLAST_PROGRAMS=discoMegablast";
 	                	cmd+="&SELECTED_PROG_TYPE=discoMegablast";
 	                	cmd+="&MEGABLAST=on";
-	                	//cmd+="&TEMPLATE_LENGTH=16";//key thing
-	                	//cmd+="&TEMPLATE_TYPE=1";
 	                	
 	                    if (ps.getTemplateLength() != null) {                        
 	                       cmd += "&TEMPLATE_LENGTH=" + template2number.get(ps.getTemplateLength());
@@ -557,6 +573,12 @@ public class AlgorithmMatcher {
 	                }
                 }                
                 else cmd += "&BLAST_PROGRAMS="+ps.getProgramName();
+                if (ps.getProgramName().equalsIgnoreCase("blastp"))
+                	cmd +="&PAGE=Proteins";
+                if(ps.getProgramName().equalsIgnoreCase("blastx")||ps.getProgramName().equalsIgnoreCase("tblastn")||ps.getProgramName().equalsIgnoreCase("tblastx")){
+                	cmd +="&PAGE=Translations";
+                	cmd +="&PAGE_TYPE=BlastSearch";
+                }
                 if (ps.getProgramName().equalsIgnoreCase("blastx")||ps.getProgramName().equalsIgnoreCase("tblastx")){
                 	cmd +="&GENETIC_CODE="+ geneticCode2number.get(ps.getGeneticCode());
                 }
