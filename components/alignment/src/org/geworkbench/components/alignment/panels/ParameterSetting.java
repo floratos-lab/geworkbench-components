@@ -75,6 +75,8 @@ public class ParameterSetting {
         private String geneticCode;
         private String maxTargetNumber;
         private String entrezQuery;
+        private String fromQuery;
+        private String toQuery;
         
     /**
      * No public constructor because this is only used in this package.
@@ -101,13 +103,15 @@ public class ParameterSetting {
      * @param geneticCode
      * @param maxTargetNumber
      * @param entrezQuery
+     * @param fromQuery
+     * @param toQuery
      * 
      */
     ParameterSetting(String dbName, String programName, boolean viewInBrowser,
 			double expect, boolean lowComplexityFilterOn,
 			boolean humanRepeatFilterOn, boolean maskLowCase, String matrix,
 			boolean maskLookupTable, boolean excludeModelsOn, boolean excludeUncultureOn, String entrezQuery,
-			boolean megaBlastOn, boolean discontiguousOn, boolean blastnBtnOn, boolean shortQueriesOn, 
+			String fromQuery, String toQuery, boolean megaBlastOn, boolean discontiguousOn, boolean blastnBtnOn, boolean shortQueriesOn, 
 			String matchScores, String compositionalAdjustment, String speciesRepeat, String templateLength, 
 			String templateType, String geneticCode, String maxTargetNumber) {
         this.dbName = dbName;
@@ -134,6 +138,8 @@ public class ParameterSetting {
 		this.geneticCode=geneticCode;
 		this.maxTargetNumber=maxTargetNumber;
 		this.entrezQuery=entrezQuery;
+		this.fromQuery=fromQuery;
+		this.toQuery=toQuery;
     }
 
     public void setPenalty(String penalty) {
@@ -280,5 +286,11 @@ public class ParameterSetting {
 	
 	public String getEntrezQuery() {
 		return entrezQuery;
+	}
+	public String getFromQuery() {
+		return fromQuery;
+	}
+	public String getToQuery() {
+		return toQuery;
 	}
 }
