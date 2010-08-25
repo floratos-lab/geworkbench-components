@@ -9,26 +9,10 @@
     <link rel="stylesheet" type="text/css" href="aracne_files/commonPrint.css">
 
 <a name="Overview"></a><h1>Overview</h1>
-<p>ARACNe (Algorithm for the Reconstruction of Accurate Cellular
-Networks) (Basso et al. 2005; Margolin, Nemenman et al. 2006) is an
-information-theoretic algorithm used to identify transcriptional
-interactions between gene products using microarray expression profile
-data. The resulting network is displayed using the Cytoscape component.
-ARACNe can be used to predict potential functional associations among
-genes, or to predict novel functions for uncharacterized genes, by
-identifying statistical dependencies between genes. The results take
-the form of a matrix of candidate interactions, also called an
-adjacency matrix, which can be used for further network visualization
-and analysis. ARACNe has been used to reconstruct networks in mammalian
-cells through appropriate choice of dataset.
-</p><p>ARACNe performs best with a dataset containing data from 100 to
-300 microarrays (see Margolin, Wang et al. 2006) and representing a
-number of different states of the same cellular system - for example,
-cells lines of varying phenotype, or cells subjected to a variety of
-experimental perturbations. Initial work with ARACNe was performed
-using a large collection (about 340) of B-cell lines of various
-phenotypes (Basso et al. 2005). A subset of this dataset, derived from
-100 arrays, is included with geWorkbench (Bcell-100.exp).
+<p>ARACNe (Algorithm for the Reconstruction of Accurate Cellular Networks) (Basso et al. 2005; Margolin, Nemenman et al. 2006) is an information-theoretic algorithm used to identify transcriptional interactions between gene products using microarray expression profile data. The resulting network is displayed using the Cytoscape component. ARACNe can be used to predict potential functional associations among genes, or to predict novel functions for uncharacterized genes, by identifying statistical dependencies between genes. The results take the form of a matrix of candidate interactions, also called an adjacency matrix, which can be used for further network visualization and analysis. ARACNe has been used to reconstruct networks in mammalian cells through appropriate choice of dataset. 
+</p>
+
+<p>ARACNe performs best with a dataset containing data from a minimum of 100 microarrays (see Margolin, Wang et al. 2006) and representing a number of different states of the same cellular system - for example, cells lines of varying phenotype, or cells subjected to a variety of experimental perturbations. Initial work with ARACNe was performed using a large collection (about 340) of B-cell lines of various phenotypes (Basso et al. 2005). For the "Adaptive Partitioning" option, there is no upper limit on the number of arrays that can be included. For the "Fixed Bandwidth" option, arrays in excess of 300 can lead to long computation times. A subset of the B-Cell dataset, derived from 100 arrays, is included with geWorkbench (Bcell-100.exp). 
 </p><p>ARACNe can perform two separate calculations:
 </p>
 <ol><li> <b>Mutual Information</b>: The mutual information (MI) of one or more marker's expression profile(s) is calculated against all other active markers.
@@ -46,7 +30,7 @@ calculation.
 <p>Parameters described below allow one to incorporate a list of
 putative transcription factors and optimize the run to discover targets
 that they may regulate.
-</p><p>Starting with geWorkbench release 1.7.0, a new version of ARACNe, ARACNe2, is used that supports two important new features. 
+</p><p>Current versions of geWorkbench (starting with release 1.7.0) use a new implementation of ARACNe, ARACNe2, that supports two important new features:  
 </p>
 <ol><li> <b>Algorithm</b> - A new algorithm, termed "Adaptive Partioning", which is both much faster and more sensitive, is supported.
 </li><li> <b>Mode</b> - The user can choose to custom-calculate optimal run parameters for a given dataset. 
@@ -246,7 +230,7 @@ support for each network edge connection (interaction) can be measured.
 the bootstrapping runs are made, a permutation test is used to estimate
 the significance of interactions. The consensus threshold sets the
 cutoff point for calling the interactions significant and returning
-them in the final adjancency matrix
+them in the final adjacency matrix
 </li></ul>
 <a name="Array_and_Marker_Set_Overrides"></a><h3>Array and Marker Set Overrides</h3>
 <ul><li> <b>All Markers</b>: checking this box overrides any activated marker set in the Markers component.
