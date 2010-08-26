@@ -1448,7 +1448,7 @@ public class BlastAppComponent implements VisualPlugin {
 	        if(selectedRow!=-1) {
 		        String dbName = (String)databaseTable.getModel().getValueAt(selectedRow, DATABASE_NAME_INDEX);
 		        dbDetails = algorithmMatcher.getDatabaseDetail(program, dbName);
-		        if(dbName.equalsIgnoreCase("dbindex/10090/rna"))
+		        if(dbName.equalsIgnoreCase("dbindex/10090/allcontig_and_rna"))
 		        	jSpeciesBox.setSelectedIndex(1);
 		        else
 		        	jSpeciesBox.setSelectedIndex(0);

@@ -465,9 +465,7 @@ public class AlgorithmMatcher {
                     } else if (gapCost.equals(GAPB80_5)) {
                         cmd += " -G 11 -E 1 ";
                     } else if (gapCost.equals(GAPB80_6)) {
-                        cmd += " -G 9 -E 1 ";
-                    } else if (gapCost.equals(GAPB0_1)) {
-                        cmd += " -G 0 -E 0 ";
+                        cmd += " -G 9 -E 1 ";                    
                     }  else if (gapCost.equalsIgnoreCase("Linear")) {
                         cmd += " -G 0 -E 0 ";
                     } else if (gapCost.equals(GAPB0_2)) {
@@ -583,13 +581,16 @@ public class AlgorithmMatcher {
                 	cmd +="&GENETIC_CODE="+ geneticCode2number.get(ps.getGeneticCode());
                 }
                 if (ps.getProgramName().equalsIgnoreCase("blastp")||ps.getProgramName().equalsIgnoreCase("tblastn")){
-                	cmd +="&COMPOSITION_BASED_STATISTICS="+ compositional2number.get(ps.getCompositionalAdjustment());
+                	cmd +="&COMPOSITION_BASED_STATISTICS="+ compositional2number.get(ps.getCompositionalAdjustment());                	
                 }
                 
-                if (ps.isShortQueriesOn()){
-                	cmd += "&SHORT_QUERY_ADJUST=yes";
+                if (ps.getProgramName().equalsIgnoreCase("blastp")||ps.getProgramName().equalsIgnoreCase("blastn")){
+	                if (ps.isShortQueriesOn()){
+	                	cmd += "&SHORT_QUERY_ADJUST=yes";
+	                }
+	            	else cmd += "&SHORT_QUERY_ADJUST=";
                 }
-               
+                
                 if (ps.isMaskLowCase()) {
                     cmd += "&LCASE_MASK=yes";
                 }
@@ -603,9 +604,10 @@ public class AlgorithmMatcher {
                 if (ps.getWordsize() != null) {
                     cmd += "&WORD_SIZE=" + ps.getWordsize().trim();
                 }
+                
                     String gapCost = ps.getGapCost();
                     if (gapCost != null) {
-                    	if(gapCost.equalsIgnoreCase("Linear")) gapCost="";
+                    	if(gapCost.equalsIgnoreCase("Linear")) gapCost="Existence: 0 Extension: 0";
                         String[] s = gapCost.split(" ");
                         if (s.length > 3) {
                             cmd += "&GAPCOSTS=" + s[1].trim() + "%20" +
@@ -642,7 +644,7 @@ public class AlgorithmMatcher {
                 }
                 
                 if (ps.getProgramName().equals("blastp")||ps.getProgramName().equals("tblastn"))	//COMPOSITION only applies to blastp and tblastn
-                	cmd += "&EXPECT=" + ps.getExpect() + "&COMPOSITION_BASED_STATISTICS=2&AUTO_FORMAT=Semiauto&CDD_SEARCH=on&SHOW_OVERVIEW=on&SERVICE=plain\r\n\r\n";
+                	cmd += "&EXPECT=" + ps.getExpect() + "&AUTO_FORMAT=Semiauto&CDD_SEARCH=on&SHOW_OVERVIEW=on&SERVICE=plain\r\n\r\n";
                 else
                 	cmd += "&EXPECT=" + ps.getExpect() + "&AUTO_FORMAT=Semiauto&SHOW_OVERVIEW=on&SERVICE=plain\r\n\r\n";
             }
