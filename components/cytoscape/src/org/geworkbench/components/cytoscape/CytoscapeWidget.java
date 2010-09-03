@@ -279,11 +279,11 @@ public class CytoscapeWidget implements VisualPlugin {
 			log.debug("Check if " + selected + " contains " + nodeLabel);
 			if (selected.contains(nodeLabel)) {
 				if (e.getType() == GeneTaggedEvent.USE_VISUAL_PROPERTY) {
-					attrs.setAttribute(nodeView.getNode().getIdentifier(), NODE_FILL_COLOR, ObjectToString.getStringValue(color));					 
-					nodeView.setSelectedPaint(color);
+					attrs.setAttribute(nodeView.getNode().getIdentifier(), NODE_FILL_COLOR, ObjectToString.getStringValue(color));				 
+				   			
 					nodeView.setUnselectedPaint(color);
-					nodeView.select();
-				} else {
+					 
+				} else {					 
 					nodeView.select();
 
 				}

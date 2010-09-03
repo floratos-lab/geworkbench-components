@@ -118,11 +118,7 @@ public class ExpandMenuListener implements NodeContextMenuListener,
 	}
 
 	public void mouseClicked(MouseEvent e) {		
-		List<?> nodes = Cytoscape.getCurrentNetworkView().getSelectedNodes();
-        List<?>  edges = Cytoscape.getCurrentNetworkView().getSelectedEdges();
-		if (nodes.size() > 0 || edges.size() > 0)
-			return;
-        
+		 
         if (e.isMetaDown()) {
 
 			JPopupMenu menu = new JPopupMenu();
@@ -275,9 +271,7 @@ public class ExpandMenuListener implements NodeContextMenuListener,
 
 	private class ShowTTestResultAction extends AbstractAction {
 
-		/**
-		 * 
-		 */
+		 
 		private static final long serialVersionUID = 5057482753345747183L;
 
 		public ShowTTestResultAction(String name) {
