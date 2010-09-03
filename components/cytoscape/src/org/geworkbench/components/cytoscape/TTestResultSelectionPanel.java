@@ -122,8 +122,7 @@ public class TTestResultSelectionPanel extends JPanel {
 				if (tTestResultSetColorMap.containsKey(id.trim().toUpperCase())) {												 
 						Color c = tTestResultSetColorMap.get(id.trim().toUpperCase());						 
 						attrs.setAttribute(id, CytoscapeWidget.NODE_FILL_COLOR, ObjectToString.getStringValue(c));
-						nodeView.select();
-						nodeView.setSelectedPaint(c);
+						 
 						nodeView.setUnselectedPaint(c);						 
 				} else
 					    nodeView.unselect();
