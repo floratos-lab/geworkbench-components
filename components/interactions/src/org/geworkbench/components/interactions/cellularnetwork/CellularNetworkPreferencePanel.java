@@ -5,9 +5,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
+import java.awt.event.ActionListener; 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
@@ -17,12 +15,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
+import java.util.HashMap;
 import javax.swing.AbstractListModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
+import javax.swing.JCheckBox; 
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -30,9 +28,13 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.JTextArea;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListModel;
 import javax.swing.DefaultListCellRenderer;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.ListSelectionModel;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -57,8 +59,11 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 
 	private boolean isUserSelected = true;
 
-	private JComboBox contextComboBox = new JComboBox();
-	private JComboBox versionComboBox = new JComboBox();
+	private JList contextJList;
+	private JList versionJList;
+
+	private JTextArea interactomeJTextArea;
+	private JTextArea versionJTextArea;
 
 	private JButton addButton;
 
@@ -108,6 +113,8 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 	private List<String> networkSelectedInteractionTypes = new ArrayList<String>();
 
 	private CellularNetworkKnowledgeWidget c;
+	
+	private HashMap<String, List<List<String>>> selectedInteractionTypeMap;
 
 	/**
 	 * Creates new form Interactions
@@ -164,12 +171,12 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 		return this.networkJCheckBox2.isSelected();
 	}
 
-	public JComboBox getContextComboBox() {
-		return this.contextComboBox;
+	public JList getContextJList() {
+		return this.contextJList;
 	}
 
-	public JComboBox getVersionComboBox() {
-		return this.versionComboBox;
+	public JList getVersionJList() {
+		return this.versionJList;
 	}
 
 	/**
@@ -183,36 +190,48 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 		selectedInteractionTypeList = new javax.swing.JList();
 		availableNetworkInteractionTypeList = new javax.swing.JList();
 		selectedNetworkInteractionTypeList = new javax.swing.JList();
+		selectedInteractionTypeMap = new HashMap<String,List<List<String>>>();
+		
 		addButton = new javax.swing.JButton();
 		removeButton = new javax.swing.JButton();
 		networkAddButton = new javax.swing.JButton();
 		networkRemoveButton = new javax.swing.JButton();
 		changeButton = new javax.swing.JButton();
-		contextComboBox.setSize(60, 10);
+     
+		contextJList = new JList();
+		contextJList.setSize(60, 10);
+		interactomeJTextArea = new JTextArea();
 
 		ListCellRenderer aRenderer = new VersionComboBoxRenderer();
-		versionComboBox.setSize(80, 10);
-		versionComboBox.setRenderer(aRenderer);
+		versionJList = new JList();
+		versionJList.setSize(80, 10);
+		versionJList.setCellRenderer(aRenderer);
 
-		contextComboBox.addItemListener(new ItemListener() {
+		versionJTextArea = new JTextArea();
 
-			public void itemStateChanged(ItemEvent e) {
+		contextJList.addListSelectionListener(new ListSelectionListener() {
 
-				if (e.getStateChange() == ItemEvent.DESELECTED)
+			public void valueChanged(ListSelectionEvent e) {
+
+				String interactomeDesc = "";
+
+				if (contextJList.getSelectedValue() == null
+						|| contextJList.getSelectedValue().toString().trim()
+								.equals(""))
 					return;
-
-				Object selectedVersion = versionComboBox.getSelectedItem();
-				String selectedCoxtext = Constants.SELECTCONTEXT;
-				if (selectedVersion != null)
-					selectedCoxtext = contextComboBox.getSelectedItem()
-							.toString().split(" \\(")[0].trim();
+				String selectedCoxtext = contextJList.getSelectedValue()
+						.toString().split(" \\(")[0].trim();
 				if (versionList == null)
 					versionList = new ArrayList<VersionDescriptor>();
 				versionList.clear();
+				versionJTextArea.setText("");
 
-				if (selectedCoxtext != Constants.SELECTCONTEXT) {
+				if (selectedCoxtext != null
+						&& !selectedCoxtext.trim().equals("")) {
 					InteractionsConnectionImpl interactionsConnection = new InteractionsConnectionImpl();
 					try {
+						interactomeDesc = interactionsConnection
+								.getInteractomeDescription(selectedCoxtext);
 						versionList = interactionsConnection
 								.getVersionDescriptor(selectedCoxtext);
 					} catch (ConnectException ce) {
@@ -238,33 +257,84 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 
 				}
 
-				versionList.add(0, new VersionDescriptor(
-						Constants.SELECTVERSION, false));
-				versionComboBox.setModel(new DefaultComboBoxModel(versionList
+				interactomeJTextArea.setText(interactomeDesc);
+				versionJList.setModel(new DefaultComboBoxModel(versionList
 						.toArray()));
-				versionComboBox.revalidate();
 
 			}
 
 		});
 
-		versionComboBox.addItemListener(new ItemListener() {
+		versionJList.addListSelectionListener(new ListSelectionListener() {
 
-			public void itemStateChanged(ItemEvent e) {
-				if (e.getStateChange() == ItemEvent.DESELECTED)
+			public void valueChanged(ListSelectionEvent e) {
+				Object selectedVersion = versionJList.getSelectedValue();
+				String context = null;
+				String version = null;
+
+				if (selectedVersion != null
+						&& selectedVersion instanceof VersionDescriptor) {
+					context = contextJList.getSelectedValue().toString().split(
+							" \\(")[0].trim();
+					version = ((VersionDescriptor) selectedVersion)
+							.getVersion();
+					versionJTextArea
+							.setText(((VersionDescriptor) selectedVersion)
+									.getVersionDesc());
+
+				} else
 					return;
-				Object selectedVersion = versionComboBox.getSelectedItem();
+				InteractionsConnectionImpl interactionsConnection = new InteractionsConnectionImpl();
+				try {
+					displayAvailInteractionTypes = interactionsConnection
+							.getInteractionTypesByInteractomeVersion(context,
+									version);
+					Collections.sort(displayAvailInteractionTypes);
+					networkAvailInteractionTypes.clear();
+					networkAvailInteractionTypes
+							.addAll(displayAvailInteractionTypes);
+
+				} catch (ConnectException ce) {
+					JOptionPane
+							.showMessageDialog(
+									null,
+									"No service running. Please check with the administrator of your service infrastructure.",
+									"Error", JOptionPane.ERROR_MESSAGE);
+				} catch (SocketTimeoutException se) {
+					JOptionPane
+							.showMessageDialog(
+									null,
+									"No service running. Please check with the administrator of your service infrastructure.",
+									"Error", JOptionPane.ERROR_MESSAGE);
+
+				} catch (IOException ie) {
+					JOptionPane
+							.showMessageDialog(
+									null,
+									"CNKB service has an internal error, Please contact with geWorkbench developer ...",
+									"Error", JOptionPane.ERROR_MESSAGE);
+				}
+
 				if (isUserSelected == false) {
+					removeSelectedInteractionType();
+					refreshListModel();					
 					isUserSelected = true;
+					
 					return;
 				}
-				if (selectedVersion != null
-						&& ((VersionDescriptor) selectedVersion).getVersion() != Constants.SELECTVERSION) {
+
+				displaySelectedInteractionTypes.clear();
+				networkSelectedInteractionTypes.clear();
+				refreshListModel();
+				
+				if (((VersionDescriptor) selectedVersion).getVersion() != null) {
 					Vector<CellularNetWorkElementInformation> hits = c
 							.getHits();
 					for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits)
 						cellularNetWorkElementInformation.setDirty(true);
 				}
+				
+				
 
 			}
 
@@ -446,8 +516,8 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 		add(buildColumnDisplayPreferencesPanel(), BorderLayout.CENTER);
 		add(buildNetworkGenerationPreferencesPanel(), BorderLayout.SOUTH);
 
-		displaySelectedInteractionTypes.add(Constants.PROTEIN_DNA);
-		displaySelectedInteractionTypes.add(Constants.PROTEIN_PROTEIN);
+		// displaySelectedInteractionTypes.add(Constants.PROTEIN_DNA);
+		// displaySelectedInteractionTypes.add(Constants.PROTEIN_PROTEIN);
 		readInteractionTypesProperties();
 
 	}
@@ -482,13 +552,13 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 					Constants.SELECTCONTEXT, "");
 			if (!contextProperty.equals("")
 					&& contextList.contains(contextProperty))
-				contextComboBox.setSelectedItem(contextProperty);
+				contextJList.setSelectedValue(contextProperty, true);
 			else if (!contextProperty.equals("")) {
 				String context = contextProperty.split(" \\(")[0].trim();
 				boolean needRemove = true;
 				for (String cxt : contextList) {
 					if (cxt.split(" \\(")[0].trim().equals(context)) {
-						contextComboBox.setSelectedItem(cxt);
+						contextJList.setSelectedValue(cxt, true);
 						needRemove = false;
 						break;
 					}
@@ -507,59 +577,19 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 				}
 
 			}
+
+			readInteractionTypesProperties();
+			removeSelectedInteractionType();
 			String versionProperty = pm.getProperty(this.getClass(),
 					Constants.SELECTVERSION, "");
 			for (VersionDescriptor vd : versionList) {
-				if (vd.getVersion().equals(versionProperty)) {
-					if (!versionProperty.equals(Constants.SELECTVERSION))
+				if (versionProperty != null
+						&& vd.getVersion().equals(versionProperty)) {
+					if (!versionProperty.equals(""))
 						isUserSelected = false;
-					;
-					versionComboBox.setSelectedItem(vd);
+					versionJList.setSelectedValue(vd, true);
 					break;
 				}
-			}
-
-			readInteractionTypesProperties();
-			List<String> listNotInDatanase = new ArrayList<String>();
-			for (String s : displaySelectedInteractionTypes) {
-				if (displayAvailInteractionTypes.contains(s))
-					displayAvailInteractionTypes.remove(s);
-				else {
-					if (!listNotInDatanase.contains(s))
-						listNotInDatanase.add(s);
-
-				}
-			}
-
-			for (String s : networkSelectedInteractionTypes) {
-				if (networkAvailInteractionTypes.contains(s))
-					networkAvailInteractionTypes.remove(s);
-				else {
-					if (!listNotInDatanase.contains(s))
-						listNotInDatanase.add(s);
-
-				}
-			}
-			if (listNotInDatanase.size() > 0) {
-				displaySelectedInteractionTypes.removeAll(listNotInDatanase);
-				networkSelectedInteractionTypes.removeAll(listNotInDatanase);
-				if (listNotInDatanase.size() > 1)
-					JOptionPane
-							.showMessageDialog(
-									null,
-									"Interaction Types: "
-											+ listNotInDatanase.toString()
-											+ " are not in current database, so they are deleted from preference setting.",
-									"Info", JOptionPane.INFORMATION_MESSAGE);
-				else
-					JOptionPane
-							.showMessageDialog(
-									null,
-									"The Interaction Type: "
-											+ listNotInDatanase.toString()
-											+ " is not in current database, so it is deleted from preference setting.",
-									"Info", JOptionPane.INFORMATION_MESSAGE);
-
 			}
 
 			isChecked = pm.getProperty(this.getClass(), Constants.MARKERLABEL,
@@ -656,6 +686,35 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 		}
 	}
 
+	private void removeSelectedInteractionType() {
+		List<String> listNotInDatanase = new ArrayList<String>();
+		for (String s : displaySelectedInteractionTypes) {
+			if (displayAvailInteractionTypes.contains(s))
+				displayAvailInteractionTypes.remove(s);
+			else {
+				if (!listNotInDatanase.contains(s))
+					listNotInDatanase.add(s);
+
+			}
+		}
+
+		for (String s : networkSelectedInteractionTypes) {
+			if (networkAvailInteractionTypes.contains(s))
+				networkAvailInteractionTypes.remove(s);
+			else {
+				if (!listNotInDatanase.contains(s))
+					listNotInDatanase.add(s);
+
+			}
+		}
+		if (listNotInDatanase.size() > 0) {
+			displaySelectedInteractionTypes.removeAll(listNotInDatanase);
+			networkSelectedInteractionTypes.removeAll(listNotInDatanase);
+			 
+		}
+
+	}
+
 	private void interactionTypeListHandler(MouseEvent evt, JList jList1,
 			JList jList2, List<String> types1, List<String> types2, ListModel
 
@@ -691,6 +750,28 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 		selectedNetworkInteractionTypeList
 				.setModel(selectedNetworkInteractionTypeModel);
 
+	}
+	
+	
+	private void refreshListModel()
+	{
+		
+		availableInteractionTypeList.setModel(new DefaultListModel());
+		availableInteractionTypeList
+		.setModel(availableInteractionTypeModel);
+		selectedInteractionTypeList.setModel(new DefaultListModel());
+		selectedInteractionTypeList
+		.setModel(selectedInteractionTypeModel);
+		
+		availableNetworkInteractionTypeList.setModel(new DefaultListModel());
+		availableNetworkInteractionTypeList
+				.setModel(availNetworkInteractionTypeModel);
+		selectedNetworkInteractionTypeList.setModel(new DefaultListModel());
+		selectedNetworkInteractionTypeList
+				.setModel(selectedNetworkInteractionTypeModel);
+	
+		c.updateColumnPref();
+		
 	}
 
 	private void addRemoveButtonHandler(ActionEvent e, JList jList1,
@@ -818,15 +899,18 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 			pm.setProperty(this.getClass(), "url",
 					ResultSetlUtil.INTERACTIONS_SERVLET_URL);
 
-			pm.setProperty(this.getClass(), Constants.SELECTCONTEXT,
-					contextComboBox.getSelectedItem().toString());
-			VersionDescriptor v = (VersionDescriptor) versionComboBox
-					.getSelectedItem();
-			String version = Constants.SELECTVERSION;
-			if (v != null)
-				version = v.getVersion();
+			if (contextJList.getSelectedValue() != null)
+				pm.setProperty(this.getClass(), Constants.SELECTCONTEXT,
+						contextJList.getSelectedValue().toString());
 
-			pm.setProperty(this.getClass(), Constants.SELECTVERSION, version);
+			if (versionJList.getSelectedValue() != null
+					&& versionJList.getSelectedValue() instanceof VersionDescriptor) {
+				VersionDescriptor v = (VersionDescriptor) versionJList
+						.getSelectedValue();
+				String version = v.getVersion();
+				pm.setProperty(this.getClass(), Constants.SELECTVERSION,
+						version);
+			}
 
 			pm.setProperty(this.getClass(),
 					Constants.DISPLAYSELECTEDINTERACTIONTYPE,
@@ -912,27 +996,22 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 
 			}
 
-			if (contextList != null) {
-				contextList.add(0, Constants.SELECTCONTEXT);
-			} else {
+			if (contextList == null) {
 				contextList = new ArrayList<String>();
-				contextList.add(Constants.SELECTCONTEXT);
 			}
 
 			if (versionList != null) {
 				versionList.clear();
-				versionList.add(0, new VersionDescriptor(
-						Constants.SELECTVERSION, false));
 			} else {
 				versionList = new ArrayList<VersionDescriptor>();
-				versionList.add(new VersionDescriptor(Constants.SELECTVERSION,
-						false));
-			}
-			contextComboBox.setModel(new DefaultComboBoxModel(contextList
-					.toArray()));
 
-			versionComboBox.setModel(new DefaultComboBoxModel(versionList
-					.toArray()));
+			}
+
+			contextJList.setModel(contextListModel);
+			contextJList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+			versionJList.setModel(versionListModel);
+			versionJList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
 			displaySelectedInteractionTypes.clear();
 			networkSelectedInteractionTypes.clear();
@@ -944,10 +1023,10 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 				displayAvailInteractionTypes.addAll(allInteractionTypes);
 				networkAvailInteractionTypes
 						.addAll(displayAvailInteractionTypes);
-				displaySelectedInteractionTypes.add(Constants.PROTEIN_DNA);
-				displaySelectedInteractionTypes.add(Constants.PROTEIN_PROTEIN);
-				networkSelectedInteractionTypes.add(Constants.PROTEIN_DNA);
-				networkSelectedInteractionTypes.add(Constants.PROTEIN_PROTEIN);
+				// displaySelectedInteractionTypes.add(Constants.PROTEIN_DNA);
+				// displaySelectedInteractionTypes.add(Constants.PROTEIN_PROTEIN);
+				// networkSelectedInteractionTypes.add(Constants.PROTEIN_DNA);
+				// networkSelectedInteractionTypes.add(Constants.PROTEIN_PROTEIN);
 				readPreferences();
 			}
 
@@ -965,10 +1044,31 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 					.setModel(selectedNetworkInteractionTypeModel);
 
 		} catch (Exception e) {
+			e.printStackTrace();
 			log.error(e.getMessage());
 		}
 
 	}
+
+	ListModel contextListModel = new AbstractListModel() {
+		public Object getElementAt(int index) {
+			return contextList.get(index);
+		}
+
+		public int getSize() {
+			return contextList.size();
+		}
+	};
+
+	ListModel versionListModel = new AbstractListModel() {
+		public Object getElementAt(int index) {
+			return versionList.get(index);
+		}
+
+		public int getSize() {
+			return versionList.size();
+		}
+	};
 
 	ListModel availableInteractionTypeModel = new AbstractListModel() {
 		public Object getElementAt(int index) {
@@ -1073,9 +1173,13 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 		builder.append(serviceLabel);
 		builder.nextLine();
 
-		builder.append(contextComboBox);
-		builder.append(versionComboBox);
+		builder.append(buildJListPanel("Select Interactome", contextJList));
+		builder.append(buildJTextPanel("Interactome Description",
+				interactomeJTextArea));
 		builder.nextLine();
+		builder.append(buildJListPanel("Select Version", versionJList));
+		builder
+				.append(buildJTextPanel("Version Description", versionJTextArea));
 
 		serviceLabel.setForeground(Color.BLUE);
 
@@ -1146,6 +1250,26 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 				.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		jScrollPane1.setPreferredSize(new java.awt.Dimension(150, 90));
 		jScrollPane1.setViewportView(aJlist);
+		builder.append(new JLabel(title));
+		builder.append(jScrollPane1);
+
+		return builder.getPanel();
+
+	}
+
+	private JPanel buildJTextPanel(String title, JTextArea aJText) {
+		FormLayout layout = new FormLayout("left:pref", "");
+
+		DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+		builder.setLeftToRight(true);
+		builder.setDefaultDialogBorder();
+		JScrollPane jScrollPane1 = new javax.swing.JScrollPane();
+		jScrollPane1
+				.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		jScrollPane1
+				.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		jScrollPane1.setPreferredSize(new java.awt.Dimension(300, 90));
+		jScrollPane1.setViewportView(aJText);
 		builder.append(new JLabel(title));
 		builder.append(jScrollPane1);
 

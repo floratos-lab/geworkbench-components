@@ -43,8 +43,7 @@ public class InteractionsConnectionImpl {
 		String geneName2 = null;
 		String db1_xref = null;
 		String db2_xref = null;
-		Boolean isGene1EntrezId = null;
-		Boolean isGene2EntrezId = null;
+		String interactionId = null;
 
 		double confidenceValue = 0d;
 
@@ -71,24 +70,15 @@ public class InteractionsConnectionImpl {
 					db1_xref = rs.getString("db1_xref");
 					db2_xref = rs.getString("db2_xref");
 					confidenceValue = rs.getDouble("confidence_value");
-
+					interactionId = rs.getString("interaction_id");
 					interactionType = rs.getString("interaction_type").trim();
 
-					if (db1_xref.trim().equalsIgnoreCase(ENTREZ_GENE))
-						isGene1EntrezId = true;
-					else
-						isGene1EntrezId = false;
-
-					if (db2_xref.trim().equalsIgnoreCase(ENTREZ_GENE))
-						isGene2EntrezId = true;
-					else
-						isGene2EntrezId = false;
-
+					 
 					InteractionDetail interactionDetail = new InteractionDetail(
 							msid1.toString(), msid2.toString(), geneName1,
-							geneName2, isGene1EntrezId.booleanValue(),
-							isGene2EntrezId.booleanValue(), confidenceValue,
-							interactionType);
+							geneName2, db1_xref,
+							db2_xref, confidenceValue,
+							interactionType, interactionId);
 					arrayList.add(interactionDetail);
 				} catch (NullPointerException npe) {
 					if (logger.isErrorEnabled()) {
@@ -126,6 +116,217 @@ public class InteractionsConnectionImpl {
 		}
 		return arrayList;
 	}
+	
+	public List<InteractionDetail> getInteractionsByEntrezIdOrGeneSymbol_1(DSGeneMarker marker,
+			String context, String version) throws UnAuthenticatedException,
+			ConnectException, SocketTimeoutException, IOException {
+		String interactionType = null;
+		String msid2 = null;
+		String msid1 = null;
+		String geneName1 = null;
+		String geneName2 = null;
+		String db1_xref = null;
+		String db2_xref = null;		 
+        String interactionId = null;
+        
+		double confidenceValue = 0d;
+
+		List<InteractionDetail> arrayList = new ArrayList<InteractionDetail>();
+
+		ResultSetlUtil rs = null;
+
+		try {
+
+			msid1 = new Integer(marker.getGeneId()).toString();
+			db1_xref = ENTREZ_GENE;		 
+			geneName1 = marker.getGeneName();
+			
+			String methodAndParams = "getInteractionsByEntrezIdOrGeneSymbol"
+					+ ResultSetlUtil.DEL + msid1 + ResultSetlUtil.DEL
+					+ geneName1 + ResultSetlUtil.DEL
+					+ context + ResultSetlUtil.DEL + version;
+		 
+			rs = ResultSetlUtil.executeQuery(methodAndParams,
+					ResultSetlUtil.INTERACTIONS_SERVLET_URL);
+            String previousInteractionId = null;
+            boolean firstHit = true;
+			while (rs.next()) {
+				try {					 
+					msid2 = rs.getString("primary_accession");
+					geneName2 = rs.getString("gene_symbol");					 
+					db2_xref = rs.getString("accession_db");
+					interactionId = rs.getString("interaction_id");
+					if (previousInteractionId == null || !previousInteractionId.equals(interactionId))
+					{
+						previousInteractionId = interactionId;
+						firstHit = true;
+					}
+					if ((db2_xref.equals(ENTREZ_GENE) && msid1.equals(msid2)) || (geneName2.equalsIgnoreCase(geneName1)))
+					{
+						if (firstHit == true)
+						{
+							firstHit = false;
+						    continue;
+						}
+						else
+						{
+							msid2 = msid1;
+							db2_xref = ENTREZ_GENE;
+						}
+					} 
+					 
+					 
+					confidenceValue = rs.getDouble("confidence_value");
+					interactionType = rs.getString("interaction_type").trim();
+					 
+				 
+
+					InteractionDetail interactionDetail = new InteractionDetail(
+							msid1, msid2, geneName1,
+							geneName2, db1_xref,
+							db2_xref, confidenceValue,
+							interactionType, interactionId);
+					arrayList.add(interactionDetail);
+				} catch (NullPointerException npe) {
+					if (logger.isErrorEnabled()) {
+						logger
+								.error("db row is dropped because a NullPointerException");
+					}
+				}
+			}
+			rs.close();
+		} catch (UnAuthenticatedException uae) {
+			throw new UnAuthenticatedException(uae.getMessage());
+
+		} catch (ConnectException ce) {
+			if (logger.isErrorEnabled()) {
+				logger.error(ce.getMessage());
+			}
+			throw new ConnectException(ce.getMessage());
+		} catch (SocketTimeoutException se) {
+			if (logger.isErrorEnabled()) {
+				logger.error(se.getMessage());
+			}
+			throw new SocketTimeoutException(se.getMessage());
+		} catch (IOException ie) {
+			if (logger.isErrorEnabled()) {
+				logger.error(ie.getMessage());
+			}
+			throw new IOException(ie.getMessage());
+
+		} catch (Exception se) {
+			if (logger.isErrorEnabled()) {
+				logger
+						.error("getPairWiseInteraction(BigDecimal) - ResultSetlUtil rs=" + rs); //$NON-NLS-1$
+			}
+			se.printStackTrace();
+		}
+		return arrayList;
+	}
+	
+	
+	public List<InteractionDetail> getInteractionsByEntrezIdOrGeneSymbol_2(DSGeneMarker marker,
+			String context, String version) throws UnAuthenticatedException,
+			ConnectException, SocketTimeoutException, IOException {
+		String interactionType = null;
+		String msid = null;	 
+		String geneName  = null;		 
+		String db_xref = null;
+		String interactionId = null;
+	 
+		double confidenceValue = 0d;
+
+		List<InteractionDetail> arrayList = new ArrayList<InteractionDetail>();
+
+		ResultSetlUtil rs = null;
+
+		try {
+
+			String marker_msid = new Integer(marker.getGeneId()).toString();			 	 
+			String marker_geneName = marker.getGeneName();
+			
+			String methodAndParams = "getInteractionsByEntrezIdOrGeneSymbol"
+					+ ResultSetlUtil.DEL + marker_msid + ResultSetlUtil.DEL
+					+ marker_geneName + ResultSetlUtil.DEL
+					+ context + ResultSetlUtil.DEL + version;
+		 
+			rs = ResultSetlUtil.executeQuery(methodAndParams,
+					ResultSetlUtil.INTERACTIONS_SERVLET_URL);
+
+			String previousInteractionId = null;
+			List<InteractionParticipant> participantList = new ArrayList<InteractionParticipant>();
+			while (rs.next()) {
+				try {	
+					msid = rs.getString("primary_accession");	
+					geneName = rs.getString("gene_symbol");
+					db_xref = rs.getString("accession_db");
+					confidenceValue = rs.getDouble("confidence_value");
+					interactionType = rs.getString("interaction_type").trim();
+					interactionId = rs.getString("interaction_id");
+					if (!db_xref.equalsIgnoreCase(ENTREZ_GENE) && geneName.equals(marker_geneName))
+					{	 
+						msid = marker_msid;
+						db_xref = ENTREZ_GENE;
+					}
+					 
+					if (previousInteractionId == null || !previousInteractionId.equals(interactionId))
+					{
+						previousInteractionId = interactionId;
+						participantList.clear();
+					}
+					else
+					{
+						for(InteractionParticipant p : participantList)
+						{
+							InteractionDetail interactionDetail = new InteractionDetail(
+									p.getdSGeneMarker(), msid, p.getdSGeneName(),
+									geneName, p.getDbSource(),
+									db_xref, confidenceValue,
+									interactionType, interactionId);
+							arrayList.add(interactionDetail);
+						}
+					}
+						
+					participantList.add(new InteractionParticipant(msid, geneName, db_xref));
+
+					 
+				} catch (NullPointerException npe) {
+					if (logger.isErrorEnabled()) {
+						logger
+								.error("db row is dropped because a NullPointerException");
+					}
+				}
+			}
+			rs.close();
+		} catch (UnAuthenticatedException uae) {
+			throw new UnAuthenticatedException(uae.getMessage());
+
+		} catch (ConnectException ce) {
+			if (logger.isErrorEnabled()) {
+				logger.error(ce.getMessage());
+			}
+			throw new ConnectException(ce.getMessage());
+		} catch (SocketTimeoutException se) {
+			if (logger.isErrorEnabled()) {
+				logger.error(se.getMessage());
+			}
+			throw new SocketTimeoutException(se.getMessage());
+		} catch (IOException ie) {
+			if (logger.isErrorEnabled()) {
+				logger.error(ie.getMessage());
+			}
+			throw new IOException(ie.getMessage());
+
+		} catch (Exception se) {
+			if (logger.isErrorEnabled()) {
+				logger
+						.error("getPairWiseInteraction(BigDecimal) - ResultSetlUtil rs=" + rs); //$NON-NLS-1$
+			}
+			se.printStackTrace();
+		}
+		return arrayList;
+	}
+	
 
 	public List<String> getInteractionTypes() throws ConnectException,
 			SocketTimeoutException, IOException {
@@ -137,6 +338,55 @@ public class InteractionsConnectionImpl {
 		try {
 
 			String methodAndParams = "getInteractionTypes";
+			rs = ResultSetlUtil.executeQuery(methodAndParams,
+					ResultSetlUtil.INTERACTIONS_SERVLET_URL);
+
+			while (rs.next()) {
+
+				interactionType = rs.getString("interaction_type").trim();
+
+				arrayList.add(interactionType);
+			}
+			rs.close();
+
+		} catch (ConnectException ce) {
+			if (logger.isErrorEnabled()) {
+				logger.error(ce.getMessage());
+			}
+			throw new ConnectException(ce.getMessage());
+		} catch (SocketTimeoutException se) {
+			if (logger.isErrorEnabled()) {
+				logger.error(se.getMessage());
+			}
+			throw new SocketTimeoutException(se.getMessage());
+		} catch (IOException ie) {
+			if (logger.isErrorEnabled()) {
+				logger.error(ie.getMessage());
+			}
+			throw new IOException(ie.getMessage());
+
+		} catch (Exception se) {
+			if (logger.isErrorEnabled()) {
+				logger
+						.error("getInteractionTypes() - ResultSetlUtil: " + se.getMessage()); //$NON-NLS-1$
+			}
+
+		}
+		return arrayList;
+	}
+
+	public List<String> getInteractionTypesByInteractomeVersion(String context, String version)
+			throws ConnectException, SocketTimeoutException, IOException {
+		List<String> arrayList = new ArrayList<String>();
+
+		ResultSetlUtil rs = null;
+		String interactionType = null;
+
+		try {
+
+			String methodAndParams = "getInteractionTypesByInteractomeVersion"
+				+ ResultSetlUtil.DEL + context
+				+ ResultSetlUtil.DEL + version;
 			rs = ResultSetlUtil.executeQuery(methodAndParams,
 					ResultSetlUtil.INTERACTIONS_SERVLET_URL);
 
@@ -235,24 +485,68 @@ public class InteractionsConnectionImpl {
 		return arrayList;
 	}
 
-	public ArrayList<String> getDatasetAndInteractioCount()
+	public String getInteractomeDescription(String interactomeName)
 			throws ConnectException, SocketTimeoutException, IOException {
+
+		ResultSetlUtil rs = null;
+		String interactomeDesc = null;
+
+		try {
+
+			String methodAndParams = "getInteractomeDescription"
+					+ ResultSetlUtil.DEL + interactomeName;
+			rs = ResultSetlUtil.executeQuery(methodAndParams,
+					ResultSetlUtil.INTERACTIONS_SERVLET_URL);
+			while (rs.next()) {
+				interactomeDesc = rs.getString("description").trim();
+				break;
+			}
+			rs.close();
+
+		} catch (ConnectException ce) {
+			if (logger.isErrorEnabled()) {
+				logger.error(ce.getMessage());
+			}
+			throw new ConnectException(ce.getMessage());
+		} catch (SocketTimeoutException se) {
+			if (logger.isErrorEnabled()) {
+				logger.error(se.getMessage());
+			}
+			throw new SocketTimeoutException(se.getMessage());
+		} catch (IOException ie) {
+			if (logger.isErrorEnabled()) {
+				logger.error(ie.getMessage());
+			}
+			throw new IOException(ie.getMessage());
+
+		} catch (Exception se) {
+			if (logger.isErrorEnabled()) {
+				logger.error(se.getMessage()); //$NON-NLS-1$
+			}
+
+		}
+		return interactomeDesc;
+	}
+
+	public ArrayList<String> getInteractomeNames() throws ConnectException,
+			SocketTimeoutException, IOException {
 		ArrayList<String> arrayList = new ArrayList<String>();
 
 		ResultSetlUtil rs = null;
 		String datasetName = null;
-        int interactionCount = 0;
+		int interactionCount = 0;
 		try {
 
-			String methodAndParams = "getDatasetNames";
+			String methodAndParams = "getInteractomeNames";
 			rs = ResultSetlUtil.executeQuery(methodAndParams,
-					ResultSetlUtil.INTERACTIONS_SERVLET_URL);			
-			
+					ResultSetlUtil.INTERACTIONS_SERVLET_URL);
+
 			while (rs.next()) {
 
 				datasetName = rs.getString("name").trim();
-				interactionCount = (int)rs.getDouble("interaction_count");
-				arrayList.add(datasetName + " (" + interactionCount + " interactions)");
+				interactionCount = (int) rs.getDouble("interaction_count");
+				arrayList.add(datasetName + " (" + interactionCount
+						+ " interactions)");
 			}
 			rs.close();
 
@@ -281,19 +575,67 @@ public class InteractionsConnectionImpl {
 		return arrayList;
 	}
 
-	public List<VersionDescriptor> getVersionDescriptor(String datasetName)
+	public ArrayList<String> getDatasetAndInteractioCount()
+			throws ConnectException, SocketTimeoutException, IOException {
+		ArrayList<String> arrayList = new ArrayList<String>();
+
+		ResultSetlUtil rs = null;
+		String datasetName = null;
+		int interactionCount = 0;
+		try {
+
+			String methodAndParams = "getDatasetNames";
+			rs = ResultSetlUtil.executeQuery(methodAndParams,
+					ResultSetlUtil.INTERACTIONS_SERVLET_URL);
+
+			while (rs.next()) {
+
+				datasetName = rs.getString("name").trim();
+				interactionCount = (int) rs.getDouble("interaction_count");
+				arrayList.add(datasetName + " (" + interactionCount
+						+ " interactions)");
+			}
+			rs.close();
+
+		} catch (ConnectException ce) {
+			if (logger.isErrorEnabled()) {
+				logger.error(ce.getMessage());
+			}
+			throw new ConnectException(ce.getMessage());
+		} catch (SocketTimeoutException se) {
+			if (logger.isErrorEnabled()) {
+				logger.error(se.getMessage());
+			}
+			throw new SocketTimeoutException(se.getMessage());
+		} catch (IOException ie) {
+			if (logger.isErrorEnabled()) {
+				logger.error(ie.getMessage());
+			}
+			throw new IOException(ie.getMessage());
+
+		} catch (Exception se) {
+			if (logger.isErrorEnabled()) {
+				logger.error(se.getMessage()); //$NON-NLS-1$
+			}
+
+		}
+		return arrayList;
+	}
+
+	public List<VersionDescriptor> getVersionDescriptor(String interactomeName)
 			throws ConnectException, SocketTimeoutException, IOException {
 		List<VersionDescriptor> arrayList = new ArrayList<VersionDescriptor>();
 
 		ResultSetlUtil rs = null;
 		String version = null;
+		String versionDesc = null;
 		String value = null;
 		boolean needAuthentication = false;
 
 		try {
 
 			String methodAndParams = "getVersionDescriptor"
-					+ ResultSetlUtil.DEL + datasetName;
+					+ ResultSetlUtil.DEL + interactomeName;
 			rs = ResultSetlUtil.executeQuery(methodAndParams,
 					ResultSetlUtil.INTERACTIONS_SERVLET_URL);
 			while (rs.next()) {
@@ -305,8 +647,9 @@ public class InteractionsConnectionImpl {
 					needAuthentication = true;
 				else
 					needAuthentication = false;
+				versionDesc = rs.getString("description").trim();
 				VersionDescriptor vd = new VersionDescriptor(version,
-						needAuthentication);
+						needAuthentication, versionDesc);
 				arrayList.add(vd);
 			}
 			rs.close();

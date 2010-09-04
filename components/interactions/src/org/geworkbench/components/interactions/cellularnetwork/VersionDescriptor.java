@@ -10,12 +10,13 @@ package org.geworkbench.components.interactions.cellularnetwork;
 public class VersionDescriptor {
     private String version;    
     private Boolean requiresAuthentication;
+    private String versionDesc;
     
 
-    public VersionDescriptor(String version, boolean requiresAuthentication) {
+    public VersionDescriptor(String version, boolean requiresAuthentication, String versionDesc) {
         this.version = version;
         this.requiresAuthentication = requiresAuthentication;
-         
+        this.versionDesc = versionDesc;
     }
 
     public String getVersion() {
@@ -26,7 +27,14 @@ public class VersionDescriptor {
         this.version = version;
     }
 
-  
+    public String getVersionDesc() {
+        return versionDesc;
+    }
+
+    public void setVersionDesc(String versionDesc) {
+        this.versionDesc = versionDesc;
+    }
+
 
     public void setRequiresAuthentication(Boolean requiresAuthentication) {
         this.requiresAuthentication = requiresAuthentication;
