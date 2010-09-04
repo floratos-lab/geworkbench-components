@@ -50,6 +50,7 @@ public class Constants  {
 
 	public static final String NETWORKSELECTEDINTERACTIONTYPE = "networkSelectedInteractionTypes";
 
+	public static final String ENTREZ_GENE = "Entrez Gene";
   
-	 
+	public static final String UNIPORT = "Uniprot";
 }
