@@ -114,7 +114,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 
 	private CellularNetworkKnowledgeWidget c;
 	
-	private HashMap<String, List<List<String>>> selectedInteractionTypeMap;
+	private HashMap<String, HashMap<String, List<String>>> selectedInteractionTypeMap;
 
 	/**
 	 * Creates new form Interactions
@@ -190,7 +190,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 		selectedInteractionTypeList = new javax.swing.JList();
 		availableNetworkInteractionTypeList = new javax.swing.JList();
 		selectedNetworkInteractionTypeList = new javax.swing.JList();
-		selectedInteractionTypeMap = new HashMap<String,List<List<String>>>();
+		selectedInteractionTypeMap = new HashMap<String,HashMap<String, List<String>>>();
 		
 		addButton = new javax.swing.JButton();
 		removeButton = new javax.swing.JButton();
@@ -268,6 +268,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 		versionJList.addListSelectionListener(new ListSelectionListener() {
 
 			public void valueChanged(ListSelectionEvent e) {
+				 
 				Object selectedVersion = versionJList.getSelectedValue();
 				String context = null;
 				String version = null;
@@ -278,9 +279,12 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 							" \\(")[0].trim();
 					version = ((VersionDescriptor) selectedVersion)
 							.getVersion();
-					versionJTextArea
-							.setText(((VersionDescriptor) selectedVersion)
-									.getVersionDesc());
+					String versionDesc = ((VersionDescriptor) selectedVersion)
+					.getVersionDesc(); 
+					if (versionDesc == null || versionDesc.trim().equalsIgnoreCase("null"))
+						versionDesc = "";
+							 
+					versionJTextArea.setText(versionDesc);
 
 				} else
 					return;
@@ -322,11 +326,22 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 					
 					return;
 				}
-
+				
 				displaySelectedInteractionTypes.clear();
 				networkSelectedInteractionTypes.clear();
+				HashMap<String, List<String>> selectedInteractionTypeLists = selectedInteractionTypeMap.get(context+Constants.DEL+version);
+				if (selectedInteractionTypeLists != null)
+				{
+					List<String> list1 = selectedInteractionTypeLists.get(Constants.DISPLAYSELECTEDINTERACTIONTYPE);
+					if (list1 != null)
+						displaySelectedInteractionTypes.addAll(list1);
+					List<String> list2 = selectedInteractionTypeLists.get(Constants.NETWORKSELECTEDINTERACTIONTYPE);
+					if (list2 != null)
+						networkSelectedInteractionTypes.addAll(list2);
+					removeSelectedInteractionType();
+				}
 				refreshListModel();
-				
+
 				if (((VersionDescriptor) selectedVersion).getVersion() != null) {
 					Vector<CellularNetWorkElementInformation> hits = c
 							.getHits();
@@ -343,6 +358,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 		networkJCheckBox2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				networkJCheckBox2_actionPerformed(e);
+				updateSelectedInteractionTypesMap();
 			}
 		});
 
@@ -361,6 +377,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 					if (networkJCheckBox2.isSelected() == true) {
 						populatesNetworkPrefFromColumnPref();
 					}
+					updateSelectedInteractionTypesMap();
 					c.updateColumnPref();
 				}
 			}
@@ -381,7 +398,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 									networkSelectedInteractionTypes,
 									availNetworkInteractionTypeModel,
 									selectedNetworkInteractionTypeModel);
-
+							updateSelectedInteractionTypesMap();
 						}
 
 					}
@@ -401,11 +418,13 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 					if (networkJCheckBox2.isSelected() == true) {
 						populatesNetworkPrefFromColumnPref();
 					}
+					updateSelectedInteractionTypesMap();
 					c.updateColumnPref();
 				}
 			}
 		});
-
+		
+	 
 		selectedNetworkInteractionTypeList
 				.setModel(selectedNetworkInteractionTypeModel);
 		selectedNetworkInteractionTypeList.addMouseListener(new MouseAdapter() {
@@ -421,11 +440,11 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 							networkAvailInteractionTypes,
 							selectedNetworkInteractionTypeModel,
 							availNetworkInteractionTypeModel);
-
+					updateSelectedInteractionTypesMap();
 				}
 
 			}
-		});
+		}); 
 
 		addButton.setText(">>>");
 		addButton.setToolTipText("Add to selection");
@@ -442,7 +461,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 				if (networkJCheckBox2.isSelected() == true) {
 					populatesNetworkPrefFromColumnPref();
 				}
-
+				updateSelectedInteractionTypesMap();
 				c.updateColumnPref();
 
 			}
@@ -462,7 +481,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 
 						availNetworkInteractionTypeModel,
 						selectedNetworkInteractionTypeModel);
-
+				updateSelectedInteractionTypesMap();
 			}
 		});
 
@@ -479,7 +498,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 				if (networkJCheckBox2.isSelected() == true) {
 					populatesNetworkPrefFromColumnPref();
 				}
-
+				updateSelectedInteractionTypesMap();
 				c.updateColumnPref();
 
 			}
@@ -500,7 +519,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 								networkAvailInteractionTypes,
 								selectedNetworkInteractionTypeModel,
 								availNetworkInteractionTypeModel);
-
+						updateSelectedInteractionTypesMap();
 					}
 				});
 
@@ -648,6 +667,8 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 				networkAddButton.setEnabled(false);
 				networkRemoveButton.setEnabled(false);
 			}
+			
+			updateSelectedInteractionTypesMap();
 
 		} catch (IOException ie) {
 			ie.printStackTrace();
@@ -678,6 +699,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 				networkSelectedInteractionTypes
 						.addAll(processInteractionStr(interactionStr.trim()));
 			}
+			
 
 		} catch (IOException ie) {
 			ie.printStackTrace();
@@ -732,8 +754,8 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 			jList2.setModel(new DefaultListModel());
 			jList2.setModel(listModel2);
 
-		}
-
+		}		
+		
 	}
 
 	private void populatesNetworkPrefFromColumnPref() {
@@ -1015,6 +1037,8 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 
 			displaySelectedInteractionTypes.clear();
 			networkSelectedInteractionTypes.clear();
+			selectedInteractionTypeMap.clear();
+			
 			if (allInteractionTypes != null && allInteractionTypes.size() > 0) {
 
 				Collections.sort(allInteractionTypes);
@@ -1023,10 +1047,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 				displayAvailInteractionTypes.addAll(allInteractionTypes);
 				networkAvailInteractionTypes
 						.addAll(displayAvailInteractionTypes);
-				// displaySelectedInteractionTypes.add(Constants.PROTEIN_DNA);
-				// displaySelectedInteractionTypes.add(Constants.PROTEIN_PROTEIN);
-				// networkSelectedInteractionTypes.add(Constants.PROTEIN_DNA);
-				// networkSelectedInteractionTypes.add(Constants.PROTEIN_PROTEIN);
+				 
 				readPreferences();
 			}
 
@@ -1340,6 +1361,31 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 		}
 
 		return aList;
+	}
+	
+	
+	private void updateSelectedInteractionTypesMap()
+	{
+		String context, version;		
+        if (contextJList.getSelectedValue() == null || versionJList.getSelectedValue() == null)
+        	return;
+        context = contextJList.getSelectedValue().toString().split(" \\(")[0].trim();;
+        version = ((VersionDescriptor) versionJList.getSelectedValue()).getVersion();
+		HashMap<String, List<String>> selectedInteractionTypeLists = new HashMap<String, List<String>>();
+        if (displaySelectedInteractionTypes != null && displaySelectedInteractionTypes.size()>0)
+        {
+        	List<String> list = new ArrayList<String>();
+        	list.addAll(displaySelectedInteractionTypes);
+        	selectedInteractionTypeLists.put(Constants.DISPLAYSELECTEDINTERACTIONTYPE, list);
+        }
+        if (networkSelectedInteractionTypes != null && networkSelectedInteractionTypes.size()>0)
+        {   
+        	List<String> list = new ArrayList<String>();
+        	list.addAll(networkSelectedInteractionTypes);
+        	selectedInteractionTypeLists.put(Constants.NETWORKSELECTEDINTERACTIONTYPE, list);
+        }
+        if (selectedInteractionTypeLists.size()>0)
+            selectedInteractionTypeMap.put(context+Constants.DEL+version, selectedInteractionTypeLists);
 	}
 
 }
