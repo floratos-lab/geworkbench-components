@@ -113,6 +113,7 @@ public class TTestResultSelectionPanel extends JPanel {
 		if (view != null && Cytoscape.getCurrentNetwork() != null) {
 			CyAttributes attrs = Cytoscape.getNodeAttributes();			 
 			Iterator<?> iter = view.getNodeViewsIterator();
+			cytoscapeWidget.publishEnabled = false;
 			while (iter.hasNext()) {
 				NodeView nodeView = (NodeView) iter.next();				 
 				String id = nodeView.getNode().getIdentifier();
@@ -123,12 +124,16 @@ public class TTestResultSelectionPanel extends JPanel {
 						Color c = tTestResultSetColorMap.get(id.trim().toUpperCase());						 
 						attrs.setAttribute(id, CytoscapeWidget.NODE_FILL_COLOR, ObjectToString.getStringValue(c));
 						 
-						nodeView.setUnselectedPaint(c);						 
+						nodeView.setUnselectedPaint(c);
+						nodeView.setSelectedPaint(c);
+						nodeView.select();
+						//nodeView.unselect();
 				} else
 					    nodeView.unselect();
 		
-			}			 
+			}				
 			cytoscapeWidget.getComponent().repaint();
+			cytoscapeWidget.publishEnabled = true;
 		}		
 		
 		this.parent.dispose();
