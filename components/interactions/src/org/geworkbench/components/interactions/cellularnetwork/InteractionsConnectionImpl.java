@@ -54,8 +54,8 @@ public class InteractionsConnectionImpl {
 		try {
 
 			String methodAndParams = "getPairWiseInteraction"
-					+ ResultSetlUtil.DEL + id1.toString() + ResultSetlUtil.DEL
-					+ context + ResultSetlUtil.DEL + version;
+					+ Constants.DEL + id1.toString() + Constants.DEL
+					+ context + Constants.DEL + version;
 			// String aSQL = "SELECT * FROM pairwise_interaction where ms_id1="
 			// + id1.toString() + " or ms_id2=" + id1.toString();
 			rs = ResultSetlUtil.executeQuery(methodAndParams,
@@ -142,9 +142,9 @@ public class InteractionsConnectionImpl {
 			geneName1 = marker.getGeneName();
 			
 			String methodAndParams = "getInteractionsByEntrezIdOrGeneSymbol"
-					+ ResultSetlUtil.DEL + msid1 + ResultSetlUtil.DEL
-					+ geneName1 + ResultSetlUtil.DEL
-					+ context + ResultSetlUtil.DEL + version;
+					+ Constants.DEL + msid1 + Constants.DEL
+					+ geneName1 + Constants.DEL
+					+ context + Constants.DEL + version;
 		 
 			rs = ResultSetlUtil.executeQuery(methodAndParams,
 					ResultSetlUtil.INTERACTIONS_SERVLET_URL);
@@ -246,9 +246,9 @@ public class InteractionsConnectionImpl {
 			String marker_geneName = marker.getGeneName();
 			
 			String methodAndParams = "getInteractionsByEntrezIdOrGeneSymbol"
-					+ ResultSetlUtil.DEL + marker_msid + ResultSetlUtil.DEL
-					+ marker_geneName + ResultSetlUtil.DEL
-					+ context + ResultSetlUtil.DEL + version;
+					+ Constants.DEL + marker_msid + Constants.DEL
+					+ marker_geneName + Constants.DEL
+					+ context + Constants.DEL + version;
 		 
 			rs = ResultSetlUtil.executeQuery(methodAndParams,
 					ResultSetlUtil.INTERACTIONS_SERVLET_URL);
@@ -385,8 +385,8 @@ public class InteractionsConnectionImpl {
 		try {
 
 			String methodAndParams = "getInteractionTypesByInteractomeVersion"
-				+ ResultSetlUtil.DEL + context
-				+ ResultSetlUtil.DEL + version;
+				+ Constants.DEL + context
+				+ Constants.DEL + version;
 			rs = ResultSetlUtil.executeQuery(methodAndParams,
 					ResultSetlUtil.INTERACTIONS_SERVLET_URL);
 
@@ -494,7 +494,7 @@ public class InteractionsConnectionImpl {
 		try {
 
 			String methodAndParams = "getInteractomeDescription"
-					+ ResultSetlUtil.DEL + interactomeName;
+					+ Constants.DEL + interactomeName;
 			rs = ResultSetlUtil.executeQuery(methodAndParams,
 					ResultSetlUtil.INTERACTIONS_SERVLET_URL);
 			while (rs.next()) {
@@ -635,7 +635,7 @@ public class InteractionsConnectionImpl {
 		try {
 
 			String methodAndParams = "getVersionDescriptor"
-					+ ResultSetlUtil.DEL + interactomeName;
+					+ Constants.DEL + interactomeName;
 			rs = ResultSetlUtil.executeQuery(methodAndParams,
 					ResultSetlUtil.INTERACTIONS_SERVLET_URL);
 			while (rs.next()) {

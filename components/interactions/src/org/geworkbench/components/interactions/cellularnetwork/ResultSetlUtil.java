@@ -35,9 +35,7 @@ import java.util.TreeMap;
 public class ResultSetlUtil {
 
 	// currently in two files
-	public static final int SPLIT_ALL = -2;
-	public static final String DEL = "|";
-	public static final String REGEX_DEL = "\\|";	 
+	public static final int SPLIT_ALL = -2;	 
 	public static final String NULL_STR = "null";
 	public static final BigDecimal NULL_BIGDECIMAL = new BigDecimal(0);
 
@@ -135,7 +133,7 @@ public class ResultSetlUtil {
 
 			// System.out.println( decodedString);
 
-			row = decodedString.split(REGEX_DEL, SPLIT_ALL);
+			row = decodedString.split(Constants.REGEX_DEL, SPLIT_ALL);
 			ret = true;
 		}
 
@@ -204,13 +202,13 @@ public class ResultSetlUtil {
 			// java.net.URLConnection.setDefaultAllowUserInteraction(true);
 			Authenticator.setDefault(new BasicAuthenticator());
             
-			String aSQL = "getPairWiseInteraction" + ResultSetlUtil.DEL + "165"
-					+ ResultSetlUtil.DEL + "BCi" + ResultSetlUtil.DEL + "1.0";
+			String aSQL = "getPairWiseInteraction" + Constants.DEL + "165"
+					+ Constants.DEL + "BCi" + Constants.DEL + "1.0";
 			 int i = 165;
 			 
 				 
-				aSQL = "getPairWiseInteraction" + ResultSetlUtil.DEL + i
-					+ ResultSetlUtil.DEL + "BCi" + ResultSetlUtil.DEL + "1.0";
+				aSQL = "getPairWiseInteraction" + Constants.DEL + i
+					+ Constants.DEL + "BCi" + Constants.DEL + "1.0";
 			    
 				rs = ResultSetlUtil.executeQuery(aSQL,  
 					INTERACTIONS_SERVLET_URL);

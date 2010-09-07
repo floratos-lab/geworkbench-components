@@ -8,6 +8,10 @@ package org.geworkbench.components.interactions.cellularnetwork;
  
 public class Constants  {
 	 
+	public static final String DEL = "|";
+	
+	public static final String REGEX_DEL = "\\|";	
+	
 	public static final String GeneCards_PREFIX = "http://www.genecards.org/cgi-bin/carddisp.pl?gene=";
 
 	public static final String Entrez_PREFIX = "http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&cmd=Retrieve&dopt=full_report&list_uids=";
