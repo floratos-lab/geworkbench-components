@@ -125,9 +125,9 @@ public class TTestResultSelectionPanel extends JPanel {
 						attrs.setAttribute(id, CytoscapeWidget.NODE_FILL_COLOR, ObjectToString.getStringValue(c));
 						 
 						nodeView.setUnselectedPaint(c);
-						nodeView.setSelectedPaint(c);
-						nodeView.select();
-						//nodeView.unselect();
+						//nodeView.setSelectedPaint(c);
+						//nodeView.select();
+						nodeView.unselect();
 				} else
 					    nodeView.unselect();
 		
@@ -192,7 +192,7 @@ public class TTestResultSelectionPanel extends JPanel {
 	
 	private Color calculateColor(int numMarkers, int numOfPositiveTValues, double minTValue, double maxTValue, int rank, double tValue){
 		int Y = (int)Math.max(minTValue,maxTValue);
-		System.out.println(numMarkers+","+minTValue+","+maxTValue+","+rank+","+tValue);
+		//System.out.println(numMarkers+","+minTValue+","+maxTValue+","+rank+","+tValue);
 		int disToZero = 0;
 		Color result = null;
 		disToZero = numOfPositiveTValues - rank;

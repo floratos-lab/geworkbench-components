@@ -289,9 +289,9 @@ public class CytoscapeWidget implements VisualPlugin {
 									.getStringValue(color));
 
 					nodeView.setUnselectedPaint(color);
-					nodeView.setSelectedPaint(color);
-					nodeView.select();
-					// nodeView.unselect();
+					//nodeView.setSelectedPaint(color);
+					//nodeView.select();
+				    nodeView.unselect();
 
 				} else {					 
 					nodeView.select();
