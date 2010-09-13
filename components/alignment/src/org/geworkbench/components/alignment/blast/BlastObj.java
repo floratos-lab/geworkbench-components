@@ -399,21 +399,28 @@ public class BlastObj {
 	 * @return
 	 */
 	private static String EUtilsUrl(String queryUrl) {
-		int beginIndex = queryUrl.indexOf("&list_uids=");
-		if (beginIndex < 0) {
-			log.error("query URL does not have list_uids");
+		// parse GI from the url
+		final String proteinUrl = "http://www.ncbi.nlm.nih.gov/protein/";
+		final String nucleotideUrl = "http://www.ncbi.nlm.nih.gov/nucleotide/";
+		int indexQ = queryUrl.indexOf("?");
+		String GI = null; 
+		String databaseName = null;
+		if(indexQ==-1) {
+			log.error("unexpected query URL format :"+queryUrl);
+			return null;
+		} else if(queryUrl.startsWith(proteinUrl)) {
+			GI = queryUrl.substring(proteinUrl.length(), indexQ);
+			databaseName = "protein";
+		} else if(queryUrl.startsWith(nucleotideUrl)) {
+			GI = queryUrl.substring(nucleotideUrl.length(), indexQ);
+			databaseName = "nucleotide";
+		} else {
+			log.error("unexpected query URL format :"+queryUrl);
 			return null;
 		}
-		int endIndex = queryUrl.indexOf(queryUrl, beginIndex);
 
-		String id = null;
-		if (endIndex < 0)
-			id = queryUrl.substring(beginIndex);
-		else
-			id = queryUrl.substring(beginIndex, endIndex);
-
-		return "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=protein&id="
-				+ id + "&rettype=fasta";
+		return "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db="+databaseName+"&id="
+				+ GI + "&rettype=fasta";
 	}
 	
 	/**

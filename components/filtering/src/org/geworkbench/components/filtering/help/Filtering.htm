@@ -14,7 +14,8 @@ href="http://wiki.c2b2.columbia.edu/favicon.ico">
     <link rel="stylesheet" type="text/css" 
 href="Filtering_files/commonPrint.css">
 
-<a name="Overview"></a><h1>Overview</h1>
+<a name="Overview"></a>
+<h1>Overview</h1>
 <p>The Filters panel is located in the <b>Command and Analysis Area</b> 
 in the lower right of the application. The application offers a 
 selection of pluggable filters to assist in the preparation of data for 
@@ -29,15 +30,10 @@ are not reversible.  A separate copy of the data is not generated.
 Filtering operations do not respect any marker or array sets that may be
  activated; filtering always acts on the entire data set.
 </p>
-<a name="Filter_Configuration"></a><h1>Filter Configuration</h1>
-<p>Some filters are not loaded by default in geWorkbench.  To configure 
-which filters to load, use the Component 
-Configuration Manager</a>.  It is available in the top menu-bar under  <b>Tools-&gt;Component
- Configuration</b>.
-</p><p><img 
-src="Filtering_files/Filters_in_CCM.png" alt="Image:Filters_in_CCM.png" 
-longdesc="/workbench/index.php/Image:Filters_in_CCM.png" width="789" 
-height="199">
+<p>&nbsp;</p>
+<p><a name="Filter_Configuration"></a><h1>Filter Configuration</h1>
+<p>Some filters are not loaded by default in geWorkbench.  To configure which filters to load, use the  <strong>Component Configuration Manager</strong>.  It is available in the top menu-bar under  <b>Tools-&gt;Component Configuration</b>.
+</p><p><img src="Filtering_files/Filters_in_CCM.png" alt="Image:Filters_in_CCM.png" longdesc="/workbench/index.php/Image:Filters_in_CCM.png" width="785" height="212">
 </p>
 <a name="Available_Filters"></a><h1>Available Filters</h1>
 <table style="border: 1px solid lightGray;">
@@ -46,18 +42,18 @@ height="199">
 </th></tr>
 
 <tr>
-<td><b>Affy Detection Call</b>  </td><td>Applicable to Affymetrix data 
-only. Filter on Present, Marginal or Absent calls.
+<td><b>Affy Detection Call</b>  </td><td>Applicable to Affymetrix data only. Filters on Present, Marginal or Absent calls.
 </td></tr>
 <tr>
-<td><b>Deviation</b>            </td><td>Removes markers whose <b>sample
- standard deviation</b> is less than a specified value across all 
-microarrays.
+<td><b>Coefficient of Variation</b> </td><td>Removes markers for which 
+the coefficient of variation (standard deviation scaled by the mean) is 
+less than a specified value across all microarrays.
 </td></tr>
 <tr>
-<td><b>Expression Threshold</b> </td><td>Removes markers where more than
- a specified number (or percentage) have values inside (or outside) a 
-user-defined range.
+<td><b>Deviation</b>            </td><td>Removes markers for which the <b>sample standard deviation</b> is less than a specified value across all microarrays.
+</td></tr>
+<tr>
+<td><b>Expression Threshold</b> </td><td>Removes markers for which more than a specified number (or percentage) have values inside (or outside) a user-defined range.
 </td></tr>
 <tr>
 <td><b>GenePix Expression Threshold</b></td><td>Applicable to 2-channel 
@@ -67,14 +63,12 @@ percentage) of markers, either channel intensity is inside (or outside)
 the defined range.
 </td></tr>
 <tr>
-<td><b>GenePix Flags</b>        </td><td>Remove markers where more than a
- specified number (or percentage) of values match the selected flag 
-(flagged in GenePix software).
+<td><b>GenePix Flags</b>        </td><td>Remove markers for which more 
+than a specified number (or percentage) of values match the selected 
+flag (flagged in GenePix software).
 </td></tr>
 <tr>
-<td><b>Missing Values</b>       </td><td>Removes markers that have 
-“missing” measurements in more than a specified number (or percentage) 
-of microarrays.
+<td><b>Missing Values</b>       </td><td>Removes markers for which more than a specified number (or percentage) of values have been marked as  “missing”.
 </td></tr>
 </tbody></table>
 <a name="Basic_Controls"></a><h1>Basic Controls</h1>
@@ -85,22 +79,18 @@ alt="Image:Filtering-Affy_detection_call_full.png"
 longdesc="/workbench/index.php/Image:Filtering-Affy_detection_call_full.png"
  width="785" height="279">
 </p>
-<ul><li> <b>Filter</b> (menu) - select the desired filter.
-</li></ul>
-<ul><li> <b>Saved Parameters</b> (menu) - Allows selection of stored 
-parameter settings.
-</li></ul>
-<ul><li> <b>Filter</b> (button)- Run the selected filter.
-</li></ul>
-<ul><li> <b>Preview</b> - Preview the filtering action (see following 
-section).
-</li></ul>
-<ul><li> <b>Save Settings</b> - Save the current settings (see following
- section).
-</li></ul>
-<ul><li> <b>Delete Settings</b>- Delete the currently selected parameter
- set.
-</li></ul>
+<ul>
+  <li><b>Filter</b> (menu) - select the desired filter.</li>
+  <li><b>Saved Parameters</b> (menu) - Allows selection of stored 
+        parameter settings. </li>
+  <li><b>Filter</b> (button)- Run the selected filter. </li>
+  <li><b>Preview</b> - Preview the filtering action (see following 
+      section). </li>
+  <li><b>Save Settings</b> - Save the current settings (see following
+       section). </li>
+  <li><b>Delete Settings</b>- Delete the currently selected parameter
+       set. </li>
+</ul>
 <a name="Filtering_Preview"></a><h2>Filtering Preview</h2>
 <p>The filtering action can be previewed to allow the user to judge 
 whether to proceed with the current parameter settings.  The  markers 
@@ -176,6 +166,28 @@ is more than <i>N</i>.</b> - If for a given marker, the sum of detection
  calls matching those chosen by the user exceeds the given number <i>N</i>,
  the marker will be removed.
 </li></ul>
+<a name="Coefficient_of_Variation_Filter"></a><h2>Coefficient of Variation Filter</h2>
+<p><img src="Filtering_files/Filtering_COV.png" alt="Image:Filtering_COV.png" longdesc="/workbench/index.php/Image:Filtering_COV.png" width="691" height="212">
+</p>
+<p>This filter calculates, for each marker, the coefficient of 
+variation (the standard deviation divided by the mean).  It allows the 
+variation to be compared across markers which may have very different 
+scales. 
+</p>
+<ul><li> An assumption of this filter is that no data values are negative, and that the mean is positive.
+</li><li> However, if any marker is found to have a mean of zero, it is filtered out.  
+</li><li> If any data value has a negative value, an error is reported and filtering is not performed.
+</li></ul>
+<a name="Settings"></a><h3>Settings</h3>
+<ul><li> <b>Coefficient of variation bound</b> - If the calculated coefficient of variation for a marker is less than the user-set bound, the marker will be filtered out.
+</li><li> <b>Missing values</b> - Before computing the coefficient of 
+variation, this filter can temporarily (just for the filtering operation) replace any missing values in the data.  The 
+available methods are
+<ul><li>  <b>Marker Average</b> - Replace any missing values for a particular marker with the average of its available values across all arrays.
+</li><li>  <b>Microarray Average</b> - Replace any missing values for a particular array with the average of its available values across all markers.
+</li><li>  <b>Ignore</b> - Do not replace any missing values.
+</li></ul>
+</li></ul>
 <a name="Deviation_Filter"></a><h2>Deviation Filter</h2>
 <p><img 
 src="Filtering_files/Filtering-Deviation.png" 
@@ -191,7 +203,7 @@ be filtered out.
  deviation <b>below</b> this bound will be filtered out.
 </li></ul>
 <ul><li> <b>Missing values</b> - Before computing the standard 
-deviation, this filter can replace any missing values in the data.  The 
+deviation, this filter can temporarily (just for the filtering operation) replace any missing values in the data.  The 
 available methods are
 <ul><li>  <b>Marker Average</b> - Replace any missing values for a 
 particular marker with the average of its available values across all 

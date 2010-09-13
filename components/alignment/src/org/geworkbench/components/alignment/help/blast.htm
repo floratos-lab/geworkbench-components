@@ -3,32 +3,73 @@
 
   
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta name="KEYWORDS" content="Tutorial - BLAST">
-
-
-    <title>Tutorial - BLAST - Workbench</title>
+    <meta name="KEYWORDS" content="BLAST">
+<meta name="robots" content="index,follow">
+<link rel="shortcut icon" href="http://wiki.c2b2.columbia.edu/favicon.ico">
+    <title>BLAST - Workbench</title>
     <style type="text/css" media="screen,projection">/*<![CDATA[*/ @import "/workbench/skins/monobook/main.css"; /*]]>*/</style>
     <link rel="stylesheet" type="text/css" href="blast_files/commonPrint.css">
+    <!--[if lt IE 5.5000]><style type="text/css">@import "/workbench/skins/monobook/IE50Fixes.css";</style><![endif]-->
+    <!--[if IE 5.5000]><style type="text/css">@import "/workbench/skins/monobook/IE55Fixes.css";</style><![endif]-->
+    <!--[if gte IE 6]><style type="text/css">@import "/workbench/skins/monobook/IE60Fixes.css";</style><![endif]-->
+    <!--[if IE]><script type="text/javascript" src="/workbench/skins/common/IEFixes.js"></script>
+    <meta http-equiv="imagetoolbar" content="no" /><![endif]-->
 
-
+    <style type="text/css">/*<![CDATA[*/
+@import "/workbench/index.php?title=MediaWiki:Monobook.css&action=raw&ctype=text/css&smaxage=18000";
+@import "/workbench/index.php?title=-&action=raw&gen=css&maxage=18000";
+/*]]>*/</style>              </head><body class="ns-0">
+ 
+	    	    	    <!-- start content -->
+	    <p><br>
 </p>
-<p><a name="Overview"></a></p>
-<h1>Overview</h1>
-<p>The BLAST algorithm is found in the <b>Sequence Alignment</b> tab,
-located in the command area of geWorkbench (lower right quadrant). The
-Sequence Alignment tab appears when a protein or DNA sequence is loaded
-and selected in the Project Folders component. BLAST is currently the
-only alignment option supported.
-</p><p>The BLAST algorithm is used to find similarities between
-nucleotide or amino acid query sequences and sequences held in a
-database. It is often used to give clues to the function of a sequence
-based on its similarity to already characterized sequences.
-</p><p>geWorkbench runs BLAST by submitting jobs to the NCBI server.
-NCBI-supported sequence databases and search algorithms can be selected
-in the user interface (arrows). There is no provision at this time for
-running a local BLAST job on the client desktop machine. </p><p><br>
-<img src="blast_files/T_SequenceAlignment_BLAST_Main.png" alt="Image:T_SequenceAlignment_BLAST_Main.png" longdesc="/workbench/index.php/Image:T_SequenceAlignment_BLAST_Main.png" width="1038" height="702">
+<a name="Overview"></a><h1>Overview</h1>
+<p>"The Basic Local Alignment Search Tool (BLAST) finds regions of local
+ similarity between sequences. The program compares nucleotide or 
+protein sequences to sequence databases and calculates the statistical 
+significance of matches. BLAST can be used to infer functional and 
+evolutionary relationships between sequences as well as help identify 
+members of gene families" (quoted from the <a href="http://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&amp;PAGE_TYPE=BlastHome" class="external text" title="http://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&amp;PAGE TYPE=BlastHome" rel="nofollow">NCBI BLAST homepage</a>).
+</p><p>geWorkbench submits BLAST jobs to the NCBI server.  
+NCBI-supported sequence databases and search algorithms can be selected 
+in the user interface.  With release 2.1.0, geWorkbench supports almost 
+all BLAST setting options available through the NCBI web interface.  
+</p><p>Please note that although, in geWorkbench, we have adopted the 
+default settings for each BLAST algorithm as seen on the NCBI website, 
+those settings are subject to change at any time by NCBI.  Before 
+submitting a BLAST job from geWorkbench, the user should verify that the
+ parameter settings are appropriate for their query.
 </p><p><br>
+The BLAST algorithm is found in the <b>Sequence Alignment</b> tab, 
+located in the command area of geWorkbench (lower right quadrant).  The 
+Sequence Alignment tab appears when a protein or DNA sequence is loaded 
+and selected in the Project Folders component.  BLAST is currently the 
+only alignment option supported in the Sequence Alignment component.
+</p><p><br>
+</p><p><img src="blast_files/Blast_full_app.png" alt="Image:Blast_full_app.png" longdesc="/workbench/index.php/Image:Blast_full_app.png" height="846" width="1062">
+</p>
+<p><b>Figure legend: BLAST within the Sequence Alignment component</b>.
+ A nucleotide sequence has been loaded into the Project Folders 
+component (upper left).  The Sequence Viewer component displays this 
+sequence (upper right).  The Sequence Alignment/BLAST interface is shown
+ at lower right.
+</p>
+<a name="NCBI_Documentation"></a><h1>NCBI Documentation</h1>
+<p>geWorkbench serves as a interface to the NCBI BLAST server and 
+implements the same options as the NCBI BLAST website.  Detailed 
+information about each option can be found on NCBI webpages, including:
+</p>
+<ul><li> <a href="http://blast.ncbi.nlm.nih.gov/Blast.cgi" class="external text" title="http://blast.ncbi.nlm.nih.gov/Blast.cgi" rel="nofollow">NCBI BLAST Home Page</a>
+</li><li> <a href="http://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&amp;PAGE_TYPE=BlastDocs" class="external text" title="http://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&amp;PAGE TYPE=BlastDocs" rel="nofollow">BLAST Docs - Main help page</a>
+<ul><li> <a href="http://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&amp;PAGE_TYPE=BlastDocs&amp;DOC_TYPE=ProgSelectionGuide" class="external text" title="http://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&amp;PAGE TYPE=BlastDocs&amp;DOC TYPE=ProgSelectionGuide" rel="nofollow">Blast Program Selection Guide</a>
+</li></ul>
+</li></ul>
+<p>Older help pages...
+</p>
+<ul><li> <a href="http://www.ncbi.nlm.nih.gov/blast/html/blastcgihelp.html" class="external text" title="http://www.ncbi.nlm.nih.gov/blast/html/blastcgihelp.html" rel="nofollow">NCBI BLAST Help page 1</a> and
+</li><li> <a href="http://www.ncbi.nlm.nih.gov/BLAST/blastcgihelp.shtml" class="external text" title="http://www.ncbi.nlm.nih.gov/BLAST/blastcgihelp.shtml" rel="nofollow">NCBI BLAST help page 2 </a>.
+</li></ul>
+<p><br>
 </p>
 <a name="BLAST_job_setup"></a><h1>BLAST job setup</h1>
 <a name="Prerequisites"></a><h2>Prerequisites</h2>
@@ -36,79 +77,163 @@ running a local BLAST job on the client desktop machine. </p><p><br>
 </li><li> A protein or nucleotide sequence must be loaded in the Project Folders component.
 </li></ul>
 <a name="Query_sequences"></a><h2>Query sequences</h2>
-<p>BLAST accepts nucleotide or amino-acid query sequences in the FASTA
-format. A query file can contain one or multiple sequences. The file
-can be loaded from disk using the <b>File Open</b> command, or may
-have been placed into the Project Folders component by another
-component such as the Sequence Retriever, or as a result of a previous
-BLAST run.
+<p>BLAST accepts nucleotide or amino-acid query sequences in the FASTA 
+format. A query file can contain one or multiple sequences.  The file 
+can be loaded from disk using the <b>File Open</b> command, or may have 
+been placed into the Project Folders component by another component such
+ as the Sequence Retriever, or as a result of a previous BLAST run.
+</p><p><br>
 </p>
 <a name="Parameters_-_Main"></a><h2>Parameters - Main</h2>
+<p><br>
+In addition to the parameters shown in the previous image, BLASTX and TBLASTX add the Genetic Code option:
+</p><p><img src="blast_files/Blast_blastx_main_options.png" alt="Image:Blast_blastx_main_options.png" longdesc="/workbench/index.php/Image:Blast_blastx_main_options.png" height="409" width="507">
+</p>
 <a name="Algorithms"></a><h3>Algorithms</h3>
-<p>The user must make sure that the algorithm chosen matches the type
-of query sequence (protein or nucleotide) that has been loaded. Some of
-the algorithms translate a nucleotide query, a nucleotide database, or
-both into amino acid sequence before executing the query. Searching in
-the amino-acid space is more sensitive for certain types of query, as
-it ignores synonymous, non-functional changes in nucleotide sequence.
+<p>The user must make sure that the algorithm chosen matches the type of
+ query sequence (protein or nucleotide) that has been loaded.  Some of 
+the algorithms translate a nucleotide query, a nucleotide database, or 
+both into amino acid sequence before executing the query.  Searching in 
+the amino-acid space is more sensitive for certain types of query, as it
+ ignores synonymous, non-functional changes in nucleotide sequence.
 </p>
 <a name="For_protein_query_sequences:"></a><h4>For protein query sequences:</h4>
 <ul><li> <b>blastp</b> - Compares an amino acid query sequence against a protein sequence database.
 </li><li> <b>tblastn</b> - Compares a amino acid query sequence against a nucleotide database translated in all reading frames.
 </li></ul>
 <a name="For_nucleotide_query_sequences:"></a><h4>For nucleotide query sequences:</h4>
-<ul><li> <b>blastn</b> - Compares a nucleotide query sequence against a nucleotide sequence database.
+<ul><li> <b>blastn</b> - three algorithms are available under the blastn
+ choice, in order of decreasing similarity of the query to the target 
+sequences,  Each compares a nucleotide query sequence against a 
+nucleotide sequence database:
+<ul><li> <b>megablast</b> - optimize for highly similar sequences.
+</li><li> <b>discontinuous megablast</b> - optimize for more dissimilar sequences
+</li><li> <b>blastn</b> - optimize for somewhat similar sequences.
+</li></ul>
 </li><li> <b>blastx</b> - Compares a nucleotide query sequence translated in all reading frames against a protein sequence database.
-</li><li> <b>tblastx</b> - Compares the 6 frame translations of a
-nucleotide query sequence against the six frame translations of a
+</li><li> <b>tblastx</b> - Compares the 6-frame translations of a 
+nucleotide query sequence against the 6-frame translations of a 
 nucleotide sequence database.
 </li></ul>
 <a name="Databases"></a><h3>Databases</h3>
-<p>Standard protein and nucleic acid databases maintained at NCBI are
-supported. The appropriate databases for the search algorithm chosen
-will be displayed.
+<p>Standard protein and nucleic acid databases maintained at NCBI are 
+supported.  The appropriate databases for the search algorithm chosen 
+will be displayed.  A window to the right, "Database Details", displays a
+ summary of the database currently selected in the list.
 </p>
 <a name="For_nucleic_acids:"></a><h4>For nucleic acids:</h4>
-<ul><li> <b>ncbi/nt</b> - all non-redundant DNA sequences.
-</li><li> <b>ncbi/pdbnt</b> - nucleotide sequences derived from the PDB database (protein 3D structure database).
-</li><li> <b>ncbi/yeast.nt</b> - yeast genonic sequences.
+<ul><li> <b>Nucleotide Collection (nr/nt)</b>
+</li><li> <b>Reference mRNA seqeunces (refseq_rna)</b>
+</li><li> <b>Reference genomic sequneces (refseq_genomic</b>
+</li><li> <b>NCBI Genomes (chromosome)</b>
+</li><li> <b>Expressed Sequence Tags (est)</b>
+</li><li> <b>Human subset of EST (est_human)</b>
+</li><li> <b>Mouse subset of EST (est_mouse)</b>
+</li><li> <b>Non-human, non-mouse ESTs (est_others)</b>
+</li><li> <b>Genomic survey sequences (gss)</b>
+</li><li> <b>High throughput genomic sequences (htgs)</b>
+</li><li> <b>Patent sequences (pat)</b>
+</li><li> <b>Protein Data Bank (pdb)</b>
+</li><li> <b>Human ALU repeat elements (alu)</b>
+</li><li> <b>Sequence tagges sites (dbsts)</b>
+</li><li> <b>Whole genome shotgun reads (wgs)</b>
+</li><li> <b>Environmental Samples (env_nt)</b>
 </li></ul>
 <a name="For_proteins:"></a><h4>For proteins:</h4>
-<ul><li> <b>ncbi/nr</b> - all non-redundant protein sequences
-</li><li> <b>ncbi/pdbaa</b> - protein sequences from the PDB database (protein 3D structure database).
-</li><li> <b>ncbi/swissprot</b> - sequences from Swiss-Prot, a primary reference database.
-</li><li> <b>ncbi/yeast.aa</b> - translations of yeast genomic coding regions.
+<ul><li> <b>Non-redundant protein sequences (nr)</b> 
+</li><li> <b>Reference proteins (refseq_protein)</b>
+</li><li> <b>Swissprot protein sequences (swissprot)</b>
+</li><li> <b>Patented protein sequences (pat)</b>
+</li><li> <b>Protein Data Bank sequences (pdb)</b>
+</li><li> <b>Environmental samples (env_nr)</b>
 </li></ul>
+<a name="Search_Choice"></a><h3>Search Choice</h3>
+<p>These settings provide the ability to restrict the search in certain ways
+</p>
+<ul><li> <b>Exclude</b>: exclude certain specialized database entries from the search.
+<ul><li> <b>Models</b> (XM/XP)
+</li><li> <b>Uncultured/environmental sequences</b>
+</li></ul>
+</li></ul>
+<ul><li> <b>Entrez Query</b> - an Entrez format query can be entered directly to restrict a search e.g. to a particular species.
+</li></ul>
+<a name="Genetic_Code"></a><h3>Genetic Code</h3>
+<p>Genetic code to be used in blastx (and tblastx) translation of the query.
+</p>
 <a name="Parameters_-_Advanced_Options"></a><h2>Parameters - Advanced Options</h2>
-<ul><li> <b>Expect</b> - Expected number of chance matches in a random model.
+<a name="General_Parameters"></a><h3>General Parameters</h3>
+<ul><li> <b>Max target sequences</b> - maximum number of hits to return. 
+</li><li> <b>Automatically adjust parameters for short input sequences</b>.
+</li><li> <b>Expect threshold</b> - Expected number of chance matches in a random model.
 </li><li> <b>Word size</b> - The length of the seed that initiates an alignment.
-</li><li> <b>Matrix</b> - Various scoring matrices are available for
-protein queries. A default matrix is used for DNA searches. The chosen
-matrix assigns a score for aligning any possible pair of residues. (A
-future release will include match/mismatch scores for DNA searches).
-</li><li> <b>Gap Costs</b> - The pull-down menu shows the available
-choices of gap costs for the chosen matrix. Increasing the gap costs
-will tend to decrease the number of gaps in returned alignments. This
-is currently only implemented in geWorkbench for protein searches.
-</li><li> <b>Low Complexity</b> - filter out low compositional complexity sequence.
-</li><li> <b>Mask lower case</b> - filter out sequence which is in lower case in the FASTA query sequence.
-</li><li> <b>Mask for lookup table only</b> - masks low-complexity
-sequence only while constructing the lookup table used by the intial
-hit-find phase of BLAST. The second phase, hit extension, is not not
-affected and hits can be extended through low-complexity sequence. NCBI
-notes that this option is experimental and subject to change.
-</li><li> <b>Human repeats filter</b> - masks human repeats (LINE's
-and SINE's). This option can speed searches involving long query
-sequences or databases containing sequences with many repeats.
-</li><li> <b>Display result in your web browser</b> - geWorkbench will display the HTML page returned by NCBI BLAST in your web browser as well is within its own display.
 </li></ul>
-<p>Please see the <a href="http://www.ncbi.nlm.nih.gov/blast/html/blastcgihelp.html" class="external text" title="http://www.ncbi.nlm.nih.gov/blast/html/blastcgihelp.html" rel="nofollow">NCBI BLAST Help page 1</a> and <a href="http://www.ncbi.nlm.nih.gov/BLAST/blastcgihelp.shtml" class="external text" title="http://www.ncbi.nlm.nih.gov/BLAST/blastcgihelp.shtml" rel="nofollow">NCBI BLAST help page 2 </a> for further details on these options.
-</p><p><br>
-Nucleotide Search parameters (default):
-</p><p><a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Image:T_SequenceAlignment_BLAST_AdvancedParams_nucleotide.png" class="image" title="Image:T_SequenceAlignment_BLAST_AdvancedParams_nucleotide.png"><img src="blast_files/T_SequenceAlignment_BLAST_AdvancedParams_nucleotide.png" alt="Image:T_SequenceAlignment_BLAST_AdvancedParams_nucleotide.png" longdesc="/workbench/index.php/Image:T_SequenceAlignment_BLAST_AdvancedParams_nucleotide.png" width="742" height="284"></a>
-</p><p><br>
-Protein Search parameters (default):
-</p><p><img src="blast_files/T_SequenceAlignment_BLAST_AdvancedParams_protein.png" alt="Image:T_SequenceAlignment_BLAST_AdvancedParams_protein.png" longdesc="/workbench/index.php/Image:T_SequenceAlignment_BLAST_AdvancedParams_protein.png" width="743" height="284"></a>
+<a name="Scoring_Parameters"></a><h3>Scoring Parameters</h3>
+<ul><li> <b>Match/mismatch scores</b> (blastn, megablast, discontinuous megablast) - scores to use for a match or mismatch.
+</li><li> <b>Matrix</b> - Various scoring matrices (BLOSUM, PAM) are available for protein and translated queries.  
+</li><li> <b>Gap Costs</b> - The pull-down menu shows the available choices of gap costs for the current scoring matrix. 
+</li><li> <b>Compositional adjustments</b> -  "...takes into account the
+ amino acid composition of the individual database sequences involved in
+ reported alignments. This improves E-value accuracy, thereby reducing 
+the number of false positive results."
+</li></ul>
+<a name="Filters_and_Masking"></a><h3>Filters and Masking</h3>
+<ul><li> <b>Low Complexity</b> - filter out low compositional complexity sequence.
+</li><li> <b>Species-specific repeats filter</b> - masks 
+species-specific repeats (e.g. human LINE's and SINE's).  This option 
+can speed searches involving long query sequences or databases 
+containing sequences with many repeats.
+</li><li> <b>Mask for lookup table only</b> - masks low-complexity 
+sequence only while constructing the lookup table used by the initial 
+hit-find phase of BLAST. The second phase, hit extension, is not not 
+affected and hits can be extended through low-complexity sequence.  NCBI
+ notes that this option is experimental and subject to change.
+</li><li> <b>Mask lower case letter</b> - filter out sequence which is in lower case in the FASTA query sequence.
+</li></ul>
+<a name="Discontiguous_Word_Options"></a><h3>Discontiguous Word Options</h3>
+<p>Please see the <a href="http://www.ncbi.nlm.nih.gov/blast/discontiguous.shtml" class="external text" title="http://www.ncbi.nlm.nih.gov/blast/discontiguous.shtml" rel="nofollow">NCBI page on discontiguous megablast</a> for a detailed explanation of these options.
+</p>
+<ul><li> <b>Template Length</b> 
+</li><li> <b>Template Type</b>
+</li></ul>
+<a name="Other"></a><h3>Other</h3>
+<ul><li> <b>Display result in your web browser</b> - geWorkbench will display the HTML page returned by NCBI BLAST in your web browser as well is within its own display.
+</li><li> <b>Restore defaults</b> - restore all settings for the currently selected algorithm to their default values.
+</li></ul>
+<p><br>
+</p>
+<a name="Advanced_Parameter_Setting_Defaults"></a><h3>Advanced Parameter Setting Defaults</h3>
+<p>Below are the default settings observed on the NCBI BLAST website at 
+the time this component was updated (geWorkbench release 2.1.0).
+</p><p>Please note that options and default settings on the NCBI BLAST website are subject to change at any time.
+</p><p>The user should verify all settings are appropriate for his or her particular BLAST query.
+</p>
+<a name="megablast_.28under_blastn_heading.29"></a><h4>megablast (under blastn heading)</h4>
+<p><img src="blast_files/Blast_blastn_megablast_advanced.png" alt="Image:Blast_blastn_megablast_advanced.png" longdesc="/workbench/index.php/Image:Blast_blastn_megablast_advanced.png" height="458" width="771">
+</p>
+<p><br>
+</p>
+<a name="discontiguous_megablast_.28under_blastn_heading.29"></a><h4>discontiguous megablast (under blastn heading)</h4>
+<p><img src="blast_files/Blast_blastn_discontiguous_megablast_advanced.png" alt="Image:Blast_blastn_discontiguous_megablast_advanced.png" longdesc="/workbench/index.php/Image:Blast_blastn_discontiguous_megablast_advanced.png" height="457" width="766">
+</p>
+<p><br>
+</p>
+<a name="blastn_.28under_blastn_heading.29"></a><h4>blastn (under blastn heading)</h4>
+<p><img src="blast_files/Blast_blastn_blastn_advanced.png" alt="Image:Blast_blastn_blastn_advanced.png" longdesc="/workbench/index.php/Image:Blast_blastn_blastn_advanced.png" height="460" width="761">
+</p>
+<p><br>
+</p>
+<a name="blastp"></a><h4>blastp</h4>
+<p><img src="blast_files/Blast_blastp_advanced.png" alt="Image:Blast_blastp_advanced.png" longdesc="/workbench/index.php/Image:Blast_blastp_advanced.png" height="534" width="859">
+</p>
+<p><br>
+</p>
+<a name="blastx_and_tblastx"></a><h4>blastx and tblastx</h4>
+<p><img src="blast_files/Blast_blastx_advanced.png" alt="Image:Blast_blastx_advanced.png" longdesc="/workbench/index.php/Image:Blast_blastx_advanced.png" height="471" width="592">
+</p>
+<p><br>
+</p>
+<a name="tblastn"></a><h4>tblastn</h4>
+<p><img src="blast_files/Blast_tblastn_advanced.png" alt="Image:Blast_tblastn_advanced.png" longdesc="/workbench/index.php/Image:Blast_tblastn_advanced.png" height="494" width="777">
 </p>
 <a name="General_controls"></a><h2>General controls</h2>
 <ul><li> <b>All Markers</b> - if selected, use all sequences loaded, overriding any activated sets in the Marker Sets component.
@@ -116,103 +241,112 @@ Protein Search parameters (default):
 </li><li> <b>Curling arrow</b> - start BLAST search
 </li><li> <b>Stop sign</b> - stop BLAST search (if pushed, geWorkbench will not wait for or retrieve the BLAST results).
 </li></ul>
-<p><img src="blast_files/T_SequenceAlignment_BLAST_general_controls.png" alt="Image:T_SequenceAlignment_BLAST_general_controls.png" longdesc="/workbench/index.php/Image:T_SequenceAlignment_BLAST_general_controls.png" width="380" height="44"></a>
+<p><img src="blast_files/T_SequenceAlignment_BLAST_general_controls.png" alt="Image:T_SequenceAlignment_BLAST_general_controls.png" longdesc="/workbench/index.php/Image:T_SequenceAlignment_BLAST_general_controls.png" height="44" width="380">
+</p>
+<a name="Submitting_a_BLAST_job"></a><h2>Submitting a BLAST job</h2>
+<ul><li> Press the curved arrow submit button.  The adjacent Stop button
+ will terminate the search (geWorkbench will not wait for or retrieve 
+the BLAST results).
+</li></ul>
+<p><img src="blast_files/T_SequenceAlignment_BLAST_start_stop.png" alt="Image:T_SequenceAlignment_BLAST_start_stop.png" longdesc="/workbench/index.php/Image:T_SequenceAlignment_BLAST_start_stop.png" height="41" width="79">
+</p>
+<ul><li> Once the search has been submitted, a progress bar in the 
+"Main" tab will indicate first that the sequence is being uploaded and 
+then that the job is running.
+</li></ul>
+<p><br>
+  <img src="blast_files/Blast_sequence_uploading.png" alt="Image:Blast_sequence_uploading.png" longdesc="/workbench/index.php/Image:Blast_sequence_uploading.png" height="219" width="831">
+</p>
+<p><br>
 </p>
 <a name="BLAST_Results_Viewer"></a><h1>BLAST Results Viewer</h1>
-<p>When the BLAST search results are returned they are placed in a new
-node in the Project Folders component as a child of the query sequence
-used. You can mouse over the result set to see how many sequences are
-in it.
+<p>When the BLAST search results are returned they are placed in a new 
+node in the Project Folders component as a child of the query sequence 
+used.  Mousing over the result set will show how many sequences are in 
+it.
 </p><p><br>
-<img src="blast_files/T_SequenceAlignment_BlastInProject.png" alt="Image:T_SequenceAlignment_BlastInProject.png" longdesc="/workbench/index.php/Image:T_SequenceAlignment_BlastInProject.png" width="231" height="222"></a>
-</p><p>Each different hit is listed on a line in the results table,
-shown below. Note that a query sequence can hit a database target
-sequence in more than one place, resulting in multiple alignments
-displayed per target hit. The results viewer also shows statisics for
-each hit, including the E-value, start position and length of the hit,
+  <img src="blast_files/Blast_result_projects_folder.png" alt="Image:Blast_result_projects_folder.png" longdesc="/workbench/index.php/Image:Blast_result_projects_folder.png" height="162" width="508">
+</p>
+<p>Each different hit is listed on a line in the results table, 
+shown below.  Note that a query sequence can hit a database target 
+sequence in more than one place, resulting in multiple alignments 
+displayed per target hit.  The results viewer also shows statisics for 
+each hit, including the E-value, start position and length of the hit, 
 and the percent identity.
 </p><p>If the "Display result in your web browser" option was chosen, then the browser will open with the HTML formated results.   
-</p><p>In the pane at left in the picture below, the name of the input
-query sequence is shown, e.g. the gi number of a Genbank sequence. If
-there had been more than one query sequence, then this pane would show
-a list of query sequence names, allowing you to select the results to
-be viewed.
-</p><p><img src="blast_files/T_SequenceAlignment_BLAST_results.png" alt="Image:T_SequenceAlignment_BLAST_results.png" longdesc="/workbench/index.php/Image:T_SequenceAlignment_BLAST_results.png" width="1000" height="496"></a>
-</p><p><br>
+</p><p>In the pane at left in the picture below, the name of the input 
+query sequence is shown, e.g. the gi number of a Genbank sequence.  If 
+there had been more than one query sequence, then this pane would show a
+ list of query sequence names, allowing you to select the results to be 
+viewed.
+</p><p><img src="blast_files/Blast_Wilms_NM_result.png" alt="Image:Blast_Wilms_NM_result.png" longdesc="/workbench/index.php/Image:Blast_Wilms_NM_result.png" height="585" width="1051">
+</p>
+<p><br>
 </p>
 <a name="Controls"></a><h2>Controls</h2>
 <a name="Within_the_list_of_returned_hits"></a><h3>Within the list of returned hits</h3>
 <ul><li> <b>Include</b> check boxes - when checked, selects these sequences for import into the Project Folders component.
 </li></ul>
 <a name="At_the_bottom_of_the_pane"></a><h3>At the bottom of the pane</h3>
-<ul><li> <b>Load</b> - load a HTML format BLAST file into the viewer.
+<ul><li> <b>Reset</b> - uncheck all "Include" boxes.
 </li><li> <b>Select All</b> - mark as checked all the "Include" boxes.
-</li><li> <b>Reset</b> - uncheck all "Include" boxes.
 </li><li> <b>Add Selected Sequences to Project</b> - for each hit whose "Include" box is checked, add its sequence to a sequence node in the Project Folders component.
-</li>
-<li> <b>Only Add Aligned Part</b> - for each hit whose "Include"
-box is checked, add to the Project Folders component only the portion
-of its sequence which aligned with the query sequence.
-</li>
-</ul>
+</li><li> <b>Only Add Aligned Parts</b> - for each hit whose "Include" 
+box is checked, add to the Project Folders component only the portion of
+ its sequence which aligned with the query sequence .
+</li></ul>
 <a name="In_the_query_list"></a><h3>In the query list</h3>
 <ul><li> <b>Search</b> - input a text search to find entries in the list of queries.
 </li><li> <b>Find Next</b> - search for the next occurence of the entered text.
 </li></ul>
-<a name="Submitting_a_BLAST_job"></a><h2>Submitting a BLAST job</h2>
-<ul><li> Press the curved arrow submit button. The adjacent Stop button
-will terminate the search (geWorkbench will not wait for or retrieve
-the BLAST results).
-</li></ul>
-<p><img src="blast_files/T_SequenceAlignment_BLAST_start_stop.png" alt="Image:T_SequenceAlignment_BLAST_start_stop.png" longdesc="/workbench/index.php/Image:T_SequenceAlignment_BLAST_start_stop.png" width="79" height="41"></a>
+<a name="Adding_selected_sequence_hits_to_the_project"></a><h2>Adding selected sequence hits to the project</h2>
+<p>The sequences corresponding to individual hits in the BLAST search 
+can be retrieved from NCBI and added to the Project Folders component.
+</p><p><img src="blast_files/Blast_Wilms_NM_include_5prime.png" alt="Image:Blast_Wilms_NM_include_5prime.png" longdesc="/workbench/index.php/Image:Blast_Wilms_NM_include_5prime.png" height="524" width="831">
 </p>
-<ul><li> Once the search has been submitted, a progress bar in the
-"Main" tab will indicate first that the sequence is being uploaded and
-then that the job is running.
-</li></ul>
-<p><br>
-<img src="blast_files/T_SequenceAlignment_BLAST_running.png" alt="Image:T_SequenceAlignment_BLAST_running.png" longdesc="/workbench/index.php/Image:T_SequenceAlignment_BLAST_running.png" width="732" height="349"></a>
+<p>Here we select a particular hit, by checking the "include" box 
+next to it, and press the button "Add Selected Sequences to Project".  
+The sequence is retrieved and placed into the Project Folders component 
+as shown below:
+</p><p><img src="blast_files/Blast_Wilms_NM_include_5prime_added.png" alt="Image:Blast_Wilms_NM_include_5prime_added.png" longdesc="/workbench/index.php/Image:Blast_Wilms_NM_include_5prime_added.png" height="167" width="329">
 </p>
 <a name="Example:_Running_a_BLAST_search"></a><h1>Example: Running a BLAST search</h1>
-<p>Two Genbank sequence files in FASTA format are included in the
-geWorkbench data/public_data folder: a nucleotide sequence, "NM
-_024426-Wilms.Fasta", and its protein sequence,
-"NP_077744-Wilms.fasta".
-</p><p>For a simple search using the nucleotide query file, one can select the <b>blastn</b> program and search against the <b>ncbi/nt</b> non-redundant database of nucleotide sequences.  
+<p>Two Genbank sequence files in FASTA format are included in the 
+geWorkbench data/public_data folder: a nucleotide sequence, "NM 
+_024426-Wilms.Fasta", and its protein sequence, "NP_077744-Wilms.fasta".
+</p><p>For a simple search using the nucleotide query file, one can select the <b>blastn/megablast</b> program and search against the <b>nr/nt</b> database of nucleotide sequences.  
 </p>
 <ul><li> From the geWorkbench "File" menu, select "Open-&gt;File".  
 </li><li> Select a file type of FASTA.  
 </li><li> Navigate to data/public_data within the geWorkbench distribution and select the file "NM _024426-Wilms.Fasta".
 </li><li> Press "Open".
-</li><li> (The above steps can also be accomplished by right-clicking
-on a Project node and selecting "Open File(s)" and following the same
+</li><li> (The above steps can also be accomplished by right-clicking on
+ a Project node and selecting "Open File(s)" and following the same 
 steps.
 </li></ul>
-<ul>
-  <li> In the Project Folders component, make sure the sequence file
-just read in is selected. This will activate those components that can
+<ul><li> In the Project Folders component, make sure the sequence file 
+just read in is selected.  This will activate those components that can 
 work with sequence data.
 </li><li> In the Commands Area click on the <b>Sequence Alignment</b> tab.
 </li><li> Select the <b>BLAST</b> tab, and under it the <b>Main</b> tab.
 </li></ul>
-<ul><li> For program select <b>blastn</b>.
-</li><li> For database, select "<b>ncbi/nt</b> - the complete
-non-redundant nucleotide database. For a faster search, one could
-select the ncbi/pdbnt database instead, which is much smaller.
+<p><br>
+</p>
+<ul><li> For program select <b>blastn</b>, and leave the default algorithm choice set to megablast.
+</li><li> For database, select <b>nr</b> - the complete nucleotide database. 
 </li></ul>
-<p><b>Note:</b> The text field at the bottom of the Sequence Alignment
-component shows the number of sequences that have been selected. If you
-have a Fasta file that has multiple sequences, you can select the ones
-you want in the Markers component and activate this selection, letting
-you search on a subset. You can search on all sequences in a file by
-clicking the <b>All Markers</b> checkbox.
+<p><b>Note:</b> The text field at the bottom of the Sequence Alignment 
+component shows the number of sequences that have been selected.  If you
+ have a fasta file that has multiple sequences, you can select the ones 
+you want in the Markers component and activate this selection, letting 
+you search on a subset. You can override an activated Marker Set and 
+search on all sequences in a file by clicking the <b>All Markers</b> checkbox.
 </p>
 <ul><li> Click on the <b>Advanced Options</b> Tab
 </li><li> Change the <b>Expect Value</b> to 0.01.  This sets the cutoff for which BLAST hits will be displayed.
-</li><li> Make sure "dna mat" is selected for the <b>Matrix</b>.
 </li><li> Leave the <b>Display result in your web browser</b> checked.
 </li></ul>
 <ul><li> Hit the "curving arrow" run button.  The job will be submitted and the results returned as shown in the sections above.
 </li></ul>
 
- </body></html>
+</body></html>

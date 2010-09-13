@@ -205,9 +205,9 @@ public class AlgorithmMatcher {
     private static final String GAPB1_8 = "Existence: 2 Extension: 2";	
     
 	private static final String GAP0 = "Existence: 11 Extension: 1";
-    private static final String GAP1 = "Existence:  9 Extension: 2";
-    private static final String GAP2 = "Existence:  8 Extension: 2";
-    private static final String GAP3 = "Existence:  7 Extension: 2";
+    private static final String GAP1 = "Existence: 9 Extension: 2";
+    private static final String GAP2 = "Existence: 8 Extension: 2";
+    private static final String GAP3 = "Existence: 7 Extension: 2";
     private static final String GAP4 = "Existence: 12 Extension: 1";
     private static final String GAP5 = "Existence: 10 Extension: 1";    
     
@@ -225,7 +225,7 @@ public class AlgorithmMatcher {
     private static final String GAPB45_12 = "Existence: 16 Extension: 1";
     private static final String GAPB80_1 = "Existence: 10 Extension: 1";
     private static final String GAPB80_2 = "Existence: 8 Extension: 2";
-    private static final String GAPB80_3 = "Existence: 7 Extension:2";
+    private static final String GAPB80_3 = "Existence: 7 Extension: 2";
     private static final String GAPB80_4 = "Existence: 6 Extension: 2";
     private static final String GAPB80_5 = "Existence: 11 Extension: 1";
     private static final String GAPB80_6 = "Existence: 9 Extension: 1";
@@ -614,14 +614,16 @@ public class AlgorithmMatcher {
                                     s[3].trim();
                         }
                     }
-                                
-                String matchScores=ps.getMatchScores();
-                if(matchScores!=null){
-                	String[] s=matchScores.split(",");
-                	if(s.length>1){
-                		cmd+="&MATCH_SCORES=" + s[0].trim() + "%2C" + s[1].trim();                		
-                	}
-                }                
+                
+                if(ps.getProgramName().equalsIgnoreCase("blastn")){    
+	                String matchScores=ps.getMatchScores();
+	                if(matchScores!=null){
+	                	String[] s=matchScores.split(",");
+	                	if(s.length>1){
+	                		cmd+="&MATCH_SCORES=" + s[0].trim() + "%2C" + s[1].trim();                		
+	                	}
+	                }
+                }
         		cmd+="&PAGE_TYPE=BlastSearch";
                 
                 Map<String, String> specie_repeat=new HashMap<String,String>();

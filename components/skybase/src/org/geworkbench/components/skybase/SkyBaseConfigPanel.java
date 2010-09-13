@@ -11,11 +11,16 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.naming.OperationNotSupportedException;
-import javax.swing.JFormattedTextField;
+import javax.swing.JTextField;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
+import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.events.listeners.ParameterActionListener;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
@@ -30,17 +35,19 @@ import com.jgoodies.forms.layout.FormLayout;
  */
 public class SkyBaseConfigPanel extends AbstractSaveableParameterPanel {
 	private Log log = LogFactory.getLog(this.getClass());
-	private JFormattedTextField mincovEdit = new JFormattedTextField();
-	private JFormattedTextField minsidEdit = new JFormattedTextField();
-	private JFormattedTextField rphitsEdit = new JFormattedTextField();
+	private JTextField mincovEdit = new JTextField();
+	private JTextField minsidEdit = new JTextField();
+	private JTextField rphitsEdit = new JTextField();
 
-	private int mincov = 75, minsid = 30, rphits = 10;
+	private double mincov = 75, minsid = 30; 
+	private int rphits = 10;
 
 	private static class SerializedInstance implements Serializable {
 		private static final long serialVersionUID = 1L;
-		private int mincov = 75, minsid = 30, rphits = 10;
+		private double mincov = 75, minsid = 30; 
+		private int rphits = 10;
 
-		public SerializedInstance(int mincov, int minsid, int rphits) {
+		public SerializedInstance(double mincov, double minsid, int rphits) {
 			this.mincov = mincov;
 			this.minsid = minsid;
 			this.rphits = rphits;
@@ -49,17 +56,16 @@ public class SkyBaseConfigPanel extends AbstractSaveableParameterPanel {
 		Object readResolve() throws ObjectStreamException {
 
 			SkyBaseConfigPanel panel = new SkyBaseConfigPanel();
-			panel.mincovEdit.setValue(mincov);
-			panel.minsidEdit.setValue(minsid);
-			panel.rphitsEdit.setValue(rphits);
+			panel.mincovEdit.setText(new Double(mincov).toString());
+			panel.minsidEdit.setText(new Double(minsid).toString()); 
+			panel.rphitsEdit.setText(new Integer(rphits).toString());
 			return panel;
 		}
 	}
 
 	public Object writeReplace() throws ObjectStreamException {
-		return new SerializedInstance((Integer) mincovEdit.getValue(),
-				(Integer) minsidEdit.getValue(), (Integer) rphitsEdit
-						.getValue());
+		return new SerializedInstance((new Double(mincovEdit.getText())),
+				(new Double(minsidEdit.getText())),new Integer(rphitsEdit.getText()));
 	}
 
 	public SkyBaseConfigPanel() {
@@ -70,9 +76,9 @@ public class SkyBaseConfigPanel extends AbstractSaveableParameterPanel {
 		}
 		ParameterActionListener parameterActionListener = new ParameterActionListener(
 				this);
-		mincovEdit.addPropertyChangeListener(parameterActionListener);
-		minsidEdit.addPropertyChangeListener(parameterActionListener);
-		rphitsEdit.addPropertyChangeListener(parameterActionListener);
+		mincovEdit.addActionListener(parameterActionListener);
+		minsidEdit.addActionListener(parameterActionListener);
+		rphitsEdit.addActionListener(parameterActionListener);
 	}
 
 	/*
@@ -97,29 +103,49 @@ public class SkyBaseConfigPanel extends AbstractSaveableParameterPanel {
 	 */
 	public void setDefaultParameters() {
 		mincovEdit.setFont(new Font("Sans Serif", Font.BOLD, 14));
-		mincovEdit.setValue(mincov);
-		// mincovEdit.setEditable(false);
-		mincovEdit.setFocusLostBehavior(JFormattedTextField.COMMIT_OR_REVERT);
+		mincovEdit.setText(new Double(mincov).toString());
+		 
 		minsidEdit.setFont(new Font("Sans Serif", Font.BOLD, 14));
-		minsidEdit.setValue(minsid);
-		// minsidEdit.setEditable(false);
-		minsidEdit.setFocusLostBehavior(JFormattedTextField.COMMIT_OR_REVERT);
+		minsidEdit.setText(new Double(minsid).toString());
+		 
 		rphitsEdit.setFont(new Font("Sans Serif", Font.BOLD, 14));
-		rphitsEdit.setValue(rphits);
-		// rphitsEdit.setEditable(false);
-		rphitsEdit.setFocusLostBehavior(JFormattedTextField.COMMIT_OR_REVERT);
+		rphitsEdit.setText(new Integer(rphits).toString());
+		 
 	}
 
-	public int getmincovValue() {
-		return ((Integer) mincovEdit.getValue()).intValue();
+	public Double getmincovValue() {
+		try
+		{
+		    return new Double(mincovEdit.getText());
+		}
+		catch(Exception e)
+		{
+			return null;
+		}
 	}
 
-	public int getminsidValue() {
-		return ((Integer) minsidEdit.getValue()).intValue();
+	public Double getminsidValue() {
+		try
+		{
+		    return new Double(minsidEdit.getText());
+		}
+		catch(Exception e)
+		{
+			return null;
+		}
 	}
-
-	public int getrphitsValue() {
-		return ((Integer) rphitsEdit.getValue()).intValue();
+	
+	 
+	public Integer getrphitsValue() {
+		try
+		{
+		    return new Integer(rphitsEdit.getText());
+		}
+		catch(Exception e)
+		{
+			return null;
+		}		
+		 
 	}
 
 	private void writeObject(java.io.ObjectOutputStream out) throws IOException {
@@ -159,9 +185,9 @@ public class SkyBaseConfigPanel extends AbstractSaveableParameterPanel {
 			Map.Entry<Serializable, Serializable> parameter = iterator.next();
 			Object key = parameter.getKey();
 			Object value = parameter.getValue();
-			if(key.equals("mincov"))mincovEdit.setValue(value); // int
-			else if(key.equals("minsid"))minsidEdit.setValue(value); // int
-			else if(key.equals("trphits"))rphitsEdit.setValue(value); // int 
+			if(key.equals("mincov"))mincovEdit.setText(value.toString()); // int
+			else if(key.equals("minsid"))minsidEdit.setText(value.toString()); // int
+			else if(key.equals("trphits"))rphitsEdit.setText(value.toString()); // int 
 		}
 		stopNotifyAnalysisPanelTemporary(false);
 	}
@@ -170,7 +196,30 @@ public class SkyBaseConfigPanel extends AbstractSaveableParameterPanel {
 	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
 		// TODO Auto-generated method stub
 		
-	}
+	}	 
 
-	
+	@Override
+    public ParamValidationResults validateParameters() {
+		boolean status = true;
+		String msg = "good";
+		
+		if (getmincovValue() == null || getmincovValue() < 0 || getmincovValue() > 100)
+		{
+			status  = false;
+			msg = "Please enter 0 to 100 for \"minimum alignment coverage\".";
+		}
+		else if (getminsidValue() == null || getminsidValue()<0 || getminsidValue()>100)
+		{
+			status  = false;
+			msg = "Please enter 0 to 100 for \"minimun sequence identity\".";
+		}
+		else if (getrphitsValue() == null || getrphitsValue() <= 0)
+		{
+			status  = false;
+			msg = "Please enter a positive interger for \"most similar hits to report\".";
+		}
+			
+		
+		return new ParamValidationResults(status, msg);
+    }
 }

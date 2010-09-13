@@ -888,6 +888,12 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		 * If the parameterSet already exist, we popup a message window to
 		 * inform user
 		 */
+		ParamValidationResults pvr = selectedAnalysis.validateParameters();
+		if (!pvr.isValid()) {
+			JOptionPane.showMessageDialog(null, pvr.getMessage(),
+					"Parameter Validation Error", JOptionPane.ERROR_MESSAGE);
+		     return;
+		}
 		if (selectedAnalysis
 				.parameterSetExist(selectedAnalysis.getParameters())) {
 			JOptionPane.showMessageDialog(null, "ParameterSet already exist.",

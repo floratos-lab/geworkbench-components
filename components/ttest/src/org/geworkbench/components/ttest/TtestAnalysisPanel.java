@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.HashMap;
@@ -252,6 +253,7 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel {
         jLabel5.setText("Step down Westfall and Young Methods (for permutation only)");
         stepdownMinP.setSelected(true);
         stepdownMinP.setText("minP");
+        stepdownMinP.setEnabled(false);
         jPanel9.setBorder(BorderFactory.createEtchedBorder());
         jPanel9.setLayout(borderLayout5);
         bonferroni.setText("Standard Bonferroni Correction");
@@ -261,6 +263,7 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel {
         adjustedBonferroni.setText("Adjusted Bonferroni Correction");
         jPanel8.setLayout(gridLayout3);
         stepdownMaxT.setText("maxT");
+        stepdownMaxT.setEnabled(false);
         gridLayout3.setRows(3);
         gridLayout3.setHgap(0);
         gridLayout3.setColumns(1);
@@ -274,6 +277,7 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel {
         jLabel6.setText("times");
         jPanel6.setLayout(gridBagLayout1);
         allPerms.setText("Use all permutations");
+        allPerms.setVisible(false);
         alpha.setValue(new Double(0.01));
         alpha.setMinimumSize(new Dimension(35, 20));
         pvaluesByPerm.setText("permutation:");
@@ -391,11 +395,13 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel {
        ParameterActionListener parameterActionListener = new ParameterActionListener(this);
        welch.addActionListener(parameterActionListener);
        equalVariances.addActionListener(parameterActionListener);
-       pvaluesByTDistribution.addActionListener(parameterActionListener);
-       pvaluesByPerm.addActionListener(parameterActionListener);
-       randomlyGroup.addActionListener(parameterActionListener);
+       pvaluesByTDistribution.addActionListener(new pvaluesByTDistribution_actionAdapter());
+       pvaluesByPerm.addActionListener(new
+               pvaluesByPerm_actionAdapter());
+       
+       randomlyGroup.addActionListener(new randomlyGroup_actionAdapter());
        numCombs.addActionListener(parameterActionListener);
-       allPerms.addActionListener(parameterActionListener);
+       allPerms.addActionListener(new allPerms_actionAdapter());
        alpha.addActionListener(parameterActionListener);
        noCorrection.addActionListener(parameterActionListener);
        bonferroni.addActionListener(parameterActionListener);
@@ -403,7 +409,57 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel {
        stepdownMinP.addActionListener(parameterActionListener);
        stepdownMaxT.addActionListener(parameterActionListener);
     }
-
+    
+    private class pvaluesByTDistribution_actionAdapter implements
+		java.awt.event.ActionListener {
+			public void actionPerformed(ActionEvent e) {
+				pvaluesByTDistribution_actionPerformed(e);
+		}
+	}
+	
+	private void pvaluesByTDistribution_actionPerformed(ActionEvent e) {
+			allPerms.setVisible(false);
+			jLabel5.setVisible(false);
+			stepdownMinP.setSelected(false);
+			stepdownMinP.setEnabled(false);
+			stepdownMaxT.setSelected(false);
+			stepdownMaxT.setEnabled(false);
+	}
+    
+    private class pvaluesByPerm_actionAdapter implements
+		java.awt.event.ActionListener {
+			public void actionPerformed(ActionEvent e) {
+				pvaluesByPerm_actionPerformed(e);
+			}
+    }
+    
+    private void pvaluesByPerm_actionPerformed(ActionEvent e) {
+    	allPerms.setVisible(true);    	
+    	jLabel5.setVisible(true);
+    	stepdownMinP.setEnabled(true);
+    	stepdownMaxT.setEnabled(true);
+    }
+    
+    private class allPerms_actionAdapter implements
+    	java.awt.event.ActionListener {
+			public void actionPerformed(ActionEvent e) {
+				allPerms_actionPerformed(e);
+			}
+    }
+    private void allPerms_actionPerformed(ActionEvent e) {
+    	numCombs.setEditable(false);
+    }
+    
+    private class randomlyGroup_actionAdapter implements
+    	java.awt.event.ActionListener {
+			public void actionPerformed(ActionEvent e) {
+				ramdomlyGroup_actionPerformed(e);
+			}
+	}
+	private void ramdomlyGroup_actionPerformed(ActionEvent e) {
+		numCombs.setEditable(true);
+	}
+    
 	@Override
 	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
 		// TODO Auto-generated method stub

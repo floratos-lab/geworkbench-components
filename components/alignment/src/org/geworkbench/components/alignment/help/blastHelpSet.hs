@@ -28,7 +28,7 @@
 
 		<name>TOC</name>
 
-		<label>Sequence Alignment Algorithms </label>
+		<label>BLAST</label>
 
 		<type>javax.help.TOCView</type>
 
