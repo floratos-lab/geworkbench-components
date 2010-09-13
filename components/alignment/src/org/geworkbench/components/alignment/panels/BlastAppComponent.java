@@ -156,6 +156,7 @@ public class BlastAppComponent implements VisualPlugin {
     private JComboBox jExpectBox = new JComboBox();
     private JComboBox jWordsizeBox = new JComboBox();
 
+    private JLabel jScoresLabel= new JLabel("Match/mismatch Scores:");
     private JComboBox jScoresBox=new JComboBox();
     private JLabel jGapcostsLabel = new JLabel("Gap costs:");
     private JComboBox jGapcostsBox = new JComboBox();
@@ -752,7 +753,7 @@ public class BlastAppComponent implements VisualPlugin {
         scoringParametersPanel.add(maxtrixPanel);	
         JPanel scoresPanel = new JPanel();
         scoresPanel.setLayout(new FlowLayout(FlowLayout.LEADING));
-        scoresPanel.add(new JLabel("Match/mismatch Scores:"));
+        scoresPanel.add(jScoresLabel);
         scoresPanel.add(jScoresBox);
         scoresPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         scoringParametersPanel.add(scoresPanel);
@@ -860,7 +861,9 @@ public class BlastAppComponent implements VisualPlugin {
 	       	Integer index = AlgorithmMatcher.defaultGapcostIndex.get("megablast");
 	       	if(index==null) index = 0;
 	       	jGapcostsBox.setSelectedIndex(index);
-			jWordsizeBox.setSelectedIndex(3);//default selection		
+			jWordsizeBox.setSelectedIndex(3);//default selection
+			jScoresLabel.setVisible(true);
+			jScoresBox.setVisible(true);
 			jScoresBox.setSelectedIndex(0);		
 			speciesRepeatPanel.setVisible(true);
 			jGapcostsBox.setEditable(false);
@@ -876,6 +879,8 @@ public class BlastAppComponent implements VisualPlugin {
 				discontiguosSet();
 			
 		} else {
+			jScoresLabel.setVisible(false);
+			jScoresBox.setVisible(false);
 			jMatrixBox.setSelectedIndex(3);
 			jWordsizeBox.setSelectedIndex(1);
 			speciesRepeatPanel.setVisible(false);
@@ -990,7 +995,7 @@ public class BlastAppComponent implements VisualPlugin {
 		Integer index = AlgorithmMatcher.defaultGapcostIndex.get("megablast");
 		if(index==null) index = 0;
 		jGapcostsBox.setSelectedIndex(index);
-		lowComplexFilterBox.setSelected(false);
+		lowComplexFilterBox.setSelected(true);
 		speciesRepeatFilter.setSelected(false);
 		maskLookupOnlyBox.setSelected(true);
 		maskLowCaseBox.setSelected(false);
@@ -1014,7 +1019,7 @@ public class BlastAppComponent implements VisualPlugin {
 		if(index==null) index = 0;
 		jGapcostsBox.setSelectedIndex(index);
 		lowComplexFilterBox.setSelected(true);
-		speciesRepeatFilter.setSelected(true);
+		speciesRepeatFilter.setSelected(false);
 		maskLookupOnlyBox.setSelected(true);
 		maskLowCaseBox.setSelected(false);
 	

@@ -8,8 +8,8 @@
 				authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 				toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 				tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_Filtering_and_Normalizing"
-				description="Marks as missing all markers whose expression
- values are inside (or outside) a user-defined range."
+				description="Filters out markers for which more than a user-specified number or percentage have values
+inside (or outside) a user-defined range."
  				category="filter"
 	 >
 		<required-component class="org.geworkbench.components.microarrays.TabularMicroarrayPanel" />

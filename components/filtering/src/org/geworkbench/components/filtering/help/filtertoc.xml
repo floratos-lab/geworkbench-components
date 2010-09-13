@@ -11,6 +11,8 @@
 		<tocitem target="basic.controls" text="Basic Controls"/>
 
 		<tocitem target="single.value.filter" text="Affy Detection Filter"/>
+		
+		<tocitem target="Coefficient_of_Variation_Filter" text="Coefficient of Variation Filter"/>
 
 		<tocitem target="deviation.filter" text="Deviation Filter"/>
 

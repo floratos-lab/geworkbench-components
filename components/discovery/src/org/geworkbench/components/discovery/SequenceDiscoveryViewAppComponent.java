@@ -77,6 +77,8 @@ import polgara.soapPD_wsdl.Parameters;
 @AcceptTypes( { CSSequenceSet.class, SoapParmsDataSet.class, PatternDB.class } )
 public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 		PropertyChangeListener {
+	private static final String RECEIVE_PROJECT_SELECTION = "receiveProjectSelection";
+
 	private Log log = LogFactory
 			.getLog(SequenceDiscoveryViewAppComponent.class);
 
@@ -280,6 +282,9 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 					sDiscoveryViewWidget.setSequenceDB(activeSequenceDB,
 							withSubNode, subNodeID, parms, resultFile);
 				} else {
+					if (e.getMessage().equals(RECEIVE_PROJECT_SELECTION)){
+						resultFile = null;
+					}
 					sDiscoveryViewWidget.setSequenceDB((DSSequenceSet) df,
 							withSubNode, subNodeID, parms, resultFile);
 				}

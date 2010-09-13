@@ -1,40 +1,14 @@
-/*
- * The aracne-java project
- *
- * Copyright (c) 2008 Columbia University
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- */
 package org.geworkbench.components.aracne;
 
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -42,11 +16,11 @@ import org.apache.commons.math.MathException;
 import org.apache.commons.math.distribution.NormalDistribution;
 import org.apache.commons.math.distribution.NormalDistributionImpl;
 
-import edu.columbia.c2b2.aracne.Parameter;
 import wb.data.MicroarraySet;
 import wb.plugins.aracne.GraphEdge;
 import wb.plugins.aracne.WeightedGraph;
 import edu.columbia.c2b2.aracne.Aracne;
+import edu.columbia.c2b2.aracne.Parameter;
 
 /**
  * @author zji
@@ -56,31 +30,14 @@ import edu.columbia.c2b2.aracne.Aracne;
 public class HardenedAracne {
     static Log log = LogFactory.getLog(HardenedAracne.class);
 
-	private static class AracneTask implements Callable<WeightedGraph> {
-		private MicroarraySet microarraySet;
-		private Parameter parameter;
-
-		AracneTask(MicroarraySet microarraySet, Parameter parameter) {
-			this.microarraySet = microarraySet;
-			this.parameter = parameter;
-		}
-
-		public WeightedGraph call() {
-//			System.out.println("AracneTask.call with parameter: " + parameter);
-			return Aracne.run(microarraySet, parameter);
-		}
-
-	}
-
 	/*
 	 * this method is used in place of Aracne.run(MicroarraySet microarraySet, Parameter parameter)
-	 * to make ARACNE 'hardened' - bootstrap and parallel
+	 * to make ARACNE 'hardened' - bootstrap
 	 */
 	// two parameters (bootstrap & pthreshold) are not part of edu.columbia.c2b2.aracne.Parameter
 	// because they are from the perl script instead of aracne-java
 	public static WeightedGraph run(MicroarraySet microarraySet, Parameter parameter, int bootstrapNumber, double pThreshold) throws Exception {
 		if(bootstrapNumber==1){
-//			System.out.println("HardenedAracne.run with parameter: " + parameter);
 			WeightedGraph g = null;
 			try {
 				g =  Aracne.run(microarraySet, parameter);
@@ -94,40 +51,16 @@ public class HardenedAracne {
 			System.out.println("this should never happen. fatal: the initial parameter is not zero");
 			System.exit(1);
 		}
-		/*
-		 * to test the improvement of parallel computing over multiple core/processor
-		 * compare with ExecutorService executor = Executors.newSingleThreadExecutor();
-		 */
-		ExecutorService executor = Executors.newCachedThreadPool();
-		List<Callable<WeightedGraph>> tasks = new ArrayList<Callable<WeightedGraph>>();
+
 		int bootstrapId = 1;
-		/* in the bootstrap process, dataset itself is not duplicated, only multiple lists of ID numbers are produced */
+		/* in the bootstrap process, dataset is copied every time; multiple ID numbers are produced */
+		WeightedGraph[] graph = new WeightedGraph[bootstrapNumber];
 		for(int i=0; i<bootstrapNumber; i++) {
 			Parameter param = copyParameter(parameter, bootstrapId);
-			tasks.add(new AracneTask(microarraySet, param));
+			MicroarraySet m = microarraySet.makeCopy();
+			graph[i] = Aracne.run(m, param);
 			bootstrapId++;
 		}
-
-		WeightedGraph[] graph = new WeightedGraph[bootstrapNumber];
-		long begin = new Date().getTime(); // in case to log the execution duration
-		try {
-			// without setting time-out, when invokeAll returns, everything should have finished
-			List<Future<WeightedGraph>> futures = executor.invokeAll(tasks);
-			int i= 0;
-			for(Future<WeightedGraph> f: futures) {
-				graph[i] = f.get();
-				log.debug("graph #"+i+": number of edges="+graph[i].getEdges().size());
-				i++;
-			}
-		} catch (InterruptedException e1) {
-			e1.printStackTrace();
-			return null; // if something was wrong, don't continue to process incomplete bootstraps
-			// Aracne.run(...) chooses to return null at certain exception as well
-		} catch (ExecutionException e) {
-			e.printStackTrace();
-			return null; // if something was wrong, don't continue to process incomplete bootstraps
-		}
-		log.info("It took ExecutorService executor "+(new Date().getTime()-begin)+" milliseconds to finish.");
 
 		return consensusNetwork(graph, parameter, pThreshold);
 	}
@@ -166,6 +99,11 @@ public class HardenedAracne {
 		copy.setSubnet(old.getSubnet());
 		copy.setTf_list(old.getTf_list());
 		copy.setSuppressFileWriting(old.isSuppressFileWriting());
+		
+		// new fields
+		copy.setMode(old.getMode());
+		copy.setThresholdFile(old.getThresholdFile());
+		copy.setKernelFile(old.getKernelFile());
 
 		return copy;
 	}

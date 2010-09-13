@@ -10,8 +10,7 @@
 				tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_Filtering_and_Normalizing"
 				description="Discards all markers that have missing
  measurements in more than the maximum number N microarrays,
- where N is set by the user. Missing values can arise either
- from the original data or from the results of another filtering step. "
+ where N is set by the user."
  				loadByDefault="true"
  				category="filter"
 	 >

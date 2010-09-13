@@ -1,0 +1,333 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html dir="ltr" xml:lang="en" xmlns="http://www.w3.org/1999/xhtml" lang="en"><head>
+
+  
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="KEYWORDS" content="Tutorial - Pattern Discovery">
+<meta name="robots" content="index,follow">
+<link rel="shortcut icon" href="http://wiki.c2b2.columbia.edu/favicon.ico">
+    <title>Tutorial - Pattern Discovery - Workbench</title>
+    <style type="text/css" media="screen,projection">/*<![CDATA[*/ @import "/workbench/skins/monobook/main.css"; /*]]>*/</style>
+    <link rel="stylesheet" type="text/css" href="patternDiscovery_files/commonPrint.css">
+    <!--[if lt IE 5.5000]><style type="text/css">@import "/workbench/skins/monobook/IE50Fixes.css";</style><![endif]-->
+    <!--[if IE 5.5000]><style type="text/css">@import "/workbench/skins/monobook/IE55Fixes.css";</style><![endif]-->
+    <!--[if gte IE 6]><style type="text/css">@import "/workbench/skins/monobook/IE60Fixes.css";</style><![endif]-->
+    <!--[if IE]><script type="text/javascript" src="/workbench/skins/common/IEFixes.js"></script>
+    <meta http-equiv="imagetoolbar" content="no" /><![endif]-->
+
+    <style type="text/css">/*<![CDATA[*/
+/*]]>*/</style>              </head><body class="ns-0">
+    <div id="globalWrapper">
+      <div id="column-content">
+	<div id="content">
+	  <div id="bodyContent"><a name="Overview"></a>
+	    <h2>Overview</h2>
+<p>Sequence Pattern Discovery is the process of identifying nucleotide 
+or amino acid arrangements, also called motifs, that are enriched in a 
+set of sequences. Such motifs may identify regions that have been 
+preserved by evolution and which therefore may play a key functional or 
+structural role. geWorkbench provides two modes of Sequence Pattern 
+Discovery: Regular Discovery and Exhaustive Discovery.
+</p><p>Regular Discovery is based on the algorithm SPLASH (Califano, A.,
+ 2000); it generates a list of all regular expression patterns (motifs) 
+that satisfy a user-defined minimum support and a minimum density 
+criteria. The former determines the minimum number of times a pattern 
+must occur in the sequence set to be reported. This can also be 
+expressed as the minimum percent of sequences that must contain the 
+pattern. The latter determines how sparse the pattern can be, in other 
+words the minimum number of matching characters k (any character except 
+for the dot character “.”) over a window of predefined length w.
+</p><p>SPLASH-based motif discovery is extremely efficient and can 
+process most large protein super-families in a few minutes on a 
+conventional workstation. Discovery is uniquely effective in identifying
+ sparse patterns using extremely low-density constraints, and the 
+results obtained with Discovery can provide the core for a large number 
+of more specific local alignments.  
+</p><p>Exhaustive Discovery starts from a relatively high minimum 
+support (e.g. patterns occurring in 75% of the sequences) and it 
+progressively reduces the support, until a statistically significant 
+pattern is discovered. Discovered patterns are reported and then masked 
+in the sequence set so that they are no longer discovered. Then the 
+process continues iteratively until the minimum support reaches a lower 
+user-defined limit. Exhaustive Discovery, thus, produces a list of 
+non-overlapping motifs in order of support.<br>
+</p>
+<p>&nbsp; </p>
+<a name="Component_layout"></a><h2>Component layout</h2>
+<p>The Pattern discovery component control area has three sections. 
+</p>
+<ol><li> Run controls are shown at top, 
+</li><li> the hit display area is in the center (empty in the figure below), and 
+</li><li> the parameter settings are at bottom. 
+</li></ol>
+<p><img src="patternDiscovery_files/T_PatternDiscovery_Params_Basic_initial.png" alt="Image:T_PatternDiscovery_Params_Basic_initial.png" longdesc="/workbench/index.php/Image:T_PatternDiscovery_Params_Basic_initial.png" width="666" height="318">
+</p>
+<p>&nbsp;</p>
+<a name="Top-level_run_controls"></a><h2>Top-level run controls</h2>
+<p><img src="patternDiscovery_files/T_PatternDiscovery_Run_Controls.png" alt="Image:T_PatternDiscovery_Run_Controls.png" longdesc="/workbench/index.php/Image:T_PatternDiscovery_Run_Controls.png" width="566" height="68">
+</p>
+<ul><li> <b>Norm</b> - select the "normal" pattern discovery algorithm.
+</li><li> <b>Exhaustive</b> - select the "exhaustive" pattern discovery algorithm.   This takes much more time.
+</li></ul>
+<ul><li> <b>Curling arrow</b> - start a new pattern discovery run.
+</li><li> <b>Stop sign</b> - Cancel the current pattern discovery run
+</li><li> <b>File folder</b> - load a pattern file
+</li></ul>
+<ul><li> <b>Progress bar</b> - To the right of the control buttons is a progress bar that reports on the current stage of discovery being executed.
+</li>
+</ul>
+<p>&nbsp;</p>
+<p><a name="Setting_parameters"></a></p>
+<h2>Setting parameters</h2>
+<p>A number of parameters can be adjusted by the user to adjust the sensitivity of the search. 
+</p>
+<a name="Basic_tab"></a><h3>Basic tab</h3>
+<p><br>
+  <img src="patternDiscovery_files/T_PatternDiscovery_Params_Basic_only.png" alt="Image:T_PatternDiscovery_Params_Basic_only.png" longdesc="/workbench/index.php/Image:T_PatternDiscovery_Params_Basic_only.png" width="359" height="133">
+</p>
+<p>Three options for specifying support are available via a pulldown menu:
+</p>
+<ul><li> <b>Support Percent %</b> - The pattern must appear in at least given percentage of sequences.
+</li><li> <b># Support Sequences</b> - The pattern must appear in at least the given number of sequences.
+</li><li> <b># Support Occurrences</b> - The pattern must occur at least the given number of times in the set of sequences (can be more than once per sequence).
+</li></ul>
+<p><img src="patternDiscovery_files/T_PatternDiscovery_Params_Basic_support_options.png" alt="Image:T_PatternDiscovery_Params_Basic_support_options.png" longdesc="/workbench/index.php/Image:T_PatternDiscovery_Params_Basic_support_options.png" width="264" height="123">
+</p>
+<ul><li> <b>Min Tokens</b> - The minimum number of "Density Tokens" in a discovered motif.
+</li><li> <b>Density Window</b> - A sliding window in which at least the number of tokens set in "Density Tokens" must be found.  
+</li><li> <b>Density Tokens</b> - the minimum number of matching full character tokens (not wildcards) within the "Density Window".
+</li>
+</ul>
+<p>&nbsp;</p>
+<a name="Exhaustive_tab"></a><h3>Exhaustive tab</h3>
+<p>Parameters specific to the "exhaustive" search algorithm can be set in this tab.
+</p><p><img src="patternDiscovery_files/T_PatternDiscovery_Params_Exhaustive.png" alt="Image:T_PatternDiscovery_Params_Exhaustive.png" longdesc="/workbench/index.php/Image:T_PatternDiscovery_Params_Exhaustive.png" width="665" height="136">
+</p>
+<ul><li> <b>Dec. support (%)</b> - sets the size of intervals by which support level is decremented in successive searches (default is 5)
+</li><li> <b>Dec. density support</b> - not used.
+</li><li> <b>Min support</b> - sets the lower limit on the percentage of sequences that must contain a specific motif (default is 10%).
+</li><li> <b>Min pattern number</b> - sets a lower limit on the number of motifs in a cluster (point at which support decrementing stops).
+</li>
+</ul>
+<p>&nbsp;</p>
+<a name="Limits"></a><h3>Limits</h3>
+<p><img src="patternDiscovery_files/T_PatternDiscovery_Params_Limits.png" alt="Image:T_PatternDiscovery_Params_Limits.png" width="661" height="135" border="0" longdesc="/workbench/index.php/Image:T_PatternDiscovery_Params_Limits.png">
+</p>
+<ul><li> <b>Max Pattern Number</b> - limits the number of patterns to discover.
+</li><li> <b>Max run time (sec)</b> - limits search time.
+</li>
+</ul>
+<p>&nbsp;</p>
+<a name="Advanced_tab"></a><h3>Advanced tab</h3>
+<p><img src="patternDiscovery_files/T_PatternDiscovery_Params_Advanced.png" alt="Image:T_PatternDiscovery_Params_Advanced.png" longdesc="/workbench/index.php/Image:T_PatternDiscovery_Params_Advanced.png" width="663" height="130">
+</p>
+<ul><li> <b>Exact Only</b> (default checked)-  When checked, no 
+substitution matrix will be used.  Exact exact character matches are 
+required.  "Exact only" should always be used for DNA as no DNA 
+substition matrix is provided.
+</li><li> <b>Count Sequences</b> (default not checked, but see 
+following) - intended to allow additional sorting options.  Will be 
+automatically checked (selected) if the support option "Support 
+percentage" or "# Support Sequences" is chosen in the basic parameters 
+tab.
+</li><li> <b>Similarity matrix choice (default BLOSUM50)</b> - Other choices are BLOSUM62 and BLOSUM100.
+</li><li> <b>Similarity threshold</b> (default 2) - pairs of amino acids
+ with a score higher than the specified threshold in the chosen BLOSUM 
+similarity matrix are considered similar.
+</li>
+</ul>
+<p>&nbsp;</p>
+<a name="Run_Pattern_Discovery"></a><h2>Run Pattern Discovery</h2>
+<ul><li> Pushing on the button with the curling arrow icon will bring up the session creation box:
+</li></ul>
+<p><br>
+  <img src="patternDiscovery_files/T_PatternDiscovery_SessionConnect.png" alt="Image:T_PatternDiscovery_SessionConnect.png" longdesc="/workbench/index.php/Image:T_PatternDiscovery_SessionConnect.png" width="517" height="289">
+</p>
+<p>&nbsp;</p>
+<a name="Discovery_Session"></a><h3>Discovery Session</h3>
+<ul><li> <b>Discovery Session Name</b>:  A name is auto-generated for identifying the job on the server, but any name can be entered.
+</li><li> <b>Create</b> - Push to start the search.
+</li><li> <b>Cancel</b>- Cancel the discovery run.
+</li>
+</ul>
+<p>&nbsp;</p>
+<a name="Discovery_Session_Server"></a><h3>Discovery Session Server</h3>
+<ul>
+  <li> <b>Server and Port</b>: Columbia supports a Pattern Discovery server at splash.cu-genome.org, Port 80.
+</li><li> <b>Username</b>: Any name can be entered to identify the job.
+</li><li> <b>Password</b>: none currently required.  <br>
+</li></ul>
+<p>The progress bar will show the several stages of a search:
+</p>
+<ul><li> Uploading
+</li><li> Processing seeds
+</li><li> Discovering
+</li><li> Collating
+</li><li> Done
+</li></ul>
+<p><img src="patternDiscovery_files/T_PatternDiscovery_RunProgress.png" alt="Image:T_PatternDiscovery_RunProgress.png" longdesc="/workbench/index.php/Image:T_PatternDiscovery_RunProgress.png" width="666" height="219">
+</p>
+<p>&nbsp;</p>
+<a name="Viewing_results"></a><h2>Viewing results</h2>
+<p>The result of the search can be viewed both in the <b>Pattern Discovery</b> module itself and in sequence viewer modules such as "Sequence" and "Promoter" and "Position Histogram".  In <b>Pattern Discovery</b>
+ the results are returned in a table, and the hits for the motif(s) 
+selected in the table will be displayed superimposed on the sequences 
+displayed e.g. in the Sequence Viewer located above in the Visual area. 
+ In this picture, the results were first sorted by the number of tokens.
+</p><p>Note that if a substitution matrix was used during discovery, the
+ motif may contain a range of possible residues, enclosed by square 
+brackets, for a particular position.  This is depicted below under the 
+BLOSUM50 result headings.
+</p><p>Motifs found are listed in a table with the following columns:
+</p>
+<ul><li> <b>Hits</b> - The total number of times a motif was found in the sequence dataset, including any multiple hits in individual sequences.  
+</li><li> <b>Sequences Hit</b> - The number of sequences which contained at least one occurrence of the discovered motif.
+</li><li> <b># of Tokens</b> - the number of full-character tokens in the motif.
+</li><li> <b>ZScore</b> - a measure of how often the motif would be 
+found in a random set of sequences of the same size and composition as 
+the project dataset.
+</li><li> <b>Motif</b> - a sequence of tokens, which may be full characterd or wildcard. 
+<ul><li> A period (.) represents a wildcard and matches any character.
+</li><li> Square brackets are used to indicate multiple possible 
+characters at a given position (occurs when a substitution matrix 
+(BLOSUM) is used during discovery).
+</li></ul>
+</li>
+</ul>
+<p>&nbsp;</p>
+<a name="Result_.28Exact_matches.29_sequence_line_view"></a><h3>Result (Exact matches) sequence line view</h3>
+<p>Each sequence is shown as a line with length proportional to the sequence length.  All sequences are left-aligned.
+</p><p>The position of matches along the sequence are shown using colored boxes (here blue).
+</p><p><br>
+</p><p><img src="patternDiscovery_files/T_PatternDiscovery_Params_Basic_histone_result_exact.png" alt="Image:T_PatternDiscovery_Params_Basic_histone_result_exact.png" longdesc="/workbench/index.php/Image:T_PatternDiscovery_Params_Basic_histone_result_exact.png" width="754" height="822">
+</p>
+<p>&nbsp;</p>
+<p>If more than one pattern is selected, each will be displayed using a separate color:
+</p>
+<p>&nbsp;</p>
+<p><img src="patternDiscovery_files/T_PatternDiscovery_Histones_Result_exact_2.png" alt="Image:T_PatternDiscovery_Histones_Result_exact_2.png" longdesc="/workbench/index.php/Image:T_PatternDiscovery_Histones_Result_exact_2.png" width="640" height="630">
+</p>
+<p>&nbsp;</p>
+<a name="Result_.28Exact_matches.29_full_sequence_view"></a><h3>Result (Exact matches) full sequence view</h3>
+<p>In full sequence view, the actual sequence letters are displayed and matches are again outlined in colored boxes (here blue).
+</p><p><img src="patternDiscovery_files/T_PatternDiscovery_Params_Basic_histone_result_exact_seqs.png" alt="Image:T_PatternDiscovery_Params_Basic_histone_result_exact_seqs.png" longdesc="/workbench/index.php/Image:T_PatternDiscovery_Params_Basic_histone_result_exact_seqs.png" width="756" height="821">
+</p>
+<p><br>
+  <a name="Result_.28BLOSUM50.29_in_sequence_line_view"></a></p>
+<h3>Result (BLOSUM50) in sequence line view</h3>
+<p>BLOSUM50 was selected in the Advanced parameters tab.  
+</p><p><img src="patternDiscovery_files/T_PatternDiscovery_Params_Basic_histone_result_blosum50.png" alt="Image:T_PatternDiscovery_Params_Basic_histone_result_blosum50.png" longdesc="/workbench/index.php/Image:T_PatternDiscovery_Params_Basic_histone_result_blosum50.png" width="761" height="821">
+</p>
+<p><br>
+</p>
+<a name="Result_.28BLOSUM50.29_full_sequence_view"></a><h3>Result (BLOSUM50) full sequence view</h3>
+<p>BLOSUM50 was selected in the Advanced parameters tab.  
+</p><p><img src="patternDiscovery_files/T_PatternDiscovery_Params_Basic_histone_result_blosum50_seqs.png" alt="Image:T_PatternDiscovery_Params_Basic_histone_result_blosum50_seqs.png" longdesc="/workbench/index.php/Image:T_PatternDiscovery_Params_Basic_histone_result_blosum50_seqs.png" width="755" height="822">
+</p>
+<p><br>
+  <a name="Position_Histogram"></a></p>
+<h3>Position Histogram</h3>
+<p>The Position Histogram displays (binned) support of each motif along the length of the sequences.
+</p>
+<ul><li> Support - The number of times a motif is found among all the 
+sequences at a particular position or within a particular range of 
+positions (bin step size) is counted.  The result is displayed as 
+fractional support for the motif at that position.
+</li></ul>
+<ul><li> <b>Step</b> - the sequences are divided into bins of the specified "step" size.  
+</li><li> <b>Plot Position</b> - push to draw a new histogram.
+</li><li> <b>Image snapshot</b> - place a copy of the histogram as an image into the Project Folders component.
+</li></ul>
+<p>&nbsp;</p>
+<p>Note that this will only be useful to the extent that the sequences are in some way aligned before analysis.
+</p><p>The figure below show two motifs selected.  Each is displayed in a unique color in the position histogram.
+</p><p><img src="patternDiscovery_files/T_PatternDiscovery_Histones_Result_exact_Position_Histogram.png" alt="Image:T_PatternDiscovery_Histones_Result_exact_Position_Histogram.png" longdesc="/workbench/index.php/Image:T_PatternDiscovery_Histones_Result_exact_Position_Histogram.png" width="639" height="815">
+</p>
+<p>&nbsp;</p>
+<a name="Adding_results_to_the_Projects_Folder"></a><h2>Adding results to the Projects Folder</h2>
+<p>The results of a run of <b>Pattern Discovery</b> are automatically placed in the Project Folder:
+</p><p><br>
+  <img src="patternDiscovery_files/T_PatternDiscovery_Result_Node.png" alt="Image:T_PatternDiscovery_Result_Node.png" longdesc="/workbench/index.php/Image:T_PatternDiscovery_Result_Node.png" width="259" height="150">
+</p>
+<p>&nbsp;</p>
+<a name="Options_to_Save_or_Mask_Patterns"></a>
+<h2>Options to Save or Mask Patterns</h2>
+<p><br>
+Several operations are possible on the returned patterns.  The options 
+menu can be seen by right-clicking on a selection of one or more 
+returned patterns.
+</p><p>1. The patterns can be saved, either with their positions on the original sequences, or just as regular expressions.
+</p><p>2. The patterns can be masked out of the query sequence.
+</p><p>The options shown in the picture below are:
+</p>
+<ul><li> <b>Mask Pattern</b> - The selected pattern(s) will be masked out of the sequence for future searches.  They will not be re-discovered.
+</li></ul>
+<ul><li> <b>Unmask All Patterns</b> - Undo the masking.
+</li></ul>
+<ul><li> <b>Save Patterns (Regex Only)</b> - This will save the selected pattern(s) in the form of regular expressions, that is, letters and wild-card characters.
+</li></ul>
+<ul><li> <b>Save Selected Patterns</b> - This will save both the 
+selected pattern(s) and their hits to the query sequences.  The 
+locations (positions on the query sequences) saved are specific to the 
+particular input file used.  The name of this file is saved in the 
+pattern file.
+</li></ul>
+<ul><li> <b>Save All Patterns</b> - This will save both all of the 
+patterns and their hits to the query sequences.  The locations positions
+ on the query sequences) saved are specific to the particular input file
+ used.  The name of this file is saved in the pattern file.
+</li></ul>
+<ul><li> <b>Add Patterns to Project</b> - This will add the patterns found as a data node in the Projects Folder, with the position information on the input sequences.
+</li></ul>
+<p><br>
+  <img src="patternDiscovery_files/T_PatternDiscovery_Right_click_menu.png" alt="Image:T_PatternDiscovery_Right_click_menu.png" longdesc="/workbench/index.php/Image:T_PatternDiscovery_Right_click_menu.png" width="636" height="258">
+</p>
+<p>&nbsp;</p>
+<a name="Notes_on_display_of_results"></a><h2>Notes on display of results</h2>
+<ol><li> Pattern Discovery results can only be displayed in the context of the sequences from which they were derived.
+</li><li> There is no provision for filtering out repeats from genomic 
+DNA sequence.  Affected sequences should be masked before loading into 
+geWorkbench.
+</li></ol>
+<p>&nbsp;</p>
+<a name="Example_Pattern_Discovery_runs"></a><h2>Example Pattern Discovery runs</h2>
+<a name="Prerequisites"></a><h3>Prerequisites</h3>
+<ol><li> Make sure that Pattern Discovery and Position Histogram (if desired) are loaded in the Component Configuration Manager.
+</li><li> Load a file containing the sequence or sequences to be analyzed into the Project Folders component.
+</li></ol>
+<p>For this example, we use a file containing a number of histone sequences, <a href="http://wiki.c2b2.columbia.edu/workbench/images/4/49/H1H5_HistoneDB_NHGRI.fasta" class="internal" title="H1H5 HistoneDB NHGRI.fasta"> H1H5_HistoneDB_NHGRI.fasta</a>.
+</p><p>The Pattern Discovery component appears in the Command area of 
+geWorkbench (lower right quadrant) when a sequence data node is 
+selected.
+</p>
+<a name="Setup_.28Exact_matches.29"></a><h3>Setup (Exact matches)</h3>
+<p>We will try parameters set to allow longer matches.  No changes from 
+default are made in the other parameter tabs.  In particular, this 
+search uses exact matching of the sequence letters, without 
+substitutions.
+</p>
+<ul><li> Support Percent: 30
+</li><li> Min tokens: 10
+</li><li> Density Window: 7
+</li><li> Density tokens: 4
+</li></ul>
+<p>These parameters were empirically chosen.  You can try variations to see how it affects the result.
+</p><p><br>
+  <img src="patternDiscovery_files/T_PatternDiscovery_Params_Basic_histone_run.png" alt="Image:T_PatternDiscovery_Params_Basic_histone_run.png" longdesc="/workbench/index.php/Image:T_PatternDiscovery_Params_Basic_histone_run.png" width="665" height="320">
+</p>
+<p><br>
+The results are pictured above in <b>Viewing Results</b>.
+</p><p>&nbsp;</p>
+<a name="Setup_.28BLOSUM50.29"></a><h3>Setup (BLOSUM50)</h3>
+<p>If the "Exact only" checkbox in the Advanced Parameters tab is 
+unchecked, a selected BLOSUM substitution matrix for protein sequences 
+will be used.  
+</p><p><img src="patternDiscovery_files/T_PatternDiscovery_Params_Advanced_BLOSUM.png" alt="Image:T_PatternDiscovery_Params_Advanced_BLOSUM.png" longdesc="/workbench/index.php/Image:T_PatternDiscovery_Params_Advanced_BLOSUM.png" width="666" height="133">
+</p>
+<p>The results of repeating the same run as before but using BLOSUM50 are pictured above in <b>Viewing Results</b>.<br>
+</p>
+<p>&nbsp; </p>
+<a name="References"></a><h2>References</h2>
+<p>Califano, A. (2000).  SPLASH: structural pattern localization analysis by sequential histograms.  Bioinformatics, Apr;<b>16</b>(4):341-57 (<a href="http://bioinformatics.oxfordjournals.org/cgi/content/abstract/16/4/341" class="external text" title="http://bioinformatics.oxfordjournals.org/cgi/content/abstract/16/4/341" rel="nofollow">link to paper</a>).
+</p>
+ </body></html>

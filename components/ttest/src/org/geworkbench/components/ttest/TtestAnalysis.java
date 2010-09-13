@@ -103,8 +103,14 @@ public class TtestAnalysis extends AbstractAnalysis implements
 	}
 
 	private void reset() {
-		tValuesVector.clear();
-		pValuesVector.clear();
+		if (tValuesVector != null)
+		   tValuesVector.clear();
+		else
+			tValuesVector = new Vector<Float>();
+		if (pValuesVector != null)
+		   pValuesVector.clear();
+		else
+			pValuesVector = new Vector<Float>();
 
 		currentP = currentT = 0.0d;
 		alpha = 0d;
@@ -1103,8 +1109,8 @@ public class TtestAnalysis extends AbstractAnalysis implements
 	}
 
 	private void executeMaxT(ProgressBar pbTtest) {
-		tValuesVector = null;
-		pValuesVector = null;
+		 tValuesVector = null;
+		 pValuesVector = null;
 
 		double[] origTValues = new double[numGenes];
 		double[] absTValues = new double[numGenes];
@@ -1371,13 +1377,11 @@ public class TtestAnalysis extends AbstractAnalysis implements
 		}
 
 		if (iterationCounter > numCombs) {
-			String message = "The number of specified permutations is "
-					+ numCombs
-					+ " but based on chosen option of all permutations\n\n"
-					+ "\t\tthe real number of permutations will be "
+			String message = "Note - the \"all permutations\" option will result in "
+ 
 					+ iterationCounter
-					+ ".\n\n"
-					+ "\t\tIf you choose to proceed the run time of the analysis will be longer then you expect!";
+					+ " permutations being run, which may take a long time. \n"
+					+ "Do you wish to proceed?";
 			Object[] options = { "Proceed", "Cancel" };
 			int n = JOptionPane.showOptionDialog(Skin.getFrame(), message,
 					"Log Transformation", JOptionPane.YES_NO_OPTION,

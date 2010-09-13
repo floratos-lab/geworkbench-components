@@ -13,6 +13,8 @@
 	<mapID target="basic.controls" url="Filtering.htm#Basic_Controls"/>
 
 	<mapID target="single.value.filter" url="Filtering.htm#Affymetrix_Detection_Call_Filter"/>
+	
+	<mapID target="Coefficient_of_Variation_Filter" url="Filtering.htm#Coefficient_of_Variation_Filter"/>
 
 	<mapID target="deviation.filter" url="Filtering.htm#Deviation_Filter"/>
 
