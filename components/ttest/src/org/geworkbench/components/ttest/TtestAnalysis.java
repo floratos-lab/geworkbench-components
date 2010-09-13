@@ -967,16 +967,18 @@ public class TtestAnalysis extends AbstractAnalysis implements
 			histStr += "Group Variances: Equal" + "\n";
 
 		histStr += "P-Values Parameters:" + "\n";
-		if (isPermut)
+		if (isPermut){
 			histStr += "\t" + "permutation is selected" + "\n";
+			if (useAllCombs)
+				histStr += "\t" + "Use all permutations is selected" + "\n";
+			else {
+				histStr += "\t" + "Randomly group experiments is selected" + "\n";
+				histStr += "\t" + "#times: " + numCombs + "\n";
+			}
+		}
 		else
 			histStr += "\t" + "t-distribution is selected" + "\n";
-		if (useAllCombs)
-			histStr += "\t" + "Use all permutations is selected" + "\n";
-		else {
-			histStr += "\t" + "Randomly group experiments is selected" + "\n";
-			histStr += "\t" + "#times: " + numCombs + "\n";
-		}
+		
 		histStr += "\t" + "critical p-Value: " + alpha + "\n";
 
 		if (isLogNormalized == true)
@@ -1377,11 +1379,23 @@ public class TtestAnalysis extends AbstractAnalysis implements
 		}
 
 		if (iterationCounter > numCombs) {
+
+			String message ="the \"all permutations\" option will result in "
+				+iterationCounter
+				+" permutations being run, which may take a long time. Do you wish to proceed?"; 
+			/*
+			String message = "The number of specified permutations is "
+					+ numCombs
+					+ " but based on chosen option of all permutations\n\n"
+					+ "\t\tthe real number of permutations will be "
+=======
 			String message = "Note - the \"all permutations\" option will result in "
  
+>>>>>>> .r7051
 					+ iterationCounter
 					+ " permutations being run, which may take a long time. \n"
 					+ "Do you wish to proceed?";
+			*/
 			Object[] options = { "Proceed", "Cancel" };
 			int n = JOptionPane.showOptionDialog(Skin.getFrame(), message,
 					"Log Transformation", JOptionPane.YES_NO_OPTION,

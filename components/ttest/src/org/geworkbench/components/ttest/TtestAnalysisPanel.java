@@ -90,6 +90,7 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel {
     private JLabel jLabel5 = new JLabel();
     private BorderLayout borderLayout3 = new BorderLayout();
     private BorderLayout borderLayout5 = new BorderLayout();
+    private JLabel numCombsLabel = new JLabel();
     
     private JCheckBox logCheckbox;
     
@@ -250,7 +251,7 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel {
     }
 
     private void jbInit() throws Exception {
-        jLabel5.setText("Step down Westfall and Young Methods (for permutation only)");
+        jLabel5.setText("Step down Westfall and Young Methods (for permutation only)");        
         stepdownMinP.setSelected(true);
         stepdownMinP.setText("minP");
         stepdownMinP.setEnabled(false);
@@ -271,13 +272,16 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel {
         numCombs.setValue(new Long(100));
         numCombs.setOpaque(true);
         numCombs.setMinimumSize(new Dimension(35, 20));
+        numCombs.setEnabled(false);
+        numCombsLabel.setText("(# times)");
+        numCombsLabel.setEnabled(false);
         pvaluesByTDistribution.setSelected(true);
         pvaluesByTDistribution.setText("t-distribution");
         jPanel2.setLayout(borderLayout2);
         jLabel6.setText("times");
         jPanel6.setLayout(gridBagLayout1);
         allPerms.setText("Use all permutations");
-        allPerms.setVisible(false);
+        allPerms.setEnabled(false);
         alpha.setValue(new Double(0.01));
         alpha.setMinimumSize(new Dimension(35, 20));
         pvaluesByPerm.setText("permutation:");
@@ -287,7 +291,8 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel {
         jLabel3.setHorizontalTextPosition(SwingConstants.LEFT);
         jLabel3.setHorizontalAlignment(SwingConstants.LEFT);
         randomlyGroup.setSelected(true);
-        randomlyGroup.setText("Randomly group experiments");
+        randomlyGroup.setText("Randomly group experiments");        
+        randomlyGroup.setEnabled(false);
         equalVariances.setText("Equal");
         gridLayout2.setRows(2);
         gridLayout2.setHgap(0);
@@ -319,7 +324,7 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel {
 
             builder.append("", pvaluesByPerm);
             builder.append("", randomlyGroup);
-            builder.append("(# times)", numCombs);
+            builder.append(numCombsLabel, numCombs);
             builder.nextLine();
 
             builder.append("", new JLabel(""));
@@ -418,7 +423,10 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel {
 	}
 	
 	private void pvaluesByTDistribution_actionPerformed(ActionEvent e) {
-			allPerms.setVisible(false);
+			allPerms.setEnabled(false);
+			randomlyGroup.setEnabled(false);
+			numCombs.setEnabled(false);
+			numCombsLabel.setEnabled(false);
 			jLabel5.setVisible(false);
 			stepdownMinP.setSelected(false);
 			stepdownMinP.setEnabled(false);
@@ -434,7 +442,10 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel {
     }
     
     private void pvaluesByPerm_actionPerformed(ActionEvent e) {
-    	allPerms.setVisible(true);    	
+    	allPerms.setEnabled(true);
+    	randomlyGroup.setEnabled(true);
+    	numCombs.setEnabled(true);
+    	numCombsLabel.setEnabled(true);    	
     	jLabel5.setVisible(true);
     	stepdownMinP.setEnabled(true);
     	stepdownMaxT.setEnabled(true);
