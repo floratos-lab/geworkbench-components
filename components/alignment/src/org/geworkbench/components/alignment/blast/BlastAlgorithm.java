@@ -179,7 +179,8 @@ public class BlastAlgorithm extends SwingWorker<CSAlignmentResultSet, Integer> {
 				}
 				status = blast.retrieveResult(resultURLString);
 			}
-			if(status!=Status.READY) {
+			if(isCancelled()) return null;
+			else if(status!=Status.READY) {
 				String msg = parseError(outputFile);
 				processExceptionFromNcbi(new Exception(msg), sequence);
 				return null;
