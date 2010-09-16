@@ -1,17 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <database_list>
-	<database name="dbindex/9606/allcontig_and_rna" type="nucleotide">
-		<description>Human Genomic plus transcript (Human G+T)</description>
-		<detail>Human Genomic + transcript from NCBI.
-		</detail>
-	</database>
-	
-	<database name="dbindex/10090/allcontig_and_rna" type="nucleotide">
-		<description>Mouse Genomic plus transcript (Mouse G+T)</description>
-		<detail>Mouse Genomic + transcript from NCBI.
-		</detail>
-	</database>
-
 	<database name="nr" type="nucleotide">
 		<description>Nucleotide collection</description>
 		<detail>All GenBank + RefSeq Nucleotides + EMBL
