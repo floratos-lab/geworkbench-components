@@ -6,6 +6,7 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Random;
 
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
@@ -27,7 +28,6 @@ import org.geworkbench.bison.datastructure.complex.pattern.SoapParmsDataSet;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.CSSeqRegistration;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.ProjectSelection;
-import org.geworkbench.components.discovery.algorithm.RegularDiscoveryFileLoader;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Asynchronous;
@@ -77,7 +77,6 @@ import polgara.soapPD_wsdl.Parameters;
 @AcceptTypes( { CSSequenceSet.class, SoapParmsDataSet.class, PatternDB.class } )
 public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 		PropertyChangeListener {
-	private static final String RECEIVE_PROJECT_SELECTION = "receiveProjectSelection";
 
 	private Log log = LogFactory
 			.getLog(SequenceDiscoveryViewAppComponent.class);
@@ -104,7 +103,6 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 		try {
 			sDiscoveryViewWidget = new SequenceDiscoveryViewWidget();
 			sDiscoveryViewWidget.addPropertyChangeListener(this);
-			RegularDiscoveryFileLoader.propertyChangeUpdater.addPropertyChangeListener(this);
 			sDiscoveryViewWidget.setSequenceDiscoveryViewAppComponent(this);
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -257,47 +255,43 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 			// update db with the selected file in the project
 			if (df instanceof DSSequenceSet) {
 				currentStatus = SEQUENCE;
-				Parameters parms = null;
-				File resultFile = null;
 				fullSequenceDB = (DSSequenceSet) df;
-				DSAncillaryDataSet ds = selection.getDataSubSet();
-				String subNodeID = null;
-				boolean withSubNode = false;
-				if (ds != null && ds instanceof SoapParmsDataSet) {
-					// ParameterTranslation.getParameterTranslation().
-					// getParameters(((SoapParmsDataSet)ds).getParameters());
-					parms = ParameterTranslation
-							.getParameters(((SoapParmsDataSet) ds)
-									.getParameters());
-					;
-					String currentMinSupportTypeName = ((SoapParmsDataSet) ds)
-							.getParameters().getMinSupportType();
-					subNodeID = ds.getID();
-					withSubNode = true;
-					resultFile = ((SoapParmsDataSet) ds).getResultFile();
-					sDiscoveryViewWidget
-							.setMinSupportTypeName(currentMinSupportTypeName);
-				}
-				if (df.equals(fullSequenceDB)) {
-					sDiscoveryViewWidget.setSequenceDB(activeSequenceDB,
-							withSubNode, subNodeID, parms, resultFile);
-				} else {
-					if (e.getMessage().equals(RECEIVE_PROJECT_SELECTION)){
-						resultFile = null;
-					}
-					sDiscoveryViewWidget.setSequenceDB((DSSequenceSet) df,
-							withSubNode, subNodeID, parms, resultFile);
-				}
+				sDiscoveryViewWidget.setSequenceDB((DSSequenceSet) df,
+						false, null, null, null);
 			} else {
 				currentStatus = NONSEQUENCE;
 			}
+		}
 
-			if (e.getParent()==null) {
-				sDiscoveryViewWidget.setCurrentView(SequenceDiscoveryViewWidget.DEFAULT_VIEW);
-			} else {
-				sDiscoveryViewWidget.setCurrentView(SequenceDiscoveryViewWidget.PATTERN_TABLE);
-			}
-
+		DSDataSet dataset = e.getDataSet();
+		if (dataset instanceof SoapParmsDataSet) {
+			SoapParmsDataSet soapParmsDataSet = (SoapParmsDataSet) dataset;
+			File resultFile = soapParmsDataSet.getResultFile();
+			log.debug("result file is "+resultFile.getAbsolutePath());
+			Parameters parms = ParameterTranslation
+					.getParameters(soapParmsDataSet.getParameters());
+			DSSequenceSet sequenceDB = (DSSequenceSet)df;
+			if (df.equals(fullSequenceDB)) sequenceDB = activeSequenceDB;
+			sDiscoveryViewWidget.setSequenceDB(sequenceDB, true,
+					soapParmsDataSet.getID(), parms, resultFile);
+			sDiscoveryViewWidget
+					.setCurrentView(SequenceDiscoveryViewWidget.PATTERN_TABLE);
+		} else if (dataset instanceof PatternDB ) {
+			PatternDB patternDB = (PatternDB) dataset;
+			File resultFile = new File("Loaded"+new Random().nextLong()+".pat");
+			patternDB.write(resultFile);
+			log.debug("result file is "+resultFile.getAbsolutePath());
+			Parameters parms = ParameterTranslation
+			.getParameters(new org.geworkbench.bison.datastructure.complex.pattern.Parameters());
+			DSSequenceSet sequenceDB = (DSSequenceSet)df;
+			if (df.equals(fullSequenceDB)) sequenceDB = activeSequenceDB;
+			sDiscoveryViewWidget.setSequenceDB(sequenceDB, true,
+					patternDB.getID(), parms, resultFile);
+			sDiscoveryViewWidget
+					.setCurrentView(SequenceDiscoveryViewWidget.PATTERN_TABLE);
+		} else {
+			sDiscoveryViewWidget
+					.setCurrentView(SequenceDiscoveryViewWidget.DEFAULT_VIEW);
 		}
 	}
 
@@ -402,21 +396,18 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 	 * @param evt
 	 *            property event
 	 */
-	@SuppressWarnings("unchecked")
 	public void propertyChange(PropertyChangeEvent evt) {
 		String property = evt.getPropertyName();
-		if (property.equalsIgnoreCase(SequenceDiscoveryViewWidget.PARAMETERS)
-				|| property
-						.equalsIgnoreCase(SequenceDiscoveryViewWidget.PATTERN_DB)) {
-			DSAncillaryDataSet<? extends DSBioObject> dataset = (DSAncillaryDataSet<? extends DSBioObject>) evt
-					.getNewValue();
-				org.geworkbench.events.ProjectNodeAddedEvent event = new org.geworkbench.events.ProjectNodeAddedEvent(
-						"message", null, dataset);
-				publishProjectNodeAddedEvent(event);
-		} else if (property
+		if (property
 				.equalsIgnoreCase(SequenceDiscoveryViewWidget.TABLE_EVENT)) {
 			notifyTableEvent(evt);
 		}
+	}
+	
+	public void createNewNode(DSAncillaryDataSet<? extends DSBioObject> dataset) {
+		org.geworkbench.events.ProjectNodeAddedEvent event = new org.geworkbench.events.ProjectNodeAddedEvent(
+				"message", null, dataset);
+		publishProjectNodeAddedEvent(event);
 	}
 
 	@Publish

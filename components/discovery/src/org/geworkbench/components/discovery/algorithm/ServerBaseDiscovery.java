@@ -417,6 +417,7 @@ public final class ServerBaseDiscovery extends
         }
         //patternDB.setParameters(widget.getParameters());
         patternDB.write(resultFile);
+        result.setPatternDB(patternDB);
 
          }catch (Exception e){
              e.printStackTrace();

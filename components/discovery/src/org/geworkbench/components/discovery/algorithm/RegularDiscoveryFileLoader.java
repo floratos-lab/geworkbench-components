@@ -1,7 +1,7 @@
 package org.geworkbench.components.discovery.algorithm;
 
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSMatchedSeqPattern;
-import org.geworkbench.components.discovery.SequenceDiscoveryViewWidget;
+import org.geworkbench.components.discovery.SequenceDiscoveryViewAppComponent;
 import org.geworkbench.events.ProgressChangeEvent;
 import org.geworkbench.events.StatusBarEvent;
 import org.geworkbench.util.patterns.PatternSorter;
@@ -31,10 +31,17 @@ public class RegularDiscoveryFileLoader extends AbstractSequenceDiscoveryAlgorit
     private String statusBarMessage = "";
     int patternNumber = 0;
 
-    public RegularDiscoveryFileLoader(File sequenceFile, File patternFile) {
+    private SequenceDiscoveryViewAppComponent appComponent = null;
+	private boolean newNode = false;
+    
+    public RegularDiscoveryFileLoader(File sequenceFile, File patternFile, final SequenceDiscoveryViewAppComponent appComponent,
+    		boolean newNode) {
 
         this.sequenceFile = sequenceFile;
         this.patternFile = patternFile;
+
+        this.appComponent = appComponent;
+        this.newNode = newNode;
     }
 
     /**
@@ -56,22 +63,14 @@ public class RegularDiscoveryFileLoader extends AbstractSequenceDiscoveryAlgorit
             patternNumber = patternDB.getPatternNo();
             progressChange();
 
-            propertyChangeUpdater.publishPropertyChange(SequenceDiscoveryViewWidget.PATTERN_DB, null, patternDB);
+            if(newNode)
+            	appComponent.createNewNode(patternDB);
 
         } else {
             JOptionPane.showMessageDialog(null, "The file " + patternDB.getDataSetName() + " could not be loaded.\n " + "Please make sure that the sequence file" + " is loaded and selected in the project.");
         }
 
     }
-
-    public static class PropertyChangeUpdater extends Component {
-		private static final long serialVersionUID = -5916145162629975774L;
-
-		void publishPropertyChange(String s, Object o1, Object o2) {
-    		firePropertyChange(s, o1, o2);
-    	}
-    }
-    public static PropertyChangeUpdater propertyChangeUpdater = new PropertyChangeUpdater();
 
     /* This class is not for loading file instead of getting results, so ProgressChangeEvent is always set to be initial.  */
     private void progressChange() {

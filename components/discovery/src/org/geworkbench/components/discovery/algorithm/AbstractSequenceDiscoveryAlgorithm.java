@@ -5,6 +5,7 @@ import org.geworkbench.events.StatusBarEvent;
 import org.geworkbench.events.listeners.ProgressChangeListener;
 import org.geworkbench.events.listeners.StatusChangeListener;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
+import org.geworkbench.bison.datastructure.complex.pattern.SoapParmsDataSet;
 import org.geworkbench.components.discovery.SequenceDiscoveryViewWidget;
 
 import javax.swing.event.EventListenerList;
@@ -29,6 +30,7 @@ public abstract class AbstractSequenceDiscoveryAlgorithm {
     private EventListenerList listenerList = new EventListenerList();
 
     File resultFile;
+    SoapParmsDataSet result;
     DSSequenceSet sequenceInputData;
 
     // SequenceDiscoveryViewWidget which created this stub
@@ -242,8 +244,9 @@ public abstract class AbstractSequenceDiscoveryAlgorithm {
         return resultFile;
     }
 
-    public void setResultFile(File resultFile) {
-        this.resultFile = resultFile;
+    public void setResultFile(SoapParmsDataSet result) {
+    	this.result = result;
+        this.resultFile = result.getResultFile();
     }
 
     public DSSequenceSet getSequenceInputData() {
