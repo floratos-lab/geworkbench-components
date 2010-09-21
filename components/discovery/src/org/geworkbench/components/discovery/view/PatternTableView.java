@@ -326,7 +326,7 @@ public class PatternTableView extends JPanel {
 
     private void addPatToProj_actionPerformed() {
         org.geworkbench.util.patterns.PatternDB db = getPatternDB();
-        firePropertyChange(PatternTableView.PATTERN_ADDTO_PROJECT, null, db);
+        widget.getAppComponent().createNewNode(db);
     }
 
     /**

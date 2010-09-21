@@ -99,8 +99,6 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 	private AlgorithmSelectionPanel algoPanel = new org.geworkbench.util.AlgorithmSelectionPanel();
 
 	// property changes
-	public static final String PATTERN_DB = "patternDB";
-	public static final String PARAMETERS = "parameters";
 	public static final String TABLE_EVENT = "tableEvent";
 
 	// the displayed view component in this widget
@@ -341,19 +339,16 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 	 *
 	 * @param type
 	 */
-	@SuppressWarnings("unchecked")
-	private File readParameterAndCreateResultfile(String type) {
+	private SoapParmsDataSet readParameterAndCreateResultfile(String type) {
 		SoapParmsDataSet pds = getParamsDataSet(type);
 		String id = pds.getID();
-		File resultFile = pds.getResultFile();
 		currentStubId = currentNodeID + id;
 		resultData = pds;
-//		firePropertyChange(PARAMETERS, null, pds);
-		return resultFile;
+		return pds;
 	}
 
 	public void firePropertyChangeAlgo(){
-		firePropertyChange(PARAMETERS, null, resultData);
+		appComponent.createNewNode(resultData);
 		firePropertyChange(TABLE_EVENT, null, null);
 	}
 
@@ -384,9 +379,6 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		String property = evt.getPropertyName();
 		if (property.equalsIgnoreCase(PatternTableView.ROWSELECTION)) {
 			firePropertyChange(TABLE_EVENT, null, evt.getNewValue());
-		} else if (property
-				.equalsIgnoreCase(PatternTableView.PATTERN_ADDTO_PROJECT)) {
-			firePropertyChange(PATTERN_DB, null, evt.getNewValue());
 		}
 	}
 
@@ -512,7 +504,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 	 */
 	private AbstractSequenceDiscoveryAlgorithm createDiscoveryAlgorithm(
 			DiscoverySession session) {
-		File resultFile = readParameterAndCreateResultfile("Discovery");
+		SoapParmsDataSet resultFile = readParameterAndCreateResultfile("Discovery");
 		AbstractSequenceDiscoveryAlgorithm abstractSequenceDiscoveryAlgorithm = new ServerBaseDiscovery(
 				session, getParameters(), SPLASHDefinition.Algorithm.REGULAR);
 		abstractSequenceDiscoveryAlgorithm.setResultFile(resultFile);
@@ -543,7 +535,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 	 */
 	private AbstractSequenceDiscoveryAlgorithm createExhaustive(
 			DiscoverySession discoverySession) {
-		File resultFile = readParameterAndCreateResultfile("Exhaustive");
+		SoapParmsDataSet resultFile = readParameterAndCreateResultfile("Exhaustive");
 		AbstractSequenceDiscoveryAlgorithm abstractSequenceDiscoveryAlgorithm = new ServerBaseDiscovery(
 				discoverySession, getParameters(), SPLASHDefinition.Algorithm.EXHAUSTIVE);
 		abstractSequenceDiscoveryAlgorithm.setResultFile(resultFile);
@@ -662,7 +654,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		int id = DEFAULT_VIEW;
 		if (type != null
 				&& type.equalsIgnoreCase(AlgorithmSelectionPanel.DISCOVER)) {
-			loader = new RegularDiscoveryFileLoader(sequenceFile, patternfile);
+			loader = new RegularDiscoveryFileLoader(sequenceFile, patternfile, appComponent, false);
 			id = PATTERN_TABLE;
 			algoPanelName = AlgorithmSelectionPanel.DISCOVER;
 		} else {
@@ -724,7 +716,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		int id = DEFAULT_VIEW;
 		if (type != null
 				&& type.equalsIgnoreCase(AlgorithmSelectionPanel.DISCOVER)) {
-			loader = new RegularDiscoveryFileLoader(sequenceFile, patternfile);
+			loader = new RegularDiscoveryFileLoader(sequenceFile, patternfile, appComponent, true);
 			id = PATTERN_TABLE;
 			algoPanelName = AlgorithmSelectionPanel.DISCOVER;
 		} else {
@@ -795,5 +787,9 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 				"...");
 		public static final ProgressBarEvent progressEvt = new org.geworkbench.events.ProgressBarEvent(
 				null, null, 0);
+	}
+
+	public SequenceDiscoveryViewAppComponent getAppComponent() {
+		return appComponent;
 	}
 }

@@ -424,7 +424,11 @@ public class DiscoverySession {
             try {
 
                 ArrayOfSOAPOffsetHolder arrayOfSOAPOffsetHolder = new ArrayOfSOAPOffsetHolder();
-                soapPort.getPattern(logToken, patId, pattern.idNo, pattern.seqNo, pValue, arrayOfSOAPOffsetHolder, loci);
+                IntHolder idNo = new IntHolder();
+                IntHolder seqNo = new IntHolder();
+                soapPort.getPattern(logToken, patId, idNo, seqNo, pValue, arrayOfSOAPOffsetHolder, loci);
+                pattern.idNo = idNo.value;
+                pattern.seqNo = seqNo.value;
                 pattern.setPValue(pValue.value);
                 pattern.locus = loci.value;
                 translateToNewPattern(pattern, arrayOfSOAPOffsetHolder);
