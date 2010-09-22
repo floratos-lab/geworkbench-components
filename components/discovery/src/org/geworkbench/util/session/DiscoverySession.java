@@ -11,7 +11,6 @@ import javax.xml.rpc.holders.StringHolder;
 import org.apache.axis.types.UnsignedInt;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
-import org.geworkbench.util.patterns.CSMatchedSeqPattern;
 import org.geworkbench.util.patterns.PatternOfflet;
 import org.geworkbench.util.remote.Connection;
 
@@ -417,49 +416,39 @@ public class DiscoverySession {
             }
     }
 
-    public void getPattern(int patId, org.geworkbench.util.patterns.CSMatchedSeqPattern pattern) throws SessionOperationException {
-            DoubleHolder pValue = new DoubleHolder();
-            ByteArrayHolder loci = new ByteArrayHolder();
+	public void getPattern(int patId,
+			org.geworkbench.util.patterns.CSMatchedSeqPattern pattern)
+			throws SessionOperationException {
+		DoubleHolder pValue = new DoubleHolder();
+		ByteArrayHolder loci = new ByteArrayHolder();
 
-            try {
+		try {
 
-                ArrayOfSOAPOffsetHolder arrayOfSOAPOffsetHolder = new ArrayOfSOAPOffsetHolder();
-                IntHolder idNo = new IntHolder();
-                IntHolder seqNo = new IntHolder();
-                soapPort.getPattern(logToken, patId, idNo, seqNo, pValue, arrayOfSOAPOffsetHolder, loci);
-                pattern.idNo = idNo.value;
-                pattern.seqNo = seqNo.value;
-                pattern.setPValue(pValue.value);
-                pattern.locus = loci.value;
-                translateToNewPattern(pattern, arrayOfSOAPOffsetHolder);
-//                SOAPOffset[] values = arrayOfSOAPOffsetHolder.value;
-//                PatternOfflet[] patternOfflets = new PatternOfflet[values.length];
-//                ArrayList<PatternOfflet> arrayList = new ArrayList<PatternOfflet>();
-//                for (int i=0; i<values.length; i++){
-//                    PatternOfflet patternOfflet = new PatternOfflet(values[i].getDx(), values[i].getToken());
-//                    arrayList.add(i, patternOfflet);
-//                }
-//
-//                pattern.offset =   arrayList;
-            } catch (RemoteException ex) {
-                setState(true);
-                throw new SessionOperationException("Could not get the pattern.");
-            }
-    }
+			ArrayOfSOAPOffsetHolder arrayOfSOAPOffsetHolder = new ArrayOfSOAPOffsetHolder();
+			IntHolder idNo = new IntHolder();
+			IntHolder seqNo = new IntHolder();
+			soapPort.getPattern(logToken, patId, idNo, seqNo, pValue,
+					arrayOfSOAPOffsetHolder, loci);
+			pattern.idNo = idNo.value;
+			pattern.seqNo = seqNo.value;
+			pattern.setPValue(pValue.value);
+			pattern.locus = loci.value;
 
-    public  boolean translateToNewPattern(CSMatchedSeqPattern csMatchedSeqPattern, ArrayOfSOAPOffsetHolder arrayOfSOAPOffsetHolder){
-        SOAPOffset[] values = arrayOfSOAPOffsetHolder.value;
-//        PatternOfflet[] patternOfflets = new PatternOfflet[values.length];
-        ArrayList<PatternOfflet> arrayList = new ArrayList<PatternOfflet>();
-        for (int i=0; i<values.length; i++){
-            PatternOfflet patternOfflet = new PatternOfflet(values[i].getDx(), values[i].getToken());
-            arrayList.add(i, patternOfflet);
-        }
+			SOAPOffset[] values = arrayOfSOAPOffsetHolder.value;
+			ArrayList<PatternOfflet> arrayList = new ArrayList<PatternOfflet>();
+			for (int i = 0; i < values.length; i++) {
+				PatternOfflet patternOfflet = new PatternOfflet(
+						values[i].getDx(), values[i].getToken());
+				arrayList.add(i, patternOfflet);
+			}
 
-        csMatchedSeqPattern.setOffset(arrayList);
-        return true;
+			pattern.setOffset(arrayList);
+		} catch (RemoteException ex) {
+			setState(true);
+			throw new SessionOperationException("Could not get the pattern.");
+		}
+	}
 
-    }
     /**
      * Sort the patterns on the server.
      *
