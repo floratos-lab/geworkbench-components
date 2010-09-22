@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
@@ -13,6 +14,10 @@ import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JToolBar;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.TableColumnModelEvent;
+import javax.swing.event.TableColumnModelListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
@@ -125,7 +130,7 @@ public class TabularMicroarrayPanel extends MicroarrayViewEventBase {
 					return stats.toString();
 				} else {
 					DSMicroarray array = maSetView.get(col - 1);
-					DSMarkerValue value = array.getMarkerValue(row);
+					DSMarkerValue value = array.getMarkerValue(stats);
 					if (value instanceof DSGenotypicMarkerValue) {
 						return value.toString();
 					} else {
@@ -176,6 +181,7 @@ public class TabularMicroarrayPanel extends MicroarrayViewEventBase {
         jTable1.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         jTable1.setDefaultRenderer(Object.class, renderer);
         jTable1.setCellSelectionEnabled(true);
+		jTable1.getColumnModel().addColumnModelListener(new ColumnOrderTableModelListener(jTable1));
 
         jToolBar1.setBorder(null);
         mainPanel.add(jScrollPane1, BorderLayout.CENTER);
@@ -189,6 +195,69 @@ public class TabularMicroarrayPanel extends MicroarrayViewEventBase {
     protected void fireModelChangedEvent(MicroarraySetViewEvent event) {
     	microarrayTableModel.fireTableStructureChanged();
     	log.debug("fireModelChangedEvent");
+		if (activatedArrays != null && activatedArrays.panels().size() > 0
+				&& activatedArrays.size() > 0)
+			return;
+
+		ArrayList<Integer> columnOrder = new ArrayList<Integer>();
+
+		if(maSetView!=null && maSetView.getDataSet()!=null 
+				&& !maSetView.getDataSet().getColumnOrder().isEmpty())
+			columnOrder = maSetView.getDataSet().getColumnOrder();
+
+		if (!columnOrder.isEmpty())
+		{
+	    	int columncount = jTable1.getColumnCount();
+			for (int i = 0; i < columncount; i++)
+				jTable1.addColumn(jTable1.getColumnModel().getColumn(columnOrder.get(i)));
+
+			for (int i = 0; i < columncount; i++)
+				jTable1.removeColumn(jTable1.getColumnModel().getColumn(0));
+		}
+    }
+
+    private class ColumnOrderTableModelListener implements TableColumnModelListener {
+    	private JTable table;
+    	public ColumnOrderTableModelListener(JTable mytable){
+    		table = mytable;
+    	}
+		@Override
+		public void columnAdded(TableColumnModelEvent e) {
+			// TODO Auto-generated method stub
+		}
+
+		@Override
+		public void columnMarginChanged(ChangeEvent e) {
+			// TODO Auto-generated method stub
+		}
+
+		@Override
+		public void columnMoved(TableColumnModelEvent e) {
+			// TODO Auto-generated method stub
+			int from = e.getFromIndex();
+			int to = e.getToIndex();
+			if (from == to) return;
+			if (activatedArrays != null && activatedArrays.panels().size() > 0
+					&& activatedArrays.size() > 0)
+				return;
+
+			ArrayList<Integer> columnOrder = new ArrayList<Integer>();
+			int columncount = table.getColumnCount();
+			for (int i = 0; i < columncount; i++)
+				columnOrder.add(table.convertColumnIndexToModel(i));
+			maSetView.getDataSet().setColumnOrder(columnOrder);
+		}
+
+		@Override
+		public void columnRemoved(TableColumnModelEvent e) {
+			// TODO Auto-generated method stub		
+		}
+
+		@Override
+		public void columnSelectionChanged(ListSelectionEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
     }
     
 }
