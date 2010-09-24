@@ -65,9 +65,6 @@ import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.GeneSelectorEvent;
 
-import com.borland.jbcl.layout.XYConstraints;
-import com.borland.jbcl.layout.XYLayout;
-
 /**
  *
  * @author not attributable
@@ -187,7 +184,6 @@ public class BlastAppComponent implements VisualPlugin {
     private Border border3 = new TitledBorder(border1, "Database Details");
     private JTextArea textArea = new JTextArea();
 
-    private XYLayout xYLayout1 = new XYLayout();
     private ImageIcon startButtonIcon = new ImageIcon(this.getClass().getResource(
             "start.gif"));
     private ImageIcon stopButtonIcon = new ImageIcon(this.getClass().getResource(
@@ -272,7 +268,6 @@ public class BlastAppComponent implements VisualPlugin {
         border2 = new TitledBorder(border1,
                                    "Please specify Program and Database");
 
-        xYLayout1 = new XYLayout();
         startButtonIcon = new ImageIcon(this.getClass().getResource(
                 "start.gif"));
         stopButtonIcon = new ImageIcon(this.getClass().getResource(
@@ -422,7 +417,7 @@ public class BlastAppComponent implements VisualPlugin {
 
         jProgramBox.setAutoscrolls(false);
         subSeqPanel.setLayout(new BoxLayout(subSeqPanel, BoxLayout.Y_AXIS));
-        subSeqPanel2.setLayout(xYLayout1);
+        subSeqPanel2.setLayout(new BoxLayout(subSeqPanel2, BoxLayout.Y_AXIS));
 
         jstartPointField.setText("1");
         jendPointField.setText("");
@@ -579,8 +574,8 @@ public class BlastAppComponent implements VisualPlugin {
         textArea.setEditable(false);
         textArea.setLineWrap(true); //wrap text around
         textArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
-        subSeqPanel2.add(textArea,new XYConstraints(0, 84, 352, 150));
-        
+        textArea.setPreferredSize(new Dimension(350, 100));
+        subSeqPanel2.add(textArea);
         
         chooseSearchPanel.setLayout(new GridBagLayout());       
         
