@@ -75,18 +75,11 @@ public class GSEAAnalysisPanel extends GPAnalysisPanel
     {
         gsDatabase = new JComboBox();
 
-        gsDatabase.setMinimumSize(new Dimension(270, 22));
-        gsDatabase.setMaximumSize(new Dimension(270, 22));
-        gsDatabase.setPreferredSize(new Dimension(270, 22));
-
         gsDatabaseFile = new JFileChooser();
 
         gsDatabaseFileField = new JTextField();
         gsDatabaseFileField.setEditable(false);
         gsDatabaseFileField.setEnabled(false);
-        gsDatabaseFileField.setMinimumSize(new Dimension(110, 22));
-        gsDatabaseFileField.setMaximumSize(new Dimension(110, 22));
-        gsDatabaseFileField.setPreferredSize(new Dimension(110, 22));
 
         selectGS = new JRadioButton("select gene set database");
         selectGS.setSelected(true);
