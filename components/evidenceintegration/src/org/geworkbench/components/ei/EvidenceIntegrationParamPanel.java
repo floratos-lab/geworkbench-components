@@ -41,8 +41,6 @@ import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterPipeline;
 
-import com.solarmetric.ide.ui.CheckboxCellRenderer;
-
 import edu.columbia.c2b2.evidenceinegration.Evidence;
 
 /**
@@ -296,7 +294,6 @@ public class EvidenceIntegrationParamPanel extends AbstractSaveableParameterPane
     private void setBooleanRenderers(JXTable table) {
         // Something in workbench is overriding these renderers
         table.setDefaultEditor(Boolean.class, new DefaultCellEditor(new JCheckBox()));
-        table.setDefaultRenderer(Boolean.class, new CheckboxCellRenderer());
         table.setDefaultEditor(Integer.class, new DefaultCellEditor(new JTextField()));
         table.setDefaultRenderer(Integer.class, new JXTable.NumberRenderer());
     }
