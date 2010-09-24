@@ -102,9 +102,6 @@ public class WVTrainingPanel extends GPTrainingPanel {
         });
 
         numFeatures = new JFormattedTextField();
-        numFeatures.setPreferredSize(new Dimension(145, 20));
-        numFeatures.setMinimumSize(new Dimension(145, 20));
-        numFeatures.setMaximumSize(new Dimension(145, 20));
         numFeatures.setValue(DEFAULT_NUM_FEATURES);
 
         featureFileMethod = new JRadioButton();
@@ -148,9 +145,6 @@ public class WVTrainingPanel extends GPTrainingPanel {
 
         statistic = new JComboBox();
         statistic.setName("feature selection statistic");
-        statistic.setPreferredSize(new Dimension(145, 20));
-        statistic.setMinimumSize(new Dimension(145, 20));
-        statistic.setMaximumSize(new Dimension(145, 20));
         statistic.addItem("SNR");
         statistic.addItem("T-Test");
 
