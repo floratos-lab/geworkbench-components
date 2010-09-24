@@ -55,7 +55,6 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.ModulatorInfo;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
-import com.solarmetric.ide.ui.CheckboxCellRenderer;
 
 /**
  * MINDY result view main GUI class
@@ -977,7 +976,6 @@ public class MindyPlugin extends JPanel {
 	static void restoreBooleanRenderers(JTable table) {
 		table.setDefaultEditor(Boolean.class, new DefaultCellEditor(
 				new JCheckBox()));
-		table.setDefaultRenderer(Boolean.class, new CheckboxCellRenderer());
 	}
 
 	void setListTableViewOptions() {
