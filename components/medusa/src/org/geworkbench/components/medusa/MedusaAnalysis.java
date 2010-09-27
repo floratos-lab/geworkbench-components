@@ -149,19 +149,6 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 	 * @see org.geworkbench.bison.model.analysis.Analysis#execute(java.lang.Object)
 	 */
 	public AlgorithmExecutionResults execute(Object input) {
-	// inform the user that only remote service is available
-	return new AlgorithmExecutionResults(
-			false,
-			"Medusa does not have a local algorithm service.  Please choose \"Grid\" on the Medusa analysis panel.",
-			null);
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.geworkbench.bison.model.analysis.Analysis#execute(java.lang.Object)
-	 */
-	public AlgorithmExecutionResults execute_local_jdk5(Object input) {
 		MedusaParamPanel params = (MedusaParamPanel) aspp;
 
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> microarraySetView = (CSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
