@@ -27,6 +27,7 @@ import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetV
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.components.medusa.gui.TranscriptionFactorInfoBean;
+import org.geworkbench.util.FilePathnameUtils;
 import org.ginkgo.labs.reader.XmlReader;
 import org.ginkgo.labs.reader.XmlWriter;
 import org.ginkgo.labs.util.FileTools;
@@ -414,6 +415,9 @@ public class MedusaUtil {
 
 		updateXmlNode(doc, "parameters", "pssms_number_to_agglomerate", String
 				.valueOf(command.getAgg()));
+
+		updateXmlNode(doc, "output", "dir_experiment", 
+				FilePathnameUtils.getTemporaryFilesDirectoryPath() + "temp/medusa/dataset/output");
 
 		Date now = new Date();
 		long nowLong = now.getTime();

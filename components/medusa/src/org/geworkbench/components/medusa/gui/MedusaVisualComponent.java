@@ -95,41 +95,42 @@ public class MedusaVisualComponent implements VisualPlugin {
 				dataSet = ((MedusaDataSet) data);
 				component.removeAll();
 				
-				String tarstr = dataSet.getPath();
-				log.info(dataSet.getFilename()+" received length: "+tarstr.length());
-
-				File dirPath = new File(outdir);
-				if (!dirPath.exists())  dirPath.mkdirs();
-				
-				String tardir = outdir+dataSet.getFilename()+".tar";
-				try{
-					decodeStringToFile(tarstr, tardir);
-				}catch(Exception e){
-					e.printStackTrace();
-					pBar.stop();
-					return;
+				if (dataSet.getFilename() != null) {
+					String tarstr = dataSet.getPath();
+					log.info(dataSet.getFilename()+" received length: "+tarstr.length());
+	
+					File dirPath = new File(outdir);
+					if (!dirPath.exists())  dirPath.mkdirs();
+					
+					String tardir = outdir+dataSet.getFilename()+".tar";
+					try{
+						decodeStringToFile(tarstr, tardir);
+					}catch(Exception e){
+						e.printStackTrace();
+						pBar.stop();
+						return;
+					}
+	
+					String pwd = System.getProperty("user.dir");
+					System.setProperty("user.dir", FilePathnameUtils.getTemporaryFilesDirectoryPath());
+	
+					tar app = new tar(); 
+					String tarArgs[] = {"-xf", tardir};
+					app.instanceMain(tarArgs);
+	
+					System.setProperty("user.dir", pwd);
+					
+					File delfile = new File(tardir);
+					if (delfile.exists())
+					{
+						System.gc();
+						boolean ret = delfile.delete();
+						log.info(ret+ " delete "+ delfile.getPath());
+					}
+	
+					String runpath = dataSet.getFilename();
+					dataSet.setAbsPath(runpath);
 				}
-
-				String pwd = System.getProperty("user.dir");
-				System.setProperty("user.dir", FilePathnameUtils.getTemporaryFilesDirectoryPath());
-
-				tar app = new tar(); 
-				String tarArgs[] = {"-xf", tardir};
-				app.instanceMain(tarArgs);
-
-				System.setProperty("user.dir", pwd);
-				
-				File delfile = new File(tardir);
-				if (delfile.exists())
-				{
-					System.gc();
-					boolean ret = delfile.delete();
-					log.info(ret+ " delete "+ delfile.getPath());
-				}
-
-				String runpath = dataSet.getFilename();
-				dataSet.setAbsPath(runpath);
-				
 				medusaVisualizationPanel = new MedusaVisualizationPanel(this,
 						dataSet.getData(), dataSet.getPath());
 				// medusaPlugin.limitMarkers(selectedMarkers);
