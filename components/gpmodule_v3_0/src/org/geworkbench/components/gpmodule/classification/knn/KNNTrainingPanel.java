@@ -133,9 +133,6 @@ public class KNNTrainingPanel extends GPTrainingPanel {
         featureFileMethod.addActionListener(parameterActionListener);
 
         featureFileTextBox = new JTextField();
-        featureFileTextBox.setPreferredSize(new Dimension(145, 20));
-        featureFileTextBox.setMinimumSize(new Dimension(145, 20));
-        featureFileTextBox.setMaximumSize(new Dimension(145, 20));
         featureFileTextBox.setEnabled(false);
         featureFileTextBox.addActionListener(parameterActionListener);
         loadFeatureFileButton = new JButton("Load");
