@@ -1296,6 +1296,10 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
             			stopAlgorithm(pb);
             			return;
             		}
+            		if (agentDiseaseResults == null){
+        	            clearTable(t2);
+        	            return;
+            		  }
                     MarkerData[] markers = agentDiseaseResults.getMarkers();
                     GeneData[] genes = agentDiseaseResults.getGenes();
                     DiseaseData[] diseases = agentDiseaseResults.getDiseases();
@@ -1315,6 +1319,8 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
 								null,
 								"Server does not have records about these markers, please try other markers.",
 								"Server returns no records", JOptionPane.OK_OPTION);
+        				clearTable(t2);
+        				return;
                     }
                     for (int i = 0; i < dropDownLists.length; i++) {
                     	dropDownLists[i].removeAllItems();
@@ -1400,6 +1406,8 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
                         	((SortableTableModel)selectedTable.getModel()).sortByColumn(2,false);
                         	((SortableTableModel)selectedTable.getModel()).sortByColumn(0,true);
                             syncHeaderWidthWithTableWidth();
+                            
+                            if (!t2.isAlive() && pb.isActive()) pb.stop();
                         }
                     });
                 }
@@ -1473,8 +1481,10 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
                             GeneAnnotation[] annotations;
                             annotations = criteria.searchByName(geneName, humanOrMouse);
 
-                            if (annotations == null )
+                            if (annotations == null ) {
+                                clearTable(t1);
                             	return;
+                            }
 
                             MarkerData marker = new MarkerData(selectedMarkerInfo.get(i),"");
                             if ( annotations.length > 0) {
@@ -1513,7 +1523,6 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
 //                            }
                         }
                     	message = "Getting Marker Annotation/Pathways: Completed";
-                        if (!t1.isAlive() && pb.isActive())  pb.stop();
                     }
                     MarkerData[] markers = markerData.toArray(new MarkerData[0]);
                     GeneData[] genes = geneData.toArray(new GeneData[0]);
@@ -1535,6 +1544,7 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
                     SwingUtilities.invokeLater(new Runnable() {
                         public void run() {
                         	annotationTable.getTableHeader().repaint();
+                            if (!t1.isAlive() && pb.isActive())  pb.stop();
                         }
                     });
                 }
@@ -2740,5 +2750,42 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
 			return "csv";
 		}
 
+	}
+	
+	void clearTable(Thread t)
+	{
+	    if (!t.isAlive() && pb.isActive()) pb.stop();
+	    if (t == t1) {
+	    	annotationModel = new AnnotationTableModel();
+            annotationTableList.put(new Integer(maSet.hashCode()), annotationModel);
+        	annotationTable.setSortableModel(annotationModel);
+            annotationTable.getColumnModel().getColumn(0).setHeaderValue("     Marker");
+            annotationTable.getColumnModel().getColumn(1).setHeaderValue("     Gene");
+            annotationTable.getColumnModel().getColumn(2).setHeaderValue("     Pathway");
+            annotationTable.getTableHeader().revalidate();
+	    } 
+	    else if (t == t2) {
+	    	diseaseModel = new CGITableModel(AnnotationsPanel2.this);
+            diseaseTableList.put(new Integer(maSet.hashCode()), diseaseModel);
+	    	diseaseTable.setSortableModel(diseaseModel);
+        	diseaseTable.getColumnModel().getColumn(0).setHeaderValue("     Marker");
+            diseaseTable.getColumnModel().getColumn(1).setHeaderValue("     Gene");
+            diseaseTable.getColumnModel().getColumn(2).setHeaderValue("     Disease");
+            diseaseTable.getColumnModel().getColumn(3).setHeaderValue("     Role");
+            diseaseTable.getColumnModel().getColumn(4).setHeaderValue("     Sentence");
+            diseaseTable.getColumnModel().getColumn(5).setHeaderValue("     Pubmed");
+            diseaseTable.getTableHeader().revalidate();
+	    	
+	    	agentModel = new CGITableModel(AnnotationsPanel2.this);
+            agentTableList.put(new Integer(maSet.hashCode()), agentModel);
+        	agentTable.setSortableModel(agentModel);
+        	agentTable.getColumnModel().getColumn(0).setHeaderValue("     Marker");
+            agentTable.getColumnModel().getColumn(1).setHeaderValue("     Gene");
+            agentTable.getColumnModel().getColumn(2).setHeaderValue("     Disease");
+            agentTable.getColumnModel().getColumn(3).setHeaderValue("     Role");
+            agentTable.getColumnModel().getColumn(4).setHeaderValue("     Sentence");
+            agentTable.getColumnModel().getColumn(5).setHeaderValue("     Pubmed");
+            agentTable.getTableHeader().revalidate();
+	    }
 	}
 }
