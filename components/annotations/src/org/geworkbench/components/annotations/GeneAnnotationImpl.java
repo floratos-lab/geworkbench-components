@@ -607,9 +607,9 @@ public class GeneAnnotationImpl implements GeneAnnotation {
         		try {
         			results2 = appService.search(GeneFunctionAssociation.class, gene);
         		} catch (Exception e) {
-        			log.error(e,e);
-        			JOptionPane.showMessageDialog(null, "Please try again later",
-        					"Server side error", JOptionPane.ERROR_MESSAGE);
+        			JOptionPane.showMessageDialog(null, 
+        					"geWorkbench cannot retrieve data from the caBIO server for disease/agent associations.\nIt could be connection error. Please check your internet connection or try again later.",
+        					"Data processing/connection error", JOptionPane.ERROR_MESSAGE);
         			pb.stop();
         			return null;
         		}
@@ -649,6 +649,7 @@ public class GeneAnnotationImpl implements GeneAnnotation {
 						stopAlgorithm(pb);
 						break;
 					}
+        			if (diseaseLimitIndex==0 && agentLimitIndex==0)  break;
 
         			if (gfa instanceof GeneDiseaseAssociation) {
             			if (diseaseLimitIndex>0)
