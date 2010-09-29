@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.naming.OperationNotSupportedException;
+import javax.swing.JOptionPane;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -98,8 +99,10 @@ public class GeneSearchCriteriaImpl implements GeneSearchCriteria {
 			List<Gene> results = appService.search(Gene.class, gene);			
 			return GeneAnnotationImpl.toUniqueArray(results, organism);
 			
-		} catch (ApplicationException e) {
-			log.error(e);
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, 
+					"geWorkbench cannot retrieve data from the caBIO server for gene annotations.\nIt could be connection error. Please check your internet connection or try again later.",
+					"Data processing/connection error", JOptionPane.ERROR_MESSAGE);
 			return null;
 		}
 	}
