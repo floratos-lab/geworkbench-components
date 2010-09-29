@@ -17,10 +17,8 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -45,12 +43,12 @@ import javax.swing.RowFilter;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkEvent.EventType;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
-import javax.swing.event.HyperlinkEvent.EventType;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
@@ -93,7 +91,7 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 	private static final long serialVersionUID = -579377200878351871L;
 	static Log log = LogFactory.getLog(GoAnalysisResultView.class);
 	
-	private DefaultTreeModel treeModel = null;
+	private GoTermTreeModel treeModel = null;
 	private DefaultTreeModel singleGeneModel = null;
 	
 	private JTree tree = null;
@@ -112,8 +110,6 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 	private JPanel tableTab = null;
 	private JPanel treeTab = null;
 	private TableRowSorter<GoTableModel> sorter = null;
-	
-	private GoTreeNode root = new GoTreeNode (); // root
 
 	private void initializePrimaryView() {
 		primaryView = new JTabbedPane();
@@ -239,9 +235,12 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 				List<GoTreeNode> treePathList = null;
 				TreePath selectedPath = tree.getSelectionPath();
 				if(selectedPath==null) { // find the first one if no node is selected
-					GoTreeNode root = (GoTreeNode)(treeModel.getRoot());
-					treePathList = searchMatchingNode(root, searchText);
+					log.debug(".. start with no selection or root");
+					List<GoTreeNode> startingList = new ArrayList<GoTreeNode>();
+					startingList.add((GoTreeNode) treeModel.getRoot());
+					treePathList = searchMatchingNode(startingList, searchText);
 				} else { // find the next
+					log.debug("selectedPath=="+ selectedPath);
 					treePathList = new ArrayList<GoTreeNode>();
 					for(Object obj: selectedPath.getPath()) {
 						treePathList.add((GoTreeNode)obj);
@@ -260,7 +259,7 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 			
 		});
 
-		treeModel = new DefaultTreeModel(root);
+		treeModel = new GoTermTreeModel();
 
 		tree = new JTree(treeModel);
 		tree.setExpandsSelectedPaths(true);
@@ -394,6 +393,7 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 				showTermDetail(goId);
 			}
 		} else if (primaryView.getSelectedComponent()==treeTab) {
+			tree.updateUI(); // trick to force repaint.
 			GoTreeNode node = (GoTreeNode) tree.getLastSelectedPathComponent();
 			if(node==null || node.goId==0) {
 				geneListTableModel.setDataVector(null, geneListHeaders);
@@ -583,72 +583,53 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		return this;
 	}
 	
-	GoAnalysisResult result = null;
+	private GoAnalysisResult result = null;
 
-	private static Map<Integer, GoTreeNode> namespaceId2Node = null;
 	private AbstractButton allButton;
-	
-	private void populateTreeRrepresentation() {
-		/* in case the first time */
-		if(namespaceId2Node==null)
-			namespaceId2Node = new HashMap<Integer, GoTreeNode>();
-		if(namespaceId2Node.size()==0) {
-			GoTreeNode root = (GoTreeNode)(treeModel.getRoot());
-			for(int namespaceId: GoAnalysisResult.getNamespaceIds()) {
-				GoTreeNode namespaceNode = new GoTreeNode(result, namespaceId, root); 
-				root.add(namespaceNode);
-				namespaceId2Node.put(namespaceId, namespaceNode);
-			}
-		}
-
-		for(int namespaceId: GoAnalysisResult.getNamespaceIds()) {
-			GoTreeNode namespaceNode = namespaceId2Node.get(namespaceId);
-			namespaceNode.removeAllChildren();
-			for(Integer child: GoAnalysisResult.getOntologyChildren(namespaceId)) {
-				addChildren(child, namespaceNode);
-			}
-		}
-	}
 	
 	private void searchNext(List<GoTreeNode> treePathList, String searchText) {
 		int lastIndex = treePathList.size()-1;
-		GoTreeNode node = treePathList.remove(lastIndex); // remove the last matching node
+		GoTreeNode node = treePathList.get(lastIndex); // check the last matching node
 		if(node==treeModel.getRoot()) {  // path list is empty now: no more found
-			treePathList.clear();
-			List<GoTreeNode> list = searchMatchingNode(node, searchText);
-			if(list!=null)
-				treePathList.addAll( list );
-			return;
+			List<GoTreeNode> foundList = searchMatchingNode(treePathList, searchText);
+			if(foundList==null) // not found
+				treePathList.clear();
+			return; // if found, treePathList has been updated.
 		}
 
-		GoTreeNode parent = (GoTreeNode)node.getParent();
-		for(int index = parent.getIndex(node)+1; index <parent.getChildCount(); index++) {
-			GoTreeNode sibling = (GoTreeNode)parent.getChildAt(index);
-			
-			List<GoTreeNode> list = searchMatchingNode(sibling, searchText);
+		treePathList.remove(lastIndex); // remove the last matching node
+		GoTreeNode parent = treePathList.get(treePathList.size()-1);
+		for(int index = treeModel.getIndexOfChild(parent, node)+1; index <treeModel.getChildCount(parent); index++) {
+			GoTreeNode sibling = (GoTreeNode)treeModel.getChild(parent, index);
+			treePathList.add(sibling);
+			List<GoTreeNode> list = searchMatchingNode(treePathList, searchText);
 			if(list!=null) {
-				treePathList.addAll(list);
+				treePathList = list;
 				return;
+			} else {
+				treePathList.remove(sibling);
 			}
 		}
 		// if not in siblings
 		searchNext(treePathList, searchText);
 	}
-	
+
 	/* recursive call. terminate at either found or not children*/
-	private List<GoTreeNode> searchMatchingNode(GoTreeNode node, String searchText) {
+	private List<GoTreeNode> searchMatchingNode(List<GoTreeNode> path, String searchText) {
+		// it is important to search in model instead of tree so tree does not need to be expanded (a costly process)
+		GoTreeNode node = path.get(path.size()-1);
 		GoTermMatcher matcher = GoTermMatcher.createMatcher(node, searchText);
 		if(matcher.match()){
-			List<GoTreeNode> list= new ArrayList<GoTreeNode>();
-			list.add(node);
-			return list;
+			return path;
 		}
-		for(int i=0; i<node.getChildCount(); i++) {
-			GoTreeNode child = (GoTreeNode)(node.getChildAt(i));
-			List<GoTreeNode> list = searchMatchingNode(child, searchText); 
-			if(list!=null) {
-				list.add(0, node);
-				return list;
+		for(int i=0; i<treeModel.getChildCount(node); i++) {
+			GoTreeNode child = (GoTreeNode) treeModel.getChild(node, i);
+			path.add(child);
+			List<GoTreeNode> foundPath = searchMatchingNode(path, searchText); 
+			if(foundPath!=null) {
+				return foundPath;
+			} else {
+				path.remove(child);
 			}
 		}
 		return null;
@@ -704,18 +685,6 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		return found;
 	}
 	
-	private void addChildren(Integer childId, GoTreeNode parent) {
-		GoTreeNode childNode = new GoTreeNode(result, childId, parent); 
-		parent.add(childNode);
-
-		List<Integer> grandchildren = GoAnalysisResult.getOntologyChildren(childId);
-		if(grandchildren==null) return;
-		
-		for(Integer grandchild: grandchildren) {
-			addChildren(grandchild, childNode);
-		}
-	}
-	
 	// listen to the even that the user switches between data/result nodes, or new result node is created
 	@SuppressWarnings("unchecked")
 	@Subscribe
@@ -725,10 +694,7 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 			result = (GoAnalysisResult)dataSet;
 			tableModel.populateNewResult( result );
 			
-			populateTreeRrepresentation();
-			// clean out gene list, single gene tree, gene detail
-//			populateGeneList();
-//			populateSingleGeneTree();
+			treeModel.setResult(result);
 			allButton.setSelected(true); // show all three namespace at switching result node
 			repaint();
 		}

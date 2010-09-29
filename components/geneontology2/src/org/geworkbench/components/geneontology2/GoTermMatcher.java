@@ -23,7 +23,8 @@ public class GoTermMatcher {
 	}
 
 	private GoTermMatcher(int goTermId, String searchName) {
-		if(GoAnalysisResult.getGoTermName(goTermId).contains(searchName)) match = true;
+		String name = GoAnalysisResult.getGoTermName(goTermId);
+		if(name!=null && name.contains(searchName)) match = true;
 		else match = false;
 	}
 	
