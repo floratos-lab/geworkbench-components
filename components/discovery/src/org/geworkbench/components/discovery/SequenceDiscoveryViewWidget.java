@@ -30,6 +30,7 @@ import javax.swing.JToolBar;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
@@ -654,7 +655,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		int id = DEFAULT_VIEW;
 		if (type != null
 				&& type.equalsIgnoreCase(AlgorithmSelectionPanel.DISCOVER)) {
-			loader = new RegularDiscoveryFileLoader(sequenceFile, patternfile, appComponent, false);
+			loader = new RegularDiscoveryFileLoader(sequenceFile, patternfile, appComponent, false, (DSDataSet<DSSequence>) getSequenceDB());
 			id = PATTERN_TABLE;
 			algoPanelName = AlgorithmSelectionPanel.DISCOVER;
 		} else {
@@ -716,7 +717,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		int id = DEFAULT_VIEW;
 		if (type != null
 				&& type.equalsIgnoreCase(AlgorithmSelectionPanel.DISCOVER)) {
-			loader = new RegularDiscoveryFileLoader(sequenceFile, patternfile, appComponent, true);
+			loader = new RegularDiscoveryFileLoader(sequenceFile, patternfile, appComponent, true, (DSDataSet<DSSequence>) getSequenceDB());
 			id = PATTERN_TABLE;
 			algoPanelName = AlgorithmSelectionPanel.DISCOVER;
 		} else {
