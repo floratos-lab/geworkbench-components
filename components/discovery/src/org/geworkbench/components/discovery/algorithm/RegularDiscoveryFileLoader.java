@@ -1,6 +1,11 @@
 package org.geworkbench.components.discovery.algorithm;
 
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
+import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
+import org.geworkbench.bison.datastructure.complex.pattern.SoapParmsDataSet;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSMatchedSeqPattern;
+import org.geworkbench.bison.util.RandomNumberGenerator;
 import org.geworkbench.components.discovery.SequenceDiscoveryViewAppComponent;
 import org.geworkbench.events.ProgressChangeEvent;
 import org.geworkbench.events.StatusBarEvent;
@@ -26,22 +31,25 @@ import java.util.Arrays;
 public class RegularDiscoveryFileLoader extends AbstractSequenceDiscoveryAlgorithm implements org.geworkbench.util.patterns.SequentialPatternSource {
     FileDataSource PatternSource = null;
     org.geworkbench.util.patterns.PatternDB patternDB = null;
+
     File patternFile = null;
     File sequenceFile = null;
     private String statusBarMessage = "";
     int patternNumber = 0;
+    DSDataSet<DSSequence> parent;
 
     private SequenceDiscoveryViewAppComponent appComponent = null;
 	private boolean newNode = false;
     
     public RegularDiscoveryFileLoader(File sequenceFile, File patternFile, final SequenceDiscoveryViewAppComponent appComponent,
-    		boolean newNode) {
+    		boolean newNode, DSDataSet<DSSequence> parent) {
 
         this.sequenceFile = sequenceFile;
         this.patternFile = patternFile;
-
+        
         this.appComponent = appComponent;
         this.newNode = newNode;
+        this.parent = parent;
     }
 
     /**
@@ -54,7 +62,10 @@ public class RegularDiscoveryFileLoader extends AbstractSequenceDiscoveryAlgorit
             return;
         }
 
-        patternDB = new org.geworkbench.util.patterns.PatternDB(sequenceFile, null);
+        patternDB = new org.geworkbench.util.patterns.PatternDB(sequenceFile, parent);
+        String idString =  RandomNumberGenerator.getID();
+        patternDB.setID(idString);
+
         //loading stuff
         if (patternDB.read(patternFile)) {
             PatternSource = new FileDataSource(patternDB);
@@ -64,7 +75,7 @@ public class RegularDiscoveryFileLoader extends AbstractSequenceDiscoveryAlgorit
             progressChange();
 
             if(newNode)
-            	appComponent.createNewNode(patternDB);
+				appComponent.createNewNode(patternDB);
 
         } else {
             JOptionPane.showMessageDialog(null, "The file " + patternDB.getDataSetName() + " could not be loaded.\n " + "Please make sure that the sequence file" + " is loaded and selected in the project.");
