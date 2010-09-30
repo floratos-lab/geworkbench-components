@@ -278,7 +278,10 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 					.setCurrentView(SequenceDiscoveryViewWidget.PATTERN_TABLE);
 		} else if (dataset instanceof PatternDB ) {
 			PatternDB patternDB = (PatternDB) dataset;
-			File resultFile = new File("Loaded"+new Random().nextLong()+".pat");
+			String tempFolder = FilePathnameUtils
+					.getTemporaryFilesDirectoryPath();
+			File resultFile = new File(tempFolder + "Loaded"
+					+ new Random().nextLong() + ".pat");
 			patternDB.write(resultFile);
 			log.debug("result file is "+resultFile.getAbsolutePath());
 			Parameters parms = ParameterTranslation
@@ -403,7 +406,7 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 			notifyTableEvent(evt);
 		}
 	}
-	
+
 	public void createNewNode(DSAncillaryDataSet<? extends DSBioObject> dataset) {
 		org.geworkbench.events.ProjectNodeAddedEvent event = new org.geworkbench.events.ProjectNodeAddedEvent(
 				"message", null, dataset);
