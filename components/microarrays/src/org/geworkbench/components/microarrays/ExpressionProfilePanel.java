@@ -105,9 +105,16 @@ public class ExpressionProfilePanel extends MicroarrayViewEventBase implements
 		graphPanel.add(graph, BorderLayout.CENTER);
 		mainPanel.add(graphPanel, BorderLayout.CENTER);
 
-		plotButton
-				.addActionListener(new ExpressionProfilePanel_plotButton_actionAdapter(
-						this));
+		plotButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				plotButton_actionPerformed(e);
+				getComponent().repaint();
+			}
+			
+		});
+
 		jToolBar3.add(plotButton);
 		jToolBar3.add(numMarkersSelectedLabel);
 
@@ -413,27 +420,4 @@ public class ExpressionProfilePanel extends MicroarrayViewEventBase implements
 		return event;
 	}
 
-}
-
-/**
- * @author keshav
- */
-class ExpressionProfilePanel_plotButton_actionAdapter implements
-		java.awt.event.ActionListener {
-
-	private Log log = LogFactory.getLog(this.getClass());
-
-	ExpressionProfilePanel adaptee;
-
-	ExpressionProfilePanel_plotButton_actionAdapter(
-			ExpressionProfilePanel adaptee) {
-		this.adaptee = adaptee;
-	}
-
-	public void actionPerformed(ActionEvent e) {
-		log.debug("actionPerformed " + e);
-
-		adaptee.plotButton_actionPerformed(e);
-		adaptee.getComponent().repaint();
-	}
 }
