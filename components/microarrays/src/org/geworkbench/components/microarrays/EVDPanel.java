@@ -2,7 +2,6 @@ package org.geworkbench.components.microarrays;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.GridLayout;
@@ -36,7 +35,6 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarker
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
-import org.geworkbench.engine.config.MenuListener;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.events.SubpanelChangedEvent;
@@ -74,7 +72,7 @@ import org.jfree.ui.RectangleInsets;
  * @version $Id$
  */
 @AcceptTypes({DSMicroarraySet.class})
-public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
+public class EVDPanel extends MicroarrayViewEventBase {
 
     private JFreeChart chart;
     public static int EVDMODE = 1;
@@ -85,28 +83,28 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
     private double minValue = 0.0d;
 
     private JButton jPrintBttn = new JButton();
-    ArrayList<PanelVisualProperties> propertiesList = new ArrayList<
+    private ArrayList<PanelVisualProperties> propertiesList = new ArrayList<
             PanelVisualProperties>();
-    HistogramPanel hs;
-    JButton jAddBttn = new JButton();
-    JToggleButton jTTestBttn;
+    private HistogramPanel hs;
+    private JButton jAddBttn = new JButton();
+    private JToggleButton jTTestBttn;
 
-    JPanel markerSelectionPanel;
-    JSlider jLeftBoundarySlider;
-    JSlider jRightBoundarySlider;
-    JSlider jBinSizeSlider;
-    JLabel jBinSizeLabel = new JLabel("100");
-    JCheckBox colorCheck = new JCheckBox("One color per array");
-    JSlider jDirectionSlider;
-    JLabel leftBoundary;
-    JLabel rightBoundary;
-    JLabel selectedGeneNum;
-    JLabel binNumLabel;
+    private JPanel markerSelectionPanel;
+    private JSlider jLeftBoundarySlider;
+    private JSlider jRightBoundarySlider;
+    private JSlider jBinSizeSlider;
+    private JLabel jBinSizeLabel = new JLabel("100");
+    private JCheckBox colorCheck = new JCheckBox("One color per array");
+
+    private JLabel leftBoundary;
+    private JLabel rightBoundary;
+    private JLabel selectedGeneNum;
+    private JLabel binNumLabel;
     public final static Shape baseShape = new Rectangle(-6, -6, 6, 6);
     public final static Color baseColor = Color.ORANGE;
-    JSlider jMASlider;
-    Component jSpacer;
-    JToggleButton jEnabledBox;
+    private JSlider jMASlider;
+
+    private JToggleButton jEnabledBox;
     private static int DEFAULTBASKETNUM = 99;
     private int basketNum = DEFAULTBASKETNUM;
     private double binSize = 0.1d;
@@ -116,7 +114,7 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
     private DecimalFormat myFormatter = new DecimalFormat("0.000");
     private static int MAXBINNUM = 200;
     private static int RANGE = 2; //the left and right edge size beyound the min/max values.
-    ChartPanel graph;
+    private ChartPanel graph;
     private int maxOccurrenceNum = 0;
 
     public EVDPanel() {
@@ -133,8 +131,14 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
                 "Move the slider to change the lower boundary of selected genes expression.");
         markerSelectionPanel.setBorder(BorderFactory.createLineBorder(Color.
                 black));
-        colorCheck.addActionListener(new EVDPanel_colorCheck_actionAdapter(this));
+        colorCheck.addActionListener(new ActionListener() {
 
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				colorCheck_actionPerformed();
+			}
+        	
+        });
     }
 
     /**
@@ -797,24 +801,6 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
         });
     }
 
-//    /**
-//     * receiveProjectSelection
-//     *
-//     * @param e ProjectEvent
-//     */
-//    @Subscribe public void receive(ProjectEvent e, Object source) {
-//
-//        super.receive(e, source);
-//        jMASlider.setMaximum(refMASet != null ? refMASet.size() - 1 : 1);
-//
-//    }
-
-
-    public ActionListener getActionListener(String var) {
-        return null;
-    }
-
-
     private void jAddBttn_actionPerformed(ActionEvent e) {
         try {
             lowValue = new Double(leftBoundary.getText().trim());
@@ -924,7 +910,7 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
      *
      * @param e ActionEvent
      */
-    public void colorCheck_actionPerformed(ActionEvent e) {
+    private void colorCheck_actionPerformed() {
         isColorChecked = colorCheck.isSelected();
         refresh();
     }
@@ -1116,20 +1102,6 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
             }
         }
     	return answer;
-    }
-
-}
-
-
-class EVDPanel_colorCheck_actionAdapter implements ActionListener {
-    private EVDPanel adaptee;
-
-    EVDPanel_colorCheck_actionAdapter(EVDPanel adaptee) {
-        this.adaptee = adaptee;
-    }
-
-    public void actionPerformed(ActionEvent e) {
-        adaptee.colorCheck_actionPerformed(e);
     }
 
 }
