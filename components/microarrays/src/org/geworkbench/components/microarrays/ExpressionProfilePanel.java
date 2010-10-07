@@ -27,7 +27,6 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
-import org.geworkbench.engine.config.MenuListener;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
@@ -58,12 +57,11 @@ import org.jfree.data.xy.XYSeriesCollection;
  * 
  * @author Adam Margolin
  * @version $Id: ExpressionProfilePanel.java,v 1.14 2009-10-19 16:50:29 jiz Exp $
- * @see MenuListener, VisualPlugin
  * 
  */
 @AcceptTypes( { DSMicroarraySet.class })
 public class ExpressionProfilePanel extends MicroarrayViewEventBase implements
-		MenuListener, VisualPlugin {
+		VisualPlugin {
 
 	private static final String Y_AXIS_LABEL = "Expression Level";
 
@@ -387,18 +385,7 @@ public class ExpressionProfilePanel extends MicroarrayViewEventBase implements
 		}
 	}
 
-	/**
-	 * @param var
-	 * @return ActionListener
-	 */
-	public ActionListener getActionListener(String var) {
-		return null;
-	}
-
-	/**
-	 * @param e
-	 */
-	void plotButton_actionPerformed(ActionEvent e) {
+	private void plotButton_actionPerformed(ActionEvent e) {
 
 		if (e.getActionCommand().equals(plotButton.getText())) {
 			setPlotRefresh(true);
