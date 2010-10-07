@@ -485,6 +485,20 @@ public class MedusaVisualizationPanel extends JPanel {
 		add(tabbedPane, BorderLayout.CENTER);
 		this.revalidate();
 
+		removeOldOutput(new File(defaultPath), new File(path).lastModified());
+	}
+
+	private void removeOldOutput(File outDir, long earliest) {
+		for (File f : outDir.listFiles()){
+			if (f.lastModified() >= earliest)
+				return;
+			if (f.isDirectory())
+				removeOldOutput(f, earliest);
+			if (!f.exists())
+				System.out.println("does't exist: "+f.getAbsolutePath());
+			else if (!f.delete())
+				System.out.println("can't delete "+f.getAbsolutePath());
+		}
 	}
 
 	/**
