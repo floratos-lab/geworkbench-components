@@ -1,6 +1,34 @@
 package org.geworkbench.components.microarrays;
 
-import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.GridLayout;
+import java.awt.Rectangle;
+import java.awt.Shape;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JSlider;
+import javax.swing.JSplitPane;
+import javax.swing.JToggleButton;
+import javax.swing.SwingConstants;
+import javax.swing.UIManager;
+import javax.swing.event.ChangeEvent;
+
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
@@ -11,7 +39,6 @@ import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.engine.config.MenuListener;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
-import org.geworkbench.events.MicroarraySetViewEvent;
 import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.util.microarrayutils.MicroarrayViewEventBase;
 import org.geworkbench.util.visualproperties.PanelVisualProperties;
@@ -33,16 +60,6 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.RectangleInsets;
 
-import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Iterator;
-
 /**
  * <p>Title: caWorkbench</p>
  * <p/>
@@ -54,7 +71,7 @@ import java.util.Iterator;
  * <p>Company: Columbia University</p>
  *
  * @author Xiaoqing Zhang
- * @version 3.0
+ * @version $Id$
  */
 @AcceptTypes({DSMicroarraySet.class})
 public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
@@ -358,9 +375,8 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
         refresh();
     }
 
-    @SuppressWarnings("unchecked")
-	protected void fireModelChangedEvent(MicroarraySetViewEvent event) {
-        super.fireModelChangedEvent(event);
+    @Override
+	protected void fireModelChangedEvent() {
         if (refMASet == null) {
             // mainPanel.remove(graph);
 
@@ -920,7 +936,7 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
         private int nbins; // number of bins.
 
         int[] basketValues; //the bin values
-        ArrayList<DSGeneMarker> al[]; //assicated gene markers.
+        ArrayList<DSGeneMarker> al[]; //associated gene markers.
         private double maxValue;
         private double minValue;
 
@@ -937,7 +953,7 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
 		private void clear() {
             al = new ArrayList[nbins + 1];
             for (int i = 0; i < nbins + 1; i++) {
-                al[i] = new ArrayList();
+                al[i] = new ArrayList<DSGeneMarker>();
             }
             basketValues = new int[nbins + 1];
 
@@ -1020,10 +1036,6 @@ public class EVDPanel extends MicroarrayViewEventBase implements MenuListener {
                 }
             }
 
-        }
-
-        public String get(int binNumber) {
-            return al[binNumber].size() + " " + basketValues[binNumber];
         }
 
         public int[] getBasketvalues() {
