@@ -33,7 +33,6 @@ import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.events.ImageSnapshotEvent;
 import org.geworkbench.events.MarkerSelectedEvent;
-import org.geworkbench.events.MicroarraySetViewEvent;
 import org.geworkbench.events.PhenotypeSelectedEvent;
 import org.geworkbench.util.BusySwingWorker;
 import org.geworkbench.util.ProgressBar;
@@ -133,7 +132,7 @@ public class ExpressionProfilePanel extends MicroarrayViewEventBase implements
 			public void actionPerformed(ActionEvent e) {
 				isToolTipEnabled = jEnabledBox.isSelected();
 				setPlotRefresh(true);
-				fireModelChangedEvent(null);
+				fireModelChangedEvent();
 			}
 		});
 
@@ -149,9 +148,8 @@ public class ExpressionProfilePanel extends MicroarrayViewEventBase implements
 	/**
 	 * @param event
 	 */
-	protected void fireModelChangedEvent(MicroarraySetViewEvent event) {
-
-		log.debug("Event is " + event);
+	@Override
+	protected void fireModelChangedEvent() {
 
 		if (maSetView == null)
 			return;
@@ -347,13 +345,7 @@ public class ExpressionProfilePanel extends MicroarrayViewEventBase implements
 	 * @author unattributable
 	 */
 	private class ExpressionXYToolTip extends SymbolicXYItemLabelGenerator {
-
-		/**
-		 * @param data
-		 * @param series
-		 * @param item
-		 * @return String
-		 */
+		private static final long serialVersionUID = -3031603961146669009L;
 
 		DSPanel<DSGeneMarker> markers = new CSPanel<DSGeneMarker>("");
 		DSPanel<DSMicroarray> arrays = new CSPanel<DSMicroarray>("");
