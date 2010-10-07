@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
+import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.events.listeners.ParameterActionListener;
 import org.ginkgo.labs.util.FileTools;
 
@@ -320,12 +321,12 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 								JOptionPane.showMessageDialog(null,
 										"Not in FASTA format.", "Error",
 										JOptionPane.ERROR_MESSAGE);
+								featuresFilePath = "";
 								featuresFileName.setText("no file loaded.");
 								featuresFileName.setToolTipText("");
 							}else{
 								//we'll use this file (stored in featuresFilePath) as features file
 								//we'll show this information to user
-								//featuresFileName.setText(chooser.getSelectedFile().getName()+" loaded.");
 								featuresFileName.setText(chooser.getSelectedFile().getName()+" loaded.");
 								featuresFileName.setToolTipText(featuresFilePath);
 							}
@@ -489,6 +490,7 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		});
 		
         ParameterActionListener parameterActionListener = new ParameterActionListener(this);
+        featuresFileName.addPropertyChangeListener(parameterActionListener);
         regulatorCombo.addActionListener(parameterActionListener);
 		regulatorTextField.addActionListener(parameterActionListener);
 		targetCombo.addActionListener(parameterActionListener);
@@ -513,21 +515,7 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 	 * @return
 	 */
 	public double getIntervalBase() {
-		try {
-			this.intervalBase = Double.valueOf(intervalBaseTextField.getText());
-		} catch (NumberFormatException nfe) {
-			JOptionPane.showMessageDialog(null,
-					"Must use numeric values for interval base.", "Error",
-					JOptionPane.ERROR_MESSAGE);
-			throw new RuntimeException(nfe.getMessage());
-		}
-
-		if (intervalBase < 0) {
-			JOptionPane.showMessageDialog(null, "Interval base "
-					+ CANNOT_BE_NEGATIVE, "Error", JOptionPane.ERROR_MESSAGE);
-			throw new RuntimeException("Interval base " + CANNOT_BE_NEGATIVE);
-		}
-
+		this.intervalBase = Double.valueOf(intervalBaseTextField.getText());
 		return intervalBase;
 	}
 
@@ -536,22 +524,8 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 	 * @return
 	 */
 	public double getIntervalBound() {
-		try {
-			this.intervalBound = Double.valueOf(intervalBoundTextField
-					.getText());
-		} catch (NumberFormatException nfe) {
-			JOptionPane.showMessageDialog(null,
-					"Must use numeric values for interval bound.", "Error",
-					JOptionPane.ERROR_MESSAGE);
-			throw new RuntimeException(nfe.getMessage());
-		}
-
-		if (intervalBound < 0) {
-			JOptionPane.showMessageDialog(null, "Interval bound "
-					+ CANNOT_BE_NEGATIVE, "Error", JOptionPane.ERROR_MESSAGE);
-			throw new RuntimeException("Interval bound " + CANNOT_BE_NEGATIVE);
-		}
-
+		this.intervalBound = Double.valueOf(intervalBoundTextField
+				.getText());
 		return intervalBound;
 	}
 
@@ -560,22 +534,8 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 	 * @return
 	 */
 	public int getBoostingIterations() {
-		try {
-			boostingIterations = Integer.valueOf(boostingIterationsTextField
-					.getText());
-		} catch (NumberFormatException nfe) {
-			JOptionPane.showMessageDialog(null, NUMERIC_VALUES_ONLY, "Error",
-					JOptionPane.ERROR_MESSAGE);
-			//throw new RuntimeException(nfe.getMessage());
-		}
-
-		if (boostingIterations < 0) {
-			JOptionPane.showMessageDialog(null, "Boosting iterations "
-					+ CANNOT_BE_NEGATIVE, "Error", JOptionPane.ERROR_MESSAGE);
-			//throw new RuntimeException("Boosting iterations "
-			//		+ CANNOT_BE_NEGATIVE);
-		}
-
+		boostingIterations = Integer.valueOf(boostingIterationsTextField
+				.getText());
 		return boostingIterations;
 	}
 
@@ -584,20 +544,7 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 	 * @return
 	 */
 	public int getMaxGap() {
-		try {
-			maxGap = Integer.valueOf(dimerMaxGapTextField.getText());
-		} catch (NumberFormatException nfe) {
-			JOptionPane.showMessageDialog(null, NUMERIC_VALUES_ONLY, "Error",
-					JOptionPane.ERROR_MESSAGE);
-			throw new RuntimeException(nfe.getMessage());
-		}
-
-		if (maxGap < 0) {
-			JOptionPane.showMessageDialog(null,
-					"Max gap " + CANNOT_BE_NEGATIVE, "Error",
-					JOptionPane.ERROR_MESSAGE);
-			throw new RuntimeException("Max gap " + CANNOT_BE_NEGATIVE);
-		}
+		maxGap = Integer.valueOf(dimerMaxGapTextField.getText());
 		return maxGap;
 	}
 
@@ -606,21 +553,7 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 	 * @return
 	 */
 	public int getMinGap() {
-
-		try {
-			minGap = Integer.valueOf(dimerMinGapTextField.getText());
-		} catch (NumberFormatException nfe) {
-			JOptionPane.showMessageDialog(null, NUMERIC_VALUES_ONLY, "Error",
-					JOptionPane.ERROR_MESSAGE);
-			throw new RuntimeException(nfe.getMessage());
-		}
-
-		if (minGap < 0) {
-			JOptionPane.showMessageDialog(null, "Min gap cannot be negative.",
-					"Error", JOptionPane.ERROR_MESSAGE);
-			throw new RuntimeException("Min gap " + CANNOT_BE_NEGATIVE);
-		}
-
+		minGap = Integer.valueOf(dimerMinGapTextField.getText());
 		return minGap;
 	}
 
@@ -629,19 +562,7 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 	 * @return
 	 */
 	public int getMaxKmer() {
-		try {
-			maxKmer = Integer.valueOf(maxKmerTextField.getText());
-		} catch (NumberFormatException nfe) {
-			JOptionPane.showMessageDialog(null, NUMERIC_VALUES_ONLY, "Error",
-					JOptionPane.ERROR_MESSAGE);
-			throw new RuntimeException(nfe.getMessage());
-		}
-
-		if (maxKmer < 0) {
-			JOptionPane.showMessageDialog(null, "Max kmer "
-					+ CANNOT_BE_NEGATIVE, "Error", JOptionPane.ERROR_MESSAGE);
-			throw new RuntimeException("Max kmer " + CANNOT_BE_NEGATIVE);
-		}
+		maxKmer = Integer.valueOf(maxKmerTextField.getText());
 		return maxKmer;
 	}
 
@@ -650,20 +571,7 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 	 * @return
 	 */
 	public int getMinKmer() {
-		try {
-			minKmer = Integer.valueOf(minKmerTextField.getText());
-		} catch (NumberFormatException nfe) {
-			JOptionPane.showMessageDialog(null, NUMERIC_VALUES_ONLY, "Error",
-					JOptionPane.ERROR_MESSAGE);
-			throw new RuntimeException(nfe.getMessage());
-		}
-
-		if (minKmer < 0) {
-			JOptionPane.showMessageDialog(null, "Min kmer "
-					+ CANNOT_BE_NEGATIVE, "Error", JOptionPane.ERROR_MESSAGE);
-			throw new RuntimeException("Min kmer " + CANNOT_BE_NEGATIVE);
-		}
-
+		minKmer = Integer.valueOf(minKmerTextField.getText());
 		return minKmer;
 	}
 
@@ -672,32 +580,12 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 	 * @return
 	 */
 	public int getAgg() {
-		try {
-			agg = Integer.valueOf(aggTextField.getText());
-		} catch (NumberFormatException nfe) {
-			JOptionPane.showMessageDialog(null, NUMERIC_VALUES_ONLY, "Error",
-					JOptionPane.ERROR_MESSAGE);
-			throw new RuntimeException(nfe.getMessage());
-		}
-
-		if (agg < 0) {
-			JOptionPane.showMessageDialog(null, "Agglomerations "
-					+ CANNOT_BE_NEGATIVE, "Error", JOptionPane.ERROR_MESSAGE);
-			throw new RuntimeException("Agglomerations " + CANNOT_BE_NEGATIVE);
-		}
-
+		agg = Integer.valueOf(aggTextField.getText());
 		return agg;
 	}
 
 	public int getPssmLength() {
-		try {
-			pssmLength = Integer.valueOf(pssmLengthTextField.getText());
-		} catch (NumberFormatException nfe) {
-			JOptionPane.showMessageDialog(null, NUMERIC_VALUES_ONLY, "Error",
-					JOptionPane.ERROR_MESSAGE);
-			throw new RuntimeException(nfe.getMessage());
-		}
-
+		pssmLength = Integer.valueOf(pssmLengthTextField.getText());
 		return pssmLength;
 	}
 
@@ -805,6 +693,8 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 	public Map<Serializable, Serializable> getParameters() {
 		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
 
+		parameters.put("featuresFilePath", featuresFilePath);
+		parameters.put("featuresFileName", featuresFileName.getText());
 		parameters.put("regulatorCombo", regulatorCombo.getSelectedIndex());
 		parameters.put("regulator", regulatorTextField.getText());
 		parameters.put("targetCombo", targetCombo.getSelectedIndex());
@@ -830,6 +720,10 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
 	 */
 	public void setParameters(Map<Serializable, Serializable> parameters) {
+		featuresFilePath = (String)parameters.get("featuresFilePath");
+		featuresFileName.setText((String)parameters.get("featuresFileName"));
+		featuresFileName.setToolTipText(featuresFilePath);
+
 		regulatorCombo.setSelectedIndex((Integer)parameters.get("regulatorCombo"));
 		regulatorTextField.setText((String)parameters.get("regulator"));
 		targetCombo.setSelectedIndex((Integer)parameters.get("targetCombo"));
@@ -853,4 +747,34 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		// TODO Auto-generated method stub
 		
 	}
+	
+	@Override
+	public ParamValidationResults validateParameters() {
+		try {
+			if (getIntervalBase() < 0)
+				return new ParamValidationResults(false, "Interval base " + CANNOT_BE_NEGATIVE);
+			if (getIntervalBound() < 0)
+				return new ParamValidationResults(false, "Interval bound " + CANNOT_BE_NEGATIVE);
+			if (getBoostingIterations() < 0)
+				return new ParamValidationResults(false, "Boosting iterations "	+ CANNOT_BE_NEGATIVE);
+			if (getMinKmer() < 0)
+				return new ParamValidationResults(false, "Min kmer " + CANNOT_BE_NEGATIVE);
+			if (getMaxKmer() < 0)
+				return new ParamValidationResults(false, "Max kmer " + CANNOT_BE_NEGATIVE);
+			if (isUsingDimers()) {
+				if (getMinGap() < 0)
+					return new ParamValidationResults(false, "Min gap " + CANNOT_BE_NEGATIVE);
+				if (getMaxGap() < 0)
+					return new ParamValidationResults(false, "Max gap " + CANNOT_BE_NEGATIVE);
+			}
+			if (getAgg() < 0)
+				return new ParamValidationResults(false, "Agglomerations " + CANNOT_BE_NEGATIVE);
+			if (getPssmLength() < 0)
+				return new ParamValidationResults(false, "PSSM length" + CANNOT_BE_NEGATIVE);
+		} catch (NumberFormatException nfe) {
+			return new ParamValidationResults(false, NUMERIC_VALUES_ONLY);
+		}
+
+		return new ParamValidationResults(true, "No Error");
+    }
 }

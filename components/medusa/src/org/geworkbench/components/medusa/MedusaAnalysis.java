@@ -148,10 +148,11 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 	 * 
 	 * @see org.geworkbench.bison.model.analysis.Analysis#execute(java.lang.Object)
 	 */
+	@SuppressWarnings("unchecked")
 	public AlgorithmExecutionResults execute(Object input) {
 		MedusaParamPanel params = (MedusaParamPanel) aspp;
 
-		DSMicroarraySetView<DSGeneMarker, DSMicroarray> microarraySetView = (CSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
+		//DSMicroarraySetView<DSGeneMarker, DSMicroarray> microarraySetView = (CSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
 		
 		//clone the microarraySetView, so we'll have new microarraySetView for each sessions.
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> newMicroarraySetView = null;
@@ -259,6 +260,7 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 	 * @param input
 	 * @param params
 	 */
+	@SuppressWarnings("unchecked")
 	private void createLabelsFile(Object input, MedusaParamPanel params) {
 		// TODO move me to the MedusaHelper
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> microarraySetView = (CSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
@@ -476,7 +478,7 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 	}
 
 	@Override
-	public Class getBisonReturnType() {
+	public Class<MedusaDataSet> getBisonReturnType() {
 		return MedusaDataSet.class;
 	}
 
@@ -490,6 +492,7 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 		return false;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public ParamValidationResults validInputData(
 			DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView,
@@ -506,7 +509,46 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 				return new ParamValidationResults(false,"Min gap cannot exceed max gap.");
 			}
 		}
+		DSItemList<DSGeneMarker> markerList = maSetView.allMarkers();
+		if (!isRegulatorValid(markerList))
+			return new ParamValidationResults(false, "Regulator Not Valid");
+		if (!isTargetValid(markerList))
+			return new ParamValidationResults(false, "Target Not Valid");
 		return new ParamValidationResults(true,"No Error");
 	}
+	
+	/* either csv file or text field */
+	private boolean isRegulatorValid(DSItemList<DSGeneMarker> markerList) {
+		MedusaParamPanel params = (MedusaParamPanel) aspp;
+		boolean valid = false;
+		if (!params.isUseSelectedAsRegulators()) {
+			String regulatorText = params.getRegulatorTextField().getText();
+			String[] regs = StringUtils.split(regulatorText, ",");
+			
+			for (String reg : regs) {
+				if (markerList.get(StringUtils.trim(reg)) != null) {
+					valid = true;
+					break;
+				}
+			}
+		} else valid = true;
+		return valid;
+	}
 
+	/* either csv file or text field */
+	private boolean isTargetValid(DSItemList<DSGeneMarker> markerList) {
+		MedusaParamPanel params = (MedusaParamPanel) aspp;
+		boolean valid = false;
+		if (!params.isUseAllAsTargets()) {
+			String targetText = params.getTargetTextField().getText();
+			String[] targs = StringUtils.split(targetText, ",");
+			for (String tar : targs) {
+				if (markerList.get(StringUtils.trim(tar)) != null) {
+					valid = true;
+					break;
+				}
+			}
+		} else valid = true;
+		return valid;
+	}
 }
