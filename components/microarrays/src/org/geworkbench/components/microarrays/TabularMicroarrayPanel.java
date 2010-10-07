@@ -31,7 +31,6 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
 import org.geworkbench.engine.management.AcceptTypes;
-import org.geworkbench.events.MicroarraySetViewEvent;
 import org.geworkbench.util.microarrayutils.MicroarrayViewEventBase;
 
 /**
@@ -190,9 +189,8 @@ public class TabularMicroarrayPanel extends MicroarrayViewEventBase {
         jScrollPane1.getViewport().add(jTable1, null);
     }
 
-    @SuppressWarnings("unchecked")
 	@Override
-    protected void fireModelChangedEvent(MicroarraySetViewEvent event) {
+    protected void fireModelChangedEvent() {
     	microarrayTableModel.fireTableStructureChanged();
     	log.debug("fireModelChangedEvent");
 		if (activatedArrays != null && activatedArrays.panels().size() > 0
