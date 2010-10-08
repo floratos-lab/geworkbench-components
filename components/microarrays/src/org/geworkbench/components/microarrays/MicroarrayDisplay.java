@@ -1,19 +1,25 @@
 package org.geworkbench.components.microarrays;
 
+import java.awt.BasicStroke;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.Insets;
+import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
+
+import javax.swing.BorderFactory;
+import javax.swing.JPanel;
+import javax.swing.border.TitledBorder;
+
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
-import org.geworkbench.util.associationdiscovery.cluster.CSMatchedMatrixPattern;
 import org.geworkbench.util.microarrayutils.MicroarrayVisualizer;
-
-import javax.swing.*;
-import javax.swing.border.TitledBorder;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.util.Stack;
-import java.util.Vector;
 
 /**
  * <p>Title: Plug And Play Framework</p>
@@ -22,43 +28,39 @@ import java.util.Vector;
  * <p>Company: First Genetic Trust</p>
  *
  * @author Andrea Califano
- * @version 1.0
+ * @version $Id$
  */
-
 public class MicroarrayDisplay extends JPanel {
-    DSMicroarray microarray = null;
-    BorderLayout borderLayout1 = new BorderLayout();
-    protected int dx = 0;
-    protected int dy = 0;
-    protected int wx = 0;
-    protected int wy = 0;
-    protected int selectedGeneId = -1; ///selectedGeneId is not used anywhere??
-    protected double scaleX = 1;
-    protected double scaleY = 1;
-    protected int sel = 0;
-    protected int cols = 0;
-    protected int rows = 0;
-    protected int selRow = -1;
-    protected int selCol = -1;
-    protected boolean showValidOnly = false;
-    protected Vector patterns = new Vector();
-    protected Stack masks = new Stack();
-    protected MicroarrayVisualizer microarrayVisualizer = null;
-    protected int[] patternGenes = null;
-    protected char[] maskedGenes = null;
-    protected char[] graphedGenes = null;
-    protected float intensity = 1f;
-
+	private static final long serialVersionUID = 8362707074970193407L;
+	
+	DSMicroarray microarray = null;
+    int selectedGeneId = -1;
+    boolean showValidOnly = false;
     TitledBorder titledBorder1;
+    
+	private BorderLayout borderLayout1 = new BorderLayout();
+	private int dx = 0;
+	private int dy = 0;
+	private int wx = 0;
+	private int wy = 0;
+	private double scaleX = 1;
+	private double scaleY = 1;
+	private int cols = 0;
+	private int rows = 0;
+	private int selRow = -1;
+	private int selCol = -1;
+     
+    private MicroarrayVisualizer microarrayVisualizer = null;
+    private int[] patternGenes = null;
+    private char[] maskedGenes = null;
+    private char[] graphedGenes = null;
+    private float intensity = 1f;
 
-    public MicroarrayDisplay(org.geworkbench.util.microarrayutils.MicroarrayVisualizer visualizer) {
-
+    public MicroarrayDisplay(final org.geworkbench.util.microarrayutils.MicroarrayVisualizer visualizer) {
         microarrayVisualizer = visualizer;
-        try {
-            jbInit();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+        titledBorder1 = new TitledBorder("");
+        this.setBorder(BorderFactory.createLoweredBevelBorder());
+        this.setLayout(borderLayout1);
     }
 
     void setMicroarray(DSMicroarray microarray) {
@@ -77,7 +79,7 @@ public class MicroarrayDisplay extends JPanel {
         }
     }
 
-    void setMicroarrays(DSMicroarraySet microarrays) {
+    void setMicroarrays(DSMicroarraySet<DSMicroarray> microarrays) {
         rows = 0;
         cols = 0;
         if (microarrays != null) {
@@ -100,13 +102,7 @@ public class MicroarrayDisplay extends JPanel {
         }
     }
 
-    void jbInit() throws Exception {
-        titledBorder1 = new TitledBorder("");
-        this.setBorder(BorderFactory.createLoweredBevelBorder());
-        this.setLayout(borderLayout1);
-    }
-
-    protected void computeScale() {
+    private void computeScale() {
         Rectangle r = this.getBounds();
         Insets i = this.getInsets();
         r.grow(-i.left, -i.top);
@@ -118,16 +114,13 @@ public class MicroarrayDisplay extends JPanel {
         wy = r.height;
     }
 
+    @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         if (microarray != null) {
             rows = (int) Math.ceil(Math.sqrt((double) microarrayVisualizer.getUniqueMarkers().size()));
             cols = rows;
-            float[] hsb = new float[3];
             computeScale();
-//            Image memImg = createImage();
-//            currentImage = memImg;
-//            g.drawImage(memImg, dx, dy, wx, wy, null);
             drawImage((Graphics2D) g);
             g.setColor(Color.black);
         }
@@ -144,10 +137,10 @@ public class MicroarrayDisplay extends JPanel {
         return image;
     }
 
-    protected void drawImage(Graphics2D g) {
+    private void drawImage(Graphics2D g) {
         int geneNo = microarrayVisualizer.getUniqueMarkers().size();
         int geneId = 0;
-        DSDataSet maSet = microarrayVisualizer.getDataSetView().getDataSet();
+        DSDataSet<DSMicroarray> maSet = microarrayVisualizer.getDataSetView().getDataSet();
         if (maSet != null) {
             org.geworkbench.bison.util.colorcontext.ColorContext colorContext = (org.geworkbench.bison.util.colorcontext.ColorContext) maSet.getObject(org.geworkbench.bison.util.colorcontext.ColorContext.class);
             for (int row = 0; row < rows; row++) {
@@ -203,15 +196,7 @@ public class MicroarrayDisplay extends JPanel {
         }
     }
 
-    protected int getCol(int geneId) {
-        return geneId % cols;
-    }
-
-    protected int getRow(int geneId) {
-        return geneId / cols;
-    }
-
-    protected int getGeneIdAndRubberBand(int x, int y) {
+    int getGeneIdAndRubberBand(int x, int y) {
         int geneId = -1;
         if ((scaleX > 0) && (scaleY > 0)) {
             int row = (int) (y / scaleY);
@@ -225,7 +210,7 @@ public class MicroarrayDisplay extends JPanel {
         return microarrayVisualizer.getUniqueMarkers().get(geneId).getSerial();
     }
 
-    protected void rubberBandBox(int row, int col) {
+    void rubberBandBox(int row, int col) {
         int x0, x1, y0, y1;
         if ((col != selCol) || (row != selRow)) {
             Graphics g = getGraphics();
@@ -252,68 +237,6 @@ public class MicroarrayDisplay extends JPanel {
         }
     }
 
-    public DSMicroarray getMicroarray() {
-        return microarray;
-    }
-
-    public void addPattern(CSMatchedMatrixPattern pattern) {
-        if (patternGenes != null) {
-            for (int i = 0; i < pattern.getPattern().markers().length; i++) {
-                int geneId = pattern.getPattern().markers()[i].getSerial();
-                patternGenes[geneId]++;
-            }
-        }
-    }
-
-    public void delPattern(CSMatchedMatrixPattern pattern) {
-        if (patternGenes != null) {
-            for (int i = 0; i < pattern.getPattern().markers().length; i++) {
-                int geneId = pattern.getPattern().markers()[i].getSerial();
-                patternGenes[geneId]--;
-            }
-        }
-    }
-
-    public void clearPatterns() {
-        if (patternGenes != null) {
-            for (int i = 0; i < patternGenes.length; i++) {
-                patternGenes[i] = 0;
-            }
-        }
-    }
-
-    public void pushMask(CSMatchedMatrixPattern pattern) {
-        if (maskedGenes != null) {
-            masks.push(pattern);
-            for (int i = 0; i < pattern.getPattern().markers().length; i++) {
-                int geneId = pattern.getPattern().markers()[i].getSerial();
-                maskedGenes[geneId]++;
-            }
-        }
-    }
-
-    public void popMask() {
-        if (maskedGenes != null) {
-            CSMatchedMatrixPattern pattern = (CSMatchedMatrixPattern) masks.pop();
-            for (int i = 0; i < pattern.getPattern().markers().length; i++) {
-                int geneId = pattern.getPattern().markers()[i].getSerial();
-                if (maskedGenes[geneId] > 0) {
-                    maskedGenes[geneId]--;
-                }
-            }
-        }
-    }
-
-    public void maskGene(int geneId) {
-        if (maskedGenes != null)
-            maskedGenes[geneId]++;
-    }
-
-    public void unmaskGene(int geneId) {
-        if (maskedGenes != null)
-            maskedGenes[geneId] = 0;
-    }
-
     public void graphGene(int geneId) {
         if (graphedGenes != null)
             graphedGenes[geneId] = '1';
@@ -322,17 +245,6 @@ public class MicroarrayDisplay extends JPanel {
     public void ungraphGene(int geneId) {
         if (graphedGenes != null)
             graphedGenes[geneId] = '0';
-    }
-
-    public void clearMask() {
-        if (maskedGenes != null)
-            for (int i = 0; i < maskedGenes.length; i++) {
-                maskedGenes[i] = 0;
-            }
-    }
-
-    public float getIntensity() {
-        return intensity;
     }
 
     public void setIntensity(float intensity) {
