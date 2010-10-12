@@ -199,7 +199,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 		changeButton = new javax.swing.JButton();
      
 		contextJList = new JList();
-		contextJList.setSize(60, 10);
+		contextJList.setSize(80, 10);
 		interactomeJTextArea = new JTextArea();
 
 		ListCellRenderer aRenderer = new VersionComboBoxRenderer();
@@ -1269,7 +1269,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 				.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		jScrollPane1
 				.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		jScrollPane1.setPreferredSize(new java.awt.Dimension(150, 90));
+		jScrollPane1.setPreferredSize(new java.awt.Dimension(250, 90));
 		jScrollPane1.setViewportView(aJlist);
 		builder.append(new JLabel(title));
 		builder.append(jScrollPane1);
