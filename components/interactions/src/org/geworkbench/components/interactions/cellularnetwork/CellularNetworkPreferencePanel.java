@@ -258,6 +258,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 				}
 
 				interactomeJTextArea.setText(interactomeDesc);
+				interactomeJTextArea.setCaretPosition(0);
 				versionJList.setModel(new DefaultComboBoxModel(versionList
 						.toArray()));
 
@@ -285,6 +286,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 						versionDesc = "";
 							 
 					versionJTextArea.setText(versionDesc);
+					versionJTextArea.setCaretPosition(0);
 
 				} else
 					return;
@@ -1292,7 +1294,8 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 		jScrollPane1.setPreferredSize(new java.awt.Dimension(300, 90));
 		aJText.setLineWrap(true);
 		aJText.setWrapStyleWord(true);
-		
+		aJText.setEditable(false);		
+	 
 		jScrollPane1.setViewportView(aJText);
 		builder.append(new JLabel(title));
 		builder.append(jScrollPane1);
