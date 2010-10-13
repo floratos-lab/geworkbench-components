@@ -128,8 +128,8 @@ public class ResultSetlUtil {
 
 	public boolean next() throws IOException {
 		boolean ret = false;
-
-		if ((decodedString = in.readLine()) != null) {
+		decodedString = in.readLine();
+		if (decodedString != null && !decodedString.trim().equals("")) {
 
 			// System.out.println( decodedString);
 
