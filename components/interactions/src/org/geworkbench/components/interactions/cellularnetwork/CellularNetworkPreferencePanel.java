@@ -1194,11 +1194,11 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 		builder.append(serviceLabel);
 		builder.nextLine();
 
-		builder.append(buildJListPanel("Select Interactome", contextJList));
+		builder.append(buildJListPanel("Select Interactome", contextJList, 250));
 		builder.append(buildJTextPanel("Interactome Description",
 				interactomeJTextArea));
 		builder.nextLine();
-		builder.append(buildJListPanel("Select Version", versionJList));
+		builder.append(buildJListPanel("Select Version", versionJList, 250));
 		builder
 				.append(buildJTextPanel("Version Description", versionJTextArea));
 
@@ -1258,7 +1258,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 
 	}
 
-	private JPanel buildJListPanel(String title, JList aJlist) {
+	private JPanel buildJListPanel(String title, JList aJlist, int width) {
 		FormLayout layout = new FormLayout("left:pref", "");
 
 		DefaultFormBuilder builder = new DefaultFormBuilder(layout);
@@ -1269,7 +1269,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 				.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		jScrollPane1
 				.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		jScrollPane1.setPreferredSize(new java.awt.Dimension(250, 90));
+		jScrollPane1.setPreferredSize(new java.awt.Dimension(width, 90));
 		jScrollPane1.setViewportView(aJlist);
 		builder.append(new JLabel(title));
 		builder.append(jScrollPane1);
@@ -1290,6 +1290,9 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 		jScrollPane1
 				.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		jScrollPane1.setPreferredSize(new java.awt.Dimension(300, 90));
+		aJText.setLineWrap(true);
+		aJText.setWrapStyleWord(true);
+		
 		jScrollPane1.setViewportView(aJText);
 		builder.append(new JLabel(title));
 		builder.append(jScrollPane1);
@@ -1311,10 +1314,10 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 		builder.appendSeparator("Column Display Preferences");
 		builder.append(buildColumnCheckBoxPanel());
 		builder.append(buildJListPanel("Available Interaction Types",
-				availableInteractionTypeList));
+				availableInteractionTypeList, 150));
 		builder.append(buildAddRemoveButtonPanel(addButton, removeButton));
 		builder.append(buildJListPanel("Selected Interaction Types",
-				selectedInteractionTypeList));
+				selectedInteractionTypeList, 150));
 
 		builder.nextLine();
 
@@ -1336,11 +1339,11 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 
 		builder.append(buildNetworkPrefCheckBoxPanel());
 		builder.append(buildJListPanel("Available Interaction Types",
-				availableNetworkInteractionTypeList));
+				availableNetworkInteractionTypeList, 150));
 		builder.append(buildAddRemoveButtonPanel(networkAddButton,
 				networkRemoveButton));
 		builder.append(buildJListPanel("Selected Interaction Types",
-				selectedNetworkInteractionTypeList));
+				selectedNetworkInteractionTypeList, 150));
 
 		builder.nextLine();
 
