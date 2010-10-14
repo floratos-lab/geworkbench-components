@@ -1,7 +1,6 @@
 package org.geworkbench.components.somclustering;
 
 import java.awt.BorderLayout;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.Serializable;
@@ -15,12 +14,10 @@ import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.events.listeners.ParameterActionListener;
-import org.ginkgo.labs.util.FileTools;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
@@ -33,9 +30,13 @@ import com.jgoodies.forms.layout.FormLayout;
  * SOM analysis
  *
  * @author First Genetic Trust
- * @version $Id: SOMPanel.java,v 1.6 2009-06-22 15:22:35 chiangy Exp $
+ * @version $Id$
  */
 public class SOMPanel extends AbstractSaveableParameterPanel {
+	private static final long serialVersionUID = 8945772233173480884L;
+
+	private static final String NEWLINE = "\n";
+	
 	private static final String GAUSSIAN = "Gaussian";
 	private static final String BUBBLE = "Bubble";
 	private static final String[] FUNCTIONS = { BUBBLE, GAUSSIAN };
@@ -62,15 +63,7 @@ public class SOMPanel extends AbstractSaveableParameterPanel {
     /**
      * Visual Widget
      */
-    private JPanel jPanel1 = new JPanel();
-    /**
-     * Visual Widget
-     */
     private BorderLayout borderLayout1 = new BorderLayout();
-    /**
-     * Visual Widget
-     */
-    private GridLayout gridLayout1 = new GridLayout();
     /**
      * Visual Widget
      */
@@ -216,15 +209,15 @@ public class SOMPanel extends AbstractSaveableParameterPanel {
 		Map<Serializable, Serializable> pMap = getHumanReadableParameters();
 		// Header
 		histStr += "SOM Clustering Analysis run with parameters:"
-				+ FileTools.NEWLINE;
+				+ NEWLINE;
 		histStr += "----------------------------------------"
-				+ FileTools.NEWLINE;
+				+ NEWLINE;
 		for (Iterator<Map.Entry<Serializable, Serializable>> iterator = pMap
 				.entrySet().iterator(); iterator.hasNext();) {
 			Map.Entry<Serializable, Serializable> parameter = iterator.next();
 			Object key = parameter.getKey();
 			Object value = parameter.getValue();
-			histStr += key.toString() + value.toString() + FileTools.NEWLINE;
+			histStr += key.toString() + value.toString() + NEWLINE;
 		}
 		return histStr;
 	}
