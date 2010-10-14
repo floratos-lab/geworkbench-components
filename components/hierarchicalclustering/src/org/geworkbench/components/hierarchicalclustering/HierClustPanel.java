@@ -20,7 +20,6 @@ import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.events.listeners.ParameterActionListener;
-import org.ginkgo.labs.util.FileTools;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
@@ -36,6 +35,8 @@ import com.jgoodies.forms.layout.FormLayout;
  * @version $Id: HierClustPanel.java,v 1.5 2009-06-22 15:20:26 chiangy Exp $
  */
 public class HierClustPanel extends AbstractSaveableParameterPanel{
+	private static final String NEWLINE = "\n";
+	
 	/* identification text string for parameter saving. */
     private static final String METHOD = "method";
 	private static final String DIMENSION = "dimension";
@@ -272,15 +273,15 @@ public class HierClustPanel extends AbstractSaveableParameterPanel{
 		Map<Serializable, Serializable> pMap = getHumanReadableParameters();
 		// Header, could be moved to AbstractAnalysis.java
 		histStr += "Hierarchical Clustering Analysis run with parameters:"
-				+ FileTools.NEWLINE;
+				+ NEWLINE;
 		histStr += "----------------------------------------"
-				+ FileTools.NEWLINE;
+				+ NEWLINE;
 		for (Iterator<Map.Entry<Serializable, Serializable>> iterator = pMap
 				.entrySet().iterator(); iterator.hasNext();) {
 			Map.Entry<Serializable, Serializable> parameter = iterator.next();
 			Object key = parameter.getKey();
 			Object value = parameter.getValue();
-			histStr += key.toString() + value.toString() + FileTools.NEWLINE;
+			histStr += key.toString() + value.toString() + NEWLINE;
 		}
 		return histStr;
 	}
