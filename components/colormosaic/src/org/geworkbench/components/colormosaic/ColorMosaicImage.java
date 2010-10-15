@@ -15,6 +15,7 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.swing.JMenuItem;
@@ -43,7 +44,7 @@ import org.geworkbench.util.associationdiscovery.cluster.CSMatchedMatrixPattern;
  * This class is used in CMHRuler, CNVRuler and ColorMosaicPanel.
  * 
  * @author Manjunath Kustagi
- * @version $Id: ColorMosaicImage.java,v 1.17 2009-11-09 17:22:46 jiz Exp $
+ * @version $Id$
  */
 
 public class ColorMosaicImage extends JPanel implements Scrollable {
@@ -269,8 +270,7 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 							int x = (j * geneWidth) / 1;
 							int width = ((j + 1) * geneWidth) / 1 - x;
 							String v = context.getClassForItem(mArray);
-							g.setColor(new Color(CSAnnotationContext
-									.getRGBForClass(v)));
+							g.setColor(new Color(getRGBForClass(v)));
 							g.drawRect(x, y, width, geneHeight);
 						}
 					}
@@ -940,4 +940,18 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 		recomputeDimensions();
 		setSize();
 	}
+	
+    private static final HashMap<String, Integer> colorMap = new HashMap<String, Integer>();
+
+    static {
+        colorMap.put(CSAnnotationContext.CLASS_CASE, Color.RED.getRGB());
+        colorMap.put(CSAnnotationContext.CLASS_CONTROL, Color.BLUE.getRGB());
+        colorMap.put(CSAnnotationContext.CLASS_TEST, Color.GREEN.getRGB());
+        colorMap.put(CSAnnotationContext.CLASS_IGNORE, Color.DARK_GRAY.getRGB());
+    }
+
+    private static int getRGBForClass(String className) {
+        return colorMap.get(className);
+    }
+
 }
