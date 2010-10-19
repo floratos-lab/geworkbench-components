@@ -4,11 +4,11 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
-import java.awt.event.ActionListener;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.Dimension;
 import java.io.FileInputStream;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
@@ -19,19 +19,18 @@ import java.util.StringTokenizer;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JButton;
-import javax.swing.JToolBar;
-import javax.swing.ImageIcon;
-import javax.swing.SwingConstants;
 import javax.swing.JTabbedPane;
+import javax.swing.JToolBar;
+import javax.swing.SwingConstants;
 import javax.swing.ToolTipManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.bioobjects.structure.DSProteinStructure;
 import org.geworkbench.bison.datastructure.bioobjects.structure.MarkUsResultDataSet;
@@ -39,14 +38,13 @@ import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.ProjectEvent;
-import org.geworkbench.events.ProjectNodeCompletedEvent;
 import org.geworkbench.util.BrowserLauncher;
 import org.jdesktop.jdic.browser.BrowserEngineManager;
 import org.jdesktop.jdic.browser.IBrowserEngine;
+import org.jdesktop.jdic.browser.IWebBrowser;
+import org.jdesktop.jdic.browser.WebBrowser;
 import org.jdesktop.jdic.browser.WebBrowserEvent;
 import org.jdesktop.jdic.browser.WebBrowserListener;
-import org.jdesktop.jdic.browser.WebBrowser;
-import org.jdesktop.jdic.browser.IWebBrowser;
 
 /**
  * 
@@ -115,31 +113,7 @@ public class MarkUsBrowser implements VisualPlugin {
 	protected MarkUsBrowser() {
 	}
 
-	@SuppressWarnings("unchecked")
-	@Subscribe
-	public void receive(ProjectNodeCompletedEvent event, Object source) {
-		DSAncillaryDataSet dataset = event.getAncillaryDataSet();
-		if (dataset instanceof MarkUsResultDataSet) {
-			link = false;
-			MarkUsResultDataSet resultData  = (MarkUsResultDataSet) dataset;
-			lastpid = process_id;
-			process_id = resultData.getResult();
-			proteinData = (DSProteinStructure) resultData.getParentDataSet();
-			System.out.println("process_id: " + process_id);
-			musid4prt.put(proteinData, process_id);
-			if (process_id.startsWith("MUS")) {
-				if ((is_windows && is_64bit) || is_mac) {
-					handleUnsupportedOS();
-					return;
-				}
-				showResults(process_id);
-			} else {
-				System.out.println("not displayable job ID '"+process_id+"'");
-			}
-		}
-	}
-	
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	@Subscribe
 	public void receive(ProjectEvent event, Object source) {
 		DSDataSet dataset = event.getDataSet();
