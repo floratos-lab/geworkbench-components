@@ -76,7 +76,6 @@ import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.engine.properties.PropertiesManager;
 import org.geworkbench.events.AnalysisInvokedEvent;
 import org.geworkbench.events.ProjectNodeAddedEvent;
-import org.geworkbench.events.ProjectNodeCompletedEvent;
 import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.util.ProgressBar;
 import org.geworkbench.util.Util;
@@ -451,18 +450,6 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 
 	/**
 	 * 
-	 * @param pendingEvent
-	 * @return
-	 */
-	@Publish
-	public ProjectNodeCompletedEvent publishProjectNodeCompletedEvent(
-			ProjectNodeCompletedEvent event) {
-		log.info("publishing project node completed event");
-		return event;
-	}
-
-	/**
-	 * 
 	 * @param ppne
 	 * @param source
 	 */
@@ -493,8 +480,8 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 
 		for (GridEndpointReferenceType gridEpr : gridEprs) {
 
-			PollingThread pollingThread = new PollingThread(getAnalysisPanel(),
-					gridEpr, dispatcherClient);
+			PollingThread pollingThread = new PollingThread(gridEpr,
+					dispatcherClient);
 			threadList.add(pollingThread);
 			pollingThread.start();
 
@@ -1219,8 +1206,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 												+ " (pending)", history, false);
 
 								PollingThread pollingThread = new PollingThread(
-										getAnalysisPanel(), gridEpr,
-										dispatcherClient);
+										gridEpr, dispatcherClient);
 								threadList.add(pollingThread);
 								pollingThread.start();
 
