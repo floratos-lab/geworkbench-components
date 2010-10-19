@@ -65,6 +65,7 @@ import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.bison.model.analysis.ParameterPanel;
 import org.geworkbench.bison.model.analysis.ProteinSequenceAnalysis;
 import org.geworkbench.bison.model.analysis.ProteinStructureAnalysis;
+import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.components.cagrid.gui.GridServicePanel;
 import org.geworkbench.engine.config.PluginRegistry;
 import org.geworkbench.engine.config.VisualPlugin;
@@ -76,7 +77,6 @@ import org.geworkbench.engine.properties.PropertiesManager;
 import org.geworkbench.events.AnalysisInvokedEvent;
 import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.events.ProjectNodeCompletedEvent;
-import org.geworkbench.events.ProjectNodePendingEvent;
 import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.util.ProgressBar;
 import org.geworkbench.util.Util;
@@ -446,17 +446,6 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	@Publish
 	public AnalysisInvokedEvent publishAnalysisInvokedEvent(
 			AnalysisInvokedEvent event) {
-		return event;
-	}
-
-	/**
-	 * 
-	 * @param event
-	 * @return
-	 */
-	@Publish
-	public ProjectNodePendingEvent publishProjectNodePendingEvent(
-			ProjectNodePendingEvent event) {
 		return event;
 	}
 
@@ -1205,12 +1194,6 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 												((AbstractGridAnalysis) selectedGridAnalysis)
 														.getBisonReturnType());
 
-								ProjectNodePendingEvent pendingEvent = new ProjectNodePendingEvent(
-										"Analysis Pending", gridEpr);
-								pendingEvent
-										.setDescription(selectedGridAnalysis
-												.getLabel()
-												+ " (pending)");
 								/* generate history for grid analysis */
 								String history = "";
 								history += "Grid service information:"
@@ -1230,11 +1213,10 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 										&& (refMASet != null))
 									history += generateHistoryString(maSetView);
 
-								pendingEvent.setHistory(history);
-
-								log.info("event is " + pendingEvent);
-
-								publishProjectNodePendingEvent(pendingEvent);
+								ProjectPanel.getInstance().addPendingNode(
+										gridEpr,
+										selectedGridAnalysis.getLabel()
+												+ " (pending)", history, false);
 
 								PollingThread pollingThread = new PollingThread(
 										getAnalysisPanel(), gridEpr,
