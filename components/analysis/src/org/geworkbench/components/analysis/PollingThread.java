@@ -5,7 +5,8 @@ import javax.swing.JOptionPane;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
-import org.geworkbench.events.ProjectNodeCompletedEvent;
+import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
+import org.geworkbench.builtin.projects.ProjectPanel;
 import org.ginkgo.labs.ws.GridEndpointReferenceType;
 
 import edu.columbia.geworkbench.cagrid.dispatcher.client.DispatcherClient;
@@ -18,9 +19,7 @@ import edu.columbia.geworkbench.cagrid.dispatcher.client.DispatcherClient;
  */
 public class PollingThread extends Thread {
 
-	private Log log = LogFactory.getLog(PollingThread.class);
-
-	private AnalysisPanel panel = null;
+	private static Log log = LogFactory.getLog(PollingThread.class);
 
 	private GridEndpointReferenceType gridEPR = null;
 
@@ -28,16 +27,15 @@ public class PollingThread extends Thread {
 
 	volatile private boolean cancelled = false;
 
-	public PollingThread(AnalysisPanel panel,
-			GridEndpointReferenceType gridEPR, DispatcherClient dispatcherClient) {
+	public PollingThread(GridEndpointReferenceType gridEPR,
+			DispatcherClient dispatcherClient) {
 
-		this.panel = panel;
 		this.gridEPR = gridEPR;
 		this.dispatcherClient = dispatcherClient;
 
 	}
 
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({"unchecked" })
 	public void run() {
 
 		try {
@@ -53,8 +51,7 @@ public class PollingThread extends Thread {
 					result = e;
 				}
 			}
-			ProjectNodeCompletedEvent completedEvent = new ProjectNodeCompletedEvent(
-					"Analysis Completed", gridEPR);
+			DSAncillaryDataSet<? extends DSBioObject> ancillaryDataSet = null;
 			if (result instanceof Exception) {
 				/*
 				 * Generate user understandable messages. Detailed information
@@ -70,12 +67,10 @@ public class PollingThread extends Thread {
 				JOptionPane.showMessageDialog(null, errorMessage,
 						"Your analysis has been canceled.",
 						JOptionPane.ERROR_MESSAGE);
-			} else if (result != null && (result instanceof String)
-					&& result.equals("null")) {
-				completedEvent.setDataSet(null);
-			} else if (result != null)
-				completedEvent.setAncillaryDataSet((DSAncillaryDataSet) result);
-			panel.publishProjectNodeCompletedEvent(completedEvent);
+			} else if (result instanceof DSAncillaryDataSet) {
+				ancillaryDataSet = ((DSAncillaryDataSet<? extends DSBioObject>) result);
+			}
+			ProjectPanel.getInstance().processNodeCompleted(gridEPR, ancillaryDataSet);
 		} catch (Exception e) {
 			log
 					.error("Error when polling for remote service results.  Error is: ");
