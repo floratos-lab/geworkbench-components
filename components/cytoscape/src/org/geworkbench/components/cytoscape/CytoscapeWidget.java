@@ -9,7 +9,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.Shape;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -35,6 +34,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.GeneOntologyUtil;
@@ -232,7 +232,6 @@ public class CytoscapeWidget implements VisualPlugin {
 	public void receive(GeneTaggedEvent e, Object source) {
 
 		Color color = null;
-		Shape shape = null;
 		CyAttributes attrs = null;
 		DSPanel<DSGeneMarker> panel = e.getPanel();
 		if (panel == null) {
@@ -252,7 +251,6 @@ public class CytoscapeWidget implements VisualPlugin {
 			}
 
 			color = properties.getColor();
-			shape = properties.getShape();
 			attrs = Cytoscape.getNodeAttributes();
 		}
 
@@ -398,7 +396,7 @@ public class CytoscapeWidget implements VisualPlugin {
 	@Subscribe
 	public void receive(ProjectNodeRemovedEvent event, Object source) {
 		log.info("receive ProjectNodeRemovedEvent event");
-		DSDataSet dataSet = event.getAncillaryDataSet();
+		DSDataSet<? extends DSBioObject> dataSet = event.getAncillaryDataSet();
 		if (!(dataSet instanceof AdjacencyMatrixDataSet)) {
 			// if the event is published by other types, do nothing.
 			return;
@@ -879,9 +877,10 @@ public class CytoscapeWidget implements VisualPlugin {
 
 		Vector<?> v = nc.getMappings();
 		for (int i = 0; i < v.size(); i++) {
-			if (v.get(i) instanceof DiscreteMapping)
+			if (v.get(i) instanceof DiscreteMapping) {
 				nodeDm = (DiscreteMapping) v.get(i);
-			break;
+				break;
+			}
 		}
 
 		nodeDm.setControllingAttributeName("geneType", cytoNetwork, false);
@@ -899,9 +898,10 @@ public class CytoscapeWidget implements VisualPlugin {
 				"BasicDiscrete");
 		v = ec.getMappings();
 		for (int i = 0; i < v.size(); i++) {
-			if (v.get(i) instanceof DiscreteMapping)
+			if (v.get(i) instanceof DiscreteMapping) {
 				edgeDm = (DiscreteMapping) v.get(i);
-			break;
+				break;
+			}
 		}
 		edgeDm.setControllingAttributeName("type", cytoNetwork, false);
 
