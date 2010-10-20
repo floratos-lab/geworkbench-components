@@ -28,7 +28,6 @@ import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetV
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSTTestResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSTTestResultSet;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
@@ -63,53 +62,55 @@ import org.jfree.data.xy.XYSeriesCollection;
 @AcceptTypes({DSTTestResultSet.class})
 public class VolcanoPlot implements VisualPlugin {
 
-    static Log log = LogFactory.getLog(VolcanoPlot.class);
+    static private Log log = LogFactory.getLog(VolcanoPlot.class);
 
+	private static class MarkerAndStats implements Comparable<MarkerAndStats> {
+
+        DSGeneMarker marker;
+        double fold;
+        double pValue;
+
+        public MarkerAndStats(DSGeneMarker marker, double fold, double pValue) {
+            this.marker = marker;
+            this.fold = fold;
+            this.pValue = pValue;
+        }
+
+        public int compareTo(MarkerAndStats o) {
+            if (fold > o.fold) {
+                return 1;
+            } else if (fold < o.fold) {
+                return -1;
+            } else {
+                return 0;
+            }
+        }
+    }
+	
     private class MarkerXYToolTipGenerator extends StandardXYToolTipGenerator implements ChartMouseListener {
 		private static final long serialVersionUID = -6345314319585564074L;
 
-		private class MarkerAndStats implements Comparable<MarkerAndStats> {
-
-            DSGeneMarker marker;
-            double fold;
-            double pValue;
-
-            public MarkerAndStats(DSGeneMarker marker, double fold, double pValue) {
-                this.marker = marker;
-                this.fold = fold;
-                this.pValue = pValue;
-            }
-
-            public int compareTo(MarkerAndStats o) {
-                if (fold > o.fold) {
-                    return 1;
-                } else if (fold < o.fold) {
-                    return -1;
-                } else {
-                    return 0;
-                }
-            }
-        }
-
         private SortedSet<MarkerAndStats> markers;         
-        private List<MarkerAndStats> markerList;
+        private MarkerAndStats[] markerList;
                
         public MarkerXYToolTipGenerator() {
             markers = new TreeSet<MarkerAndStats>();            
         }
 
+        @Override
         public void chartMouseClicked(ChartMouseEvent event) {
             ChartEntity entity = event.getEntity();
-            if ((entity != null) && (entity instanceof XYItemEntity)) {
+            if (entity instanceof XYItemEntity) {
                 XYItemEntity xyEntity = (XYItemEntity) entity;
                 int item = xyEntity.getItem();
-                MarkerAndStats markerStats = markerList.get(item);
+                MarkerAndStats markerStats = markerList[item];
                 if (markerStats != null) {
                     publishMarkerSelectedEvent(new MarkerSelectedEvent(markerStats.marker));
                 }
             }
         }
 
+        @Override
         public void chartMouseMoved(ChartMouseEvent chartMouseEvent) {
             // No-op
         }
@@ -119,42 +120,33 @@ public class VolcanoPlot implements VisualPlugin {
         }
 
         public void processTooltips() {
-            markerList = new ArrayList<MarkerAndStats>(markers);
+            markerList = markers.toArray(new MarkerAndStats[0]);
         }
 
+        @Override
         public String generateToolTip(XYDataset data, int series, int item) {
-            String result = "Unknown: ";
+            String unknown = "Unknown: ";
             DecimalFormat df = new DecimalFormat("0.###E0");
 
-            if ( item > markerList.size()-1 )
-            	return result;
-            MarkerAndStats markerStats = markerList.get(item);
+            if ( item > markerList.length-1 )
+            	return unknown;
+            MarkerAndStats markerStats = markerList[item];
             if (markerStats != null) {
-                result = markerStats.marker.getLabel() + " (" + markerStats.marker.getGeneName() + "): " + df.format(markerStats.fold) + "/" + df.format(markerStats.pValue);
+                return markerStats.marker.getLabel() + " (" + markerStats.marker.getGeneName() + "): " + df.format(markerStats.fold) + "/" + df.format(markerStats.pValue);
+            } else {
+            	return unknown;
             }
-            return result;
         }
     }
 
-    /**
-     * Maximum number of charts that can be viewed at once.
-     */
-    public static final int MAXIMUM_CHARTS = 6;
-
     private JPanel mainPanel;
     private JPanel parentPanel;
-
-    /**
-     * The dataset that holds the microarrayset and panels.
-     */
-    private DSMicroarraySetView<DSGeneMarker, DSMicroarray> dataSetView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>();
-    
     private JButton exportButton;  
 
     /**
      * The significance results we're plotting
      */
-    private DSSignificanceResultSet<DSGeneMarker> significance = null;
+    private DSTTestResultSet<DSGeneMarker> significance = null;
 
     /**
      * Constructor lays out the component and adds behaviors.
@@ -170,8 +162,8 @@ public class VolcanoPlot implements VisualPlugin {
         parentPanel.add(lowerPanel, BorderLayout.SOUTH);
         exportButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                if (significance != null && significance instanceof CSTTestResultSet) {
-                ((CSTTestResultSet<DSGeneMarker>)significance).saveDataToCSVFile();                     
+                if (significance instanceof CSTTestResultSet) {
+                	((CSTTestResultSet<DSGeneMarker>)significance).saveDataToCSVFile();                     
                 }
             }
         });
@@ -191,23 +183,16 @@ public class VolcanoPlot implements VisualPlugin {
      * @param e      the event.
      * @param source the source of the event (unused).
      */
-    @SuppressWarnings("unchecked")
-	@Subscribe public void receive(ProjectEvent e, Object source) {
-        DSDataSet<DSMicroarray> dataFile = e.getDataSet();
+	@SuppressWarnings("unchecked")
+	@Subscribe
+	public void receive(ProjectEvent e, Object source) {
+		DSDataSet<DSMicroarray> dataFile = e.getDataSet();
 
-        if (dataFile != null) {
-            if (dataFile instanceof DSMicroarraySet) {
-                DSMicroarraySet<DSMicroarray> set = (DSMicroarraySet<DSMicroarray>) dataFile;
-                // If it is the same dataset as before, then don't reset everything
-                if (dataSetView.getDataSet() != set) {
-                    dataSetView.setMicroarraySet(set);
-                }
-            } else if (dataFile instanceof CSTTestResultSet) {
-                significance = (CSTTestResultSet<DSGeneMarker>) dataFile;
-                generateChart();
-            }
-        }
-    }
+		if (dataFile instanceof CSTTestResultSet) {
+			significance = (CSTTestResultSet<DSGeneMarker>) dataFile;
+			generateChart();
+		}
+	}
 
     @SuppressWarnings("unchecked")
 	private void generateChart() {
@@ -216,14 +201,12 @@ public class VolcanoPlot implements VisualPlugin {
         String[] controlLabels = significance.getLabels(DSTTestResultSet.CONTROL);
         DSAnnotationContext<DSMicroarray> context = CSAnnotationContextManager.getInstance().getCurrentContext(set);
         DSPanel<DSMicroarray> casePanel = new CSPanel<DSMicroarray>("Case");
-        for (int i = 0; i < caseLabels.length; i++) {
-            String label = caseLabels[i];
+        for (String label : caseLabels) {
             casePanel.addAll(context.getItemsWithLabel(label));
         }
         casePanel.setActive(true);
         DSPanel<DSMicroarray> controlPanel = new CSPanel<DSMicroarray>("Control");
-        for (int i = 0; i < controlLabels.length; i++) {
-            String label = controlLabels[i];
+        for (String label : controlLabels) {
             controlPanel.addAll(context.getItemsWithLabel(label));
         }
         casePanel.setActive(true);
@@ -232,16 +215,16 @@ public class VolcanoPlot implements VisualPlugin {
         itemPanel.panels().add(casePanel);
         itemPanel.panels().add(controlPanel);
         significantGenes.setActive(true);
-        dataSetView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(set);
+        DSMicroarraySetView<DSGeneMarker, DSMicroarray> dataSetView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(set);
         dataSetView.getMarkerPanel().panels().add(significantGenes);
         dataSetView.setItemPanel(itemPanel);
         dataSetView.useMarkerPanel(true);
         dataSetView.useItemPanel(true);
         log.debug("Generating graph.");
-        generateChartAndDisplay();
+        generateChartAndDisplay(dataSetView);
     }
 
-    private void generateChartAndDisplay() {
+    private void generateChartAndDisplay(final DSMicroarraySetView<DSGeneMarker, DSMicroarray> dataSetView) {
         mainPanel.removeAll();
         final BusySwingWorker<ChartPanel, Void> worker = new BusySwingWorker<ChartPanel, Void>() {
             ChartPanel cpanel = null;
@@ -266,17 +249,17 @@ public class VolcanoPlot implements VisualPlugin {
         worker.execute();
     }
 
-
+    // this updates the selection in the gene selector panel
     @Publish public MarkerSelectedEvent publishMarkerSelectedEvent(MarkerSelectedEvent event) {
         return event;
     }
 
-    public JFreeChart createVolcanoChart(
+    private JFreeChart createVolcanoChart(
             DSMicroarraySetView<DSGeneMarker, DSMicroarray> dataSetView,
-            DSSignificanceResultSet<DSGeneMarker> significance,
+            DSTTestResultSet<DSGeneMarker> significance,
             boolean showAllArrays,
             boolean showAllMarkers,
-            BusySwingWorker worker,
+            BusySwingWorker<ChartPanel, Void> worker,
             MarkerXYToolTipGenerator toolTipGenerator
     ) throws SeriesException {
     	
