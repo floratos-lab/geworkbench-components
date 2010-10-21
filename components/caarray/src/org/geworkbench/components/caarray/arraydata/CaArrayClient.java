@@ -326,7 +326,7 @@ public class CaArrayClient {
         List<QuantitationType> quantitationTypes = dataSet.getQuantitationTypes();
         // Data for the first hybridization (the only hybridization, in our case)
         if(dataSet.getDatas().size()<1) {
-        	throw new Exception("No data in this dataset.");
+        	throw new Exception("quantitationType: " + quantitationType + " has no data.");
         }
         HybridizationData data = dataSet.getDatas().get(0);
         // Ordered list of columns with values (columns are in the same order as column headers/quantitation types)
