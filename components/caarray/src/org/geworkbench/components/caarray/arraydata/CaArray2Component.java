@@ -193,7 +193,6 @@ public class CaArray2Component implements VisualPlugin {
 			CaArrayEvent event = new CaArrayEvent(url, port);
 			event.setPopulated(false);
 			event.setSucceed(false);
-			se.printStackTrace();
 			if (CaARRAYPanel.isCancelled
 					&& CaARRAYPanel.cancelledConnectionInfo != null
 					&& CaARRAYPanel.cancelledConnectionInfo
