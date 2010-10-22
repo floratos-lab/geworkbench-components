@@ -80,7 +80,7 @@ import javax.swing.tree.TreeSelectionModel; //import javax.swing.SwingWorker;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet; 
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.CSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
@@ -140,6 +140,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	private Properties iteractionsProp;
 	private int timeout = 0;
 	private int maxInteractionNum = 2000;
+	private int interaction_flag = 1;
 
 	private static String[] firstFourColumnLabels = new String[] {
 			Constants.MARKERLABEL, Constants.GENELABEL,
@@ -1459,7 +1460,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		SwingUtilities.invokeLater(r);
 
 	}
-	 
+
 	private void createNetworks(ProgressBar createNetworkPb,
 			CreateNetworkHandler handler) {// GEN-FIRST:event_loadfromDBHandler
 
@@ -1515,7 +1516,9 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 					String mid2 = interactionDetail.getdSGeneMarker2();
 					String mid1 = interactionDetail.getdSGeneMarker1();
 					int serial2 = -1;
-					if (interactionDetail.getdSGeneMarker1().equals("Q9BQE3") || interactionDetail.getdSGeneMarker2().equals("Q9BQE3"))
+					if (interactionDetail.getdSGeneMarker1().equals("Q9BQE3")
+							|| interactionDetail.getdSGeneMarker2().equals(
+									"Q9BQE3"))
 						System.out.println("test");
 					if (interactionDetail.getDbSource2().equalsIgnoreCase(
 							Constants.ENTREZ_GENE)) {
@@ -1582,10 +1585,11 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 					}
 
-				    mid1 = interactionDetail.getdSGeneMarker1();
+					mid1 = interactionDetail.getdSGeneMarker1();
 					DSGeneMarker marker1 = new CSGeneMarker();
 					int serial1 = -1;
-					if (interactionDetail.getDbSource1().equalsIgnoreCase(Constants.ENTREZ_GENE)) {
+					if (interactionDetail.getDbSource1().equalsIgnoreCase(
+							Constants.ENTREZ_GENE)) {
 
 						try {
 							marker1.setGeneId(Integer.parseInt(mid1));
@@ -1836,13 +1840,17 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 							List<InteractionDetail> interactionDetails = null;
 
 							try {
-								interactionDetails = interactionsConnection
-										.getInteractionsByEntrezIdOrGeneSymbol_2(
-												marker, context, version);
 
-								// interactionDetails = interactionsConnection
-								// .getPairWiseInteraction(id, context,
-								// version);
+								if (interaction_flag == 0) {
+									interactionDetails = interactionsConnection
+									.getInteractionsByEntrezIdOrGeneSymbol_1(
+											marker, context, version);
+								} else {
+									interactionDetails = interactionsConnection
+											.getInteractionsByEntrezIdOrGeneSymbol_2(
+													marker, context, version);
+								}
+
 							} catch (UnAuthenticatedException uae) {
 								cancelAction = true;
 								break;
@@ -1929,6 +1937,9 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 							.getProperty(Constants.INTERACTIONS_SERVLET_CONNECTION_TIMEOUT));
 			maxInteractionNum = new Integer(iteractionsProp
 					.getProperty(Constants.MAX_INTERACTIONS_NUMBER));
+			interaction_flag = new Integer(iteractionsProp
+					.getProperty(Constants.INTERACTIONS_FLAG));
+
 			String interactionsServletUrl = pm.getProperty(this.getClass(),
 					"url", "");
 			if (interactionsServletUrl == null
@@ -2215,7 +2226,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				} else {
 
 					setBackground(table.getBackground());
-					//setBackground(Color.white);
+					// setBackground(Color.white);
 					String headerStr = tableColumn.getHeaderValue().toString();
 					if (!jPreferencePanel.getNetworkSelectedInteractionTypes()
 							.contains(
