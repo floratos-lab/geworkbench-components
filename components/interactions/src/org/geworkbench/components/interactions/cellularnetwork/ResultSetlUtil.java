@@ -129,9 +129,10 @@ public class ResultSetlUtil {
 	public boolean next() throws IOException {
 		boolean ret = false;
 		decodedString = in.readLine();
-		if (decodedString != null && !decodedString.trim().equals("")) {
+		 
+		if (decodedString != null ) {
 
-			// System.out.println( decodedString);
+			//System.out.println( decodedString);
 
 			row = decodedString.split(Constants.REGEX_DEL, SPLIT_ALL);
 			ret = true;

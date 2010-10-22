@@ -23,7 +23,8 @@ public class Constants  {
 	public static final String INTERACTIONS_SERVLET_URL = "interactions_servlet_url";
 	public static final String INTERACTIONS_SERVLET_CONNECTION_TIMEOUT = "interactions_servlet_connection_timeout";
 	public static final String MAX_INTERACTIONS_NUMBER = "max_interaction_number";
-  
+	public static final String INTERACTIONS_FLAG = "interaction_flag";
+	
 	public static final String GOTERMCOLUMN = "GO Annotation";
 
 	public static final String ACTIVETABLE = "ACTIVETABLE";
