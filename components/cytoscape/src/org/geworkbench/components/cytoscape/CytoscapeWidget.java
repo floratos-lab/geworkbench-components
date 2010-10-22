@@ -76,6 +76,7 @@ import cytoscape.view.NetworkPanel;
 import cytoscape.view.cytopanels.BiModalJSplitPane;
 import cytoscape.view.cytopanels.CytoPanel;
 import cytoscape.visual.CalculatorCatalog;
+import cytoscape.visual.DuplicateCalculatorNameException;
 import cytoscape.visual.NodeShape;
 import cytoscape.visual.VisualMappingManager;
 import cytoscape.visual.VisualPropertyType;
@@ -143,9 +144,7 @@ public class CytoscapeWidget implements VisualPlugin {
 	private Set<String> dataSetIDs = new HashSet<String>();
 	private volatile Set<Integer> cancelList = new HashSet<Integer>();
 	private DiscreteMapping nodeDm = null, edgeDm = null;
-
-	private VisualStyle visualStyle;
-
+	
 	private int shapeIndex = 0;
 	private NodeShape[] shapes = { NodeShape.HEXAGON, NodeShape.RECT,
 			NodeShape.DIAMOND, NodeShape.ELLIPSE, NodeShape.TRIANGLE,
@@ -239,7 +238,7 @@ public class CytoscapeWidget implements VisualPlugin {
 					+ new Exception().getStackTrace()[0].getMethodName());
 			return;
 		}
-   
+
 		if (e.getType() == GeneTaggedEvent.USE_VISUAL_PROPERTY) {
 			PanelVisualPropertiesManager propertiesManager = PanelVisualPropertiesManager
 					.getInstance();
@@ -267,11 +266,12 @@ public class CytoscapeWidget implements VisualPlugin {
 			}
 			log.debug(m.getShortName().trim().toUpperCase());
 		}
-        
+
 		Iterator<?> iter = Cytoscape.getCurrentNetworkView()
 				.getNodeViewsIterator();
-		Color  defaultNodeSelectionColor= visualStyle.getGlobalAppearanceCalculator()
-		.getDefaultNodeSelectionColor();
+		Color defaultNodeSelectionColor = Cytoscape.getVisualMappingManager()
+				.getVisualStyle().getGlobalAppearanceCalculator()
+				.getDefaultNodeSelectionColor();
 		publishEnabled = false;
 		while (iter.hasNext()) {
 			NodeView nodeView = (NodeView) iter.next();
@@ -287,11 +287,11 @@ public class CytoscapeWidget implements VisualPlugin {
 									.getStringValue(color));
 
 					nodeView.setUnselectedPaint(color);
-					//nodeView.setSelectedPaint(color);
-					//nodeView.select();
-				    nodeView.unselect();
+					// nodeView.setSelectedPaint(color);
+					// nodeView.select();
+					nodeView.unselect();
 
-				} else {					 
+				} else {
 					nodeView.select();
 				}
 				log.debug("^^^Select^^^");
@@ -412,15 +412,17 @@ public class CytoscapeWidget implements VisualPlugin {
 				if (cyNetwork.getTitle().equals(
 						adjMatrixDataSet.getNetworkName())) {
 					Cytoscape.destroyNetwork(cyNetwork);
+					//Cytoscape.getVisualMappingManager()
+					//.getCalculatorCatalog().removeVisualStyle(cyNetwork.getTitle() + " Style");
 					return;
 				}
 			} else {
 				log
-						.error("Cytoscape network set contains something that is not FingCyNetwork.");
+						.warn("Cytoscape network set contains something that is not FingCyNetwork.");
 			}
 		}
 		log
-				.error("No network in the Cytoscape network set matches ProjectNodeRemovedEvent's dataSet name.");
+				.warn("No network in the Cytoscape network set matches ProjectNodeRemovedEvent's dataSet name.");
 	}
 
 	// this static method is copied from cutenetManager so we don't depend on
@@ -662,7 +664,7 @@ public class CytoscapeWidget implements VisualPlugin {
 						cyNode.getIdentifier(), "geneType", geneType);
 				if (nodeDm.getMapValue(geneType.trim()) == null) {
 					nodeDm.putMapValue(geneType.trim(), shapes[++shapeIndex]);
-
+					nodeDm.fireStateChanged();
 				}
 
 			} else {
@@ -798,7 +800,7 @@ public class CytoscapeWidget implements VisualPlugin {
 
 			if (publishEnabled)
 				this.setNodeSelectColorToDefault();
-			
+
 			DSPanel<DSGeneMarker> selectedMarkers = new CSPanel<DSGeneMarker>(
 					"Selected Genes", "Cytoscape");
 			for (int i = 0; i < nodes.size(); i++) {
@@ -834,7 +836,7 @@ public class CytoscapeWidget implements VisualPlugin {
 			}
 			selectedMarkers.setActive(true);
 			if (publishEnabled) // skip if GeneTaggedEvent is being processed to
-				// avoid event cycle                 
+				// avoid event cycle
 				publishSubpanelChangedEvent(new org.geworkbench.events.SubpanelChangedEvent<DSGeneMarker>(
 						DSGeneMarker.class,
 						selectedMarkers,
@@ -869,10 +871,10 @@ public class CytoscapeWidget implements VisualPlugin {
 
 		Cytoscape.getSwingPropertyChangeSupport().addPropertyChangeListener(
 				new GenewaysNetworkListener());
+
 		VisualMappingManager manager = Cytoscape.getVisualMappingManager();
 		CalculatorCatalog catalog = manager.getCalculatorCatalog();
-		visualStyle = catalog.getVisualStyle("Nested Network Style");
-		Calculator nc = catalog.getCalculator(VisualPropertyType.NODE_SHAPE,
+	    Calculator nc = catalog.getCalculator(VisualPropertyType.NODE_SHAPE,
 				"Nested Network Style-Node Shape-Discrete Mapper");
 
 		Vector<?> v = nc.getMappings();
@@ -881,6 +883,7 @@ public class CytoscapeWidget implements VisualPlugin {
 				nodeDm = (DiscreteMapping) v.get(i);
 				break;
 			}
+
 		}
 
 		nodeDm.setControllingAttributeName("geneType", cytoNetwork, false);
@@ -891,8 +894,6 @@ public class CytoscapeWidget implements VisualPlugin {
 		// non K/E/TF, in microarray set
 		nodeDm.putMapValue("non K/P/TF, in microarray set",
 				shapes[++shapeIndex]);
-
-		visualStyle.getNodeAppearanceCalculator().setCalculator((nc));
 
 		Calculator ec = catalog.getCalculator(VisualPropertyType.EDGE_COLOR,
 				"BasicDiscrete");
@@ -909,7 +910,7 @@ public class CytoscapeWidget implements VisualPlugin {
 			vs.getNodeAppearanceCalculator().setCalculator((nc));
 			vs.getEdgeAppearanceCalculator().setCalculator(ec);
 
-		}
+		} 
 	}
 
 	private void receiveMatrix(int adjMatrixId) {
@@ -929,6 +930,7 @@ public class CytoscapeWidget implements VisualPlugin {
 		}
 		name = Util.getUniqueName(name, names);
 		adjSet.setNetworkName(name);
+				
 		cytoNetwork = Cytoscape.createNetwork(name);
 
 		try {
@@ -953,7 +955,28 @@ public class CytoscapeWidget implements VisualPlugin {
 			return;
 
 		}
+         
+		
 
+		CalculatorCatalog catalog = Cytoscape.getVisualMappingManager()
+				.getCalculatorCatalog();
+		VisualStyle visualStyle = new VisualStyle(catalog
+				.getVisualStyle("Nested Network Style"), name + " Style");
+
+		try {
+			catalog.addVisualStyle(visualStyle);
+		} catch (DuplicateCalculatorNameException ex) {
+            String existStyle = visualStyle.getName();           
+            visualStyle = new VisualStyle(catalog
+					.getVisualStyle("Nested Network Style"), catalog
+					.checkVisualStyleName(name + " Style"));
+			catalog.addVisualStyle(visualStyle);
+			catalog.removeVisualStyle(existStyle);
+            
+		}
+		
+		
+		
 		CytoPanel temp = Cytoscape.getDesktop().getCytoPanel(
 				SwingConstants.WEST);
 
@@ -971,7 +994,7 @@ public class CytoscapeWidget implements VisualPlugin {
 			view = Cytoscape.createNetworkView(cytoNetwork, maSet.getLabel());
 
 			view.applyVizmapper(visualStyle);
-
+		 
 			view.addGraphViewChangeListener(new GraphViewChangeListener() {
 				public void graphViewChanged(
 						GraphViewChangeEvent graphViewChangeEvent) {
@@ -982,9 +1005,8 @@ public class CytoscapeWidget implements VisualPlugin {
 			view.getComponent().addMouseListener(
 					new ExpandMenuListener(CytoscapeWidget.this));
 
+			log.info("DrawAction finished.");
 		}
-
-		log.info("DrawAction finished.");
 
 	}
 
@@ -1066,14 +1088,14 @@ public class CytoscapeWidget implements VisualPlugin {
 	}
 
 	public void setNodeSelectColorToDefault() {
-		Color c = visualStyle.getGlobalAppearanceCalculator()
-				.getDefaultNodeSelectionColor();
+		Color c = Cytoscape.getVisualMappingManager().getVisualStyle()
+				.getGlobalAppearanceCalculator().getDefaultNodeSelectionColor();
 		Iterator<?> iter = Cytoscape.getCurrentNetworkView()
 				.getNodeViewsIterator();
 
 		while (iter.hasNext()) {
 			NodeView nodeView = (NodeView) iter.next();
-			//nodeView.unselect();
+			// nodeView.unselect();
 			nodeView.setSelectedPaint(c);
 		}
 
