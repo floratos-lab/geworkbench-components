@@ -1173,7 +1173,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 						continue;
 					needDraw = true;
 					int[] distributionArray = cellularNetWorkElementInformation
-							.getDistribution();
+							.getDistribution(displaySelectedInteractionTypes);
 
 					for (int i = 0; i < binSize; i++)
 						basketValues[i] += distributionArray[i];
