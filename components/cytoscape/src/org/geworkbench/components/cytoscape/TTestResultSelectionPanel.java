@@ -103,7 +103,7 @@ public class TTestResultSelectionPanel extends JPanel {
 		
 		
 		String selectedTTestName = list.getSelectedValue().toString().trim();
-		Map<String, Color> tTestResultSetColorMap = new HashMap<String, Color>();
+		Map<String, List<Object>> tTestResultSetColorMap = new HashMap<String, List<Object>>();
 
 		CSSignificanceResultSet<DSGeneMarker> ttestResultSet = ttestResultMap
 				.get(selectedTTestName);		
@@ -121,7 +121,7 @@ public class TTestResultSelectionPanel extends JPanel {
 					attrs.deleteAttribute(id, CytoscapeWidget.NODE_FILL_COLOR);
 			 
 				if (tTestResultSetColorMap.containsKey(id.trim().toUpperCase())) {												 
-						Color c = tTestResultSetColorMap.get(id.trim().toUpperCase());						 
+						Color c = (Color)tTestResultSetColorMap.get(id.trim().toUpperCase()).get(1);						 
 						attrs.setAttribute(id, CytoscapeWidget.NODE_FILL_COLOR, ObjectToString.getStringValue(c));
 						 
 						nodeView.setUnselectedPaint(c);
@@ -142,12 +142,12 @@ public class TTestResultSelectionPanel extends JPanel {
 	}
 	
 	
-	private Map<String, Color> getTTestResultSetColorMap(CSSignificanceResultSet<DSGeneMarker> ttestResultSet)	
+	private Map<String, List<Object>> getTTestResultSetColorMap(CSSignificanceResultSet<DSGeneMarker> ttestResultSet)	
 	{
 		double minTValue = 0;
 		double maxTValue = 0;
 		int numOfPositiveTValues = 0; //included 0
-		Map<String, Color> tTestResultSetColorMap = new HashMap<String, Color>();		
+		Map<String, List<Object>> tTestResultSetColorMap = new HashMap<String, List<Object>>();		
 		DSPanel<DSGeneMarker> significantPanel = ttestResultSet
 		.getSignificantMarkers();
 		
@@ -174,20 +174,39 @@ public class TTestResultSelectionPanel extends JPanel {
 		for (DSGeneMarker m : significantPanel) {
 			String name = m.getShortName().trim().toUpperCase();
 			int rank = Gene2RankMap.get(m);
-			Color c = calculateColor(keys.length, numOfPositiveTValues,minTValue, maxTValue, rank, ttestResultSet.getTValue(m));
+			Double tValue = ttestResultSet.getTValue(m);	
+			Color c = calculateColor(keys.length, numOfPositiveTValues,minTValue, maxTValue, rank, tValue);			 
+			List<Object> list = new ArrayList<Object>();
+			list.add(tValue);
+			list.add(c);		 
 			if (name.contains(CytoscapeWidget.GENE_SEPARATOR)) {
 				String[] names = name.split(CytoscapeWidget.GENE_SEPARATOR);
-				for (int i = 0; i < names.length; i++) {
-					tTestResultSetColorMap.put(name, c);
+				for (int i = 0; i < names.length; i++) {	
+					String geneName = names[i].trim().toUpperCase();
+					if (tTestResultSetColorMap.containsKey(geneName) && needReplace((Double)tTestResultSetColorMap.get(geneName).get(0), tValue)== false)
+					    continue;
+					tTestResultSetColorMap.put(geneName, list);
 				}
 			} else {
-				tTestResultSetColorMap.put(m.getShortName().trim().toUpperCase(), c);
+				if (tTestResultSetColorMap.containsKey(name) && needReplace((Double)tTestResultSetColorMap.get(name).get(0), tValue)== false)
+				    continue;
+				tTestResultSetColorMap.put(name, list);
 			}
 
 		}
 		
 		return tTestResultSetColorMap;
 
+	}
+	
+	private boolean needReplace(Double d1, Double d2)
+	{
+		if (Math.abs(d2.doubleValue()) > Math.abs(d1.doubleValue()))
+		{
+			return true;
+		}
+		else
+			return false;
 	}
 	
 	private Color calculateColor(int numMarkers, int numOfPositiveTValues, double minTValue, double maxTValue, int rank, double tValue){
