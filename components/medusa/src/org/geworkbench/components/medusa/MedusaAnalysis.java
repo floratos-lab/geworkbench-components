@@ -32,6 +32,7 @@ import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.components.medusa.gui.MedusaParamPanel;
+import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbench.util.ProgressBar;
 import org.geworkbench.util.Util;
 import org.ginkgo.labs.util.FileTools;
@@ -55,6 +56,7 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 
 	// TODO change name to inputdataset.labels
 	String fileLabels = "data/medusa/dataset/web100_test.labels";
+	private static final String outdir = FilePathnameUtils.getTemporaryFilesDirectoryPath()+"temp/medusa/dataset/output/";
 
 	private ArrayList<DSGeneMarker> regulators = null;
 
@@ -178,7 +180,7 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 		pBar.start();
 
 		/* create output dir */
-		FileTools.createDir("temp/medusa/dataset/output");
+		FileTools.createDir(outdir);
 
 		/* cleanup other runs */
 		//TODO: we'll need to find a way to delete outputDir/ 
