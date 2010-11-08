@@ -75,7 +75,7 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 	private String featuresFilePath = defaultFeaturesFile;
 
 	/* regulators */
-	private String REGULATOR_LIST = "Specify (csv)";
+	private String REGULATOR_LIST = "Specify";
 
 	private String REGULATOR_ACTIVATED = "Activated Markers";
 
@@ -94,7 +94,7 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 	private String regulatorsFilePath = new String("data/regulators.txt");
 
 	/* targets */
-	private String TARGET_LIST = "Specify (csv)";
+	private String TARGET_LIST = "Specify";
 
 	private String TARGET_ALL = "Use All";
 
@@ -196,7 +196,7 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		/* MAIN PANEL */
 
 		FormLayout layout = new FormLayout(
-				"right:max(40dlu;pref), 3dlu, 60dlu, 3dlu, 90dlu, 3dlu, 40dlu, 7dlu",
+				"right:max(40dlu;pref), 3dlu, 62dlu, 3dlu, 104dlu, 3dlu, 70dlu, 7dlu",
 				"");
 
 		DefaultFormBuilder mainBuilder = new DefaultFormBuilder(layout);
