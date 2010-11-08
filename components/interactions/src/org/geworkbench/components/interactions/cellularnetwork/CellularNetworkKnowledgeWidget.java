@@ -1516,10 +1516,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 					String mid2 = interactionDetail.getdSGeneMarker2();
 					String mid1 = interactionDetail.getdSGeneMarker1();
 					int serial2 = -1;
-					if (interactionDetail.getdSGeneMarker1().equals("Q9BQE3")
-							|| interactionDetail.getdSGeneMarker2().equals(
-									"Q9BQE3"))
-						System.out.println("test");
+				 
 					if (interactionDetail.getDbSource2().equalsIgnoreCase(
 							Constants.ENTREZ_GENE)) {
 						try {
@@ -2257,6 +2254,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 									2, 5, 2, 5, table.getBackground());
 						}
 						setBorder(unselectedBorder);
+						setToolTipText(color.toString());
 					}
 				}
 			}
@@ -2365,7 +2363,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			}
 
 			String toolTipText = insertLineBreaker(color);
-			setToolTipText("<html>Value1: " + toolTipText + "<html>");
+			setToolTipText("<html>" + toolTipText + "<html>");
 			return this;
 		}
 	}
