@@ -234,6 +234,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	private Vector<Vector<Object>> cachedPreviewData = new Vector<Vector<Object>>();
 
 	private DSMicroarraySet dataset = null;
+	
+	private Map<String, String> geneTypeMap = null;
 
 	/**
 	 * Creates new form Interactions
@@ -733,9 +735,9 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	 */
 
 	private void initComponents() {
-
+		initGeneTypeMap();
 		Authenticator.setDefault(new BasicAuthenticator());
-		new javax.swing.JPanel();
+		new javax.swing.JPanel();			
 		jPanel2 = new javax.swing.JPanel();
 		JPanel topPanel = new JPanel();
 		throttlePanel = new JPanel();
@@ -1954,7 +1956,12 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		}
 
 	}
-
+	public void initGeneTypeMap() {
+		geneTypeMap = new HashMap<String, String>();
+		geneTypeMap.put(Constants.TF, Constants.TRANSCRIPTION_FACTOR);
+		geneTypeMap.put(Constants.K, Constants.KINASE);
+		geneTypeMap.put(Constants.P, Constants.PHOSPHATASE);
+	}
 	public void initDetailTable() {
 
 		try {
@@ -2310,7 +2317,9 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		public Component getTableCellRendererComponent(JTable table,
 				Object color, boolean isSelected, boolean hasFocus, int row,
 				int column) {
-
+            
+			TableColumn tableColumn = detailTable.getColumnModel().getColumn(
+					column);
 			if (hits != null && hits.size() > row) {
 				CellularNetWorkElementInformation cellularNetWorkElementInformation = hits
 						.get(row);
@@ -2362,9 +2371,19 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				}
 			}
 
+			String headerStr = tableColumn.getHeaderValue().toString();
+			if (headerStr.equalsIgnoreCase(Constants.GENETYPELABEL))
+			{
+				if (! color.toString().trim().equalsIgnoreCase(""))
+				{	
+					String s =  geneTypeMap.get(color);
+				    if ( s != null || !s.equalsIgnoreCase(""))
+				    	color = s;
+				}
+			}
 			String toolTipText = insertLineBreaker(color);
 			setToolTipText("<html>" + toolTipText + "<html>");
-			return this;
+			return this; 
 		}
 	}
 

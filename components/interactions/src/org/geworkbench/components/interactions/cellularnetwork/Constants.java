@@ -58,4 +58,18 @@ public class Constants  {
 	public static final String ENTREZ_GENE = "Entrez Gene";
   
 	public static final String UNIPORT = "Uniprot";
+	
+	public static final String  TF= "TF";
+	
+	public static final String  TRANSCRIPTION_FACTOR= "Transcription Factor";
+
+    public static final String  K= "K";
+	
+	public static final String  KINASE= "Kinase";
+	
+    public static final String  P= "P";
+	
+	public static final String  PHOSPHATASE= "Phosphatase";
+
+
 }
