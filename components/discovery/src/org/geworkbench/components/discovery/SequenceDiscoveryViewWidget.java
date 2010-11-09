@@ -289,22 +289,19 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		String selectedAlgo = algoPanel.getSelectedAlgorithmName();
 		// the algorithm to run
 		AbstractSequenceDiscoveryAlgorithm algorithm = null;
-		int viewId = DEFAULT_VIEW;
 
 		// select the algorithm to run
 		if (selectedAlgo.equalsIgnoreCase(AlgorithmSelectionPanel.DISCOVER)) {
 			algorithm = createDiscoveryAlgorithm(discoverySession);
-			viewId = PATTERN_TABLE;
 		} else if (selectedAlgo
 				.equalsIgnoreCase(AlgorithmSelectionPanel.EXHAUSTIVE)) {
 			algorithm = createExhaustive(discoverySession);
-			viewId = PATTERN_TABLE;
 		} else {
 			log.error("No Algorithm found...");
 			return;
 		}
 
-		switchAlgo(selectedAlgo, algorithm, viewId);
+		switchAlgo(selectedAlgo, algorithm, DEFAULT_VIEW);
 
 	}
 
