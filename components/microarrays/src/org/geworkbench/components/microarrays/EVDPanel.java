@@ -836,6 +836,13 @@ public class EVDPanel extends MicroarrayViewEventBase {
 
     }
 
+	@SuppressWarnings("rawtypes")
+	@Publish
+	public SubpanelChangedEvent publishSubpanelChangedEvent(
+			org.geworkbench.events.SubpanelChangedEvent event) {
+		return event;
+	}
+
     private void setSlider(String selected) {
     	String currentBase = maSet.get(jMASlider.getValue()).getLabel();
     	if (!currentBase.equals(selected)){
