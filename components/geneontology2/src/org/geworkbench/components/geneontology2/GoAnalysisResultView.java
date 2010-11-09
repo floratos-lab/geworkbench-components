@@ -17,8 +17,10 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -65,6 +67,7 @@ import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.GoAnalysisResult;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
@@ -85,9 +88,8 @@ import org.geworkbench.util.BrowserLauncher;
  * @version $Id$
  *
  */
-@AcceptTypes({GoAnalysisResult.class})
+@AcceptTypes({GoAnalysisResult.class, DSMicroarraySet.class})
 public class GoAnalysisResultView extends JPanel implements VisualPlugin {
-	private static final int COLUMN_COUNT = 7;
 	private static final long serialVersionUID = -579377200878351871L;
 	static Log log = LogFactory.getLog(GoAnalysisResultView.class);
 	
@@ -129,7 +131,11 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		ActionListener namespaceListener = new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
-				tableModel.populateNewResult(result);
+				if(result!=null) {
+					tableModel.populateNewResult(result);
+				} else {
+					// FIXME: confirm even the 'if' branch is not necessary
+				}
 				if(allButton.isSelected()) {
 					sorter.setRowFilter(null);
 					table.repaint();
@@ -685,6 +691,9 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		return found;
 	}
 	
+	// this is only used in the case of expression data set instead of ontology analysis result
+	private DSMicroarraySet<CSMicroarray> dataSet = null;
+	
 	// listen to the even that the user switches between data/result nodes, or new result node is created
 	@SuppressWarnings("unchecked")
 	@Subscribe
@@ -692,9 +701,18 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		DSDataSet<CSMicroarray> dataSet = e.getDataSet();
 		if (dataSet instanceof GoAnalysisResult) {
 			result = (GoAnalysisResult)dataSet;
+			dataSet = null; // not used in case of ontology analysis result
 			tableModel.populateNewResult( result );
 			
 			treeModel.setResult(result);
+			allButton.setSelected(true); // show all three namespace at switching result node
+			repaint();
+		} else if (dataSet instanceof DSMicroarraySet) {
+			result = null;
+			this.dataSet = (DSMicroarraySet<CSMicroarray>)dataSet;
+			tableModel.populateFromDataSet( this.dataSet );
+			
+			treeModel.setResult(null);
 			allButton.setSelected(true); // show all three namespace at switching result node
 			repaint();
 		}
@@ -709,15 +727,25 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		} else {
 			log.error("'Show genes for' not set");
 		}
+		// if it is not result, we may need to force parsing the annotation
+		// TODO parsing annotation is a duplicate effort
+		if (result == null && !GoAnalysisResult.isAnnotationParsed()) {
+			String annotationFileName = dataSet.getAnnotationFileName();
+			GoAnalysisResult.parseAnnotation(annotationFileName);
+		}
 		Set<Integer> processedTerms = new TreeSet<Integer>();
 		Set<String> genes = genesFomrTermAndDescendants(processedTerms, goId, includeDescendants);
 		
-		if(changedGeneListButton.isSelected()) {
-			genes.retainAll(result.getChangedGenes());
-		} else if(referenceListButton.isSelected()) {
-			genes.retainAll(result.getReferenceGenes());
+		if (result != null) {
+			if (changedGeneListButton.isSelected()) {
+				genes.retainAll(result.getChangedGenes());
+			} else if (referenceListButton.isSelected()) {
+				genes.retainAll(result.getReferenceGenes());
+			} else {
+				log.error("'Show genes from' not set");
+			}
 		} else {
-			log.error("'Show genes from' not set");
+			// no op
 		}
 		
 		Object[][] dataVector = new Object[genes.size()][3];
@@ -757,6 +785,7 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		 * 
 		 */
 		private static final long serialVersionUID = -7009237666149228067L;
+		private int COLUMN_COUNT = 7;
 
 		private static final int TABLE_COLUMN_INDEX_GO_ID = 0;
 		private static final int TABLE_COLUMN_INDEX_GO_TERM_NAME = 1;
@@ -773,6 +802,74 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		public int getColumnCount() {
 			return COLUMN_COUNT;
 		}
+		
+		// this is potentially useful in other place or as part of annotation parser
+		private void deepParse(String goTermAnnotation, Map<Integer, String> map) {
+			if(goTermAnnotation.startsWith("---"))
+					return;
+
+			String[] fields = goTermAnnotation.split("//");
+			int id = Integer.parseInt( fields[0].trim() );
+			if(map.get(id)==null) {
+				map.put(id, fields[1].trim());
+			}
+		}
+
+		private void populateFromDataSet(DSMicroarraySet<CSMicroarray> dataSet) {
+			Map<Integer, String> biologyProcessMap = new HashMap<Integer, String>();
+			Map<Integer, String> cellularComponentMap = new HashMap<Integer, String>();
+			Map<Integer, String> molecularFunctionMap = new HashMap<Integer, String>();
+			for (DSGeneMarker marker : dataSet.getMarkers()) {
+
+				String[] biologyProcess = AnnotationParser.getInfo(
+						marker.getLabel(),
+						AnnotationParser.GENE_ONTOLOGY_BIOLOGICAL_PROCESS);
+				if (biologyProcess != null) {
+					for (String b : biologyProcess) {
+						deepParse(b, biologyProcessMap);
+					}
+				}
+				String[] cellularComponent = AnnotationParser.getInfo(
+						marker.getLabel(),
+						AnnotationParser.GENE_ONTOLOGY_CELLULAR_COMPONENT);
+				if (cellularComponent != null) {
+					for (String c : cellularComponent) {
+						deepParse(c, cellularComponentMap);
+					}
+				}
+				String[] molecularFunction = AnnotationParser.getInfo(
+						marker.getLabel(),
+						AnnotationParser.GENE_ONTOLOGY_MOLECULAR_FUNCTION);
+				if (molecularFunction != null) {
+					for (String m : molecularFunction) {
+						deepParse(m, molecularFunctionMap);
+					}
+				}
+			}
+			COLUMN_COUNT = 3;
+			data = new Object[biologyProcessMap.size()+cellularComponentMap.size()+molecularFunctionMap.size()][COLUMN_COUNT];
+			int index = 0;
+			for(int id: biologyProcessMap.keySet()) {
+				data[index][0] = id;
+				data[index][1] = biologyProcessMap.get(id);
+				data[index][2] = "B";
+				index++;
+			}
+			for(int id: cellularComponentMap.keySet()) {
+				data[index][0] = id;
+				data[index][1] = cellularComponentMap.get(id);
+				data[index][2] = "C";
+				index++;
+			}
+			for(int id: molecularFunctionMap.keySet()) {
+				data[index][0] = id;
+				data[index][1] = molecularFunctionMap.get(id);
+				data[index][2] = "M";
+				index++;
+			}
+			
+			fireTableStructureChanged();
+		}
 
 		public int getRowCount() {
 			return data.length;
@@ -787,9 +884,10 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		}
 		
 		public void populateNewResult(GoAnalysisResult result) {
+			COLUMN_COUNT = 7;
 			data = result.getResultAsArray();
 			
-			fireTableDataChanged();
+			fireTableStructureChanged();
 		}
 		
 		public Class<?> getColumnClass(int columnIndex) {
