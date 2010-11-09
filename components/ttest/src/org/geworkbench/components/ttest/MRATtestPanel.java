@@ -1,5 +1,7 @@
 package org.geworkbench.components.ttest;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.HashMap;
@@ -8,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.swing.ButtonGroup;
+import javax.swing.JCheckBox;
 import javax.swing.JFormattedTextField;
 import javax.swing.JRadioButton;
 
@@ -239,6 +242,13 @@ public class MRATtestPanel extends TtestAnalysisPanel {
         builder.append(stepdownMinP, stepdownMaxT);        
         builder.nextLine();
         
+        randomlyGroup.setEnabled(false);
+        numCombs.setEnabled(false);
+        allPerms.setEnabled(false);
+        stepdownMinP.setSelected(true);
+        stepdownMinP.setEnabled(false);
+        stepdownMaxT.setEnabled(false);
+        
         builder.appendSeparator("Group Variances");
         welch.setSelected(true);
         builder.append(welch, equalVariances);
@@ -253,9 +263,31 @@ public class MRATtestPanel extends TtestAnalysisPanel {
 
 		//pass parent ASPP (MasterRegulatorPanel) into ParameterActionListener (instead of MRATtestPanel).
 		welch.addActionListener(parameterActionListener);
-		equalVariances.addActionListener(parameterActionListener);
-		pvaluesByTDistribution.addActionListener(parameterActionListener);
-		pvaluesByPerm.addActionListener(parameterActionListener);
+		equalVariances.addActionListener(parameterActionListener);		
+		pvaluesByTDistribution.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				randomlyGroup.setSelected(true);
+				randomlyGroup.setEnabled(false);				
+		        numCombs.setEnabled(false);
+		        allPerms.setSelected(false);
+		        allPerms.setEnabled(false);		        
+		        stepdownMinP.setSelected(true);
+		        stepdownMinP.setEnabled(false);		        
+		        stepdownMaxT.setSelected(false);
+		        stepdownMaxT.setEnabled(false);		        
+			}
+		});		
+		pvaluesByPerm.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				randomlyGroup.setEnabled(true);
+		        numCombs.setEnabled(true);
+		        allPerms.setEnabled(true);
+		        stepdownMinP.setEnabled(true);
+		        stepdownMaxT.setEnabled(true);
+			}
+		});
+		
+		
 		randomlyGroup.addActionListener(parameterActionListener);
 		numCombs.addActionListener(parameterActionListener);
 		allPerms.addActionListener(parameterActionListener);
