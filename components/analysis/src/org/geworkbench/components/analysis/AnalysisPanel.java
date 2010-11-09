@@ -49,6 +49,7 @@ import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSExprMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
+import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.CSExpressionMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
@@ -1060,6 +1061,19 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 					.getNamedParameterSet(paramName);
 			selectedAnalysis.setParameters(parameters);
 		}
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private DSMicroarraySetView getDataSetView() {
+		DSMicroarraySetView dataSetView = new CSMicroarraySetView(this.refMASet);
+		if (activatedMarkers != null && activatedMarkers.panels().size() > 0)
+			dataSetView.setMarkerPanel(activatedMarkers);
+		if (activatedArrays != null && activatedArrays.panels().size() > 0 && activatedArrays.size() > 0)
+			dataSetView.setItemPanel(activatedArrays);
+		dataSetView.useMarkerPanel(!chkAllMarkers.isSelected());
+		dataSetView.useItemPanel(!chkAllArrays.isSelected());
+
+		return dataSetView;
 	}
 
 	/**
