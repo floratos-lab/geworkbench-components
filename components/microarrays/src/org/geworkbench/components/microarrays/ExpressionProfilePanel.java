@@ -78,6 +78,8 @@ public class ExpressionProfilePanel extends MicroarrayViewEventBase implements
 
 	private boolean isToolTipEnabled = true;
 
+	private boolean isPlotRefresh = false;
+
 	public ExpressionProfilePanel() {
 		try {
 			jbInit();
@@ -136,7 +138,7 @@ public class ExpressionProfilePanel extends MicroarrayViewEventBase implements
 		jEnabledBox.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				isToolTipEnabled = jEnabledBox.isSelected();
-				setPlotRefresh(true);
+				isPlotRefresh = true;
 				fireModelChangedEvent();
 			}
 		});
@@ -159,11 +161,11 @@ public class ExpressionProfilePanel extends MicroarrayViewEventBase implements
 		if (maSetView == null)
 			return;
 
-		if (isPlotRefresh()) {
+		if (isPlotRefresh) {
 
 			graphPanel.removeAll();
 
-			setPlotRefresh(false);
+			isPlotRefresh = false;
 
 			BusySwingWorker<Void, Void> worker = new BusySwingWorker<Void, Void>() {
 				ProgressBar pb = null;
@@ -388,7 +390,7 @@ public class ExpressionProfilePanel extends MicroarrayViewEventBase implements
 	private void plotButton_actionPerformed(ActionEvent e) {
 
 		if (e.getActionCommand().equals(plotButton.getText())) {
-			setPlotRefresh(true);
+			isPlotRefresh = true;
 			imageSnapshotButton.setEnabled(true);
 			refreshMaSetView();
 		}
