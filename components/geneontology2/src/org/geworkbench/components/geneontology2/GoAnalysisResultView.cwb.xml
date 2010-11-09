@@ -15,7 +15,7 @@
 	</component>
 	
 
-    <plugin id="GoAnalysisResultView" name="GO Terms Analysis Result View" class="org.geworkbench.components.geneontology2.GoAnalysisResultView" source="geneontology2">
+    <plugin id="GoAnalysisResultView" name="Gene Ontology Analysis Viewer" class="org.geworkbench.components.geneontology2.GoAnalysisResultView" source="geneontology2">
         <gui-area name="VisualArea"/>
     </plugin>		
 	
