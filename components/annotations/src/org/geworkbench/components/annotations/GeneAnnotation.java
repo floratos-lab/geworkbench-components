@@ -4,11 +4,8 @@ import gov.nih.nci.cabio.domain.Gene;
 
 import java.util.List;
 
-import javax.swing.JMenuItem;
-
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
-import org.geworkbench.util.ProgressBar;
 
 
 /**
@@ -73,6 +70,6 @@ public interface GeneAnnotation {
     
     String getEntrezId(Gene gene);    
     
-    AgentDiseaseResults retrieveAll(DSItemList<DSGeneMarker> retrieveMarkerInfo, JMenuItem retrieveItem, CGITableModel diseaseModel, CGITableModel agentModel, ProgressBar pb);
-    AgentDiseaseResults showAnnotation(DSItemList<DSGeneMarker> retrieveMarkerInfo, JMenuItem retrieveItem, CGITableModel diseaseModel, CGITableModel agentModel, ProgressBar pb);
+    AgentDiseaseResults retrieveAll(RetrieveAllTask task, DSItemList<DSGeneMarker> retrieveMarkerInfo, CGITableModel diseaseModel, CGITableModel agentModel);
+    AgentDiseaseResults showAnnotation(CGITask task, DSItemList<DSGeneMarker> retrieveMarkerInfo);
 }

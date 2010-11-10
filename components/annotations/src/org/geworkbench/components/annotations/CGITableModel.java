@@ -12,7 +12,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.util.ProgressBar;
+import org.geworkbench.util.ProgressItem;
 import org.jfree.ui.SortableTable;
 import org.jfree.ui.SortableTableModel;
 
@@ -38,13 +38,13 @@ public class CGITableModel extends SortableTableModel {
 	
 	final int numOfColumns = 6;
 	MarkerData[] markerData;
-    private GeneData[] geneData;
+    GeneData[] geneData;
     DiseaseData[] diseaseData;
     private RoleData[] roleData;
     private SentenceData[] sentenceData;
     private PubmedData[] pubmedData;
 
-    private Integer[] indices;			//for sorting feature
+    Integer[] indices;			//for sorting feature
     private Integer[] filterIndices;	//for filtering feature
     int size;
     private int filteredSize;
@@ -126,7 +126,7 @@ public class CGITableModel extends SortableTableModel {
 	}
 
     /* a reference of AnnotationsPanel2 to able to add it as observer */
-    private AnnotationsPanel2 annotationsPanel = null;
+    AnnotationsPanel2 annotationsPanel = null;
     public CGITableModel(final AnnotationsPanel2 annotationsPanel) {
         this.markerData = new MarkerData[0];
         this.geneData = new GeneData[0];
@@ -298,28 +298,8 @@ public class CGITableModel extends SortableTableModel {
 
     //FIXME: this method should also be called when retrieve, not only retrieve all.
     public void updateNumOfDuplicates(){
-		ProgressBar pb = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
-        pb.addObserver(annotationsPanel);
-        pb.setMessage("Calculating number of duplicates.");
-        pb.setTitle("Refreshing table...");
-        pb.start();
-
-    	numOfDuplicatesMap = new HashMap<String, Integer>();
-    	numOfDuplicatesArray = new int[size];
-		for (int i = 0; i < markerData.length; i++) {
-			String key = geneData[indices[i]].name+diseaseData[indices[i]].name;
-			Integer count = numOfDuplicatesMap.get(key);
-			if (count==null)
-				count=1;
-			else
-				count = count + 1;
-			numOfDuplicatesMap.put(key, count);
-		}
-		for (int i = 0; i < markerData.length; i++) {
-			String key = geneData[indices[i]].name+diseaseData[indices[i]].name;
-			numOfDuplicatesArray[i] = numOfDuplicatesMap.get(key);
-		}
-        pb.stop();
+    	DupTask dupTask = new DupTask(ProgressItem.INDETERMINATE_TYPE, "Calculating number of duplicates...", this);
+    	annotationsPanel.pd.executeTask(dupTask);
     }
 
     /*

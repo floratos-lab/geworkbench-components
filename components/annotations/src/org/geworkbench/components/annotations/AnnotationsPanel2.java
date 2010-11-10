@@ -3,14 +3,12 @@ package org.geworkbench.components.annotations;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.GridLayout;
-import java.awt.MouseInfo;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -19,22 +17,13 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.image.BufferedImage;
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Locale;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Set;
 
 import javax.swing.Box;
 import javax.swing.DefaultComboBoxModel;
@@ -87,32 +76,26 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.ExampleFilter;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
-import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
-import org.geworkbench.events.AnnotationsEvent;
 import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.ImageSnapshotEvent;
 import org.geworkbench.events.MarkerSelectedEvent;
 import org.geworkbench.events.ProjectEvent;
-import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.util.BrowserLauncher;
-import org.geworkbench.util.ProgressBar;
-import org.geworkbench.util.Util;
+import org.geworkbench.util.ProgressDialog;
+import org.geworkbench.util.ProgressItem;
 import org.geworkbench.util.annotation.Pathway;
 import org.jfree.ui.SortableTable;
 import org.jfree.ui.SortableTableModel;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
-import com.Ostermiller.util.CSVPrinter;
 
 /**
  * <p>
@@ -140,8 +123,8 @@ import com.Ostermiller.util.CSVPrinter;
  */
 @AcceptTypes({DSMicroarraySet.class})
 @SuppressWarnings("unchecked")
-public class AnnotationsPanel2 implements VisualPlugin, Observer{
-    private static final String GENE_FINDER_PREFIX = "http://cgap.nci.nih.gov/Genes/GeneInfo?";
+public class AnnotationsPanel2 implements VisualPlugin{
+    static final String GENE_FINDER_PREFIX = "http://cgap.nci.nih.gov/Genes/GeneInfo?";
     private static final String RETRIEVE_INFORMATION = "Retrieve Annotations";
 	private static final String RETRIEVE_PATHWAY_DATA = "Get gene annotations (from CGAP)";
 	private static final String RETRIEVE_CGI_DATA = "Get Disease/Agent associations (from CGI)";
@@ -150,7 +133,7 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
     /**
      * Web URL prefix for obtaining Gene annotation
      */
-    private static final String GeneCards_PREFIX = "http://www.genecards.org/cgi-bin/carddisp.pl?gene=";
+    static final String GeneCards_PREFIX = "http://www.genecards.org/cgi-bin/carddisp.pl?gene=";
     /**
      * Web URL prefix for obtaining Pubmed article
      */
@@ -160,7 +143,7 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
      * Web URL prefix for obtaining Agent annotation
      */
     private static final String EVS_PREFIX = "http://nciterms.nci.nih.gov/ncitbrowser/ConceptReport.jsp?dictionary=NCI%20Thesaurus&code=";
-	static Log log = LogFactory.getLog(AnnotationsPanel2.class);
+	private static Log log = LogFactory.getLog(AnnotationsPanel2.class);
     
     JComboBox[] dropDownLists = new JComboBox[8];	//drop down lists for filters
     JPanel leftHeadPanel = new JPanel();	//I put it as global variable so we can change their width at run time.
@@ -171,11 +154,9 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
 	String selectedGene = "";
 	String selectedDisease = "";
 	SortableTable selectedTable = null;
-    private String humanOrMouse = Human_Mouse_Code[0];	//default to Human
+    String humanOrMouse = Human_Mouse_Code[0];	//default to Human
     //Aris want the table to sort by number of records when the records just been retrieved.
     boolean sortByNumberOfRecords=true;
-
-    private boolean stopAlgorithm = false;
 
     JMenuItem retrieveItem = new JMenuItem("retrieve all");
 
@@ -186,158 +167,6 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
 		else
 			return "";
 	}
-
-	/**
-	 * Used by Annotation sub-component for Pathway annotations.
-	 */
-    private class AnnotationTableModel extends SortableTableModel {
-
-        /**
-		 *
-		 */
-		private static final long serialVersionUID = 1L;
-		public static final int COL_MARKER = 0;
-        public static final int COL_GENE = 1;
-        public static final int COL_PATHWAY = 2;
-
-        private MarkerData[] markerData;
-        private GeneData[] geneData;
-        private PathwayData[] pathwayData;
-
-        private Integer[] indices;
-        private int size;
-
-        public AnnotationTableModel(MarkerData[] markerData, GeneData[] geneData, PathwayData[] pathwayData) {
-            this.markerData = markerData;
-            this.geneData = geneData;
-            this.pathwayData = pathwayData;
-            size = pathwayData.length;
-            indices = new Integer[size];
-            resetIndices();
-        }
-
-        public AnnotationTableModel() {
-            this.markerData = new MarkerData[0];
-            this.geneData = new GeneData[0];
-            this.pathwayData = new PathwayData[0];
-            size = 0;
-            indices = new Integer[0];
-        }
-
-        private void resetIndices() {
-            for (int i = 0; i < size; i++) {
-                indices[i] = i;
-            }
-        }
-
-        public int getRowCount() {
-            return size;
-        }
-
-        public int getColumnCount() {
-            return 3;
-        }
-
-        private String wrapInHTML(String s) {
-//            return "<html><u><font color=\"#0000FF\">" + s + "</font></u></html>";
-            return "<html><a href=\"__noop\">" + s + "</a></html>";
-        }
-
-        public Object getValueAt(int rowIndex, int columnIndex) {
-            switch (columnIndex) {
-                case COL_MARKER:
-                    return markerData[indices[rowIndex]].name;
-                case COL_GENE:
-                    return wrapInHTML(geneData[indices[rowIndex]].name);
-                case COL_PATHWAY:
-                    return wrapInHTML(pathwayData[indices[rowIndex]].name);
-            }
-            return null;
-        }
-
-        public void sortByColumn(final int column, final boolean ascending) {
-            resetIndices();
-            final Comparable[][] columns = {markerData, geneData, pathwayData};
-            Comparator<Integer> comparator = new Comparator<Integer>() {
-                public int compare(Integer i, Integer j) {
-                    if (ascending) {
-                        return columns[column][i].compareTo(columns[column][j]);
-                    } else {
-                        return columns[column][j].compareTo(columns[column][i]);
-                    }
-                }
-            };
-            Arrays.sort(indices, comparator);
-            super.sortByColumn(column, ascending);
-        }
-
-        public boolean isSortable(int i) {
-            return true;
-        }
-
-        public void activateCell(int rowIndex, int columnIndex) {
-            switch (columnIndex) {
-                case COL_MARKER:
-                    MarkerData marker = markerData[indices[rowIndex]];
-                    activateMarker(marker);
-                    break;
-                case COL_GENE:
-                    GeneData gene = geneData[indices[rowIndex]];
-                    activateGene(gene);
-                    break;
-                case COL_PATHWAY:
-                    PathwayData pathway = pathwayData[indices[rowIndex]];
-                    // Could be the blank "(none)" pathway.
-                    if (pathway.pathway != null) {
-                        activatePathway(pathway);
-                    }
-                    break;
-            }
-        }
-
-		public boolean toCSV(String filename) {
-			boolean ret = true;
-
-			String[] annotationsHeader = { "Marker", "Gene", "Entrez GeneId", "Pathway", "Entrez URL", "GeneCards URL" };
-			File tempAnnot = new File(filename);
-			try {
-				CSVPrinter csvout = new CSVPrinter(new BufferedOutputStream(
-						new FileOutputStream(tempAnnot)));
-
-				for (int i = 0; i < annotationsHeader.length; i++) {
-					csvout.print(annotationsHeader[i]);
-				}
-				csvout.println();
-
-				for (int cx = 0; cx < this.size; cx++) {
-					String markerName = markerData[cx].name;
-					String geneName = geneData[cx].name;
-			        GeneAnnotation annotation = new GeneAnnotationImpl();
-			        String entrezId = annotation.getEntrezId(geneData[cx].gene);
-		            String entrezUrl = "http://www.ncbi.nlm.nih.gov/sites/entrez?Db=gene&Cmd=ShowDetailView&TermToSearch="+entrezId;
-                    String GeneCardsUrl = GeneCards_PREFIX + geneName;
-					String pathwayName = pathwayData[cx].name;
-
-					csvout.print(markerName);
-					csvout.print(geneName);
-					csvout.print(entrezId);
-					csvout.print(pathwayName);
-					csvout.print(entrezUrl);
-					csvout.print(GeneCardsUrl);
-					csvout.println();
-				}
-
-				csvout.flush();
-				csvout.close();
-			} catch (Exception e) {
-				e.printStackTrace();
-				ret = false;
-			}
-
-			return ret;
-		}
-    }
-
 
     /**
      * Default Constructor
@@ -362,8 +191,8 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
     	return this;
     }
 
-    private boolean userAlsoWantCaBioData = false;
-    protected static boolean userAlsoWantPathwayData = false;
+    boolean userAlsoWantCaBioData = false;
+    boolean userAlsoWantPathwayData = false;
 
     /**
      * Configures the Graphical User Interface and Listeners
@@ -1007,11 +836,7 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
 
         class CollapseAllActionListener implements ActionListener {
 			public void actionPerformed(ActionEvent actionEvent) {
-                SwingUtilities.invokeLater(new Runnable() {
-					public void run() {
 						collapseAll();
-					}
-				});
 			}
 		}
         ActionListener collapseAllActionListener = new CollapseAllActionListener();
@@ -1046,12 +871,7 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
     }
 
     private void collapseAll(){
-        Runnable collapseThread = new Runnable() {
-        	public void run() {
-				ProgressBar pBar = Util.createProgressBar("Collapse all",
-				"Collapsing...");
-				pBar.start();
-				pBar.reset();
+
 		        int size = ((CGITableModel)selectedTable.getModel()).size;
 		        for (int j = 0; j < size; j++) {
 					((CGITableModel) selectedTable.getModel())._collapseBy(selectedTable,
@@ -1066,16 +886,10 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
 				((SortableTableModel)selectedTable.getModel()).sortByColumn(0,true);
 				selectedTable.revalidate();
 				selectedTable.repaint();
-		        pBar.stop();
-        	}
-        };
-        Thread t = new Thread(collapseThread);
-        t.setPriority(Thread.MIN_PRIORITY);
-       	t.start();
     }
 
     boolean entered = false;
-    private void syncHeaderWidthWithTableWidth(){
+    void syncHeaderWidthWithTableWidth(){
     	if (entered) return;
     	else{
     		entered = true;
@@ -1117,20 +931,11 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
         return mainPanel;
     }
 
-    /* act as a lock */
-    private boolean inProgress = false;
-
     /*
      *
      */
     private void retrieveAll(DSGeneMarker marker){
-    	if (inProgress){
-    		//TODO: bring up old one?
-    		return;
-    	}else{
-    		retrieveItem.setEnabled(false);
-    		inProgress = true;
-    	}
+    	retrieveItem.setEnabled(false);
     	retrieveMarkerInfo.clear();
     	//TODO: If we support retrieve all for multiple markers,
     	//			We should remove retrieveMarker variable.
@@ -1139,135 +944,14 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
         retrieveMarker = marker;
         retrieveMarkerInfo.add(retrieveMarker);
 
-        try {
-            Runnable query = new Runnable() {
-
-            	public void run() {
-            		ProgressBar pb = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
-                    pb.addObserver(getAnnotationsPanel());
-                    pb.setMessage("Connecting to server...");
-            		GeneAnnotation geneAnnotation = new GeneAnnotationImpl();
-            		AgentDiseaseResults agentDiseaseResults = geneAnnotation.retrieveAll(retrieveMarkerInfo, retrieveItem, diseaseModel, agentModel, pb);
-            		if (stopAlgorithm){
-            			inProgress = false;
-            			stopAlgorithm(pb);
-            			return;
-            		}
-                    MarkerData[] markers = agentDiseaseResults.getMarkers();
-                    GeneData[] genes = agentDiseaseResults.getGenes();
-                    DiseaseData[] diseases = agentDiseaseResults.getDiseases();
-                    RoleData[] roles = agentDiseaseResults.getRoles();
-                    SentenceData[] sentences = agentDiseaseResults.getSentences();
-                    PubmedData[] pubmeds = agentDiseaseResults.getPubmeds();
-                    MarkerData[] markers2 = agentDiseaseResults.getMarkers2();
-                    GeneData[] genes2 = agentDiseaseResults.getGenes2();
-
-                    DiseaseData[] agents = agentDiseaseResults.getAgents();
-                    RoleData[] agentRoles = agentDiseaseResults.getAgentRoles();
-                    SentenceData[] agentSentences = agentDiseaseResults.getAgentSentences();
-                    PubmedData[] agentPubmeds = agentDiseaseResults.getAgentPubmeds();
-					// FIXME: remove number appended on the list, then do these,
-					// follow by recalculate the number and append to the list.
-                    for (int j = 0; j < diseases.length; j++) {
-                    	//removeItem() followed by addItem() will produce a non-duplicate list
-        				dropDownLists[0].removeItem(markers[j].name);
-        				dropDownLists[0].addItem(markers[j].name);
-        				dropDownLists[1].removeItem(genes[j].name);
-        				dropDownLists[1].addItem(genes[j].name);
-        				dropDownLists[2].removeItem(diseases[j].name);
-        				dropDownLists[2].addItem(diseases[j].name);
-        				dropDownLists[3].removeItem(roles[j].role);
-        				dropDownLists[3].addItem(roles[j].role);
-					}
-                    for (int j = 0; j < agents.length; j++) {
-        				dropDownLists[4].removeItem(markers2[j].name);
-        				dropDownLists[4].addItem(markers2[j].name);
-        				dropDownLists[5].removeItem(genes2[j].name);
-        				dropDownLists[5].addItem(genes2[j].name);
-        				dropDownLists[6].removeItem(agents[j].name);
-        				dropDownLists[6].addItem(agents[j].name);
-        				dropDownLists[7].removeItem(agentRoles[j].role);
-        				dropDownLists[7].addItem(agentRoles[j].role);
-					}
-                    //since we'll use updateDiseaseNumber(), no need to do it now.
-//                    appendDiseaseNumber(markers,diseases,dropDownLists[2]);
-//                    appendDiseaseNumber(markers2,agents,dropDownLists[6]);
-
-                    diseaseTable.setVisible(false);
-                    agentTable.setVisible(false);
-                    diseaseModel.insertData(diseaseModel.size, markers, genes, diseases, roles, sentences, pubmeds);
-                    diseaseModel.filterBy(0, "");
-                    diseaseModel.sortByColumn(0,true);
-                    diseaseTable.revalidate();
-                    agentModel.insertData(agentModel.size, markers2, genes2, agents, agentRoles, agentSentences, agentPubmeds);
-                    agentModel.filterBy(0, "");
-                    agentModel.sortByColumn(0,true);
-                    agentTable.revalidate();
-                    diseaseTable.setVisible(true);
-                    agentTable.setVisible(true);
-                    sortByNumberOfRecords = true;
-                    //Clear numOutOfNum, so no "Retrieve All" option shown if we already got all records.
-                    for (int i = 0; i < diseaseModel.markerData.length; i++) {
-            			MarkerData markerData3 = diseaseModel.markerData[i];
-            			if (retrieveMarker.getLabel().equals(markerData3.name))
-            				markerData3.numOutOfNum="";
-            		}
-                    for (int i = 0; i < agentModel.markerData.length; i++) {
-            			MarkerData markerData3 = agentModel.markerData[i];
-            			if (retrieveMarker.getLabel().equals(markerData3.name))
-            				markerData3.numOutOfNum="";
-            		}
-                    pb.stop();
-
-                    SwingUtilities.invokeLater(new Runnable() {
-                        public void run() {
-                            diseaseTable.getTableHeader().repaint();
-                            agentTable.getTableHeader().repaint();
-                            leftHeadPanel.setVisible(true);
-                            leftHeadPanel.revalidate();
-                            rightHeadPanel.setVisible(true);
-                            rightHeadPanel.revalidate();
-                            syncHeaderWidthWithTableWidth();
-                            updateDiseaseNumber();
-                            orderDropDownLists(dropDownLists[2]);
-                            orderDropDownLists(dropDownLists[6]);
-                        	diseaseModel.sortByColumn(2,false);
-                        	diseaseModel.sortByColumn(0,true);
-                        	agentModel.sortByColumn(2,false);
-                        	agentModel.sortByColumn(0,true);
-                    		inProgress = false;
-                    		retrieveItem.setEnabled(true);
-                        }
-                    });
-                }
-            	private void orderDropDownLists(JComboBox dropDownLists){
-                	int itemCount = dropDownLists.getItemCount();
-                	String[] array = new String[itemCount];
-                	for (int i = 0; i < itemCount; i++) {
-                		array[i]=(String)dropDownLists.getItemAt(i);
-            		}
-                	Arrays.sort(array);
-                	dropDownLists.removeAllItems();
-                	for (int i = 0; i < itemCount; i++) {
-                		dropDownLists.addItem(array[i]);
-            		}
-                }
-            };
-            Thread t = new Thread(query);
-            t.setPriority(Thread.MIN_PRIORITY);
-           	t.start();
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-    		inProgress = false;
-    		retrieveItem.setEnabled(true);
-        }
+        retrieveAllTask = new RetrieveAllTask(ProgressItem.BOUNDED_TYPE, "Connecting to server...", this);
+        pd.executeTask(retrieveAllTask);
     }
 
-	private ProgressBar pb = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
-    protected static String message = "Getting Marker Annotation/Pathways: ";
-    private static Thread t1 = null;
-    protected static Thread t2 = null;
+	ProgressDialog pd = ProgressDialog.create(ProgressDialog.NONMODAL_TYPE);
+    private CGITask cgiTask = null;
+    private AnnotTask annotTask = null;
+    private RetrieveAllTask retrieveAllTask = null;
     /**
      * Performs caBIO queries and constructs HTML display of the results
      */
@@ -1283,401 +967,34 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
         }
 
         pathways = new Pathway[0];
-        try {
-            Runnable query = new Runnable() {
 
-            	public void run() {
-            		dropDownLists[2].removeAllItems();
-            		dropDownLists[2].addItem("");
-                    pb.addObserver(getAnnotationsPanel());
-            		GeneAnnotation geneAnnotation = new GeneAnnotationImpl();
-            		AgentDiseaseResults agentDiseaseResults = geneAnnotation.showAnnotation(selectedMarkerInfo, retrieveItem, diseaseModel, agentModel, pb);
-            		if (stopAlgorithm){
-            			stopAlgorithm(pb);
-            			return;
-            		}
-            		if (agentDiseaseResults == null){
-        	            clearTable(t2);
-        	            return;
-            		  }
-                    MarkerData[] markers = agentDiseaseResults.getMarkers();
-                    GeneData[] genes = agentDiseaseResults.getGenes();
-                    DiseaseData[] diseases = agentDiseaseResults.getDiseases();
-                    RoleData[] roles = agentDiseaseResults.getRoles();
-                    SentenceData[] sentences = agentDiseaseResults.getSentences();
-                    PubmedData[] pubmeds = agentDiseaseResults.getPubmeds();
-                    MarkerData[] markers2 = agentDiseaseResults.getMarkers2();
-                    GeneData[] genes2 = agentDiseaseResults.getGenes2();
-
-                    DiseaseData[] agents = agentDiseaseResults.getAgents();
-                    RoleData[] agentRoles = agentDiseaseResults.getAgentRoles();
-                    SentenceData[] agentSentences = agentDiseaseResults.getAgentSentences();
-                    PubmedData[] agentPubmeds = agentDiseaseResults.getAgentPubmeds();
-                    if (diseases.length+agents.length==0){
-        				JOptionPane
-						.showMessageDialog(
-								null,
-								"Server does not have records about these markers, please try other markers.",
-								"Server returns no records", JOptionPane.OK_OPTION);
-        				clearTable(t2);
-        				return;
-                    }
-                    for (int i = 0; i < dropDownLists.length; i++) {
-                    	dropDownLists[i].removeAllItems();
-                    	dropDownLists[i].addItem("");
-					}
-                    for (int j = 0; j < diseases.length; j++) {
-                    	//removeItem() followed by addItem() will produce a non-duplicate list
-        				dropDownLists[0].removeItem(markers[j].name);
-        				dropDownLists[0].addItem(markers[j].name);
-        				dropDownLists[1].removeItem(genes[j].name);
-        				dropDownLists[1].addItem(genes[j].name);
-        				dropDownLists[2].removeItem(diseases[j].name);
-        				dropDownLists[2].addItem(diseases[j].name);
-        				dropDownLists[3].removeItem(roles[j].role);
-        				dropDownLists[3].addItem(roles[j].role);
-					}
-                    for (int j = 0; j < agents.length; j++) {
-        				dropDownLists[4].removeItem(markers2[j].name);
-        				dropDownLists[4].addItem(markers2[j].name);
-        				dropDownLists[5].removeItem(genes2[j].name);
-        				dropDownLists[5].addItem(genes2[j].name);
-        				dropDownLists[6].removeItem(agents[j].name);
-        				dropDownLists[6].addItem(agents[j].name);
-        				dropDownLists[7].removeItem(agentRoles[j].role);
-        				dropDownLists[7].addItem(agentRoles[j].role);
-					}
-                    for (int i = 0; i < dropDownLists.length; i++) {
-                    	orderDropDownLists(dropDownLists[i]);
-					}
-                    appendDiseaseNumber(markers,diseases,dropDownLists[2]);
-                    appendDiseaseNumber(markers2,agents,dropDownLists[6]);
-
-                    diseaseModel = new CGITableModel(AnnotationsPanel2.this, markers, genes, diseases, roles, sentences, pubmeds);
-                    diseaseTableList.put(new Integer(maSet.hashCode()), diseaseModel);
-                    diseaseTable.setSortableModel(diseaseModel);
-                    agentModel = new CGITableModel(AnnotationsPanel2.this, markers2, genes2, agents, agentRoles, agentSentences, agentPubmeds);
-                    agentTableList.put(new Integer(maSet.hashCode()), agentModel);
-                    agentTable.setSortableModel(agentModel);
-
-                    diseaseTable.getColumnModel().getColumn(0).setHeaderValue("     Marker");
-                    diseaseTable.getColumnModel().getColumn(1).setHeaderValue("     Gene");
-                    diseaseTable.getColumnModel().getColumn(2).setHeaderValue("     Disease");
-                    diseaseTable.getColumnModel().getColumn(3).setHeaderValue("     Role");
-                    diseaseTable.getColumnModel().getColumn(4).setHeaderValue("     Sentence");
-                    diseaseTable.getColumnModel().getColumn(5).setHeaderValue("     Pubmed");
-                    agentTable.getColumnModel().getColumn(0).setHeaderValue("     Marker");
-                    agentTable.getColumnModel().getColumn(1).setHeaderValue("     Gene");
-                    agentTable.getColumnModel().getColumn(2).setHeaderValue("     Agent");
-                    agentTable.getColumnModel().getColumn(3).setHeaderValue("     Role");
-                    agentTable.getColumnModel().getColumn(4).setHeaderValue("     Sentence");
-                    agentTable.getColumnModel().getColumn(5).setHeaderValue("     Pubmed");
-                    sortByNumberOfRecords = true;
-
-                    SwingUtilities.invokeLater(new Runnable() {
-                        public void run() {
-                            agentTable.getTableHeader().repaint();
-                            leftHeadPanel.setVisible(true);
-                            rightHeadPanel.setVisible(true);
-                            selectedTable = diseaseTable;
-                            for (int j = 0; j < ((CGITableModel)selectedTable.getModel()).size; j++) {
-                				((CGITableModel) selectedTable.getModel()).collapseBy(selectedTable,
-										((GeneData) (((CGITableModel) selectedTable
-												.getModel()).getObject(j,
-														CGITableModel.COL_GENE))).name,
-										((DiseaseData) (((CGITableModel) selectedTable
-												.getModel()).getObject(j,
-														CGITableModel.COL_DISEASE))).name);
-                            }
-                            ((CGITableModel) selectedTable.getModel()).updateNumOfDuplicates();
-                        	((SortableTableModel)selectedTable.getModel()).sortByColumn(2,false);
-                        	((SortableTableModel)selectedTable.getModel()).sortByColumn(0,true);
-                            selectedTable = agentTable;
-                            for (int j = 0; j < ((CGITableModel)selectedTable.getModel()).size; j++) {
-                				((CGITableModel) selectedTable.getModel()).collapseBy(selectedTable,
-										((GeneData) (((CGITableModel) selectedTable
-												.getModel()).getObject(j,
-														CGITableModel.COL_GENE))).name,
-										((DiseaseData) (((CGITableModel) selectedTable
-												.getModel()).getObject(j,
-														CGITableModel.COL_DISEASE))).name);
-                            }
-                            ((CGITableModel) selectedTable.getModel()).updateNumOfDuplicates();
-                        	((SortableTableModel)selectedTable.getModel()).sortByColumn(2,false);
-                        	((SortableTableModel)selectedTable.getModel()).sortByColumn(0,true);
-                            syncHeaderWidthWithTableWidth();
-                            
-                            if (!t2.isAlive() && pb.isActive()) pb.stop();
-                        }
-                    });
+        if (userAlsoWantCaBioData){
+        		dropDownLists[2].removeAllItems();
+        		dropDownLists[2].addItem("");
+        		if (cgiTask != null && !cgiTask.isDone()){
+        			cgiTask.cancel(true);
+        			cgiTask = null;
+        		}
+                if (retrieveAllTask != null && !retrieveAllTask.isDone()){
+                	retrieveAllTask.cancel(true);
+                	retrieveAllTask = null;
                 }
-
-            	private void orderDropDownLists(JComboBox dropDownLists){
-                	int itemCount = dropDownLists.getItemCount();
-                	String[] array = new String[itemCount];
-                	for (int i = 0; i < itemCount; i++) {
-                		array[i]=(String)dropDownLists.getItemAt(i);
-            		}
-                	Arrays.sort(array);
-                	dropDownLists.removeAllItems();
-                	for (int i = 0; i < itemCount; i++) {
-                		dropDownLists.addItem(array[i]);
-            		}
-                }
-
-            };
-            t1 = new Thread(query);
-            t1.setPriority(Thread.MIN_PRIORITY);
-            if (userAlsoWantCaBioData)
-            	t1.start();
-            if (userAlsoWantPathwayData &&(!userAlsoWantCaBioData))
-                jTabbedPane1.setSelectedComponent(annotationPanel);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
+        		cgiTask = new CGITask(ProgressItem.BOUNDED_TYPE, "Connecting to server...", this);
+        		pd.executeTask(cgiTask);
         }
         //block for retrieving CGI data ends
         //block for retrieving annotation data starts
-        try {
-            Runnable query = new Runnable() {
-
-            	public void run() {
-                    ArrayList<MarkerData> markerData = new ArrayList<MarkerData>();
-                    ArrayList<GeneData> geneData = new ArrayList<GeneData>();
-                    ArrayList<PathwayData> pathwayData = new ArrayList<PathwayData>();
-                    if (selectedMarkerInfo != null) {
-                        pb.setTitle("Querying caBIO..");
-                        if (!pb.isActive()) {
-                            pb.addObserver(getAnnotationsPanel());
-                            pb.setMessage("Connecting to server...");
-                        	pb.start();
-                        }
-
-                        if (criteria == null) {
-                            try {
-                    			Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
-                                criteria = new GeneSearchCriteriaImpl();
-                            } catch (Exception e) {
-                                log.error("Exception: could not create caBIO search criteria in Annotation Panel. Exception is: ");
-                                e.printStackTrace();
-                                return;
-                            }
-                        }
-
-                        for (int i = 0; i < selectedMarkerInfo.size(); i++) {
-
-                           if (stopAlgorithm == true)
-                           {
-                               stopAlgorithm(pb);
-                                  return;
-                            }
-                            message = "Getting Marker Annotation/Pathways: " + selectedMarkerInfo.get(i).getLabel();
-                            if (userAlsoWantCaBioData)
-                            	pb.setMessage("<html>"+message+"<br><br>"+GeneAnnotationImpl.message);
-                            else
-                                pb.setMessage(message);
-
-                            String geneName = selectedMarkerInfo.get(i).getGeneName();
-                            GeneAnnotation[] annotations;
-                            annotations = criteria.searchByName(geneName, humanOrMouse);
-
-                            if (annotations == null ) {
-                                clearTable(t1);
-                            	return;
-                            }
-
-                            MarkerData marker = new MarkerData(selectedMarkerInfo.get(i),"");
-                            if ( annotations.length > 0) {
-                                for (int j = 0; j < annotations.length; j++) {
-                                    if (stopAlgorithm == true)
-                                    {
-                                       stopAlgorithm(pb);
-                                        return;
-                                    }
-
-                                    Pathway[] pways = annotations[j].getPathways();
-                                    Pathway[] temp = new Pathway[pathways.length + pways.length];
-                                    System.arraycopy(pathways, 0, temp, 0, pathways.length);
-                                    System.arraycopy(pways, 0, temp, pathways.length, pways.length);
-                                    pathways = temp;
-                                    GeneData gene = new GeneData(annotations[j]);
-                                    if (pways.length > 0) {
-                                        for (int k = 0; k < pways.length; k++) {
-                                            pathwayData.add(new PathwayData(pways[k].getPathwayName(), pways[k]));
-                                            gene.setOrganism(annotations[j].getOrganismAbbreviation());
-                                            geneData.add(gene);
-                                            markerData.add(marker);
-                                        }
-                                    }
-                                    else {
-                                        pathwayData.add(new PathwayData("", null));
-                                        geneData.add(gene);
-                                        markerData.add(marker);
-                                    }
-                                }
-                            }
-//                            else {
-//                                pathwayData.add(new PathwayData("", null));
-//                                geneData.add(new GeneData("", null));
-//                                markerData.add(marker);
-//                            }
-                        }
-                    	message = "Getting Marker Annotation/Pathways: Completed";
-                    }
-                    MarkerData[] markers = markerData.toArray(new MarkerData[0]);
-                    GeneData[] genes = geneData.toArray(new GeneData[0]);
-                    PathwayData[] pathways = pathwayData.toArray(new PathwayData[0]);
-                    if (pathways.length == 0)
-						JOptionPane
-								.showMessageDialog(
-										null,
-										"Server does not have records about these markers for this organism, please try other markers or organism.",
-										"Server returns no records",
-										JOptionPane.OK_OPTION);
-
-                    annotationModel = new AnnotationTableModel(markers, genes, pathways);
-                    annotationTableList.put(new Integer(maSet.hashCode()),  annotationModel);
-                    annotationTable.setSortableModel(annotationModel);
-                    annotationTable.getColumnModel().getColumn(0).setHeaderValue("     Marker");
-                    annotationTable.getColumnModel().getColumn(1).setHeaderValue("     Gene");
-                    annotationTable.getColumnModel().getColumn(2).setHeaderValue("     Pathway");
-                    SwingUtilities.invokeLater(new Runnable() {
-                        public void run() {
-                        	annotationTable.getTableHeader().repaint();
-                            if (!t1.isAlive() && pb.isActive())  pb.stop();
-                        }
-                    });
-                }
-            };
-            t2 = new Thread(query);
-            t2.setPriority(Thread.MIN_PRIORITY);
-            if (userAlsoWantPathwayData)
-            	t2.start();
-            if ((!userAlsoWantPathwayData) && userAlsoWantCaBioData)
-                jTabbedPane1.setSelectedComponent(cgiPanel);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
+        if (userAlsoWantPathwayData){
+        		if (annotTask != null && !annotTask.isDone()){
+        			annotTask.cancel(true);
+        			annotTask = null;
+        		}
+        		annotTask = new AnnotTask(ProgressItem.BOUNDED_TYPE, "Connecting to server...", this);
+        		pd.executeTask(annotTask);
         }
 
     }
 
-    /*
-     *
-     */
-    private void updateDiseaseNumber(){
-    	JComboBox comboBox = dropDownLists[2];
-    	MarkerData[] mData = ((CGITableModel)diseaseTable.getModel()).markerData;
-    	DiseaseData[] dData = ((CGITableModel)diseaseTable.getModel()).diseaseData;
-    	HashSet<String> diseaseNames = new HashSet<String>();
-    	for (int i = 0; i < dData.length; i++) {
-			String diseaseName = dData[i].name;
-			diseaseNames.add(diseaseName);
-		}
-    	HashSet<String> markerNames = new HashSet<String>();
-    	for (int i = 0; i < mData.length; i++) {
-			String markerName = mData[i].name;
-			markerNames.add(markerName);
-		}
-    	HashMap<String, Integer> countMap = new HashMap<String, Integer>();
-    	for (Iterator<String> iterator = diseaseNames.iterator(); iterator.hasNext();) {
-    		String diseaseName = iterator.next();
-    		HashSet hitMarkers = new HashSet<String>();
-	    	for (Iterator<String> iterator2 = markerNames.iterator(); iterator2.hasNext();) {
-	    		String markerName = iterator2.next();
-	        	for (int i = 0; i < dData.length; i++) {
-	    			String aDiseaseName = dData[i].name;
-	    			if(mData[i].name.equals(markerName)){
-	        			if (aDiseaseName.equals(diseaseName)){
-	        				hitMarkers.add(markerName);
-	        			}
-	    			}
-    			}
-    		}
-	    	countMap.put(diseaseName, hitMarkers.size());
-		}
-		comboBox.removeAllItems();
-		comboBox.addItem("");
-		for (Iterator<String> iterator = diseaseNames.iterator(); iterator.hasNext();) {
-			String diseaseName = iterator.next();
-			comboBox.addItem(diseaseName+" ("+countMap.get(diseaseName)+")");
-		}
-		// do the same thing for table2
-    	comboBox = dropDownLists[6];
-    	mData = ((CGITableModel)agentTable.getModel()).markerData;
-    	dData = ((CGITableModel)agentTable.getModel()).diseaseData;
-    	diseaseNames = new HashSet<String>();
-    	for (int i = 0; i < dData.length; i++) {
-			String diseaseName = dData[i].name;
-			diseaseNames.add(diseaseName);
-		}
-    	markerNames = new HashSet<String>();
-    	for (int i = 0; i < mData.length; i++) {
-			String markerName = mData[i].name;
-			markerNames.add(markerName);
-		}
-    	countMap = new HashMap<String, Integer>();
-    	for (Iterator<String> iterator = diseaseNames.iterator(); iterator.hasNext();) {
-    		String diseaseName = iterator.next();
-    		HashSet hitMarkers = new HashSet<String>();
-	    	for (Iterator<String> iterator2 = markerNames.iterator(); iterator2.hasNext();) {
-	    		String markerName = iterator2.next();
-	        	for (int i = 0; i < dData.length; i++) {
-	    			String aDiseaseName = dData[i].name;
-	    			if(mData[i].name.equals(markerName)){
-	        			if (aDiseaseName.equals(diseaseName)){
-	        				hitMarkers.add(markerName);
-	        			}
-	    			}
-    			}
-    		}
-	    	countMap.put(diseaseName, hitMarkers.size());
-		}
-		comboBox.removeAllItems();
-		comboBox.addItem("");
-		for (Iterator<String> iterator = diseaseNames.iterator(); iterator.hasNext();) {
-			String diseaseName = iterator.next();
-			comboBox.addItem(diseaseName+" ("+countMap.get(diseaseName)+")");
-		}
-    }
-
-    /*
-     *
-     */
-    private void appendDiseaseNumber(MarkerData[] markers2,
-			DiseaseData[] disease, JComboBox comboBox) {
-		int itemCount = comboBox.getItemCount();
-    	String[] itemName = new String[itemCount];
-		//for each item in comboBox,
-		for (int i = 0; i < itemCount; i++) {
-			String diseaseName = (String)comboBox.getItemAt(i);
-			Set<String> markers = new HashSet();
-			//check how many markers associate with it,
-			if (diseaseName.equals("")){
-				//it's the first one, we don't need to count.
-				itemName[i]=diseaseName;
-			}else{
-				int count = 0;
-				for (int j = 0; j < disease.length; j++) {
-					if (disease[j].name.equals(diseaseName)){
-						// we need to consider markers, if we already
-						// counted for this marker, we skip it.
-						String marker = markers2[j].name;
-						if (!markers.contains(marker)){
-							markers.add(marker);
-							count++;
-						}
-					}
-				}
-				//append the number
-				itemName[i]=diseaseName.concat(" ("+count+")");;
-			}
-		}
-		comboBox.removeAllItems();
-    	for (int i = 0; i < itemCount; i++) {
-    		comboBox.addItem(itemName[i]);
-		}
-	}
 
     /*
      *
@@ -1803,230 +1120,9 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
         publishMarkerSelectedEvent(new MarkerSelectedEvent(markerData.marker));
     }
 
-    /*
-     *
-     */
-    private void activateGene(final GeneData gene) {
-        JPopupMenu popup = new JPopupMenu();
-        String value = (String) gene.name;
-        //Get Entrez id
-        GeneAnnotation annotation = new GeneAnnotationImpl();
-        String entrezId = annotation.getEntrezId(gene.gene);
-        if (!entrezId.equals("")){	//if we got an ID
-            String entrezUrl = "http://www.ncbi.nlm.nih.gov/sites/entrez?Db=gene&Cmd=ShowDetailView&TermToSearch="+entrezId;
-            JMenuItem entrezJMenuItem = new JMenuItem("Go to Entrez for " + value);
-            class MyEntrezActionListener implements ActionListener{
-            	String value="";
-            	public MyEntrezActionListener(String value){
-            		super();
-            		this.value = value;
-            	}
-                public void actionPerformed(ActionEvent actionEvent) {
-                    try {
-                        String address = value;
-                        log.debug("Opening " + address);
-                        BrowserLauncher.openURL(address);
-                    }
-                    catch (IOException ioe) {
-                        ioe.printStackTrace();
-                    }
-                }
-            }
-            entrezJMenuItem.addActionListener( new MyEntrezActionListener(entrezUrl) );
-            popup.add(entrezJMenuItem);
-        }
-        //CGAP section
-        if (!gene.getOrganism().equals("")){
-	        String cgapUrl = GENE_FINDER_PREFIX + "ORG=" + gene.getOrganism() + "&CID=" + gene.gene.getClusterId();
-	        JMenuItem cgapJMenuItem = new JMenuItem("Go to CGAP for " + value);
-	        class MyCGAPActionListener implements ActionListener{
-	        	String value="";
-	        	public MyCGAPActionListener(String value){
-	        		super();
-	        		this.value = value;
-	        	}
-	            public void actionPerformed(ActionEvent actionEvent) {
-	                try {
-	                    String address = value;
-	                    log.debug("Opening " + address);
-	                    BrowserLauncher.openURL(address);
-	                }
-	                catch (IOException ioe) {
-	                    ioe.printStackTrace();
-	                }
-	            }
-	        }
-	        cgapJMenuItem.addActionListener( new MyCGAPActionListener(cgapUrl) );
-	        popup.add(cgapJMenuItem);
-        }
-        //GeneCard section
-        JMenuItem jMenuItem = new JMenuItem("Go to GeneCards for " + value);
-        class MyActionListener implements ActionListener{
-        	String value="";
-        	public MyActionListener(String value){
-        		super();
-        		this.value = value;
-        	}
-            public void actionPerformed(ActionEvent actionEvent) {
-                try {
-                    String address = GeneCards_PREFIX + value;
-                    log.debug("Opening " + address);
-                    BrowserLauncher.openURL(address);
-                }
-                catch (IOException ioe) {
-                    ioe.printStackTrace();
-                }
-            }
-        }
-        jMenuItem.addActionListener( new MyActionListener(value) );
-        popup.add(jMenuItem);
-
-        popup.show(annotationTable, (int) (MouseInfo.getPointerInfo().getLocation().getX() - annotationTable.getLocationOnScreen().getX()),
-                (int) (MouseInfo.getPointerInfo().getLocation().getY() - annotationTable.getLocationOnScreen().getY()));
-    }
-
-    /*
-     *
-     */
-    private void activatePathway(final PathwayData pathwayData) {
-        JPopupMenu popup = new JPopupMenu();
-
-        JMenuItem viewDiagram = new JMenuItem("View Diagram");
-        viewDiagram.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent actionEvent) {
-                publishAnnotationsEvent(new AnnotationsEvent("Pathway Selected", pathwayData.pathway));
-                receive(new AnnotationsEvent("Pathway Selected", pathwayData.pathway));
-
-            }
-        });
-        if (pathwayData.pathway.getPathwayDiagram()!=null)
-        	popup.add(viewDiagram);
-
-        JMenuItem makeSet = new JMenuItem("Add pathway genes to set");
-        makeSet.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent actionEvent) {
-
-                Thread thread = new Thread(new Runnable() {
-
-                	//private GeneAnnotation[] genesInPathway = null;
-                	public void run() {
-
-                        String tmpSetLabel = JOptionPane.showInputDialog("Panel Set Label:", pathwayData.pathway.getPathwayName());
-                        // String tmpLabel = JOptionPane.showInputDialog("Set Label:", "");
-                        if (tmpSetLabel == null) {
-                            // User hit cancel
-                            return;
-                        }
-                        if (tmpSetLabel.equals("") || tmpSetLabel == null) {
-                            tmpSetLabel = pathwayData.pathway.getPathwayName();
-                        }
-
-                        ProgressBar pb = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
-                        pb.addObserver(getAnnotationsPanel());
-                        pb.setTitle("Genes For Pathway");
-                        pb.setMessage("Retrieving from server...");
-                        pb.start();
-
-                        GeneAnnotation[] genesInPathway = criteria.getGenesInPathway(pathwayData.pathway);
-
-                        pb.stop();
-
-                        if ( genesInPathway == null )
-                        	return;
-
-                        DSPanel<DSGeneMarker> selectedMarkers = new CSPanel<DSGeneMarker>(tmpSetLabel, tmpSetLabel);
-                        for (int i = 0; i < genesInPathway.length; i++) {
-                            GeneAnnotation geneAnnotation = genesInPathway[i];
-                            log.info(geneAnnotation.getGeneSymbol() + " : " + geneAnnotation.getGeneName());
-                            DSItemList markers = maSet.getMarkers();
-                            for (Iterator iterator = markers.iterator(); iterator.hasNext();) {
-                                DSGeneMarker marker = (DSGeneMarker) iterator.next();
-                                if (marker.getShortName().equalsIgnoreCase(geneAnnotation.getGeneSymbol())) {
-                                    log.debug("Found " + geneAnnotation.getGeneSymbol() + " in set.");
-                                    selectedMarkers.add(marker);
-                                   // break; Disabled it because there may be mutiple markers for the same gene.
-                                }
-                            }
-                        }
-
-                        selectedMarkers.setActive(true);
-                        publishSubpanelChangedEvent(new SubpanelChangedEvent(DSGeneMarker.class, selectedMarkers, SubpanelChangedEvent.SET_CONTENTS));
-
-                    }
-                });
-                thread.start();
-
-            }
-        });
-        popup.add(makeSet);
-
-        JMenuItem export = new JMenuItem("Export genes to CSV");
-        export.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent actionEvent) {
-
-                Thread thread = new Thread(new Runnable() {
-
-                    public void run() {
-                        JFileChooser chooser = new JFileChooser(pathwayData.pathway.getPathwayName() + ".csv");
-                        ExampleFilter filter = new ExampleFilter();
-                        filter.addExtension("csv");
-                        filter.setDescription("CSV Files");
-                        chooser.setFileFilter(filter);
-                        int returnVal = chooser.showSaveDialog(null);
-                        if (returnVal == JFileChooser.APPROVE_OPTION) {
-                            try {
-                                ProgressBar pb = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
-                                pb.addObserver(getAnnotationsPanel());
-                                pb.setTitle("Genes For Pathway");
-                                pb.setMessage("Retrieving from server...");
-                                pb.start();
-
-                                GeneAnnotation[] genesInPathway = criteria.getGenesInPathway(pathwayData.pathway);
-
-                                pb.stop();
-
-                                if ( genesInPathway == null )
-                                	return;
-
-                                saveGenesInPathway(chooser.getSelectedFile(), genesInPathway);
-                            } catch (IOException ex) {
-                                log.error(ex);
-                            }
-                        }
-                    }
-                });
-                thread.start();
-            }
-
-        });
-        popup.add(export);
-
-        popup.show(annotationTable, (int) (MouseInfo.getPointerInfo().getLocation().getX() - annotationTable.getLocationOnScreen().getX()),
-                (int) (MouseInfo.getPointerInfo().getLocation().getY() - annotationTable.getLocationOnScreen().getY()));
-    }
-
-    private void saveGenesInPathway(File selectedFile, GeneAnnotation[] genesInPathway) throws IOException {
-
-	String filename = selectedFile.getAbsolutePath();
-    	if(!filename.endsWith("csv")){
-    		filename += ".csv";
-    	}
-    	FileWriter writer = new FileWriter(filename);
-        for (int i = 0; i < genesInPathway.length; i++) {
-            GeneAnnotation geneAnnotation = genesInPathway[i];
-            writer.write(geneAnnotation.getGeneSymbol() + ", " + geneAnnotation.getGeneName() + "\n");
-        }
-        writer.close();
-    }
-
 	@Publish
-    public org.geworkbench.events.SubpanelChangedEvent publishSubpanelChangedEvent(org.geworkbench.events.SubpanelChangedEvent event) {
+    org.geworkbench.events.SubpanelChangedEvent publishSubpanelChangedEvent(org.geworkbench.events.SubpanelChangedEvent event) {
         return event;
-    }
-
-    @Publish
-    public AnnotationsEvent publishAnnotationsEvent(AnnotationsEvent ae) {
-        return ae;
     }
 
     @Publish
@@ -2037,18 +1133,18 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
 
 
     private JPanel mainPanel = new JPanel();
-    private JTabbedPane jTabbedPane1 = new JTabbedPane();
+    JTabbedPane jTabbedPane1 = new JTabbedPane();
 
 
 
     /**
      * The Visual Component on which the annotation results are shown
      */
-    private JSplitPane cgiPanel = null;
+    JSplitPane cgiPanel = null;
     /**
      * Visual Widget
      */
-    private JPanel annotationPanel = new JPanel();	//for annotation
+    JPanel annotationPanel = new JPanel();	//for annotation
     private JScrollPane jScrollPane1 = new JScrollPane(); //for disease
     private JScrollPane jScrollPane2 = new JScrollPane(); //for agent
 
@@ -2058,13 +1154,13 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
     SortableTable diseaseTable;
     CGITableModel diseaseModel;
     SortableTable agentTable;
-    private CGITableModel agentModel;
-    private SortableTable annotationTable;
-    private AnnotationTableModel annotationModel;
+    CGITableModel agentModel;
+    SortableTable annotationTable;
+    AnnotationTableModel annotationModel;
 
-    private HashMap<Integer, AnnotationTableModel> annotationTableList;
-    private HashMap<Integer, CGITableModel> diseaseTableList;
-    private HashMap<Integer, CGITableModel> agentTableList;
+    HashMap<Integer, AnnotationTableModel> annotationTableList;
+    HashMap<Integer, CGITableModel> diseaseTableList;
+    HashMap<Integer, CGITableModel> agentTableList;
 
     /**
      * Visual Widget
@@ -2091,13 +1187,13 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
     private JButton annotationExportButton = new JButton();
 
 
-    private DSItemList<DSGeneMarker> selectedMarkerInfo = null;
-    private DSItemList<DSGeneMarker> retrieveMarkerInfo = new CSItemList<DSGeneMarker>();
-    private DSGeneMarker retrieveMarker = null;
-    private GeneSearchCriteria criteria = null;
-    private Pathway[] pathways = new Pathway[0];
+    DSItemList<DSGeneMarker> selectedMarkerInfo = null;
+    DSItemList<DSGeneMarker> retrieveMarkerInfo = new CSItemList<DSGeneMarker>();
+    DSGeneMarker retrieveMarker = null;
+    GeneSearchCriteria criteria = null;
+    Pathway[] pathways = new Pathway[0];
 
-    private DSMicroarraySet maSet = null;
+    DSMicroarraySet maSet = null;
 
     /**
      * geneSelectorAction
@@ -2433,68 +1529,9 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
     		return null;
     }
 
-    void addPathwayName(String pathwayName, String pathwayDiagram){
-
-    	if (svgStringList.containsKey(pathwayName))
-    	{
-    	    pathwayComboBox.removeItem(pathwayName);
-    	    pathwayList.remove(pathwayName);
-    	}
-    	svgStringList.put(pathwayName, pathwayDiagram);
-		pathwayList.add(pathwayName);
-    	pathwayComboBox.addItem(pathwayName);
-    	if (pathwayComboBox.getSelectedIndex() != pathwayList.size()-1)
-    		pathwayComboBox.setSelectedIndex(pathwayList.size()-1);
-    	pathwayComboBox.revalidate();
-
-
-    }
-
-
-    /**
-    * Interface <code>AnnotationsListener</code> method that received a
-    * selected <code>Pathway</code> to be shown in the <code>PathwayPanel</code>
-    * plugin.
-    *
-    * @param ae <code>AnnotationsEvent</code> that contains the
-    *           <code>Pathway</code> to be shown
-    */
-    public void receive(org.geworkbench.events.AnnotationsEvent ae){
-
-        pathway = ae.getPathway();
-
-        Runnable pway = new Runnable() {
-
-        	private String pathwayName = pathway.getPathwayName();
-        	private String pathwayDiagram = pathway.getPathwayDiagram();
-        	public void run() {
-            org.geworkbench.util.ProgressBar pb = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
-            pb.setTitle("Constructing SVG Pathway");
-            pb.setMessage("Creating Image..");
-            pb.start();
-
-            addPathwayName(pathwayName, pathwayDiagram);
-
-            pb.stop();
-
-            Container parent = pathwayPanel.getParent();
-            if (parent instanceof JTabbedPane)
-            {    ((JTabbedPane) parent).setSelectedComponent(pathwayPanel);
-               JTabbedPane p =  (JTabbedPane) parent;
-               p.setTitleAt(jTabbedPane1.indexOfComponent(pathwayPanel), pathway.getPathwayName());
-            }
-         }
-        };
-    Thread t = new Thread(pway);
-    t.setPriority(Thread.MIN_PRIORITY);
-    t.start();
-   }
-
-
-
-    private HashMap<String, String> svgStringList = null;
+    HashMap<String, String> svgStringList = null;
     private HashMap<Integer, HashMap<String, String>> svgStringListMap = null;
-    private ArrayList<String> pathwayList = null;
+    ArrayList<String> pathwayList = null;
     private HashMap<Integer, ArrayList<String>> pathwayListMap = null;
     private HashMap<Integer,Integer> tabPanelSelectedMap = null;
     private HashMap<Integer,Integer> pathwayComboItemSelectedMap = null;
@@ -2504,7 +1541,7 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
     private int oldHashCode = 0;
 
 
-    private JPanel pathwayPanel = new JPanel();
+    JPanel pathwayPanel = new JPanel();
     private BorderLayout borderLayout2 = new BorderLayout();
     JToolBar pathwayTool = new JToolBar();
     JComboBox pathwayComboBox = new JComboBox();
@@ -2707,30 +1744,6 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
 
     }
 
-
-    /**
-     *
-     * @param pb
-     */
-    public void stopAlgorithm(ProgressBar pb) {
-
-    	stopAlgorithm = false;
-    	if (pb!=null){
-    		pb.stop();
-    		pb.dispose();
-    	}
-
-	}
-
-    /**
-	 * @param o
-	 * @param arg
-	 */
-	public void update(Observable o, Object arg) {
-		stopAlgorithm = true;
-		GeneAnnotationImpl.stopAlgorithm = true;
-    }
-
 	private class TabularFileFilter extends FileFilter {
 		public String getDescription() {
 			return "CSV Files";
@@ -2752,10 +1765,9 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
 
 	}
 	
-	void clearTable(Thread t)
+	void clearTable(String type)
 	{
-	    if (!t.isAlive() && pb.isActive()) pb.stop();
-	    if (t == t1) {
+	    if (type.equals("annot")) {
 	    	annotationModel = new AnnotationTableModel();
             annotationTableList.put(new Integer(maSet.hashCode()), annotationModel);
         	annotationTable.setSortableModel(annotationModel);
@@ -2764,7 +1776,7 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
             annotationTable.getColumnModel().getColumn(2).setHeaderValue("     Pathway");
             annotationTable.getTableHeader().revalidate();
 	    } 
-	    else if (t == t2) {
+	    else if (type.equals("cgi")) {
 	    	diseaseModel = new CGITableModel(AnnotationsPanel2.this);
             diseaseTableList.put(new Integer(maSet.hashCode()), diseaseModel);
 	    	diseaseTable.setSortableModel(diseaseModel);
@@ -2781,11 +1793,25 @@ public class AnnotationsPanel2 implements VisualPlugin, Observer{
         	agentTable.setSortableModel(agentModel);
         	agentTable.getColumnModel().getColumn(0).setHeaderValue("     Marker");
             agentTable.getColumnModel().getColumn(1).setHeaderValue("     Gene");
-            agentTable.getColumnModel().getColumn(2).setHeaderValue("     Disease");
+            agentTable.getColumnModel().getColumn(2).setHeaderValue("     Agent");
             agentTable.getColumnModel().getColumn(3).setHeaderValue("     Role");
             agentTable.getColumnModel().getColumn(4).setHeaderValue("     Sentence");
             agentTable.getColumnModel().getColumn(5).setHeaderValue("     Pubmed");
             agentTable.getTableHeader().revalidate();
 	    }
 	}
+
+	void orderDropDownLists(JComboBox dropDownLists){
+		int itemCount = dropDownLists.getItemCount();
+		String[] array = new String[itemCount];
+		for (int i = 0; i < itemCount; i++) {
+			array[i]=(String)dropDownLists.getItemAt(i);
+		}
+		Arrays.sort(array);
+		dropDownLists.removeAllItems();
+		for (int i = 0; i < itemCount; i++) {
+			dropDownLists.addItem(array[i]);
+		}
+	}
+
 }
