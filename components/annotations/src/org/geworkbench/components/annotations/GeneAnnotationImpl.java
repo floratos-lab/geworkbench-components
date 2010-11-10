@@ -19,14 +19,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
-import org.geworkbench.util.ProgressBar;
 import org.geworkbench.util.annotation.Pathway;
 
 /**
@@ -376,8 +374,8 @@ public class GeneAnnotationImpl implements GeneAnnotation {
         return entrezId;
 	}
 
-	public AgentDiseaseResults retrieveAll(
-			DSItemList<DSGeneMarker> retrieveMarkerInfo, JMenuItem retrieveItem, CGITableModel diseaseModel, CGITableModel agentModel, ProgressBar pb) {
+	public AgentDiseaseResults retrieveAll(RetrieveAllTask task,
+			DSItemList<DSGeneMarker> retrieveMarkerInfo, CGITableModel diseaseModel, CGITableModel agentModel) {
         ArrayList<MarkerData> markerData = new ArrayList<MarkerData>();
         ArrayList<GeneData> geneData = new ArrayList<GeneData>();
         ArrayList<DiseaseData> diseaseData = new ArrayList<DiseaseData>();
@@ -392,8 +390,6 @@ public class GeneAnnotationImpl implements GeneAnnotation {
         ArrayList<SentenceData> agentSentenceData = new ArrayList<SentenceData>();
         ArrayList<PubmedData> agentPubmedData = new ArrayList<PubmedData>();
         if (retrieveMarkerInfo != null) {
-            pb.setTitle("Querying caBIO..");
-            pb.start();
 
     		ApplicationService appService = null;
     		try {
@@ -406,7 +402,6 @@ public class GeneAnnotationImpl implements GeneAnnotation {
 						null,
 						"Please try again later",
 						"Server side error", JOptionPane.OK_OPTION);
-    			pb.stop();
     			return null;
     		}
 
@@ -414,12 +409,9 @@ public class GeneAnnotationImpl implements GeneAnnotation {
             //TODO: to save network communication time, we should query only once by submitting the list.
             for (int i = 0; i < retrieveMarkerInfo.size(); i++) {
                 index++;
-                String progressMessage = "";
+                String progressMessage = "Getting Disease/Agent Associations: ";
                 progressMessage += "Marker "+index+"/"+retrieveMarkerInfo.size()+"   ";
-				if (stopAlgorithm == true) {
-					stopAlgorithm(pb);
-					break;
-				}
+				if (task.isCancelled()) return null;
 
                 String geneName = retrieveMarkerInfo.get(i).getGeneName();
 
@@ -433,9 +425,9 @@ public class GeneAnnotationImpl implements GeneAnnotation {
         			results2 = appService.search(GeneFunctionAssociation.class, gene);
         		} catch (Exception e) {
         			log.error(e,e);
-        			JOptionPane.showMessageDialog(null, "Please try again later",
-        					"Server side error", JOptionPane.ERROR_MESSAGE);
-        			pb.stop();
+        			JOptionPane.showMessageDialog(null, 
+        					"geWorkbench cannot retrieve data from the caBIO server for disease/agent associations.\nIt could be connection error. Please check your internet connection or try again later.",
+        					"Data processing/connection error", JOptionPane.ERROR_MESSAGE);
         			return null;
         		}
 
@@ -453,6 +445,7 @@ public class GeneAnnotationImpl implements GeneAnnotation {
         				agentRecords++;
         			}
         		}
+        		int total = diseaseRecords+agentRecords;
         		String numOutOfNumDisease = "";
         		String numOutOfNumAgent = "";
 //        		if (diseaseRecords>diseaseLimitIndex){
@@ -463,13 +456,10 @@ public class GeneAnnotationImpl implements GeneAnnotation {
 //        		}
         		if (results2!=null)
         		for (Object gfa : results2) {
-                    pb.setMessage(progressMessage+"Records "+(diseaseIndex+agentIndex)+"/"+(diseaseRecords+agentRecords)+"\n");
-					if (stopAlgorithm == true) {
-						stopAlgorithm(pb);
+					if (task.isCancelled()) return null;
+        			task.publish(progressMessage+"Records "+(diseaseIndex+agentIndex)+"/"+total+"\n");
+            		task.setProgress(100 * (diseaseIndex+agentIndex)/total);
 
-			    		retrieveItem.setEnabled(true);
-						return null;
-					}
         			if (gfa instanceof GeneDiseaseAssociation) {
         				diseaseIndex++;
         				GeneDiseaseAssociation gda = (GeneDiseaseAssociation) gfa;
@@ -527,7 +517,8 @@ public class GeneAnnotationImpl implements GeneAnnotation {
         		}
             }
         }
-        pb.setMessage("Converting data...\n");
+        task.publish("Converting data...\n");
+        if(task.isCancelled()) return null;
         MarkerData[] markers = markerData.toArray(new MarkerData[0]);
         GeneData[] genes = geneData.toArray(new GeneData[0]);
         DiseaseData[] diseases = diseaseData.toArray(new DiseaseData[0]);
@@ -547,9 +538,7 @@ public class GeneAnnotationImpl implements GeneAnnotation {
 				agentRoles, agentSentences, agentPubmeds);
 	}
 
-	protected static String message = "Getting Disease/Agent Associations: ";
-	public AgentDiseaseResults showAnnotation(
-			DSItemList<DSGeneMarker> selectedMarkerInfo, JMenuItem retrieveItem, CGITableModel diseaseModel, CGITableModel agentModel, ProgressBar pb) {
+	public AgentDiseaseResults showAnnotation(CGITask task, DSItemList<DSGeneMarker> selectedMarkerInfo) {
         ArrayList<MarkerData> markerData = new ArrayList<MarkerData>();
         ArrayList<GeneData> geneData = new ArrayList<GeneData>();
         ArrayList<DiseaseData> diseaseData = new ArrayList<DiseaseData>();
@@ -564,11 +553,6 @@ public class GeneAnnotationImpl implements GeneAnnotation {
         ArrayList<SentenceData> agentSentenceData = new ArrayList<SentenceData>();
         ArrayList<PubmedData> agentPubmedData = new ArrayList<PubmedData>();
         if (selectedMarkerInfo != null) {
-            pb.setTitle("Querying caBIO..");
-            if (!pb.isActive()) {
-                pb.setMessage("Connecting to server...");
-            	pb.start();
-            }
 
     		ApplicationService appService = null;
     		try {
@@ -581,20 +565,20 @@ public class GeneAnnotationImpl implements GeneAnnotation {
 						null,
 						"Please try again later",
 						"Server side error", JOptionPane.OK_OPTION);
-    			pb.stop();
     			return null;
     		}
 
             int index = 0;
+    		final int diseaseLimit = 10;
+    		final int agentLimit = 10;
+    		int roundtotal = diseaseLimit+agentLimit;
+    		int total = roundtotal*selectedMarkerInfo.size();
             //TODO: to save network communication time, we should query only once by submitting the list.
             for (int i = 0; i < selectedMarkerInfo.size(); i++) {
                 index++;
                 String progressMessage = "Getting Disease/Agent Associations: ";
                 progressMessage += "Marker "+index+"/"+selectedMarkerInfo.size()+"   ";
-				if (stopAlgorithm == true) {
-					stopAlgorithm(pb);
-					break;
-				}
+                if(task.isCancelled()) return null;
 
                 String geneName = selectedMarkerInfo.get(i).getGeneName();
 
@@ -610,13 +594,11 @@ public class GeneAnnotationImpl implements GeneAnnotation {
         			JOptionPane.showMessageDialog(null, 
         					"geWorkbench cannot retrieve data from the caBIO server for disease/agent associations.\nIt could be connection error. Please check your internet connection or try again later.",
         					"Data processing/connection error", JOptionPane.ERROR_MESSAGE);
-        			pb.stop();
         			return null;
         		}
 
         		log.debug("\nDisease associated with Gene: " + geneSymbol);
-        		final int diseaseLimit = 10;
-        		final int agentLimit = 10;
+
         		int diseaseLimitIndex = diseaseLimit;
         		int agentLimitIndex = agentLimit;
         		int diseaseRecords=0;
@@ -640,64 +622,55 @@ public class GeneAnnotationImpl implements GeneAnnotation {
         		}
         		if (results2!=null)
         		for (Object gfa : results2) {
-        			message = progressMessage+"Records "+(diseaseLimit+agentLimit-diseaseLimitIndex-agentLimitIndex)+"/"+(diseaseRecords+agentRecords)+"\n";
-        			if (AnnotationsPanel2.userAlsoWantPathwayData)
-        				pb.setMessage("<html>"+AnnotationsPanel2.message+"<br><br>"+message);
-        			else
-            			pb.setMessage(message);
-					if (stopAlgorithm == true) {
-						stopAlgorithm(pb);
-						break;
-					}
+        			if(task.isCancelled()) return null;
         			if (diseaseLimitIndex==0 && agentLimitIndex==0)  break;
+        			task.publish(progressMessage+"Records "+(roundtotal-diseaseLimitIndex-agentLimitIndex)+"/"+(diseaseRecords+agentRecords)+"\n");
+            		task.setProgress(100 * (roundtotal*(i+1)-diseaseLimitIndex-agentLimitIndex)/total);
 
         			if (gfa instanceof GeneDiseaseAssociation) {
-            			if (diseaseLimitIndex>0)
+            			if (diseaseLimitIndex>0) {
             				diseaseLimitIndex--;
-            			else
-            				continue;
-        				GeneDiseaseAssociation gda = (GeneDiseaseAssociation) gfa;
-        				markerData.add(new MarkerData(selectedMarkerInfo.get(i),numOutOfNumDisease));
-        				geneData.add(new GeneData(gda.getGene().getSymbol(),gda.getGene()));
-        				log.debug("  Disease: " + gda.getDiseaseOntology().getName());
-        				diseaseData.add(new DiseaseData(gda.getDiseaseOntology().getName(),gda.getDiseaseOntology(), gda.getDiseaseOntology().getEVSId()));
-        				log.debug("    Role: " + gda.getRole());
-        				Collection<Evidence> ce = gda.getEvidenceCollection();
-        				EvidenceStruct e = GeneAnnotationImpl.getSentencePubmedid(ce);
-        				log.debug("    Sentence: "+e.getSentence());
-        				log.debug("    PubmedId:"+e.getPubmedId());
-        				roleData.add(new RoleData(gda.getRole()));
-        				sentenceData.add(new SentenceData(e.getSentence()));
-        				pubmedData.add(new PubmedData(e.getPubmedId()));
+	        				GeneDiseaseAssociation gda = (GeneDiseaseAssociation) gfa;
+	        				markerData.add(new MarkerData(selectedMarkerInfo.get(i),numOutOfNumDisease));
+	        				geneData.add(new GeneData(gda.getGene().getSymbol(),gda.getGene()));
+	        				log.debug("  Disease: " + gda.getDiseaseOntology().getName());
+	        				diseaseData.add(new DiseaseData(gda.getDiseaseOntology().getName(),gda.getDiseaseOntology(), gda.getDiseaseOntology().getEVSId()));
+	        				log.debug("    Role: " + gda.getRole());
+	        				Collection<Evidence> ce = gda.getEvidenceCollection();
+	        				EvidenceStruct e = GeneAnnotationImpl.getSentencePubmedid(ce);
+	        				log.debug("    Sentence: "+e.getSentence());
+	        				log.debug("    PubmedId:"+e.getPubmedId());
+	        				roleData.add(new RoleData(gda.getRole()));
+	        				sentenceData.add(new SentenceData(e.getSentence()));
+	        				pubmedData.add(new PubmedData(e.getPubmedId()));
+            			}
         			}
         			else if (gfa instanceof GeneAgentAssociation) {
-            			if (agentLimitIndex>0)
+            			if (agentLimitIndex>0) {
             				agentLimitIndex--;
-            			else
-            				continue;
-        				GeneAgentAssociation gaa = (GeneAgentAssociation) gfa;
-        				markerData2.add(new MarkerData(selectedMarkerInfo.get(i),numOutOfNumAgent));
-        				geneData2.add(new GeneData(gaa.getGene().getSymbol(),gaa.getGene()));
-        				evsIdData.add(new EvsIdData(gaa.getAgent().getEVSId()));
-        				agentData.add(new DiseaseData(gaa.getAgent().getName(),null, gaa.getAgent().getEVSId()));
-        				log.debug("  Id: " + gaa.getId());
-        				log.debug("  Role: " + gaa.getRole());
-        				log.debug("  EvsId: " + gaa.getAgent().getEVSId());
-        				log.debug("  Name: " + gaa.getAgent().getName());
-        				Collection<Evidence> ce = gaa.getEvidenceCollection();
-        				EvidenceStruct e = GeneAnnotationImpl.getSentencePubmedid(ce);
-        				log.debug("    Sentence: "+e.getSentence());
-        				log.debug("    PubmedId:"+e.getPubmedId());
-        				agentRoleData.add(new RoleData(gaa.getRole()));
-        				agentSentenceData.add(new SentenceData(e.getSentence()));
-        				agentPubmedData.add(new PubmedData(e.getPubmedId()));
+	        				GeneAgentAssociation gaa = (GeneAgentAssociation) gfa;
+	        				markerData2.add(new MarkerData(selectedMarkerInfo.get(i),numOutOfNumAgent));
+	        				geneData2.add(new GeneData(gaa.getGene().getSymbol(),gaa.getGene()));
+	        				evsIdData.add(new EvsIdData(gaa.getAgent().getEVSId()));
+	        				agentData.add(new DiseaseData(gaa.getAgent().getName(),null, gaa.getAgent().getEVSId()));
+	        				log.debug("  Id: " + gaa.getId());
+	        				log.debug("  Role: " + gaa.getRole());
+	        				log.debug("  EvsId: " + gaa.getAgent().getEVSId());
+	        				log.debug("  Name: " + gaa.getAgent().getName());
+	        				Collection<Evidence> ce = gaa.getEvidenceCollection();
+	        				EvidenceStruct e = GeneAnnotationImpl.getSentencePubmedid(ce);
+	        				log.debug("    Sentence: "+e.getSentence());
+	        				log.debug("    PubmedId:"+e.getPubmedId());
+	        				agentRoleData.add(new RoleData(gaa.getRole()));
+	        				agentSentenceData.add(new SentenceData(e.getSentence()));
+	        				agentPubmedData.add(new PubmedData(e.getPubmedId()));
+            			}
         			}
         		}
             }
-        	message = "Getting Disease/Agent Associations: Completed";
-            if (!AnnotationsPanel2.t2.isAlive() && pb.isActive()) pb.stop();
         }
         
+        if(task.isCancelled()) return null;
         MarkerData[] markers = markerData.toArray(new MarkerData[0]);
         GeneData[] genes = geneData.toArray(new GeneData[0]);
         DiseaseData[] diseases = diseaseData.toArray(new DiseaseData[0]);
@@ -715,15 +688,6 @@ public class GeneAnnotationImpl implements GeneAnnotation {
         return new AgentDiseaseResults(markers, genes, diseases, roles,
 				sentences, pubmeds, markers2, genes2, evsIds, agents,
 				agentRoles, agentSentences, agentPubmeds);
-	}
-    /**
-    *
-    * @param pb
-    */
-   public void stopAlgorithm(ProgressBar pb) {
-		stopAlgorithm = false;
-//		pb.stop();
-//		pb.dispose();
 	}
 
 }
