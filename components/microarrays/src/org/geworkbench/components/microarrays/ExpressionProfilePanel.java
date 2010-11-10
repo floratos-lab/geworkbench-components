@@ -20,8 +20,6 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
@@ -56,7 +54,7 @@ import org.jfree.data.xy.XYSeriesCollection;
  * Analysis
  * 
  * @author Adam Margolin
- * @version $Id: ExpressionProfilePanel.java,v 1.14 2009-10-19 16:50:29 jiz Exp $
+ * @version $Id$
  * 
  */
 @AcceptTypes( { DSMicroarraySet.class })
@@ -67,16 +65,12 @@ public class ExpressionProfilePanel extends MicroarrayViewEventBase implements
 
 	private static final String X_AXIS_LABEL = "Experiment";
 
-	Log log = LogFactory.getLog(this.getClass());
-
 	private JPanel graphPanel;
 	private ChartPanel graph;
 	private ChartPanel chartPanel;
 	private JFreeChart chart;
 	private JButton imageSnapshotButton;
-	JToggleButton jEnabledBox;
-
-	private boolean isToolTipEnabled = true;
+	private JToggleButton jEnabledBox;
 
 	private boolean isPlotRefresh = false;
 
@@ -109,8 +103,10 @@ public class ExpressionProfilePanel extends MicroarrayViewEventBase implements
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				plotButton_actionPerformed(e);
-				getComponent().repaint();
+				isPlotRefresh = true;
+				imageSnapshotButton.setEnabled(true);
+				refreshMaSetView();
+				mainPanel.repaint();
 			}
 			
 		});
@@ -137,7 +133,6 @@ public class ExpressionProfilePanel extends MicroarrayViewEventBase implements
 				.setToolTipText("Push down to view above graph details with mouse moveover");
 		jEnabledBox.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				isToolTipEnabled = jEnabledBox.isSelected();
 				isPlotRefresh = true;
 				fireModelChangedEvent();
 			}
@@ -203,6 +198,7 @@ public class ExpressionProfilePanel extends MicroarrayViewEventBase implements
 
 					ExpressionXYToolTip tooltipGenerator = null;
 
+					boolean isToolTipEnabled = jEnabledBox.isSelected();
 					if (isToolTipEnabled) {
 						tooltipGenerator = new ExpressionXYToolTip();
 						tooltipGenerator.setCurrentGenes(genes, arrays);
@@ -257,47 +253,6 @@ public class ExpressionProfilePanel extends MicroarrayViewEventBase implements
 		}
 	}
 
-	/**
-	 * @return
-	 */
-	public JPanel getGraphPanel() {
-		assert graphPanel != null : "Null widget a " + graphPanel;
-
-		return graphPanel;
-	}
-
-	/**
-	 * @return
-	 */
-	public ChartPanel getGraph() {
-		assert graphPanel != null : "Null widget a " + graph;
-
-		return graph;
-	}
-
-	/**
-	 * @return
-	 */
-	public JFreeChart getChart() {
-		assert graphPanel != null : "Null widget a " + chart;
-
-		return chart;
-	}
-
-	/**
-	 * @return
-	 */
-	public JFreeChart getChartPanel() {
-		assert graphPanel != null : "Null widget a " + chart;
-
-		return chart;
-	}
-
-	/**
-	 * Responsible for handling marker selection in a microarray scatter plot.
-	 * 
-	 * @author unattributable
-	 */
 	private class MicroarrayChartMouseListener implements ChartMouseListener {
 
 		public void chartMouseClicked(ChartMouseEvent event) {
@@ -382,16 +337,6 @@ public class ExpressionProfilePanel extends MicroarrayViewEventBase implements
 			return tooltip;
 
 		}
-	}
-
-	private void plotButton_actionPerformed(ActionEvent e) {
-
-		if (e.getActionCommand().equals(plotButton.getText())) {
-			isPlotRefresh = true;
-			imageSnapshotButton.setEnabled(true);
-			refreshMaSetView();
-		}
-
 	}
 
 	@Publish
