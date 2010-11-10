@@ -360,14 +360,10 @@ public class PCA extends MicroarrayViewEventBase
         jToolBar3.remove(chkAllArrays);
         jToolBar3.remove(chkAllMarkers);
 
-        onlyActivatedMarkers = true;
-        onlyActivatedArrays = true;
-
         chkAllArrays.addActionListener( new ActionListener()
         {
             public void actionPerformed(ActionEvent event)
             {
-                onlyActivatedArrays = !chkAllArrays.isSelected();
                 if(plottedComps != null && plottedComps.length >0)
                     buildProjectionPlot(plottedComps);
             }
@@ -377,7 +373,6 @@ public class PCA extends MicroarrayViewEventBase
         {
             public void actionPerformed(ActionEvent event)
             {
-                onlyActivatedMarkers = !chkAllMarkers.isSelected();
                 if(plottedComps != null && plottedComps.length >0)
                     buildProjectionPlot(plottedComps);
             }
@@ -648,7 +643,7 @@ public class PCA extends MicroarrayViewEventBase
         }
 
         ArrayList group1List = new ArrayList(dataLabelList);
-        if(pcaDataSet.getVariables().equals("experiments") && onlyActivatedMarkers
+        if(pcaDataSet.getVariables().equals("experiments") && !chkAllMarkers.isSelected()
                 && activatedMarkers != null && activatedMarkers.size() > 0 )
         {
             DSAnnotationContext<DSGeneMarker> context = CSAnnotationContextManager.getInstance().getCurrentContext(maSet.getMarkerVector());
@@ -677,7 +672,7 @@ public class PCA extends MicroarrayViewEventBase
                 }
             }
         }
-        else if(pcaDataSet.getVariables().equals("genes") && onlyActivatedArrays
+        else if(pcaDataSet.getVariables().equals("genes") && !chkAllArrays.isSelected()
                  && activatedArrays != null && activatedArrays.size() > 0)
         {
             DSAnnotationContext<DSMicroarray> context = CSAnnotationContextManager.getInstance().getCurrentContext(maSet);
@@ -1030,13 +1025,11 @@ public class PCA extends MicroarrayViewEventBase
             if(pcaDataSet.getVariables().equals("genes"))
             {
                 chkAllArrays.setSelected(false);
-                onlyActivatedMarkers = false;
                 jToolBar3.add(chkAllArrays);
             }
             else
             {
                 chkAllMarkers.setSelected(false);
-                onlyActivatedArrays = false;
                 jToolBar3.add(chkAllMarkers);
             }
         }

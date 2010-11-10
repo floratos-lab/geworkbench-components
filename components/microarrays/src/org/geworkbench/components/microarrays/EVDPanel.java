@@ -317,10 +317,7 @@ public class EVDPanel extends MicroarrayViewEventBase {
 
         mainPanel.add(graph, BorderLayout.CENTER);
         chkAllMarkers.setSelected(false);
-        this.onlyActivatedMarkers = true;
         chkAllArrays.setSelected(false);
-        this.onlyActivatedArrays = true;
-
     }
 
     void jLeftBoundarySlider_stateChanged(ChangeEvent e) {
@@ -414,7 +411,7 @@ public class EVDPanel extends MicroarrayViewEventBase {
         return event;
     }
 
-    protected void createNewChart(final int selectedArrayId,
+    private void createNewChart(final int selectedArrayId,
                                   final boolean showActive) {
 
         double max[] = getBoundaryValue();
@@ -875,7 +872,7 @@ public class EVDPanel extends MicroarrayViewEventBase {
 
             int mArrayId = jMASlider.getValue();
             if (mArrayId >= 0) {
-                createNewChart(mArrayId, onlyActivatedArrays);
+                createNewChart(mArrayId, !chkAllArrays.isSelected());
                 mainPanel.repaint();
             }
 
@@ -899,7 +896,7 @@ public class EVDPanel extends MicroarrayViewEventBase {
 	public void doTTest() {
         SimpleTTest simpleTTest = new SimpleTTest();
         //  int num = maSetView
-        double values[] = simpleTTest.execute(maSetView, onlyActivatedMarkers);
+        double values[] = simpleTTest.execute(maSetView, !chkAllMarkers.isSelected());
         double minT = simpleTTest.getMinT();
         double maxT = simpleTTest.getMaxT();
         DSItemList<DSGeneMarker> item = simpleTTest.getItem();
