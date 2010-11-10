@@ -1285,14 +1285,23 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	}
 
 	private Class<?> currentDataType = null, lastDataType = null;
-	HashMap<Class<?>, Integer> pidMap = new HashMap<Class<?>, Integer>();
+	private HashMap<Class<?>, Integer> pidMap = new HashMap<Class<?>, Integer>();
 
+	@SuppressWarnings("rawtypes")
+	private DSDataSet refOtherSet = null;
 	/**
 	 * Refresh the list of available analyses.
 	 */
+	@SuppressWarnings("rawtypes")
 	@Subscribe
 	public void receive(org.geworkbench.events.ProjectEvent even, Object source) {
 		super.receive(even, source);
+		DSDataSet dataSet = even.getDataSet();
+		if ( dataSet instanceof DSMicroarraySet ) {
+			refOtherSet = null;
+		} else {
+			refOtherSet = dataSet;
+		}
 		if (even.getDataSet() != null && even.getParent() == null) {
 			lastDataType = currentDataType;
 			currentDataType = even.getDataSet().getClass();
