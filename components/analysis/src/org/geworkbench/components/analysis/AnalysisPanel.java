@@ -1085,6 +1085,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	private void analyze_actionPerformed(ActionEvent e) {
 		maSetView = getDataSetView();
 
+		boolean onlyActivatedArrays = false;
 		String className = currentParameterPanel.getClass().getName();
 		if (className.equals("org.geworkbench.components.ttest.MultiTTestAnalysisPanel")
 				|| className.equals("org.geworkbench.components.ttest.TtestAnalysisPanel")) {
@@ -1104,8 +1105,9 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 				if (result == JOptionPane.NO_OPTION)
 					return;
 			}
-		} else
+		} else {
 			onlyActivatedArrays = !chkAllArrays.isSelected();
+		}
 
 		if (selectedAnalysis == null
 				|| ((refMASet == null) && (refOtherSet == null))) {
@@ -1132,7 +1134,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 					"Parameter Validation Error", JOptionPane.ERROR_MESSAGE);
 		} else {
 			analyze.setEnabled(false);
-			maSetView.useMarkerPanel(onlyActivatedMarkers);
+			maSetView.useMarkerPanel(!chkAllMarkers.isSelected());
 			maSetView.useItemPanel(onlyActivatedArrays);
 			Thread t = new Thread(new Runnable() {
 				public void run() {
