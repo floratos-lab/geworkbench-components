@@ -61,6 +61,8 @@ import javax.swing.JSlider;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
@@ -234,7 +236,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	private Vector<Vector<Object>> cachedPreviewData = new Vector<Vector<Object>>();
 
 	private DSMicroarraySet dataset = null;
-	
+
 	private Map<String, String> geneTypeMap = null;
 
 	/**
@@ -441,6 +443,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		}
 
 		activatedMarkerTable.revalidate();
+		previewTableModel.fireTableDataChanged();
 		detailTable.revalidate();
 
 	}
@@ -495,6 +498,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		}
 
 		activatedMarkerTable.revalidate();
+		previewTableModel.fireTableDataChanged();
 		detailTable.revalidate();
 
 	}
@@ -737,7 +741,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	private void initComponents() {
 		initGeneTypeMap();
 		Authenticator.setDefault(new BasicAuthenticator());
-		new javax.swing.JPanel();			
+		new javax.swing.JPanel();
 		jPanel2 = new javax.swing.JPanel();
 		JPanel topPanel = new JPanel();
 		throttlePanel = new JPanel();
@@ -1120,6 +1124,9 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		tableColumns = new TableColumn[columnLabels.length];
 		previewTableModel = new PreviewTableModel();
 		detailTable.setModel(previewTableModel);
+		TableRowSorter<TableModel> detailTableSorter = new TableRowSorter<TableModel>(
+				previewTableModel);
+		detailTable.setRowSorter(detailTableSorter);
 		TableColumnModel model = detailTable.getColumnModel();
 		for (int i = 0; i < columnLabels.length; i++) {
 
@@ -1247,7 +1254,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			cellularNetWorkElementInformation.setThreshold(newvalue);
 		}
 
-		previewTableModel.fireTableRowsUpdated(0, detailTable.getRowCount());
+		previewTableModel.fireTableDataChanged();
 		detailTable.revalidate();
 	}
 
@@ -1439,8 +1446,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			cellularNetWorkElementInformation.setThreshold(lowValue);
 
 		}
-		previewTableModel.fireTableRowsUpdated(0, detailTable.getRowCount());
 
+		previewTableModel.fireTableDataChanged();
 		detailTable.revalidate();
 	}
 
@@ -1518,7 +1525,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 					String mid2 = interactionDetail.getdSGeneMarker2();
 					String mid1 = interactionDetail.getdSGeneMarker1();
 					int serial2 = -1;
-				 
+
 					if (interactionDetail.getDbSource2().equalsIgnoreCase(
 							Constants.ENTREZ_GENE)) {
 						try {
@@ -1842,8 +1849,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 								if (interaction_flag == 0) {
 									interactionDetails = interactionsConnection
-									.getInteractionsByEntrezIdOrGeneSymbol_1(
-											marker, context, version);
+											.getInteractionsByEntrezIdOrGeneSymbol_1(
+													marker, context, version);
 								} else {
 									interactionDetails = interactionsConnection
 											.getInteractionsByEntrezIdOrGeneSymbol_2(
@@ -1901,8 +1908,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 					} else {
 						updateProgressBar(1, "Stopped");
 					}
-					previewTableModel.fireTableRowsUpdated(0, detailTable
-							.getRowCount());
+
+					previewTableModel.fireTableDataChanged();
 					detailTable.revalidate();
 					refreshButton.setEnabled(true);
 
@@ -1956,12 +1963,14 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		}
 
 	}
+
 	public void initGeneTypeMap() {
 		geneTypeMap = new HashMap<String, String>();
 		geneTypeMap.put(Constants.TF, Constants.TRANSCRIPTION_FACTOR);
 		geneTypeMap.put(Constants.K, Constants.KINASE);
 		geneTypeMap.put(Constants.P, Constants.PHOSPHATASE);
 	}
+
 	public void initDetailTable() {
 
 		try {
@@ -1987,6 +1996,9 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 			previewTableModel = new PreviewTableModel();
 			detailTable.setModel(previewTableModel);
+			TableRowSorter<TableModel> detailTableSorter = new TableRowSorter<TableModel>(
+					previewTableModel);
+			detailTable.setRowSorter(detailTableSorter);
 			tableColumns = new TableColumn[columnLabels.length];
 			TableColumnModel model = detailTable.getColumnModel();
 			for (int i = 0; i < columnLabels.length; i++) {
@@ -2119,6 +2131,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		@Override
 		public Object getValueAt(int row, int col) {
 
+			if (hits.size() == 0)
+				return null;
 			CellularNetWorkElementInformation hit = hits.get(row);
 			/* display data depending on which column is chosen */
 			switch (col) {
@@ -2317,7 +2331,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		public Component getTableCellRendererComponent(JTable table,
 				Object color, boolean isSelected, boolean hasFocus, int row,
 				int column) {
-            
+
 			TableColumn tableColumn = detailTable.getColumnModel().getColumn(
 					column);
 			if (hits != null && hits.size() > row) {
@@ -2372,18 +2386,17 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			}
 
 			String headerStr = tableColumn.getHeaderValue().toString();
-			if (headerStr.equalsIgnoreCase(Constants.GENETYPELABEL))
-			{
-				if (! color.toString().trim().equalsIgnoreCase(""))
-				{	
-					String s =  geneTypeMap.get(color);
-				    if ( s != null || !s.equalsIgnoreCase(""))
-				    	color = s;
+			if (headerStr.equalsIgnoreCase(Constants.GENETYPELABEL)) {
+				if (color != null
+						&& !color.toString().trim().equalsIgnoreCase("")) {
+					String s = geneTypeMap.get(color);
+					if (s != null || !s.equalsIgnoreCase(""))
+						color = s;
 				}
 			}
 			String toolTipText = insertLineBreaker(color);
 			setToolTipText("<html>" + toolTipText + "<html>");
-			return this; 
+			return this;
 		}
 	}
 
@@ -2502,8 +2515,10 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			updateAllMarkersList(orderedSet, hits);
 
 			activeMarkersTableModel.fireTableDataChanged();
-			previewTableModel
-					.fireTableRowsUpdated(0, detailTable.getRowCount());
+
+			previewTableModel.fireTableDataChanged();
+			detailTable.revalidate();
+
 			checkSelectedTableWithNewDataSet(panel);
 
 			drawPlot(createCollection(0, 1, 1, true), "Throttle Graph");
