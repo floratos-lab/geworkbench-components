@@ -35,36 +35,26 @@ import com.jgoodies.forms.layout.FormLayout;
  * @version $Id: GridServicePanel.java,v 1.37 2009-06-24 14:48:55 wangm Exp $
  */
 public class GridServicePanel extends JPanel {
-	private Log log = LogFactory.getLog(this.getClass());
+	private static final long serialVersionUID = -5691010510843212800L;
 
-	JPanel innerPanel = null;
+	private static Log log = LogFactory.getLog(GridServicePanel.class);
 
-	JPanel outerPanel = null;
+	private static Collection<String> analysisSet = new HashSet<String>();
 
-	JScrollPane serviceDetailsScrollPane = null;
+	private GridServicesButtonListener gridServicesButtonListener;
 
-	ButtonGroup buttonGroup = null;
+	DefaultFormBuilder serviceDetailsBuilder = null;
+	JScrollPane serviceDetailsBuilderScrollPane = null;
+	DefaultFormBuilder urlServiceBuilder = createUrlServiceBuilder();
 
-	Collection<String> analysisSet = new HashSet<String>();
+	private String gridButtonString = "Grid";
+	private JRadioButton gridButton = new JRadioButton(gridButtonString);
 
-	GridServicesButtonListener gridServicesButtonListener;
-
-	public DispatcherLabelListener dispatcherLabelListener = null;
-
-	/**
-	 * Visual Widget
-	 */
-	private JSplitPane jSplitPane1 = new JSplitPane();
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 
 	public GridServicePanel(String name) {
 		super();
-		super.setName(name);
-		super.setLayout(new BorderLayout());
+		setName(name);
+		setLayout(new BorderLayout());
 
 		analysisSet.add("Hierarchical");
 		analysisSet.add("Som");
@@ -99,12 +89,10 @@ public class GridServicePanel extends JPanel {
 		localButton.setSelected(true);
 		localButton.setActionCommand(localButtonString);
 
-		String gridButtonString = "Grid";
-		JRadioButton gridButton = new JRadioButton(gridButtonString);
 		gridButton.setSelected(false);
 		gridButton.setActionCommand(gridButtonString);
 		/* add to the button group */
-		buttonGroup = new ButtonGroup();
+		ButtonGroup buttonGroup = new ButtonGroup();
 		buttonGroup.add(localButton);
 		buttonGroup.add(gridButton);
 
@@ -116,11 +104,8 @@ public class GridServicePanel extends JPanel {
 				.convertTextToHtml("Change Index Service"));
 		indexServiceLabel.setForeground(Color.BLUE);
 
-		//TODO: change indexServiceLabelListener here to new one.
-		// index service label listener
-		final IndexServiceLabelListener indexServiceLabelListener = new IndexServiceLabelListener(
-				indexServiceLabel);
-		indexServiceLabel.addMouseListener(indexServiceLabelListener);
+		indexServiceLabel.addMouseListener(new UrlLabelListener(this,
+				"indexServerURL", "indexServer.url", INDEX_INDEX));
 		indexServiceLabel.addMouseMotionListener(new MouseMotionAdapter() {
 
 			public void mouseMoved(MouseEvent e) {
@@ -137,8 +122,9 @@ public class GridServicePanel extends JPanel {
 		dispatcherLabel.setForeground(Color.BLUE);
 
 		// dispatcher label listener
-		dispatcherLabelListener = new DispatcherLabelListener(dispatcherLabel);
-		dispatcherLabel.addMouseListener(dispatcherLabelListener);
+		dispatcherLabel.addMouseListener(new UrlLabelListener(this,
+				"dispatcherURL", "dispatcher.url",
+				DISPATCHER_INDEX));
 		dispatcherLabel.addMouseMotionListener(new MouseMotionAdapter() {
 
 			public void mouseMoved(MouseEvent e) {
@@ -150,13 +136,10 @@ public class GridServicePanel extends JPanel {
 		indexServiceBuilder.append(dispatcherLabel);
 
 		// grid services button
-		JButton getServicesButton = indexServiceLabelListener
-				.getIndexServiceButton();
+		JButton getServicesButton = new JButton("Grid Services");
 		indexServiceBuilder.append(getServicesButton);
 
 		/* part B */
-		final DefaultFormBuilder urlServiceBuilder = createUrlServiceBuilder();
-
 		JScrollPane urlServiceBuilderScrollPane = new JScrollPane(
 				urlServiceBuilder.getPanel(),
 				ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
@@ -164,23 +147,32 @@ public class GridServicePanel extends JPanel {
 		urlServiceBuilderScrollPane.setMinimumSize(new Dimension(300, 50));
 
 		/* part C */
-		final IndexServiceSelectionButtonListener indexServiceSelectionButtonListener = new IndexServiceSelectionButtonListener();
+		serviceDetailsBuilder = new DefaultFormBuilder(new FormLayout(
+				"right:max(60dlu;pref), 3dlu, max(150dlu;pref), 7dlu", ""));
+		serviceDetailsBuilder.setBorder(BorderFactory
+				.createBevelBorder(BevelBorder.LOWERED));
+		serviceDetailsBuilder.appendSeparator("Service Details");
+		serviceDetailsBuilder.nextLine();
 
-		gridServicesButtonListener = new GridServicesButtonListener(
-				indexServiceSelectionButtonListener, indexServiceLabelListener,
-				dispatcherLabelListener, urlServiceBuilder);
+		serviceDetailsBuilderScrollPane = new JScrollPane(serviceDetailsBuilder
+				.getPanel(), ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
+				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		final IndexServiceSelectionButtonListener indexServiceSelectionButtonListener 
+			= new IndexServiceSelectionButtonListener(this);
+
+		gridServicesButtonListener = new GridServicesButtonListener(this,
+				indexServiceSelectionButtonListener);
 		getServicesButton.addActionListener(gridServicesButtonListener);
 
 		/* add A, B, and C to the main (this) */
 		this.add(indexServiceBuilder.getPanel(), BorderLayout.NORTH);
 
 		/* add a split between B and C */
-		jSplitPane1 = new JSplitPane();
+		JSplitPane jSplitPane1 = new JSplitPane();
 		jSplitPane1.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		this.add(jSplitPane1, BorderLayout.CENTER);
 
-		jSplitPane1.add(indexServiceSelectionButtonListener
-				.getServiceDetailsBuilderScrollPane(), JSplitPane.BOTTOM);
+		jSplitPane1.add(serviceDetailsBuilderScrollPane, JSplitPane.BOTTOM);
 		jSplitPane1.add(urlServiceBuilderScrollPane, JSplitPane.TOP);
 
 		this.revalidate();
@@ -190,7 +182,7 @@ public class GridServicePanel extends JPanel {
 	 * 
 	 * @return
 	 */
-	public static DefaultFormBuilder createUrlServiceBuilder() {
+	private static DefaultFormBuilder createUrlServiceBuilder() {
 		final DefaultFormBuilder urlServiceBuilder = new DefaultFormBuilder(
 				new FormLayout(""));
 		urlServiceBuilder.setBorder(BorderFactory
@@ -228,24 +220,25 @@ public class GridServicePanel extends JPanel {
 
 	}
 
-	/**
-	 * 
-	 * @return
-	 */
-	public ButtonGroup getButtonGroup() {
-		return buttonGroup;
+	public boolean isCaGridVersion() {
+		if (gridButton.isSelected()) return true;
+		else return false;
 	}
 
-	/**
-	 * 
-	 * @return
-	 */
-	public ButtonGroup getServicesButtonGroup() {
-		return gridServicesButtonListener.getServicesButtonGroup();
-	}
-	
+
+	String[] url = new String[2];
+	private static int INDEX_INDEX = 0;
+	private static int DISPATCHER_INDEX = 1;
 	public String getIndexServerUrl(){
-		return gridServicesButtonListener.getIndexServerUrl();
+		return url[INDEX_INDEX];
+	}
+
+	public String getDispatcherUrl() {
+		return url[DISPATCHER_INDEX];
+	}
+
+	public String getServiceUrl() {
+		return gridServicesButtonListener.getServiceUrl();
 	}
 	
 }

@@ -1,12 +1,15 @@
 package org.geworkbench.components.cagrid.gui;
 
+import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionAdapter;
 import java.io.IOException;
 
 import javax.swing.ButtonGroup;
+import javax.swing.ButtonModel;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
@@ -28,25 +31,18 @@ import gov.nih.nci.cagrid.metadata.ServiceMetadata;
  * An action listener for the grid services button.
  * 
  * @author keshav
- * @version $Id: GridServicesButtonListener.java,v 1.1 2007/04/03 02:39:14
- *          keshav Exp $
+ * @version $Id$
  */
 public class GridServicesButtonListener implements ActionListener {
-	private Log log = LogFactory.getLog(this.getClass());
+	private static Log log = LogFactory.getLog(GridServicesButtonListener.class);
 
-	IndexServiceSelectionButtonListener indexServiceSelectionButtonListener = null;
+	private IndexServiceSelectionButtonListener indexServiceSelectionButtonListener = null;
 
-	IndexServiceLabelListener indexServiceLabelListener = null;
+	private String selectedAnalysisType = null;
 
-	public DispatcherLabelListener dispatcherLabelListener = null;
-	
-	DefaultFormBuilder urlServiceBuilder = null;
+	private ButtonGroup servicesButtonGroup = null;
 
-	String selectedAnalysisType = null;
-
-	ButtonGroup servicesButtonGroup = null;
-	
-	String indexServerUrl = "";
+	private GridServicePanel gridServicePanel = null;
 
 	/**
 	 * 
@@ -55,15 +51,12 @@ public class GridServicesButtonListener implements ActionListener {
 	 * @param urlServiceBuilder
 	 */
 	public GridServicesButtonListener(
-			IndexServiceSelectionButtonListener indexServiceSelectionButtonListener,
-			IndexServiceLabelListener indexServiceLabelListener,
-			DispatcherLabelListener dispatcherLabelListener,
-			DefaultFormBuilder urlServiceBuilder) {
+			final GridServicePanel gridServicePanel,
+			final IndexServiceSelectionButtonListener indexServiceSelectionButtonListener
+			) {
 		super();
+		this.gridServicePanel = gridServicePanel;
 		this.indexServiceSelectionButtonListener = indexServiceSelectionButtonListener;
-		this.indexServiceLabelListener = indexServiceLabelListener;
-		this.dispatcherLabelListener = dispatcherLabelListener;
-		this.urlServiceBuilder = urlServiceBuilder;
 		this.servicesButtonGroup = new ButtonGroup();
 	}
 
@@ -82,10 +75,10 @@ public class GridServicesButtonListener implements ActionListener {
 				pBar.start();
 				pBar.reset();
 
-				indexServerUrl = indexServiceLabelListener.getHost();
+				String indexServerUrl = gridServicePanel.getIndexServerUrl();
 				EndpointReferenceType[] services = null;
 				try {
-					services = DiscoveryServiceUtil.getServices(indexServerUrl,dispatcherLabelListener.getHost(),
+					services = DiscoveryServiceUtil.getServices(indexServerUrl,gridServicePanel.getDispatcherUrl(),
 							selectedAnalysisType);
 				} catch (Exception e) {
 					final JLabel linkedLabel = new JLabel("<html>No service running. Please check with the administrator of your grid infrastructure. For services hosted by the geWorkbench team you can inquire at the geWorkbench <A href=https://cabig-kc.nci.nih.gov/Molecular/forums/viewforum.php?f=10&sid=237690e6926a15d8062491481120867a>KC Forum</a></html>");
@@ -112,27 +105,24 @@ public class GridServicesButtonListener implements ActionListener {
 						}
 					});
 					
-					// FIXME - Visually, the hand does not appear. This has been
-					// reported in the
-					// sun database and is supposed to be fixed in Java 6:
-					// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=5079694
-					// linkedLabel.addMouseMotionListener(new
-					// MouseMotionAdapter() {
-					// public void mouseMoved(MouseEvent e) {
-					// linkedLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
-					// }
-					//
-					// });
+					linkedLabel
+							.addMouseMotionListener(new MouseMotionAdapter() {
+								public void mouseMoved(MouseEvent e) {
+									linkedLabel.setCursor(new Cursor(
+											Cursor.HAND_CURSOR));
+								}
+
+							});
 					
 					JOptionPane.showMessageDialog(null, linkedLabel, "Error",
 							JOptionPane.ERROR_MESSAGE);
 				}
 
+				DefaultFormBuilder urlServiceBuilder = gridServicePanel.urlServiceBuilder;
+
 				if (services == null) {
 					// TODO clear panel if populated
-				}
-
-				else {
+				} else {
 					for (EndpointReferenceType service : services) {
 
 						ServiceMetadata commonMetadata;
@@ -180,7 +170,7 @@ public class GridServicesButtonListener implements ActionListener {
 				pBar.stop();
 
 				urlServiceBuilder.getPanel().revalidate();
-				indexServiceSelectionButtonListener.getServiceDetailsBuilder()
+				gridServicePanel.serviceDetailsBuilder
 						.getPanel().revalidate();
 
 			}
@@ -192,22 +182,20 @@ public class GridServicesButtonListener implements ActionListener {
 
 	/**
 	 * 
-	 * @return {@link ButtonGroup}
-	 */
-	public ButtonGroup getServicesButtonGroup() {
-		return this.servicesButtonGroup;
-	}
-
-	/**
-	 * 
 	 * @param selectedAnalysisType
 	 */
 	public void setSelectedAnalysisType(String selectedAnalysisType) {
 		this.selectedAnalysisType = selectedAnalysisType;
 	}
-	
-	public String getIndexServerUrl(){
-		return indexServerUrl;
+
+	public String getServiceUrl() {
+		ButtonModel bm = servicesButtonGroup.getSelection();
+
+		if (bm == null) {
+			return null;
+		}
+
+		return bm.getActionCommand();
 	}
 	
 }
