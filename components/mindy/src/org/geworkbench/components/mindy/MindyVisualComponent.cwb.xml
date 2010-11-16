@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
@@ -8,7 +9,7 @@
 		toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_MINDy"
 		description="The results of a MINDy calculation are presented in several different tabular displays and a heat map."
-		visualizer="true">
+		category="visualizer">
 		<required-component class="org.geworkbench.components.mindy.MindyAnalysis" />
 		<license><![CDATA[
 			<html><head><meta http-equiv=Content-Type content="text/html; charset=windows-1252"></head>
