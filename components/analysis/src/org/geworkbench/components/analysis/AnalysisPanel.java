@@ -610,20 +610,11 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	 * @return boolean
 	 */
 	private boolean isGridAnalysis() {
-		// TODO: use this to check if it's a grid analysis or not is wrong. it
-		// cause bug 0001174 in Mantis. Quick fix made user input service
-		// information every time. Should have a better implementation.
-		if (jGridServicePanel != null) {
-			ButtonGroup gridSelectionButtonGroup = jGridServicePanel
-					.getButtonGroup();
-
-			ButtonModel bm = gridSelectionButtonGroup.getSelection();
-			if (StringUtils.equals(bm.getActionCommand(), "Grid")) {
-				return true;
-			}
+		if (jGridServicePanel != null && jGridServicePanel.isCaGridVersion()) {
+			return true;
+		} else {
+			return false;
 		}
-
-		return false;
 	}
 
 	/**
@@ -631,16 +622,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	 * @return String
 	 */
 	private String getServiceUrl() {
-		ButtonGroup bg = jGridServicePanel.getServicesButtonGroup();
-
-		ButtonModel bm = bg.getSelection();
-
-		if (bm == null) {
-			return null;
-		}
-
-		String url = bm.getActionCommand();
-		return url;
+		return jGridServicePanel.getServiceUrl();
 	}
 
 	/*
@@ -1185,8 +1167,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 								/* adding user info */
 								serviceParameterList.add(userInfo);
 
-								dispatcherUrl = jGridServicePanel.dispatcherLabelListener
-										.getHost();
+								dispatcherUrl = jGridServicePanel.getDispatcherUrl();
 								DispatcherClient dispatcherClient = new DispatcherClient(
 										dispatcherUrl);
 

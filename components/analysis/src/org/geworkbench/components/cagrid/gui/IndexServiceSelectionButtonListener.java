@@ -9,30 +9,22 @@ import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.swing.BorderFactory;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JScrollPane;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.border.BevelBorder;
 
 import org.apache.axis.message.addressing.EndpointReferenceType;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.layout.FormLayout;
 
 /**
  * 
  * @author keshav
- * @version $Id: IndexServiceSelectionButtonListener.java,v 1.1 2007/03/15
- *          15:41:35 keshav Exp $
+ * @version $Id$
  */
 public class IndexServiceSelectionButtonListener implements ActionListener {
-	private Log log = LogFactory.getLog(this.getClass());
-	private DefaultFormBuilder serviceDetailsBuilder = null;
-
-	private JScrollPane serviceDetailsBuilderScrollPane = null;
+	private static Log log = LogFactory.getLog(IndexServiceSelectionButtonListener.class);
 
 	private String url = null;
 
@@ -40,26 +32,18 @@ public class IndexServiceSelectionButtonListener implements ActionListener {
 
 	private Map<String, EndpointReferenceType> seenServicesTwice = null;
 
+	private GridServicePanel gridServicePanel = null;
 	/**
 	 * 
 	 * 
 	 */
-	public IndexServiceSelectionButtonListener() {
+	public IndexServiceSelectionButtonListener(final GridServicePanel gridServicePanel) {
+		this.gridServicePanel = gridServicePanel;
 
 		seenServices = new HashMap<String, EndpointReferenceType>();
 
 		seenServicesTwice = new HashMap<String, EndpointReferenceType>();
 
-		serviceDetailsBuilder = new DefaultFormBuilder(new FormLayout(
-				"right:max(60dlu;pref), 3dlu, max(150dlu;pref), 7dlu", ""));
-		serviceDetailsBuilder.setBorder(BorderFactory
-				.createBevelBorder(BevelBorder.LOWERED));
-		serviceDetailsBuilder.appendSeparator("Service Details");
-		serviceDetailsBuilder.nextLine();
-
-		serviceDetailsBuilderScrollPane = new JScrollPane(serviceDetailsBuilder
-				.getPanel(), ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
-				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 	}
 
 	/*
@@ -70,10 +54,10 @@ public class IndexServiceSelectionButtonListener implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		url = e.getActionCommand();
 
-		if (seenServices.containsKey(url)) {
-
-			/* check if we've already seen this service elsewhere */
-			if (!seenServicesTwice.containsKey(url)) {
+		/* check if we've already seen this service elsewhere */
+		if (seenServices.containsKey(url) && !seenServicesTwice.containsKey(url)) {
+				DefaultFormBuilder serviceDetailsBuilder = gridServicePanel.serviceDetailsBuilder;
+				JComponent serviceDetailsBuilderScrollPane= gridServicePanel.serviceDetailsBuilderScrollPane;;
 
 				EndpointReferenceType service = seenServices.get(url);
 
@@ -116,37 +100,12 @@ public class IndexServiceSelectionButtonListener implements ActionListener {
 				serviceDetailsBuilder.append("Address: ", new JLabel(address));
 
 				serviceDetailsBuilderScrollPane.revalidate();
-			}
 		}
 
 	}
 
-	/**
-	 * 
-	 * @return
-	 */
-	public String getUrl() {
-		return url;
-	}
-
 	public Map<String, EndpointReferenceType> getSeenServices() {
 		return seenServices;
-	}
-
-	/**
-	 * 
-	 * @return
-	 */
-	public DefaultFormBuilder getServiceDetailsBuilder() {
-		return serviceDetailsBuilder;
-	}
-
-	/**
-	 * 
-	 * @return
-	 */
-	public JScrollPane getServiceDetailsBuilderScrollPane() {
-		return serviceDetailsBuilderScrollPane;
 	}
 
 }
