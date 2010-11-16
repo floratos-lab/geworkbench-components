@@ -861,6 +861,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 						}
 						activatedMarkerTable.revalidate();
+						previewTableModel.fireTableDataChanged();
 						detailTable.revalidate();
 
 						drawPlot(createCollection(0, 1, 1, true),
@@ -961,6 +962,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 												marker));
 							}
 							activatedMarkerTable.revalidate();
+							previewTableModel.fireTableDataChanged();
 							detailTable.revalidate();
 
 						}
@@ -1737,7 +1739,17 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			adjacencyMatrixdataSet.addNameValuePair("GENEMAP", geneIdToNameMap);
 
 			historyStr = "Cellular Network Parameters: \n"
-					+ "      Threshold: " + thresholdTextField.getText() + "\n"
+					+ "      URL Used:     "
+					+ ResultSetlUtil.INTERACTIONS_SERVLET_URL
+					+ "\n"
+					+ "      Selected Interactome:     "
+					+ jPreferencePanel.getContextJList().getSelectedValue()
+							.toString().split(" \\(")[0].trim()
+					+ "\n"
+					+ "      Selected Version:     "
+					+ ((VersionDescriptor) jPreferencePanel.getVersionJList()
+							.getSelectedValue()).getVersion() + "\n"
+					+ "      Threshold:     " + thresholdTextField.getText() + "\n"
 					+ "      Selected Marker List: \n" + historyStr + "\n";
 			ProjectPanel.addToHistory(adjacencyMatrixdataSet, historyStr);
 
@@ -1839,7 +1851,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 						if (cancelAction) {
 							break;
 						}
-
+						 
 						if (marker != null && marker.getGeneId() != -1
 								&& cellularNetWorkElementInformation.isDirty()) {
 							BigDecimal id = new BigDecimal(marker.getGeneId());
@@ -1897,8 +1909,10 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 							cellularNetWorkElementInformation.setDirty(false);
 
-						}
+						}						
+					 
 					}
+					
 					if (!cancelAction) {
 						updateProgressBar(1, "Query is finished.");
 						drawPlot(createCollection(0, 1, 1, true),
