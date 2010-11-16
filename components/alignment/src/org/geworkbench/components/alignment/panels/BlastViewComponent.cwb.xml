@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 	<component name="Alignment Results"
@@ -11,7 +12,8 @@
  the results of sequence similarity searches which were run on the
  NCBI BLAST service.  Sequence hits can be returned to the Project
  for further analysis."
-		mustAccept="false" visualizer="true" loadByDefault="true">
+		mustAccept="false" 
+		category="visualizer" loadByDefault="true">
 		<required-component
 			class="org.geworkbench.components.alignment.panels.BlastAppComponent" />
 		<license><![CDATA[

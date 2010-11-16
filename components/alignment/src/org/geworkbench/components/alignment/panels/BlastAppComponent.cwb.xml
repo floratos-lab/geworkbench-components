@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
@@ -11,7 +12,7 @@
 		description="The Sequence Alignment component allows amino-acid (protein)
  or nucleotide (DNA) sequences to be submitted to the NCBI BLAST server
  for sequence similarity search against various databases."
-		analysis="true" loadByDefault="true">
+		category="analysis" loadByDefault="true">
 		<required-component
 			class="org.geworkbench.components.alignment.panels.BlastViewComponent" />
 		<required-component

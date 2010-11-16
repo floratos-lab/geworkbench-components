@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 	
@@ -12,7 +13,7 @@
  data in tabular format.  For each gene and each group of arrays, shows
  the mean, standard deviation, F-statistic, and the p-value (probablility
  of seeing the observed differences in group means and variances by chance)"
-				visualizer="true"
+				category="visualizer"
 				loadByDefault="true"
 	 >
 		<required-component class="org.geworkbench.components.anova.AnovaAnalysis" />
