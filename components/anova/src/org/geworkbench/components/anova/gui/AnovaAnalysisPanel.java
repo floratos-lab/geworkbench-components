@@ -45,6 +45,7 @@ import edu.columbia.geworkbench.cagrid.anova.PValueEstimation;
  * @version $Id: AnovaAnalysisPanel.java,v 1.17 2009-09-08 17:33:23 chiangy Exp $
  */
 public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel {
+	private static final long serialVersionUID = 7706231137820482937L;
 
 	private int PermutationsNumberDefault = 100;
 	
