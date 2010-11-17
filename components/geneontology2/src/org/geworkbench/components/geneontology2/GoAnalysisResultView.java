@@ -697,6 +697,9 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 			
 			treeModel.setResult(result);
 			allButton.setSelected(true); // show all three namespace at switching result node
+			
+			changedGeneListButton.setEnabled(true);
+			referenceListButton.setEnabled(true);
 			repaint();
 		} else if (dataSet instanceof DSMicroarraySet) {
 			result = null;
@@ -705,6 +708,9 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 			
 			treeModel.setResult(null);
 			allButton.setSelected(true); // show all three namespace at switching result node
+			
+			changedGeneListButton.setEnabled(false);
+			referenceListButton.setEnabled(false);
 			repaint();
 		}
 	 }
