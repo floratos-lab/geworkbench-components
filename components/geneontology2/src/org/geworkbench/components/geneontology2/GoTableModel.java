@@ -5,6 +5,8 @@ import java.util.Map;
 
 import javax.swing.table.AbstractTableModel;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.GoAnalysisResult;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
@@ -12,9 +14,8 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.A
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMicroarray;
 
 class GoTableModel extends AbstractTableModel {
-    /**
-	 * 
-	 */
+	static Log log = LogFactory.getLog( GoTableModel.class );
+
 	private static final long serialVersionUID = -7009237666149228067L;
 	private int COLUMN_COUNT = 7;
 
@@ -129,7 +130,7 @@ class GoTableModel extends AbstractTableModel {
 		else if(columnIndex==TABLE_COLUMN_INDEX_GO_TERM_NAME || columnIndex==TABLE_COLUMN_INDEX_NAMESPACE )
 			return String.class;
 		else {
-			GoAnalysisResultView.log.warn("Unspecified column type");
+			log.warn("Unspecified column type");
 			return Object.class;
 		}
 	}
