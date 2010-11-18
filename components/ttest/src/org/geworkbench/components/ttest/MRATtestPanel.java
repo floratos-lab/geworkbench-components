@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.swing.ButtonGroup;
-import javax.swing.JCheckBox;
 import javax.swing.JFormattedTextField;
 import javax.swing.JRadioButton;
 
