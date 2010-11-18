@@ -691,8 +691,6 @@ public class FilteringPanel implements VisualPlugin, ReHighlightable {
 			String namedParameter = null;
 			if (index > 0) {
 				namedParameter = (String) namedParameters.getItemAt(index);
-				if (currentParameterPanel.isDirty())
-					namedParameter = "New Parameter Setting Name";
 			} else {
 				namedParameter = "New Parameter Setting Name";
 			}
