@@ -24,6 +24,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
 
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
+import org.geworkbench.bison.model.analysis.ParameterPanelIncludingNormalized;
 import org.geworkbench.events.listeners.ParameterActionListener;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
@@ -40,7 +41,7 @@ import com.jgoodies.forms.layout.FormLayout;
  * @version $Id$
  */
 
-public class TtestAnalysisPanel extends AbstractSaveableParameterPanel {
+public class TtestAnalysisPanel extends AbstractSaveableParameterPanel implements ParameterPanelIncludingNormalized {
 	private static final long serialVersionUID = 2626991982723835444L;
 	
 	// significance method
