@@ -318,7 +318,7 @@ DSAnnotationContext<DSMicroarray> context = manager
 		context.activateLabel("group c");
 		DSPanel<DSMicroarray> groupC = context.getItemsWithLabel("group c");
 		groupC.setActive(true);
-		aa.setUnitTestMode();		
+//		aa.setUnitTestMode();		
 		answer = aa.execute(view);
 		assertEquals(true, answer.isExecutionSuccessful());
 		
