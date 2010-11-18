@@ -20,8 +20,6 @@ import java.util.Map;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
-import javax.swing.ButtonModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -64,6 +62,7 @@ import org.geworkbench.bison.model.analysis.Analysis;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.bison.model.analysis.ParameterPanel;
+import org.geworkbench.bison.model.analysis.ParameterPanelIncludingNormalized;
 import org.geworkbench.bison.model.analysis.ProteinSequenceAnalysis;
 import org.geworkbench.bison.model.analysis.ProteinStructureAnalysis;
 import org.geworkbench.builtin.projects.ProjectPanel;
@@ -868,9 +867,6 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 			if (index != 0) {
 				namedParameter = (String) parameterComboBox.getItemAt(
 						index);
-				if (currentParameterPanel.isDirty()) {
-					namedParameter = DEFAULT_PARAMETER_SETTING_NAME;
-				}
 			} else {
 				namedParameter = DEFAULT_PARAMETER_SETTING_NAME;
 			}
@@ -1068,13 +1064,11 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		maSetView = getDataSetView();
 
 		boolean onlyActivatedArrays = false;
-		String className = currentParameterPanel.getClass().getName();
-		if (className.equals("org.geworkbench.components.ttest.MultiTTestAnalysisPanel")
-				|| className.equals("org.geworkbench.components.ttest.TtestAnalysisPanel")) {
+		if (currentParameterPanel instanceof ParameterPanelIncludingNormalized) {
 			onlyActivatedArrays = true;
 
-			Boolean isLogNormalized = null;
-			isLogNormalized = currentParameterPanel.isLogNormalized();
+			ParameterPanelIncludingNormalized p = (ParameterPanelIncludingNormalized)currentParameterPanel;
+			Boolean isLogNormalized = p.isLogNormalized();
 
 			Boolean isLogNormalizedFromGuess = guessLogNormalized(maSetView);
 

@@ -21,6 +21,7 @@ import org.geworkbench.bison.annotation.DSAnnotationContext;
 import org.geworkbench.bison.annotation.DSAnnotationContextManager;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.model.analysis.ParameterPanelIncludingNormalized;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
@@ -35,7 +36,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * Parameters panel used by the <code>ThresholdNormalizer</code>.
  */
-public class MultiTTestAnalysisPanel extends AbstractSaveableParameterPanel {
+public class MultiTTestAnalysisPanel extends AbstractSaveableParameterPanel implements ParameterPanelIncludingNormalized {
 	private static final long serialVersionUID = -4829462519463439143L;
 
 	private Log log = LogFactory.getLog(this.getClass());
