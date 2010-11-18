@@ -40,9 +40,7 @@ import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.util.ProgressBar;
 import org.tigr.microarray.mev.cluster.algorithm.AbortException;
 import org.tigr.microarray.mev.cluster.algorithm.AlgorithmData;
-import org.tigr.microarray.mev.cluster.algorithm.AlgorithmEvent;
 import org.tigr.microarray.mev.cluster.algorithm.AlgorithmException;
-import org.tigr.microarray.mev.cluster.algorithm.AlgorithmListener;
 import org.tigr.microarray.mev.cluster.algorithm.impl.OneWayANOVA;
 import org.tigr.microarray.mev.cluster.gui.impl.owa.OneWayANOVAInitBox;
 import org.tigr.util.FloatMatrix;
@@ -57,30 +55,17 @@ import edu.columbia.geworkbench.cagrid.anova.PValueEstimation;
  */
 public class AnovaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
-	private Log log = LogFactory.getLog(this.getClass());
+	private static final long serialVersionUID = 6660785761134949795L;
+	
+	private Log log = LogFactory.getLog(AnovaAnalysis.class);
 	private final String analysisName = "Anova";
 	private int localAnalysisType;
-	private boolean unitTestMode = false;
-
-	/*
-	 * used for MeV's ANOVA algorithm. Array used as follow, [3 3 2 2 2 4 4 4 4]
-	 * means first two microarrays belongs to same group, and microarray 3,4,5
-	 * belongs to same group, and last four microarrays belongs to same group.
-	 */
-	int[] groupAssignments;
-
-	double pvalueth = 0.05; /* p-value threshold. */
 
 	/*
 	 * store text output used in dataset history. Will be refreshed each time
 	 * execute() been called.
 	 */
-	String GroupAndChipsString;
+	private String GroupAndChipsString;
 
 	private AnovaAnalysisPanel anovaAnalysisPanel = new AnovaAnalysisPanel();
 
@@ -110,7 +95,7 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 		DSMicroarraySet<DSMicroarray> maSet = view.getMicroarraySet();
 
 		/* Get params */
-		pvalueth = anovaAnalysisPanel.anovaParameter.getPValueThreshold();
+		double pvalueth = anovaAnalysisPanel.anovaParameter.getPValueThreshold();
 		if ((pvalueth < 0) || (pvalueth > 1)) {
 			JOptionPane
 					.showMessageDialog(
@@ -155,8 +140,6 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 		/* Create panels and significant result sets to store results */
 		DSSignificanceResultSet<DSGeneMarker> sigSet = new CSSignificanceResultSet<DSGeneMarker>(
 				maSet, "Anova Analysis", labels1, labels, pvalueth);
-		CSAnovaResultSet anovaResultSet = new CSAnovaResultSet(view,
-				"Anova Analysis Result Set", labels);
 
 		AlgorithmData data = new AlgorithmData();
 
@@ -167,7 +150,7 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 		 */
 		int globleArrayIndex = 0;
 
-		ArrayList markerList = new ArrayList();
+		ArrayList<DSMicroarray> markerList = new ArrayList<DSMicroarray>();
 		/*
 		 * calculating how many groups selected and arrays inside selected
 		 * groups
@@ -311,18 +294,12 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 
 		OneWayANOVA OWA = new OneWayANOVA();
 
-		ProgressBar tempPB = null;
-		if (unitTestMode) {
+		final ProgressBar pb = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
 
-		} else {
-			tempPB = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
-		}
-		final ProgressBar pb = tempPB;
-		if (!unitTestMode) {
-			pb.setTitle("Anova Analysis");
-			pb.setMessage("Calculating Anova, please wait...");
-			pb.start();
-		}
+		pb.setTitle("Anova Analysis");
+		pb.setMessage("Calculating Anova, please wait...");
+		pb.start();
+
 		try {
 			/* when user close the ProgressBar, call OWA.abort(); */
 			class AbortObserver implements Observer {
@@ -338,8 +315,8 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 			}
 			;
 			AbortObserver abortObserver = new AbortObserver(OWA);
-			if (!unitTestMode)
-				pb.addObserver(abortObserver);
+
+			pb.addObserver(abortObserver);
 
 			/* execute the OneWayAnova algorithm */
 			AlgorithmData result = OWA.execute(data);
@@ -348,11 +325,6 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 			FloatMatrix fFM = result.getMatrix("fValues");
 			FloatMatrix mFM = result.getMatrix("geneGroupMeansMatrix");
 			FloatMatrix sFM = result.getMatrix("geneGroupSDsMatrix");
-
-			// pFM, the raw P-Values are provided by MeV's Anova algo, we didn't
-			// use this information yet, but I leave it here in case we are
-			// interested in raw p-value in the future.
-			FloatMatrix pFM = result.getMatrix("rawPValues");
 
 			/*
 			 * I need to know how many will pass the threshold to initialize the
@@ -460,7 +432,7 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 					significantMarkerIndex++;
 				}
 			}
-			publishSubpanelChangedEvent(new SubpanelChangedEvent(
+			publishSubpanelChangedEvent(new SubpanelChangedEvent<DSGeneMarker>(
 					DSGeneMarker.class, panelSignificant,
 					SubpanelChangedEvent.NEW));
 		} catch (AbortException AE) {
@@ -469,12 +441,12 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 		} catch (AlgorithmException AE) {
 			AE.printStackTrace();
 		}
-		if (!unitTestMode)
-			pb.stop();
+
+		pb.stop();
 		/* add to Dataset History */
 		ProjectPanel.addToHistory(sigSet, generateHistoryString(view));
 
-		anovaResultSet = new CSAnovaResultSet(view,
+		CSAnovaResultSet<DSGeneMarker> anovaResultSet = new CSAnovaResultSet<DSGeneMarker>(view,
 				"Anova Analysis Result Set", labels, anovaResult
 						.getSignificantMarkerNameCollection(),
 				anovaResult2result2DArray(anovaResult));
@@ -661,8 +633,7 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 	 * @see org.geworkbench.analysis.AbstractGridAnalysis#getBisonReturnType()
 	 */
 	@Override
-	@SuppressWarnings("unchecked")
-	public Class getBisonReturnType() {
+	public Class<?> getBisonReturnType() {
 		return CSAnovaResultSet.class;
 	}
 
@@ -692,6 +663,7 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 	 * @see org.geworkbench.analysis.AbstractGridAnalysis#validInputData(org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView,
 	 *      org.geworkbench.bison.datastructure.biocollections.DSDataSet)
 	 */
+	@SuppressWarnings("rawtypes")
 	@Override
 	public ParamValidationResults validInputData(
 			DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView,
@@ -742,13 +714,4 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 		return new ParamValidationResults(true, "No Error");
 	}
 
-	/*
-	 * When doing unit test, call this function first, (ex: in
-	 * AnovaAnalysisTest.java, just before calling execute()) to disable the GUI
-	 * (popups, dialogs, progress bar, etc) Otherwise, we'll get
-	 * java.awt.HeadlessException
-	 */
-	public void setUnitTestMode() {
-		unitTestMode = true;
-	}
 }
