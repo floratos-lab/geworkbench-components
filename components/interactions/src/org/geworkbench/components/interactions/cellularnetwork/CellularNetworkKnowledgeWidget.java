@@ -238,7 +238,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	private DSMicroarraySet dataset = null;
 
 	private Map<String, String> geneTypeMap = null;
-
+ 
 	/**
 	 * Creates new form Interactions
 	 */
@@ -311,8 +311,9 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		for (int i = 0; i < rowCount; i++) {
 			for (int j = 0; j < colCount; j++) {
 				if (detailTable.isCellSelected(i, j)) {
+					int row = detailTable.convertRowIndexToModel(i);
 					String columnName = detailTable.getColumnName(j);
-					CellularNetWorkElementInformation c = hits.get(i);
+					CellularNetWorkElementInformation c = hits.get(row);
 					ArrayList<InteractionDetail> arrayList = c
 							.getSelectedInteractions(columnName.substring(0,
 									columnName.length()
@@ -482,6 +483,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			detailTable.getTableSelectionModel().clearSelection();
 			for (int i = selectedRows.length - 1; i >= 0; i--) {
 				int row = selectedRows[i];
+				row = detailTable.convertRowIndexToModel(row);
 				if (row < hits.size()) {
 					CellularNetWorkElementInformation marker = hits.get(row);
 					hits.remove(row);
@@ -756,6 +758,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		jScrollPane5 = new javax.swing.JScrollPane();
 		jTabbedPane1 = new JTabbedPane();
 		detailTable = new CellSelectionTable();
+		detailTable.setAutoCreateRowSorter(true);
 		jLabel1 = new javax.swing.JLabel();
 		createNetWorkButton = new javax.swing.JButton();
 		topPane = new JSplitPane();
@@ -850,6 +853,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 					JTable target = (JTable) e.getSource();
 
 					int row = target.getSelectedRow();
+					row = detailTable.convertRowIndexToModel(row);
 					detailTable.getTableSelectionModel().clearSelection();
 					if (row < hits.size()) {
 						CellularNetWorkElementInformation marker = hits
@@ -861,7 +865,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 						}
 						activatedMarkerTable.revalidate();
-						previewTableModel.fireTableDataChanged();
+						previewTableModel.fireTableDataChanged();					 
 						detailTable.revalidate();
 
 						drawPlot(createCollection(0, 1, 1, true),
@@ -878,11 +882,11 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 					Point p = new Point(e.getX(), e.getY());
 					int col = detailTable.columnAtPoint(p);
 					int row = detailTable.rowAtPoint(p);
-
+					row = detailTable.convertRowIndexToModel(row);
 					// translate table index to model index
 					int mcol = detailTable.getColumn(
 							detailTable.getColumnName(col)).getModelIndex();
-
+         
 					if (row >= 0 && row < detailTable.getRowCount()) {
 						cancelCellEditing();
 						if (detailTable.getColumnName(col).equalsIgnoreCase(
@@ -959,10 +963,10 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 							if (newEntry) {
 								hits
 										.addElement(new CellularNetWorkElementInformation(
-												marker));
+												marker));								 
 							}
 							activatedMarkerTable.revalidate();
-							previewTableModel.fireTableDataChanged();
+							previewTableModel.fireTableDataChanged();							 
 							detailTable.revalidate();
 
 						}
@@ -1126,9 +1130,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		tableColumns = new TableColumn[columnLabels.length];
 		previewTableModel = new PreviewTableModel();
 		detailTable.setModel(previewTableModel);
-		TableRowSorter<TableModel> detailTableSorter = new TableRowSorter<TableModel>(
-				previewTableModel);
-		detailTable.setRowSorter(detailTableSorter);
+		 
 		TableColumnModel model = detailTable.getColumnModel();
 		for (int i = 0; i < columnLabels.length; i++) {
 
@@ -2009,10 +2011,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			}
 
 			previewTableModel = new PreviewTableModel();
-			detailTable.setModel(previewTableModel);
-			TableRowSorter<TableModel> detailTableSorter = new TableRowSorter<TableModel>(
-					previewTableModel);
-			detailTable.setRowSorter(detailTableSorter);
+			detailTable.setModel(previewTableModel);		 
 			tableColumns = new TableColumn[columnLabels.length];
 			TableColumnModel model = detailTable.getColumnModel();
 			for (int i = 0; i < columnLabels.length; i++) {
@@ -2215,7 +2214,9 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		public Component getTableCellRendererComponent(JTable table,
 				Object color, boolean isSelected, boolean hasFocus, int row,
 				int column) {
-			TableColumn tableColumn = detailTable.getColumnModel().getColumn(
+			
+			row = detailTable.convertRowIndexToModel(row);
+		   TableColumn tableColumn = detailTable.getColumnModel().getColumn(
 					column);
 
 			if (hits != null && hits.size() > row) {
@@ -2346,6 +2347,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				Object color, boolean isSelected, boolean hasFocus, int row,
 				int column) {
 
+			row = detailTable.convertRowIndexToModel(row);
 			TableColumn tableColumn = detailTable.getColumnModel().getColumn(
 					column);
 			if (hits != null && hits.size() > row) {
