@@ -95,8 +95,9 @@ public class MedusaVisualComponent implements VisualPlugin {
 				dataSet = ((MedusaDataSet) data);
 				component.removeAll();
 				
-				if (dataSet.getFilename() != null) {
-					String tarstr = dataSet.getPath();
+				String tarstr = dataSet.getPath();
+				// result returned from grid service
+				if (dataSet.getFilename() != null && dataSet.getFilename() != tarstr) {
 					log.info(dataSet.getFilename()+" received length: "+tarstr.length());
 	
 					File dirPath = new File(outdir);
@@ -125,6 +126,7 @@ public class MedusaVisualComponent implements VisualPlugin {
 					{
 						System.gc();
 						boolean ret = delfile.delete();
+						if (!ret) delfile.deleteOnExit();
 						log.info(ret+ " delete "+ delfile.getPath());
 					}
 	
