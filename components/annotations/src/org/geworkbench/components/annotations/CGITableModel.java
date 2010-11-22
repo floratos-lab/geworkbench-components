@@ -696,7 +696,7 @@ public class CGITableModel extends SortableTableModel {
     }
 
     // TODO This method depends on the anonymity of which column used to sort. There could be a better way to implement.
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
 	public void sortByColumn(final int column, final boolean ascending) {
         resetIndices();
         final Comparable[][] columns = {markerData, geneData, diseaseData, roleData, sentenceData, pubmedData};
