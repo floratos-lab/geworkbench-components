@@ -1,13 +1,11 @@
 package org.geworkbench.components.annotations;
 
-import java.util.Iterator;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
-import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.util.ProgressTask;
@@ -46,7 +44,6 @@ public class AddTask extends ProgressTask<GeneAnnotation[], Void>{
     		return genesInPathway;
     	}
 
-    	@SuppressWarnings("unchecked")
     	@Override
 		protected void done(){
     		ap.pd.removeTask(this);
@@ -65,9 +62,8 @@ public class AddTask extends ProgressTask<GeneAnnotation[], Void>{
             for (int i = 0; i < genesInPathway.length; i++) {
                 GeneAnnotation geneAnnotation = genesInPathway[i];
                 log.info(geneAnnotation.getGeneSymbol() + " : " + geneAnnotation.getGeneName());
-                DSItemList markers = ap.maSet.getMarkers();
-                for (Iterator iterator = markers.iterator(); iterator.hasNext();) {
-                    DSGeneMarker marker = (DSGeneMarker) iterator.next();
+                for (Object obj : ap.maSet.getMarkers()) {
+                	DSGeneMarker marker = (DSGeneMarker) obj;
                     if (marker.getShortName().equalsIgnoreCase(geneAnnotation.getGeneSymbol())) {
                         log.debug("Found " + geneAnnotation.getGeneSymbol() + " in set.");
                         selectedMarkers.add(marker);
@@ -77,7 +73,7 @@ public class AddTask extends ProgressTask<GeneAnnotation[], Void>{
             }
 
             selectedMarkers.setActive(true);
-            ap.publishSubpanelChangedEvent(new SubpanelChangedEvent(DSGeneMarker.class, selectedMarkers, SubpanelChangedEvent.SET_CONTENTS));
+            ap.publishSubpanelChangedEvent(new SubpanelChangedEvent<DSGeneMarker>(DSGeneMarker.class, selectedMarkers, SubpanelChangedEvent.SET_CONTENTS));
     	}
     	
 
