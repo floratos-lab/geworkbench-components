@@ -99,7 +99,7 @@ public class AnnotationTableModel extends SortableTableModel {
             return null;
         }
 
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings({ "unchecked", "rawtypes" })
 		public void sortByColumn(final int column, final boolean ascending) {
             resetIndices();
             final Comparable[][] columns = {markerData, geneData, pathwayData};
