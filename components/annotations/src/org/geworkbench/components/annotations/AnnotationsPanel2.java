@@ -1120,6 +1120,7 @@ public class AnnotationsPanel2 implements VisualPlugin{
         publishMarkerSelectedEvent(new MarkerSelectedEvent(markerData.marker));
     }
 
+	@SuppressWarnings("rawtypes")
 	@Publish
     org.geworkbench.events.SubpanelChangedEvent publishSubpanelChangedEvent(org.geworkbench.events.SubpanelChangedEvent event) {
         return event;
@@ -1193,7 +1194,7 @@ public class AnnotationsPanel2 implements VisualPlugin{
     GeneSearchCriteria criteria = null;
     Pathway[] pathways = new Pathway[0];
 
-    DSMicroarraySet maSet = null;
+    DSMicroarraySet<DSMicroarray>  maSet = null;
 
     /**
      * geneSelectorAction
@@ -1203,7 +1204,7 @@ public class AnnotationsPanel2 implements VisualPlugin{
     @Subscribe
     public void receive(GeneSelectorEvent e, Object source) {
         if (maSet != null && e.getPanel() != null) {
-			DSPanel markerPanel = e.getPanel().activeSubset();
+			DSPanel<DSGeneMarker> markerPanel = e.getPanel().activeSubset();
             DSMicroarraySetView<DSGeneMarker, DSMicroarray> maView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(maSet);
             maView.setMarkerPanel(markerPanel);
             maView.useMarkerPanel(true);
@@ -1220,13 +1221,14 @@ public class AnnotationsPanel2 implements VisualPlugin{
      *
      * @param e ProjectEvent
      */
-    @Subscribe
+    @SuppressWarnings("rawtypes")
+	@Subscribe
     public void receive(ProjectEvent e, Object source) {
         DSDataSet data = e.getDataSet();
         int hashcode = 0;
 
         if (data != null && data instanceof DSMicroarraySet) {
-            maSet = (DSMicroarraySet) data;
+            maSet = (DSMicroarraySet<DSMicroarray>) data;
 
         }
 
