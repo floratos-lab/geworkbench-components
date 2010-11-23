@@ -11,16 +11,12 @@ import java.awt.event.ItemListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
-import javax.swing.JComponent;
-import javax.swing.JOptionPane;
-import javax.swing.JFormattedTextField;
-import javax.swing.JTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JTextField;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
-import javax.swing.InputVerifier;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
