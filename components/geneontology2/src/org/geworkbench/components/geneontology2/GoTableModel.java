@@ -20,7 +20,7 @@ class GoTableModel extends AbstractTableModel {
 	private int COLUMN_COUNT = 7;
 
 	private static final int TABLE_COLUMN_INDEX_GO_ID = 0;
-	private static final int TABLE_COLUMN_INDEX_GO_TERM_NAME = 1;
+	static final int TABLE_COLUMN_INDEX_GO_TERM_NAME = 1;
 	static final int TABLE_COLUMN_INDEX_NAMESPACE = 2;
 	private static final int TABLE_COLUMN_INDEX_P = 3;
 	private static final int TABLE_COLUMN_INDEX_ADJUSTED_P = 4;
