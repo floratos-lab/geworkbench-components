@@ -348,7 +348,10 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 					Vector<CellularNetWorkElementInformation> hits = c
 							.getHits();
 					for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits)
+					{	
 						cellularNetWorkElementInformation.setDirty(true);
+					    cellularNetWorkElementInformation.reset();
+					}
 				}
 				
 				
