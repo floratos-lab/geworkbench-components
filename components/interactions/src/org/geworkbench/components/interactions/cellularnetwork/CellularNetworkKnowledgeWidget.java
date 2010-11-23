@@ -1905,11 +1905,11 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 								break;
 
 							}
-
+							cellularNetWorkElementInformation.setDirty(false);
 							cellularNetWorkElementInformation
 									.setInteractionDetails(interactionDetails);
 
-							cellularNetWorkElementInformation.setDirty(false);
+							
 
 						}						
 					 
@@ -2328,9 +2328,17 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				int startIndex = 0;
 				while (startIndex < str.length()) {
 					int endIndex = startIndex + 100;
-					if (endIndex < str.length()) {
+					if (endIndex < str.length()) {						 
 						while (str.charAt(endIndex) != ' ')
+						{
 							endIndex++;
+							if (endIndex == str.length())
+							{
+								endIndex--;
+								break;
+							}
+						}
+						
 						toolTipText += str.substring(startIndex, endIndex)
 								+ "<br>";
 					} else
@@ -2350,8 +2358,9 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			row = detailTable.convertRowIndexToModel(row);
 			TableColumn tableColumn = detailTable.getColumnModel().getColumn(
 					column);
+			CellularNetWorkElementInformation cellularNetWorkElementInformation = null;
 			if (hits != null && hits.size() > row) {
-				CellularNetWorkElementInformation cellularNetWorkElementInformation = hits
+				cellularNetWorkElementInformation = hits
 						.get(row);
 				boolean isDirty = cellularNetWorkElementInformation.isDirty();
 				if (isDirty) {
@@ -2409,6 +2418,10 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 					if (s != null || !s.equalsIgnoreCase(""))
 						color = s;
 				}
+			}
+			else if (headerStr.equalsIgnoreCase(Constants.GENELABEL))
+			{
+				color = AnnotationParser.getInfo(cellularNetWorkElementInformation.getdSGeneMarker().getLabel(), AnnotationParser.DESCRIPTION)[0];
 			}
 			String toolTipText = insertLineBreaker(color);
 			setToolTipText("<html>" + toolTipText + "<html>");
