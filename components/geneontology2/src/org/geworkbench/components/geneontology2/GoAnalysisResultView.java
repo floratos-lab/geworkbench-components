@@ -499,9 +499,11 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 							TableModel model = geneListTable.getModel();
 							for (int i = 0; i < model.getRowCount(); i++)
 								genes.add((String) (model.getValueAt(i, 0)));
+							int modelIndex = table.convertRowIndexToModel(table.getSelectedRow()); 
+							String goTermName = (String)tableModel.getValueAt(modelIndex, GoTableModel.TABLE_COLUMN_INDEX_GO_TERM_NAME);
 							publishSubpanelChangedEvent(new org.geworkbench.events.SubpanelChangedEvent<DSGeneMarker>(
 									DSGeneMarker.class,
-									GeneToMarkers(genes),
+									GeneToMarkers(goTermName, genes),
 									org.geworkbench.events.SubpanelChangedEvent.SET_CONTENTS));
 
 						}
@@ -521,9 +523,9 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 	}
 
 	@SuppressWarnings("unchecked")
-	private DSPanel<DSGeneMarker> GeneToMarkers(Set<String> genes) {
+	private DSPanel<DSGeneMarker> GeneToMarkers(String setLabel, Set<String> genes) {
 		DSPanel<DSGeneMarker> selectedMarkers = new CSPanel<DSGeneMarker>(
-				"Selected Genes", "Go Terms Anlaysis");
+				setLabel, "Go Terms Anlaysis");
 		DSMicroarraySet<DSMicroarray> dataset = (DSMicroarraySet<DSMicroarray>) (ProjectPanel
 				.getInstance().getSelection().getDataSet());
 		for (Object obj : dataset.getMarkers()) {
