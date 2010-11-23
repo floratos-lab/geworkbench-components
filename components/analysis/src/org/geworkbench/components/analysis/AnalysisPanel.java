@@ -49,6 +49,7 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
+import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.markers.CSExpressionMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
@@ -67,7 +68,6 @@ import org.geworkbench.bison.model.analysis.ProteinSequenceAnalysis;
 import org.geworkbench.bison.model.analysis.ProteinStructureAnalysis;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.components.cagrid.gui.GridServicePanel;
-import org.geworkbench.engine.config.PluginRegistry;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.ComponentRegistry;
@@ -104,7 +104,7 @@ import edu.columbia.geworkbench.cagrid.dispatcher.client.DispatcherClient;
 public class AnalysisPanel extends MicroarrayViewEventBase implements
 		VisualPlugin, ReHighlightable {
 
-	private Log log = LogFactory.getLog(this.getClass());
+	private static Log log = LogFactory.getLog(AnalysisPanel.class);
 
 	/* static variables */
 	private static final String DEFAULT_PARAMETER_SETTING_NAME = "New Parameter Setting Name";
@@ -113,8 +113,6 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	private static final String USER_INFO = "userinfo";
 	private static final int ANALYSIS_TAB_COUNT = 1;
 	private static final String USER_INFO_DELIMIETER = "==";
-
-	/* dispatcher */
 
 	/* from application.properties */
 	final static String DISPATCHER_URL = "dispatcher.url";
@@ -190,11 +188,26 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	 */
 	public AnalysisPanel() {
 		try {
-			jbInit();
+			init();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		reset();
+
+		/**
+		 * Resets the list of analysis.
+		 */
+		if (currentDataType == null) return;
+		else {
+			log.error("I don't see how this can happen");
+		if (currentDataType.equals(CSProteinStructure.class)) {
+			getAvailableAnalyses(ProteinStructureAnalysis.class);
+		} else if (currentDataType.equals(CSSequenceSet.class)) {
+			getAvailableAnalyses(ProteinSequenceAnalysis.class);
+		} else {
+			getAvailableAnalyses(ClusteringAnalysis.class);
+		}
+		displayAnalyses();
+		}
 	}
 
 	/**
@@ -206,12 +219,12 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	}
 
 	/**
-	 * Utility method to construct the GUI
+	 * initialize GUI
 	 * 
 	 * @throws Exception
 	 *             exception thrown during GUI construction
 	 */
-	public void jbInit() throws Exception {
+	private void init() throws Exception {
 		analysisPanel = new JPanel();
 		analysisScrollPane = new JScrollPane();
 		innerAnalysisPanel = new JPanel();
@@ -328,60 +341,6 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		mainPanel.add(analysisPanel, BorderLayout.CENTER);
 	}
 
-	/**
-	 * Resets the list of analysis.
-	 */
-	private void reset() {
-		if (currentDataType == null) return;
-		if (currentDataType.equals(CSProteinStructure.class)) {
-			getAvailableProteinStructureAnalyses();
-		} else if (currentDataType.equals(CSSequenceSet.class)) {
-			getAvailableProteinSequenceAnalyses();
-		} else {
-			getAvailableAnalyses();
-		}
-		displayAnalyses();
-	}
-
-	/**
-	 * Queries the {@link PluginRegistry} for available
-	 * {@link ClusteringAnalysis} type plugins.
-	 * 
-	 * This method gets invoked every time that the analysis pane is placed into
-	 * focus in order to get the most recent list of analysis. Given the dynamic
-	 * loading of components this approach guarantees that any new plugins
-	 * loaded between uses of the analysis panel, will be correctly picked up.
-	 */
-	public void getAvailableAnalyses() {
-		/* To check if the last used analysis is still available. */
-		boolean selectionChanged = true;
-		ClusteringAnalysis[] analyses = ComponentRegistry.getRegistry()
-				.getModules(ClusteringAnalysis.class);
-		availableAnalyses = new AbstractAnalysis[analyses.length];
-		for (int i = 0; i < analyses.length; i++) {
-			availableAnalyses[i] = (AbstractAnalysis) analyses[i];
-			if (selectedAnalysis == availableAnalyses[i]) {
-				selectionChanged = false;
-			}
-		}
-		if (selectionChanged) {
-			if (availableAnalyses.length > 0) {
-				selectedAnalysis = availableAnalyses[0];
-			} else {
-				selectedAnalysis = null;
-			}
-		}
-		String[] names = new String[availableAnalyses.length];
-		for (int i = 0; i < availableAnalyses.length; i++) {
-			names[i] = ComponentRegistry.getRegistry().getDescriptorForPlugin(
-					availableAnalyses[i]).getLabel();
-			availableAnalyses[i].setLabel(names[i]);
-		}
-
-		AbstractAnalysisLabelComparator comparator = new AbstractAnalysisLabelComparator();
-		Arrays.sort(availableAnalyses, comparator);
-	}
-
 	@SuppressWarnings("rawtypes")
 	@Publish
 	public org.geworkbench.events.SubpanelChangedEvent publishSubpanelChangedEvent(
@@ -395,33 +354,35 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	 */
 	@SuppressWarnings("unchecked")
 	private void analysisDone() {
+		if (results == null) {
+			log.error("unexpected null result");
+			return;
+		}
 		/*
 		 * If everything was OK construct and fire the proper application-level
 		 * event, thus notify interested application components of the results
 		 * of the analysis operation. If there were problems encountered, let
 		 * the user know.
 		 */
-		if (results != null) {
-			if (!results.isExecutionSuccessful()) {
-				JOptionPane.showMessageDialog(null, results.getMessage(),
-						"Analysis Error", JOptionPane.ERROR_MESSAGE);
-				return;
-			}
-			Object resultObject = results.getResults();
-			if (resultObject instanceof DSAncillaryDataSet) {
-				DSAncillaryDataSet dataSet = (DSAncillaryDataSet) resultObject;
-				final ProjectNodeAddedEvent event = new ProjectNodeAddedEvent(
-						"Analysis Result", null, dataSet);
-				publishProjectNodeAddedEvent(event);
-				return;
-			}
-			if (resultObject instanceof Hashtable) {
-				DSPanel<DSGeneMarker> panel = (DSPanel) ((Hashtable) resultObject)
-						.get("Significant Genes");
-				if (panel != null) {
-					publishSubpanelChangedEvent(new org.geworkbench.events.SubpanelChangedEvent(
-							DSGeneMarker.class, panel, SubpanelChangedEvent.NEW));
-				}
+		if (!results.isExecutionSuccessful()) {
+			JOptionPane.showMessageDialog(null, results.getMessage(),
+					"Analysis Error", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		Object resultObject = results.getResults();
+		if (resultObject instanceof DSAncillaryDataSet) {
+			DSAncillaryDataSet<DSBioObject> dataSet = (DSAncillaryDataSet<DSBioObject>) resultObject;
+			final ProjectNodeAddedEvent event = new ProjectNodeAddedEvent(
+					"Analysis Result", null, dataSet);
+			publishProjectNodeAddedEvent(event);
+			return;
+		}
+		if (resultObject instanceof Hashtable) {
+			DSPanel<DSGeneMarker> panel = ((Hashtable<?, DSPanel<DSGeneMarker>>) resultObject)
+					.get("Significant Genes");
+			if (panel != null) {
+				publishSubpanelChangedEvent(new org.geworkbench.events.SubpanelChangedEvent<DSGeneMarker>(
+						DSGeneMarker.class, panel, SubpanelChangedEvent.NEW));
 			}
 		}
 	}
@@ -494,91 +455,70 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	 * @param maSetView
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
-	public String generateHistoryString(DSMicroarraySetView maSetView) {
-		String ans = "";
-
-		// TODO: this probably should get from method like
-		// DSMicroarraySetView.toString() or
-		// DSMicroarraySetView.generateHistoryString()
-
+	private String generateHistoryString(DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView) {
+		StringBuilder ans = new StringBuilder("=The MicroarraySetView used for analysis contains following data=");
 		/* Generate text for microarrays/groups */
-		ans += "=The MicroarraySetView used for analysis contains following data="
-				+ FileTools.NEWLINE;
+		ans .append( FileTools.NEWLINE );
 		try {
 			log.debug("We got a " + maSetView.items().getClass().toString());
 			if (maSetView.items().getClass() == CSPanel.class) {
 				log.debug("situation 1: microarraySets selected");
-				DSItemList paneltest = ((DSPanel) maSetView.items()).panels();
-				Iterator groups2 = paneltest.iterator(); /* groups */
-				ans += "==Microarray Sets [" + paneltest.size() + "]=="
-						+ FileTools.NEWLINE;
-				while (groups2.hasNext()) {
-					DSPanel temp = (DSPanel) groups2.next();
-					ans += FileTools.TAB + temp.toString() + FileTools.NEWLINE;
-					Iterator groups3 = temp.iterator(); /*
-														 * microarrays in the
-														 * group
-														 */
-					while (groups3.hasNext()) {
-						Object temp2 = groups3.next();
-						ans += FileTools.TAB + FileTools.TAB + temp2.toString()
-								+ FileTools.NEWLINE;
+				DSItemList<DSPanel<DSMicroarray>> paneltest = ((DSPanel<DSMicroarray>) maSetView.items()).panels();
+
+				ans .append( "==Microarray Sets [" ).append( paneltest.size() + "]==" ).append(
+						 FileTools.NEWLINE );
+				for(DSPanel<DSMicroarray> temp: paneltest) {
+					ans .append( FileTools.TAB + temp.toString() ).append( FileTools.NEWLINE );
+					for (DSMicroarray temp2: temp) {
+						ans .append( FileTools.TAB ).append( FileTools.TAB ).append( temp2.toString() )
+								.append( FileTools.NEWLINE );
 					}
 				}
 			} else if (maSetView.items().getClass() == CSExprMicroarraySet.class) {
 				log.debug("situation 2: microarraySets not selected");
 				CSExprMicroarraySet exprSet = (CSExprMicroarraySet) maSetView
 						.items();
-				ans += "==Used Microarrays [" + exprSet.size() + "]=="
-						+ FileTools.NEWLINE;
+				ans .append( "==Used Microarrays [" ).append( exprSet.size() ).append( "]==" )
+						.append( FileTools.NEWLINE );
 				for (Iterator<DSMicroarray> iterator = exprSet.iterator(); iterator
 						.hasNext();) {
 					DSMicroarray array = iterator.next();
-					ans += FileTools.TAB + array.getLabel() + FileTools.NEWLINE;
+					ans .append( FileTools.TAB ).append( array.getLabel() ).append( FileTools.NEWLINE );
 				}
 			}
-			ans += "==End of Microarray Sets==" + FileTools.NEWLINE;
+			ans .append( "==End of Microarray Sets==" ).append( FileTools.NEWLINE );
 			/* Generate text for markers */
-			DSItemList paneltest = maSetView.getMarkerPanel();
+			DSPanel<DSGeneMarker> paneltest = maSetView.getMarkerPanel();
 			if ((paneltest != null) && (paneltest.size() > 0)) {
 				log.debug("situation 3: markers selected");
-				Iterator groups2 = paneltest.iterator(); /* groups */
-				ans += "==Used Markers [" + paneltest.size() + "]=="
-						+ FileTools.NEWLINE;
-				while (groups2.hasNext()) {
-					CSExpressionMarker temp = (CSExpressionMarker) groups2
-							.next();
-					ans += FileTools.TAB + temp.getLabel() + FileTools.NEWLINE;
+
+				ans .append( "==Used Markers [" ).append( paneltest.size() + "]==" )
+						.append( FileTools.NEWLINE );
+				for (DSGeneMarker obj: paneltest) {
+					CSExpressionMarker temp = (CSExpressionMarker) obj;
+					ans .append( FileTools.TAB ).append( temp.getLabel() ).append( FileTools.NEWLINE );
 				}
 			} else {
 				log.debug("situation 4: no markers selected.");
 				DSItemList<DSGeneMarker> markers = maSetView.markers();
-				ans += "==Used Markers [" + markers.size() + "]=="
-						+ FileTools.NEWLINE;
-				for (Iterator iterator = markers.iterator(); iterator.hasNext();) {
-					DSGeneMarker marker = (DSGeneMarker) iterator.next();
-					ans += FileTools.TAB + marker.getLabel()
-							+ FileTools.NEWLINE;
+				ans .append( "==Used Markers [" ).append( markers.size() ).append( "]==" )
+						.append( FileTools.NEWLINE );
+				for (DSGeneMarker marker : markers) {
+					ans .append( FileTools.TAB ).append( marker.getLabel() )
+							.append( FileTools.NEWLINE );
 				}
 			}
-			ans += "==End of Used Markers==" + FileTools.NEWLINE;
+			ans .append( "==End of Used Markers==" ).append( FileTools.NEWLINE );
 		} catch (ClassCastException cce) {
 			/* it's not a DSPanel, we generate nothing for panel part */
 			log.error(cce);
 		}
-		ans += "=End of MicroarraySetView data=";
-		return ans;
+		ans .append( "=End of MicroarraySetView data=");
+		return ans.toString();
 	}
 
-	/**
-	 * 
-	 * @param dataset
-	 * @return
-	 */
-	// TODO: probably need to be more specific....
-	@SuppressWarnings("unchecked")
-	public String generateHistoryString(DSDataSet dataset) {
+	@SuppressWarnings("rawtypes")
+	private String generateHistoryStringForGeneralDataSet(DSDataSet dataset) {
 		if (dataset == null) {
 			return "No information on the data set." + FileTools.NEWLINE;
 		} else {
@@ -609,8 +549,8 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	 * @return boolean
 	 */
 	private boolean isGridAnalysis() {
-		if (jGridServicePanel != null && jGridServicePanel.isCaGridVersion()) {
-			return true;
+		if (jGridServicePanel != null) {
+			return jGridServicePanel.isCaGridVersion();
 		} else {
 			return false;
 		}
@@ -791,6 +731,8 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	 * if yes, highlight it.
 	 */
 	private void highlightCurrentParameterGroup() {
+		if(selectedAnalysis==null)return;
+		
 		ParameterPanel currentParameterPanel = selectedAnalysis
 				.getParameterPanel();
 		String[] parametersNameList = selectedAnalysis
@@ -1186,7 +1128,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 										+ FileTools.NEWLINE;
 								history += selectedAnalysis.createHistory();
 								if (refOtherSet != null)
-									history += generateHistoryString(refOtherSet);
+									history += generateHistoryStringForGeneralDataSet(refOtherSet);
 								else if ((maSetView != null)
 										&& (refMASet != null))
 									history += generateHistoryString(maSetView);
@@ -1230,7 +1172,6 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 												"Invalid Input Data",
 												JOptionPane.ERROR_MESSAGE);
 										results = null;
-										analysisDone();
 										analyze.setEnabled(true);
 										return;
 									}
@@ -1283,24 +1224,22 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 			if (!pidMap.containsKey(currentDataType) || lastDataType != currentDataType)
 				pidMap.put(currentDataType, previousSelectedIndex);
 			if (even.getDataSet().getClass().equals(CSProteinStructure.class)) {
-				getAvailableProteinStructureAnalyses();
+				getAvailableAnalyses(ProteinStructureAnalysis.class);
 			} else if (even.getDataSet().getClass().equals(CSSequenceSet.class)) {
-				getAvailableProteinSequenceAnalyses();
+				getAvailableAnalyses(ProteinSequenceAnalysis.class);
 			} else {
-				getAvailableAnalyses();
+				getAvailableAnalyses(ClusteringAnalysis.class);
 			}
 			displayAnalyses();
 		}
 	}
 
 	/**
-	 * Get ProtainAnalysis - the analyses for PDB data files, similar to
-	 * getAvailableAnalyses() for all ClusteringAnalysise.
+	 * Get Analysis of given type.
 	 */
-	private void getAvailableProteinStructureAnalyses() {
+	private void getAvailableAnalyses(Class<? extends Analysis> analysisType) {
 		boolean selectionChanged = true;
-		Analysis[] analyses = ComponentRegistry.getRegistry().getModules(
-				ProteinStructureAnalysis.class);
+		Analysis[] analyses = ComponentRegistry.getRegistry().getModules(analysisType);
 		availableAnalyses = new AbstractAnalysis[analyses.length];
 		for (int i = 0; i < analyses.length; i++) {
 			availableAnalyses[i] = (AbstractAnalysis) analyses[i];
@@ -1315,41 +1254,26 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 				selectedAnalysis = null;
 			}
 		}
-	}
-
-	/**
-	 * Get the protein sequence analyses.
-	 */
-	private void getAvailableProteinSequenceAnalyses() {
-		boolean selectionChanged = true;
-		Analysis[] analyses = ComponentRegistry.getRegistry().getModules(
-				ProteinSequenceAnalysis.class);
-		availableAnalyses = new AbstractAnalysis[analyses.length];
-		for (int i = 0; i < analyses.length; i++) {
-			availableAnalyses[i] = (AbstractAnalysis) analyses[i];
-			if (selectedAnalysis == availableAnalyses[i]) {
-				selectionChanged = false;
-			}
+		
+		String[] names = new String[availableAnalyses.length];
+		for (int i = 0; i < availableAnalyses.length; i++) {
+			names[i] = ComponentRegistry.getRegistry().getDescriptorForPlugin(
+					availableAnalyses[i]).getLabel();
+			availableAnalyses[i].setLabel(names[i]);
 		}
-		if (selectionChanged) {
-			if (availableAnalyses.length > 0) {
-				selectedAnalysis = availableAnalyses[0];
-			} else {
-				selectedAnalysis = null;
-			}
-		}
-	}
 
-	private Boolean guessLogNormalized(Object input) {
+		AbstractAnalysisLabelComparator comparator = new AbstractAnalysisLabelComparator();
+		Arrays.sort(availableAnalyses, comparator);
+	}
+	
+	private Boolean guessLogNormalized(DSMicroarraySetView<DSGeneMarker, DSMicroarray> data) {
+		if (data == null) {
+			return null;
+		}
+		
 		Boolean isLogNormalized = null;
-		if (input == null) {
-			return isLogNormalized;
-		}
 		try {
-			assert input instanceof DSMicroarraySetView;
-			DSMicroarraySetView<? extends DSGeneMarker, ? extends DSMicroarray> data = (DSMicroarraySetView) input;
-
-			DSDataSet set = data.getDataSet();
+			DSDataSet<DSMicroarray> set = data.getDataSet();
 			if (set instanceof DSMicroarraySet) {
 				DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet<DSMicroarray>) set;
 				double minValue = Double.POSITIVE_INFINITY;
