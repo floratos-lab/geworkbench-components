@@ -3,7 +3,6 @@ package org.geworkbench.components.filtering;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.io.Serializable;
-import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -11,9 +10,9 @@ import java.util.Set;
 
 import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
-import javax.swing.JTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
