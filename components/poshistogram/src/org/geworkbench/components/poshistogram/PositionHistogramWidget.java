@@ -24,7 +24,6 @@ import org.geworkbench.bison.datastructure.complex.pattern.DSMatchedPattern;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.CSSeqRegistration;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSMatchedSeqPattern;
 import org.geworkbench.util.patterns.CSMatchedSeqPattern;
-import org.geworkbench.util.patterns.FlexiblePattern;
 import org.geworkbench.util.patterns.PatternOperations;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
@@ -143,20 +142,15 @@ public final class PositionHistogramWidget extends JPanel {
             int[] yAxis = new int[maxBin * 2 + 1];
             double[] yMean = new double[maxBin * 2 + 1];
             DSMatchedSeqPattern pat = (DSMatchedSeqPattern) patterns.get(rowId);
-            if (pat != null) {
-                if (pat.getClass().isAssignableFrom(CSMatchedSeqPattern.class)) {
-                    CSMatchedSeqPattern pattern = (CSMatchedSeqPattern) pat;
-                    for (int id = 0; id < pattern.getSupport(); id++) {
-                        int dx = pattern.getOffset(id) / step;
-                        if (dx < maxBin) {
-                            yAxis[dx]++;
-                        }
-                    }
-                } else if (pat.getClass().isAssignableFrom(org.geworkbench.util.patterns.FlexiblePattern.class)) {
-                    factor = 2;
-                    FlexiblePattern pattern = (org.geworkbench.util.patterns.FlexiblePattern) pat;
-                    pattern.buildHistogram(yAxis, step, maxBin);
-                }
+            if (pat != null && pat.getClass().isAssignableFrom(CSMatchedSeqPattern.class)) {
+				CSMatchedSeqPattern pattern = (CSMatchedSeqPattern) pat;
+				for (int id = 0; id < pattern.getSupport(); id++) {
+					int dx = pattern.getOffset(id) / step;
+					if (dx < maxBin) {
+						yAxis[dx]++;
+					}
+				}
+
                 int count = 0;
                 yMean[0] = (double) count / (double) wind;
                 for (int x = 0; x < wind; x++) {
