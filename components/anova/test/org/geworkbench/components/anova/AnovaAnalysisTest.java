@@ -8,7 +8,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import javax.swing.JPanel;
 
@@ -360,21 +359,20 @@ DSAnnotationContext<DSMicroarray> context = manager
 		answer = aa.execute(view);
 		assertEquals("number of significant markers", 9, ((CSAnovaResultSet<DSGeneMarker>)answer.getResults()).getSignificantMarkers().size());
 		DSGeneMarker marker1 = (DSGeneMarker)(((CSAnovaResultSet<DSGeneMarker>)answer.getResults()).getSignificantMarkers().get(0));
-		assertEquals("p-values for significant marker",0.0010000000474974513, (((CSAnovaResultSet)answer.getResults()).getPValue(marker1)));
+		assertEquals("p-values for significant marker",0.0010000000474974513, (((CSAnovaResultSet<DSGeneMarker>)answer.getResults()).getPValue(marker1)));
 		DSGeneMarker marker2 = new CSGeneMarker("gene_label_0");		
-		assertEquals("p-values for insignificant marker",0.23562487959861755, (((CSAnovaResultSet)answer.getResults()).getPValue(marker2)));
+		assertEquals("p-values for insignificant marker",0.23562487959861755, (((CSAnovaResultSet<DSGeneMarker>)answer.getResults()).getPValue(marker2)));
 	}
 
 	/**
 	 * Test method for
 	 * {@link org.geworkbench.components.anova.AnovaAnalysis#publishSubpanelChangedEvent(org.geworkbench.events.SubpanelChangedEvent)}.
 	 */
-	@SuppressWarnings("unchecked")
 	public final void testPublishSubpanelChangedEvent() {
 		AnovaAnalysis aa = new AnovaAnalysis();
 		DSAnnotatedPanel<DSGeneMarker, Float> panelSignificant = new CSAnnotPanel<DSGeneMarker, Float>(
 				"Significant Genes");
-		org.geworkbench.events.SubpanelChangedEvent<DSGeneMarker> event = new org.geworkbench.events.SubpanelChangedEvent(
+		org.geworkbench.events.SubpanelChangedEvent<DSGeneMarker> event = new org.geworkbench.events.SubpanelChangedEvent<DSGeneMarker>(
 				DSGeneMarker.class, panelSignificant, SubpanelChangedEvent.NEW);
 		assertEquals(event, aa.publishSubpanelChangedEvent(event));
 		//TODO: we also need to test if execute will publish this event correctly.
