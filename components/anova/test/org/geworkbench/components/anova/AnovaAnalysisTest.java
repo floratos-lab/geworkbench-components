@@ -190,7 +190,8 @@ public class AnovaAnalysisTest extends TestCase {
 				"Correction-method: alpha\n",aa.getParameterPanel().toString());
 		
 		Map<Serializable, Serializable> bisonParam = aa.getBisonParameters();
-		assertSame(((AnovaAnalysisPanel)aa.getParameterPanel()).anovaParameter, bisonParam.get("anovaParameter"));
+		assertSame(((AnovaAnalysisPanel)aa.getParameterPanel()).falseSignificantGenesLimit, bisonParam.get("falseSignificantGenesLimit"));
+//		assertSame(((AnovaAnalysisPanel)aa.getParameterPanel()).anovaParameter, bisonParam.get("anovaParameter"));
 	}
 
 	/**
@@ -355,7 +356,7 @@ DSAnnotationContext<DSMicroarray> context = manager
 		assertEquals("number of significant markers", 8, ((CSAnovaResultSet<DSGeneMarker>)answer.getResults()).getSignificantMarkers().size());
 
 		//test p-values for 1. significant marker, 2. insignificant marker.
-		((AnovaAnalysisPanel)aa.getParameterPanel()).anovaParameter.setPValueThreshold(1.0f);
+		((AnovaAnalysisPanel)aa.getParameterPanel()).pValueThreshold = 1.0f;
 		answer = aa.execute(view);
 		assertEquals("number of significant markers", 9, ((CSAnovaResultSet<DSGeneMarker>)answer.getResults()).getSignificantMarkers().size());
 		DSGeneMarker marker1 = (DSGeneMarker)(((CSAnovaResultSet<DSGeneMarker>)answer.getResults()).getSignificantMarkers().get(0));
