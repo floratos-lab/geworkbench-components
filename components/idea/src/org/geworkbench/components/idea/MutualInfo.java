@@ -30,8 +30,7 @@ public class MutualInfo {
 	public MutualInfo(double[] x, double [] y) throws MathException{
 		this.x=x;
 		this.y=y;
-		//double a = 0.364119;
-		//double b = -0.151931;
+
 		double a = 0.52477;
 		double b = -0.24;
 		
@@ -53,7 +52,7 @@ public class MutualInfo {
 		double ss;
 		
 		final double MINDOUBLE=0.000000001;		
-		final double SQRT2=1.414213562373;	
+		final double SQRT2 = Math.sqrt(2.0);	
 		
 		for(int i=0;i<n;i++){
 			double k=(double)i/(n-1);
