@@ -36,8 +36,6 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 	private static final long serialVersionUID = -4415752683103679560L;
 	private JTabbedPane tabs;
 
-	String dir = "c:\\idea_test";
-
 	public IDEAViewer() {
 		tabs = new JTabbedPane();
 	}
