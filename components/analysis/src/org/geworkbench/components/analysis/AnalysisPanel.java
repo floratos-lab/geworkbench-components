@@ -9,6 +9,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -32,6 +33,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 
+import org.apache.axis.types.URI.MalformedURIException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -157,12 +159,10 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 
 	private GridServicePanel jGridServicePanel = null;
 
-	/* buttons */
 	private JButton save = null;
 	private JButton delete = null;
 
-	/* other */
-
+	// threads to check submitted caGrid service jobs
 	private List<Thread> threadList = new ArrayList<Thread>();
 
 	/*
@@ -868,7 +868,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		}
 	}
 
-	int previousSelectedIndex = -1;
+	private static final int DEFAULT_SELECTED_INDEX = -1;
 
 	/**
 	 * Listener invoked when an analysis is selected from the combo box of
@@ -1056,142 +1056,13 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 			maSetView.useItemPanel(onlyActivatedArrays);
 			Thread t = new Thread(new Runnable() {
 				public void run() {
-					ProgressBar pBar = null;
-
-					try {
-						/* check if we are dealing with a grid analysis */
-						if (isGridAnalysis()) {
-							AbstractGridAnalysis selectedGridAnalysis = (AbstractGridAnalysis) selectedAnalysis;
-
-							ParamValidationResults validResult = ((AbstractGridAnalysis) selectedAnalysis)
-									.validInputData(maSetView, refMASet);
-							if (!validResult.isValid()) {
-								JOptionPane.showMessageDialog(null, validResult
-										.getMessage(), "Invalid Input Data",
-										JOptionPane.ERROR_MESSAGE);
-								return;
-							}
-
-							if (selectedGridAnalysis.isAuthorizationRequired()) {
-								/* ask for username and password */
-								getUserInfo();
-								if (userInfo == null) {
-									JOptionPane
-											.showMessageDialog(
-													null,
-													"Please make sure you entered valid username and password",
-													"Invalid User Account",
-													JOptionPane.ERROR_MESSAGE);
-									return;
-								}
-								if (StringUtils.isEmpty(userInfo)) {
-									userInfo = null;
-									return;
-								}
-							}
-							pBar = Util.createProgressBar("Grid Services",
-									"Submitting service request");
-							pBar.start();
-							pBar.reset();
-							String url = getServiceUrl();
-							if (!StringUtils.isEmpty(url)) {
-
-								List<Serializable> serviceParameterList = ((AbstractGridAnalysis) selectedGridAnalysis)
-										.handleBisonInputs(maSetView,
-												refOtherSet);
-
-								/* adding user info */
-								serviceParameterList.add(userInfo);
-
-								dispatcherUrl = jGridServicePanel.getDispatcherUrl();
-								DispatcherClient dispatcherClient = new DispatcherClient(
-										dispatcherUrl);
-
-								GridEndpointReferenceType gridEpr = dispatcherClient
-										.submit(
-												serviceParameterList,
-												url,
-												((AbstractGridAnalysis) selectedGridAnalysis)
-														.getBisonReturnType());
-
-								/* generate history for grid analysis */
-								String history = "";
-								history += "Grid service information:"
-										+ FileTools.NEWLINE;
-								history += FileTools.TAB + "Index server url: "
-										+ jGridServicePanel.getIndexServerUrl()
-										+ FileTools.NEWLINE;
-								history += FileTools.TAB + "Dispatcher url: "
-										+ dispatcherUrl + FileTools.NEWLINE;
-								history += FileTools.TAB + "Service url: "
-										+ url + FileTools.NEWLINE
-										+ FileTools.NEWLINE;
-								history += selectedAnalysis.createHistory();
-								if (refOtherSet != null)
-									history += generateHistoryStringForGeneralDataSet(refOtherSet);
-								else if ((maSetView != null)
-										&& (refMASet != null))
-									history += generateHistoryString(maSetView);
-
-								ProjectPanel.getInstance().addPendingNode(
-										gridEpr,
-										selectedGridAnalysis.getLabel()
-												+ " (pending)", history, false);
-
-								PollingThread pollingThread = new PollingThread(
-										gridEpr, dispatcherClient);
-								threadList.add(pollingThread);
-								pollingThread.start();
-
-							} else {
-								log.error("Cannot execute with url:  " + url);
-								JOptionPane
-										.showMessageDialog(
-												null,
-												"Cannot execute grid analysis: Invalid URL specified.",
-												"Invalid grid URL Error",
-												JOptionPane.ERROR_MESSAGE);
-							}
-						} else {
-							if (refOtherSet != null) {
-								/*
-								 * added for analysis that do not take in
-								 * microarray data set
-								 */
-								results = selectedAnalysis.execute(refOtherSet);
-							} else if ((maSetView != null)
-									&& (refMASet != null)) {
-								// TODO: this validation procedure should move
-								// to AbstractAnalysis
-								if (selectedAnalysis instanceof AbstractGridAnalysis) {
-									ParamValidationResults validResult = ((AbstractGridAnalysis) selectedAnalysis)
-											.validInputData(maSetView, refMASet);
-									if (!validResult.isValid()) {
-										JOptionPane.showMessageDialog(null,
-												validResult.getMessage(),
-												"Invalid Input Data",
-												JOptionPane.ERROR_MESSAGE);
-										results = null;
-										analyze.setEnabled(true);
-										return;
-									}
-								}
-								results = selectedAnalysis.execute(maSetView);
-							}
-						}
-					} catch (Exception e) {
-						results = null;
-						e.printStackTrace();
-					} finally {
-						analyze.setEnabled(true);
-					}
-					// FIXME don't use this check - remove projectNodeEvent from
-					// executeGridAnalysis first
-					if (!isGridAnalysis()) {
-						analysisDone();
+					/* check if we are dealing with a grid analysis */
+					if (isGridAnalysis()) {
+						submitAsCaGridService();
 					} else {
-						pBar.stop();
+						executeLocally();
 					}
+					analyze.setEnabled(true);
 				}
 
 			});
@@ -1200,6 +1071,120 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		}
 	}
 
+	private void submitAsCaGridService() {
+
+		AbstractGridAnalysis selectedGridAnalysis = (AbstractGridAnalysis) selectedAnalysis;
+
+		ParamValidationResults validResult = ((AbstractGridAnalysis) selectedAnalysis)
+				.validInputData(maSetView, refMASet);
+		if (!validResult.isValid()) {
+			JOptionPane.showMessageDialog(null, validResult
+					.getMessage(), "Invalid Input Data",
+					JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+
+		if (selectedGridAnalysis.isAuthorizationRequired()) {
+			/* ask for username and password */
+			getUserInfo();
+			if (userInfo == null) {
+				JOptionPane
+						.showMessageDialog(
+								null,
+								"Please make sure you entered valid username and password",
+								"Invalid User Account",
+								JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+			if (StringUtils.isEmpty(userInfo)) {
+				userInfo = null;
+				return;
+			}
+		}
+
+		String url = getServiceUrl();
+		if (StringUtils.isEmpty(url)) {
+			log.error("Cannot execute with url:  " + url);
+			JOptionPane.showMessageDialog(null,
+					"Cannot execute grid analysis: Invalid URL "+url+" specified.",
+					"Invalid grid URL Error", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+
+		ProgressBar pBar = Util.createProgressBar("Grid Services",
+				"Submitting service request");
+		pBar.start();
+		pBar.reset();
+
+		List<Serializable> serviceParameterList = ((AbstractGridAnalysis) selectedGridAnalysis)
+				.handleBisonInputs(maSetView, refOtherSet);
+
+		/* adding user info */
+		serviceParameterList.add(userInfo);
+
+		dispatcherUrl = jGridServicePanel.getDispatcherUrl();
+		DispatcherClient dispatcherClient = null;
+		GridEndpointReferenceType gridEpr = null;
+		try {
+			dispatcherClient = new DispatcherClient(dispatcherUrl);
+			gridEpr = dispatcherClient.submit(serviceParameterList, url,
+					((AbstractGridAnalysis) selectedGridAnalysis)
+							.getBisonReturnType());
+		} catch (MalformedURIException e) {
+			e.printStackTrace();
+			return;
+		} catch (RemoteException e) {
+			e.printStackTrace();
+			return;
+		} finally {
+			pBar.stop();
+		}
+
+		/* generate history for grid analysis */
+		String history = "";
+		history += "Grid service information:" + FileTools.NEWLINE;
+		history += FileTools.TAB + "Index server url: "
+				+ jGridServicePanel.getIndexServerUrl() + FileTools.NEWLINE;
+		history += FileTools.TAB + "Dispatcher url: " + dispatcherUrl
+				+ FileTools.NEWLINE;
+		history += FileTools.TAB + "Service url: " + url + FileTools.NEWLINE
+				+ FileTools.NEWLINE;
+		history += selectedAnalysis.createHistory();
+		if (refOtherSet != null) {
+			history += generateHistoryStringForGeneralDataSet(refOtherSet);
+		} else if (maSetView != null && refMASet != null) {
+			history += generateHistoryString(maSetView);
+		}
+
+		ProjectPanel.getInstance().addPendingNode(gridEpr,
+				selectedGridAnalysis.getLabel() + " (pending)", history, false);
+
+		PollingThread pollingThread = new PollingThread(gridEpr,
+				dispatcherClient);
+		threadList.add(pollingThread);
+		pollingThread.start();
+	}
+
+	private void executeLocally() {
+		if (refOtherSet != null) {
+			// first case: analysis that does not take in microarray data set
+			results = selectedAnalysis.execute(refOtherSet);
+		} else if (maSetView != null && refMASet != null) {
+			// second case: analysis that takes microarray set 
+			ParamValidationResults validResult = ((AbstractGridAnalysis) selectedAnalysis)
+					.validInputData(maSetView, refMASet);
+			if (!validResult.isValid()) {
+				JOptionPane.showMessageDialog(null, validResult.getMessage(),
+						"Invalid Input Data", JOptionPane.ERROR_MESSAGE);
+				results = null;
+				analyze.setEnabled(true);
+				return;
+			}
+			results = selectedAnalysis.execute(maSetView);
+		}
+		analysisDone();
+	}
+	
 	private Class<?> currentDataType = null, lastDataType = null;
 	private HashMap<Class<?>, Integer> pidMap = new HashMap<Class<?>, Integer>();
 
@@ -1222,7 +1207,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 			lastDataType = currentDataType;
 			currentDataType = even.getDataSet().getClass();
 			if (!pidMap.containsKey(currentDataType) || lastDataType != currentDataType)
-				pidMap.put(currentDataType, previousSelectedIndex);
+				pidMap.put(currentDataType, DEFAULT_SELECTED_INDEX);
 			if (even.getDataSet().getClass().equals(CSProteinStructure.class)) {
 				getAvailableAnalyses(ProteinStructureAnalysis.class);
 			} else if (even.getDataSet().getClass().equals(CSSequenceSet.class)) {
