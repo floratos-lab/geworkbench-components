@@ -481,20 +481,26 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			}
 		} else {
 			detailTable.getTableSelectionModel().clearSelection();
+			List<CellularNetWorkElementInformation> removeRows = new ArrayList<CellularNetWorkElementInformation>();
 			for (int i = selectedRows.length - 1; i >= 0; i--) {
 				int row = selectedRows[i];
 				row = detailTable.convertRowIndexToModel(row);
+				selectedRows[i] = row;
 				if (row < hits.size()) {
 					CellularNetWorkElementInformation marker = hits.get(row);
-					hits.remove(row);
+					removeRows.add(marker);
 					if (marker != null
 							&& !allGenes.contains(marker.getdSGeneMarker())) {
 						allGenes.add(marker.getdSGeneMarker());
 
 					}
 				}
-			}
-
+			}			
+			if (removeRows.size() > 0)
+			   hits.removeAll(removeRows );
+			removeRows.clear(); 
+			
+			 
 			drawPlot(createCollection(0, 1, 1, true), "Throttle Graph");
 			throttlePanel.repaint();
 		}
