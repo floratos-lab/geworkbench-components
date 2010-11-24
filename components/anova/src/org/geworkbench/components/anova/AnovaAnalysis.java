@@ -216,11 +216,11 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 				.addParam(
 						"usePerms",
 						String
-								.valueOf(anovaAnalysisPanel.pValueEstimation == PValueEstimation.PERMUTATION));
+								.valueOf(anovaAnalysisPanel.pValueEstimation == PValueEstimation.permutation));
 
-		if (anovaAnalysisPanel.pValueEstimation == PValueEstimation.F_DISTRIBUTION) {
+		if (anovaAnalysisPanel.pValueEstimation == PValueEstimation.fdistribution) {
 
-		} else if (anovaAnalysisPanel.pValueEstimation == PValueEstimation.PERMUTATION) {
+		} else if (anovaAnalysisPanel.pValueEstimation == PValueEstimation.permutation) {
 			data.addParam("numPerms", String
 					.valueOf(anovaAnalysisPanel.permutationsNumber));
 			log.debug("numPerms:"
@@ -513,7 +513,7 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 		histStr .append( "----------------------------------------\n" );
 		/* P Value Estimation */
 		histStr .append( "P Value estimation: " );
-		if (anovaAnalysisPanel.pValueEstimation == PValueEstimation.PERMUTATION) {
+		if (anovaAnalysisPanel.pValueEstimation == PValueEstimation.permutation) {
 			histStr .append( "Permutation\n" );
 			histStr .append( "Permutation#: " )
 					.append( anovaAnalysisPanel.permutationsNumber )
@@ -593,8 +593,8 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 		parameterMap.put("permutationsNumber", anovaAnalysisPanel.permutationsNumber);
 		parameterMap.put("falseSignificantGenesLimit", anovaAnalysisPanel.falseSignificantGenesLimit);
 		parameterMap.put("pValueThreshold", anovaAnalysisPanel.pValueThreshold);
-		parameterMap.put("falseDiscoveryRateControl", anovaAnalysisPanel.falseDiscoveryRateControl);
-		parameterMap.put("pValueEstimation", anovaAnalysisPanel.pValueEstimation);
+		parameterMap.put("falseDiscoveryRateControl", anovaAnalysisPanel.falseDiscoveryRateControl.toString());
+		parameterMap.put("pValueEstimation", anovaAnalysisPanel.pValueEstimation.toString());
 		return parameterMap;
 	}
 

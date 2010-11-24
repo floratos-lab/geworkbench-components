@@ -49,7 +49,7 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel {
 	
 	public enum FalseDiscoveryRateControl {alpha, bonferroni, adjbonferroni, westfallyoung, number, proportion};
 	public FalseDiscoveryRateControl falseDiscoveryRateControl;
-	public enum PValueEstimation {F_DISTRIBUTION, PERMUTATION};
+	public enum PValueEstimation {fdistribution, permutation};
 	public PValueEstimation pValueEstimation = null;
 
 	private int PermutationsNumberDefault = 100;
@@ -267,9 +267,9 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel {
 									jTextFieldPFSG.setEnabled(true);
 									jLabel2.setEnabled(true);
 									jTextField.setEnabled(true);
-									pValueEstimation = PValueEstimation.PERMUTATION;
+									pValueEstimation = PValueEstimation.permutation;
 								} else if (e.getItem().equals("F-distribution")) {
-									pValueEstimation = PValueEstimation.F_DISTRIBUTION;
+									pValueEstimation = PValueEstimation.fdistribution;
 								}
 							} else if (e.getStateChange() == ItemEvent.DESELECTED) {
 								if (e.getItem().equals("Permutations")) {
@@ -806,7 +806,7 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel {
 		this.setLayout(new BorderLayout());
 		this.add(getParamPanel(), BorderLayout.CENTER);
 		// setup some default values.
-		pValueEstimation = PValueEstimation.F_DISTRIBUTION;
+		pValueEstimation = PValueEstimation.fdistribution;
 		falseDiscoveryRateControl = FalseDiscoveryRateControl.alpha;
 		permutationsNumber = PermutationsNumberDefault;
 		falseSignificantGenesLimit = 10.0f;
@@ -873,7 +873,7 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel {
 		// manipulate GUI according to anovaParameter
 		this.jTextFieldPValueThreshold.setText(Float.toString(pValueThreshold));
 		if (pValueEstimation.equals(
-				PValueEstimation.PERMUTATION)) {
+				PValueEstimation.permutation)) {
 			this.jComboBoxPValueBasedOn.setSelectedItem("Permutations");
 		} else {
 			this.jComboBoxPValueBasedOn.setSelectedItem("F-distribution");
@@ -950,10 +950,10 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel {
 		}
 		;
 		if (jComboBoxPValueBasedOn.getSelectedItem().equals("F-distribution")) {
-			parameters.put("PValueEstimation", PValueEstimation.F_DISTRIBUTION);
+			parameters.put("PValueEstimation", PValueEstimation.fdistribution);
 		}
 		if (jComboBoxPValueBasedOn.getSelectedItem().equals("Permutations")) {
-			parameters.put("PValueEstimation", PValueEstimation.PERMUTATION);
+			parameters.put("PValueEstimation", PValueEstimation.permutation);
 			parameters.put("PermutationsNumber", Integer.valueOf(jTextField
 					.getText()));
 		}
@@ -967,7 +967,7 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel {
 		histStr .append( "----------------------------------------\n" );
 		// P Value Estimation
 		histStr .append( "P Value estimation: " );
-		if (pValueEstimation == PValueEstimation.PERMUTATION) {
+		if (pValueEstimation == PValueEstimation.permutation) {
 			histStr .append( "Permutation\n" );
 			histStr .append( "Permutation#: " )
 					.append( permutationsNumber )
@@ -1006,9 +1006,9 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel {
 
 	@Override
 	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
-		if(parameters.get("PValueEstimation")==null)parameters.put("PValueEstimation", PValueEstimation.F_DISTRIBUTION);
+		if(parameters.get("PValueEstimation")==null)parameters.put("PValueEstimation", PValueEstimation.fdistribution);
 		if(parameters.get("FalseDiscoveryRateControl")==null)parameters.put("FalseDiscoveryRateControl", FalseDiscoveryRateControl.alpha);
-		if(parameters.get("PValueEstimation")==PValueEstimation.PERMUTATION)
+		if(parameters.get("PValueEstimation")==PValueEstimation.permutation)
 			if(parameters.get("PermutationsNumber")==null)parameters.put("PermutationsNumber", PermutationsNumberDefault);
 		if(parameters.get("PValueThreshold")==null)parameters.put("PValueThreshold", PValueThresholdDefault);
 		if(parameters.get("FalseDiscoveryRateControl")==FalseDiscoveryRateControl.number)
