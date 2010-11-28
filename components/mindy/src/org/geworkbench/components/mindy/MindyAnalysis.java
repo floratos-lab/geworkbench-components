@@ -682,7 +682,7 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 	@Override
 	public ParamValidationResults validInputData(
 			DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView,
-			DSDataSet refMASet) {
+			DSDataSet<?> refMASet) {
 		// TODO Auto-generated method stub
 		MindyParamPanel params = (MindyParamPanel) aspp;
 		DSMicroarraySet<DSMicroarray> mSet = null;

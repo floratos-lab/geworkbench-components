@@ -23,6 +23,7 @@ import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractGridAnalysis;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
+import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.structure.DSProteinStructure;
@@ -164,7 +165,7 @@ public class MarkUsAnalysis extends AbstractGridAnalysis implements ProteinStruc
 			urlstat = checkUrlStatus(url);
 		}
 
-		MarkUsResultDataSet resultset = new MarkUsResultDataSet(prt, results);
+		MarkUsResultDataSet<DSBioObject> resultset = new MarkUsResultDataSet<DSBioObject>(prt, results);
 		resultset.setResult(results);
 		pBar.stop();
 		return new AlgorithmExecutionResults(true, "No errors", resultset);
@@ -242,11 +243,10 @@ public class MarkUsAnalysis extends AbstractGridAnalysis implements ProteinStruc
 		return true;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public ParamValidationResults validInputData(
 			DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView,
-			DSDataSet refMASet) {
+			DSDataSet<?> refMASet) {
 		// TODO Auto-generated method stub
 		return new ParamValidationResults(true, null);
 	}

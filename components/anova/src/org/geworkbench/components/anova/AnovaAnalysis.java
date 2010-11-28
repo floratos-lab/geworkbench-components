@@ -634,11 +634,10 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 	 * @see org.geworkbench.analysis.AbstractGridAnalysis#validInputData(org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView,
 	 *      org.geworkbench.bison.datastructure.biocollections.DSDataSet)
 	 */
-	@SuppressWarnings("rawtypes")
 	@Override
 	public ParamValidationResults validInputData(
 			DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView,
-			DSDataSet refMASet) {
+			DSDataSet<?> refMASet) {
 		/* check for minimum number of activated groups */
 		DSItemList<DSPanel<DSMicroarray>> panels = maSetView.getItemPanel()
 				.panels();

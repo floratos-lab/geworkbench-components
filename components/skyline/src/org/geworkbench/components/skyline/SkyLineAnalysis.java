@@ -100,11 +100,10 @@ public class SkyLineAnalysis extends AbstractGridAnalysis implements
 		return true;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public ParamValidationResults validInputData(
 			DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView,
-			DSDataSet refMASet) {
+			DSDataSet<?> refMASet) {
 		// TODO Auto-generated method stub
 		return new ParamValidationResults(true, null);
 	}

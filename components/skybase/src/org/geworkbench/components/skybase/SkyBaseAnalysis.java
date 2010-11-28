@@ -105,11 +105,10 @@ public class SkyBaseAnalysis extends AbstractGridAnalysis implements
 		return parameterMap;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public ParamValidationResults validInputData(
 			DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView,
-			DSDataSet refMASet) {
+			DSDataSet<?> refMASet) {
 		return new ParamValidationResults(true, "Not Checked");
 	}
 

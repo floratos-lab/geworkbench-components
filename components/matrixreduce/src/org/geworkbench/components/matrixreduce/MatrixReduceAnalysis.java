@@ -671,7 +671,7 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 	@Override
 	public ParamValidationResults validInputData(
 			DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView,
-			DSDataSet refMASet) {
+			DSDataSet<?> refMASet) {
 		// FIXME: we should do some checking before analysis.
 		return new ParamValidationResults(true, "Didn't check");
 	}
