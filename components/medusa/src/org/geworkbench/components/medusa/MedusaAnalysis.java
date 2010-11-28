@@ -494,11 +494,10 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 		return false;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public ParamValidationResults validInputData(
 			DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView,
-			DSDataSet refMASet) {
+			DSDataSet<?> refMASet) {
 		MedusaParamPanel params = (MedusaParamPanel) aspp;
 		if (params.getFeaturesFilePath() == ""){
 			return new ParamValidationResults(false,"Features File has not been set yet.");

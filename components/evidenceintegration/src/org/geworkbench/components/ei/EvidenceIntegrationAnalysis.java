@@ -36,7 +36,7 @@ import edu.columbia.c2b2.evidenceinegration.EvidenceIntegration;
 
 /**
  * @author mhall
- * @version $Id: EvidenceIntegrationAnalysis.java,v 1.13 2009-09-10 16:40:26 chiangy Exp $
+ * @version $Id$
  */
 public class EvidenceIntegrationAnalysis extends AbstractGridAnalysis implements ClusteringAnalysis {
 
@@ -250,7 +250,7 @@ public class EvidenceIntegrationAnalysis extends AbstractGridAnalysis implements
 	@Override
 	public ParamValidationResults validInputData(
 			DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView,
-			DSDataSet refMASet) {
+			DSDataSet<?> refMASet) {
 		// TODO Auto-generated method stub
 		return new ParamValidationResults(true,"Not Checked.");
 	}

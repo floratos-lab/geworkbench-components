@@ -172,7 +172,7 @@ public class NetBoostAnalysis extends AbstractGridAnalysis implements
 	 * @see org.geworkbench.analysis.AbstractGridAnalysis#getBisonReturnType()
 	 */
 	@Override
-	public Class getBisonReturnType() {
+	public Class<?> getBisonReturnType() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -315,7 +315,7 @@ public class NetBoostAnalysis extends AbstractGridAnalysis implements
 	@Override
 	public ParamValidationResults validInputData(
 			DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView,
-			DSDataSet refMASet) {
+			DSDataSet<?> refMASet) {
 		// TODO Auto-generated method stub
 		return new ParamValidationResults(true,"No Checking");
 	}
