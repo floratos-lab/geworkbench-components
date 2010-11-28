@@ -91,7 +91,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 		AracneParamPanel params = (AracneParamPanel) aspp;
 		if (input instanceof DSMicroarraySetView) {
 			log.debug("Input dataset is microarray type.");
-			mSetView = (DSMicroarraySetView) input;
+			mSetView = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
 		} else if (input instanceof AdjacencyMatrixDataSet) {
 			log
 					.debug("Input dataset is adjacency matrix, will only perform DPI.");
@@ -637,9 +637,8 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 	 *
 	 * @see org.geworkbench.analysis.AbstractGridAnalysis#getBisonReturnType()
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
-	public Class getBisonReturnType() {
+	public Class<AdjacencyMatrix> getBisonReturnType() {
 		return AdjacencyMatrix.class;
 	}
 
@@ -669,11 +668,10 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 	 * @see org.geworkbench.analysis.AbstractGridAnalysis#validInputData(org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView,
 	 *      org.geworkbench.bison.datastructure.biocollections.DSDataSet)
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
 	public ParamValidationResults validInputData(
 			DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView,
-			DSDataSet refMASet) {
+			DSDataSet<?> refMASet) {
 		AracneParamPanel params = (AracneParamPanel) aspp;
 		if (params.isHubListSpecified()) {
 			ArrayList<String> hubGeneList = params.getHubGeneList();
@@ -702,14 +700,14 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 	@SuppressWarnings("unchecked")
 	@Subscribe
 	public void receive(org.geworkbench.events.ProjectEvent e, Object source) {
-		DSDataSet dataSet = e.getDataSet();
+		DSDataSet<?> dataSet = e.getDataSet();
 		if (dataSet instanceof AdjacencyMatrixDataSet) {
 			AracneParamPanel params = (AracneParamPanel) aspp;
 			params.adjMode((AdjacencyMatrixDataSet) dataSet);
 		} else if (dataSet instanceof DSMicroarraySet) {
 			AracneParamPanel params = (AracneParamPanel) aspp;
 			/* This following line is added only at the point when the mark set info is needed for parameter panel. */
-			params.setMicroarraySet((DSMicroarraySet)dataSet);
+			params.setMicroarraySet((DSMicroarraySet<DSMicroarray>)dataSet);
 			params.maMode();
 		}
 	}
@@ -719,11 +717,10 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 	 * @param e
 	 * @param source
 	 */
-	@SuppressWarnings("unchecked")
 	@Subscribe
 	public void receive(org.geworkbench.events.ProjectNodePostCompletedEvent e,
 			Object source) {
-		DSDataSet dataSet = e.getAncillaryDataSet();
+		DSDataSet<?> dataSet = e.getAncillaryDataSet();
 		if (dataSet instanceof AdjacencyMatrixDataSet) {
 			AdjacencyMatrixDataSet adjMatrixDataSet = (AdjacencyMatrixDataSet) dataSet;
 			if (adjMatrixDataSet.getMatrix().getConnectionNo() == 0)
@@ -743,80 +740,73 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 	}
 
 	@SuppressWarnings("unchecked")
-	public String generateHistoryString(DSMicroarraySetView maSetView) {
-		String ans = "";
-
-		//TODO: this probably should get from DSMicroarraySetView.toString()
-
-		// generate text for microarrays/groups
-		ans += "=The MicroarraySetView used for analysis contains following data=\n";
+	private String generateHistoryString(DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView) {
+		StringBuilder ans = new StringBuilder(
+				"=The MicroarraySetView used for analysis contains following data=\n");
 		try {
 			log.debug("We got a "+maSetView.items().getClass().toString());
 			if (maSetView.items().getClass() == CSPanel.class){
 				log.debug("situation 1: microarraySets selected");
-				DSItemList paneltest = ((DSPanel) maSetView.items()).panels();
-				Iterator groups2 = paneltest.iterator(); // groups
-				ans += "==Microarray Sets [" + paneltest.size() + "]==\n";
-				while (groups2.hasNext()) {
-					DSPanel temp = (DSPanel) groups2.next();
-					ans += "\t" + temp.toString() + "\n";
-					Iterator groups3 = temp.iterator(); // microarrays in the group
-					while (groups3.hasNext()) {
-						Object temp2 = groups3.next();
-						ans += "\t\t" + temp2.toString() + "\n";
+				DSItemList<DSPanel<DSMicroarray>> paneltest = ((DSPanel<DSMicroarray>) maSetView.items()).panels();
+
+				ans .append( "==Microarray Sets [" ).append( paneltest.size() ).append( "]==\n" );
+				for (Object obj : paneltest) {
+					DSPanel<DSMicroarray> temp = (DSPanel<DSMicroarray>) obj;
+					ans .append( "\t" ).append( temp.toString() ).append( "\n" );
+					// microarrays in the group
+					for (Object temp2 : temp) {
+						ans .append( "\t\t" ).append( temp2.toString() ).append( "\n" );
 					}
 				}
 			}else if (maSetView.items().getClass() == CSExprMicroarraySet.class){
 				log.debug("situation 2: microarraySets not selected");
 				CSExprMicroarraySet exprSet = (CSExprMicroarraySet)maSetView.items();
-				ans += "==Used Microarrays [" + exprSet.size() + "]==\n";
+				ans .append( "==Used Microarrays [" ).append( exprSet.size() ).append( "]==\n" );
 				for (Iterator<DSMicroarray> iterator = exprSet.iterator(); iterator.hasNext();) {
 					DSMicroarray array = iterator.next();
-					ans += "\t"+ array.getLabel()+"\n";
+					ans .append( "\t"+ array.getLabel()).append("\n");
 				}
 			}
-			ans += "==End of Microarray Sets==\n";
+			ans .append( "==End of Microarray Sets==\n" );
 			// generate text for markers; iterations over markers could be refactored into one
-			DSItemList paneltest = maSetView.getMarkerPanel();
+			DSPanel<DSGeneMarker> paneltest = maSetView.getMarkerPanel();
 
 			if (maSetView.useMarkerPanel()) {
 				if ((paneltest!=null) && (paneltest.size()>0)){
 					log.debug("situation 3: markers selected");
-					Iterator groups2 = paneltest.iterator(); // groups
-					ans += "==Used Markers [" + paneltest.size() + "]==\n";
-					while (groups2.hasNext()) {
-						CSExpressionMarker temp = (CSExpressionMarker) groups2.next();
-						ans += "\t" + temp.getLabel() + "\n";
+
+					ans .append( "==Used Markers [" ).append( paneltest.size() ).append( "]==\n" );
+					for (Object obj : paneltest) {
+						CSExpressionMarker temp = (CSExpressionMarker) obj;
+						ans .append( "\t" ).append( temp.getLabel() ).append( "\n" );
 					}
 				}else{
 					log.debug("situation 4: no markers selected.");
 					DSItemList<DSGeneMarker> markers = maSetView.markers();
-					ans += "==Used Markers [" + markers.size() + "]==\n";
-					for (Iterator iterator = markers.iterator(); iterator.hasNext();) {
-						DSGeneMarker marker = (DSGeneMarker) iterator.next();
-						ans += "\t" + marker.getLabel() + "\n";
+					ans .append( "==Used Markers [" ).append( markers.size() ).append( "]==\n" );
+					for (DSGeneMarker marker : markers) {
+						ans .append( "\t" ).append( marker.getLabel() ).append( "\n" );
 					}
 				}
 			} else {
 				log.debug("situation 5: All Markers selected.");
 				DSItemList<DSGeneMarker> markers = maSetView.allMarkers();
-				ans += "==Used Markers [" + markers.size() + "]=="
-						+ FileTools.NEWLINE;
-				for (Iterator iterator = markers.iterator(); iterator.hasNext();) {
-					DSGeneMarker marker = (DSGeneMarker) iterator.next();
-					ans += FileTools.TAB + marker.getLabel()
-							+ FileTools.NEWLINE;
+				ans .append( "==Used Markers [" ).append( markers.size() ).append( "]==" )
+						.append( FileTools.NEWLINE );
+				for (DSGeneMarker marker : markers) {
+					ans .append( FileTools.TAB ).append( marker.getLabel()
+					).append( FileTools.NEWLINE );
 				}
 			}
 
 
-			ans += "==End of Used Markers==\n";
+			ans .append( "==End of Used Markers==\n" );
 		} catch (ClassCastException cce) {
 			// it's not a DSPanel, we generate nothing for panel part
 			log.error(cce);
 		}
-		ans += "=End of MicroarraySetView data=";
-		return ans;
+		ans .append( "=End of MicroarraySetView data=" );
+		return ans.toString();
 	}
 
 }
