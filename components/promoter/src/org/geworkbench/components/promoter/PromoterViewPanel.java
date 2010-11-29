@@ -1145,7 +1145,6 @@ public class PromoterViewPanel extends JPanel {
 			
 			TranscriptionFactor tf = new TranscriptionFactor();
 			tf.setName(fullName);
-			tf.setJasparID(name);
 			tf.setMatrix(mx);
 			tfMap.put(fullName, tf);
 			tfListModel.addElement(fullName);
