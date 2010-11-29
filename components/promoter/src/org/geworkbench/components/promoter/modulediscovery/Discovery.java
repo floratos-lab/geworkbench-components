@@ -5,7 +5,6 @@
 
 package org.geworkbench.components.promoter.modulediscovery;
 
-import org.geworkbench.bison.datastructure.biocollections.DSCollection;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.datastructure.complex.pattern.CSPatternMatch;
@@ -202,7 +201,7 @@ public class Discovery {
     /* Input file reader                                                          */
     /*============================================================================*/
     private static void load(DSSequenceSet seqDB, String infile, Hashtable motifTB,
-                             Hashtable<DSPattern<DSSequence, CSSeqRegistration>, DSCollection<DSMatchedPattern<DSSequence, CSSeqRegistration>>> patternTB, int winSize,
+                             Hashtable<DSPattern<DSSequence, CSSeqRegistration>, List<DSMatchedPattern<DSSequence, CSSeqRegistration>>> patternTB, int winSize,
                              int minOccur) throws FileNotFoundException,
             IOException {
 

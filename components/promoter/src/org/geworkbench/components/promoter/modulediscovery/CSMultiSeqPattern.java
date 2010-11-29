@@ -7,7 +7,6 @@
 
 package org.geworkbench.components.promoter.modulediscovery;
 
-import org.geworkbench.bison.datastructure.biocollections.DSCollection;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.datastructure.complex.pattern.*;
@@ -212,7 +211,7 @@ public class CSMultiSeqPattern extends CSMatchedPattern<DSSequence, CSSeqRegistr
      * @param object Object
      * @return IGetPatternMatchCollection
      */
-    public List<DSPatternMatch<DSSequence, CSSeqRegistration>> match(DSCollection<DSSequence> seqDB) {
+    public List<DSPatternMatch<DSSequence, CSSeqRegistration>> match(List<DSSequence> seqDB) {
         List<DSPatternMatch<DSSequence, CSSeqRegistration>> col = new ArrayList<DSPatternMatch<DSSequence, CSSeqRegistration>>();
         for (int locusId = 0; locusId < matches.size(); locusId++) {
             DSPatternMatch<DSSequence, CSSeqRegistration> match1 = matches.get(locusId);
