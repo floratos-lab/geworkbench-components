@@ -95,7 +95,6 @@ import org.geworkbench.util.associationdiscovery.statistics.ClusterStatistics;
 import org.geworkbench.util.patterns.PatternLocations;
 import org.geworkbench.util.patterns.PatternOperations;
 import org.geworkbench.util.patterns.PatternSequenceDisplayUtil;
-import org.geworkbench.util.promoter.pattern.Display;
 
 import com.larvalabs.chart.PSAMPlot;
 
@@ -223,13 +222,13 @@ public final class PromoterViewPanel extends JPanel {
     double pValue = 0.05;
     private ArrayList<DSPattern> seqPatterns = new ArrayList<DSPattern>();
     private ArrayList<DSPattern> promoterPatterns = new ArrayList<DSPattern>();
-    HashMap<DSPattern, Display> seqPatternDisplay = new HashMap<DSPattern, Display>();
+
     Hashtable<DSPattern<DSSequence, CSSeqRegistration>, List<DSPatternMatch<DSSequence, CSSeqRegistration>>>
             seqPatternMatches = new Hashtable<DSPattern<DSSequence,
                                 CSSeqRegistration>,
                                 List<DSPatternMatch<DSSequence,
                                 CSSeqRegistration>>>();
-    HashMap<DSPattern, Display> promoterPatternDisplay = new HashMap<DSPattern, Display>();
+
     Hashtable<DSPattern<DSSequence, CSSeqRegistration>, List<DSPatternMatch<DSSequence, CSSeqRegistration>>>
             promoterPatternMatches = new Hashtable<DSPattern<DSSequence,
                                      CSSeqRegistration>,
@@ -968,10 +967,10 @@ public final class PromoterViewPanel extends JPanel {
 
     private void clear() {
         seqPatterns.clear();
-        seqPatternDisplay.clear();
+
         seqPatternMatches.clear();
         promoterPatterns.clear();
-        promoterPatternDisplay.clear();
+
         promoterPatternMatches.clear();
     }
 
@@ -1561,18 +1560,16 @@ public final class PromoterViewPanel extends JPanel {
                                     }
                                     msActual.matchNo++;
                                 }
-                                Display dis = new Display();
-                                dis.setColor(PatternOperations.
+
+                                PatternOperations.
                                              getPatternColor(
-                                        pattern.hashCode()));
+                                        pattern.hashCode());
                                 i++;
-                                dis.setHeight(0.9);
-                                dis.setShape(Display.RECTANGLE);
                                 if (showTF.isSelected()) {
                                     seqDisPanel.addAPattern(pattern,
                                             matches);
                                 }
-                                promoterPatternDisplay.put(pattern, dis);
+
                                 promoterPatternMatches.put(pattern, matches);
                                 promoterPatterns.add(pattern);
                             }
@@ -1702,16 +1699,12 @@ public final class PromoterViewPanel extends JPanel {
                 CSSeqRegistration>> patterns = e.getPatternMatchCollection();
         seqPatterns = new ArrayList(e.getPatternMatchCollection());
         for (DSMatchedPattern<DSSequence, CSSeqRegistration> pattern : patterns) {
-            //IGetPatternMatchCollection im = gp.match(sequenceDB);
-            Display dis = new Display();
-            dis.setColor(PatternOperations.getPatternColor(pattern.hashCode()));
-            dis.setHeight(0.9);
-            dis.setShape(Display.OVAL);
+            PatternOperations.getPatternColor(pattern.hashCode());
             DSPattern<DSSequence, CSSeqRegistration> p = pattern.getPattern();
 
             List<DSPatternMatch<DSSequence,
                     CSSeqRegistration>> matches = pattern.matches();
-            seqPatternDisplay.put(p, dis);
+
             seqPatternMatches.put(p, matches);
         }
     }
@@ -1762,11 +1755,8 @@ public final class PromoterViewPanel extends JPanel {
                 for (Iterator it = modules.iterator(); it.hasNext(); ) {
                     CSMultiSeqPattern pt = (CSMultiSeqPattern) it.next();
                     pt.getPatternKey().getMapping(patternPrime);
-                    Display dis = new Display();
-                    dis.setColor(PatternOperations.getPatternColor(pt.
-                            hashCode()));
-                    dis.setHeight(1.1);
-                    dis.setShape(Display.ROUNDRECT);
+                    PatternOperations.getPatternColor(pt.
+                            hashCode());
                     modulelistmodel.addElement(pt);
 
                 }
