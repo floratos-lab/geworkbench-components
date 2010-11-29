@@ -8,21 +8,27 @@ import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JViewport;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.medusa.MedusaDataSet;
+import org.geworkbench.builtin.projects.Icons;
 import org.geworkbench.components.medusa.MedusaUtil;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
@@ -32,8 +38,6 @@ import org.geworkbench.events.ImageSnapshotEvent;
 import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.util.FilePathnameUtils;
-import org.geworkbench.util.ProgressBar;
-import org.geworkbench.util.Util;
 
 import com.ice.tar.tar;
 
@@ -78,6 +82,88 @@ public class MedusaVisualComponent implements VisualPlugin {
 		return component;
 	}
 
+	private boolean handleGridOutput(String tarstr){
+		log.info(dataSet.getFilename()+" received length: "+tarstr.length());
+
+		File dirPath = new File(outdir);
+		if (!dirPath.exists())  dirPath.mkdirs();
+		
+		String tardir = outdir+dataSet.getFilename()+".tar";
+		try{
+			decodeStringToFile(tarstr, tardir);
+		}catch(Exception e){
+			e.printStackTrace();
+			return false;
+		}
+
+		String pwd = System.getProperty("user.dir");
+		System.setProperty("user.dir", FilePathnameUtils.getTemporaryFilesDirectoryPath());
+
+		tar app = new tar(); 
+		String tarArgs[] = {"-xf", tardir};
+		app.instanceMain(tarArgs);
+
+		System.setProperty("user.dir", pwd);
+		
+		File delfile = new File(tardir);
+		if (delfile.exists())
+		{
+			System.gc();
+			boolean ret = delfile.delete();
+			if (!ret) delfile.deleteOnExit();
+			log.info(ret+ " delete "+ delfile.getPath());
+		}
+
+		String runpath = dataSet.getFilename();
+		dataSet.setAbsPath(runpath);
+		return true;
+	}
+
+    private OutputWorker outputWorker = null;
+	private class OutputWorker extends SwingWorker<MedusaVisualizationPanel, Void> {
+		MedusaVisualizationPanel medusaVisualizationPanel = null;
+
+        @Override
+        protected MedusaVisualizationPanel doInBackground() {
+            String tarstr = dataSet.getPath();
+			// result returned from grid service
+			if (dataSet.getFilename() != null && dataSet.getFilename() != tarstr) {
+				if (isCancelled() || !handleGridOutput(tarstr)) return null;
+			}
+			if (isCancelled()) return null;
+			medusaVisualizationPanel = new MedusaVisualizationPanel(MedusaVisualComponent.this,
+					dataSet.getData(), dataSet.getPath());
+            return medusaVisualizationPanel;
+        }
+
+        @Override
+        public void done() {
+        	if (isCancelled()) return;
+        	try{
+        		medusaVisualizationPanel = get();
+        	}catch(ExecutionException e){
+    			e.printStackTrace();
+    		}catch(InterruptedException e){
+    			e.printStackTrace();
+    		}
+    		if (medusaVisualizationPanel == null)
+    			return;
+            component.removeAll();
+            component.add(medusaVisualizationPanel, BorderLayout.CENTER);
+            component.revalidate();
+            component.repaint();
+        }
+	}
+
+    private void setBusy(){
+		component.setBackground(Color.white);
+		JLabel busyGraphic = new JLabel(new ImageIcon(Icons.class.getResource("busy.gif")));
+        busyGraphic.setAlignmentX(Component.CENTER_ALIGNMENT);
+        component.add(busyGraphic, BorderLayout.CENTER);
+        component.revalidate();
+        component.repaint();	
+	}
+
 	/**
 	 * 
 	 * @param projectEvent
@@ -86,61 +172,33 @@ public class MedusaVisualComponent implements VisualPlugin {
 	@Subscribe
 	public void receive(ProjectEvent projectEvent, Object source) {
 		log.debug("MEDUSA received project event.");
-		DSDataSet data = projectEvent.getDataSet();
+		DSDataSet<?> data = projectEvent.getDataSet();
 		if ((data != null) && (data instanceof MedusaDataSet)) {
-			ProgressBar pBar = Util.createProgressBar("Medusa Analysis");
-			pBar.setMessage("Rendering images");
-			pBar.start();
 			if (dataSet != data) {
 				dataSet = ((MedusaDataSet) data);
 				component.removeAll();
-				
-				String tarstr = dataSet.getPath();
-				// result returned from grid service
-				if (dataSet.getFilename() != null && dataSet.getFilename() != tarstr) {
-					log.info(dataSet.getFilename()+" received length: "+tarstr.length());
-	
-					File dirPath = new File(outdir);
-					if (!dirPath.exists())  dirPath.mkdirs();
-					
-					String tardir = outdir+dataSet.getFilename()+".tar";
-					try{
-						decodeStringToFile(tarstr, tardir);
-					}catch(Exception e){
-						e.printStackTrace();
-						pBar.stop();
-						return;
-					}
-	
-					String pwd = System.getProperty("user.dir");
-					System.setProperty("user.dir", FilePathnameUtils.getTemporaryFilesDirectoryPath());
-	
-					tar app = new tar(); 
-					String tarArgs[] = {"-xf", tardir};
-					app.instanceMain(tarArgs);
-	
-					System.setProperty("user.dir", pwd);
-					
-					File delfile = new File(tardir);
-					if (delfile.exists())
-					{
-						System.gc();
-						boolean ret = delfile.delete();
-						if (!ret) delfile.deleteOnExit();
-						log.info(ret+ " delete "+ delfile.getPath());
-					}
-	
-					String runpath = dataSet.getFilename();
-					dataSet.setAbsPath(runpath);
+
+				if (SwingUtilities.isEventDispatchThread())
+					setBusy();
+				else try{
+					SwingUtilities.invokeAndWait(new Runnable(){
+						public void run(){
+							setBusy();
+					}});
+				}catch(InterruptedException e){
+					e.printStackTrace();
+				}catch(InvocationTargetException e){
+					e.printStackTrace();
 				}
-				medusaVisualizationPanel = new MedusaVisualizationPanel(this,
-						dataSet.getData(), dataSet.getPath());
-				// medusaPlugin.limitMarkers(selectedMarkers);
-				component.add(medusaVisualizationPanel, BorderLayout.CENTER);
-				component.revalidate();
-				component.repaint();
+
+				if (outputWorker != null && !outputWorker.isDone())
+				{
+					outputWorker.cancel(true);
+					outputWorker = null;
+				}
+				outputWorker = new OutputWorker();
+		        outputWorker.execute();
 			}
-			pBar.stop();
 		}
 	}
 
@@ -151,6 +209,7 @@ public class MedusaVisualComponent implements VisualPlugin {
 	 * @param event
 	 * @return SubpanelChangedEvent
 	 */
+	@SuppressWarnings("unchecked")
 	@Publish
 	public SubpanelChangedEvent publishSubpanelChangedEvent(
 			org.geworkbench.events.SubpanelChangedEvent event) {
