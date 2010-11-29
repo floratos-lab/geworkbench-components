@@ -19,25 +19,28 @@ import java.text.StringCharacterIterator;
  * <p>Company: First Genetic Trust Inc.</p>
  *
  * @author Manjunath Kustagi
- * @version 1.0
+ * @version $Id$
  */
-public class CMVRuler extends JComponent {
-    static public final int SIZE = 22;
+public final class CMVRuler extends JComponent {
+	private static final long serialVersionUID = -8325233520281492489L;
+	
+	static private final int SIZE = 22;
     static private final int DEFAULTRES = 72;
     private Font labelFont = null;
     private int fontSize = 9;
     private int selGroupId = -1;
-    private int increment = 0;
-    private int units = 0;
+
     private double width = SIZE;
     private ColorMosaicImage colorMosaicImage = null;
     private boolean verticalText = false;
-    JMenu jMenu2 = new JMenu();
-    JPopupMenu jGeneRuleMenu = new JPopupMenu();
-    JMenuItem jMenuItem1 = new JMenuItem();
-    JMenuItem jMenuItem2 = new JMenuItem();
-    JMenuItem jMenuItem3 = new JMenuItem();
-    JMenuItem jMenuItem4 = new JMenuItem();
+    
+    private JMenu jMenu2 = new JMenu();
+    private JPopupMenu jGeneRuleMenu = new JPopupMenu();
+    private JMenuItem jMenuItem1 = new JMenuItem();
+    private JMenuItem jMenuItem2 = new JMenuItem();
+    private JMenuItem jMenuItem3 = new JMenuItem();
+    private JMenuItem jMenuItem4 = new JMenuItem();
+    
     private boolean enablePaint = true;
     
     public CMVRuler(ColorMosaicImage area) {
@@ -48,18 +51,6 @@ public class CMVRuler extends JComponent {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    public CMVRuler() {
-        try {
-            jbInit();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public int getIncrement() {
-        return increment;
     }
 
     private void setFont(double scale) {
@@ -80,6 +71,7 @@ public class CMVRuler extends JComponent {
         }
     }
 
+    @Override
     protected void paintComponent(Graphics gGen) {
     	if (enablePaint)
         paint(gGen, DEFAULTRES);
@@ -144,7 +136,6 @@ public class CMVRuler extends JComponent {
                                     g.drawLine(-y1, (int) width - minSize, -y1, (int) width - tickSize);
                                     g.drawString(gg.getLabel(), -(int) (yy + halfWidth), (int) width - tickSize);
                                 } else {
-                                    int halfWidth = (int) (rect.getHeight() / 2);
                                     g.drawLine((int) (width - minSize), y0, (int) (width - tickSize), y0);
                                     g.drawLine((int) (width - tickSize), y0, (int) (width - tickSize), y1);
                                     g.drawLine((int) width - minSize, y1, (int) width - tickSize, y1);
@@ -203,7 +194,7 @@ public class CMVRuler extends JComponent {
         jGeneRuleMenu.add(jMenu2);
     }
 
-    void this_mouseClicked(MouseEvent e) {
+    private void this_mouseClicked(MouseEvent e) {
         if (e.getModifiers() == Event.META_MASK) {
 
             // Make the jPopupMenu visible relative to the current mouse position in the container.
@@ -212,7 +203,6 @@ public class CMVRuler extends JComponent {
             if (markerGroup != null) {
                 jMenu2.removeAll();
 
-                //JMarkerGroupVector groups = markerGroup.getGroups();
                 for (int i = 0; i < markerGroup.panels().size(); i++) {
                     DSPanel<DSGeneMarker> markerVector = markerGroup.panels().get(i);
 
@@ -220,11 +210,6 @@ public class CMVRuler extends JComponent {
                     jMenuItem.setText(markerVector.getLabel());
                     jMenuItem.setState(markerVector.isActive());
                     jMenu2.add(jMenuItem);
-                    jMenuItem.addActionListener(new java.awt.event.ActionListener() {
-                        public void actionPerformed(ActionEvent e) {
-                            jCheckItem_actionPerformed(e);
-                        }
-                    });
                 }
 
                 jGeneRuleMenu.show(this, e.getX(), e.getY());
@@ -235,25 +220,11 @@ public class CMVRuler extends JComponent {
         }
     }
 
-    void jCheckItem_actionPerformed(ActionEvent e) {
-        /*        JCheckBoxMenuItem item = (JCheckBoxMenuItem)e.getSource();
-                JGroup cm = ColorMosaicImage.GetChipManager().GetCMForProperty(item.getText());
-                if (cm != null) {
-                    cm.IsActive = item.getState();
-                    ColorMosaicImage.GetChipManager().CacheChips();
-                    ColorMosaicImage.repaint();
-                    repaint();
-                }
-         */
-    }
-
-    void jMenuItem2_actionPerformed(ActionEvent e) {
+    private void jMenuItem2_actionPerformed(ActionEvent e) {
         DSPanel<DSGeneMarker> panel = colorMosaicImage.getPanel();
 
-        int chipId = 0;
-
         for (int i = 0; i < panel.panels().size(); i++) {
-            DSPanel markerVector = panel.panels().get(i);
+            DSPanel<DSGeneMarker> markerVector = panel.panels().get(i);
             markerVector.setActive(true);
         }
 
@@ -261,14 +232,14 @@ public class CMVRuler extends JComponent {
         repaint();
     }
 
-    int getGroupId(int x) {
+    private int getGroupId(int x) {
         int markerId = x / colorMosaicImage.geneWidth;
         DSPanel<DSGeneMarker> panel = colorMosaicImage.getPanel();
 
         int lastId = 0;
 
         for (int i = 0; i < panel.panels().size(); i++) {
-            DSPanel markerVector = panel.panels().get(i);
+            DSPanel<DSGeneMarker> markerVector = panel.panels().get(i);
 
             if (markerId < (lastId + markerVector.size())) {
                 return i;
@@ -280,7 +251,7 @@ public class CMVRuler extends JComponent {
         return -1;
     }
 
-    void jMenuItem1_actionPerformed(ActionEvent e) {
+    private void jMenuItem1_actionPerformed(ActionEvent e) {
         if (selGroupId >= 0) {
             DSPanel<DSGeneMarker> panel = colorMosaicImage.getPanel();
             panel.panels().get(selGroupId).setActive(false);
@@ -289,11 +260,11 @@ public class CMVRuler extends JComponent {
         }
     }
 
-    void jMenuItem3_actionPerformed(ActionEvent e) {
+    private void jMenuItem3_actionPerformed(ActionEvent e) {
         if (selGroupId > 0) {
             DSPanel<DSGeneMarker> panel = colorMosaicImage.getPanel();
 
-            DSPanel subPanel = panel.panels().get(selGroupId);
+            DSPanel<DSGeneMarker> subPanel = panel.panels().get(selGroupId);
             panel.panels().set(selGroupId, panel.panels().get(selGroupId - 1));
             panel.panels().set(selGroupId - 1, subPanel);
             colorMosaicImage.repaint();
@@ -301,11 +272,11 @@ public class CMVRuler extends JComponent {
         }
     }
 
-    void jMenuItem4_actionPerformed(ActionEvent e) {
+    private void jMenuItem4_actionPerformed(ActionEvent e) {
         DSPanel<DSGeneMarker> panel = colorMosaicImage.getPanel();
 
         if ((selGroupId >= 0) && (selGroupId < (panel.panels().size() - 1))) {
-            DSPanel subPanel = panel.panels().get(selGroupId);
+            DSPanel<DSGeneMarker> subPanel = panel.panels().get(selGroupId);
             panel.panels().set(selGroupId, panel.panels().get(selGroupId + 1));
             panel.panels().set(selGroupId + 1, subPanel);
             colorMosaicImage.repaint();
@@ -320,7 +291,6 @@ public class CMVRuler extends JComponent {
             int clusterNo = colorMosaicImage.getClusterNo();
 			boolean isGrouped = false;
 
-			//System.out.println("Cluster: " + clusterNo);
 			width = 0;
 
 			if (clusterNo > 0) {
@@ -335,7 +305,7 @@ public class CMVRuler extends JComponent {
 
 							if (!cluster[i].showAllMarkers && (gm != null)) {
 								for (int j = 0; j < gm.panels().size(); j++) {
-									DSPanel gg = gm.panels().get(j);
+									DSPanel<DSGeneMarker> gg = gm.panels().get(j);
 
 									if (gg.isActive()) {
 										int firstGene = geneId;
@@ -376,6 +346,7 @@ public class CMVRuler extends JComponent {
         setPreferredSize(new Dimension((int) width, colorMosaicImage.getRequiredHeight()));
     }
 
+    @Override
     public void revalidate() {
         computeWidth(1.0);
         super.revalidate();
