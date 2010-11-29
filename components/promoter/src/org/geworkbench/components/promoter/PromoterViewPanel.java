@@ -74,7 +74,6 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.geworkbench.bison.datastructure.biocollections.DSCollection;
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
@@ -1741,7 +1740,7 @@ public class PromoterViewPanel extends JPanel {
 
         //add the new patterns into seqPatterns
         seqPatterns.clear();
-        DSCollection<DSMatchedPattern<DSSequence,
+        List<DSMatchedPattern<DSSequence,
                 CSSeqRegistration>> patterns = e.getPatternMatchCollection();
         seqPatterns = new ArrayList(e.getPatternMatchCollection());
         for (DSMatchedPattern<DSSequence, CSSeqRegistration> pattern : patterns) {
