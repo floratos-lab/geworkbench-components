@@ -5,7 +5,6 @@ import java.util.List;
 
 import javax.swing.ProgressMonitor;
 
-import org.geworkbench.bison.datastructure.biocollections.DSCollection;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
@@ -106,7 +105,7 @@ public class TranscriptionFactor implements DSPattern<DSSequence, CSSeqRegistrat
      * @todo add something that tells the direction of a match
      * match
      */
-    public List<DSPatternMatch<DSSequence, CSSeqRegistration>> match(DSCollection<DSSequence> seqDB) {
+    public List<DSPatternMatch<DSSequence, CSSeqRegistration>> match(List<DSSequence> seqDB) {
         //Pattern matches = new  PatternImpl();
         List<DSPatternMatch<DSSequence, CSSeqRegistration>> matches = new ArrayList<DSPatternMatch<DSSequence, CSSeqRegistration>>();
         for (int k = 0; k < seqDB.size(); k++) {
