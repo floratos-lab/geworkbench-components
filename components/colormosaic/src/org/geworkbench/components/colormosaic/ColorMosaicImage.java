@@ -148,7 +148,6 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 		int row = 0;
 		markerList.clear();
 		for (int patId = 0; patId < clusterNo; patId++) {
-			cluster[patId].setFirstRow(row);
 			row += showCluster(g, cluster[patId], row, screenMode);
 		}
 		resolution = DEFAULTRES;
