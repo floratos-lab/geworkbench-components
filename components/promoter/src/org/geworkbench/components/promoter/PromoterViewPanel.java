@@ -96,7 +96,6 @@ import org.geworkbench.util.patterns.PatternLocations;
 import org.geworkbench.util.patterns.PatternOperations;
 import org.geworkbench.util.patterns.PatternSequenceDisplayUtil;
 import org.geworkbench.util.promoter.pattern.Display;
-import org.geworkbench.util.promoter.pattern.PatternDisplay;
 
 import com.larvalabs.chart.PSAMPlot;
 
@@ -1768,8 +1767,7 @@ public final class PromoterViewPanel extends JPanel {
                             hashCode()));
                     dis.setHeight(1.1);
                     dis.setShape(Display.ROUNDRECT);
-                    PatternDisplay pd = new PatternDisplay(pt, dis);
-                    modulelistmodel.addElement(pd);
+                    modulelistmodel.addElement(pt);
 
                 }
             }
@@ -1845,8 +1843,7 @@ public final class PromoterViewPanel extends JPanel {
         //add selected ones
         Object[] modules = moduleList.getSelectedValues();
         for (int i = 0; i < modules.length; i++) {
-            PatternDisplay<DSSequence, CSSeqRegistration> pd = (PatternDisplay) modules[i];
-            Object pdPattern = pd.getPt();
+        	DSPattern<DSSequence, CSSeqRegistration> pdPattern = (DSPattern) modules[i];
             if (pdPattern instanceof CSMultiSeqPattern) {
                 CSMultiSeqPattern compPatt = (CSMultiSeqPattern) pdPattern;
                 List<DSPatternMatch<DSSequence,
@@ -1855,7 +1852,7 @@ public final class PromoterViewPanel extends JPanel {
                     DSPatternMatch<DSSequence,
                             CSSeqRegistration> pm = pc.get(k);
                     int lastsub = pm.getRegistration().x2;
-                    DSPattern[] patterns = ((CSMultiSeqPattern) pd.getPt()).
+                    DSPattern[] patterns = ((CSMultiSeqPattern) pdPattern).
                                            getPatternKey().subpatterns;
                     for (int m = 0; m < patterns.length; m++) {
                         List<DSPatternMatch<DSSequence,
@@ -1875,7 +1872,7 @@ public final class PromoterViewPanel extends JPanel {
                     }
                 }
                 DSPattern<DSSequence,
-                        CSSeqRegistration> patternMatch = pd.getPt();
+                        CSSeqRegistration> patternMatch = pdPattern;
                 seqDisPanel.addAPattern(patternMatch, pc);
             }
         }
