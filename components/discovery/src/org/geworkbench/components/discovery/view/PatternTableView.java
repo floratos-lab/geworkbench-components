@@ -223,7 +223,7 @@ public class PatternTableView extends JPanel {
                 for (int i = 0; i < rows.length; i++) {
                     org.geworkbench.util.patterns.CSMatchedSeqPattern pattern = (org.geworkbench.util.patterns.CSMatchedSeqPattern) model.getPattern(i);
                     writer.write("[" + i + "]\t");
-                    writer.write(pattern.ascii);
+                    writer.write(pattern.getASCII());
                     writer.newLine();
                 }
                 writer.flush();
@@ -306,7 +306,7 @@ public class PatternTableView extends JPanel {
             PatternOperations.fill(pattern, db);
             patternDB.add(pattern);
         }
-		Parameters parameters = ParameterTranslation.translate(widget.getParameters());
+		ParameterTranslation.translate(widget.getParameters());
         return patternDB;
     }
 
@@ -319,7 +319,7 @@ public class PatternTableView extends JPanel {
             PatternOperations.fill(pattern, db);
             patternDB.add(pattern);
         }
-		Parameters parameters = ParameterTranslation.translate(widget.getParameters());
+		ParameterTranslation.translate(widget.getParameters());
 
         return patternDB;
     }
