@@ -67,7 +67,6 @@ import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
-import org.geworkbench.events.AssociationPanelEvent;
 import org.geworkbench.events.CleanDataEvent;
 import org.geworkbench.events.DirtyDataEvent;
 import org.geworkbench.events.GeneSelectorEvent;
@@ -526,14 +525,6 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         colorMosaicImage.setMarkerPanel(null);
         colorMosaicImage.setPanel(null);
         colorMosaicImage.setChips(null);
-    }
-
-    private void notifyPatternSelection(CSMatchedMatrixPattern[] selectedPatterns) {
-        colorMosaicImage.clearPatterns();
-        for (int i = 0; i < selectedPatterns.length; i++) {
-            colorMosaicImage.addPattern(selectedPatterns[i]);
-        }
-        revalidate();
     }
 
     private void jGeneHeightSlider_stateChanged(ChangeEvent e) {
@@ -1013,16 +1004,6 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
 	public ActionListener getActionListener(String key) {
 		return (ActionListener) listeners.get(key);
 	}
-
-    @Subscribe 
-	public void receive(AssociationPanelEvent e, Object source) {
-        CSMatchedMatrixPattern[] patterns = e.getPatterns();
-        if (e.message.equalsIgnoreCase("selection")) {
-            notifyPatternSelection(patterns);
-        } else if (e.message.equalsIgnoreCase("clear")) {
-            colorMosaicImage.clearPatterns();
-        }
-    }
 
     private PhenotypeSelectorEvent<DSMicroarray> pse = null;
     @Subscribe public void receive(PhenotypeSelectorEvent<DSMicroarray> e, Object source) {

@@ -119,10 +119,6 @@ public class HierClusterViewAppComponent implements VisualPlugin, MenuListener, 
         return event;
     }
 
-    @Publish public MultipleMarkerEvent publishMultipleMarkerEvent(MultipleMarkerEvent event) {
-        return event;
-    }
-
     @Publish
     public org.geworkbench.events.SubpanelChangedEvent publishSubpanelChangedEvent(org.geworkbench.events.SubpanelChangedEvent event) {
         return event;
@@ -135,7 +131,6 @@ public class HierClusterViewAppComponent implements VisualPlugin, MenuListener, 
         } else if (propertyName.equals(HierClusterViewWidget.SINGLE_MARKER_SELECTED_PROPERTY)) {
             publishSingleMarkerEvent(new org.geworkbench.events.MarkerSelectedEvent((DSGeneMarker) event.getNewValue()));
         } else if (propertyName.equals(HierClusterViewWidget.MULTIPLE_MARKER_SELECTED_PROPERTY)) {
-            //            publishMultipleMarkerEvent(new MultipleMarkerEvent((DSItemList<DSGeneMarker>) event.getNewValue(), "HierarchicalClustering MarkerSelection"));
 
             DSPanel<DSGeneMarker> clusterBranch = new CSPanel<DSGeneMarker>("Cluster Tree", "Dendrogram");
 
@@ -147,7 +142,6 @@ public class HierClusterViewAppComponent implements VisualPlugin, MenuListener, 
 
             publishSubpanelChangedEvent(new org.geworkbench.events.SubpanelChangedEvent(DSGeneMarker.class, clusterBranch, org.geworkbench.events.SubpanelChangedEvent.NEW));
         } else if (propertyName.equals(HierClusterViewWidget.MULTIPLE_ARRAY_SELECTED_PROPERTY)) {
-            //            publishMultipleMarkerEvent(new MultipleMarkerEvent((DSItemList<DSGeneMarker>) event.getNewValue(), "HierarchicalClustering MarkerSelection"));
 
             DSPanel<DSMicroarray> clusterBranch = new CSPanel<DSMicroarray>("Cluster Tree", "Dendrogram");
 

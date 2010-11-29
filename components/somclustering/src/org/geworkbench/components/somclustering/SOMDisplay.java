@@ -38,7 +38,6 @@ import org.geworkbench.engine.management.Asynchronous;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.MarkerSelectedEvent;
-import org.geworkbench.events.MultipleMarkerEvent;
 import org.geworkbench.events.PhenotypeSelectedEvent;
 import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.util.ProgressBar;
@@ -151,12 +150,6 @@ public class SOMDisplay implements VisualPlugin, MenuListener,
 	@Publish
 	public org.geworkbench.events.PhenotypeSelectedEvent publishPhenotypeSelectedEvent(
 			org.geworkbench.events.PhenotypeSelectedEvent event) {
-		return event;
-	}
-
-	@Publish
-	public MultipleMarkerEvent publishMultipleMarkerEvent(
-			MultipleMarkerEvent event) {
 		return event;
 	}
 
