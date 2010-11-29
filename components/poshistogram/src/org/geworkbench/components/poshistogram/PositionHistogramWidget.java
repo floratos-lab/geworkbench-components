@@ -6,6 +6,8 @@ import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.Box;
 import javax.swing.ImageIcon;
@@ -16,8 +18,6 @@ import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
 
-import org.geworkbench.bison.datastructure.biocollections.Collection;
-import org.geworkbench.bison.datastructure.biocollections.DSCollection;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.datastructure.complex.pattern.DSMatchedPattern;
@@ -45,8 +45,8 @@ import org.jfree.data.xy.XYSeriesCollection;
 public final class PositionHistogramWidget extends JPanel {
 	private static final long serialVersionUID = -1642260844923573623L;
 
-	private DSCollection<DSMatchedPattern<DSSequence, CSSeqRegistration>>
-            patterns = new Collection<DSMatchedPattern<DSSequence,
+	private List<DSMatchedPattern<DSSequence, CSSeqRegistration>>
+            patterns = new ArrayList<DSMatchedPattern<DSSequence,
             CSSeqRegistration>>();
 
     private JLabel lblChart = new JLabel();
@@ -203,7 +203,7 @@ public final class PositionHistogramWidget extends JPanel {
 
     }
 
-    public void setPatterns(DSCollection<DSMatchedPattern<DSSequence, CSSeqRegistration>> matches) {
+    public void setPatterns(List<DSMatchedPattern<DSSequence, CSSeqRegistration>> matches) {
         patterns.clear();
         for (int i = 0; i < matches.size(); i++) {
             patterns.add(matches.get(i));
