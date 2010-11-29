@@ -97,7 +97,6 @@ import org.geworkbench.util.patterns.PatternOperations;
 import org.geworkbench.util.patterns.PatternSequenceDisplayUtil;
 import org.geworkbench.util.promoter.pattern.Display;
 import org.geworkbench.util.promoter.pattern.PatternDisplay;
-import org.geworkbench.util.sequences.SequencePatternDisplayPanel;
 
 import com.larvalabs.chart.PSAMPlot;
 
@@ -316,12 +315,6 @@ public final class PromoterViewPanel extends JPanel {
         tfListPanel = new TFListPanel(this);
         tfListModel.setFullNameTaxGroupMap(fullNameTaxGroupMap); 
 
-        matrixDetailButton.setText("Matrix Details");
-        matrixDetailButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                matrixDetailButton_actionPerformed(e);
-            }
-        });
         matrixPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         matrixPane.setViewportBorder(BorderFactory.createRaisedBevelBorder());
         matrixPane.setMinimumSize(new Dimension(50, 100));
@@ -479,11 +472,7 @@ public final class PromoterViewPanel extends JPanel {
         actualLabel1.setText("Actual:");
         expectedCountBox.setEditable(false);
         expectedCountBox.setText("0");
-        expectedCountBox.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                expectedCountBox_actionPerformed(e);
-            }
-        });
+
         enrichmentBox.setEditable(false);
         enrichmentBox.setText("1.0");
         parmsPanel.setBorder(BorderFactory.createEtchedBorder());
@@ -522,11 +511,6 @@ public final class PromoterViewPanel extends JPanel {
             }
         });
         iterationBox.setText("10");
-        iterationBox.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                iterationBox_actionPerformed(e);
-            }
-        });
 
         iterationLabel.setHorizontalTextPosition(SwingConstants.LEADING);
         iterationLabel.setText("Iterations:");
@@ -545,11 +529,6 @@ public final class PromoterViewPanel extends JPanel {
         });
 
         pseudocountBox.setText("1.0");
-        pseudocountBox.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-            	pseudocountBox_actionPerformed(e);
-            }
-        });
 
         pseudocountLabel.setHorizontalTextPosition(SwingConstants.LEADING);
         pseudocountLabel.setText("Pseudocount:");
@@ -600,16 +579,7 @@ public final class PromoterViewPanel extends JPanel {
         parametersLabel.setFont(new java.awt.Font("Times New Roman", Font.BOLD,
                                                   12));
         parametersLabel.setText("Parameters:");
-        expectedCountBox.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                expectedCountBox_actionPerformed(e);
-            }
-        });
-        pValueField.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                pValueField_actionPerformed(e);
-            }
-        });
+
         resultLabel.setFont(new java.awt.Font("Times New Roman", Font.BOLD, 12));
         resultLabel.setToolTipText("");
         resultLabel.setHorizontalTextPosition(SwingConstants.LEFT);
@@ -965,7 +935,7 @@ public final class PromoterViewPanel extends JPanel {
     private TFListPanel tfListPanel = null;
 	private JPanel matrixDisplayPanel = new JPanel();
     private JPanel displayOptionsPanel = new JPanel();
-    private JButton matrixDetailButton = new JButton();
+
     private MatrixScrollPane matrixPane = new MatrixScrollPane();
 
     void setSequenceDB(DSSequenceSet<DSSequence> db2) {
@@ -1600,7 +1570,7 @@ public final class PromoterViewPanel extends JPanel {
                                 dis.setHeight(0.9);
                                 dis.setShape(Display.RECTANGLE);
                                 if (showTF.isSelected()) {
-                                    seqDisPanel.addAPattern(pattern, dis,
+                                    seqDisPanel.addAPattern(pattern,
                                             matches);
                                 }
                                 promoterPatternDisplay.put(pattern, dis);
@@ -1906,7 +1876,7 @@ public final class PromoterViewPanel extends JPanel {
                 }
                 DSPattern<DSSequence,
                         CSSeqRegistration> patternMatch = pd.getPt();
-                seqDisPanel.addAPattern(patternMatch, pd.getDis(), pc);
+                seqDisPanel.addAPattern(patternMatch, pc);
             }
         }
     }
@@ -2166,10 +2136,6 @@ public final class PromoterViewPanel extends JPanel {
         stop = true;
     }
 
-    private void expectedCountBox_actionPerformed(ActionEvent e) {
-
-    }
-
     private void clearButton_actionPerformed(ActionEvent e) {
         showTF.setSelected(false);
         showSeqPattern.setSelected(false);
@@ -2191,7 +2157,6 @@ public final class PromoterViewPanel extends JPanel {
         if (showTF.isSelected() && promoterPatterns.size() > 0) {
             for (DSPattern pattern : promoterPatterns) {
                 seqDisPanel.addAPattern(pattern,
-                                        promoterPatternDisplay.get(pattern),
                                         promoterPatternMatches.get(pattern));
             }
         } else {
@@ -2207,11 +2172,6 @@ public final class PromoterViewPanel extends JPanel {
         repaint();
     }
 
-
-    private void iterationBox_actionPerformed(ActionEvent e) {
-    }
-
-
     private void countsRadioButton_actionPerformed(ActionEvent e) {
         try {
             drawLogo(currentTF);
@@ -2220,19 +2180,12 @@ public final class PromoterViewPanel extends JPanel {
         }
     }
 
-
-
     private void frequenciesRadioButton_actionPerformed(ActionEvent e) {
         try {
             drawLogo(currentTF);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-    }
-
-
-    private void pseudocountBox_actionPerformed(ActionEvent e) {
-
     }
 
     private void sqrtNCheckBox_actionPerformed(ActionEvent e) {
@@ -2254,13 +2207,6 @@ public final class PromoterViewPanel extends JPanel {
         seqDisPanel.sequenceDBUpdate(e);
     }
 
-
-    private void pValueField_actionPerformed(ActionEvent e) {
-
-    }
-
-
-
     void itemRightClicked(int index, final MouseEvent e) {
         //ensureItemIsSelected(index);
         SwingUtilities.invokeLater(new Runnable() {
@@ -2278,11 +2224,6 @@ public final class PromoterViewPanel extends JPanel {
             }
         });
     }
-
-
-    private void matrixDetailButton_actionPerformed(ActionEvent e) {
-    }
-
 
     private void reverseButton_actionPerformed(ActionEvent e) {
         fivePrimerDirection = !fivePrimerDirection;
