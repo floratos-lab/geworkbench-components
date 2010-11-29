@@ -112,7 +112,7 @@ import com.larvalabs.chart.PSAMPlot;
  * @version $Id$
  */
 
-public class PromoterViewPanel extends JPanel {
+public final class PromoterViewPanel extends JPanel {
 	private static final long serialVersionUID = -6523545577029722522L;
 
 	public class ScoreStats {
@@ -237,8 +237,7 @@ public class PromoterViewPanel extends JPanel {
                                      CSSeqRegistration>,
                                      List<DSPatternMatch<DSSequence,
                                      CSSeqRegistration>>>();
-    private final static int LOGO = 0;
-    private final static int PARAMETERS = 1;
+
     private final static int SEQUENCE = 2;
     protected JMenuItem imageSnapShotItem = new JMenuItem("Image SnapShot");
     private boolean fivePrimerDirection = true;
@@ -1006,15 +1005,6 @@ public class PromoterViewPanel extends JPanel {
         promoterPatternDisplay.clear();
         promoterPatternMatches.clear();
     }
-
-    private DSSequenceSet<DSSequence> getSequenceDB() {
-        return sequenceDB;
-    }
-
-    private PromoterView getPromterView() {
-        return promoterView;
-    }
-
 
     private void fillupTranscriptionFactorList() throws FileNotFoundException, IOException {
         if (tfMap == null) {
