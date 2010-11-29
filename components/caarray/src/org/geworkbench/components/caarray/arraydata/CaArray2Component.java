@@ -292,8 +292,7 @@ public class CaArray2Component implements VisualPlugin {
 		int port = ce.getPort();
 		String username = ce.getUsername();
 		String password = ce.getPassword();
-		CaArrayQueryResultEvent event = new CaArrayQueryResultEvent(null, url,
-				port, username, password);
+		CaArrayQueryResultEvent event = new CaArrayQueryResultEvent();
 		try {
 			CaArrayClient client = new CaArrayClient(url, port, username,
 					password);
