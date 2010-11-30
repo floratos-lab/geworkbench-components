@@ -15,6 +15,9 @@ import java.util.Scanner;
 import java.util.TreeSet;
 
 import org.apache.commons.math.MathException;
+import org.geworkbench.bison.datastructure.bioobjects.IdeaEdge;
+import org.geworkbench.bison.datastructure.bioobjects.IdeaProbeGene;
+import org.geworkbench.bison.datastructure.bioobjects.IdeaEdge.InteractionType;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 
 public class IdeaLauncher {
@@ -23,7 +26,7 @@ public class IdeaLauncher {
 	 * Stand alone version.
 	 * 
 	 * @author zm2165
-	 * @version $id$
+	 * @version $Id$
 	 * 
 	 * @param args
 	 * @throws FileNotFoundException
@@ -67,7 +70,7 @@ public class IdeaLauncher {
 										// gene expression data
 
 		TreeSet<Gene> preGeneList = new TreeSet<Gene>();
-		ArrayList<Edge> edgeIndex = new ArrayList<Edge>();
+		ArrayList<IdeaEdge> edgeIndex = new ArrayList<IdeaEdge>();
 		Map<String, String> probe_chromosomal = new HashMap<String, String>();
 
 		FileReader prereader = new FileReader(networkFile);
@@ -176,10 +179,6 @@ public class IdeaLauncher {
 			(new File(outDir)).mkdir();
 		}
 
-		String midLog = dir + "\\output\\myEdgeIndex.txt"; // expand edgeIndex
-															// from network.txt
-		PrintWriter midOut = new PrintWriter(midLog);
-
 		FileReader reader = new FileReader(networkFile);
 		Scanner in = new Scanner(reader);// process network second time
 		while (in.hasNextLine()) {
@@ -192,12 +191,10 @@ public class IdeaLauncher {
 				String[] tokens = line.split("\\s");
 				String first = tokens[0];
 				String second = tokens[1];
-				String forth = tokens[3]; // not defined clearly yet,
-											// direction?transitional factor?
 
 				int geneNo1 = Integer.parseInt(first);
 				int geneNo2 = Integer.parseInt(second);
-				int ppi = Integer.parseInt(forth);
+				InteractionType interactionType = IDEAAnalysis.stringToInteractionType(tokens[3]);
 				Gene gene1 = null;
 				Gene gene2 = null;
 
@@ -242,9 +239,9 @@ public class IdeaLauncher {
 								String probeId2 = expCol0[rowG2];
 								DSGeneMarker marker1 = null;
 								DSGeneMarker marker2 = null;
-								Edge anEdge = new Edge(geneNo1, geneNo2,
+								IdeaEdge anEdge = new IdeaEdge(geneNo1, geneNo2,
 										marker1, marker2, rowG1, rowG2,
-										probeId1, probeId2, ppi);// marker1,marker2
+										probeId1, probeId2, interactionType);// marker1,marker2
 																	// are no
 																	// use here,
 																	// just for
@@ -257,8 +254,6 @@ public class IdeaLauncher {
 														// the edges in
 														// edgeIndex will be
 														// expired
-								midOut.println(geneNo1 + "\t" + geneNo2 + "\t"
-										+ rowG1 + "\t" + rowG2 + "\t" + ppi);
 								gene1.addEdge(anEdge);// add the edge to related
 														// gene in preGeneList
 								gene2.addEdge(anEdge);
@@ -274,10 +269,9 @@ public class IdeaLauncher {
 			}
 		}// end of while
 
-		midOut.close();
 		for (Gene g : preGeneList) {
 			String geneEdges = "";
-			for (Edge e : g.getEdges()) {
+			for (IdeaEdge e : g.getEdges()) {
 				geneEdges += e.getGeneNo1() + " " + e.getGeneNo2() + " "
 						+ e.getExpRowNoG1() + " " + e.getExpRowNoG2() + "\n";
 			}
@@ -376,7 +370,7 @@ public class IdeaLauncher {
 		edgeStr += "Gene1\tGene2\texpRow1\texpRow2\tDeltaCorr\tNormCorr\tzDeltaCorr\tLoc\tGoc\n";
 		String strLoc = "";
 		String strGoc = "";
-		for (Edge e : edgeIndex) {// for debug
+		for (IdeaEdge e : edgeIndex) {// for debug
 			if (e.isLoc())
 				strLoc = "T";
 			else
@@ -396,9 +390,9 @@ public class IdeaLauncher {
 		out.println(edgeStr);
 		out.close();
 
-		List<Edge> locList = new ArrayList<Edge>();
-		List<Edge> gocList = new ArrayList<Edge>();
-		for (Edge anEdge : edgeIndex) {
+		List<IdeaEdge> locList = new ArrayList<IdeaEdge>();
+		List<IdeaEdge> gocList = new ArrayList<IdeaEdge>();
+		for (IdeaEdge anEdge : edgeIndex) {
 			if (anEdge.isLoc())
 				locList.add(anEdge);
 			else if (anEdge.isGoc())
@@ -408,7 +402,7 @@ public class IdeaLauncher {
 		edgeStr = "";
 		// edgeStr+="LOC---------------\n";
 		edgeStr += "Probe1\tGene1\tProbe2\tGene2\tMI\tDeltaMI\tNormDelta\tZ-score\n";
-		for (Edge e : locList) {
+		for (IdeaEdge e : locList) {
 			edgeStr += e.getProbeId1() + "\t"
 					+ probe_symbol.get(e.getProbeId1()) + "\t"
 					+ e.getProbeId2() + "\t"
@@ -426,7 +420,7 @@ public class IdeaLauncher {
 		edgeStr = "";
 		// edgeStr+="GOC---------------\n";
 		edgeStr += "Probe1\tGene1\tProbe2\tGene2\tMI\tDeltaMI\tNormDelta\tZ-score\n";
-		for (Edge e : gocList) {
+		for (IdeaEdge e : gocList) {
 			edgeStr += e.getProbeId1() + "\t"
 					+ probe_symbol.get(e.getProbeId1()) + "\t"
 					+ e.getProbeId2() + "\t"
@@ -443,9 +437,9 @@ public class IdeaLauncher {
 		for (Gene g : preGeneList) {// edge in preGeneList need update from
 									// edgeIndex, because edgeIndex may be
 									// updated from null distribution
-			ArrayList<Edge> edges = new ArrayList<Edge>();
-			for (Edge anEdge : g.getEdges()) {
-				for (Edge eInEdgeIndex : edgeIndex) {
+			ArrayList<IdeaEdge> edges = new ArrayList<IdeaEdge>();
+			for (IdeaEdge anEdge : g.getEdges()) {
+				for (IdeaEdge eInEdgeIndex : edgeIndex) {
 					if ((eInEdgeIndex.compareTo(anEdge) == 0)
 							&& (eInEdgeIndex.getGeneNo1() == g.getGeneNo())) {
 						edges.add(eInEdgeIndex);
@@ -456,7 +450,7 @@ public class IdeaLauncher {
 
 		}
 
-		TreeSet<ProbeGene> probes = new TreeSet<ProbeGene>();// process probes,
+		TreeSet<IdeaProbeGene> probes = new TreeSet<IdeaProbeGene>();// process probes,
 																// which is a
 																// alternative
 																// way to
@@ -466,17 +460,17 @@ public class IdeaLauncher {
 																// genes which I
 																// call gene in
 																// this code
-		for (Edge e : edgeIndex) {
-			ProbeGene p1 = new ProbeGene(e.getProbeId1());
-			ProbeGene p2 = new ProbeGene(e.getProbeId2());
+		for (IdeaEdge e : edgeIndex) {
+			IdeaProbeGene p1 = new IdeaProbeGene(e.getProbeId1());
+			IdeaProbeGene p2 = new IdeaProbeGene(e.getProbeId2());
 			probes.add(p1);
 			probes.add(p2);
 		}
 
-		for (ProbeGene p : probes) {
+		for (IdeaProbeGene p : probes) {
 			// System.out.println(p.getProbeId());
-			ArrayList<Edge> edges = new ArrayList<Edge>();
-			for (Edge e : edgeIndex) {
+			ArrayList<IdeaEdge> edges = new ArrayList<IdeaEdge>();
+			for (IdeaEdge e : edgeIndex) {
 				if ((p.getProbeId() == e.getProbeId1())
 						|| (p.getProbeId() == e.getProbeId2()))
 					edges.add(e);
@@ -484,10 +478,10 @@ public class IdeaLauncher {
 			p.setEdges(edges);
 		}
 
-		for (ProbeGene p : probes) { // enrichment to find the significant probe
+		for (IdeaProbeGene p : probes) { // enrichment to find the significant probe
 			int locs = 0;
 			int gocs = 0;
-			for (Edge anEdge : p.getEdges()) {
+			for (IdeaEdge anEdge : p.getEdges()) {
 				if (anEdge.isLoc()) {
 					locs++;
 				} else if (anEdge.isGoc()) {
@@ -507,7 +501,7 @@ public class IdeaLauncher {
 										// entrez genes
 			int locs = 0;
 			int gocs = 0;
-			for (Edge anEdge : g.getEdges()) {
+			for (IdeaEdge anEdge : g.getEdges()) {
 				if (anEdge.isLoc()) {
 					locs++;
 				} else if (anEdge.isGoc()) {
@@ -525,7 +519,7 @@ public class IdeaLauncher {
 		int allLoc2 = 0; // vv remove the following 10 lines should be removed
 							// after test
 		int allGoc2 = 0;
-		for (Edge anEdge : edgeIndex) {
+		for (IdeaEdge anEdge : edgeIndex) {
 			if (anEdge.isLoc()) {
 				allLoc2++;
 				// System.out.println(anEdge.getGeneNo1()+"\t"+anEdge.getGeneNo2()+"\t"+(anEdge.getExpRowNoG1()-6)+"\t"
@@ -562,7 +556,7 @@ public class IdeaLauncher {
 			}
 		}
 
-		for (ProbeGene p : probes) {
+		for (IdeaProbeGene p : probes) {
 			int H = p.getEdges().size();
 			FisherExact fe = new FisherExact(2 * edgeIndex.size());
 			if (p.getLocs() > 0) { // calculate LOC p-value using fisher exact
@@ -588,18 +582,18 @@ public class IdeaLauncher {
 			p.setNes(nes);
 		}
 
-		List<ProbeGene> probeNes = new ArrayList<ProbeGene>();
-		for (ProbeGene p : probes) {
+		List<IdeaProbeGene> probeNes = new ArrayList<IdeaProbeGene>();
+		for (IdeaProbeGene p : probes) {
 			probeNes.add(p);
 		}
 		Collections.sort(probeNes, new SortByNes());
 
 		String nodeStr = "";
 		nodeStr += "Probe\tGene\tChrBand\tConn\tNes\tLoc\tLoCHits\tLoCEs\tLoCNes\tGoc\tGoCHits\tGoCEs\tGoCNes\n";
-		for (ProbeGene p : probeNes) {// present significant nodes
+		for (IdeaProbeGene p : probeNes) {// present significant nodes
 			int locHits = 0;
 			int gocHits = 0;
-			for (Edge e : p.getEdges()) {
+			for (IdeaEdge e : p.getEdges()) {
 				if (e.getDeltaCorr() < 0)
 					locHits++;
 				else if (e.getDeltaCorr() > 0)
@@ -626,10 +620,10 @@ public class IdeaLauncher {
 
 		nodeStr = "";
 		nodeStr += "Gene1\tGene2\tconn_type\tLoc\tGoc\n";
-		for (ProbeGene p : probes) {// present significant node with its edges
+		for (IdeaProbeGene p : probes) {// present significant node with its edges
 			if ((p.getCumLoc() < 0.05) || (p.getCumGoc() < 0.05)) {
 				// nodeStr+=p.getProbeId()+"\n";
-				for (Edge e : p.getEdges()) {
+				for (IdeaEdge e : p.getEdges()) {
 					String isLoc = "";
 					String isGoc = "";
 					String ppi = "";
@@ -637,9 +631,9 @@ public class IdeaLauncher {
 						isLoc = "X";
 					if (e.isGoc())
 						isGoc = "X";
-					if (e.getPpi() == 1)
+					if (e.getPpi() == InteractionType.PROTEIN_PROTEIN)
 						ppi = "ppi";
-					else
+					else if(e.getPpi() == InteractionType.PROTEIN_DNA)
 						ppi = "pdi";
 
 					nodeStr += e.getProbeId1() + "\t" + e.getProbeId2() + "\t"
@@ -662,9 +656,9 @@ public class IdeaLauncher {
 
 }// end of class testIdea
 
-class SortByZ implements Comparator<Edge> {
+class SortByZ implements Comparator<IdeaEdge> {
 
-	public int compare(Edge o1, Edge o2) {
+	public int compare(IdeaEdge o1, IdeaEdge o2) {
 		if ((o1.getzDeltaCorr() - o2.getzDeltaCorr()) == 0)
 			return 0;
 		else if ((o1.getzDeltaCorr() - o2.getzDeltaCorr()) > 0)
@@ -674,9 +668,9 @@ class SortByZ implements Comparator<Edge> {
 	}
 }
 
-class SortByZa implements Comparator<Edge> {
+class SortByZa implements Comparator<IdeaEdge> {
 
-	public int compare(Edge o1, Edge o2) {
+	public int compare(IdeaEdge o1, IdeaEdge o2) {
 		if ((o1.getzDeltaCorr() - o2.getzDeltaCorr()) == 0)
 			return 0;
 		else if ((o1.getzDeltaCorr() - o2.getzDeltaCorr()) < 0)
@@ -686,10 +680,10 @@ class SortByZa implements Comparator<Edge> {
 	}
 }
 
-class SortByNes implements Comparator<ProbeGene> {
+class SortByNes implements Comparator<IdeaProbeGene> {
 
 	@Override
-	public int compare(ProbeGene p1, ProbeGene p2) {
+	public int compare(IdeaProbeGene p1, IdeaProbeGene p2) {
 		// TODO Auto-generated method stub
 		if (p1.getNes() == p2.getNes())
 			return 0;

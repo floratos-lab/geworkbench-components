@@ -17,6 +17,7 @@ import java.util.TreeSet;
 
 import org.apache.commons.math.MathException;
 import org.apache.commons.math.stat.descriptive.moment.StandardDeviation;
+import org.geworkbench.bison.datastructure.bioobjects.IdeaEdge;
 
 import weka.estimators.KernelEstimator;
 
@@ -32,7 +33,7 @@ public class NullDistribution {
 	static final int KERNEL_N = 100;
 	private int[] tExp;
 	private double[][] expData = null;
-	private ArrayList<Edge> edgeIndex = null;
+	private ArrayList<IdeaEdge> edgeIndex = null;
 	private Phenotype pheno = null;
 	private int edgeSize;
 	private int headCol;
@@ -43,7 +44,7 @@ public class NullDistribution {
 	// For example, if the precision is stated to be 0.1, the values in the
 	// interval (0.25,0.35] are all treated as 0.3.
 
-	private Map<Double, Edge> MI_Edge;
+	private Map<Double, IdeaEdge> MI_Edge;
 	private double[] sortedCorr;
 	private double[] samplePoints; // evenly seperated points from min MI to max
 									// MI
@@ -52,7 +53,7 @@ public class NullDistribution {
 	private ArrayList<Bin> bins; // a bin has MinP and MaxP of sortedCorr[],
 									// there are 100 bins totally
 
-	public NullDistribution(TreeSet<Gene> geneList, ArrayList<Edge> edgeIndex,
+	public NullDistribution(TreeSet<Gene> geneList, ArrayList<IdeaEdge> edgeIndex,
 			double[][] expData, Phenotype pheno, int headCol) {// headCol is the
 																// extra
 																// column,i.e,head
@@ -69,7 +70,7 @@ public class NullDistribution {
 	@SuppressWarnings("unchecked")
 	public int calcNullDist() throws MathException, FileNotFoundException {
 
-		MI_Edge = new HashMap<Double, Edge>();
+		MI_Edge = new HashMap<Double, IdeaEdge>();
 		sortedCorr = new double[edgeSize];
 		samplePoints = new double[100]; // evenly seperated points from min MI
 										// to max MI
@@ -88,7 +89,7 @@ public class NullDistribution {
 				ObjectInputStream in1 = new ObjectInputStream(fileIn);
 				// System.out.println("before reading2...");
 				try {
-					ArrayList<Edge> readObject = (ArrayList<Edge>) in1
+					ArrayList<IdeaEdge> readObject = (ArrayList<IdeaEdge>) in1
 							.readObject();
 					edgeIndex = readObject;
 					System.out.println("nullFile exist.");
@@ -148,7 +149,7 @@ public class NullDistribution {
 
 				for (int j = 0; j < 100; j++) { // each bin has 100 points of
 												// edge
-					Edge currentEdge = MI_Edge.get(sortedCorr[bins.get(i)
+					IdeaEdge currentEdge = MI_Edge.get(sortedCorr[bins.get(i)
 							.getMinP()+ j]);
 					double[] nullData = new double[100]; // the 100 null delta
 															// data for each
@@ -186,7 +187,7 @@ public class NullDistribution {
 		int binMax = 100 - 1;
 		int halfWindow = (int) (0.025 / incre) + 1;
 
-		for (Edge anEdge : edgeIndex) {
+		for (IdeaEdge anEdge : edgeIndex) {
 			int baseBin = (int) ((anEdge.getMI() - sortedCorr[0]) / incre);
 			if ((baseBin - halfWindow) <= 0) {
 				binMin = 0;
@@ -253,7 +254,7 @@ public class NullDistribution {
 
 		}// end of edges loop
 
-		for (Edge anEdge : edgeIndex) {
+		for (IdeaEdge anEdge : edgeIndex) {
 
 			if (anEdge.getNormCorr() < 0.05 / edgeSize) { // show significant
 															// edges
@@ -331,7 +332,7 @@ public class NullDistribution {
 
 	}
 
-	public ArrayList<Edge> getEdgeIndex() {
+	public ArrayList<IdeaEdge> getEdgeIndex() {
 		return edgeIndex;
 	}
 
@@ -397,12 +398,12 @@ public class NullDistribution {
 	public class DeltaCorr { // deltaCorr=anEdge.getMI()-removalMI.getMI()
 		double deltaCorr;
 		Phenotype p;
-		Edge anEdge;
+		IdeaEdge anEdge;
 		double[][] expData;
 		int[] exceptPhenoCols;
 		int[] phenoCols;
 
-		public DeltaCorr(Phenotype p, Edge anEdge, double[][] expData)
+		public DeltaCorr(Phenotype p, IdeaEdge anEdge, double[][] expData)
 				throws MathException {
 			this.p = p;
 			this.anEdge = anEdge;

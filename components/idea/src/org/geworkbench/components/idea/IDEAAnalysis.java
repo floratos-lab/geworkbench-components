@@ -1,18 +1,24 @@
 package org.geworkbench.components.idea;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.TreeSet;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.commons.math.MathException;
 import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
+import org.geworkbench.bison.datastructure.bioobjects.IdeaEdge;
+import org.geworkbench.bison.datastructure.bioobjects.IdeaProbeGene;
 import org.geworkbench.bison.datastructure.bioobjects.IdeaResult;
+import org.geworkbench.bison.datastructure.bioobjects.IdeaEdge.InteractionType;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
@@ -30,10 +36,12 @@ import org.geworkbench.util.ProgressBar;
  */
 public class IDEAAnalysis extends AbstractAnalysis implements
 		ClusteringAnalysis {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 7928879302023716304L;
+	
+	private static Log log = LogFactory.getLog(IDEAAnalysis.class);
+	
+	final static private String dir = "c:\\idea_test";
+
 
 	private IDEAPanel IDEAAnalysisPanel = new IDEAPanel();
 	final String PHENO_INCLUDE = "Include";
@@ -84,8 +92,7 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 		final String PHENO_INCLUDE = "Include";
 		final String PHENO_EXCLUDE = "Exclude";
 		TreeSet<Gene> preGeneList = new TreeSet<Gene>();
-		ArrayList<Edge> edgeIndex = new ArrayList<Edge>();
-		String dir = "c:\\idea_test";
+		ArrayList<IdeaEdge> edgeIndex = new ArrayList<IdeaEdge>();
 
 		String network = IDEAAnalysisPanel.getNetwork().trim();
 		String[] networkLines = network.split(",");
@@ -160,34 +167,25 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 			}
 		}
 
-		try {
 			String outDir = dir + "\\output";
 			File file = new File(outDir);
 			boolean exists = file.exists();
 			if (!exists) {
 				(new File(outDir)).mkdir();
 			}
-			String midLog = dir + "\\output\\myEdgeIndex.txt"; // expand
-																// edgeIndex
-																// from
-																// network.txt
-			PrintWriter midOut = new PrintWriter(midLog);
 
 			for (String line : networkLines) {
 				line = line.trim();
 				int headLine = line.indexOf("Gene1");
 				if (headLine == -1) {// there is no key word
-					// System.out.println(line);
 					String[] tokens = line.split("\\s");
 					String first = tokens[0];
 					String second = tokens[1];
-					String forth = tokens[3]; // not defined clearly yet,
-												// direction?transitional
-												// factor?
 
 					int geneNo1 = Integer.parseInt(first);
 					int geneNo2 = Integer.parseInt(second);
-					int ppi = Integer.parseInt(forth);
+					InteractionType interactionType = stringToInteractionType(tokens[3]);
+
 					Gene gene1 = null;
 					Gene gene2 = null;
 
@@ -207,15 +205,13 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 							DSItemList gList2 = gene2.getMarkers();
 							for (Object obj2 : gList2) {
 								DSGeneMarker marker2 = (DSGeneMarker) obj2;
-								Edge anEdge = new Edge(geneNo1, geneNo2,
+								IdeaEdge anEdge = new IdeaEdge(geneNo1, geneNo2,
 										marker1, marker2, marker1.getSerial(),
 										marker2.getSerial(),
 										marker1.getLabel(), marker2.getLabel(),
-										ppi);
+										interactionType);
 								edgeIndex.add(anEdge);
-								midOut.println(geneNo1 + "\t" + geneNo2 + "\t"
-										+ marker1.getSerial() + "\t"
-										+ marker2.getSerial() + "\t" + ppi);
+
 								gene1.addEdge(anEdge);// add the edge to related
 														// gene in preGeneList
 								gene2.addEdge(anEdge);
@@ -225,9 +221,6 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 
 				}// end of while
 			}
-		} catch (java.io.FileNotFoundException e) {
-			e.printStackTrace();
-		}
 
 		Phenotype phenoType = new Phenotype();
 		String[] phenoLines = IDEAAnalysisPanel.getPhenotype().split(",");
@@ -275,9 +268,9 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 
 		}
 
-		Object[][] output1_loc = null;
-		Object[][] output1_goc = null;
-		Object[][] output2 = null;
+		List<IdeaEdge> locList = null;
+		List<IdeaEdge> gocList = null;
+		List<IdeaProbeGene> probeNes=null;
 
 		try {
 
@@ -320,116 +313,38 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 				// *******************************************
 
 			} catch (MathException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
+				pbIdea.dispose();
+				log.error(e);
+				return null;
 			}
 			if (this.stopAlgorithm) {
 				pbIdea.dispose();
 				return null;
 			}
 
-			String edgeStr = "";
-			edgeStr += "Gene1\tGene2\texpRow1\texpRow2\tDeltaCorr\tNormCorr\tzDeltaCorr\tLoc\tGoc\n";
-			String strLoc = "";
-			String strGoc = "";
-			for (Edge e : edgeIndex) {// for debug
-				if (e.isLoc())
-					strLoc = "T";
-				else
-					strLoc = "";
-				if ((e.isGoc()))
-					strGoc = "T";
-				else
-					strGoc = "";
-				edgeStr += e.getGeneNo1() + "\t" + e.getGeneNo2() + "\t"
-						+ e.getExpRowNoG1() + "\t" + e.getExpRowNoG2() + "\t"
-						+ e.getDeltaCorr() + "\t" + e.getNormCorr() + "\t"
-						+ e.getzDeltaCorr() + "\t" + strLoc + "\t" + strGoc
-						+ "\n";
-			}
-			String fstr = dir + "\\output\\edgesReport.txt"; // expand edgeIndex
-																// from
-																// network.txt
-			PrintWriter out = new PrintWriter(fstr);
-			out.println(edgeStr);
-			out.close();
-
-			List<Edge> locList = new ArrayList<Edge>();
-			List<Edge> gocList = new ArrayList<Edge>();
-			for (Edge anEdge : edgeIndex) {
+			locList = new ArrayList<IdeaEdge>();
+			gocList = new ArrayList<IdeaEdge>();
+			for (IdeaEdge anEdge : edgeIndex) {
 				if (anEdge.isLoc())
 					locList.add(anEdge);
 				else if (anEdge.isGoc())
 					gocList.add(anEdge);
 			}
-
-			output1_loc = new Object[locList.size()][8];
-			output1_goc = new Object[gocList.size()][8];
 			
 			Collections.sort(locList, new SortByZ());
-			edgeStr = "";
-			// edgeStr+="LOC---------------\n";
-			edgeStr += "Probe1\tGene1\tProbe2\tGene2\tMI\tDeltaMI\tNormDelta\tZ-score";
-			int output1Row = 0;
-			for (Edge e : locList) {
-				edgeStr += "\n" + e.getProbeId1() + "\t"
-						+ e.getMarker1().getGeneName() + "\t" + e.getProbeId2()
-						+ "\t" + e.getMarker2().getGeneName() + "\t"
-						+ e.getMI() + "\t" + e.getDeltaCorr() + "\t"
-						+ e.getNormCorr() + "\t" + e.getzDeltaCorr();
-				
-				output1_loc[output1Row][0] = e.getProbeId1();
-				output1_loc[output1Row][1] = e.getMarker1().getGeneName();
-				output1_loc[output1Row][2] = e.getProbeId2();
-				output1_loc[output1Row][3] = e.getMarker2().getGeneName();
-				output1_loc[output1Row][4] = e.getMI();
-				output1_loc[output1Row][5] = e.getDeltaCorr();
-				output1_loc[output1Row][6] = e.getNormCorr();
-				output1_loc[output1Row][7] = e.getzDeltaCorr();
-
-				output1Row++;
-			}
-			fstr = dir + "\\output\\output1_loc.txt"; // expand edgeIndex from
-														// network.txt
-			out = new PrintWriter(fstr);
-			out.println(edgeStr);
-			out.close();
+			
+			saveAsFile(dir + "\\output\\output1_loc.txt", locList);
 
 			Collections.sort(gocList, new SortByZa());
-			edgeStr = "";
-			// edgeStr+="GOC---------------\n";
-			edgeStr += "Probe1\tGene1\tProbe2\tGene2\tMI\tDeltaMI\tNormDelta\tZ-score";
-			int gocRow = 0;
-			for (Edge e : gocList) {
-				edgeStr += "\n" + e.getProbeId1() + "\t"
-						+ e.getMarker1().getGeneName() + "\t" + e.getProbeId2()
-						+ "\t" + e.getMarker2().getGeneName() + "\t"
-						+ e.getMI() + "\t" + e.getDeltaCorr() + "\t"
-						+ e.getNormCorr() + "\t" + e.getzDeltaCorr();
-				
-				output1_goc[gocRow][0] = e.getProbeId1();
-				output1_goc[gocRow][1] = e.getMarker1().getGeneName();
-				output1_goc[gocRow][2] = e.getProbeId2();
-				output1_goc[gocRow][3] = e.getMarker2().getGeneName();
-				output1_goc[gocRow][4] = e.getMI();
-				output1_goc[gocRow][5] = e.getDeltaCorr();
-				output1_goc[gocRow][6] = e.getNormCorr();
-				output1_goc[gocRow][7] = e.getzDeltaCorr();
-				
-				gocRow++;
-			}
-			fstr = dir + "\\output\\output1_goc.txt"; // expand edgeIndex from
-														// network.txt
-			out = new PrintWriter(fstr);
-			out.println(edgeStr);
-			out.close();
+			saveAsFile(dir + "\\output\\output1_goc.txt", gocList);			
 
 			for (Gene g : preGeneList) {// edge in preGeneList need update from
 										// edgeIndex, because edgeIndex may be
 										// updated from null distribution
-				ArrayList<Edge> edges = new ArrayList<Edge>();
-				for (Edge anEdge : g.getEdges()) {
-					for (Edge eInEdgeIndex : edgeIndex) {
+				ArrayList<IdeaEdge> edges = new ArrayList<IdeaEdge>();
+				for (IdeaEdge anEdge : g.getEdges()) {
+					for (IdeaEdge eInEdgeIndex : edgeIndex) {
 						if ((eInEdgeIndex.compareTo(anEdge) == 0)
 								&& (eInEdgeIndex.getGeneNo1() == g.getGeneNo())) {
 							edges.add(eInEdgeIndex);
@@ -440,7 +355,7 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 
 			}
 
-			TreeSet<ProbeGene> probes = new TreeSet<ProbeGene>();// process
+			TreeSet<IdeaProbeGene> probes = new TreeSet<IdeaProbeGene>();// process
 																	// probes,
 																	// which is
 																	// a
@@ -456,17 +371,17 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 																	// call gene
 																	// in this
 																	// code
-			for (Edge e : edgeIndex) {
-				ProbeGene p1 = new ProbeGene(e.getProbeId1());
-				ProbeGene p2 = new ProbeGene(e.getProbeId2());
+			for (IdeaEdge e : edgeIndex) {
+				IdeaProbeGene p1 = new IdeaProbeGene(e.getProbeId1());
+				IdeaProbeGene p2 = new IdeaProbeGene(e.getProbeId2());
 				probes.add(p1);
 				probes.add(p2);
 			}
 
-			for (ProbeGene p : probes) {
+			for (IdeaProbeGene p : probes) {
 				// System.out.println(p.getProbeId());
-				ArrayList<Edge> edges = new ArrayList<Edge>();
-				for (Edge e : edgeIndex) {
+				ArrayList<IdeaEdge> edges = new ArrayList<IdeaEdge>();
+				for (IdeaEdge e : edgeIndex) {
 					if ((p.getProbeId() == e.getProbeId1())
 							|| (p.getProbeId() == e.getProbeId2()))
 						edges.add(e);
@@ -474,11 +389,11 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 				p.setEdges(edges);
 			}
 
-			for (ProbeGene p : probes) { // enrichment to find the significant
+			for (IdeaProbeGene p : probes) { // enrichment to find the significant
 											// probe
 				int locs = 0;
 				int gocs = 0;
-				for (Edge anEdge : p.getEdges()) {
+				for (IdeaEdge anEdge : p.getEdges()) {
 					if (anEdge.isLoc()) {
 						locs++;
 					} else if (anEdge.isGoc()) {
@@ -498,7 +413,7 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 											// entrez genes
 				int locs = 0;
 				int gocs = 0;
-				for (Edge anEdge : g.getEdges()) {
+				for (IdeaEdge anEdge : g.getEdges()) {
 					if (anEdge.isLoc()) {
 						locs++;
 					} else if (anEdge.isGoc()) {
@@ -516,7 +431,7 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 			int allLoc2 = 0; // vv remove the following 10 lines should be
 								// removed after test
 			int allGoc2 = 0;
-			for (Edge anEdge : edgeIndex) {
+			for (IdeaEdge anEdge : edgeIndex) {
 				if (anEdge.isLoc()) {
 					allLoc2++;
 				} else if (anEdge.isGoc())
@@ -545,7 +460,7 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 				}
 			}
 
-			for (ProbeGene p : probes) {
+			for (IdeaProbeGene p : probes) {
 				int H = p.getEdges().size();
 				FisherExact fe = new FisherExact(2 * edgeIndex.size());
 				if (p.getLocs() > 0) { // calculate LOC p-value using fisher
@@ -567,97 +482,20 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 				p.setNes(nes);
 			}
 
-			List<ProbeGene> probeNes = new ArrayList<ProbeGene>();
-			for (ProbeGene p : probes) {
+			probeNes = new ArrayList<IdeaProbeGene>();
+			for (IdeaProbeGene p : probes) {
 				probeNes.add(p);
 			}
 			Collections.sort(probeNes, new SortByNes());
+			
+			saveSignificantGenesAsFile(dir + "\\output\\output2.txt", probeNes, maSet.getMarkers());
 
-			output2 = new Object[probeNes.size()][13];
-
-			String nodeStr = "";
-			nodeStr += "Probe\tGene\tChrBand\tConn\tNes\tLoc\tLoCHits\tLoCEs\tLoCNes\tGoc\tGoCHits\tGoCEs\tGoCNes";
-			int row = 0;
-			for (ProbeGene p : probeNes) {// present significant nodes
-				int locHits = 0;
-				int gocHits = 0;
-				for (Edge e : p.getEdges()) {
-					if (e.getDeltaCorr() < 0)
-						locHits++;
-					else if (e.getDeltaCorr() > 0)
-						gocHits++;
-				}
-				double locnes = -Math.log(p.getCumLoc());
-				double gocnes = -Math.log(p.getCumGoc());
-
-				DSGeneMarker m = maSet.getMarkers().get(p.getProbeId());
-
-				nodeStr += "\n" + p.getProbeId() + "\t" + m.getGeneName()
-						+ "\t";
-				nodeStr += "chromosomal" + "\t" + p.getEdges().size() + "\t"
-						+ p.getNes() + "\t" + p.getLocs() + "\t" + locHits
-						+ "\t" + p.getCumLoc() + "\t" + locnes + "\t"
-						+ p.getGocs() + "\t" + gocHits + "\t" + p.getCumGoc()
-						+ "\t" + gocnes;
-
-				output2[row][0] = p.getProbeId();
-				output2[row][1] = m.getGeneName();
-				output2[row][2] = "chromosomal";
-				output2[row][3] = p.getEdges().size();
-				output2[row][4] = p.getNes();
-				output2[row][5] = p.getLocs();
-				output2[row][6] = locHits;
-				output2[row][7] = p.getCumLoc();
-				output2[row][8] = locnes;
-				output2[row][9] = p.getGocs();
-				output2[row][10] = gocHits;
-				output2[row][11] = p.getCumGoc();
-				output2[row][12] = gocnes;
-				row++;
-			}
-			fstr = dir + "\\output\\output2.txt"; // expand edgeIndex from
-													// network.txt
-			out = new PrintWriter(fstr);
-			out.println(nodeStr);
-			out.close();
 			if (this.stopAlgorithm) {
 				pbIdea.dispose();
 				return null;
 			}
 
-			nodeStr = "";
-			nodeStr += "Gene1\tGene2\tconn_type\tLoc\tGoc";
-			for (ProbeGene p : probes) {// present significant node with its
-										// edges
-				if ((p.getCumLoc() < 0.05) || (p.getCumGoc() < 0.05)) {
-					// nodeStr+=p.getProbeId()+"\n";
-					for (Edge e : p.getEdges()) {
-						String isLoc = "";
-						String isGoc = "";
-						String ppi = "";
-						if (e.isLoc())
-							isLoc = "X";
-						if (e.isGoc())
-							isGoc = "X";
-						if (e.getPpi() == 1)
-							ppi = "ppi";
-						else
-							ppi = "pdi";
-
-						nodeStr += "\n" + e.getProbeId1() + "\t"
-								+ e.getProbeId2() + "\t" + ppi + "\t" + isLoc
-								+ "\t" + isGoc;
-					}
-				}
-			}
-			fstr = dir + "\\output\\output3.txt"; // expand edgeIndex from
-													// network.txt
-			out = new PrintWriter(fstr);
-			out.println(nodeStr);
-
-			out.close();
-
-			System.out.println("Done!");
+			saveNodeInformationFile(dir + "\\output\\output3.txt", probes);
 
 		} catch (java.io.IOException e) {
 			e.printStackTrace();
@@ -665,10 +503,9 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 
 		pbIdea.dispose();
 
-		int itemp = 10;
 		IdeaResult analysisResult = new IdeaResult(maSet,
-				"IDEA Analysis Result", output1_loc, output1_goc, output2);
-		String stemp = generateHistoryString(itemp);
+				"IDEA Analysis Result", locList, gocList, probeNes);
+		String stemp = generateHistoryString();
 		ProjectPanel.addToHistory(analysisResult, stemp);
 
 		AlgorithmExecutionResults results = new AlgorithmExecutionResults(true,
@@ -676,10 +513,127 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 		return results;
 	}
 
-	private String generateHistoryString(int resultSize) {
+	private void saveNodeInformationFile(String filename, TreeSet<IdeaProbeGene> probes) {
+		String nodeStr = "";
+		nodeStr += "Gene1\tGene2\tconn_type\tLoc\tGoc";
+		for (IdeaProbeGene p : probes) {// present significant node with its
+									// edges
+			if ((p.getCumLoc() < 0.05) || (p.getCumGoc() < 0.05)) {
+				// nodeStr+=p.getProbeId()+"\n";
+				for (IdeaEdge e : p.getEdges()) {
+					String isLoc = "";
+					String isGoc = "";
+					String ppi = "";
+					if (e.isLoc())
+						isLoc = "X";
+					if (e.isGoc())
+						isGoc = "X";
+					if (e.getPpi() == InteractionType.PROTEIN_PROTEIN)
+						ppi = "ppi";
+					else if (e.getPpi() == InteractionType.PROTEIN_DNA)
+						ppi = "pdi";
+
+					nodeStr += "\n" + e.getProbeId1() + "\t"
+							+ e.getProbeId2() + "\t" + ppi + "\t" + isLoc
+							+ "\t" + isGoc;
+				}
+			}
+		}
+
+		PrintWriter out= null;
+		try {
+			out = new PrintWriter(filename);
+			out.println(nodeStr);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} finally {
+			out.close();
+		}
+
+	}
+	
+	private void saveSignificantGenesAsFile(String filename, List<IdeaProbeGene> significantGeneList, DSItemList<DSGeneMarker> markers) {
+		String nodeStr = "";
+		nodeStr += "Probe\tGene\tChrBand\tConn\tNes\tLoc\tLoCHits\tLoCEs\tLoCNes\tGoc\tGoCHits\tGoCEs\tGoCNes";
+		int row = 0;
+		for (IdeaProbeGene p : significantGeneList) {// present significant nodes
+			int locHits = 0;
+			int gocHits = 0;
+			for (IdeaEdge e : p.getEdges()) {
+				if (e.getDeltaCorr() < 0)
+					locHits++;
+				else if (e.getDeltaCorr() > 0)
+					gocHits++;
+			}
+			double locnes = -Math.log(p.getCumLoc());
+			double gocnes = -Math.log(p.getCumGoc());
+
+			DSGeneMarker m = markers.get(p.getProbeId());
+
+			nodeStr += "\n" + p.getProbeId() + "\t" + m.getGeneName()
+					+ "\t";
+			nodeStr += "chromosomal" + "\t" + p.getEdges().size() + "\t"
+					+ p.getNes() + "\t" + p.getLocs() + "\t" + locHits
+					+ "\t" + p.getCumLoc() + "\t" + locnes + "\t"
+					+ p.getGocs() + "\t" + gocHits + "\t" + p.getCumGoc()
+					+ "\t" + gocnes;
+
+			row++;
+		}
+
+		PrintWriter out = null;
+		try {
+			out = new PrintWriter(filename);
+			out.println(nodeStr);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} finally {
+			out.close();
+		}
+	}
+	
+	private void saveAsFile(String filename, List<IdeaEdge>locList) {
+		String edgeStr = "";
+
+		edgeStr += "Probe1\tGene1\tProbe2\tGene2\tMI\tDeltaMI\tNormDelta\tZ-score";
+		int output1Row = 0;
+		for (IdeaEdge e : locList) {
+			edgeStr += "\n" + e.getProbeId1() + "\t"
+					+ e.getMarker1().getGeneName() + "\t" + e.getProbeId2()
+					+ "\t" + e.getMarker2().getGeneName() + "\t"
+					+ e.getMI() + "\t" + e.getDeltaCorr() + "\t"
+					+ e.getNormCorr() + "\t" + e.getzDeltaCorr();
+
+			output1Row++;
+		}
+
+		PrintWriter out = null;
+		try {
+			out = new PrintWriter(filename);
+			out.println(edgeStr);
+		} catch (FileNotFoundException e1) {
+			e1.printStackTrace();
+		} finally {
+			out.close();
+		}
+	}
+
+	private String generateHistoryString() {
 		StringBuffer histStr = new StringBuffer();
 		histStr.append(IDEAAnalysisPanel.getDataSetHistory());
 		return histStr.toString();
+	}
+	
+	static InteractionType stringToInteractionType(String str) {
+		int ppiId = Integer.parseInt( str );
+
+		InteractionType interactionType = null;
+		if(ppiId==0)
+			interactionType = InteractionType.PROTEIN_DNA;
+		else if(ppiId==1)
+			interactionType = InteractionType.PROTEIN_PROTEIN;
+		
+		return interactionType;
 	}
 
 }

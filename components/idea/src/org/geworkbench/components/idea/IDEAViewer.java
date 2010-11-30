@@ -2,26 +2,27 @@ package org.geworkbench.components.idea;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.GridLayout;
+import java.util.ArrayList;
+import java.util.List;
 
-import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.table.AbstractTableModel;
 
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.bioobjects.IdeaEdge;
+import org.geworkbench.bison.datastructure.bioobjects.IdeaProbeGene;
 import org.geworkbench.bison.datastructure.bioobjects.IdeaResult;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.ProjectEvent;
-
-import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.layout.CellConstraints;
-import com.jgoodies.forms.layout.FormLayout;
 
 /**
  * IDEAViewer of IDEA analysis component
@@ -34,63 +35,154 @@ import com.jgoodies.forms.layout.FormLayout;
 public class IDEAViewer extends JPanel implements VisualPlugin {
 
 	private static final long serialVersionUID = -4415752683103679560L;
-	private JTabbedPane tabs;
+	
+	private static class IdeaEdgeTableModel extends AbstractTableModel {
+		private static final int COLUMN_COUNT = 8;
 
-	public IDEAViewer() {
-		tabs = new JTabbedPane();
-	}
+		private static final long serialVersionUID = -6551819301207179797L;
 
-	@Subscribe
-	public void receive(ProjectEvent event, Object source) {
-		DSDataSet dataSet = event.getDataSet();
-		if (dataSet instanceof IdeaResult) {
-			tabs.removeAll();
-			
-			IdeaResult ideaResult = (IdeaResult)dataSet;
-			
-			Object[][] output2 = ideaResult.output2;
-			Object[][] output1_goc = ideaResult.output1_goc;
-			Object[][] output1_loc = ideaResult.output1_loc;
-			
-			buildTable("Genes of Significance", output2.length, output2[0].length, output2);
-			buildTable("Edges of Goc", output1_goc.length, output1_goc[0].length, output1_goc);
-			buildTable("Edges of Loc", output1_loc.length, output1_loc[0].length, output1_loc);
-			add(tabs, BorderLayout.CENTER);
+		private static final String[] columnNames = new String[] {
+			"Probe1", "Gene1", "Probe2", "Gene2", "MI", "DeltaMI", "NormDelta", "Z-score"
+		};
+		
+		List<IdeaEdge> list = null;
+		
+		public IdeaEdgeTableModel() {
+			list = new ArrayList<IdeaEdge>();
+		}
+
+		@Override
+		public String getColumnName(int col) {
+	        return columnNames[col];
+	    }
+		
+		@Override
+		public int getColumnCount() {
+			return COLUMN_COUNT;
+		}
+
+		@Override
+		public int getRowCount() {
+			return list.size();
+		}
+
+		@Override
+		public Object getValueAt(int rowIndex, int columnIndex) {
+			IdeaEdge edge = list.get(rowIndex);
+			switch(columnIndex) {
+			case 0: return edge.getProbeId1();
+			case 1: return edge.getMarker1();
+			case 2: return edge.getProbeId2();
+			case 3: return edge.getMarker2();
+			case 4: return edge.getMI();
+			case 5: return edge.getDeltaCorr();
+			case 6: return edge.getNormCorr();
+			case 7: return edge.getzDeltaCorr();
+			}
+			return 0;
+		}
+	
+		void setValues(List<IdeaEdge> list) {
+			this.list = list;
 		}
 	}
+	
+	private class IdeaGeneTableModel extends AbstractTableModel {
+		
+		private static final int COLUMN_COUNT = 13;
+		private static final long serialVersionUID = 1L;
+		List<IdeaProbeGene> list = null;
+		
+		public IdeaGeneTableModel() {
+			list = new ArrayList<IdeaProbeGene>();
+		}
 
-	private void buildTable(String tabName, int row, int col, Object[][] data) {
+		@Override
+		public int getColumnCount() {
+			return COLUMN_COUNT;
+		}
 
-		Atable contentPane = new Atable();
-		JPanel viewPanel = new JPanel();
-		viewPanel.setLayout(new BoxLayout(viewPanel, BoxLayout.PAGE_AXIS));
-		JPanel topPanel = new JPanel();
-		topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.LINE_AXIS));
+		@Override
+		public int getRowCount() {
+			return list.size();
+		}
 
-		FormLayout layout = new FormLayout("500dlu:grow, pref",
-				"20dlu, pref:grow");
-		DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+		@Override
+		public Object getValueAt(int rowIndex, int columnIndex) {
+			if(ideaResult==null)return null;
+			
+			DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet<DSMicroarray>)ideaResult.getParentDataSet(); 
+			if(maSet==null) return null;
+			
+			IdeaProbeGene ideaProbeGene = list.get(rowIndex);
+			DSGeneMarker m = maSet.getMarkers().get(ideaProbeGene.getProbeId());
+			
+			int locHits = 0;
+			int gocHits = 0;
+			for (IdeaEdge e : ideaProbeGene.getEdges()) {
+				if (e.getDeltaCorr() < 0)
+					locHits++;
+				else if (e.getDeltaCorr() > 0)
+					gocHits++;
+			}
+			double locnes = -Math.log(ideaProbeGene.getCumLoc());
+			double gocnes = -Math.log(ideaProbeGene.getCumGoc());
 
-		FormLayout headerLayout = new FormLayout(
-				"60dlu, 6dlu, 60dlu, 30dlu, 90dlu, 6dlu, 90dlu, 200dlu, 90dlu",
-				"20dlu");
-		DefaultFormBuilder headerBuilder = new DefaultFormBuilder(headerLayout);
+			switch(columnIndex) {
+			case 0: return ideaProbeGene.getProbeId();
+			case 1: return m.getGeneName();
+			case 2: return "chromosomal"; // FIXME placeholder
+			case 3: return ideaProbeGene.getEdges().size();
+			case 4: return ideaProbeGene.getNes();
+			case 5: return ideaProbeGene.getLocs();
+			case 6: return locHits;
+			case 7: return ideaProbeGene.getCumLoc();
+			case 8: return locnes;
+			case 9: return ideaProbeGene.getGocs();
+			case 10: return gocHits;
+			case 11: return ideaProbeGene.getCumGoc();
+			case 12: return gocnes;
+			}
+			return 0;
+		}
+	
+		void setValues(List<IdeaProbeGene> list) {
+			this.list = list;
+		}
+	}
+	
+	
+	
+	private IdeaEdgeTableModel locTableModel = new IdeaEdgeTableModel();
+	private IdeaEdgeTableModel gocTableModel = new IdeaEdgeTableModel();
+	private IdeaGeneTableModel significantGeneTableModel = new IdeaGeneTableModel();
 
-		builder.append(headerBuilder.getPanel(), 2);
-		builder.nextLine();
+	public IDEAViewer() {
+		JTabbedPane tabbedPane = new JTabbedPane();
+		JTable locTable = new JTable(locTableModel);
+		JTable gocTable = new JTable(gocTableModel);
+		JTable significantGeneTable = new JTable(significantGeneTableModel);
+		
+		tabbedPane.add("Genes of Significance", new JScrollPane(significantGeneTable));
+		tabbedPane.add("Edges of LOC", new JScrollPane(locTable));
+		tabbedPane.add("Edges of GOC", new JScrollPane(gocTable));
+		
+		
+		add(tabbedPane, BorderLayout.CENTER);
+	}
 
-		String[] columnNames = null;
-
-		contentPane.setTable(data, columnNames);
-		contentPane.setOpaque(true); // content panes must be opaque
-
-		builder.add(contentPane, new CellConstraints("1,2,f,f"));
-
-		JScrollPane wholeWindowScrollPane = new JScrollPane(builder.getPanel());
-		this.setLayout(new BorderLayout());
-
-		tabs.add(tabName, wholeWindowScrollPane);
-
+	private IdeaResult ideaResult = null;
+	
+	@Subscribe
+	public void receive(ProjectEvent event, Object source) {
+		DSDataSet<?> dataSet = event.getDataSet();
+		if (dataSet instanceof IdeaResult) {
+			
+			IdeaResult ideaResult = (IdeaResult)dataSet;
+			locTableModel.setValues(ideaResult.getLocList());
+			gocTableModel.setValues(ideaResult.getGocList());
+			significantGeneTableModel.setValues(ideaResult.getSignificantGeneList());
+		}
 	}
 
 	public Component getComponent() {
@@ -106,24 +198,4 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 			org.geworkbench.events.SubpanelChangedEvent<DSGeneMarker> event) {
 		return event;
 	}
-
-	private class Atable extends JPanel {
-		private static final long serialVersionUID = -2227188169463388568L;
-
-		public Atable() {
-			super(new GridLayout(1, 0));
-		}
-
-		public void setTable(Object[][] tableData, String[] columnNames) {
-			JTable table = new JTable(tableData, columnNames);
-			// table.setPreferredScrollableViewportSize(new Dimension(100, 70));
-			table.setFillsViewportHeight(true);
-
-			// Create the scroll pane and add the table to it.
-			JScrollPane scrollPane = new JScrollPane(table);
-			// Add the scroll pane to this panel.
-			add(scrollPane);
-		}
-	}
-
 }
