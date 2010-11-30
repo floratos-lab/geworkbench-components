@@ -1171,14 +1171,16 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 			results = selectedAnalysis.execute(refOtherSet);
 		} else if (maSetView != null && refMASet != null) {
 			// second case: analysis that takes microarray set 
-			ParamValidationResults validResult = ((AbstractGridAnalysis) selectedAnalysis)
-					.validInputData(maSetView, refMASet);
-			if (!validResult.isValid()) {
-				JOptionPane.showMessageDialog(null, validResult.getMessage(),
-						"Invalid Input Data", JOptionPane.ERROR_MESSAGE);
-				results = null;
-				analyze.setEnabled(true);
-				return;
+		if(selectedAnalysis instanceof AbstractGridAnalysis) {
+				ParamValidationResults validResult = ((AbstractGridAnalysis) selectedAnalysis)
+				.validInputData(maSetView, refMASet);
+				if (!validResult.isValid()) {
+					JOptionPane.showMessageDialog(null, validResult.getMessage(),
+							"Invalid Input Data", JOptionPane.ERROR_MESSAGE);
+					results = null;
+					analyze.setEnabled(true);
+					return;
+				}
 			}
 			results = selectedAnalysis.execute(maSetView);
 		}
