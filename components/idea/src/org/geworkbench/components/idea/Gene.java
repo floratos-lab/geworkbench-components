@@ -3,13 +3,14 @@ package org.geworkbench.components.idea;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import org.geworkbench.bison.datastructure.bioobjects.IdeaEdge;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 
 /**
  * Gene data structure. It is actually Entrez Gene which has an attribute of geneNo.
  *@author zm2165
- *@version $id$ 
+ *@version $Id$ 
  */
 public class Gene implements Serializable, Comparable<Gene>{
 	
@@ -19,7 +20,7 @@ public class Gene implements Serializable, Comparable<Gene>{
 	private String probeIds="";	//""
 	private String chromosomal;
 	private String expRows="";	//""
-	private ArrayList<Edge> edges=new ArrayList<Edge>();
+	private ArrayList<IdeaEdge> edges=new ArrayList<IdeaEdge>();
 	private int locs=0;		//LOC edges of the gene
 	private int gocs=0;		//GOC edges of the gene
 	private double cumLoc=1;//default is big
@@ -54,13 +55,13 @@ public class Gene implements Serializable, Comparable<Gene>{
 		this.expRows=expRows;
 	}
 	
-	public void addEdge(Edge anEdge){
+	public void addEdge(IdeaEdge anEdge){
 		edges.add(anEdge);
 	}
-	public ArrayList<Edge> getEdges(){
+	public ArrayList<IdeaEdge> getEdges(){
 		return edges;
 	}
-	public void setEdges(ArrayList<Edge> edges){
+	public void setEdges(ArrayList<IdeaEdge> edges){
 		//this.edges=null;
 		this.edges=edges;
 	}	
