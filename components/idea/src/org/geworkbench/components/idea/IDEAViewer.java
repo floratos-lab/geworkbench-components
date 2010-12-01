@@ -2,6 +2,7 @@ package org.geworkbench.components.idea;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,9 +72,9 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 			IdeaEdge edge = list.get(rowIndex);
 			switch(columnIndex) {
 			case 0: return edge.getProbeId1();
-			case 1: return edge.getMarker1();
+			case 1: return edge.getMarker1().getGeneName();
 			case 2: return edge.getProbeId2();
-			case 3: return edge.getMarker2();
+			case 3: return edge.getMarker2().getGeneName();
 			case 4: return edge.getMI();
 			case 5: return edge.getDeltaCorr();
 			case 6: return edge.getNormCorr();
@@ -89,14 +90,23 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 	
 	private class IdeaGeneTableModel extends AbstractTableModel {
 		
+		private static final long serialVersionUID = 4140458497876037744L;
+
 		private static final int COLUMN_COUNT = 13;
-		private static final long serialVersionUID = 1L;
+		
 		List<IdeaProbeGene> list = null;
+		private final String[] columnNames = new String[] {
+				"Probe","Gene","ChrBand","Conn","Nes","Loc","LoCHits","LoCEs","LoCNes","Goc","GoCHits","GoCEs","GoCNes"
+		};
 		
 		public IdeaGeneTableModel() {
 			list = new ArrayList<IdeaProbeGene>();
 		}
 
+		@Override
+		public String getColumnName(int col) {
+	        return columnNames[col];
+	    }
 		@Override
 		public int getColumnCount() {
 			return COLUMN_COUNT;
@@ -109,7 +119,7 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 
 		@Override
 		public Object getValueAt(int rowIndex, int columnIndex) {
-			if(ideaResult==null)return null;
+			if(ideaResult==null) return null;
 			
 			DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet<DSMicroarray>)ideaResult.getParentDataSet(); 
 			if(maSet==null) return null;
@@ -159,13 +169,14 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 
 	public IDEAViewer() {
 		JTabbedPane tabbedPane = new JTabbedPane();
-		JTable locTable = new JTable(locTableModel);
+		
+		JTable locTable = new JTable(locTableModel);		
 		JTable gocTable = new JTable(gocTableModel);
 		JTable significantGeneTable = new JTable(significantGeneTableModel);
-		
-		tabbedPane.add("Genes of Significance", new JScrollPane(significantGeneTable));
-		tabbedPane.add("Edges of LOC", new JScrollPane(locTable));
-		tabbedPane.add("Edges of GOC", new JScrollPane(gocTable));
+				
+		tabbedPane.addTab("Genes of Significance", new JScrollPane(significantGeneTable));
+		tabbedPane.addTab("Edges of LOC", new JScrollPane(locTable));		
+		tabbedPane.addTab("Edges of GOC", new JScrollPane(gocTable));
 		
 		
 		add(tabbedPane, BorderLayout.CENTER);
@@ -178,7 +189,7 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 		DSDataSet<?> dataSet = event.getDataSet();
 		if (dataSet instanceof IdeaResult) {
 			
-			IdeaResult ideaResult = (IdeaResult)dataSet;
+			ideaResult = (IdeaResult)dataSet;
 			locTableModel.setValues(ideaResult.getLocList());
 			gocTableModel.setValues(ideaResult.getGocList());
 			significantGeneTableModel.setValues(ideaResult.getSignificantGeneList());

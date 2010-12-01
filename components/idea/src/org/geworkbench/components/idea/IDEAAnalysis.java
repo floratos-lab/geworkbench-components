@@ -401,8 +401,7 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 					}
 				}
 
-				p.setLocs(locs);// divided by 2 because each egde has two genes,
-								// the LOC were counted twice
+				p.setLocs(locs);
 				p.setGocs(gocs);
 
 			}
@@ -421,23 +420,12 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 					}
 				}
 
-				g.setLocs(locs);// divided by 2 because each egde has two genes,
-								// the LOC were counted twice
+				g.setLocs(locs);
 				g.setGocs(gocs);
 				allLoc += g.getLocs();
 				allGoc += g.getGocs();
 			}
-
-			int allLoc2 = 0; // vv remove the following 10 lines should be
-								// removed after test
-			int allGoc2 = 0;
-			for (IdeaEdge anEdge : edgeIndex) {
-				if (anEdge.isLoc()) {
-					allLoc2++;
-				} else if (anEdge.isGoc())
-					allGoc2++;
-			}
-
+			
 			int N = edgeIndex.size();
 			int Sl = allLoc;
 			int Sg = allGoc;
