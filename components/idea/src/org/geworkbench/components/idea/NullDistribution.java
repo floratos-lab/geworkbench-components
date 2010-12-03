@@ -1,6 +1,5 @@
 package org.geworkbench.components.idea;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -84,7 +83,7 @@ public class NullDistribution {
 		bins = new ArrayList<Bin>();
 
 		String dir = System.getProperty("user.dir");
-		String nullString = dir+"\\null.dat";
+		String nullString = dir+"\\data\\null.dat";
 		if (useExistNull) {
 			try {
 				FileInputStream fileIn = new FileInputStream(nullFileName);

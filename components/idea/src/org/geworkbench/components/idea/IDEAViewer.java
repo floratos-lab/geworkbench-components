@@ -2,12 +2,15 @@ package org.geworkbench.components.idea;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -192,8 +195,20 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 		JPanel bottomPanel = new JPanel();
 		JButton saveSigGeneButton = new JButton();
 		saveSigGeneButton.setText("save significant genes");
+		JButton saveLocButton = new JButton();
+		saveLocButton.setText("save Loc egdes");
+		JButton saveGocButton = new JButton();
+		saveGocButton.setText("save Goc edges");
+		JButton saveNullButton=new JButton();
+		saveNullButton.setText("save null distribution data");		
+		
+		bottomPanel.add(saveSigGeneButton);
+		bottomPanel.add(saveLocButton);
+		bottomPanel.add(saveGocButton);
+		bottomPanel.add(saveNullButton);
+		add(bottomPanel, BorderLayout.SOUTH);		
+		
 		saveSigGeneButton.addActionListener(new ActionListener() {
-
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// TODO Auto-generated method stub
@@ -226,10 +241,8 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 	        					+ "\t" + p.getCumLoc() + "\t" + locnes + "\t"
 	        					+ p.getGocs() + "\t" + gocHits + "\t" + p.getCumGoc()
 	        					+ "\t" + gocnes;
-
 	        			row++;
 	        		}
-
 	        		PrintWriter out = null;
 	        		try {
 	        			out = new PrintWriter(file);
@@ -243,17 +256,12 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 	            } else {
 	                //log.append("Save command cancelled by user." + newline);
 	            }
-	            //log.setCaretPosition(log.getDocument().getLength());
-	        
-				
-			}
-			
+	            //log.setCaretPosition(log.getDocument().getLength());				
+			}			
 		});		
 		
-		JButton saveLocButton = new JButton();
-		saveLocButton.setText("save Loc egdes");
+		
 		saveLocButton.addActionListener(new ActionListener(){
-
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// TODO Auto-generated method stub
@@ -284,13 +292,10 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 		        			out.close();
 		        		}        			
 	        		}			
-			}
-			
+			}			
 		});
-		JButton saveGocButton = new JButton();
-		saveGocButton.setText("save Goc edges");
+		
 		saveGocButton.addActionListener(new ActionListener(){
-
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// TODO Auto-generated method stub
@@ -321,14 +326,36 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 		        		} finally {
 		        			out.close();
 		        		}        			
-	        		}			
-			}
-			
+	        		}		
+			}			
 		});
-		bottomPanel.add(saveSigGeneButton);
-		bottomPanel.add(saveLocButton);
-		bottomPanel.add(saveGocButton);
-		add(bottomPanel, BorderLayout.SOUTH);
+		
+		saveNullButton.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				JFileChooser fc = new JFileChooser();
+	            int returnVal = fc.showSaveDialog(IDEAViewer.this);
+	            if (returnVal == JFileChooser.APPROVE_OPTION) {
+	                File outputFile = fc.getSelectedFile();
+	                //This is where to save the file.	                              
+	                File inputFile = new File(System.getProperty("user.dir")+"\\data\\null.dat");
+	                try{
+		                InputStream in = new FileInputStream(inputFile);
+		                OutputStream out = new FileOutputStream(outputFile);
+		                int c;
+		                while ((c = in.read()) != -1)
+		                  out.write((byte)c);
+	
+		                in.close();
+		                out.close();
+	                }
+	                catch(IOException e){
+	                	e.printStackTrace();
+	                }	               
+	        	}		        				
+	     	}		
+		});	
 	}
 
 	private IdeaResult ideaResult = null;
