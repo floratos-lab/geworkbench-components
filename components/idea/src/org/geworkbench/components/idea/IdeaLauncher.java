@@ -1,8 +1,8 @@
 package org.geworkbench.components.idea;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,11 +29,11 @@ public class IdeaLauncher {
 	 * @version $Id$
 	 * 
 	 * @param args
-	 * @throws FileNotFoundException
 	 * @throws MathException
+	 * @throws ClassNotFoundException 
+	 * @throws IOException 
 	 */
-	public static void main(String[] args) throws FileNotFoundException,
-			MathException {
+	public static void main(String[] args) throws MathException, IOException, ClassNotFoundException {
 		String dir = System.getProperty("user.dir");
 		
 		// initialize input file names with default setting 
