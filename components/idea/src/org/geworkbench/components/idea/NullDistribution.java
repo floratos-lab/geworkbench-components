@@ -37,6 +37,8 @@ public class NullDistribution {
 	private Phenotype pheno = null;
 	private int edgeSize;
 	private int headCol;
+	private boolean useExistNull;
+	private String nullFileName;
 	private double incre;
 	static final double K_WEIGHT = 1;
 	static final double K_PRECISION = 0.0072;// the precision to which numeric
@@ -54,7 +56,7 @@ public class NullDistribution {
 									// there are 100 bins totally
 
 	public NullDistribution(TreeSet<Gene> geneList, ArrayList<IdeaEdge> edgeIndex,
-			double[][] expData, Phenotype pheno, int headCol) {// headCol is the
+			double[][] expData, Phenotype pheno, int headCol, Boolean useExistNull, String nullFileName) {// headCol is the
 																// extra
 																// column,i.e,head
 																// columns of
@@ -63,6 +65,8 @@ public class NullDistribution {
 		this.expData = expData;
 		this.pheno = pheno;
 		this.headCol = headCol;
+		this.useExistNull=useExistNull;
+		this.nullFileName=nullFileName;
 		edgeSize = edgeIndex.size();
 		tExp = pheno.getAllExpCols();
 	}
@@ -79,13 +83,11 @@ public class NullDistribution {
 		binPositions = new int[100];
 		bins = new ArrayList<Bin>();
 
-		String nullString = "c:\\idea_test\\null.dat";
-		File nullFile = new File(nullString);
-		boolean debug=true;
-
-		if (nullFile.exists()&&debug) {
+		String dir = System.getProperty("user.dir");
+		String nullString = dir+"\\null.dat";
+		if (useExistNull) {
 			try {
-				FileInputStream fileIn = new FileInputStream(nullString);
+				FileInputStream fileIn = new FileInputStream(nullFileName);
 				ObjectInputStream in1 = new ObjectInputStream(fileIn);
 				// System.out.println("before reading2...");
 				try {

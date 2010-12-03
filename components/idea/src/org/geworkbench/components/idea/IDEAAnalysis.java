@@ -307,7 +307,7 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 
 				// ************Key process********************
 				NullDistribution nullDist = new NullDistribution(preGeneList,
-						edgeIndex, expData, phenoType, HEADCOL);
+						edgeIndex, expData, phenoType, HEADCOL, IDEAAnalysisPanel.getUseNullData(),IDEAAnalysisPanel.getNullFileName());
 				nullDist.calcNullDist();
 				edgeIndex = nullDist.getEdgeIndex();
 				// *******************************************

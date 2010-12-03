@@ -3,9 +3,17 @@ package org.geworkbench.components.idea;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
@@ -159,27 +167,168 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 		void setValues(List<IdeaProbeGene> list) {
 			this.list = list;
 		}
-	}
-	
-	
+	}	
 	
 	private IdeaEdgeTableModel locTableModel = new IdeaEdgeTableModel();
 	private IdeaEdgeTableModel gocTableModel = new IdeaEdgeTableModel();
 	private IdeaGeneTableModel significantGeneTableModel = new IdeaGeneTableModel();
 
 	public IDEAViewer() {
+		//super(new GridLayout(1, 1));
 		JTabbedPane tabbedPane = new JTabbedPane();
-		
-		JTable locTable = new JTable(locTableModel);		
+						
 		JTable gocTable = new JTable(gocTableModel);
+		JTable locTable = new JTable(locTableModel);
 		JTable significantGeneTable = new JTable(significantGeneTableModel);
-				
-		tabbedPane.addTab("Genes of Significance", new JScrollPane(significantGeneTable));
-		tabbedPane.addTab("Edges of LOC", new JScrollPane(locTable));		
+		
+		//significantGeneTable.setPreferredSize(new Dimension(700, 50));		
+		tabbedPane.addTab("Genes of Significance", new JScrollPane(significantGeneTable));		
+		tabbedPane.addTab("Edges of LOC", new JScrollPane(locTable));
 		tabbedPane.addTab("Edges of GOC", new JScrollPane(gocTable));
 		
-		
+		setLayout(new BorderLayout());		
 		add(tabbedPane, BorderLayout.CENTER);
+		
+		JPanel bottomPanel = new JPanel();
+		JButton saveSigGeneButton = new JButton();
+		saveSigGeneButton.setText("save significant genes");
+		saveSigGeneButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				JFileChooser fc = new JFileChooser();
+	            int returnVal = fc.showSaveDialog(IDEAViewer.this);
+	            if (returnVal == JFileChooser.APPROVE_OPTION) {
+	                File file = fc.getSelectedFile();
+	                //This is where to save the file.
+	                String str = "";
+	        		str += "Probe\tGene\tChrBand\tConn\tNes\tLoc\tLoCHits\tLoCEs\tLoCNes\tGoc\tGoCHits\tGoCEs\tGoCNes";
+	        		int row = 0;
+	        		for (IdeaProbeGene p : ideaResult.getSignificantGeneList()) {// present significant nodes
+	        			int locHits = 0;
+	        			int gocHits = 0;
+	        			for (IdeaEdge e : p.getEdges()) {
+	        				if (e.getDeltaCorr() < 0)
+	        					locHits++;
+	        				else if (e.getDeltaCorr() > 0)
+	        					gocHits++;
+	        			}
+	        			double locnes = -Math.log(p.getCumLoc());
+	        			double gocnes = -Math.log(p.getCumGoc());
+	        			DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet<DSMicroarray>)ideaResult.getParentDataSet(); 
+	        			
+	        			DSGeneMarker m = maSet.getMarkers().get(p.getProbeId());
+	        			str += "\n" + p.getProbeId() + "\t" + m.getGeneName()
+	        					+ "\t";
+	        			str += "chromosomal" + "\t" + p.getEdges().size() + "\t"
+	        					+ p.getNes() + "\t" + p.getLocs() + "\t" + locHits
+	        					+ "\t" + p.getCumLoc() + "\t" + locnes + "\t"
+	        					+ p.getGocs() + "\t" + gocHits + "\t" + p.getCumGoc()
+	        					+ "\t" + gocnes;
+
+	        			row++;
+	        		}
+
+	        		PrintWriter out = null;
+	        		try {
+	        			out = new PrintWriter(file);
+	        			out.println(str);
+	        		} catch (FileNotFoundException e) {
+	        			e.printStackTrace();
+	        		} finally {
+	        			out.close();
+	        		}	                
+	               
+	            } else {
+	                //log.append("Save command cancelled by user." + newline);
+	            }
+	            //log.setCaretPosition(log.getDocument().getLength());
+	        
+				
+			}
+			
+		});		
+		
+		JButton saveLocButton = new JButton();
+		saveLocButton.setText("save Loc egdes");
+		saveLocButton.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				JFileChooser fc = new JFileChooser();
+	            int returnVal = fc.showSaveDialog(IDEAViewer.this);
+	            if (returnVal == JFileChooser.APPROVE_OPTION) {
+	                File file = fc.getSelectedFile();
+	                //This is where to save the file.
+	                String str = "";
+	                str += "Probe1\tGene1\tProbe2\tGene2\tMI\tDeltaMI\tNormDelta\tZ-score";
+	        		int output1Row = 0;
+	        		for (IdeaEdge e : ideaResult.getLocList()) {
+	        			str += "\n" + e.getProbeId1() + "\t"
+	        					+ e.getMarker1().getGeneName() + "\t" + e.getProbeId2()
+	        					+ "\t" + e.getMarker2().getGeneName() + "\t"
+	        					+ e.getMI() + "\t" + e.getDeltaCorr() + "\t"
+	        					+ e.getNormCorr() + "\t" + e.getzDeltaCorr();
+
+	        			output1Row++;
+	        		}
+	                PrintWriter out = null;
+		        		try {
+		        			out = new PrintWriter(file);
+		        			out.println(str);
+		        		} catch (FileNotFoundException e) {
+		        			e.printStackTrace();
+		        		} finally {
+		        			out.close();
+		        		}        			
+	        		}			
+			}
+			
+		});
+		JButton saveGocButton = new JButton();
+		saveGocButton.setText("save Goc edges");
+		saveGocButton.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				JFileChooser fc = new JFileChooser();
+	            int returnVal = fc.showSaveDialog(IDEAViewer.this);
+	            if (returnVal == JFileChooser.APPROVE_OPTION) {
+	                File file = fc.getSelectedFile();
+	                //This is where to save the file.
+	                String str = "";
+	                str += "Probe1\tGene1\tProbe2\tGene2\tMI\tDeltaMI\tNormDelta\tZ-score";
+	        		int output1Row = 0;
+	        		for (IdeaEdge e : ideaResult.getGocList()) {
+	        			str += "\n" + e.getProbeId1() + "\t"
+	        					+ e.getMarker1().getGeneName() + "\t" + e.getProbeId2()
+	        					+ "\t" + e.getMarker2().getGeneName() + "\t"
+	        					+ e.getMI() + "\t" + e.getDeltaCorr() + "\t"
+	        					+ e.getNormCorr() + "\t" + e.getzDeltaCorr();
+
+	        			output1Row++;
+	        		}
+
+	                PrintWriter out = null;
+		        		try {
+		        			out = new PrintWriter(file);
+		        			out.println(str);
+		        		} catch (FileNotFoundException e) {
+		        			e.printStackTrace();
+		        		} finally {
+		        			out.close();
+		        		}        			
+	        		}			
+			}
+			
+		});
+		bottomPanel.add(saveSigGeneButton);
+		bottomPanel.add(saveLocButton);
+		bottomPanel.add(saveGocButton);
+		add(bottomPanel, BorderLayout.SOUTH);
 	}
 
 	private IdeaResult ideaResult = null;
@@ -190,8 +339,8 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 		if (dataSet instanceof IdeaResult) {
 			
 			ideaResult = (IdeaResult)dataSet;
-			locTableModel.setValues(ideaResult.getLocList());
 			gocTableModel.setValues(ideaResult.getGocList());
+			locTableModel.setValues(ideaResult.getLocList());
 			significantGeneTableModel.setValues(ideaResult.getSignificantGeneList());
 		}
 	}

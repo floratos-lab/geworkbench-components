@@ -358,10 +358,11 @@ public class IdeaLauncher {
 		double mi = mutual.getMI();
 
 		System.out.println("first MI is " + mi);
-
+		boolean useExistNull=true;
+		String nullFileName=dir +"\\null.dat";
 		// ************Key process********************
 		NullDistribution nullDist = new NullDistribution(preGeneList,
-				edgeIndex, expData, phenoType, HEADCOL);
+				edgeIndex, expData, phenoType, HEADCOL,useExistNull, nullFileName);
 		nullDist.calcNullDist();
 		edgeIndex = nullDist.getEdgeIndex();
 
