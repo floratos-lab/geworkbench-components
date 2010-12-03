@@ -2,6 +2,7 @@ package org.geworkbench.components.idea;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -100,12 +101,11 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 			line = line.trim();
 			int headLine = line.indexOf("Gene1");
 			if (headLine == -1) {// there is no key word
-				// System.out.println(line);
-
-				String[] tokens = line.split("\\s");
-				String first = tokens[0];
-				String second = tokens[1];
+				// System.out.println(line);				
 				try {
+					String[] tokens = line.split("\\s");
+					String first = tokens[0];
+					String second = tokens[1];
 					int geneNo1 = Integer.parseInt(first);
 					int geneNo2 = Integer.parseInt(second);
 					Gene gene1 = new Gene(geneNo1);
@@ -115,6 +115,10 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 					preGeneList.add(gene2);
 				} catch (Exception e) {
 					e.printStackTrace();
+					pbIdea.dispose();
+					log.error(e);
+					return new AlgorithmExecutionResults(false,
+							"network file is invalid.",	null);
 				}
 
 			}
@@ -316,7 +320,22 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 				e.printStackTrace();
 				pbIdea.dispose();
 				log.error(e);
-				return null;
+				return new AlgorithmExecutionResults(false,
+						"IDEA calculation failed due to MathException",	null);				
+			}
+			catch(IOException e){
+				e.printStackTrace();
+				pbIdea.dispose();
+				log.error(e);
+				return new AlgorithmExecutionResults(false,
+						"IDEA calculation failed due to IOException",	null);
+			}
+			catch(ClassNotFoundException e){
+				e.printStackTrace();
+				pbIdea.dispose();
+				log.error(e);
+				return new AlgorithmExecutionResults(false,
+						"IDEA calculation failed due to ClassNotFoundException",	null);
 			}
 			if (this.stopAlgorithm) {
 				pbIdea.dispose();
@@ -485,8 +504,10 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 
 			saveNodeInformationFile(dir + "\\output\\output3.txt", probes);
 
-		} catch (java.io.IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
+			return new AlgorithmExecutionResults(false,
+					"IDEA could not finish due to an exception.",	null);
 		}
 
 		pbIdea.dispose();

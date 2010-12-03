@@ -1,7 +1,6 @@
 package org.geworkbench.components.idea;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -71,7 +70,7 @@ public class NullDistribution {
 	}
 
 	@SuppressWarnings("unchecked")
-	public int calcNullDist() throws MathException, FileNotFoundException {
+	public int calcNullDist() throws MathException, IOException, ClassNotFoundException {
 
 		MI_Edge = new HashMap<Double, IdeaEdge>();
 		sortedCorr = new double[edgeSize];
@@ -85,11 +84,11 @@ public class NullDistribution {
 		String dir = System.getProperty("user.dir");
 		String nullString = dir+"\\data\\null.dat";
 		if (useExistNull) {
-			try {
+		
 				FileInputStream fileIn = new FileInputStream(nullFileName);
 				ObjectInputStream in1 = new ObjectInputStream(fileIn);
 				// System.out.println("before reading2...");
-				try {
+			
 					ArrayList<IdeaEdge> readObject = (ArrayList<IdeaEdge>) in1
 							.readObject();
 					edgeIndex = readObject;
@@ -100,13 +99,8 @@ public class NullDistribution {
 					in1.close();
 					fileIn.close();
 
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			} catch (IOException e) {
-				System.out.println("reading error:" + e.getMessage());
-			}
+			
+			
 		}// end of read null data
 		else {
 			for (int i = 0; i < edgeSize; i++) { // calcu MI for each edge in
