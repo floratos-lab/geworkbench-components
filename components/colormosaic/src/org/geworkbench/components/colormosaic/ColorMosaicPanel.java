@@ -67,8 +67,6 @@ import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
-import org.geworkbench.events.CleanDataEvent;
-import org.geworkbench.events.DirtyDataEvent;
 import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.MarkerSelectedEvent;
 import org.geworkbench.events.PhenotypeSelectedEvent;
@@ -148,17 +146,6 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
     private static final int GENE_WIDTH = 20;
     
     private enum searchBy {ARRAYNAME, ACCESSION, LABEL};
-
-    @Subscribe 
-    public void receive(DirtyDataEvent event, Object from) {
-    	colorMosaicImage.setEnablePaint(false);
-    	rowRuler.setEnablePaint(false);
-    }
-    @Subscribe 
-    public void receive(CleanDataEvent event, Object from) {
-    	colorMosaicImage.setEnablePaint(true);
-    	rowRuler.setEnablePaint(true);
-    }
 
     public ColorMosaicPanel() {
         try {

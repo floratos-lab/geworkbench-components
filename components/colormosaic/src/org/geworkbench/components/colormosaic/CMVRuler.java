@@ -41,8 +41,6 @@ public final class CMVRuler extends JComponent {
     private JMenuItem jMenuItem3 = new JMenuItem();
     private JMenuItem jMenuItem4 = new JMenuItem();
     
-    private boolean enablePaint = true;
-    
     public CMVRuler(ColorMosaicImage area) {
         colorMosaicImage = area;
 
@@ -73,7 +71,6 @@ public final class CMVRuler extends JComponent {
 
     @Override
     protected void paintComponent(Graphics gGen) {
-    	if (enablePaint)
         paint(gGen, DEFAULTRES);
     }
 
@@ -355,8 +352,4 @@ public final class CMVRuler extends JComponent {
     public double getScaledWidth() {
         return width;
     }
-
-	public void setEnablePaint(boolean enablePaint) {
-		this.enablePaint = enablePaint;
-	}
 }

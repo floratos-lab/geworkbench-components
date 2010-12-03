@@ -105,21 +105,13 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 
 	private JPopupMenu popupMenu;
 	private JMenuItem imageSnapshotItem;
-	private boolean enablePaint = true;
 	protected Composite comp = null;
     protected AlphaComposite hltcomp = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f);
 
-
-	/* used only by ColorMosaicPanel */
-	void setEnablePaint(boolean b) {
-		enablePaint = b;
-	}
-
+    @Override
 	protected void paintComponent(Graphics g) {
-		if (enablePaint) {
-			super.paintComponent(g);
-			paint(g, DEFAULTRES, true);
-		}
+		super.paintComponent(g);
+		paint(g, DEFAULTRES, true);
 	}
 
 	/* used only by ColorMosaicPanel */
