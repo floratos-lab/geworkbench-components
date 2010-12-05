@@ -11,7 +11,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.commons.math.MathException;
 import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.IdeaEdge;
 import org.geworkbench.bison.datastructure.bioobjects.IdeaEdge.InteractionType;
@@ -39,11 +38,9 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 	private static Log log = LogFactory.getLog(IDEAAnalysis.class);
 
 	private IDEAPanel IDEAAnalysisPanel = new IDEAPanel();
-	final String PHENO_INCLUDE = "Include";
-	final String PHENO_EXCLUDE = "Exclude";
-	final int HEADCOL = 0;
-
-	private int numGenes;
+	final static private String PHENO_INCLUDE = "Include";
+	final static private String PHENO_EXCLUDE = "Exclude";
+	final static private int HEADCOL = 0;
 
 	public IDEAAnalysis() {
 		setDefaultPanel(IDEAAnalysisPanel);
@@ -51,7 +48,7 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 
 	@Override
 	public int getAnalysisType() {
-		return AbstractAnalysis.MRA_TYPE;
+		return AbstractAnalysis.IGNORE_TYPE;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -64,11 +61,10 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 							+ "But you selected a "
 							+ input.getClass().getName(), null);
 		}
-		;
 
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> view = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
 		DSMicroarraySet<DSMicroarray> maSet = view.getMicroarraySet();
-		numGenes = view.markers().size();
+		int numGenes = view.markers().size();
 
 		ProgressBar pbIdea = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
 		pbIdea.addObserver(this);
@@ -80,12 +76,8 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 		pbIdea.start();
 		this.stopAlgorithm = false;
 
-		double[][] expData = null;
-		// Map<String,String> probe_symbol=new HashMap<String,String>();
-		int expColLength = 0, expRowLength = 0;
+		int expColLength = 0;
 
-		final String PHENO_INCLUDE = "Include";
-		final String PHENO_EXCLUDE = "Exclude";
 		TreeSet<Gene> preGeneList = new TreeSet<Gene>();
 		ArrayList<IdeaEdge> edgeIndex = new ArrayList<IdeaEdge>();
 
@@ -149,19 +141,16 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 			return null;
 		}
 
-		DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView = new CSMicroarraySetView(
-				maSet);
-		expColLength = maSetView.items().size();
-		expRowLength = maSet.getMarkers().size();
-		expData = new double[expRowLength][expColLength]; // expData saves the
-															// whole exp file
-															// except strings
-															// which are set to
-															// 0
-		DSMicroarraySetView<? extends DSGeneMarker, ? extends DSMicroarray> data = (DSMicroarraySetView<? extends DSGeneMarker, ? extends DSMicroarray>) input;
-		for (int i = 0; i < expRowLength; i++) {
+		expColLength = view.items().size();
+		double[][] expData = new double[numGenes][expColLength]; // expData
+																	// saves the
+		// whole exp file
+		// except strings
+		// which are set to
+		// 0
+		for (int i = 0; i < numGenes; i++) {
 			for (int j = 0; j < expColLength; j++) {
-				expData[i][j] = (float) data.getValue(i, j);
+				expData[i][j] = view.getValue(i, j);
 			}
 		}
 
@@ -239,12 +228,7 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 
 		}
 
-		double[] x = new double[expColLength - HEADCOL
-				- excludeCols.length];
-		double[] y = new double[expColLength - HEADCOL
-				- excludeCols.length];
-		int[] t = new int[expColLength - HEADCOL
-				- excludeCols.length];
+		int[] t = new int[expColLength - HEADCOL - excludeCols.length];
 		int jj = 0;
 		for (int i = 0; i < expColLength - HEADCOL; i++) {
 			boolean exclude = false;
@@ -258,11 +242,6 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 			}
 		}
 
-		for (int i = 0; i < expColLength - HEADCOL
-				- excludeCols.length; i++) {
-			x[i] = expData[7270 - 7][t[i] + HEADCOL];
-			y[i] = expData[1567 - 7][t[i] + HEADCOL];
-		}
 		try {
 			// ************Key process********************
 			NullDistribution nullDist = new NullDistribution(edgeIndex,
