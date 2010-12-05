@@ -13,6 +13,8 @@ import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.commons.math.MathException;
 import org.apache.commons.math.stat.descriptive.moment.StandardDeviation;
 import org.geworkbench.bison.datastructure.bioobjects.IdeaEdge;
@@ -28,18 +30,19 @@ import weka.estimators.KernelEstimator;
  * 
  */
 public class NullDistribution {
-	static final int KERNEL_N = 100;
+	private static Log log = LogFactory.getLog(NullDistribution.class);
+			
+	static final private int KERNEL_N = 100;
 	private int[] tExp;
 	private double[][] expData = null;
 	private ArrayList<IdeaEdge> edgeIndex = null;
 
-	private int edgeSize;
-	private int headCol;
+	private static int headCol = 0;
 	private boolean useExistNull;
 	private String nullFileName;
 	private double incre;
-	static final double K_WEIGHT = 1;
-	static final double K_PRECISION = 0.0072;// the precision to which numeric
+	private static final double K_WEIGHT = 1;
+	private static final double K_PRECISION = 0.0072;// the precision to which numeric
 												// values are given.
 	// For example, if the precision is stated to be 0.1, the values in the
 	// interval (0.25,0.35] are all treated as 0.3.
@@ -54,17 +57,21 @@ public class NullDistribution {
 									// there are 100 bins totally
 	private int[] expCols = null;
 
-	public NullDistribution(ArrayList<IdeaEdge> edgeIndex, double[][] expData,
-			int headCol, Boolean useExistNull, String nullFileName, int[] allExpCols, int[] expCols) {
+	public NullDistribution(ArrayList<IdeaEdge> edgeIndex, final double[][] expData,
+			int headCol, Boolean useExistNull, String nullFileName,
+			int[] allExpCols, int[] expCols) {
 		/*
 		 * headCol is the extra column,i.e, head columns of exp file
 		 */
+		if(headCol!=0) {
+			log.error("unexpected non-zero leading colum");
+			NullDistribution.headCol = headCol;
+		}
 		this.edgeIndex = edgeIndex;
 		this.expData = expData;
-		this.headCol = headCol;
 		this.useExistNull = useExistNull;
 		this.nullFileName = nullFileName;
-		edgeSize = edgeIndex.size();
+
 		tExp = allExpCols;
 		this.expCols = expCols;
 	}
@@ -74,7 +81,7 @@ public class NullDistribution {
 			ClassNotFoundException {
 
 		MI_Edge = new HashMap<Double, IdeaEdge>();
-		sortedCorr = new double[edgeSize];
+		sortedCorr = new double[edgeIndex.size()];
 		samplePoints = new double[100]; // evenly seperated points from min MI
 										// to max MI
 		binPoints = new double[100]; // correspond to sortedCorr closely near
@@ -102,10 +109,10 @@ public class NullDistribution {
 
 		}// end of read null data
 		else {
-			for (int i = 0; i < edgeSize; i++) { // calcu MI for each edge in
-													// edgeIndex
-				int rowx = edgeIndex.get(i).getExpRowNoG1();
-				int rowy = edgeIndex.get(i).getExpRowNoG2();
+			// calcu MI for each edge in edgeIndex
+			for (IdeaEdge ideaEdge : edgeIndex) {
+				int rowx = ideaEdge.getExpRowNoG1();
+				int rowy = ideaEdge.getExpRowNoG2();
 				double[] x = new double[tExp.length];
 				double[] y = new double[tExp.length];
 
@@ -119,21 +126,20 @@ public class NullDistribution {
 					y[j] = expData[rowy][tExp[j] + headCol];
 				}
 				MutualInfo mutual = MutualInfo.getInstance(x.length);
-				edgeIndex.get(i).setMI(mutual.cacuMutualInfo(x, y)); // save MI
-																		// value
-																		// to
-																		// the
+				ideaEdge.setMI(mutual.cacuMutualInfo(x, y)); // save MI
+																// value
+																// to
+																// the
 				// edge
-				double deltaCorr = getDeltaCorr(edgeIndex.get(i),
-						expData, expCols);
-				edgeIndex.get(i).setDeltaCorr(deltaCorr);// save
-															// deltaCorr
-															// value to
-															// the edge
+				double deltaCorr = getDeltaCorr(ideaEdge, expData, expCols, tExp);
+				ideaEdge.setDeltaCorr(deltaCorr);// save
+													// deltaCorr
+													// value to
+													// the edge
 				// deltaCorr[i]=delta.getDeltaCorr();//deltaCorr[] can be
 				// removed after test.
-				System.out.println("deltaMI of edge" + i + " is "
-						+ edgeIndex.get(i).getDeltaCorr());
+				System.out.println("deltaMI of edge's delta corr is "
+						+ ideaEdge.getDeltaCorr());
 			}
 
 			prepareBins();
@@ -152,9 +158,10 @@ public class NullDistribution {
 
 					for (int k = 0; k < 100; k++) {// each edge has 100 random
 													// null data
-						int[] nullPhenoCols = getRandomNullPhenoNos(tExp, expCols);
-						nullData[k] = getDeltaCorr(currentEdge,
-								expData, nullPhenoCols);
+						int[] nullPhenoCols = getRandomNullPhenoNos(tExp,
+								expCols.length);
+						nullData[k] = getDeltaCorr(currentEdge, expData,
+								nullPhenoCols, tExp);
 					}
 
 					currentEdge.setNullData(nullData); // save null data to edge
@@ -206,18 +213,9 @@ public class NullDistribution {
 			}
 
 			ArrayList<Double> zNullI = new ArrayList<Double>();
-			KernelEstimator kernel = new KernelEstimator(K_PRECISION);// 0.0072
-																		// may
-																		// be
-																		// reasonable,
-																		// not
-																		// sure,
-																		// the
-																		// parameter
-																		// impact
-																		// a lot
+			KernelEstimator kernel = new KernelEstimator(K_PRECISION);
+			/* 0.0072 may be reasonable, not sure, the parameter impact a lot */
 			for (Integer a : binsPoints) {
-				// System.out.println(a);
 				double[] nullDeltaI = MI_Edge.get(sortedCorr[a]).getNullData();
 				for (int i = 0; i < nullDeltaI.length; i++) {
 					kernel.addValue(nullDeltaI[i], K_WEIGHT);
@@ -248,8 +246,9 @@ public class NullDistribution {
 
 		for (IdeaEdge anEdge : edgeIndex) {
 
-			if (anEdge.getNormCorr() < 0.05 / edgeSize) { // show significant
-															// edges
+			if (anEdge.getNormCorr() < 0.05 / edgeIndex.size()) { // show
+																	// significant
+				// edges
 				if (anEdge.getDeltaCorr() < 0)
 					anEdge.setLoc(true);// save the flag for significant edge
 				else if (anEdge.getDeltaCorr() > 0)
@@ -270,11 +269,11 @@ public class NullDistribution {
 	}
 
 	private void prepareBins() {
-		for (int i = 0; i < edgeSize; i++) {
-			sortedCorr[i] = edgeIndex.get(i).getMI();
-			MI_Edge.put(edgeIndex.get(i).getMI(), edgeIndex.get(i)); // setup MI
-																		// value-->edge
-																		// map
+		// setup MI value-->edge map
+		int index = 0;
+		for (IdeaEdge ideaEdge : edgeIndex) {
+			sortedCorr[index++] = ideaEdge.getMI();
+			MI_Edge.put(ideaEdge.getMI(), ideaEdge);
 		}
 		Arrays.sort(sortedCorr); // zheng:check if edgeIndex is changed!
 		// for(int i=0;i<edgeSize;i++)
@@ -285,6 +284,7 @@ public class NullDistribution {
 			samplePoints[i] = samplePoints[0] + i * incre;
 		}
 
+		int edgeSize = edgeIndex.size();
 		for (int i = 0; i < 100; i++) {// prepare binPoint,which correspond to
 										// sortedCorr closely near samplePoint
 			binPoints[i] = samplePoints[i];
@@ -346,9 +346,8 @@ public class NullDistribution {
 		}
 	}
 
-	private static int[] getRandomNullPhenoNos(int[] t, int[] expCols) {
+	private static int[] getRandomNullPhenoNos(int[] t, int phenoSize) {
 		// the random columns generated may have columns of phenotype
-		int phenoSize = expCols.length;
 		int[] nullPhenoNos = new int[phenoSize];
 		for (int i = 0; i < phenoSize; i++)
 			nullPhenoNos[i] = t[t.length - 1]; // init nullPhenoNos to max
@@ -372,36 +371,36 @@ public class NullDistribution {
 	}
 
 	// deltaCorr=anEdge.getMI()-removalMI.getMI()
-	private double getDeltaCorr(IdeaEdge anEdge, double[][] expData, int[] expCols)
-			throws MathException {
+	private static double getDeltaCorr(final IdeaEdge anEdge,
+			final double[][] expData, final int[] expCols, final int[] allExpCols) throws MathException {
 
 		int[] phenoCols = new int[expCols.length];
 		for (int i = 0; i < phenoCols.length; i++)
 			phenoCols[i] = expCols[i];
 		Arrays.sort(phenoCols);
-		int[] exceptPhenoCols = new int[tExp.length
-				- phenoCols.length];
-		int[] t = tExp;
+
+		int columnCount = allExpCols.length - phenoCols.length;
+		int[] exceptPhenoCols = new int[columnCount];
 
 		int j = 0;
 		for (int i = 0; i < exceptPhenoCols.length; i++) {
-			while ((Arrays.binarySearch(phenoCols, t[j]) >= 0)
-					&& (j < tExp.length))
+			while ((Arrays.binarySearch(phenoCols, allExpCols[j]) >= 0)
+					&& (j < allExpCols.length))
 				j++;
-			exceptPhenoCols[i] = t[j];
+			exceptPhenoCols[i] = allExpCols[j];
 			j++;
 		}
-		double[] excPhenoG1 = new double[exceptPhenoCols.length];
-		double[] excPhenoG2 = new double[exceptPhenoCols.length];
-		double[] allG1 = expData[anEdge.getExpRowNoG1()];
-		double[] allG2 = expData[anEdge.getExpRowNoG2()];
-		for (int i = 0; i < exceptPhenoCols.length; i++) {
-			excPhenoG1[i] = allG1[exceptPhenoCols[i] + headCol];
-			excPhenoG2[i] = allG2[exceptPhenoCols[i] + headCol];
+		double[] excPhenoG1 = new double[columnCount];
+		double[] excPhenoG2 = new double[columnCount];
+		int row1 = anEdge.getExpRowNoG1();
+		int row2 = anEdge.getExpRowNoG2();
+		for (int i = 0; i < columnCount; i++) {
+			int col = exceptPhenoCols[i] + headCol;
+			excPhenoG1[i] = expData[row1][col];
+			excPhenoG2[i] = expData[row2][col];
 		}
 		MutualInfo removalMI = MutualInfo.getInstance(excPhenoG1.length);
 		double d = removalMI.cacuMutualInfo(excPhenoG1, excPhenoG2);
-		// anEdge.setRemovalCorr(d); //save removalCorr to the edge
 		return anEdge.getMI() - d;
 	}
 
