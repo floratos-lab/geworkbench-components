@@ -303,12 +303,7 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 				x[i] = expData[7270 - 7][t[i] + HEADCOL];
 				y[i] = expData[1567 - 7][t[i] + HEADCOL];
 			}
-			MutualInfo mutual;
 			try {
-				mutual = new MutualInfo(x, y);
-				double mi = mutual.getMI();
-				System.out.println("first MI is " + mi);
-
 				// ************Key process********************
 				NullDistribution nullDist = new NullDistribution(preGeneList,
 						edgeIndex, expData, phenoType, HEADCOL, IDEAAnalysisPanel.getUseNullData(),IDEAAnalysisPanel.getNullFileName());

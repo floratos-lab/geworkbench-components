@@ -354,8 +354,8 @@ public class IdeaLauncher {
 			y[i] = expData[1567][t[i] + HEADCOL];
 
 		}
-		MutualInfo mutual = new MutualInfo(x, y);
-		double mi = mutual.getMI();
+		MutualInfo mutual = MutualInfo.getInstance(x.length);
+		double mi = mutual.cacuMutualInfo(x, y);
 
 		System.out.println("first MI is " + mi);
 		boolean useExistNull=true;

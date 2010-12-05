@@ -119,10 +119,8 @@ public class NullDistribution {
 																// above
 					y[j] = expData[rowy][tExp[j] + headCol];
 				}
-				MutualInfo mutual = new MutualInfo(x, y);
-				// edgeCorr[i]=mutual.getMI(); //edgeCorr[] may be removed after
-				// test.
-				edgeIndex.get(i).setMI(mutual.getMI()); // save MI value to the
+				MutualInfo mutual = MutualInfo.getInstance(x.length);
+				edgeIndex.get(i).setMI(mutual.cacuMutualInfo(x, y)); // save MI value to the
 														// edge
 				DeltaCorr delta = new DeltaCorr(pheno, edgeIndex.get(i),
 						expData);
@@ -427,8 +425,8 @@ public class NullDistribution {
 				excPhenoG1[i] = allG1[exceptPhenoCols[i] + headCol];
 				excPhenoG2[i] = allG2[exceptPhenoCols[i] + headCol];
 			}
-			MutualInfo removalMI = new MutualInfo(excPhenoG1, excPhenoG2);
-			double d = removalMI.getMI();
+			MutualInfo removalMI = MutualInfo.getInstance(excPhenoG1.length);
+			double d = removalMI.cacuMutualInfo(excPhenoG1, excPhenoG2);
 			// anEdge.setRemovalCorr(d); //save removalCorr to the edge
 			deltaCorr = anEdge.getMI() - d;
 		}
