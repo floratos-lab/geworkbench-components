@@ -30,6 +30,7 @@ import org.geworkbench.bison.datastructure.bioobjects.IdeaProbeGene;
 import org.geworkbench.bison.datastructure.bioobjects.IdeaResult;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
@@ -215,48 +216,9 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 				JFileChooser fc = new JFileChooser();
 	            int returnVal = fc.showSaveDialog(IDEAViewer.this);
 	            if (returnVal == JFileChooser.APPROVE_OPTION) {
-	                File file = fc.getSelectedFile();
-	                //This is where to save the file.
-	                String str = "";
-	        		str += "Probe\tGene\tChrBand\tConn\tNes\tLoc\tLoCHits\tLoCEs\tLoCNes\tGoc\tGoCHits\tGoCEs\tGoCNes";
-	        		int row = 0;
-	        		for (IdeaProbeGene p : ideaResult.getSignificantGeneList()) {// present significant nodes
-	        			int locHits = 0;
-	        			int gocHits = 0;
-	        			for (IdeaEdge e : p.getEdges()) {
-	        				if (e.getDeltaCorr() < 0)
-	        					locHits++;
-	        				else if (e.getDeltaCorr() > 0)
-	        					gocHits++;
-	        			}
-	        			double locnes = -Math.log(p.getCumLoc());
-	        			double gocnes = -Math.log(p.getCumGoc());
-	        			DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet<DSMicroarray>)ideaResult.getParentDataSet(); 
-	        			
-	        			DSGeneMarker m = maSet.getMarkers().get(p.getProbeId());
-	        			str += "\n" + p.getProbeId() + "\t" + m.getGeneName()
-	        					+ "\t";
-	        			str += "chromosomal" + "\t" + p.getEdges().size() + "\t"
-	        					+ p.getNes() + "\t" + p.getLocs() + "\t" + locHits
-	        					+ "\t" + p.getCumLoc() + "\t" + locnes + "\t"
-	        					+ p.getGocs() + "\t" + gocHits + "\t" + p.getCumGoc()
-	        					+ "\t" + gocnes;
-	        			row++;
-	        		}
-	        		PrintWriter out = null;
-	        		try {
-	        			out = new PrintWriter(file);
-	        			out.println(str);
-	        		} catch (FileNotFoundException e) {
-	        			e.printStackTrace();
-	        		} finally {
-	        			out.close();
-	        		}	                
-	               
-	            } else {
-	                //log.append("Save command cancelled by user." + newline);
+        			DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet<DSMicroarray>)ideaResult.getParentDataSet(); 
+	                saveSignificantGenesAsFile(fc.getSelectedFile(), ideaResult.getSignificantGeneList(), maSet.getMarkers());
 	            }
-	            //log.setCaretPosition(log.getDocument().getLength());				
 			}			
 		});		
 		
@@ -268,30 +230,8 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 				JFileChooser fc = new JFileChooser();
 	            int returnVal = fc.showSaveDialog(IDEAViewer.this);
 	            if (returnVal == JFileChooser.APPROVE_OPTION) {
-	                File file = fc.getSelectedFile();
-	                //This is where to save the file.
-	                String str = "";
-	                str += "Probe1\tGene1\tProbe2\tGene2\tMI\tDeltaMI\tNormDelta\tZ-score";
-	        		int output1Row = 0;
-	        		for (IdeaEdge e : ideaResult.getLocList()) {
-	        			str += "\n" + e.getProbeId1() + "\t"
-	        					+ e.getMarker1().getGeneName() + "\t" + e.getProbeId2()
-	        					+ "\t" + e.getMarker2().getGeneName() + "\t"
-	        					+ e.getMI() + "\t" + e.getDeltaCorr() + "\t"
-	        					+ e.getNormCorr() + "\t" + e.getzDeltaCorr();
-
-	        			output1Row++;
-	        		}
-	                PrintWriter out = null;
-		        		try {
-		        			out = new PrintWriter(file);
-		        			out.println(str);
-		        		} catch (FileNotFoundException e) {
-		        			e.printStackTrace();
-		        		} finally {
-		        			out.close();
-		        		}        			
-	        		}			
+	                saveAsFile(fc.getSelectedFile(), ideaResult.getLocList());
+        		}			
 			}			
 		});
 		
@@ -302,31 +242,8 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 				JFileChooser fc = new JFileChooser();
 	            int returnVal = fc.showSaveDialog(IDEAViewer.this);
 	            if (returnVal == JFileChooser.APPROVE_OPTION) {
-	                File file = fc.getSelectedFile();
-	                //This is where to save the file.
-	                String str = "";
-	                str += "Probe1\tGene1\tProbe2\tGene2\tMI\tDeltaMI\tNormDelta\tZ-score";
-	        		int output1Row = 0;
-	        		for (IdeaEdge e : ideaResult.getGocList()) {
-	        			str += "\n" + e.getProbeId1() + "\t"
-	        					+ e.getMarker1().getGeneName() + "\t" + e.getProbeId2()
-	        					+ "\t" + e.getMarker2().getGeneName() + "\t"
-	        					+ e.getMI() + "\t" + e.getDeltaCorr() + "\t"
-	        					+ e.getNormCorr() + "\t" + e.getzDeltaCorr();
-
-	        			output1Row++;
-	        		}
-
-	                PrintWriter out = null;
-		        		try {
-		        			out = new PrintWriter(file);
-		        			out.println(str);
-		        		} catch (FileNotFoundException e) {
-		        			e.printStackTrace();
-		        		} finally {
-		        			out.close();
-		        		}        			
-	        		}		
+	                saveAsFile(fc.getSelectedFile(), ideaResult.getGocList());
+        		}		
 			}			
 		});
 		
@@ -356,6 +273,72 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 	        	}		        				
 	     	}		
 		});	
+	}
+
+	private void saveAsFile(File file, List<IdeaEdge> list) {
+		String edgeStr = "";
+
+		edgeStr += "Probe1\tGene1\tProbe2\tGene2\tMI\tDeltaMI\tNormDelta\tZ-score";
+		int output1Row = 0;
+		for (IdeaEdge e : list) {
+			edgeStr += "\n" + e.getProbeId1() + "\t"
+					+ e.getMarker1().getGeneName() + "\t" + e.getProbeId2()
+					+ "\t" + e.getMarker2().getGeneName() + "\t"
+					+ e.getMI() + "\t" + e.getDeltaCorr() + "\t"
+					+ e.getNormCorr() + "\t" + e.getzDeltaCorr();
+
+			output1Row++;
+		}
+
+		PrintWriter out = null;
+		try {
+			out = new PrintWriter(file);
+			out.println(edgeStr);
+		} catch (FileNotFoundException e1) {
+			e1.printStackTrace();
+		} finally {
+			out.close();
+		}
+	}
+	
+	private void saveSignificantGenesAsFile(File file, List<IdeaProbeGene> significantGeneList, DSItemList<DSGeneMarker> markers) {
+		String nodeStr = "";
+		nodeStr += "Probe\tGene\tChrBand\tConn\tNes\tLoc\tLoCHits\tLoCEs\tLoCNes\tGoc\tGoCHits\tGoCEs\tGoCNes";
+		int row = 0;
+		for (IdeaProbeGene p : significantGeneList) {// present significant nodes
+			int locHits = 0;
+			int gocHits = 0;
+			for (IdeaEdge e : p.getEdges()) {
+				if (e.getDeltaCorr() < 0)
+					locHits++;
+				else if (e.getDeltaCorr() > 0)
+					gocHits++;
+			}
+			double locnes = -Math.log(p.getCumLoc());
+			double gocnes = -Math.log(p.getCumGoc());
+
+			DSGeneMarker m = markers.get(p.getProbeId());
+
+			nodeStr += "\n" + p.getProbeId() + "\t" + m.getGeneName()
+					+ "\t";
+			nodeStr += "chromosomal" + "\t" + p.getEdges().size() + "\t"
+					+ p.getNes() + "\t" + p.getLocs() + "\t" + locHits
+					+ "\t" + p.getCumLoc() + "\t" + locnes + "\t"
+					+ p.getGocs() + "\t" + gocHits + "\t" + p.getCumGoc()
+					+ "\t" + gocnes;
+
+			row++;
+		}
+
+		PrintWriter out = null;
+		try {
+			out = new PrintWriter(file);
+			out.println(nodeStr);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} finally {
+			out.close();
+		}
 	}
 
 	private IdeaResult ideaResult = null;

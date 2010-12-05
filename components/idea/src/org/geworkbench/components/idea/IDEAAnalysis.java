@@ -347,11 +347,8 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 			}
 			
 			Collections.sort(locList, new SortByZ());
-			
-			saveAsFile(dir + "\\output\\output1_loc.txt", locList);
 
 			Collections.sort(gocList, new SortByZa());
-			saveAsFile(dir + "\\output\\output1_goc.txt", gocList);			
 
 			for (Gene g : preGeneList) {// edge in preGeneList need update from
 										// edgeIndex, because edgeIndex may be
@@ -490,8 +487,6 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 			}
 			Collections.sort(probeNes, new SortByNes());
 			
-			saveSignificantGenesAsFile(dir + "\\output\\output2.txt", probeNes, maSet.getMarkers());
-
 			if (this.stopAlgorithm) {
 				pbIdea.dispose();
 				return null;
@@ -554,72 +549,6 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 			out.close();
 		}
 
-	}
-	
-	private void saveSignificantGenesAsFile(String filename, List<IdeaProbeGene> significantGeneList, DSItemList<DSGeneMarker> markers) {
-		String nodeStr = "";
-		nodeStr += "Probe\tGene\tChrBand\tConn\tNes\tLoc\tLoCHits\tLoCEs\tLoCNes\tGoc\tGoCHits\tGoCEs\tGoCNes";
-		int row = 0;
-		for (IdeaProbeGene p : significantGeneList) {// present significant nodes
-			int locHits = 0;
-			int gocHits = 0;
-			for (IdeaEdge e : p.getEdges()) {
-				if (e.getDeltaCorr() < 0)
-					locHits++;
-				else if (e.getDeltaCorr() > 0)
-					gocHits++;
-			}
-			double locnes = -Math.log(p.getCumLoc());
-			double gocnes = -Math.log(p.getCumGoc());
-
-			DSGeneMarker m = markers.get(p.getProbeId());
-
-			nodeStr += "\n" + p.getProbeId() + "\t" + m.getGeneName()
-					+ "\t";
-			nodeStr += "chromosomal" + "\t" + p.getEdges().size() + "\t"
-					+ p.getNes() + "\t" + p.getLocs() + "\t" + locHits
-					+ "\t" + p.getCumLoc() + "\t" + locnes + "\t"
-					+ p.getGocs() + "\t" + gocHits + "\t" + p.getCumGoc()
-					+ "\t" + gocnes;
-
-			row++;
-		}
-
-		PrintWriter out = null;
-		try {
-			out = new PrintWriter(filename);
-			out.println(nodeStr);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} finally {
-			out.close();
-		}
-	}
-	
-	private void saveAsFile(String filename, List<IdeaEdge>locList) {
-		String edgeStr = "";
-
-		edgeStr += "Probe1\tGene1\tProbe2\tGene2\tMI\tDeltaMI\tNormDelta\tZ-score";
-		int output1Row = 0;
-		for (IdeaEdge e : locList) {
-			edgeStr += "\n" + e.getProbeId1() + "\t"
-					+ e.getMarker1().getGeneName() + "\t" + e.getProbeId2()
-					+ "\t" + e.getMarker2().getGeneName() + "\t"
-					+ e.getMI() + "\t" + e.getDeltaCorr() + "\t"
-					+ e.getNormCorr() + "\t" + e.getzDeltaCorr();
-
-			output1Row++;
-		}
-
-		PrintWriter out = null;
-		try {
-			out = new PrintWriter(filename);
-			out.println(edgeStr);
-		} catch (FileNotFoundException e1) {
-			e1.printStackTrace();
-		} finally {
-			out.close();
-		}
 	}
 
 	private String generateHistoryString() {
