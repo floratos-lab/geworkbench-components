@@ -17,7 +17,6 @@ import java.util.Set;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -33,13 +32,14 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.events.listeners.ParameterActionListener;
+
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
 
 /**
  * IDEAPanel of IDEA analysis component
  * @author zm2165
- * @version $id$
+ * @version $Id$
  */
 public class IDEAPanel extends AbstractSaveableParameterPanel {
 	
@@ -50,14 +50,6 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 	private JTextField pValueTextField = null;
 	
 	private JPanel selectionPanel = null;
-	
-	/* referent list = population; change list = study set */
-	private static JComboBox networkSource = new JComboBox(new String[] {
-			"From File"});
-	private static JComboBox phenotypeSource = new JComboBox(new String[] {
-			"From File"});
-	private static JComboBox nullDataSource = new JComboBox(new String[] {
-	"From File"});
 	
 	private JTextField network = null;
 	private JTextField phenotype = null;
@@ -85,19 +77,9 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 			Object value = parameter.getValue();
 
 			// set the parameters on GUI based on the Map
-			if (key.equals("networkSource")) {
-				networkSource.setSelectedItem(value);
-			}			
 			if (key.equals("network")) {
 				network.setText((String)value);
 			}
-			if (key.equals("phenotypeSource")) {
-				phenotypeSource.setSelectedItem(value);
-			}
-			if (key.equals("nullDataSource")) {
-				nullDataSource.setSelectedItem(value);
-			}
-			
 			if (key.equals("phenotype")) {
 				phenotype.setText((String)value);
 			}
@@ -118,10 +100,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 
 		// set the Map with the parameter values retrieved from GUI
 		// component
-		parameters.put("networkSource", (String)networkSource.getSelectedItem());		
 		parameters.put("network", network.getText());
-		parameters.put("phenotypeSource", (String)phenotypeSource.getSelectedItem());
-		parameters.put("nullDataSource", (String)nullDataSource.getSelectedItem());
 		parameters.put("phenotype", phenotype.getText());
 		parameters.put("nullData", nullData.getText());
 		
@@ -170,13 +149,13 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 			builder.appendSeparator("Inputs required");			
 			network = new JTextField(20);
 			networkLoadButton = new JButton("Load");
-			builder.append("Load Network      ", networkSource,
+			builder.append("Load Network      ",
 					network, networkLoadButton);			
 			builder.nextLine();
 			
 			phenotype = new JTextField(20);
 			phenotypeLoadButton = new JButton("Load");
-			builder.append("Define Phenotype", phenotypeSource,
+			builder.append("Define Phenotype",
 					phenotype, phenotypeLoadButton);
 			builder.nextLine();
 			
@@ -188,7 +167,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 			nullData = new JTextField(20);
 			nullData.setEditable(false);
 			nullDataLoadButton = new JButton("Load");
-			builder.append("Load null data      ", nullDataSource,
+			builder.append("Load null data      ",
 					nullData, nullDataLoadButton);
 			builder.nextLine();			
 			
@@ -226,9 +205,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 		// they are (basically) all the same
 		ParameterActionListener parameterActionListener = new ParameterActionListener(
 				this);
-		networkSource.addActionListener(parameterActionListener);		
 		network.addActionListener(parameterActionListener);
-		phenotypeSource.addActionListener(parameterActionListener);		
 		phenotype.addActionListener(parameterActionListener);
 		nullData.addActionListener(parameterActionListener);
 	}
@@ -238,12 +215,10 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 			public void actionPerformed(ActionEvent e) {
 				boolean nullDataOn=nullDataCheckbox.isSelected();
 				if(nullDataOn){
-					nullDataSource.setEnabled(true);
 					nullData.setEnabled(true);					
 					nullDataLoadButton.setEnabled(true);
 				}
 				else{
-					nullDataSource.setEnabled(false);
 					nullData.setEnabled(false);					
 					nullDataLoadButton.setEnabled(false);
 				}
@@ -298,12 +273,8 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 
 	@Override
 	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
-		if(parameters.get("networkSource")==null)
-			parameters.put("networkSource", (String)networkSource.getItemAt(0));		
 		if(parameters.get("network")==null)
 			parameters.put("network", "");
-		if(parameters.get("phenotypeSource")==null)
-			parameters.put("phenotypeSource", (String)phenotypeSource.getItemAt(0));		
 		if(parameters.get("phenotype")==null)
 			parameters.put("phenotype", "");
 		if(parameters.get("nullData")==null)
