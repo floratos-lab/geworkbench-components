@@ -150,16 +150,15 @@ public class NullDistribution {
 
 					for (int k = 0; k < 100; k++) {// each edge has 100 random
 													// null data
-						Rand randPheno = new Rand(pheno, tExp);
-						int[] nullPhenoCols = randPheno.getNullPhenoNos();
+						int[] nullPhenoCols = getRandomNullPhenoNos(pheno, tExp);
 						Phenotype nullPheno = new Phenotype(nullPhenoCols);
 						nullData[k] = getDeltaCorr(nullPheno, currentEdge,
 								expData);
 					}
 
 					currentEdge.setNullData(nullData); // save null data to edge
-					System.out.println("edge" + j + " of bin " + i);
 				}// end of each bin
+				System.out.println("bin " + i);
 
 			}// end of 100 bins
 
@@ -346,14 +345,10 @@ public class NullDistribution {
 		}
 	}
 
-	public class Rand {
-		int[] nullPhenoNos;
-		int phenoSize;
-
-		public Rand(Phenotype p, int[] t) {// the random columns generated may
-											// have columns of phenotype
-			phenoSize = p.getExpCols().length;
-			nullPhenoNos = new int[phenoSize];
+	private	static int[] getRandomNullPhenoNos(Phenotype p, int[] t) {
+		// the random columns generated may have columns of phenotype
+			int phenoSize = p.getExpCols().length;
+			int [] nullPhenoNos = new int[phenoSize];
 			for (int i = 0; i < phenoSize; i++)
 				nullPhenoNos[i] = t[t.length - 1]; // init nullPhenoNos to max
 													// number, so the new random
@@ -364,27 +359,15 @@ public class NullDistribution {
 			while (howManyNos < phenoSize) {
 				int randomInt = t[randomGenerator.nextInt(t.length)];
 				Arrays.sort(nullPhenoNos);
-				if (Arrays.binarySearch(nullPhenoNos, randomInt) < 0) { // found
-																		// one,
-																		// means
-																		// randomInt
-																		// is a
-																		// new
-																		// one
-																		// in
-																		// nullPhenoNos[]
+				if (Arrays.binarySearch(nullPhenoNos, randomInt) < 0) { 
+					/* found one, means randomInt is a new one in nullPhenoNos[] */
 					nullPhenoNos[nullPhenoNos.length - 1] = randomInt;
 					howManyNos++;
 				}
 			}
 			Arrays.sort(nullPhenoNos);
 
-		}
-
-		public int[] getNullPhenoNos() {
-
 			return nullPhenoNos;
-		}
 	}
 
 	// deltaCorr=anEdge.getMI()-removalMI.getMI()
