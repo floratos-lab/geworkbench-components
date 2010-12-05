@@ -1,9 +1,6 @@
 package org.geworkbench.components.idea;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -17,9 +14,9 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.IdeaEdge;
+import org.geworkbench.bison.datastructure.bioobjects.IdeaEdge.InteractionType;
 import org.geworkbench.bison.datastructure.bioobjects.IdeaProbeGene;
 import org.geworkbench.bison.datastructure.bioobjects.IdeaResult;
-import org.geworkbench.bison.datastructure.bioobjects.IdeaEdge.InteractionType;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
@@ -40,8 +37,6 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 	private static final long serialVersionUID = 7928879302023716304L;
 
 	private static Log log = LogFactory.getLog(IDEAAnalysis.class);
-
-	final static private String dir = "c:\\idea_test";
 
 	private IDEAPanel IDEAAnalysisPanel = new IDEAPanel();
 	final String PHENO_INCLUDE = "Include";
@@ -170,13 +165,6 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 			}
 		}
 
-		String outDir = dir + "\\output";
-		File file = new File(outDir);
-		boolean exists = file.exists();
-		if (!exists) {
-			(new File(outDir)).mkdir();
-		}
-
 		for (String line : networkLines) {
 			line = line.trim();
 			int headLine = line.indexOf("Gene1");
@@ -251,10 +239,6 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 
 		}
 
-		List<IdeaEdge> locList = null;
-		List<IdeaEdge> gocList = null;
-		List<IdeaProbeGene> probeNes = null;
-
 		double[] x = new double[expColLength - HEADCOL
 				- excludeCols.length];
 		double[] y = new double[expColLength - HEADCOL
@@ -313,8 +297,8 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 			return null;
 		}
 
-		locList = new ArrayList<IdeaEdge>();
-		gocList = new ArrayList<IdeaEdge>();
+		List<IdeaEdge> locList = new ArrayList<IdeaEdge>();
+		List<IdeaEdge> gocList = new ArrayList<IdeaEdge>();
 		for (IdeaEdge anEdge : edgeIndex) {
 			if (anEdge.isLoc())
 				locList.add(anEdge);
@@ -446,7 +430,7 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 			p.setNes(nes);
 		}
 
-		probeNes = new ArrayList<IdeaProbeGene>();
+		List<IdeaProbeGene> probeNes = new ArrayList<IdeaProbeGene>();
 		for (IdeaProbeGene p : probes) {
 			probeNes.add(p);
 		}
@@ -457,8 +441,6 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 			return null;
 		}
 
-		saveNodeInformationFile(dir + "\\output\\output3.txt", probes);
-
 		IdeaResult analysisResult = new IdeaResult(maSet,
 				"IDEA Analysis Result", locList, gocList, probeNes);
 		String stemp = generateHistoryString();
@@ -467,46 +449,6 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 		AlgorithmExecutionResults results = new AlgorithmExecutionResults(true,
 				"Idea Analysis", analysisResult);
 		return results;
-	}
-
-	private void saveNodeInformationFile(String filename,
-			TreeSet<IdeaProbeGene> probes) {
-		String nodeStr = "";
-		nodeStr += "Gene1\tGene2\tconn_type\tLoc\tGoc";
-		for (IdeaProbeGene p : probes) {// present significant node with its
-			// edges
-			if ((p.getCumLoc() < 0.05) || (p.getCumGoc() < 0.05)) {
-				// nodeStr+=p.getProbeId()+"\n";
-				for (IdeaEdge e : p.getEdges()) {
-					String isLoc = "";
-					String isGoc = "";
-					String ppi = "";
-					if (e.isLoc())
-						isLoc = "X";
-					if (e.isGoc())
-						isGoc = "X";
-					if (e.getPpi() == InteractionType.PROTEIN_PROTEIN)
-						ppi = "ppi";
-					else if (e.getPpi() == InteractionType.PROTEIN_DNA)
-						ppi = "pdi";
-
-					nodeStr += "\n" + e.getProbeId1() + "\t" + e.getProbeId2()
-							+ "\t" + ppi + "\t" + isLoc + "\t" + isGoc;
-				}
-			}
-		}
-
-		PrintWriter out = null;
-		try {
-			out = new PrintWriter(filename);
-			out.println(nodeStr);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} finally {
-			if (out != null)
-				out.close();
-		}
-
 	}
 
 	private String generateHistoryString() {
