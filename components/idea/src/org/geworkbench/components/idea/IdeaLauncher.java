@@ -361,7 +361,7 @@ public class IdeaLauncher {
 		boolean useExistNull=true;
 		String nullFileName=dir +"\\null.dat";
 		// ************Key process********************
-		NullDistribution nullDist = new NullDistribution(preGeneList,
+		NullDistribution nullDist = new NullDistribution(
 				edgeIndex, expData, phenoType, HEADCOL,useExistNull, nullFileName);
 		nullDist.calcNullDist();
 		edgeIndex = nullDist.getEdgeIndex();
