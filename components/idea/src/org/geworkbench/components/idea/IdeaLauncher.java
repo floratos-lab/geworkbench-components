@@ -30,20 +30,22 @@ public class IdeaLauncher {
 	 * 
 	 * @param args
 	 * @throws MathException
-	 * @throws ClassNotFoundException 
-	 * @throws IOException 
+	 * @throws ClassNotFoundException
+	 * @throws IOException
 	 */
-	public static void main(String[] args) throws MathException, IOException, ClassNotFoundException {
+	public static void main(String[] args) throws MathException, IOException,
+			ClassNotFoundException {
 		String dir = System.getProperty("user.dir");
-		
-		// initialize input file names with default setting 
-		String networkFile = dir + "\\input\\network.txt"; // to be processed file
+
+		// initialize input file names with default setting
+		String networkFile = dir + "\\input\\network.txt"; // to be processed
+															// file
 		// prepare the expression data
-		String expressionFile = dir + "\\input\\bcell_mas5_254_filtered_classinfo.exp";
+		String expressionFile = dir
+				+ "\\input\\bcell_mas5_254_filtered_classinfo.exp";
 		String annotationFile = dir + "\\input\\HG_U95Av2.na23.annot.csv";
 		// prepare the phenotype data
-		String phenotypeFile = dir + "\\input\\myPhenotype.txt"; 
-
+		String phenotypeFile = dir + "\\input\\myPhenotype.txt";
 
 		if (args.length != 0 && args.length != 4) {
 			System.out
@@ -51,7 +53,7 @@ public class IdeaLauncher {
 							+ "java IdeaLauncher network_file expression_file annotation_file phenotype_file"
 							+ "\nor: java IdeaLauncher");
 			System.exit(0);
-		} else if (args.length == 4)  {
+		} else if (args.length == 4) {
 			networkFile = args[0];
 			expressionFile = args[1];
 			annotationFile = args[2];
@@ -194,7 +196,8 @@ public class IdeaLauncher {
 
 				int geneNo1 = Integer.parseInt(first);
 				int geneNo2 = Integer.parseInt(second);
-				InteractionType interactionType = IDEAAnalysis.stringToInteractionType(tokens[3]);
+				InteractionType interactionType = IDEAAnalysis
+						.stringToInteractionType(tokens[3]);
 				Gene gene1 = null;
 				Gene gene2 = null;
 
@@ -239,15 +242,16 @@ public class IdeaLauncher {
 								String probeId2 = expCol0[rowG2];
 								DSGeneMarker marker1 = null;
 								DSGeneMarker marker2 = null;
-								IdeaEdge anEdge = new IdeaEdge(geneNo1, geneNo2,
-										marker1, marker2, rowG1, rowG2,
-										probeId1, probeId2, interactionType);// marker1,marker2
-																	// are no
-																	// use here,
-																	// just for
-																	// consistent
-																	// with
-																	// IDEAAnalysis
+								IdeaEdge anEdge = new IdeaEdge(geneNo1,
+										geneNo2, marker1, marker2, rowG1,
+										rowG2, probeId1, probeId2,
+										interactionType);// marker1,marker2
+								// are no
+								// use here,
+								// just for
+								// consistent
+								// with
+								// IDEAAnalysis
 								edgeIndex.add(anEdge);// after calcu Null
 														// distribution, if
 														// there is a null file,
@@ -282,62 +286,37 @@ public class IdeaLauncher {
 
 		FileReader phenoreader = new FileReader(phenotypeFile);
 		Scanner phenoin = new Scanner(phenoreader);
-		Phenotype phenoType = new Phenotype();
 
+		int[] expCols = null;
+		int[] excludeCols = null;
 		while (phenoin.hasNextLine()) {
 			String line = phenoin.nextLine();
 			String[] tokens = line.split("\\s");
 			int phenoItemLength = tokens.length;
 			if (line.indexOf(PHENO_INCLUDE) != -1) {
-				int[] expCols = new int[phenoItemLength - 1];
+				expCols = new int[phenoItemLength - 1];
 				for (int i = 0; i < phenoItemLength - 1; i++) {
-					expCols[i] = Integer.parseInt(tokens[i + 1]) - 1; // because
-																		// the
-																		// exp
-																		// columns
-																		// in
-																		// phenotype
-																		// file
-																		// is
-																		// from
-																		// 1,
-																		// however
-																		// they
-																		// are
-																		// from
-																		// 2 in
-																		// exp
-																		// file,
-																		// not
-																		// fix
-																		// the
-																		// major
-																		// part
-																		// yet
+					expCols[i] = Integer.parseInt(tokens[i + 1]) - 1; 
+					/* because the exp columns in phenotype file is from 1,
+					 * however they are from 2 in exp file, not fix the major part yet */
 				}
-				phenoType.setExpCols(expCols);
 			} else if (line.indexOf(PHENO_EXCLUDE) != -1) {
-				int[] expExcludeCols = new int[phenoItemLength - 1];
+				excludeCols = new int[phenoItemLength - 1];
 				for (int i = 0; i < phenoItemLength - 1; i++) {
-					expExcludeCols[i] = Integer.parseInt(tokens[i + 1]) - 1;// same
-																			// as
-																			// above,
+					excludeCols[i] = Integer.parseInt(tokens[i + 1]) - 1;
+					// same as above,
 				}
-				phenoType.setExcludeCols(expExcludeCols);
 			}
 		}
 
-		double[] x = new double[expColLength - HEADCOL
-				- phenoType.getExcludeCols().length];
-		double[] y = new double[expColLength - HEADCOL
-				- phenoType.getExcludeCols().length];
-		int[] t = new int[expColLength - HEADCOL
-				- phenoType.getExcludeCols().length];
+		double[] x = new double[expColLength - HEADCOL - excludeCols.length];
+		double[] y = new double[expColLength - HEADCOL - excludeCols.length];
+		int[] t = new int[expColLength - HEADCOL - excludeCols.length];
 		int jj = 0;
 		for (int i = 0; i < expColLength - HEADCOL; i++) {
 			boolean exclude = false;
-			for (int j = 0; j < phenoType.getExcludeCols().length; j++) {
-				if (i == (phenoType.getExcludeCols()[j]))
+			for (int j = 0; j < excludeCols.length; j++) {
+				if (i == (excludeCols[j]))
 					exclude = true;
 			}
 			if (!exclude) {
@@ -346,23 +325,16 @@ public class IdeaLauncher {
 			}
 		}
 
-		phenoType.setAllExpCols(t);
-
-		for (int i = 0; i < expColLength - HEADCOL
-				- phenoType.getExcludeCols().length; i++) {
+		for (int i = 0; i < expColLength - HEADCOL - excludeCols.length; i++) {
 			x[i] = expData[7270][t[i] + HEADCOL];
 			y[i] = expData[1567][t[i] + HEADCOL];
-
 		}
-		MutualInfo mutual = MutualInfo.getInstance(x.length);
-		double mi = mutual.cacuMutualInfo(x, y);
 
-		System.out.println("first MI is " + mi);
-		boolean useExistNull=true;
-		String nullFileName=dir +"\\null.dat";
+		boolean useExistNull = true;
+		String nullFileName = dir + "\\null.dat";
 		// ************Key process********************
-		NullDistribution nullDist = new NullDistribution(
-				edgeIndex, expData, phenoType, HEADCOL,useExistNull, nullFileName);
+		NullDistribution nullDist = new NullDistribution(edgeIndex, expData,
+				HEADCOL, useExistNull, nullFileName, t, expCols);
 		nullDist.calcNullDist();
 		edgeIndex = nullDist.getEdgeIndex();
 
@@ -451,16 +423,17 @@ public class IdeaLauncher {
 
 		}
 
-		TreeSet<IdeaProbeGene> probes = new TreeSet<IdeaProbeGene>();// process probes,
-																// which is a
-																// alternative
-																// way to
-																// evaluate
-																// genes other
-																// than entrez
-																// genes which I
-																// call gene in
-																// this code
+		TreeSet<IdeaProbeGene> probes = new TreeSet<IdeaProbeGene>();// process
+																		// probes,
+		// which is a
+		// alternative
+		// way to
+		// evaluate
+		// genes other
+		// than entrez
+		// genes which I
+		// call gene in
+		// this code
 		for (IdeaEdge e : edgeIndex) {
 			IdeaProbeGene p1 = new IdeaProbeGene(e.getProbeId1());
 			IdeaProbeGene p2 = new IdeaProbeGene(e.getProbeId2());
@@ -479,7 +452,8 @@ public class IdeaLauncher {
 			p.setEdges(edges);
 		}
 
-		for (IdeaProbeGene p : probes) { // enrichment to find the significant probe
+		for (IdeaProbeGene p : probes) { // enrichment to find the significant
+											// probe
 			int locs = 0;
 			int gocs = 0;
 			for (IdeaEdge anEdge : p.getEdges()) {
@@ -621,7 +595,8 @@ public class IdeaLauncher {
 
 		nodeStr = "";
 		nodeStr += "Gene1\tGene2\tconn_type\tLoc\tGoc\n";
-		for (IdeaProbeGene p : probes) {// present significant node with its edges
+		for (IdeaProbeGene p : probes) {// present significant node with its
+										// edges
 			if ((p.getCumLoc() < 0.05) || (p.getCumGoc() < 0.05)) {
 				// nodeStr+=p.getProbeId()+"\n";
 				for (IdeaEdge e : p.getEdges()) {
@@ -634,7 +609,7 @@ public class IdeaLauncher {
 						isGoc = "X";
 					if (e.getPpi() == InteractionType.PROTEIN_PROTEIN)
 						ppi = "ppi";
-					else if(e.getPpi() == InteractionType.PROTEIN_DNA)
+					else if (e.getPpi() == InteractionType.PROTEIN_DNA)
 						ppi = "pdi";
 
 					nodeStr += e.getProbeId1() + "\t" + e.getProbeId2() + "\t"
@@ -654,7 +629,6 @@ public class IdeaLauncher {
 		System.out.println("Done!");
 
 	}// end of main
-
 }// end of class testIdea
 
 class SortByZ implements Comparator<IdeaEdge> {
@@ -685,7 +659,6 @@ class SortByNes implements Comparator<IdeaProbeGene> {
 
 	@Override
 	public int compare(IdeaProbeGene p1, IdeaProbeGene p2) {
-		// TODO Auto-generated method stub
 		if (p1.getNes() == p2.getNes())
 			return 0;
 		else if (p1.getNes() < p2.getNes())
