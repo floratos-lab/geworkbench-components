@@ -24,7 +24,7 @@ import weka.estimators.KernelEstimator;
  * Null distribution procedure
  * 
  * @author Zheng
- * @version $Id: NullDistribution.java,v 1.9 2010/06/28 20:39:02 zm2165 Exp $
+ * @version $Id$
  *
  */
 public class NullDistribution {
@@ -53,7 +53,7 @@ public class NullDistribution {
 	private ArrayList<Bin> bins; // a bin has MinP and MaxP of sortedCorr[],
 									// there are 100 bins totally
 
-	public NullDistribution(TreeSet<Gene> geneList, ArrayList<IdeaEdge> edgeIndex,
+	public NullDistribution(ArrayList<IdeaEdge> edgeIndex,
 			double[][] expData, Phenotype pheno, int headCol, Boolean useExistNull, String nullFileName) {// headCol is the
 																// extra
 																// column,i.e,head
@@ -122,9 +122,9 @@ public class NullDistribution {
 				MutualInfo mutual = MutualInfo.getInstance(x.length);
 				edgeIndex.get(i).setMI(mutual.cacuMutualInfo(x, y)); // save MI value to the
 														// edge
-				DeltaCorr delta = new DeltaCorr(pheno, edgeIndex.get(i),
+				double deltaCorr = getDeltaCorr(pheno, edgeIndex.get(i),
 						expData);
-				edgeIndex.get(i).setDeltaCorr(delta.getDeltaCorr());// save
+				edgeIndex.get(i).setDeltaCorr(deltaCorr);// save
 																	// deltaCorr
 																	// value to
 																	// the edge
@@ -153,9 +153,8 @@ public class NullDistribution {
 						Rand randPheno = new Rand(pheno, tExp);
 						int[] nullPhenoCols = randPheno.getNullPhenoNos();
 						Phenotype nullPheno = new Phenotype(nullPhenoCols);
-						DeltaCorr nullDelta = new DeltaCorr(nullPheno,
-								currentEdge, expData);
-						nullData[k] = nullDelta.getDeltaCorr();
+						nullData[k] = getDeltaCorr(nullPheno, currentEdge,
+								expData);
 					}
 
 					currentEdge.setNullData(nullData); // save null data to edge
@@ -388,24 +387,15 @@ public class NullDistribution {
 		}
 	}
 
-	public class DeltaCorr { // deltaCorr=anEdge.getMI()-removalMI.getMI()
-		double deltaCorr;
-		Phenotype p;
-		IdeaEdge anEdge;
-		double[][] expData;
-		int[] exceptPhenoCols;
-		int[] phenoCols;
-
-		public DeltaCorr(Phenotype p, IdeaEdge anEdge, double[][] expData)
+	// deltaCorr=anEdge.getMI()-removalMI.getMI()
+	private double getDeltaCorr(Phenotype p, IdeaEdge anEdge, double[][] expData)
 				throws MathException {
-			this.p = p;
-			this.anEdge = anEdge;
-			this.expData = expData;
-			phenoCols = new int[p.getExpCols().length];
+
+			int[] phenoCols = new int[p.getExpCols().length];
 			for (int i = 0; i < phenoCols.length; i++)
 				phenoCols[i] = p.getExpCols()[i];
 			Arrays.sort(phenoCols);
-			exceptPhenoCols = new int[pheno.getAllExpCols().length
+			int[] exceptPhenoCols = new int[pheno.getAllExpCols().length
 					- phenoCols.length];
 			int[] t = pheno.getAllExpCols();
 
@@ -428,14 +418,8 @@ public class NullDistribution {
 			MutualInfo removalMI = MutualInfo.getInstance(excPhenoG1.length);
 			double d = removalMI.cacuMutualInfo(excPhenoG1, excPhenoG2);
 			// anEdge.setRemovalCorr(d); //save removalCorr to the edge
-			deltaCorr = anEdge.getMI() - d;
+			return anEdge.getMI() - d;
 		}
-
-		public double getDeltaCorr() {
-			return deltaCorr;
-		}
-
-	}
 
 }// end of class
 

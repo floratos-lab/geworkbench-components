@@ -20,8 +20,6 @@
 			</html>
 		]]></license>
 
-        <online-help helpSet="org/geworkbench/components/analysis/help/clustering/MRAHelpSet.hs"/>
-
 	</component>
 
 	<plugin id="IDEAAnalysis" name="IDEA Analysis" class="org.geworkbench.components.idea.IDEAAnalysis" source="idea"/>

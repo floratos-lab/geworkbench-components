@@ -305,7 +305,7 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 			}
 			try {
 				// ************Key process********************
-				NullDistribution nullDist = new NullDistribution(preGeneList,
+				NullDistribution nullDist = new NullDistribution(
 						edgeIndex, expData, phenoType, HEADCOL, IDEAAnalysisPanel.getUseNullData(),IDEAAnalysisPanel.getNullFileName());
 				nullDist.calcNullDist();
 				edgeIndex = nullDist.getEdgeIndex();
@@ -546,7 +546,8 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} finally {
-			out.close();
+			if(out!=null)
+				out.close();
 		}
 
 	}
