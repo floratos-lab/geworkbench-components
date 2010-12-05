@@ -224,14 +224,15 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 			}// end of while
 		}
 
-		Phenotype phenoType = new Phenotype();
 		String[] phenoLines = IDEAAnalysisPanel.getPhenotype().split(",");
+		int[] expCols = null;
+		int[] excludeCols = null;
 		for (String line : phenoLines) {
 			line = line.trim();
 			String[] tokens = line.split("\\s");
 			int phenoItemLength = tokens.length;
 			if (line.indexOf(PHENO_INCLUDE) != -1) {
-				int[] expCols = new int[phenoItemLength - 1];
+				expCols = new int[phenoItemLength - 1];
 				for (int i = 0; i < phenoItemLength - 1; i++) {
 					expCols[i] = Integer.parseInt(tokens[i + 1]) - 1;
 					/*
@@ -240,15 +241,12 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 					 * part yet
 					 */
 				}
-				phenoType.setExpCols(expCols);
 			} else if (line.indexOf(PHENO_EXCLUDE) != -1) {
-				int[] expExcludeCols = new int[phenoItemLength - 1];
+				excludeCols = new int[phenoItemLength - 1];
 				for (int i = 0; i < phenoItemLength - 1; i++) {
-					expExcludeCols[i] = Integer.parseInt(tokens[i + 1]) - 1;// same
-																			// as
-																			// above,
+					excludeCols[i] = Integer.parseInt(tokens[i + 1]) - 1;
+					// same as above,
 				}
-				phenoType.setExcludeCols(expExcludeCols);
 			}
 
 		}
@@ -258,16 +256,16 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 		List<IdeaProbeGene> probeNes = null;
 
 		double[] x = new double[expColLength - HEADCOL
-				- phenoType.getExcludeCols().length];
+				- excludeCols.length];
 		double[] y = new double[expColLength - HEADCOL
-				- phenoType.getExcludeCols().length];
+				- excludeCols.length];
 		int[] t = new int[expColLength - HEADCOL
-				- phenoType.getExcludeCols().length];
+				- excludeCols.length];
 		int jj = 0;
 		for (int i = 0; i < expColLength - HEADCOL; i++) {
 			boolean exclude = false;
-			for (int j = 0; j < phenoType.getExcludeCols().length; j++) {
-				if (i == (phenoType.getExcludeCols()[j]))
+			for (int j = 0; j < excludeCols.length; j++) {
+				if (i == (excludeCols[j]))
 					exclude = true;
 			}
 			if (!exclude) {
@@ -275,19 +273,17 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 				jj++;
 			}
 		}
-		phenoType.setAllExpCols(t);
 
 		for (int i = 0; i < expColLength - HEADCOL
-				- phenoType.getExcludeCols().length; i++) {
+				- excludeCols.length; i++) {
 			x[i] = expData[7270 - 7][t[i] + HEADCOL];
 			y[i] = expData[1567 - 7][t[i] + HEADCOL];
 		}
 		try {
 			// ************Key process********************
 			NullDistribution nullDist = new NullDistribution(edgeIndex,
-					expData, phenoType, HEADCOL,
-					IDEAAnalysisPanel.getUseNullData(),
-					IDEAAnalysisPanel.getNullFileName());
+					expData, HEADCOL, IDEAAnalysisPanel.getUseNullData(),
+					IDEAAnalysisPanel.getNullFileName(), t, expCols);
 			nullDist.calcNullDist();
 			edgeIndex = nullDist.getEdgeIndex();
 			// *******************************************
@@ -346,22 +342,11 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 
 		}
 
-		TreeSet<IdeaProbeGene> probes = new TreeSet<IdeaProbeGene>();// process
-		// probes,
-		// which is
-		// a
-		// alternative
-		// way to
-		// evaluate
-		// genes
-		// other
-		// than
-		// entrez
-		// genes
-		// which I
-		// call gene
-		// in this
-		// code
+		TreeSet<IdeaProbeGene> probes = new TreeSet<IdeaProbeGene>();
+		/*
+		 * process probes, which is a alternative way to evaluate genes other
+		 * than entrez genes which I call gene in this code
+		 */
 		for (IdeaEdge e : edgeIndex) {
 			IdeaProbeGene p1 = new IdeaProbeGene(e.getProbeId1());
 			IdeaProbeGene p2 = new IdeaProbeGene(e.getProbeId2());
