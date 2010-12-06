@@ -859,6 +859,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 					JTable target = (JTable) e.getSource();
 
 					int row = target.getSelectedRow();
+					if (row == -1) return;
 					row = detailTable.convertRowIndexToModel(row);
 					detailTable.getTableSelectionModel().clearSelection();
 					if (row < hits.size()) {
@@ -883,7 +884,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			}
 
 			private void maybeShowPopup(MouseEvent e) {
-
+				 
 				if (e.isPopupTrigger() && detailTable.isEnabled()) {
 					Point p = new Point(e.getX(), e.getY());
 					int col = detailTable.columnAtPoint(p);
@@ -951,6 +952,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				if (e.getClickCount() == 2) {
 					JTable target = (JTable) e.getSource();
 					int row = target.getSelectedRow();
+					 if (row == -1)
+                            return;
 					if (row < allGenes.size()) {
 						DSGeneMarker marker = allGenes.get(row);
 						if (marker != null) {
