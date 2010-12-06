@@ -427,6 +427,7 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 
 		AlgorithmExecutionResults results = new AlgorithmExecutionResults(true,
 				"Idea Analysis", analysisResult);
+		pbIdea.dispose();
 		return results;
 	}
 
