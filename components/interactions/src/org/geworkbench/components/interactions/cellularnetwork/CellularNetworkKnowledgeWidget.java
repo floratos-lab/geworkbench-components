@@ -8,6 +8,7 @@ import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
@@ -855,7 +856,11 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 		detailTable.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
-				if (e.getClickCount() == 2) {
+				if ((e.getModifiers() & 
+                Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) != 0)
+				      return;
+				if (e.getClickCount() == 2 ) {
+					
 					JTable target = (JTable) e.getSource();
 
 					int row = target.getSelectedRow();
@@ -949,6 +954,9 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		activatedMarkerTable.setModel(activeMarkersTableModel);
 		activatedMarkerTable.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
+				if ((e.getModifiers() & 
+		                Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) != 0)
+						      return;
 				if (e.getClickCount() == 2) {
 					JTable target = (JTable) e.getSource();
 					int row = target.getSelectedRow();
