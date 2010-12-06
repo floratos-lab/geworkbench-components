@@ -7,6 +7,8 @@ import java.io.File;
 import java.io.FileInputStream; 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet; 
 import java.util.List;
 import java.util.Set;
@@ -30,6 +32,7 @@ import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSe
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
 import org.geworkbench.bison.datastructure.complex.panels.CSAnnotPanel;
+import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSAnnotatedPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
@@ -57,6 +60,9 @@ import com.Ostermiller.util.ExcelCSVParser;
 public class GenePanel extends SelectorPanel<DSGeneMarker> {
 	private String taggedSelection = null; // tagged for cytoscape visualization
 	private boolean tagEventEnabled = true;
+	private JMenuItem sortGeneItem  = new JMenuItem("by Genes");
+	private JMenuItem sortProbeItem = new JMenuItem("by Probes");
+	private JMenuItem sortMenu = new JMenu("Sort");
 
 	/**
 	 * <code>FileFilter</code> that is used by the <code>JFileChoose</code>
@@ -91,6 +97,9 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 		super(DSGeneMarker.class, "Marker");
 		tagEventEnabled = true;
 		// Add gene panel specific menu items.
+		sortMenu.add(sortGeneItem);
+		sortMenu.add(sortProbeItem);
+		itemListPopup.add(sortMenu);
 		treePopup.insert(newPanelItem2, 4);
 		treePopup.add(tagPanelMenuItem);
 		rootPopup.add(loadPanelItem);
@@ -144,6 +153,22 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 		newPanelItem2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				createNewSubset();
+			}
+		});
+		sortGeneItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Collections.sort(itemList, new MarkerOrderByGene());
+				sortGeneItem.setEnabled(false);
+				sortProbeItem.setEnabled(true);
+				mainPanel.repaint();
+			}
+		});
+		sortProbeItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Collections.sort(itemList, new MarkerOrderByProbe());
+				sortProbeItem.setEnabled(false);
+				sortGeneItem.setEnabled(true);
+				mainPanel.repaint();
 			}
 		});
 		// Load button at bottom of component
@@ -281,6 +306,20 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 		}
 	}
 
+    private class MarkerOrderByGene implements Comparator<DSGeneMarker> {
+		public int compare(DSGeneMarker o1, DSGeneMarker o2) {
+			int res = o1.getGeneName().compareToIgnoreCase(((DSGeneMarker)o2).getGeneName());
+			if (res == 0)
+				return o1.getLabel().compareToIgnoreCase(((DSGeneMarker)o2).getLabel());
+			return res;
+		}
+    }
+
+    private class MarkerOrderByProbe implements Comparator<DSGeneMarker> {
+		public int compare(DSGeneMarker o1, DSGeneMarker o2) {
+			return o1.getLabel().compareToIgnoreCase(((DSGeneMarker)o2).getLabel());
+		}
+    }
 
 	/**
 	 * Utility to obtain the stored panel sets from the filesystem
@@ -387,11 +426,16 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 		DSItemList items = null;
 
 		if (dataSet instanceof DSMicroarraySet) {
+			sortMenu.setEnabled(true);
+			sortProbeItem.setEnabled(true);
+			sortGeneItem.setEnabled(true);
 			DSMicroarraySet maSet = (DSMicroarraySet) dataSet;
-			items = maSet.getMarkers();
+			items = new CSItemList<DSGeneMarker>();
+			items.addAll(maSet.getMarkers());
 			setItemList(items);
 			return true;
 		} else if (dataSet instanceof DSSequenceSet) {
+			sortMenu.setEnabled(false);
 			items = (DSItemList) ((DSSequenceSet) dataSet).getMarkerList();
 			setItemList(items);
 			return true;
