@@ -1,12 +1,14 @@
 package org.geworkbench.components.interactions.cellularnetwork;
 
 import java.awt.Point;
+import java.awt.Toolkit;
+import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 
 import javax.swing.JComponent;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
-import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellEditor; 
 import javax.swing.plaf.basic.BasicTableUI;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.event.MouseInputListener;
@@ -17,13 +19,13 @@ import javax.swing.event.MouseInputListener;
  * 
  * @author Min You
  */
-public class CellSelectionTableUI extends BasicTableUI {
+public class CellSelectionTableUI extends BasicTableUI {	 
 	public static ComponentUI createUI(JComponent c) {
 		return new CellSelectionTableUI();
 	}
 
-	protected MouseInputListener createMouseInputListener() {
-		return new AnySelectionMouseInputHandler();
+	protected MouseInputListener createMouseInputListener() {		 
+		return new AnySelectionMouseInputHandler();		 
 	}
 
 	/**
@@ -37,7 +39,7 @@ public class CellSelectionTableUI extends BasicTableUI {
 	 * updates the TableSelectionModel.
 	 */
 	protected void updateTableSelectionModel(int row, int column,
-			boolean ctrlDown, boolean shiftDown) {
+			MouseEvent e ) {
 
 		CellSelectionTable t = (CellSelectionTable) getTable();
 		column = t.convertColumnIndexToModel(column);
@@ -45,8 +47,10 @@ public class CellSelectionTableUI extends BasicTableUI {
 
 		int anchorIndex = tsm.getListSelectionModelAt(column)
 				.getAnchorSelectionIndex();
-
-		if (ctrlDown) {
+		
+		 
+	 
+		if (isMenuShortcutKeyDown(e)) {
 			if (tsm.isSelected(row, column)) {
 				if (column == 0)
 					tsm.removeRowSelection(row);
@@ -55,11 +59,13 @@ public class CellSelectionTableUI extends BasicTableUI {
 
 			} else {
 				if (column == 0)
-					tsm.addRowSelection(row);
+					tsm.addRowSelection(row);				   
 				else
 					tsm.addSelection(row, column);
 			}
-		} else if ((shiftDown) && (anchorIndex != -1)) {
+			 
+			 
+		} else if ((e.isShiftDown()) && (anchorIndex != -1)) {
 			if (column == 0)
 				tsm.setRowSelectionInterval(anchorIndex, row);
 			else
@@ -71,7 +77,7 @@ public class CellSelectionTableUI extends BasicTableUI {
 			else
 				tsm.setSelection(row, column);
 
-		}
+		} 
 	} // updateTableSelectionModel()
 
 	/**
@@ -83,9 +89,9 @@ public class CellSelectionTableUI extends BasicTableUI {
 	// class itself should do it, but you never know. Sideeffects may occur...
 	public class AnySelectionMouseInputHandler extends MouseInputHandler {
 
-		public void mousePressed(MouseEvent e) {
+		public void mousePressed(MouseEvent e) {			 
 			super.mousePressed(e);
-
+ 
 			if (!SwingUtilities.isLeftMouseButton(e)) {
 				return;
 			}
@@ -114,11 +120,18 @@ public class CellSelectionTableUI extends BasicTableUI {
 			TableCellEditor tce = getTable().getCellEditor();
 			if ((tce == null) || (tce.shouldSelectCell(e))) {
 
-				updateTableSelectionModel(row, column, e.isControlDown(), e
-						.isShiftDown());
+				updateTableSelectionModel(row, column, e );
+						 
 				getTable().repaint();
 
 			}
 		}// mousePressed()
 	}
+	
+	
+	boolean isMenuShortcutKeyDown(InputEvent event) {
+        return (event.getModifiers() & 
+                Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) != 0;
+    }
+	
 }
