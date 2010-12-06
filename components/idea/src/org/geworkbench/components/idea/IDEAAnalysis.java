@@ -285,9 +285,9 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 				gocList.add(anEdge);
 		}
 
-		Collections.sort(locList, new SortByZ());
+		Collections.sort(locList);
 
-		Collections.sort(gocList, new SortByZa());
+		Collections.sort(gocList, Collections.reverseOrder());
 
 		for (Gene g : preGeneList) {// edge in preGeneList need update from
 									// edgeIndex, because edgeIndex may be
@@ -413,7 +413,7 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 		for (IdeaProbeGene p : probes) {
 			probeNes.add(p);
 		}
-		Collections.sort(probeNes, new SortByNes());
+		Collections.sort(probeNes);
 
 		if (this.stopAlgorithm) {
 			pbIdea.dispose();
