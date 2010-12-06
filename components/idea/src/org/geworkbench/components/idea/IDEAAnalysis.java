@@ -40,7 +40,6 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 	private IDEAPanel IDEAAnalysisPanel = new IDEAPanel();
 	final static private String PHENO_INCLUDE = "Include";
 	final static private String PHENO_EXCLUDE = "Exclude";
-	final static private int HEADCOL = 0;
 
 	public IDEAAnalysis() {
 		setDefaultPanel(IDEAAnalysisPanel);
@@ -75,8 +74,6 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 		pbIdea.setMessage("Calculating IDEA, please wait...");
 		pbIdea.start();
 		this.stopAlgorithm = false;
-
-		int expColLength = 0;
 
 		TreeSet<Gene> preGeneList = new TreeSet<Gene>();
 		ArrayList<IdeaEdge> edgeIndex = new ArrayList<IdeaEdge>();
@@ -141,15 +138,15 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 			return null;
 		}
 
-		expColLength = view.items().size();
-		double[][] expData = new double[numGenes][expColLength]; // expData
+		int columnCount = view.items().size();
+		double[][] expData = new double[numGenes][columnCount]; // expData
 																	// saves the
 		// whole exp file
 		// except strings
 		// which are set to
 		// 0
 		for (int i = 0; i < numGenes; i++) {
-			for (int j = 0; j < expColLength; j++) {
+			for (int j = 0; j < columnCount; j++) {
 				expData[i][j] = view.getValue(i, j);
 			}
 		}
@@ -228,9 +225,9 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 
 		}
 
-		int[] t = new int[expColLength - HEADCOL - excludeCols.length];
+		int[] t = new int[columnCount - excludeCols.length];
 		int jj = 0;
-		for (int i = 0; i < expColLength - HEADCOL; i++) {
+		for (int i = 0; i < columnCount; i++) {
 			boolean exclude = false;
 			for (int j = 0; j < excludeCols.length; j++) {
 				if (i == (excludeCols[j]))
