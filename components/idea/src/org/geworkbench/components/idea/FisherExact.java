@@ -17,7 +17,7 @@ package org.geworkbench.components.idea;
  * which might not be very accurate if the marginal is very uneven or if there
  * is a small value (less than five) in one of the cells.
  * 
- * @version $Id: FisherExact.java,v 1
+ * @version $Id: FisherExact.java,v 1$
  */
 
 public class FisherExact {
@@ -83,12 +83,12 @@ public class FisherExact {
 		if ((a * d) >= (b * c)) {
 			int min = (c < b) ? c : b;
 			for (int i = 0; i < min; i++) {
-				p += getP(a + 1, b - 1, c - 1, d + 1);
+				p += getP(++a, --b, --c, ++d);
 			}
 		} else { // if ((a * d) < (b * c))
 			int min = (a < d) ? a : d;
 			for (int i = 0; i < min; i++) {
-				p += getP(a - 1, b + 1, c + 1, d - 1);
+				p += getP(--a, ++b, ++c, --d);
 			}
 		}
 		return p;
