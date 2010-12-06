@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -16,8 +15,8 @@ import java.util.TreeSet;
 
 import org.apache.commons.math.MathException;
 import org.geworkbench.bison.datastructure.bioobjects.IdeaEdge;
-import org.geworkbench.bison.datastructure.bioobjects.IdeaProbeGene;
 import org.geworkbench.bison.datastructure.bioobjects.IdeaEdge.InteractionType;
+import org.geworkbench.bison.datastructure.bioobjects.IdeaProbeGene;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 
 public class IdeaLauncher {
@@ -371,7 +370,7 @@ public class IdeaLauncher {
 			else if (anEdge.isGoc())
 				gocList.add(anEdge);
 		}
-		Collections.sort(locList, new SortByZ());
+		Collections.sort(locList);
 		edgeStr = "";
 		// edgeStr+="LOC---------------\n";
 		edgeStr += "Probe1\tGene1\tProbe2\tGene2\tMI\tDeltaMI\tNormDelta\tZ-score\n";
@@ -389,7 +388,7 @@ public class IdeaLauncher {
 		out.println(edgeStr);
 		out.close();
 
-		Collections.sort(gocList, new SortByZa());
+		Collections.sort(gocList, Collections.reverseOrder());
 		edgeStr = "";
 		// edgeStr+="GOC---------------\n";
 		edgeStr += "Probe1\tGene1\tProbe2\tGene2\tMI\tDeltaMI\tNormDelta\tZ-score\n";
@@ -561,7 +560,7 @@ public class IdeaLauncher {
 		for (IdeaProbeGene p : probes) {
 			probeNes.add(p);
 		}
-		Collections.sort(probeNes, new SortByNes());
+		Collections.sort(probeNes);
 
 		String nodeStr = "";
 		nodeStr += "Probe\tGene\tChrBand\tConn\tNes\tLoc\tLoCHits\tLoCEs\tLoCNes\tGoc\tGoCHits\tGoCEs\tGoCNes\n";
@@ -629,42 +628,4 @@ public class IdeaLauncher {
 		System.out.println("Done!");
 
 	}// end of main
-}// end of class testIdea
-
-class SortByZ implements Comparator<IdeaEdge> {
-
-	public int compare(IdeaEdge o1, IdeaEdge o2) {
-		if ((o1.getzDeltaCorr() - o2.getzDeltaCorr()) == 0)
-			return 0;
-		else if ((o1.getzDeltaCorr() - o2.getzDeltaCorr()) > 0)
-			return 1;
-		else
-			return -1;
-	}
-}
-
-class SortByZa implements Comparator<IdeaEdge> {
-
-	public int compare(IdeaEdge o1, IdeaEdge o2) {
-		if ((o1.getzDeltaCorr() - o2.getzDeltaCorr()) == 0)
-			return 0;
-		else if ((o1.getzDeltaCorr() - o2.getzDeltaCorr()) < 0)
-			return 1;
-		else
-			return -1;
-	}
-}
-
-class SortByNes implements Comparator<IdeaProbeGene> {
-
-	@Override
-	public int compare(IdeaProbeGene p1, IdeaProbeGene p2) {
-		if (p1.getNes() == p2.getNes())
-			return 0;
-		else if (p1.getNes() < p2.getNes())
-			return 1;
-		else
-			return -1;
-	}
-
 }
