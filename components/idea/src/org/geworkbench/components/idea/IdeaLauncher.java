@@ -72,7 +72,6 @@ public class IdeaLauncher {
 
 		TreeSet<Gene> preGeneList = new TreeSet<Gene>();
 		ArrayList<IdeaEdge> edgeIndex = new ArrayList<IdeaEdge>();
-		Map<String, String> probe_chromosomal = new HashMap<String, String>();
 
 		FileReader prereader = new FileReader(networkFile);
 		Scanner prein = new Scanner(prereader);
@@ -103,8 +102,7 @@ public class IdeaLauncher {
 
 		File dataFile = new File(annotationFile);
 
-		AnnotationParser.processAnnotationData("other", dataFile, preGeneList,
-				probe_chromosomal);
+		Map<String, String> probe_chromosomal =  AnnotationParser.processAnnotationData("other", dataFile, preGeneList);
 
 		String expFirstCol = "";
 		FileReader expreader = new FileReader(expressionFile);
