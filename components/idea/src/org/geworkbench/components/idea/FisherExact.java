@@ -17,7 +17,7 @@ package org.geworkbench.components.idea;
  * which might not be very accurate if the marginal is very uneven or if there
  * is a small value (less than five) in one of the cells.
  * 
- * @version $Id: FisherExact.java,v 1$
+ * @version $Id$
  */
 
 public class FisherExact {
