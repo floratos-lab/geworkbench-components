@@ -245,7 +245,7 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 		try {
 			// ************Key process********************
 			NullDistribution nullDist = new NullDistribution(edgeIndex,
-					expData, HEADCOL, IDEAAnalysisPanel.getUseNullData(),
+					expData, IDEAAnalysisPanel.getUseNullData(),
 					IDEAAnalysisPanel.getNullFileName(), t, expCols);
 			nullDist.calcNullDist();
 			edgeIndex = nullDist.getEdgeIndex();

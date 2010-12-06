@@ -13,6 +13,8 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.TreeSet;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.commons.math.MathException;
 import org.geworkbench.bison.datastructure.bioobjects.IdeaEdge;
 import org.geworkbench.bison.datastructure.bioobjects.IdeaEdge.InteractionType;
@@ -20,7 +22,8 @@ import org.geworkbench.bison.datastructure.bioobjects.IdeaProbeGene;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 
 public class IdeaLauncher {
-
+	private static Log log = LogFactory.getLog(IdeaLauncher.class);
+	
 	/**
 	 * Stand alone version.
 	 * 
@@ -59,8 +62,6 @@ public class IdeaLauncher {
 			phenotypeFile = args[3];
 		}
 
-		// ArrayList<Gene> geneList=new ArrayList<Gene>();
-		final int HEADCOL = 2;
 		double[][] expData = null;
 		int expColLength = 0, expRowLength = 0;
 
@@ -160,11 +161,12 @@ public class IdeaLauncher {
 			expCol0[row] = items[0];
 			probe_symbol.put(items[0], items[1]);// the second column should be
 													// gene symbol
-			for (int i = 0; i < expColLength; i++) {
+			for (int i = 2; i < expColLength; i++) {
+				int col = i-2;
 				try {
-					expData[row][i] = Double.parseDouble(items[i]);
+					expData[row][col] = Double.parseDouble(items[i]);
 				} catch (NumberFormatException e) {
-					expData[row][i] = 0;
+					log.error(e);
 				}
 			}
 			row++;
@@ -306,11 +308,11 @@ public class IdeaLauncher {
 			}
 		}
 
-		double[] x = new double[expColLength - HEADCOL - excludeCols.length];
-		double[] y = new double[expColLength - HEADCOL - excludeCols.length];
-		int[] t = new int[expColLength - HEADCOL - excludeCols.length];
+		double[] x = new double[expColLength - excludeCols.length];
+		double[] y = new double[expColLength - excludeCols.length];
+		int[] t = new int[expColLength - excludeCols.length];
 		int jj = 0;
-		for (int i = 0; i < expColLength - HEADCOL; i++) {
+		for (int i = 0; i < expColLength; i++) {
 			boolean exclude = false;
 			for (int j = 0; j < excludeCols.length; j++) {
 				if (i == (excludeCols[j]))
@@ -322,16 +324,16 @@ public class IdeaLauncher {
 			}
 		}
 
-		for (int i = 0; i < expColLength - HEADCOL - excludeCols.length; i++) {
-			x[i] = expData[7270][t[i] + HEADCOL];
-			y[i] = expData[1567][t[i] + HEADCOL];
+		for (int i = 0; i < expColLength - excludeCols.length; i++) {
+			x[i] = expData[7270][t[i]];
+			y[i] = expData[1567][t[i]];
 		}
 
 		boolean useExistNull = true;
 		String nullFileName = dir + "\\null.dat";
 		// ************Key process********************
 		NullDistribution nullDist = new NullDistribution(edgeIndex, expData,
-				HEADCOL, useExistNull, nullFileName, t, expCols);
+				useExistNull, nullFileName, t, expCols);
 		nullDist.calcNullDist();
 		edgeIndex = nullDist.getEdgeIndex();
 

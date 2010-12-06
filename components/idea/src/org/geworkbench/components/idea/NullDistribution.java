@@ -37,7 +37,6 @@ public class NullDistribution {
 	private double[][] expData = null;
 	private ArrayList<IdeaEdge> edgeIndex = null;
 
-	private static int headCol = 0;
 	private boolean useExistNull;
 	private String nullFileName;
 	private double incre;
@@ -58,15 +57,9 @@ public class NullDistribution {
 	private int[] expCols = null;
 
 	public NullDistribution(ArrayList<IdeaEdge> edgeIndex, final double[][] expData,
-			int headCol, Boolean useExistNull, String nullFileName,
+			Boolean useExistNull, String nullFileName,
 			int[] allExpCols, int[] expCols) {
-		/*
-		 * headCol is the extra column,i.e, head columns of exp file
-		 */
-		if(headCol!=0) {
-			log.error("unexpected non-zero leading colum");
-			NullDistribution.headCol = headCol;
-		}
+		
 		this.edgeIndex = edgeIndex;
 		this.expData = expData;
 		this.useExistNull = useExistNull;
@@ -117,20 +110,12 @@ public class NullDistribution {
 				double[] y = new double[tExp.length];
 
 				for (int j = 0; j < tExp.length; j++) {
-					x[j] = expData[rowx][tExp[j] + headCol]; // the first 2
-																// columns are
-																// not real
-																// data, so get
-																// column 2 and
-																// above
-					y[j] = expData[rowy][tExp[j] + headCol];
+					x[j] = expData[rowx][tExp[j]];
+					y[j] = expData[rowy][tExp[j]];
 				}
 				MutualInfo mutual = MutualInfo.getInstance(x.length);
-				ideaEdge.setMI(mutual.cacuMutualInfo(x, y)); // save MI
-																// value
-																// to
-																// the
-				// edge
+				// save MI value to the edge
+				ideaEdge.setMI(mutual.cacuMutualInfo(x, y)); 
 				double deltaCorr = getDeltaCorr(ideaEdge, expData, expCols, tExp);
 				ideaEdge.setDeltaCorr(deltaCorr);// save
 													// deltaCorr
@@ -395,7 +380,7 @@ public class NullDistribution {
 		int row1 = anEdge.getExpRowNoG1();
 		int row2 = anEdge.getExpRowNoG2();
 		for (int i = 0; i < columnCount; i++) {
-			int col = exceptPhenoCols[i] + headCol;
+			int col = exceptPhenoCols[i];
 			excPhenoG1[i] = expData[row1][col];
 			excPhenoG2[i] = expData[row2][col];
 		}
