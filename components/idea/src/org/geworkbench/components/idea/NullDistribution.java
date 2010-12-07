@@ -13,8 +13,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.commons.math.MathException;
 import org.apache.commons.math.stat.descriptive.moment.StandardDeviation;
 import org.geworkbench.bison.datastructure.bioobjects.IdeaEdge;
@@ -30,9 +28,7 @@ import weka.estimators.KernelEstimator;
  * 
  */
 public class NullDistribution {
-	private static Log log = LogFactory.getLog(NullDistribution.class);
-			
-	static final private int KERNEL_N = 100;
+
 	private int[] tExp;
 	private double[][] expData = null;
 	private ArrayList<IdeaEdge> edgeIndex = null;
@@ -137,19 +133,19 @@ public class NullDistribution {
 												// edge
 					IdeaEdge currentEdge = MI_Edge.get(sortedCorr[bins.get(i)
 							.getMinP() + j]);
-					double[] nullData = new double[100]; // the 100 null delta
-															// data for each
-															// edge
+					if(currentEdge.getNullData()==null) {
+						// the 100 null delta data for each edge
+						double[] nullData = new double[100]; 
 
-					for (int k = 0; k < 100; k++) {// each edge has 100 random
-													// null data
-						int[] nullPhenoCols = getRandomNullPhenoNos(tExp,
-								expCols.length);
-						nullData[k] = getDeltaCorr(currentEdge, expData,
-								nullPhenoCols, tExp);
+						for (int k = 0; k < 100; k++) {
+							int[] nullPhenoCols = getRandomNullPhenoNos(tExp,
+									expCols.length);
+							nullData[k] = getDeltaCorr(currentEdge, expData,
+									nullPhenoCols, tExp);
+						}
+						// save null data to edge
+						currentEdge.setNullData(nullData); 
 					}
-
-					currentEdge.setNullData(nullData); // save null data to edge
 				}// end of each bin
 				System.out.println("bin " + i);
 
