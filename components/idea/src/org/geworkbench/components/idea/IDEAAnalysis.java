@@ -410,7 +410,7 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 		for (IdeaProbeGene p : probes) {
 			probeNes.add(p);
 		}
-		Collections.sort(probeNes);
+		Collections.sort(probeNes, new IdeaProbeGene.NesComparator());
 
 		if (this.stopAlgorithm) {
 			pbIdea.dispose();
