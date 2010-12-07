@@ -198,32 +198,9 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 			}// end of while
 		}
 
-		String[] phenoLines = IDEAAnalysisPanel.getPhenotype().split(",");
-		int[] expCols = null;
-		int[] excludeCols = null;
-		for (String line : phenoLines) {
-			line = line.trim();
-			String[] tokens = line.split("\\s");
-			int phenoItemLength = tokens.length;
-			if (line.indexOf(PHENO_INCLUDE) != -1) {
-				expCols = new int[phenoItemLength - 1];
-				for (int i = 0; i < phenoItemLength - 1; i++) {
-					expCols[i] = Integer.parseInt(tokens[i + 1]) - 1;
-					/*
-					 * because the exp columns in phenotype file is from 1,
-					 * however they are from 2 in exp file, not fix the major
-					 * part yet
-					 */
-				}
-			} else if (line.indexOf(PHENO_EXCLUDE) != -1) {
-				excludeCols = new int[phenoItemLength - 1];
-				for (int i = 0; i < phenoItemLength - 1; i++) {
-					excludeCols[i] = Integer.parseInt(tokens[i + 1]) - 1;
-					// same as above,
-				}
-			}
-
-		}
+		Phenotype phenotype = IDEAAnalysisPanel.getPhenotype();
+		int[] expCols = phenotype.columnIncluded;
+		int[] excludeCols = phenotype.columnExcluded;
 
 		int[] t = new int[columnCount - excludeCols.length];
 		int jj = 0;
