@@ -9,9 +9,10 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -24,13 +25,6 @@ import javax.swing.JTextField;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
-import org.geworkbench.bison.annotation.CSAnnotationContextManager;
-import org.geworkbench.bison.annotation.DSAnnotationContext;
-import org.geworkbench.bison.annotation.DSAnnotationContextManager;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMicroarray;
-import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.events.listeners.ParameterActionListener;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
@@ -51,7 +45,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 	
 	private JPanel selectionPanel = null;
 	
-	private JTextField network = null;
+	private JTextField networkField = null;
 	private JTextField phenotypeField = null;
 	private JTextField nullData =null;
 	private JButton networkLoadButton = null;
@@ -60,8 +54,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 	private JCheckBox nullDataCheckbox;
 
 	private Phenotype phenotype;
-
-	private CSMicroarraySet<CSMicroarray> dataset;
+	private ArrayList<IdeaNetworkEdge> ideaNetwork;
 	
 	/*
 	 * (non-Javadoc)
@@ -69,6 +62,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
 	 *      Set inputed parameters to GUI.
 	 */
+	@SuppressWarnings("unchecked")
 	public void setParameters(Map<Serializable, Serializable> parameters) {
 		Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
 		for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set
@@ -79,7 +73,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 
 			// set the parameters on GUI based on the Map
 			if (key.equals("network")) {
-				network.setText((String)value);
+				ideaNetwork = (ArrayList<IdeaNetworkEdge>)value;
 			}
 			if (key.equals("phenotype")) {
 				phenotype = (Phenotype)value;
@@ -101,7 +95,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 
 		// set the Map with the parameter values retrieved from GUI
 		// component
-		parameters.put("network", network.getText());
+		parameters.put("network", ideaNetwork);
 		parameters.put("phenotype", phenotype);
 		parameters.put("nullData", nullData.getText());
 		
@@ -118,8 +112,8 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 	}
 
 	/* this is called from IDEAAnalysis */
-	String getNetwork() {
-		return network.getText();
+	List<IdeaNetworkEdge> getNetwork() {
+		return ideaNetwork;
 	}
 	Boolean getUseNullData(){
 		return nullDataCheckbox.isSelected();
@@ -148,10 +142,10 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 			builder.setDefaultDialogBorder();
 
 			builder.appendSeparator("Inputs required");			
-			network = new JTextField(20);
+			networkField = new JTextField(20);
 			networkLoadButton = new JButton("Load");
 			builder.append("Load Network      ",
-					network, networkLoadButton);			
+					networkField, networkLoadButton);			
 			builder.nextLine();
 			
 			phenotypeField = new JTextField(20);
@@ -183,10 +177,40 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 			selectionPanel.add(builder.getPanel(), BorderLayout.CENTER);
 		}		
 
-		networkLoadButton.addActionListener(new LoadButtonListener(
-				network));
 		nullDataLoadButton.addActionListener(new LoadFileNameListener(
 				nullData));
+
+		networkLoadButton.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser fc = new JFileChooser();
+				int returnVal = fc.showOpenDialog(IDEAPanel.this);
+
+				if (returnVal == JFileChooser.APPROVE_OPTION) {
+					File file = fc.getSelectedFile();
+					BufferedReader br;
+					try {
+						br = new BufferedReader(new FileReader(file));
+						String line = br.readLine(); // skip the header line
+						line = br.readLine();
+						ideaNetwork = new ArrayList<IdeaNetworkEdge>();
+						while(line!=null && line.trim().length()>0) {
+							IdeaNetworkEdge edge = new IdeaNetworkEdge(line);
+							ideaNetwork.add(edge);
+							line = br.readLine();
+						}
+					} catch (FileNotFoundException e1) {
+						e1.printStackTrace();
+						ideaNetwork = null;
+					} catch (IOException e2) {
+						e2.printStackTrace();
+						ideaNetwork = null;
+					}
+					networkField.setText(file.getAbsolutePath());			
+					
+				}
+			}});
 
 		phenotypeLoadButton.addActionListener(new ActionListener(){
 
@@ -209,8 +233,8 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 			}});
 
 //		// this setting maps the source choice of 'From Set'
-		network.setEnabled(true);
-		network.setEditable(false);
+		networkField.setEnabled(true);
+		networkField.setEditable(false);
 		networkLoadButton.setEnabled(true);		
 		phenotypeField.setEnabled(true);
 		phenotypeField.setEditable(false);
@@ -224,7 +248,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 		// they are (basically) all the same
 		ParameterActionListener parameterActionListener = new ParameterActionListener(
 				this);
-		network.addActionListener(parameterActionListener);
+		networkField.addActionListener(parameterActionListener);
 		phenotypeField.addActionListener(parameterActionListener);
 		nullData.addActionListener(parameterActionListener);
 	}
@@ -242,52 +266,6 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 					nullDataLoadButton.setEnabled(false);
 				}
 		}
-}
-
-	/**
-	 * Get all genes from the marker selection panel.
-	 * @param setName
-	 * @return
-	 */
-	private Set<String> getAllGenes() {
-		Set<String> set = new HashSet<String>();
-		if (dataset == null)
-			return set; // in case maSet is not properly set
-
-		DSAnnotationContextManager manager = CSAnnotationContextManager
-				.getInstance();
-		DSAnnotationContext<DSGeneMarker> markerSet = manager
-				.getCurrentContext(dataset.getMarkers());
-
-		DSItemList<DSGeneMarker> markers = null;
-		try {
-			markers = markerSet.getItemList();
-		} catch (NullPointerException e) {
-			return set;
-		}
-		if(markers==null) return set;
-		
-		for ( DSGeneMarker marker : markers ) {
-			String geneName = marker.getGeneName().trim();
-			if (!geneName.equals("---")) {
-				set.add(geneName);
-			}
-		}
-		return set;
-	}
-
-	private String getAllGenesAsString() {
-		Set<String> allGenes = getAllGenes();
-		if(allGenes==null || allGenes.size()==0)return "";
-		
-		StringBuffer sb = new StringBuffer("");
-		for(String gene: allGenes) {
-			if(sb.length()==0)
-				sb.append(gene);
-			else
-				sb.append(", ").append(gene);
-		}
-		return sb.toString();
 	}
 
 	@Override
@@ -307,13 +285,6 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 			parameters.put("alternateAnnotationFile", "");		
 	}
 
-	public void setDataset(CSMicroarraySet<CSMicroarray> d) {
-		dataset = d;		
-		network.setText(getAllGenesAsString());
-		network.setEditable(false);		
-		repaint();
-	}
-
 	@Override
 	public String getDataSetHistory() {
 		StringBuilder histStr = new StringBuilder("");
@@ -326,50 +297,6 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 		return histStr.toString();
 	}
 
-	private class LoadButtonListener implements ActionListener {
-		private JTextField network = null;
-
-		public LoadButtonListener(JTextField network) {
-			this.network = network;
-		}
-
-		public void actionPerformed(ActionEvent e) {
-			JFileChooser fc = new JFileChooser();
-			int returnVal = fc.showOpenDialog(IDEAPanel.this);
-
-			if (returnVal == JFileChooser.APPROVE_OPTION) {
-				File file = fc.getSelectedFile();
-				String referenceFileName = file.getAbsolutePath(); 
-				// this could be passed to analysis instead of re-creating temporary file
-				// nevertheless, we need to get the content only for showing
-				BufferedReader br;
-				try {
-					br = new BufferedReader(new FileReader(referenceFileName));
-					String line = br.readLine();
-					StringBuffer sb = new StringBuffer();
-					if (line == null) {
-						network.setText(sb.toString());
-						return;
-					}
-					sb.append(line);
-					line = br.readLine();
-					while (line != null) {
-						sb.append(", ").append(line);
-						line = br.readLine();
-					}
-					network.setText(sb.toString());
-				} catch (FileNotFoundException e1) {
-					e1.printStackTrace();
-				} catch (IOException e2) {
-					e2.printStackTrace();
-				}
-			} else {
-				// if canceled, do nothing
-			}
-		}
-
-	}
-	
 	private class LoadFileNameListener implements ActionListener {
 		private JTextField network = null;
 

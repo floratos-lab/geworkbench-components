@@ -189,23 +189,17 @@ public class IdeaLauncher {
 			if (headLine == -1) {// there is no key word
 				// System.out.println(line);
 
-				String[] tokens = line.split("\\s");
-				String first = tokens[0];
-				String second = tokens[1];
+				IdeaNetworkEdge edge = new IdeaNetworkEdge(line);
 
-				int geneNo1 = Integer.parseInt(first);
-				int geneNo2 = Integer.parseInt(second);
-				InteractionType interactionType = IDEAAnalysis
-						.stringToInteractionType(tokens[3]);
 				Gene gene1 = null;
 				Gene gene2 = null;
 
 				Iterator<Gene> anIter = preGeneList.iterator();
 				while (anIter.hasNext()) {
 					Gene g = anIter.next();
-					if (g.getGeneNo() == geneNo1) {
+					if (g.getGeneNo() == edge.geneId1) {
 						gene1 = g; // gene1 points to preGeneList
-					} else if (g.getGeneNo() == geneNo2) {
+					} else if (g.getGeneNo() == edge.geneId2) {
 						gene2 = g;
 					}
 				}
@@ -241,10 +235,10 @@ public class IdeaLauncher {
 								String probeId2 = expCol0[rowG2];
 								DSGeneMarker marker1 = null;
 								DSGeneMarker marker2 = null;
-								IdeaEdge anEdge = new IdeaEdge(geneNo1,
-										geneNo2, marker1, marker2, rowG1,
+								IdeaEdge anEdge = new IdeaEdge(edge.geneId1,
+										edge.geneId2, marker1, marker2, rowG1,
 										rowG2, probeId1, probeId2,
-										interactionType);// marker1,marker2
+										edge.interactionType);// marker1,marker2
 								// are no
 								// use here,
 								// just for

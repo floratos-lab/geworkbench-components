@@ -38,8 +38,6 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 	private static Log log = LogFactory.getLog(IDEAAnalysis.class);
 
 	private IDEAPanel IDEAAnalysisPanel = new IDEAPanel();
-	final static private String PHENO_INCLUDE = "Include";
-	final static private String PHENO_EXCLUDE = "Exclude";
 
 	public IDEAAnalysis() {
 		setDefaultPanel(IDEAAnalysisPanel);
@@ -75,36 +73,17 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 		pbIdea.start();
 		this.stopAlgorithm = false;
 
-		TreeSet<Gene> preGeneList = new TreeSet<Gene>();
 		ArrayList<IdeaEdge> edgeIndex = new ArrayList<IdeaEdge>();
 
-		String network = IDEAAnalysisPanel.getNetwork().trim();
-		String[] networkLines = network.split(",");
-		for (String line : networkLines) {
-			line = line.trim();
-			int headLine = line.indexOf("Gene1");
-			if (headLine == -1) {// there is no key word
-				// System.out.println(line);
-				try {
-					String[] tokens = line.split("\\s");
-					String first = tokens[0];
-					String second = tokens[1];
-					int geneNo1 = Integer.parseInt(first);
-					int geneNo2 = Integer.parseInt(second);
-					Gene gene1 = new Gene(geneNo1);
-					Gene gene2 = new Gene(geneNo2);
+		List<IdeaNetworkEdge> network = IDEAAnalysisPanel.getNetwork();
+		if (network == null)
+			return new AlgorithmExecutionResults(false,
+					"network file is invalid.", null);
 
-					preGeneList.add(gene1);
-					preGeneList.add(gene2);
-				} catch (Exception e) {
-					e.printStackTrace();
-					pbIdea.dispose();
-					log.error(e);
-					return new AlgorithmExecutionResults(false,
-							"network file is invalid.", null);
-				}
-
-			}
+		TreeSet<Gene> preGeneList = new TreeSet<Gene>();
+		for (IdeaNetworkEdge edge : network) {
+			preGeneList.add(new Gene(edge.geneId1));
+			preGeneList.add(new Gene(edge.geneId2));
 		}
 
 		DSItemList markers = maSet.getMarkers();
@@ -141,61 +120,46 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 		int columnCount = view.items().size();
 		double[][] expData = new double[numGenes][columnCount]; // expData
 																	// saves the
-		// whole exp file
-		// except strings
-		// which are set to
-		// 0
+		// whole exp file except strings which are set to 0
 		for (int i = 0; i < numGenes; i++) {
 			for (int j = 0; j < columnCount; j++) {
 				expData[i][j] = view.getValue(i, j);
 			}
 		}
 
-		for (String line : networkLines) {
-			line = line.trim();
-			int headLine = line.indexOf("Gene1");
-			if (headLine == -1) {// there is no key word
-				String[] tokens = line.split("\\s");
-				String first = tokens[0];
-				String second = tokens[1];
+		for (IdeaNetworkEdge edge : network) {
 
-				int geneNo1 = Integer.parseInt(first);
-				int geneNo2 = Integer.parseInt(second);
-				InteractionType interactionType = stringToInteractionType(tokens[3]);
+			Gene gene1 = null;
+			Gene gene2 = null;
 
-				Gene gene1 = null;
-				Gene gene2 = null;
+			for (Gene g : preGeneList) {
+				if (g.getGeneNo() == edge.geneId1) {
+					gene1 = g; // gene1 points to preGeneList
+				} else if (g.getGeneNo() == edge.geneId2) {
+					gene2 = g;
+				}
+			}
 
-				for (Gene g : preGeneList) {
-					if (g.getGeneNo() == geneNo1) {
-						gene1 = g; // gene1 points to preGeneList
-					} else if (g.getGeneNo() == geneNo2) {
-						gene2 = g;
+			if ((gene1.getMarkers() != null) && (gene2.getMarkers() != null)) {
+				DSItemList gList1 = gene1.getMarkers();
+				for (Object obj1 : gList1) {
+					DSGeneMarker marker1 = (DSGeneMarker) obj1;
+					DSItemList gList2 = gene2.getMarkers();
+					for (Object obj2 : gList2) {
+						DSGeneMarker marker2 = (DSGeneMarker) obj2;
+						IdeaEdge anEdge = new IdeaEdge(edge.geneId1,
+								edge.geneId2, marker1, marker2,
+								marker1.getSerial(), marker2.getSerial(),
+								marker1.getLabel(), marker2.getLabel(),
+								edge.interactionType);
+						edgeIndex.add(anEdge);
+
+						gene1.addEdge(anEdge);// add the edge to related
+												// gene in preGeneList
+						gene2.addEdge(anEdge);
 					}
 				}
-
-				if ((gene1.getMarkers() != null)
-						&& (gene2.getMarkers() != null)) {
-					DSItemList gList1 = gene1.getMarkers();
-					for (Object obj1 : gList1) {
-						DSGeneMarker marker1 = (DSGeneMarker) obj1;
-						DSItemList gList2 = gene2.getMarkers();
-						for (Object obj2 : gList2) {
-							DSGeneMarker marker2 = (DSGeneMarker) obj2;
-							IdeaEdge anEdge = new IdeaEdge(geneNo1, geneNo2,
-									marker1, marker2, marker1.getSerial(),
-									marker2.getSerial(), marker1.getLabel(),
-									marker2.getLabel(), interactionType);
-							edgeIndex.add(anEdge);
-
-							gene1.addEdge(anEdge);// add the edge to related
-													// gene in preGeneList
-							gene2.addEdge(anEdge);
-						}
-					}
-				}
-
-			}// end of while
+			}
 		}
 
 		Phenotype phenotype = IDEAAnalysisPanel.getPhenotype();
@@ -410,17 +374,4 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 		histStr.append(IDEAAnalysisPanel.getDataSetHistory());
 		return histStr.toString();
 	}
-
-	static InteractionType stringToInteractionType(String str) {
-		int ppiId = Integer.parseInt(str);
-
-		InteractionType interactionType = null;
-		if (ppiId == 0)
-			interactionType = InteractionType.PROTEIN_DNA;
-		else if (ppiId == 1)
-			interactionType = InteractionType.PROTEIN_PROTEIN;
-
-		return interactionType;
-	}
-
 }
