@@ -52,13 +52,14 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 	private JPanel selectionPanel = null;
 	
 	private JTextField network = null;
-	private JTextField phenotype = null;
+	private JTextField phenotypeField = null;
 	private JTextField nullData =null;
 	private JButton networkLoadButton = null;
 	private JButton phenotypeLoadButton = null;
 	private JButton nullDataLoadButton =null;
 	private JCheckBox nullDataCheckbox;
 
+	private Phenotype phenotype;
 
 	private CSMicroarraySet<CSMicroarray> dataset;
 	
@@ -81,7 +82,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 				network.setText((String)value);
 			}
 			if (key.equals("phenotype")) {
-				phenotype.setText((String)value);
+				phenotype = (Phenotype)value;
 			}
 			if (key.equals("nullData")) {
 				nullData.setText((String)value);
@@ -101,7 +102,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 		// set the Map with the parameter values retrieved from GUI
 		// component
 		parameters.put("network", network.getText());
-		parameters.put("phenotype", phenotype.getText());
+		parameters.put("phenotype", phenotype);
 		parameters.put("nullData", nullData.getText());
 		
 		
@@ -128,8 +129,8 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 		return nullData.getText();
 	}	
 	
-	public String getPhenotype() {
-			return phenotype.getText();
+	public Phenotype getPhenotype() {
+			return phenotype;
 	}	
 
 	private void init() throws Exception {
@@ -153,10 +154,10 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 					network, networkLoadButton);			
 			builder.nextLine();
 			
-			phenotype = new JTextField(20);
+			phenotypeField = new JTextField(20);
 			phenotypeLoadButton = new JButton("Load");
 			builder.append("Define Phenotype",
-					phenotype, phenotypeLoadButton);
+					phenotypeField, phenotypeLoadButton);
 			builder.nextLine();
 			
 			nullDataCheckbox = new JCheckBox("Use the existing null data", false);
@@ -184,17 +185,35 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 
 		networkLoadButton.addActionListener(new LoadButtonListener(
 				network));
-		phenotypeLoadButton.addActionListener(new LoadButtonListener(
-				phenotype));
 		nullDataLoadButton.addActionListener(new LoadFileNameListener(
 				nullData));
+
+		phenotypeLoadButton.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser fc = new JFileChooser();
+				int returnVal = fc.showOpenDialog(IDEAPanel.this);
+
+				if (returnVal == JFileChooser.APPROVE_OPTION) {
+					File file = fc.getSelectedFile();
+					try {
+						phenotype = new Phenotype(file);
+					} catch (IOException e1) {
+						e1.printStackTrace();
+						phenotype = null;
+					}
+					phenotypeField.setText(file.getAbsolutePath());			
+					
+				}
+			}});
 
 //		// this setting maps the source choice of 'From Set'
 		network.setEnabled(true);
 		network.setEditable(false);
 		networkLoadButton.setEnabled(true);		
-		phenotype.setEnabled(true);
-		phenotype.setEditable(false);
+		phenotypeField.setEnabled(true);
+		phenotypeField.setEditable(false);
 		phenotypeLoadButton.setEnabled(true);
 		nullData.setEnabled(false);
 		nullData.setEditable(false);
@@ -206,7 +225,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 		ParameterActionListener parameterActionListener = new ParameterActionListener(
 				this);
 		network.addActionListener(parameterActionListener);
-		phenotype.addActionListener(parameterActionListener);
+		phenotypeField.addActionListener(parameterActionListener);
 		nullData.addActionListener(parameterActionListener);
 	}
 	
