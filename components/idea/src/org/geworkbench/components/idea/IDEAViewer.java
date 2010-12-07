@@ -431,9 +431,12 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 
 			ideaResult = (IdeaResult) dataSet;
 			gocTableModel.setValues(ideaResult.getGocList());
+			gocTableModel.fireTableDataChanged();
 			locTableModel.setValues(ideaResult.getLocList());
+			locTableModel.fireTableDataChanged();
 			significantGeneTableModel.setValues(ideaResult
 					.getSignificantGeneList());
+			significantGeneTableModel.fireTableDataChanged();
 		}
 	}
 
