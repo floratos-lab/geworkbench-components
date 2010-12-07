@@ -65,9 +65,6 @@ public class IdeaLauncher {
 		double[][] expData = null;
 		int expColLength = 0, expRowLength = 0;
 
-		final String PHENO_INCLUDE = "Include";
-		final String PHENO_EXCLUDE = "Exclude";
-
 		final int EXP_ROW_START = 40; // the first row in exp file to count for
 										// gene expression data
 
@@ -277,50 +274,14 @@ public class IdeaLauncher {
 		}
 		System.out.println("total gene:" + preGeneList.size());
 
-		FileReader phenoreader = new FileReader(phenotypeFile);
-		Scanner phenoin = new Scanner(phenoreader);
-
-		int[] expCols = null;
-		int[] excludeCols = null;
-		while (phenoin.hasNextLine()) {
-			String line = phenoin.nextLine();
-			String[] tokens = line.split("\\s");
-			int phenoItemLength = tokens.length;
-			if (line.indexOf(PHENO_INCLUDE) != -1) {
-				expCols = new int[phenoItemLength - 1];
-				for (int i = 0; i < phenoItemLength - 1; i++) {
-					expCols[i] = Integer.parseInt(tokens[i + 1]) - 1; 
-					/* because the exp columns in phenotype file is from 1,
-					 * however they are from 2 in exp file, not fix the major part yet */
-				}
-			} else if (line.indexOf(PHENO_EXCLUDE) != -1) {
-				excludeCols = new int[phenoItemLength - 1];
-				for (int i = 0; i < phenoItemLength - 1; i++) {
-					excludeCols[i] = Integer.parseInt(tokens[i + 1]) - 1;
-					// same as above,
-				}
-			}
-		}
-
-		int[] t = new int[expColLength - excludeCols.length];
-		int jj = 0;
-		for (int i = 0; i < expColLength; i++) {
-			boolean exclude = false;
-			for (int j = 0; j < excludeCols.length; j++) {
-				if (i == (excludeCols[j]))
-					exclude = true;
-			}
-			if (!exclude) {
-				t[jj] = i;
-				jj++;
-			}
-		}
+		Phenotype phenotype = new Phenotype(new File(phenotypeFile));
+		int columnCount = expColLength - phenotype.getExcludedCount();
 
 		boolean useExistNull = true;
 		String nullFileName = dir + "\\null.dat";
 		// ************Key process********************
 		NullDistribution nullDist = new NullDistribution(edgeIndex, expData,
-				useExistNull, nullFileName, t, expCols);
+				useExistNull, nullFileName, columnCount, phenotype);
 		nullDist.calcNullDist();
 		edgeIndex = nullDist.getEdgeIndex();
 
