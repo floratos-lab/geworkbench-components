@@ -13,7 +13,6 @@ import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.IdeaEdge;
-import org.geworkbench.bison.datastructure.bioobjects.IdeaEdge.InteractionType;
 import org.geworkbench.bison.datastructure.bioobjects.IdeaProbeGene;
 import org.geworkbench.bison.datastructure.bioobjects.IdeaResult;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
@@ -117,16 +116,6 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 			return null;
 		}
 
-		int columnCount = view.items().size();
-		double[][] expData = new double[numGenes][columnCount]; // expData
-																	// saves the
-		// whole exp file except strings which are set to 0
-		for (int i = 0; i < numGenes; i++) {
-			for (int j = 0; j < columnCount; j++) {
-				expData[i][j] = view.getValue(i, j);
-			}
-		}
-
 		for (IdeaNetworkEdge edge : network) {
 
 			Gene gene1 = null;
@@ -163,28 +152,29 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 		}
 
 		Phenotype phenotype = IDEAAnalysisPanel.getPhenotype();
-		int[] expCols = phenotype.columnIncluded;
-		int[] excludeCols = phenotype.columnExcluded;
 
-		int[] t = new int[columnCount - excludeCols.length];
-		int jj = 0;
-		for (int i = 0; i < columnCount; i++) {
-			boolean exclude = false;
-			for (int j = 0; j < excludeCols.length; j++) {
-				if (i == (excludeCols[j]))
-					exclude = true;
+		int columnCountOverall = view.items().size(); 
+		int columnCount = columnCountOverall - phenotype.getExcludedCount();
+
+		// this 2-d array hold the expression values except those are excluded by phenotype file
+		double[][] expressionData = new double[numGenes][columnCount];
+		int columnIndex = 0;
+		int columnIndexOverall = 0;
+		while(columnIndexOverall<columnCountOverall) {
+			if(!phenotype.isExcluded(columnIndexOverall)) {
+				for (int i = 0; i < numGenes; i++) {
+					expressionData[i][columnIndex] = view.getValue(i, columnIndex);
+				}
+				columnIndex++;
 			}
-			if (!exclude) {
-				t[jj] = i;
-				jj++;
-			}
+			columnIndexOverall++;
 		}
 
 		try {
 			// ************Key process********************
 			NullDistribution nullDist = new NullDistribution(edgeIndex,
-					expData, IDEAAnalysisPanel.getUseNullData(),
-					IDEAAnalysisPanel.getNullFileName(), t, expCols);
+					expressionData, IDEAAnalysisPanel.getUseNullData(),
+					IDEAAnalysisPanel.getNullFileName(), columnCount, phenotype);
 			nullDist.calcNullDist();
 			edgeIndex = nullDist.getEdgeIndex();
 			// *******************************************
