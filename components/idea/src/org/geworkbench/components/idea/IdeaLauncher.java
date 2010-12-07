@@ -308,8 +308,6 @@ public class IdeaLauncher {
 			}
 		}
 
-		double[] x = new double[expColLength - excludeCols.length];
-		double[] y = new double[expColLength - excludeCols.length];
 		int[] t = new int[expColLength - excludeCols.length];
 		int jj = 0;
 		for (int i = 0; i < expColLength; i++) {
@@ -322,11 +320,6 @@ public class IdeaLauncher {
 				t[jj] = i;
 				jj++;
 			}
-		}
-
-		for (int i = 0; i < expColLength - excludeCols.length; i++) {
-			x[i] = expData[7270][t[i]];
-			y[i] = expData[1567][t[i]];
 		}
 
 		boolean useExistNull = true;
