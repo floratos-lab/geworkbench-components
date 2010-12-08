@@ -26,7 +26,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSGenotypicMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
@@ -130,13 +129,11 @@ public class TabularMicroarrayPanel extends MicroarrayViewEventBase {
 				} else {
 					DSMicroarray array = maSetView.get(col - 1);
 					DSMarkerValue value = array.getMarkerValue(stats);
-					if (value instanceof DSGenotypicMarkerValue) {
-						return value.toString();
-					} else {
-						if (value.isMissing())
-							return "n/a";
+
+					if (value.isMissing())
+						return "n/a";
+					else
 						return nf.format(maSetView.getValue(row, col - 1));
-					}
 				}
 			} else {
 				return "Invalid";
