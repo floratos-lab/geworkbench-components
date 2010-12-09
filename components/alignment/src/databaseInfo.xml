@@ -34,6 +34,16 @@ It overlaps with refseq_genomic.</detail>
 sequences from EST Divisions.</detail>
 	</database>
 	
+	<database name="est_human" type="nucleotide">
+		<description>Human subset of EST</description>
+		<detail>Human subset of EST.</detail>
+	</database>
+	
+	<database name="est_mouse" type="nucleotide">
+		<description>Mouse subset of EST</description>
+		<detail>Mouse subset of EST.</detail>
+	</database>
+	
 	<database name="est_others" type="nucleotide">
 		<description>Non-human, non-mouse ESTs</description>
 		<detail>Subset of est other than human or mouse.</detail>
