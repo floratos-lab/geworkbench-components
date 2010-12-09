@@ -166,6 +166,12 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 		}
 
 		Phenotype phenotype = IDEAAnalysisPanel.getPhenotype();
+		if (phenotype == null){			
+			pbIdea.dispose();			
+			return new AlgorithmExecutionResults(false,
+					"pheno type file is invalid.", null);
+		}
+
 
 		int columnCountOverall = view.items().size(); 
 		int columnCount = columnCountOverall - phenotype.getExcludedCount();
