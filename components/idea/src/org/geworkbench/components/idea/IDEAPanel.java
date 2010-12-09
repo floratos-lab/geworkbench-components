@@ -289,14 +289,18 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 	public String getDataSetHistory() {
 		StringBuilder histStr = new StringBuilder("");
 		histStr.append("IDEA Analysis parameters:\n");
-		histStr.append("----------------------------------------\n");
-		histStr.append("Network: ");
-		histStr.append("under construction");
-		histStr.append("\nPhenotype: ");			
-		histStr.append("\nAnnotations: ");
+		histStr.append("----------------------------------------");
+		histStr.append("\nNetwork: "+networkField.getText());
+		histStr.append("\nPhenotype: "+phenotypeField.getText());
+		if(nullDataCheckbox.isSelected())
+				histStr.append("\nNull file: "+nullData.getText());
+		histStr.append("\np-value: "+pValueTextField.getText());
 		return histStr.toString();
 	}
 
+	public String getPvalue(){
+		return pValueTextField.getText();
+	}
 	private class LoadFileNameListener implements ActionListener {
 		private JTextField network = null;
 

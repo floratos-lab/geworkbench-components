@@ -58,6 +58,18 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 							+ input.getClass().getName(), null);
 		}
 
+		double pvalue;
+		try{
+			pvalue=Double.parseDouble(IDEAAnalysisPanel.getPvalue());
+			if((pvalue<=0)||(pvalue>=1))
+				return new AlgorithmExecutionResults(false,
+						"P-value should be between 0 and 1.", null);
+		}
+		catch (Exception e){
+			return new AlgorithmExecutionResults(false,
+					"P-value is invalid.", null);
+		}
+		
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> view = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
 		DSMicroarraySet<DSMicroarray> maSet = view.getMicroarraySet();
 		int numGenes = view.markers().size();
@@ -75,9 +87,11 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 		ArrayList<IdeaEdge> edgeIndex = new ArrayList<IdeaEdge>();
 
 		List<IdeaNetworkEdge> network = IDEAAnalysisPanel.getNetwork();
-		if (network == null)
+		if (network == null){			
+			pbIdea.dispose();			
 			return new AlgorithmExecutionResults(false,
 					"network file is invalid.", null);
+		}
 
 		TreeSet<Gene> preGeneList = new TreeSet<Gene>();
 		for (IdeaNetworkEdge edge : network) {
@@ -174,7 +188,7 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 			// ************Key process********************
 			NullDistribution nullDist = new NullDistribution(edgeIndex,
 					expressionData, IDEAAnalysisPanel.getUseNullData(),
-					IDEAAnalysisPanel.getNullFileName(), columnCount, phenotype);
+					IDEAAnalysisPanel.getNullFileName(), columnCount, phenotype, pvalue);
 			nullDist.calcNullDist();
 			edgeIndex = nullDist.getEdgeIndex();
 			// *******************************************
@@ -315,26 +329,36 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 				g.setCumGoc(cumulativeP);
 			}
 		}
-
-		for (IdeaProbeGene p : probes) {
-			int H = p.getEdges().size();
-			if (p.getLocs() > 0) { // calculate LOC p-value using fisher
-									// exact test to evaluate probe
-				int Dl = p.getLocs();
-				double cumulativeP = fe.getCumlativeP(Dl, H - Dl, Sl - Dl, N
-						- Sl - H + Dl);
-				p.setCumLoc(cumulativeP);
+		try{
+			for (IdeaProbeGene p : probes) {
+				int H = p.getEdges().size();
+				if (p.getLocs() > 0) { // calculate LOC p-value using fisher
+										// exact test to evaluate probe
+					int Dl = p.getLocs();
+					double cumulativeP = fe.getCumlativeP(Dl, H - Dl, Sl - Dl, N
+							- Sl - H + Dl);
+					p.setCumLoc(cumulativeP);
+				}
+				if (p.getGocs() > 0) {
+					int Dg = p.getGocs();
+					double cumulativeP = fe.getCumlativeP(Dg, H - Dg, Sg - Dg, N
+							- Sg - H + Dg);
+					p.setCumGoc(cumulativeP);
+				}
+				double locnes = -Math.log(p.getCumLoc());
+				double gocnes = -Math.log(p.getCumGoc());
+				double nes = locnes + gocnes;
+				p.setNes(nes);
 			}
-			if (p.getGocs() > 0) {
-				int Dg = p.getGocs();
-				double cumulativeP = fe.getCumlativeP(Dg, H - Dg, Sg - Dg, N
-						- Sg - H + Dg);
-				p.setCumGoc(cumulativeP);
-			}
-			double locnes = -Math.log(p.getCumLoc());
-			double gocnes = -Math.log(p.getCumGoc());
-			double nes = locnes + gocnes;
-			p.setNes(nes);
+		}
+		catch(Exception e){
+			e.printStackTrace();
+			pbIdea.dispose();
+			log.error(e);			
+			return new AlgorithmExecutionResults(false,
+					"IDEA calculation failed due to exception:" +
+					"\nfinding significant genes using Fisher Exact Test.",
+					null);
 		}
 
 		List<IdeaProbeGene> probeNes = new ArrayList<IdeaProbeGene>();
