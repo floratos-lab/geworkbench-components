@@ -317,6 +317,7 @@ public class BlastAlgorithm extends SwingWorker<CSAlignmentResultSet, Integer> {
 				
 				histStr += "Expect: " + parameterSetting.getExpect() + LINEBREAK;
 				histStr += "Word Size: " + parameterSetting.getWordsize() + LINEBREAK;
+				histStr += "Max match in a query range: "+parameterSetting.getHspRange()+ LINEBREAK;
 				if(!parameterSetting.getProgramName().equalsIgnoreCase("blastn"))
 					histStr += "Matrix: " + parameterSetting.getMatrix() + LINEBREAK;
 				histStr += "Match/mismatch Scores: " + parameterSetting.getMatchScores() + LINEBREAK;

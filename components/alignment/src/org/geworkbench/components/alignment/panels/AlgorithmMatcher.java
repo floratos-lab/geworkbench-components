@@ -604,16 +604,16 @@ public class AlgorithmMatcher {
                 if (ps.getWordsize() != null) {
                     cmd += "&WORD_SIZE=" + ps.getWordsize().trim();
                 }
-                
-                    String gapCost = ps.getGapCost();
-                    if (gapCost != null) {
-                    	if(gapCost.equalsIgnoreCase("Linear")) gapCost="Existence: 0 Extension: 0";
-                        String[] s = gapCost.split(" ");
-                        if (s.length > 3) {
-                            cmd += "&GAPCOSTS=" + s[1].trim() + "%20" +
-                                    s[3].trim();
-                        }
+                cmd+="&HSP_RANGE_MAX=" + ps.getHspRange().trim();	
+                String gapCost = ps.getGapCost();
+                if (gapCost != null) {
+                	if(gapCost.equalsIgnoreCase("Linear")) gapCost="Existence: 0 Extension: 0";
+                    String[] s = gapCost.split(" ");
+                    if (s.length > 3) {
+                        cmd += "&GAPCOSTS=" + s[1].trim() + "%20" +
+                                s[3].trim();
                     }
+                }
                 
                 if(ps.getProgramName().equalsIgnoreCase("blastn")){    
 	                String matchScores=ps.getMatchScores();
