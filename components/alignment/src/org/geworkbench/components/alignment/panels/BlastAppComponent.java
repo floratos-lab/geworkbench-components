@@ -152,6 +152,7 @@ public class BlastAppComponent implements VisualPlugin {
 
     private JComboBox jExpectBox = new JComboBox();
     private JComboBox jWordsizeBox = new JComboBox();
+    private JTextField jHspRangeBox=new JTextField(5);
 
     private JLabel jScoresLabel= new JLabel("Match/mismatch Scores:");
     private JComboBox jScoresBox=new JComboBox();
@@ -330,16 +331,17 @@ public class BlastAppComponent implements VisualPlugin {
         jMatrixBox.setVerifyInputWhenFocusTarget(true);
         jMatrixBox.setSelectedIndex(0);
         // (2)
-        jExpectBox.setSelectedIndex( -1);
-        jExpectBox.setVerifyInputWhenFocusTarget(true);
-        jExpectBox.addItem("10");
-        jExpectBox.addItem("1");
-        jExpectBox.addItem("0.1");
-        jExpectBox.addItem("0.01");
+        
+        jExpectBox.setVerifyInputWhenFocusTarget(true);        
         jExpectBox.addItem("0.000000001");
+        jExpectBox.addItem("0.01");
+        jExpectBox.addItem("0.1");        
+        jExpectBox.addItem("1");
+        jExpectBox.addItem("10");
         jExpectBox.addItem("100");
         jExpectBox.addItem("1000");
         jExpectBox.setEditable(true);
+       
         // (3)
         jGapcostsBox.setVerifyInputWhenFocusTarget(true);
     	String defaulMatrixName = "BLOSUM62"; 
@@ -355,6 +357,7 @@ public class BlastAppComponent implements VisualPlugin {
         jWordsizeBox.addItem("7");
         jWordsizeBox.addItem("11");
         jWordsizeBox.addItem("15");
+        jWordsizeBox.setMaximumRowCount(10);
         
         //(5)        
         jScoresBox.addItem("1,-2");
@@ -374,12 +377,13 @@ public class BlastAppComponent implements VisualPlugin {
         jSpeciesBox.addItem("Arabidopsis");
         jSpeciesBox.addItem("Rice");
         jSpeciesBox.addItem("Mammals");
-        jSpeciesBox.addItem("Fungi");
+        jSpeciesBox.addItem("Fungi");   
         jSpeciesBox.addItem("C.elegans");
         jSpeciesBox.addItem("A.gambiae");
         jSpeciesBox.addItem("Zebrafish");
         jSpeciesBox.addItem("Fruit fly"); 
-        
+        jSpeciesBox.setMaximumRowCount(10);
+     
         jTemplateLengthBox.addItem("None");
         jTemplateLengthBox.addItem("16");
         jTemplateLengthBox.addItem("18");
@@ -412,6 +416,7 @@ public class BlastAppComponent implements VisualPlugin {
         jMaxTargetBox.addItem("5000");
         jMaxTargetBox.addItem("10000");
         jMaxTargetBox.addItem("20000");
+        jMaxTargetBox.setMaximumRowCount(10);
                 
         jAdvancedPane.setLayout(new GridBagLayout());       
 
@@ -515,6 +520,7 @@ public class BlastAppComponent implements VisualPlugin {
         jMaxTargetBox.setToolTipText("Select the maximum number of aligned sequences to display");
         jExpectBox.setToolTipText("Random background noise");
         jWordsizeBox.setToolTipText("The length of the words governing the sensitivity");
+        jHspRangeBox.setToolTipText("Limit the number of matches to a query range");
         jMatrixBox.setToolTipText("Assigns a score for aligning any possible pair of residues");
         jGapcostsBox.setToolTipText("Score subtracted due to the gaps");
         excludeModels.setToolTipText("Models(XM/XP)");
@@ -528,7 +534,7 @@ public class BlastAppComponent implements VisualPlugin {
         
 		// jTabbedBlastPane contains two panels
 		jTabbedBlastPane.add(jBasicPane, "Main");
-        jTabbedBlastPane.add(new JScrollPane(jAdvancedPane), "Advanced Options");
+        jTabbedBlastPane.add(new JScrollPane(jAdvancedPane), "Algorithm Parameters");
         jAdvancedPane.setEnabled(false);
 
         // mainPanel contains one tabbed pane
@@ -728,9 +734,16 @@ public class BlastAppComponent implements VisualPlugin {
         JPanel wordSizePanel = new JPanel();
         wordSizePanel.setLayout(new FlowLayout(FlowLayout.LEADING) );
         wordSizePanel.add(new JLabel("Word size:"));
-        wordSizePanel.add(jWordsizeBox);
+        wordSizePanel.add(jWordsizeBox);        
         wordSizePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         generalParametersPanel.add(wordSizePanel);
+        JPanel hspRangePanel = new JPanel();
+        hspRangePanel.setLayout(new FlowLayout(FlowLayout.LEADING) );
+        hspRangePanel.add(new JLabel("Max matches in a query range:"));
+        hspRangePanel.add(jHspRangeBox);        
+        hspRangePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        generalParametersPanel.add(hspRangePanel);
+        jHspRangeBox.setText("0");
         
         GridBagConstraints c = new GridBagConstraints(0, 0, 1, 1,
 				0.0, 0.0, GridBagConstraints.WEST,
@@ -845,7 +858,7 @@ public class BlastAppComponent implements VisualPlugin {
 				.translateToWordSize(selectedProgramName,defaultOptimizeFor);
 		jWordsizeBox.setModel(new DefaultComboBoxModel(model2));
 		jMaxTargetBox.setSelectedIndex(2);
-		jExpectBox.setSelectedIndex(0);
+		jExpectBox.setSelectedIndex(4);
 		jSpeciesBox.setSelectedIndex(0);
 		shortQueriesBox.setSelected(true);
 		jDisplayInWebBox.setSelected(true);		
@@ -1148,6 +1161,7 @@ public class BlastAppComponent implements VisualPlugin {
         String entrezQuery=jEntrezQueryText.getText().trim();
         String fromQuery=jQueryFromText.getText().trim();
         String toQuery=jQueryToText.getText().trim();
+        String hspRange=jHspRangeBox.getText().trim();
         
         ParameterSetting ps = new ParameterSetting(dbName, programName,
 				jDisplayInWebBox.isSelected(), expectValue, lowComplexFilterOn,
@@ -1155,7 +1169,7 @@ public class BlastAppComponent implements VisualPlugin {
 						.getSelectedItem(), maskLookupOnlyBox.isSelected(),
 						excludeModelsOn,excludeUncultureOn, entrezQuery, fromQuery, toQuery, megaBlastOn,
 						discontiguousOn,blastnBtnOn,shortQueriesOn,matchScores,compositionalAdjustment,
-						speciesRepeat, templateLength, templateType, geneticCode, maxTargetNumber);
+						speciesRepeat, templateLength, templateType, geneticCode, maxTargetNumber, hspRange);
         if (startValue <= 1 && endValue >= fastaFile.getMaxLength()) {
             //just use whole sequence. No end to reset.
         } else {
@@ -1448,10 +1462,7 @@ public class BlastAppComponent implements VisualPlugin {
 	        if(selectedRow!=-1) {
 		        String dbName = (String)databaseTable.getModel().getValueAt(selectedRow, DATABASE_NAME_INDEX);
 		        dbDetails = algorithmMatcher.getDatabaseDetail(program, dbName);
-		        if(dbName.equalsIgnoreCase("dbindex/10090/allcontig_and_rna"))
-		        	jSpeciesBox.setSelectedIndex(1);
-		        else
-		        	jSpeciesBox.setSelectedIndex(0);
+		       	jSpeciesBox.setSelectedIndex(0);
 	        }
 	        
 	        textArea.setText( dbDetails );

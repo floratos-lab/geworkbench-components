@@ -77,6 +77,7 @@ public class ParameterSetting {
         private String entrezQuery;
         private String fromQuery;
         private String toQuery;
+        private String hspRange;
         
     /**
      * No public constructor because this is only used in this package.
@@ -105,6 +106,7 @@ public class ParameterSetting {
      * @param entrezQuery
      * @param fromQuery
      * @param toQuery
+     * @param hspRange
      * 
      */
     ParameterSetting(String dbName, String programName, boolean viewInBrowser,
@@ -113,7 +115,7 @@ public class ParameterSetting {
 			boolean maskLookupTable, boolean excludeModelsOn, boolean excludeUncultureOn, String entrezQuery,
 			String fromQuery, String toQuery, boolean megaBlastOn, boolean discontiguousOn, boolean blastnBtnOn, boolean shortQueriesOn, 
 			String matchScores, String compositionalAdjustment, String speciesRepeat, String templateLength, 
-			String templateType, String geneticCode, String maxTargetNumber) {
+			String templateType, String geneticCode, String maxTargetNumber, String hspRange) {
         this.dbName = dbName;
         this.programName = programName;
         this.viewInBrowser = viewInBrowser;
@@ -140,6 +142,7 @@ public class ParameterSetting {
 		this.entrezQuery=entrezQuery;
 		this.fromQuery=fromQuery;
 		this.toQuery=toQuery;
+		this.hspRange=hspRange;
     }
 
     public void setPenalty(String penalty) {
@@ -292,5 +295,8 @@ public class ParameterSetting {
 	}
 	public String getToQuery() {
 		return toQuery;
+	}
+	public String getHspRange() {
+		return hspRange;
 	}
 }
