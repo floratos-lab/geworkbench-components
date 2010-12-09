@@ -52,10 +52,11 @@ public class NullDistribution {
 	private ArrayList<Bin> bins; // a bin has MinP and MaxP of sortedCorr[],
 									// there are 100 bins totally
 	private final Phenotype phenotype;
+	private double pvalue;
 
 	public NullDistribution(ArrayList<IdeaEdge> edgeIndex, final double[][] expData,
 			Boolean useExistNull, String nullFileName,
-			int columnCount, final Phenotype phenotype) {
+			int columnCount, final Phenotype phenotype, double pvalue) {
 		
 		this.edgeIndex = edgeIndex;
 		this.expData = expData;
@@ -64,6 +65,7 @@ public class NullDistribution {
 
 		this.columnCount = columnCount;
 		this.phenotype = phenotype;
+		this.pvalue=pvalue;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -85,8 +87,7 @@ public class NullDistribution {
 
 			FileInputStream fileIn = new FileInputStream(nullFileName);
 			ObjectInputStream in1 = new ObjectInputStream(fileIn);
-			// System.out.println("before reading2...");
-
+			
 			ArrayList<IdeaEdge> readObject = (ArrayList<IdeaEdge>) in1
 					.readObject();
 			edgeIndex = readObject;
@@ -120,8 +121,8 @@ public class NullDistribution {
 													// the edge
 				// deltaCorr[i]=delta.getDeltaCorr();//deltaCorr[] can be
 				// removed after test.
-				System.out.println("deltaMI of edge's delta corr is "
-						+ ideaEdge.getDeltaCorr());
+				//System.out.println("deltaMI of edge's delta corr is "
+				//		+ ideaEdge.getDeltaCorr());
 			}
 
 			prepareBins();
@@ -152,16 +153,14 @@ public class NullDistribution {
 
 			}// end of 100 bins
 
-			try { // save the null date
+			
 				FileOutputStream fileOut = new FileOutputStream(nullString);
 				ObjectOutputStream out = new ObjectOutputStream(fileOut);
 
 				out.writeObject(edgeIndex);
 				fileOut.close();
 
-			} catch (IOException e) {
-				System.out.println("error:" + e.getMessage());
-			}
+			
 		}// end of else, there is no pre null dat, so compute it
 
 		int binMin = 0;
@@ -228,22 +227,13 @@ public class NullDistribution {
 
 		for (IdeaEdge anEdge : edgeIndex) {
 
-			if (anEdge.getNormCorr() < 0.05 / edgeIndex.size()) { // show
+			if (anEdge.getNormCorr() < pvalue / edgeIndex.size()) { // show
 																	// significant
 				// edges
 				if (anEdge.getDeltaCorr() < 0)
 					anEdge.setLoc(true);// save the flag for significant edge
 				else if (anEdge.getDeltaCorr() > 0)
-					anEdge.setGoc(true);
-				// System.out.println("test in nullDistribution object\n");
-				System.out.println(anEdge.getGeneNo1() + "\t"
-						+ anEdge.getGeneNo2() + "\t"
-						+ (anEdge.getExpRowNoG1() - 6) + "\t"
-						+ (anEdge.getExpRowNoG2() - 6) + "\tDeltaCorr:\t"
-						+ anEdge.getDeltaCorr() + "\tNormCorr:\t"
-						+ anEdge.getNormCorr() + "\tzDeltaCorr:\t"
-						+ anEdge.getzDeltaCorr() + "\tLOC:" + anEdge.isLoc()
-						+ "\tGOC:" + anEdge.isGoc());
+					anEdge.setGoc(true);				
 			}
 		}
 

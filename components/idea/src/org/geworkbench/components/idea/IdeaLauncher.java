@@ -37,6 +37,7 @@ public class IdeaLauncher {
 	 */
 	public static void main(String[] args) throws MathException, IOException,
 			ClassNotFoundException {
+		final double pvalue=0.05;
 		String dir = System.getProperty("user.dir");
 
 		// initialize input file names with default setting
@@ -281,7 +282,7 @@ public class IdeaLauncher {
 		String nullFileName = dir + "\\null.dat";
 		// ************Key process********************
 		NullDistribution nullDist = new NullDistribution(edgeIndex, expData,
-				useExistNull, nullFileName, columnCount, phenotype);
+				useExistNull, nullFileName, columnCount, phenotype, pvalue);
 		nullDist.calcNullDist();
 		edgeIndex = nullDist.getEdgeIndex();
 
