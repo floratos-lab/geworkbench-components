@@ -72,6 +72,10 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 		
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> view = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
 		DSMicroarraySet<DSMicroarray> maSet = view.getMicroarraySet();
+		if(maSet.getAnnotationFileName()==null){
+			return new AlgorithmExecutionResults(false,
+					"IDEA analysis needs annotation file. Please load it first.", null);
+		}
 		int numGenes = view.markers().size();
 
 		ProgressBar pbIdea = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
@@ -218,7 +222,15 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 			return new AlgorithmExecutionResults(false,
 					"IDEA calculation failed due to ClassNotFoundException",
 					null);
-		}
+		} catch (Exception e) {
+			e.printStackTrace();
+			pbIdea.dispose();
+			log.error(e);
+			return new AlgorithmExecutionResults(false,
+					"IDEA calculation failed due to Exception", null);
+		} 
+		
+		
 		if (this.stopAlgorithm) {
 			pbIdea.dispose();
 			return null;
