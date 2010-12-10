@@ -226,15 +226,16 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 		saveLocButton.setText("save Loc egdes");
 		JButton saveGocButton = new JButton();
 		saveGocButton.setText("save Goc edges");
+		JButton saveNodesButton = new JButton("save significant nodes");
 		JButton saveNullButton = new JButton();
 		saveNullButton.setText("save null distribution data");
-		JButton saveNodesButton = new JButton("save significant nodes");
+		
 
 		bottomPanel.add(saveSigGeneButton);
 		bottomPanel.add(saveLocButton);
 		bottomPanel.add(saveGocButton);
-		bottomPanel.add(saveNullButton);
 		bottomPanel.add(saveNodesButton);
+		bottomPanel.add(saveNullButton);		
 		add(bottomPanel, BorderLayout.SOUTH);
 
 		saveNodesButton.addActionListener(new ActionListener() {
