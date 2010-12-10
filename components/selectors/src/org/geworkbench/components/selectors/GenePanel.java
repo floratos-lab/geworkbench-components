@@ -423,20 +423,19 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 	
 	@SuppressWarnings("unchecked")
 	protected boolean dataSetChanged(DSDataSet dataSet) {
-		DSItemList items = null;
 
 		if (dataSet instanceof DSMicroarraySet) {
 			sortMenu.setEnabled(true);
 			sortProbeItem.setEnabled(true);
 			sortGeneItem.setEnabled(true);
 			DSMicroarraySet maSet = (DSMicroarraySet) dataSet;
-			items = new CSItemList<DSGeneMarker>();
-			items.addAll(maSet.getMarkers());
-			setItemList(items);
+			setItemList(maSet.getMarkers());
+			itemList = new CSItemList<DSGeneMarker>();
+			itemList.addAll(maSet.getMarkers());
 			return true;
 		} else if (dataSet instanceof DSSequenceSet) {
 			sortMenu.setEnabled(false);
-			items = (DSItemList) ((DSSequenceSet) dataSet).getMarkerList();
+			DSItemList items = (DSItemList) ((DSSequenceSet) dataSet).getMarkerList();
 			setItemList(items);
 			return true;
 		}
