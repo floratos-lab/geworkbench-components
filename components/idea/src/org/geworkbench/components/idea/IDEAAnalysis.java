@@ -303,33 +303,13 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 			p.setLocs(locs);
 			p.setGocs(gocs);
 
-		}
-
-		int allLoc = 0;
-		int allGoc = 0;
-		for (Gene g : preGeneList) { // enrichment to find the significant
-										// entrez genes
-			int locs = 0;
-			int gocs = 0;
-			for (IdeaEdge anEdge : g.getEdges()) {
-				if (anEdge.isLoc()) {
-					locs++;
-				} else if (anEdge.isGoc()) {
-					gocs++;
-				}
-			}
-
-			g.setLocs(locs);
-			g.setGocs(gocs);
-			allLoc += g.getLocs();
-			allGoc += g.getGocs();
-		}
+		}	
 
 		int N = edgeIndex.size();
 		FisherExact fe = new FisherExact(2 * N);
 
-		int Sl = allLoc;
-		int Sg = allGoc;
+		int Sl = locList.size();
+		int Sg = gocList.size();
 		// calculate LOC p-value using fisher exact test to evaluate entrez
 		// genes
 		for (Gene g : preGeneList) {
