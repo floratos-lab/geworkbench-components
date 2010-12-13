@@ -82,19 +82,16 @@ public class NullDistribution {
 		bins = new ArrayList<Bin>();
 
 		String dir = System.getProperty("user.dir");
-		String nullString = dir + "\\data\\null.dat";
+		String nullOutputFile = dir + "\\data\\null.dat";
 		if (useExistNull) {
 
 			FileInputStream fileIn = new FileInputStream(nullFileName);
-			ObjectInputStream in1 = new ObjectInputStream(fileIn);
+			ObjectInputStream in1 = new ObjectInputStream(fileIn);			
 			
-			ArrayList<IdeaEdge> readObject = (ArrayList<IdeaEdge>) in1
-					.readObject();
-			edgeIndex = readObject;
-			System.out.println("nullFile exist.");
+			edgeIndex = (ArrayList<IdeaEdge>) in1.readObject();
+			System.out.println("nullFile exist.");		
 
-			prepareBins();
-
+			//prepareBins();
 			in1.close();
 			fileIn.close();
 
@@ -151,92 +148,90 @@ public class NullDistribution {
 				}// end of each bin
 				System.out.println("bin " + i);
 
-			}// end of 100 bins
-
-			
-				FileOutputStream fileOut = new FileOutputStream(nullString);
-				ObjectOutputStream out = new ObjectOutputStream(fileOut);
-
-				out.writeObject(edgeIndex);
-				fileOut.close();
-
-			
-		}// end of else, there is no pre null dat, so compute it
-
-		int binMin = 0;
-		int binMax = 100 - 1;
-		int halfWindow = (int) (0.025 / incre) + 1;
-
-		for (IdeaEdge anEdge : edgeIndex) {
-			int baseBin = (int) ((anEdge.getMI() - sortedCorr[0]) / incre);
-			if ((baseBin - halfWindow) <= 0) {
-				binMin = 0;
-				binMax = 2 * halfWindow;
-			} else if (baseBin + halfWindow >= 100 - 1) {
-				binMax = 100 - 1;
-				binMin = binMax - 2 * halfWindow;
-			} else {
-				binMin = baseBin - halfWindow;
-				binMax = baseBin + halfWindow;
-			}
-
-			Set<Integer> binsPoints = new TreeSet<Integer>(); // binsPoints have
-																// the points in
-																// sortedCorr
-																// for
-																// evaluating
-																// significance
-																// of the anEdge
-			for (int i = binMin; i < binMax + 1; i++) {
-				for (int j = bins.get(i).getMinP(); j < bins.get(i).getMaxP() + 1; j++) {
-					binsPoints.add(j);
+			}// end of 100 bins			
+		
+			int binMin = 0;
+			int binMax = 100 - 1;
+			int halfWindow = (int) (0.025 / incre) + 1;
+	
+			for (IdeaEdge anEdge : edgeIndex) {
+				int baseBin = (int) ((anEdge.getMI() - sortedCorr[0]) / incre);
+				if ((baseBin - halfWindow) <= 0) {
+					binMin = 0;
+					binMax = 2 * halfWindow;
+				} else if (baseBin + halfWindow >= 100 - 1) {
+					binMax = 100 - 1;
+					binMin = binMax - 2 * halfWindow;
+				} else {
+					binMin = baseBin - halfWindow;
+					binMax = baseBin + halfWindow;
 				}
-			}
-
-			ArrayList<Double> zNullI = new ArrayList<Double>();
-			KernelEstimator kernel = new KernelEstimator(K_PRECISION);
-			/* 0.0072 may be reasonable, not sure, the parameter impact a lot */
-			for (Integer a : binsPoints) {
-				double[] nullDeltaI = MI_Edge.get(sortedCorr[a]).getNullData();
-				for (int i = 0; i < nullDeltaI.length; i++) {
-					kernel.addValue(nullDeltaI[i], K_WEIGHT);
-					if (anEdge.getDeltaCorr() > 0 && nullDeltaI[i] > 0)
-						zNullI.add(nullDeltaI[i]);
-					else if (anEdge.getDeltaCorr() < 0 && nullDeltaI[i] < 0) {
-						zNullI.add(nullDeltaI[i]);
+	
+				Set<Integer> binsPoints = new TreeSet<Integer>(); // binsPoints have
+																	// the points in
+																	// sortedCorr
+																	// for
+																	// evaluating
+																	// significance
+																	// of the anEdge
+				for (int i = binMin; i < binMax + 1; i++) {
+					for (int j = bins.get(i).getMinP(); j < bins.get(i).getMaxP() + 1; j++) {
+						binsPoints.add(j);
 					}
 				}
-			}
-
-			double normCorr = kernel.getProbability(anEdge.getDeltaCorr());// compute
-																			// norm
-																			// delta
-																			// correlation
-			anEdge.setNormCorr(normCorr); // save it in edgeIndex
-
-			double[] values = new double[zNullI.size() * 2];
-			StandardDeviation std = new StandardDeviation();
-			for (int i = 0; i < zNullI.size(); i++) {
-				values[i] = zNullI.get(i);
-				values[i + zNullI.size()] = -values[i];
-			}
-			double zDeltaCorr = anEdge.getDeltaCorr() / std.evaluate(values);
-			anEdge.setzDeltaCorr(zDeltaCorr);
-
-		}// end of edges loop
-
-		for (IdeaEdge anEdge : edgeIndex) {
-
-			if (anEdge.getNormCorr() < pvalue / edgeIndex.size()) { // show
-																	// significant
-				// edges
-				if (anEdge.getDeltaCorr() < 0)
-					anEdge.setLoc(true);// save the flag for significant edge
-				else if (anEdge.getDeltaCorr() > 0)
-					anEdge.setGoc(true);				
-			}
-		}
-
+	
+				ArrayList<Double> zNullI = new ArrayList<Double>();
+				KernelEstimator kernel = new KernelEstimator(K_PRECISION);
+				/* 0.0072 may be reasonable, not sure, the parameter impact a lot */
+				for (Integer a : binsPoints) {
+					double[] nullDeltaI = MI_Edge.get(sortedCorr[a]).getNullData();
+					for (int i = 0; i < nullDeltaI.length; i++) {
+						kernel.addValue(nullDeltaI[i], K_WEIGHT);
+						if (anEdge.getDeltaCorr() > 0 && nullDeltaI[i] > 0)
+							zNullI.add(nullDeltaI[i]);
+						else if (anEdge.getDeltaCorr() < 0 && nullDeltaI[i] < 0) {
+							zNullI.add(nullDeltaI[i]);
+						}
+					}
+				}
+	
+				double normCorr = kernel.getProbability(anEdge.getDeltaCorr());// compute
+																				// norm
+																				// delta
+																				// correlation
+				anEdge.setNormCorr(normCorr); // save it in edgeIndex
+	
+				double[] values = new double[zNullI.size() * 2];
+				StandardDeviation std = new StandardDeviation();
+				for (int i = 0; i < zNullI.size(); i++) {
+					values[i] = zNullI.get(i);
+					values[i + zNullI.size()] = -values[i];
+				}
+				double zDeltaCorr = anEdge.getDeltaCorr() / std.evaluate(values);
+				anEdge.setzDeltaCorr(zDeltaCorr);
+	
+			}// end of edges loop
+	
+			for (IdeaEdge anEdge : edgeIndex) {
+	
+				if (anEdge.getNormCorr() < pvalue / edgeIndex.size()) { // show
+																		// significant
+					// edges
+					if (anEdge.getDeltaCorr() < 0)
+						anEdge.setLoc(true);// save the flag for significant edge
+					else if (anEdge.getDeltaCorr() > 0)
+						anEdge.setGoc(true);				
+				}
+			}		
+			
+			FileOutputStream fileOut = new FileOutputStream(nullOutputFile);
+			ObjectOutputStream out = new ObjectOutputStream(fileOut);
+	
+			out.writeObject(edgeIndex);
+			out.close();
+			fileOut.close();
+		}// end of else, there is no pre null dat, so compute it
+		
 		return 1;
 	}
 
@@ -247,7 +242,7 @@ public class NullDistribution {
 			sortedCorr[index++] = ideaEdge.getMI();
 			MI_Edge.put(ideaEdge.getMI(), ideaEdge);
 		}
-		Arrays.sort(sortedCorr); // zheng:check if edgeIndex is changed!
+		Arrays.sort(sortedCorr); // check if edgeIndex is changed!
 		// for(int i=0;i<edgeSize;i++)
 		// System.out.println("get MI "+sortedCorr[i]+"-->"+MI_Edge.get(sortedCorr[i]).getGeneNo1()+" "+MI_Edge.get(sortedCorr[i]).getGeneNo2()+" "+MI_Edge.get(sortedCorr[i]).getExpRowNoG1()+" "+MI_Edge.get(sortedCorr[i]).getExpRowNoG2());
 		incre = (sortedCorr[sortedCorr.length - 1] - sortedCorr[0]) / 100;
