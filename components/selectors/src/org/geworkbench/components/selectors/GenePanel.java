@@ -60,9 +60,10 @@ import com.Ostermiller.util.ExcelCSVParser;
 public class GenePanel extends SelectorPanel<DSGeneMarker> {
 	private String taggedSelection = null; // tagged for cytoscape visualization
 	private boolean tagEventEnabled = true;
-	private JMenuItem sortGeneItem  = new JMenuItem("by Genes");
-	private JMenuItem sortProbeItem = new JMenuItem("by Probes");
-	private JMenuItem sortMenu = new JMenu("Sort");
+	private JMenuItem sortGeneItem  = new JMenuItem("by gene name");
+	private JMenuItem sortProbeItem = new JMenuItem("by probe set id");
+	private JMenuItem sortOriginalItem = new JMenuItem("into the original order");
+	private JMenuItem sortMenu = new JMenu("Sort markers");
 
 	/**
 	 * <code>FileFilter</code> that is used by the <code>JFileChoose</code>
@@ -99,6 +100,7 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 		// Add gene panel specific menu items.
 		sortMenu.add(sortGeneItem);
 		sortMenu.add(sortProbeItem);
+		sortMenu.add(sortOriginalItem);
 		itemListPopup.add(sortMenu);
 		treePopup.insert(newPanelItem2, 4);
 		treePopup.add(tagPanelMenuItem);
@@ -160,6 +162,7 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 				Collections.sort(itemList, new MarkerOrderByGene());
 				sortGeneItem.setEnabled(false);
 				sortProbeItem.setEnabled(true);
+				sortOriginalItem.setEnabled(true);
 				mainPanel.repaint();
 			}
 		});
@@ -168,6 +171,16 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 				Collections.sort(itemList, new MarkerOrderByProbe());
 				sortProbeItem.setEnabled(false);
 				sortGeneItem.setEnabled(true);
+				sortOriginalItem.setEnabled(true);
+				mainPanel.repaint();
+			}
+		});
+		sortOriginalItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Collections.sort(itemList, new MarkerOrderOriginal());
+				sortProbeItem.setEnabled(true);
+				sortGeneItem.setEnabled(true);
+				sortOriginalItem.setEnabled(false);
 				mainPanel.repaint();
 			}
 		});
@@ -321,6 +334,12 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 		}
     }
 
+    private class MarkerOrderOriginal implements Comparator<DSGeneMarker> {
+		public int compare(DSGeneMarker o1, DSGeneMarker o2) {
+			return o1.getSerial() - ((DSGeneMarker)o2).getSerial();
+		}
+    }
+    
 	/**
 	 * Utility to obtain the stored panel sets from the filesystem
 	 * 
@@ -428,6 +447,7 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 			sortMenu.setEnabled(true);
 			sortProbeItem.setEnabled(true);
 			sortGeneItem.setEnabled(true);
+			sortOriginalItem.setEnabled(false);
 			DSMicroarraySet maSet = (DSMicroarraySet) dataSet;
 			setItemList(maSet.getMarkers());
 			itemList = new CSItemList<DSGeneMarker>();
