@@ -857,9 +857,9 @@ public class CytoscapeWidget implements VisualPlugin {
 
 	private void init() {
 		
-		/*if (System.getProperty("os.name").startsWith("Mac")) {
+		if (System.getProperty("os.name").startsWith("Mac")) {
 			System.setProperty("com.apple.mrj.application.apple.menu.about.name", "Cytoscape");
-		}*/
+		} 
 		Cytoscape.getDesktop().setVisible(false);
 		CytoscapeInit initializer = new CytoscapeInit();
 
