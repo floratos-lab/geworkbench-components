@@ -17,8 +17,7 @@ import java.util.Set;
  */
 public class Phenotype implements Serializable {
 	private static final long serialVersionUID = 1929271049658752446L;
-	
-	private final Set<Integer> columnIncluded;
+
 	private final Set<Integer> newColumnIncluded;	//zheng
 	private final Set<Integer> columnExcluded;
 
@@ -30,19 +29,22 @@ public class Phenotype implements Serializable {
 	 * @param nullPhenoCols 
 	 */
 	Phenotype(Set<Integer> nullPhenoCols)  {
-		columnIncluded = nullPhenoCols;
 		columnExcluded = new HashSet<Integer>();
-		newColumnIncluded = new HashSet<Integer>();
+		newColumnIncluded = nullPhenoCols;
 	}
 	
 	Phenotype(File file) throws IOException {
+		int maxIndex = 0;
+		
 		BufferedReader br = new BufferedReader(new FileReader(file));
 		String line = br.readLine();
 		String[] tokens = line.split("\\s");
+		Set<Integer> columnIncluded = new HashSet<Integer>();
 		if(tokens[0].equals(PHENO_INCLUDE)) {
-			columnIncluded = new HashSet<Integer>();
 			for(int i=0; i<tokens.length-1; i++) {
-				columnIncluded.add( Integer.parseInt(tokens[i + 1]) - 1 );
+				int index = Integer.parseInt(tokens[i + 1]) - 1;
+				if(index>maxIndex) maxIndex = index;
+				columnIncluded.add( index );
 			}
 		} else {
 			throw new IOException("Format Error: phetype file does not have 'Included' line.");
@@ -53,36 +55,48 @@ public class Phenotype implements Serializable {
 		if(tokens[0].equals(PHENO_EXCLUDE)) {
 			columnExcluded = new HashSet<Integer>();
 			for(int i=0; i<tokens.length-1; i++) {
-				columnExcluded.add( Integer.parseInt(tokens[i + 1]) - 1 );
+				int index = Integer.parseInt(tokens[i + 1]) - 1;
+				if(index>maxIndex) maxIndex = index;
+				columnExcluded.add( index );
 			}
 		} else {
 			throw new IOException("Format Error: phetype file does not have 'Excluded' line.");
 		}
 		
 		newColumnIncluded= new HashSet<Integer>();
-		for(Integer i:columnIncluded){
-			int c=0;
-			for(Integer j:columnExcluded){
-				if (i>j) c++;
-			}
+		int newIndex = 0;
+		for(int i=0; i<=maxIndex; i++) {
+			if(isExcluded(i)) continue;
 			
-			newColumnIncluded.add(new Integer(i-c));
+			if(columnIncluded.contains(i)) {
+				newColumnIncluded.add(newIndex);
+			}
+			newIndex++;
 		}
-		
 	}
 	
-	boolean isIncluded(int col) {
-		if(newColumnIncluded.contains(col))return true;
+	/**
+	 * Check if this column number belongs to the 'phenotype' set.
+	 * The index is based on the set that excludes the 'excluded' columns.
+	 * 
+	 */
+	boolean isIncluded(int columnIndexAfterExclusion) {
+		if(newColumnIncluded.contains(columnIndexAfterExclusion))return true;
 		else return false;
 	}
 
-	boolean isExcluded(int col) {
-		if(columnExcluded.contains(col))return true;
+	/**
+	 * Check if this column number belongs to the excluded columne set.
+	 * The index is based on the original complete dataset.
+	 * 
+	 */
+	boolean isExcluded(int columnIndexInOriginalDataset) {
+		if(columnExcluded.contains(columnIndexInOriginalDataset))return true;
 		else return false;
 	}
 
 	public int getIncludedCount() {
-		return columnIncluded.size();
+		return newColumnIncluded.size();
 	}
 
 	public int getExcludedCount() {
