@@ -155,6 +155,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 			builder.nextLine();
 			
 			nullDataCheckbox = new JCheckBox("Use the existing null data", false);
+			nullDataCheckbox.setToolTipText("Only when gene expression, annotation, network, phenotype files are the same.");
 			builder.append(nullDataCheckbox);
 			nullDataCheckbox.addActionListener(new NullData_actionAdapter());
 			builder.nextLine();			

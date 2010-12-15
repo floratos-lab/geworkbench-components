@@ -19,6 +19,7 @@ public class Phenotype implements Serializable {
 	private static final long serialVersionUID = 1929271049658752446L;
 	
 	private final Set<Integer> columnIncluded;
+	private final Set<Integer> newColumnIncluded;	//zheng
 	private final Set<Integer> columnExcluded;
 
 	final static private String PHENO_INCLUDE = "Include";
@@ -31,6 +32,7 @@ public class Phenotype implements Serializable {
 	Phenotype(Set<Integer> nullPhenoCols)  {
 		columnIncluded = nullPhenoCols;
 		columnExcluded = new HashSet<Integer>();
+		newColumnIncluded = new HashSet<Integer>();
 	}
 	
 	Phenotype(File file) throws IOException {
@@ -56,10 +58,21 @@ public class Phenotype implements Serializable {
 		} else {
 			throw new IOException("Format Error: phetype file does not have 'Excluded' line.");
 		}
+		
+		newColumnIncluded= new HashSet<Integer>();
+		for(Integer i:columnIncluded){
+			int c=0;
+			for(Integer j:columnExcluded){
+				if (i>j) c++;
+			}
+			
+			newColumnIncluded.add(new Integer(i-c));
+		}
+		
 	}
 	
 	boolean isIncluded(int col) {
-		if(columnIncluded.contains(col))return true;
+		if(newColumnIncluded.contains(col))return true;
 		else return false;
 	}
 
