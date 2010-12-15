@@ -1,8 +1,6 @@
 package org.geworkbench.components.idea;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -238,32 +236,6 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 			return null;
 		}
 
-		String edgeStr="";
-		edgeStr+="Gene1\tGene2\texpRow1\texpRow2\tDeltaCorr\tNormCorr\tzDeltaCorr\tLoc\tGoc\tMI\n";
-		String strLoc="";
-		String strGoc="";
-		for(IdeaEdge e:edgeIndex){//for debug
-			if(e.isLoc()) strLoc="T";
-			else strLoc="";
-			if((e.isGoc())) strGoc="T";
-			else strGoc="";
-			edgeStr+=e.getGeneNo1()+"\t"+e.getGeneNo2()+"\t"+e.getExpRowNoG1()+"\t"+e.getExpRowNoG2()+"\t"+e.getDeltaCorr()+"\t"+e.getNormCorr()+"\t"+e.getzDeltaCorr()+"\t"+strLoc+"\t"+strGoc+"\t"+e.getMI()+"\n";
-		}
-		String fstr="c:\\idea_test\\output\\edgesReport.txt";	//expand edgeIndex from network.txt
-		
-		PrintWriter out=null;
-		try {
-			out = new PrintWriter(fstr);
-			out.println(edgeStr);
-		} catch (FileNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}	    
-	    finally{
-	    	out.close();
-	    }
-		
-		
 		List<IdeaEdge> locList = new ArrayList<IdeaEdge>();
 		List<IdeaEdge> gocList = new ArrayList<IdeaEdge>();
 		for (IdeaEdge anEdge : edgeIndex) {
