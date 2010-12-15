@@ -159,29 +159,20 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 		});
 		sortGeneItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Collections.sort(itemList, new MarkerOrderByGene());
-				sortGeneItem.setEnabled(false);
-				sortProbeItem.setEnabled(true);
-				sortOriginalItem.setEnabled(true);
-				mainPanel.repaint();
+				maSet.setSelectorMarkerOrder("gene");
+				sortByGene();
 			}
 		});
 		sortProbeItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Collections.sort(itemList, new MarkerOrderByProbe());
-				sortProbeItem.setEnabled(false);
-				sortGeneItem.setEnabled(true);
-				sortOriginalItem.setEnabled(true);
-				mainPanel.repaint();
+				maSet.setSelectorMarkerOrder("probe");
+				sortByProbe();
 			}
 		});
 		sortOriginalItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Collections.sort(itemList, new MarkerOrderOriginal());
-				sortProbeItem.setEnabled(true);
-				sortGeneItem.setEnabled(true);
-				sortOriginalItem.setEnabled(false);
-				mainPanel.repaint();
+				maSet.setSelectorMarkerOrder("original");
+				sortOriginal();
 			}
 		});
 		// Load button at bottom of component
@@ -208,6 +199,28 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 		setTreeRenderer(new CustomizedRenderer());
 	}
 
+	private void sortByGene(){
+		Collections.sort(itemList, new MarkerOrderByGene());
+		sortGeneItem.setEnabled(false);
+		sortProbeItem.setEnabled(true);
+		sortOriginalItem.setEnabled(true);
+		mainPanel.repaint();
+	}
+	private void sortByProbe(){
+		Collections.sort(itemList, new MarkerOrderByProbe());
+		sortProbeItem.setEnabled(false);
+		sortGeneItem.setEnabled(true);
+		sortOriginalItem.setEnabled(true);
+		mainPanel.repaint();
+	}
+	private void sortOriginal(){
+		Collections.sort(itemList, new MarkerOrderOriginal());
+		sortProbeItem.setEnabled(true);
+		sortGeneItem.setEnabled(true);
+		sortOriginalItem.setEnabled(false);
+		mainPanel.repaint();
+	}
+	
 	private JMenuItem loadPanelItem = new JMenuItem("Load Set");
 	private JMenuItem deleteSetGroupItem = new JMenuItem("Delete Group");
 	private JMenuItem exportPanelItem = new JMenuItem("Export");
@@ -439,7 +452,7 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 		return panel;
 	}
 
-	
+	private DSMicroarraySet maSet = null;
 	@SuppressWarnings("unchecked")
 	protected boolean dataSetChanged(DSDataSet dataSet) {
 
@@ -448,10 +461,15 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 			sortProbeItem.setEnabled(true);
 			sortGeneItem.setEnabled(true);
 			sortOriginalItem.setEnabled(false);
-			DSMicroarraySet maSet = (DSMicroarraySet) dataSet;
+			maSet = (DSMicroarraySet) dataSet;
 			setItemList(maSet.getMarkers());
 			itemList = new CSItemList<DSGeneMarker>();
 			itemList.addAll(maSet.getMarkers());
+			String order = maSet.getSelectorMarkerOrder();
+			if (order != null && !order.equals("original")) {
+				if (order.equals("gene"))       sortByGene();
+				else if (order.equals("probe")) sortByProbe();
+			}
 			return true;
 		} else if (dataSet instanceof DSSequenceSet) {
 			sortMenu.setEnabled(false);
