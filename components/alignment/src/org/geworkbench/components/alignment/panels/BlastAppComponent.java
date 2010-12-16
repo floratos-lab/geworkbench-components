@@ -406,6 +406,7 @@ public class BlastAppComponent implements VisualPlugin {
         jgeneticCodeBox.addItem("Ascidian Mitochondrial (13)");
         jgeneticCodeBox.addItem("Flatworm Mitochondrial (14)");
         jgeneticCodeBox.addItem("Blepharisma Macronuclear (15)");
+        jgeneticCodeBox.setMaximumRowCount(13);
         
         jMaxTargetBox.addItem("10");
         jMaxTargetBox.addItem("50");
