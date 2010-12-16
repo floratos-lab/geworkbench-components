@@ -198,8 +198,74 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 		}
 	}
 
+	private class IdeaNodeTableModel extends AbstractTableModel {
+	
+		private static final long serialVersionUID = 9153220106537748604L;
+
+		private static final int COLUMN_COUNT = 5;
+
+		List<String[]> list = null;
+		private final String[] columnNames = new String[] { "Gene1", "Gene2",
+				"Conn-type", "Loc", "Goc"};
+
+		public IdeaNodeTableModel() {
+			list = new ArrayList<String[]>();
+		}
+
+		@Override
+		public String getColumnName(int col) {
+			return columnNames[col];
+		}
+
+		@Override
+		public int getColumnCount() {
+			return COLUMN_COUNT;
+		}
+
+		@Override
+		public int getRowCount() {
+			return list.size();
+		}
+
+		@Override
+		public Object getValueAt(int rowIndex, int columnIndex) {
+			if (ideaResult == null)
+				return null;
+
+			DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet<DSMicroarray>) ideaResult
+					.getParentDataSet();
+			if (maSet == null)
+				return null;
+			
+			
+
+			switch (columnIndex) {
+			case 0:
+				return list.get(rowIndex)[0];
+			case 1:
+				return list.get(rowIndex)[1];
+			case 2:
+				return list.get(rowIndex)[2];
+			case 3:
+				return list.get(rowIndex)[3];
+			case 4:
+				return list.get(rowIndex)[4];
+			}
+			
+			
+			return 0;
+		}
+
+		void setValues(List<String[]> list) {
+			this.list = list;
+		}
+	}
+
+	
+	
 	private IdeaEdgeTableModel locTableModel = new IdeaEdgeTableModel();
 	private IdeaEdgeTableModel gocTableModel = new IdeaEdgeTableModel();
+	private IdeaNodeTableModel nodeTableModel= new IdeaNodeTableModel();
 	private IdeaGeneTableModel significantGeneTableModel = new IdeaGeneTableModel();
 
 	public IDEAViewer() {
@@ -208,6 +274,7 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 
 		JTable gocTable = new JTable(gocTableModel);
 		JTable locTable = new JTable(locTableModel);
+		JTable nodeTable = new JTable(nodeTableModel);
 		JTable significantGeneTable = new JTable(significantGeneTableModel);
 
 		// significantGeneTable.setPreferredSize(new Dimension(700, 50));
@@ -215,6 +282,7 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 				significantGeneTable));
 		tabbedPane.addTab("Edges of LOC", new JScrollPane(locTable));
 		tabbedPane.addTab("Edges of GOC", new JScrollPane(gocTable));
+		tabbedPane.addTab("Module in Nodes", new JScrollPane(nodeTable));
 
 		setLayout(new BorderLayout());
 		add(tabbedPane, BorderLayout.CENTER);
@@ -325,7 +393,7 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 			out.print( "Gene1\tGene2\tconn_type\tLoc\tGoc" );
 			for (IdeaProbeGene p : probes) {// present significant node with its
 				// edges
-				if ((p.getCumLoc() < 0.05) || (p.getCumGoc() < 0.05)) {
+				if ((p.getCumLoc() < ideaResult.getPvalue()) || (p.getCumGoc() < ideaResult.getPvalue())) {
 					// nodeStr+=p.getProbeId()+"\n";
 					for (IdeaEdge e : p.getEdges()) {
 						String isLoc = "";
@@ -435,6 +503,8 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 			gocTableModel.fireTableDataChanged();
 			locTableModel.setValues(ideaResult.getLocList());
 			locTableModel.fireTableDataChanged();
+			nodeTableModel.setValues(ideaResult.getNodeList());
+			nodeTableModel.fireTableDataChanged();
 			significantGeneTableModel.setValues(ideaResult
 					.getSignificantGeneList());
 			significantGeneTableModel.fireTableDataChanged();
