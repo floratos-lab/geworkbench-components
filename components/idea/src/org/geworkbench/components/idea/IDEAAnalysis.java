@@ -371,7 +371,7 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 		}
 
 		IdeaResult analysisResult = new IdeaResult(maSet,
-				"IDEA Analysis Result", locList, gocList, probeNes, pvalue);
+				"IDEA Analysis Result", locList, gocList, probeNes);
 		String stemp = generateHistoryString();
 		ProjectPanel.addToHistory(analysisResult, stemp);
 
