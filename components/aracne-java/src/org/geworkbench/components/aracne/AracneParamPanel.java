@@ -45,7 +45,7 @@ import edu.columbia.c2b2.aracne.Parameter;
 /**
  * @author mhall
  * @author yc2480
- * @version $Id: AracneParamPanel.java,v 1.23 2009-10-05 19:52:07 npodduturi Exp $
+ * @version $Id$
  */
 public class AracneParamPanel extends AbstractSaveableParameterPanel {
 	private static final long serialVersionUID = 4023695671471667725L;
@@ -113,7 +113,7 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
         pThresholdField.setEnabled(false);
 
         FormLayout layout = new FormLayout(
-                "right:max(40dlu;pref), 3dlu, 60dlu, 3dlu, 90dlu, 3dlu, 90dlu, 3dlu, 90dlu, 7dlu",
+                "right:max(40dlu;pref), 3dlu, 90dlu, 3dlu, 90dlu, 3dlu, 90dlu, 3dlu, 90dlu, 7dlu",
                 "");
         DefaultFormBuilder builder = new DefaultFormBuilder(layout);
         builder.setDefaultDialogBorder();
