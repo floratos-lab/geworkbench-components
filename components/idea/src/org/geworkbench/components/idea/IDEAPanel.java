@@ -4,9 +4,11 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -26,6 +28,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.events.listeners.ParameterActionListener;
+import org.geworkbench.util.FilePathnameUtils;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
@@ -47,7 +50,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 	
 	private JTextField networkField = null;
 	private JTextField phenotypeField = null;
-	private JTextField nullData =null;
+	private JTextField nullDataField =null;
 	private JButton networkLoadButton = null;
 	private JButton phenotypeLoadButton = null;
 	private JButton nullDataLoadButton =null;
@@ -79,7 +82,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 				phenotype = (Phenotype)value;
 			}
 			if (key.equals("nullData")) {
-				nullData.setText((String)value);
+				nullDataField.setText((String)value);
 			}		
 					
 		}
@@ -97,7 +100,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 		// component
 		parameters.put("network", ideaNetwork);
 		parameters.put("phenotype", phenotype);
-		parameters.put("nullData", nullData.getText());
+		parameters.put("nullData", nullDataField.getText());
 		
 		
 		return parameters;
@@ -120,13 +123,14 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 	}
 	
 	public String getNullFileName() {
-		return nullData.getText();
+		return nullDataField.getText();
 	}	
 	
 	public Phenotype getPhenotype() {
 			return phenotype;
 	}	
 
+	
 	private void init() throws Exception {
 		this.setLayout(new BorderLayout());		
 		selectionPanel = new JPanel();
@@ -160,11 +164,11 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 			nullDataCheckbox.addActionListener(new NullData_actionAdapter());
 			builder.nextLine();			
 			
-			nullData = new JTextField(20);
-			nullData.setEditable(false);
+			nullDataField = new JTextField(20);
+			nullDataField.setEditable(false);
 			nullDataLoadButton = new JButton("Load");
 			builder.append("Load null data      ",
-					nullData, nullDataLoadButton);
+					nullDataField, nullDataLoadButton);
 			builder.nextLine();			
 			
 			builder.appendSeparator("Significance Threshold");		
@@ -176,61 +180,33 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 			builder.nextLine();
 			
 			selectionPanel.add(builder.getPanel(), BorderLayout.CENTER);
-		}		
+		}
+		
+		
 
-		nullDataLoadButton.addActionListener(new LoadFileNameListener(
-				nullData));
+		nullDataLoadButton.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				nullDataLoadPressed();
+			}	
+			
+		});
 
 		networkLoadButton.addActionListener(new ActionListener(){
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				JFileChooser fc = new JFileChooser();
-				int returnVal = fc.showOpenDialog(IDEAPanel.this);
-
-				if (returnVal == JFileChooser.APPROVE_OPTION) {
-					File file = fc.getSelectedFile();
-					BufferedReader br;
-					try {
-						br = new BufferedReader(new FileReader(file));
-						String line = br.readLine(); // skip the header line
-						line = br.readLine();
-						ideaNetwork = new ArrayList<IdeaNetworkEdge>();
-						while(line!=null && line.trim().length()>0) {
-							IdeaNetworkEdge edge = new IdeaNetworkEdge(line);
-							ideaNetwork.add(edge);
-							line = br.readLine();
-						}
-					} catch (FileNotFoundException e1) {
-						e1.printStackTrace();
-						ideaNetwork = null;
-					} catch (IOException e2) {
-						e2.printStackTrace();
-						ideaNetwork = null;
-					}
-					networkField.setText(file.getAbsolutePath());			
-					
-				}
-			}});
+				networkLoadPressed();
+			}	
+			
+		});
 
 		phenotypeLoadButton.addActionListener(new ActionListener(){
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				JFileChooser fc = new JFileChooser();
-				int returnVal = fc.showOpenDialog(IDEAPanel.this);
-
-				if (returnVal == JFileChooser.APPROVE_OPTION) {
-					File file = fc.getSelectedFile();
-					try {
-						phenotype = new Phenotype(file);
-					} catch (IOException e1) {
-						e1.printStackTrace();
-						phenotype = null;
-					}
-					phenotypeField.setText(file.getAbsolutePath());			
-					
-				}
+				phenotypeLoadPressed();
 			}});
 
 //		// this setting maps the source choice of 'From Set'
@@ -240,8 +216,8 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 		phenotypeField.setEnabled(true);
 		phenotypeField.setEditable(false);
 		phenotypeLoadButton.setEnabled(true);
-		nullData.setEnabled(false);
-		nullData.setEditable(false);
+		nullDataField.setEnabled(false);
+		nullDataField.setEditable(false);
 		nullDataLoadButton.setEnabled(false);
 		
 		// define the 'update/refreshing'behavior of GUI components - see the
@@ -251,7 +227,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 				this);
 		networkField.addActionListener(parameterActionListener);
 		phenotypeField.addActionListener(parameterActionListener);
-		nullData.addActionListener(parameterActionListener);
+		nullDataField.addActionListener(parameterActionListener);
 	}
 	
 	private class NullData_actionAdapter implements	
@@ -259,11 +235,11 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 			public void actionPerformed(ActionEvent e) {
 				boolean nullDataOn=nullDataCheckbox.isSelected();
 				if(nullDataOn){
-					nullData.setEnabled(true);					
+					nullDataField.setEnabled(true);					
 					nullDataLoadButton.setEnabled(true);
 				}
 				else{
-					nullData.setEnabled(false);					
+					nullDataField.setEnabled(false);					
 					nullDataLoadButton.setEnabled(false);
 				}
 		}
@@ -294,7 +270,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 		histStr.append("\nNetwork: "+networkField.getText());
 		histStr.append("\nPhenotype: "+phenotypeField.getText());
 		if(nullDataCheckbox.isSelected())
-				histStr.append("\nNull file: "+nullData.getText());
+				histStr.append("\nNull file: "+nullDataField.getText());
 		histStr.append("\np-value: "+pValueTextField.getText());
 		return histStr.toString();
 	}
@@ -302,28 +278,114 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 	public String getPvalue(){
 		return pValueTextField.getText();
 	}
-	private class LoadFileNameListener implements ActionListener {
-		private JTextField network = null;
+	
+	public void networkLoadPressed(){
 
-		public LoadFileNameListener(JTextField network) {
-			this.network = network;
-		}
-
-		public void actionPerformed(ActionEvent e) {
-			JFileChooser fc = new JFileChooser();
-			int returnVal = fc.showOpenDialog(IDEAPanel.this);
-
-			if (returnVal == JFileChooser.APPROVE_OPTION) {
-				File file = fc.getSelectedFile();
-				String referenceFileName = file.getAbsolutePath();
-				network.setText(referenceFileName);			
+		JFileChooser fc = new JFileChooser(this.getLastDirectory());
+		int returnVal = fc.showOpenDialog(IDEAPanel.this);
+		if (returnVal == JFileChooser.APPROVE_OPTION) {					
+			try {
+				String filename = fc.getSelectedFile().getAbsolutePath();			
+				String filepath = fc.getCurrentDirectory().getCanonicalPath();
+                setLastDirectory(filepath);		                
 				
-			} else {
-				// if canceled, do nothing
-			}
-		}
-
+				BufferedReader br;
+				br = new BufferedReader(new FileReader(filename));
+				String line = br.readLine(); // skip the header line
+				line = br.readLine();
+				ideaNetwork = new ArrayList<IdeaNetworkEdge>();
+				while(line!=null && line.trim().length()>0) {
+					IdeaNetworkEdge edge = new IdeaNetworkEdge(line);
+					ideaNetwork.add(edge);
+					line = br.readLine();
+				}
+				networkField.setText(filename);			
+			} catch (FileNotFoundException e1) {
+				e1.printStackTrace();
+				ideaNetwork = null;
+			} catch (IOException e2) {
+				e2.printStackTrace();
+				ideaNetwork = null;
+			}					
+		}	
 	}
+	
+	
+	public void phenotypeLoadPressed(){
+		JFileChooser fc = new JFileChooser(this.getLastDirectory());
+		int returnVal = fc.showOpenDialog(IDEAPanel.this);
+		if (returnVal == JFileChooser.APPROVE_OPTION) {					
+			try {
+				String filename = fc.getSelectedFile().getAbsolutePath();			
+				String filepath = fc.getCurrentDirectory().getCanonicalPath();
+                setLastDirectory(filepath);
+                File file=new File(filename);
+                phenotype = new Phenotype(file);
+				phenotypeField.setText(filename);			
+			} catch (FileNotFoundException e1) {
+				e1.printStackTrace();
+				phenotype = null;
+			} catch (IOException e2) {
+				e2.printStackTrace();
+				phenotype = null;
+			}					
+		}	
+	}
+	
+	public void nullDataLoadPressed(){
+		JFileChooser fc = new JFileChooser(this.getLastDirectory());
+		int returnVal = fc.showOpenDialog(IDEAPanel.this);
+		if (returnVal == JFileChooser.APPROVE_OPTION) {					
+			try {
+				String filename = fc.getSelectedFile().getAbsolutePath();			
+				String filepath = fc.getCurrentDirectory().getCanonicalPath();
+                setLastDirectory(filepath);                
+				nullDataField.setText(filename);			
+			} catch (FileNotFoundException e1) {
+				e1.printStackTrace();
+				nullDataField.setText("");
+			} catch (IOException e2) {
+				e2.printStackTrace();
+				nullDataField.setText("");
+			}					
+		}	
+	}
+	
+	
+	
+	public String getLastDirectory() {
+        String dir = ".";
+        try {
+            String filename = FilePathnameUtils.getIDEASettingsPath();
+
+            File file = new File(filename);
+            if (file.exists()) {
+                BufferedReader br = new BufferedReader(new FileReader(file));
+
+                dir = br.readLine();
+                br.close();
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        if (dir == null) {
+            dir = ".";
+        }
+        return dir;
+    }
+	public void setLastDirectory(String dir) {
+        try { //save current settings.
+            String outputfile = FilePathnameUtils.getIDEASettingsPath();
+            BufferedWriter br = new BufferedWriter(new FileWriter(
+                    outputfile));
+            br.write(dir);
+            br.close();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+	
+	
 	
 	
 }
