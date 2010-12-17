@@ -71,8 +71,6 @@ import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
@@ -84,8 +82,6 @@ import org.geworkbench.bison.datastructure.complex.pattern.DSMatchedPattern;
 import org.geworkbench.bison.datastructure.complex.pattern.DSPattern;
 import org.geworkbench.bison.datastructure.complex.pattern.DSPatternMatch;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.CSSeqRegistration;
-import org.geworkbench.components.promoter.modulediscovery.CSMultiSeqPattern;
-import org.geworkbench.components.promoter.modulediscovery.Discovery;
 import org.geworkbench.components.promoter.modulediscovery.SequenceFileReader;
 import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.SequenceDiscoveryTableEvent;
@@ -108,7 +104,6 @@ import com.larvalabs.chart.PSAMPlot;
  * @author Xuegong Wang, manjunath at genomecenter dot columbia dot edu, Xiaoqing Zhang
  * @version $Id$
  */
-
 public final class PromoterViewPanel extends JPanel {
 	private static final long serialVersionUID = -6523545577029722522L;
 
@@ -162,7 +157,7 @@ public final class PromoterViewPanel extends JPanel {
     ButtonGroup sourceGroup = new ButtonGroup();
     File resultFile = null;
     SequenceFileReader sfr = null;
-    DefaultListModel modulelistmodel = new DefaultListModel();
+
     JPanel jPanel4 = new JPanel();
     BorderLayout borderLayout4 = new BorderLayout();
     JSplitPane jSplitPane1 = new JSplitPane();
@@ -179,29 +174,13 @@ public final class PromoterViewPanel extends JPanel {
     TitledBorder titledBorder4;
     TitledBorder titledBorder5;
     JTabbedPane jTabbedPane1 = new JTabbedPane();
-    JList moduleList = new JList();
-    JPanel jPanel8 = new JPanel();
-    JScrollPane jScrollPane3 = new JScrollPane();
-    JPanel jPanel5 = new JPanel();
-    BorderLayout borderLayout6 = new BorderLayout();
-    JTextField minOccur = new JTextField("50");
-    JPanel jPanel7 = new JPanel();
+
     JPopupMenu itemListPopup = new JPopupMenu();
     JPopupMenu selectedItemListPopup = new JPopupMenu();
     JMenuItem addToPanelItem = new JMenuItem("Add");
     JMenuItem clearSelectionItem = new JMenuItem("Remove from Selected List.");
     JMenuItem saveItem = new JMenuItem("Save");
-    JPanel jPanel6 = new JPanel();
-    JPanel jPanel9 = new JPanel();
-    JLabel jLabel2 = new JLabel();
-    JLabel winSizeL = new JLabel();
-    BorderLayout borderLayout10 = new BorderLayout();
-    JLabel minOccurL = new JLabel();
-    BorderLayout borderLayout8 = new BorderLayout();
-    JButton jDiscoverModuleBttn = new JButton();
-    BorderLayout borderLayout9 = new BorderLayout();
-    BorderLayout borderLayout7 = new BorderLayout();
-    JTextField winSize = new JTextField("100");
+
     JPanel jPanel10 = new JPanel();
     JPanel jPanel11 = new JPanel();
     BorderLayout borderLayout11 = new BorderLayout();
@@ -265,7 +244,7 @@ public final class PromoterViewPanel extends JPanel {
         }
     }
 
-    void jbInit() throws Exception {
+    private void jbInit() throws Exception {
         this.setLayout(borderLayout2);
         jProgressBar1.setForeground(Color.green);
         jProgressBar1.setBorderPainted(true);
@@ -289,22 +268,7 @@ public final class PromoterViewPanel extends JPanel {
         jTabbedPane1.setMinimumSize(new Dimension(0, 0));
         jTabbedPane1.setPreferredSize(new Dimension(100, 100));
         jPanel10.setLayout(borderLayout11);
-        jPanel9.setBorder(BorderFactory.createRaisedBevelBorder());
-        jPanel9.setLayout(borderLayout7);
-        jPanel7.setLayout(borderLayout9);
-        jDiscoverModuleBttn.setEnabled(true);
-        jDiscoverModuleBttn.setPreferredSize(new Dimension(68, 23));
-        jDiscoverModuleBttn.setSelected(false);
-        jDiscoverModuleBttn.setText("Discover Module");
-        jDiscoverModuleBttn.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                jDiscoverModuleBttn_actionPerformed(e);
-            }
-        });
-        jScrollPane3.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-        jScrollPane3.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        jScrollPane3.setAutoscrolls(false);
-        jScrollPane3.setPreferredSize(new Dimension(64, 59));
+
         jPanel4.setLayout(borderLayout4);
         jLabel4.setHorizontalAlignment(SwingConstants.CENTER);
         jLabel4.setText("TF List");
@@ -399,24 +363,7 @@ public final class PromoterViewPanel extends JPanel {
                 jButton2_actionPerformed(e);
             }
         });
-        moduleList.setModel(modulelistmodel);
-        moduleList.addListSelectionListener(new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent e) {
-                moduleListSelection_action(e);
-            }
-        });
-        
-        jPanel8.setLayout(borderLayout10);
-        jPanel5.setLayout(borderLayout6);
-        minOccur.setOpaque(true);
-        minOccur.setPreferredSize(new Dimension(60, 20));
-        minOccur.setText("50");
-        jPanel6.setLayout(borderLayout8);
-        jLabel2.setText("Discovered Modules:");
-        winSizeL.setText("Win Size");
-        minOccurL.setText("Min Occur");
-        winSize.setPreferredSize(new Dimension(60, 20));
-        winSize.setText("200");
+
         jSelectedTFList.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 int index = jSelectedTFList.locationToIndex(e.getPoint());
@@ -597,22 +544,8 @@ public final class PromoterViewPanel extends JPanel {
         jPanel11.add(jSaveButton, null);
         jPanel11.add(jButton2, null);
         jPanel11.add(stopButton, null);
-        jPanel6.add(winSize, BorderLayout.EAST);
-        jPanel6.add(winSizeL, BorderLayout.WEST);
-        jPanel5.add(jPanel8, BorderLayout.NORTH);
-        jPanel8.add(minOccur, BorderLayout.EAST);
-        jPanel8.add(minOccurL, BorderLayout.WEST);
-        jPanel5.add(jPanel6, BorderLayout.SOUTH);
 
-        jScrollPane3.getViewport().add(moduleList, null);
         jPanel3.add(jPanel1, null);
-
-        jPanel7.add(jDiscoverModuleBttn, BorderLayout.SOUTH);
-        jPanel7.add(jScrollPane3, BorderLayout.CENTER);
-        jPanel7.add(jLabel2, BorderLayout.NORTH);
-
-        jPanel9.add(jPanel7, BorderLayout.CENTER);
-        jPanel9.add(jPanel5, BorderLayout.SOUTH);
 
         jPanel10.add(jPanel3, BorderLayout.CENTER);
         jPanel10.add(jPanel11, BorderLayout.SOUTH);
@@ -1714,58 +1647,6 @@ public final class PromoterViewPanel extends JPanel {
         seqDisPanel.setDisplayTF(showTF.isSelected());
     }
 
-
-
-
-    private void jDiscoverModuleBttn_actionPerformed(ActionEvent e) {
-        try {
-            discovery();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
-
-    private void discovery() {
-        if (sequenceDB == null) {
-            return;
-        }
-        Thread t = new Thread() {
-            public void run() {
-                Hashtable<DSPattern<DSSequence, CSSeqRegistration>,
-                        List<DSPatternMatch<DSSequence,
-                        CSSeqRegistration>>>
-                        matchesTable = seqDisPanel.getPatternMatches();
-                Hashtable patternPrime = new Hashtable();
-                Integer n = new Integer(1);
-                for (Iterator it = matchesTable.keySet().iterator(); it.hasNext(); ) {
-                    n = nextPrime(n);
-                    Object o = it.next();
-                    patternPrime.put(o, n);
-                    patternPrime.put(n, o);
-                }
-
-                Discovery.discover(sequenceDB, matchesTable,
-                                   Integer.parseInt(minOccur.getText()),
-                                   Integer.parseInt(winSize.getText()),
-                                   patternPrime);
-
-                Vector modules = Discovery.getFinalPattern();
-                modulelistmodel.clear();
-
-                for (Iterator it = modules.iterator(); it.hasNext(); ) {
-                    CSMultiSeqPattern pt = (CSMultiSeqPattern) it.next();
-                    pt.getPatternKey().getMapping(patternPrime);
-                    PatternOperations.getPatternColor(pt.
-                            hashCode());
-                    modulelistmodel.addElement(pt);
-
-                }
-            }
-        };
-        t.setPriority(Thread.MIN_PRIORITY);
-        t.start();
-    }
-
     private void digestInputFile(File data) {
         sfr = new SequenceFileReader(data);
         HashMap pr = sfr.motiftoPrime;
@@ -1809,96 +1690,6 @@ public final class PromoterViewPanel extends JPanel {
 			getSelectedTFModel().addElement(value);
 		}
     }
-
-
-    private void moduleListSelection_action(ListSelectionEvent e) {
-        //clear existing composite patterns
-        Vector<DSPattern<DSSequence,
-                CSSeqRegistration>>
-                tobedeleted = new Vector<DSPattern<DSSequence,
-                              CSSeqRegistration>>();
-        Hashtable<DSPattern<DSSequence, CSSeqRegistration>,
-                List<DSPatternMatch<DSSequence,
-                CSSeqRegistration>>>
-                matches = seqDisPanel.getPatternMatches();
-        for (DSPattern<DSSequence, CSSeqRegistration> pattern : matches.keySet()) {
-            if (pattern.getClass().isAssignableFrom(CSMultiSeqPattern.class)) {
-                tobedeleted.add(pattern);
-            }
-        }
-        for (DSPattern<DSSequence, CSSeqRegistration> pattern : tobedeleted) {
-            seqDisPanel.removePattern(pattern);
-        }
-
-        //add selected ones
-        Object[] modules = moduleList.getSelectedValues();
-        for (int i = 0; i < modules.length; i++) {
-        	DSPattern<DSSequence, CSSeqRegistration> pdPattern = (DSPattern) modules[i];
-            if (pdPattern instanceof CSMultiSeqPattern) {
-                CSMultiSeqPattern compPatt = (CSMultiSeqPattern) pdPattern;
-                List<DSPatternMatch<DSSequence,
-                        CSSeqRegistration>> pc = compPatt.match(sequenceDB);
-                for (int k = 0; k < pc.size(); k++) {
-                    DSPatternMatch<DSSequence,
-                            CSSeqRegistration> pm = pc.get(k);
-                    int lastsub = pm.getRegistration().x2;
-                    DSPattern[] patterns = ((CSMultiSeqPattern) pdPattern).
-                                           getPatternKey().subpatterns;
-                    for (int m = 0; m < patterns.length; m++) {
-                        List<DSPatternMatch<DSSequence,
-                                CSSeqRegistration>>
-                                p = seqDisPanel.
-                                    getPatternMatches().get(patterns[m]);
-                        for (int n = 0; n < p.size(); n++) {
-                            DSPatternMatch<DSSequence,
-                                    CSSeqRegistration> ma = p.get(n);
-                            if (ma.getRegistration().x2 == lastsub) {
-                                pm.getRegistration().x2 = ma.
-                                        getRegistration().
-                                        x2;
-                                break;
-                            }
-                        }
-                    }
-                }
-                DSPattern<DSSequence,
-                        CSSeqRegistration> patternMatch = pdPattern;
-                seqDisPanel.addAPattern(patternMatch, pc);
-            }
-        }
-    }
-
-
-    private static Integer nextPrime(Integer m) {
-        int n;
-        n = m.intValue();
-        if (n <= 1) {
-            return new Integer(2);
-        }
-        if ((++n) % 2 == 0) {
-            n++;
-        }
-        for (; !isPrime(n); n += 2) {
-            ;
-        }
-        return new Integer(n);
-    }
-
-    private static boolean isPrime(int n) {
-        if (n == 2 || n == 3) {
-            return true;
-        }
-        if (n == 1 || n % 2 == 0) {
-            return false;
-        }
-        for (int i = 3; i * i <= n; i += 2) {
-            if (n % i == 0) {
-                return false;
-            }
-        }
-        return true;
-    }
-
 
     private void load13KBSet() {
         if (background == null) {
