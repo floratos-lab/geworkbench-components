@@ -15,6 +15,7 @@ import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetV
 import org.geworkbench.bison.datastructure.bioobjects.IdeaEdge;
 import org.geworkbench.bison.datastructure.bioobjects.IdeaProbeGene;
 import org.geworkbench.bison.datastructure.bioobjects.IdeaResult;
+
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
@@ -369,9 +370,9 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 			pbIdea.dispose();
 			return null;
 		}
-
+		
 		IdeaResult analysisResult = new IdeaResult(maSet,
-				"IDEA Analysis Result", locList, gocList, probeNes);
+				"IDEA Analysis Result",locList, gocList, probeNes, pvalue);
 		String stemp = generateHistoryString();
 		ProjectPanel.addToHistory(analysisResult, stemp);
 
