@@ -52,11 +52,10 @@ public class NullDistribution {
 	private ArrayList<Bin> bins; // a bin has MinP and MaxP of sortedCorr[],
 									// there are 100 bins totally
 	private final Phenotype phenotype;
-	private double pvalue;
 
 	public NullDistribution(ArrayList<IdeaEdge> edgeIndex, final double[][] expData,
 			Boolean useExistNull, String nullFileName,
-			int columnCount, final Phenotype phenotype, double pvalue) {
+			int columnCount, final Phenotype phenotype) {
 		
 		this.edgeIndex = edgeIndex;
 		this.expData = expData;
@@ -64,8 +63,7 @@ public class NullDistribution {
 		this.nullFileName = nullFileName;
 
 		this.columnCount = columnCount;
-		this.phenotype = phenotype;
-		this.pvalue=pvalue;
+		this.phenotype = phenotype;		
 	}
 
 	@SuppressWarnings("unchecked")
@@ -212,17 +210,7 @@ public class NullDistribution {
 	
 			}// end of edges loop
 	
-			for (IdeaEdge anEdge : edgeIndex) {
-	
-				if (anEdge.getNormCorr() < pvalue / edgeIndex.size()) { // show
-																		// significant
-					// edges
-					if (anEdge.getDeltaCorr() < 0)
-						anEdge.setLoc(true);// save the flag for significant edge
-					else if (anEdge.getDeltaCorr() > 0)
-						anEdge.setGoc(true);				
-				}
-			}		
+			
 			
 			FileOutputStream fileOut = new FileOutputStream(nullOutputFile);
 			ObjectOutputStream out = new ObjectOutputStream(fileOut);
