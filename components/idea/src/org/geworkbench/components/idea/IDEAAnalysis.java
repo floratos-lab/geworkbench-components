@@ -199,9 +199,22 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 			// ************Key process********************
 			NullDistribution nullDist = new NullDistribution(edgeIndex,
 					expressionData, IDEAAnalysisPanel.getUseNullData(),
-					IDEAAnalysisPanel.getNullFileName(), columnCount, phenotype, pvalue);
+					IDEAAnalysisPanel.getNullFileName(), columnCount, phenotype);
 			nullDist.calcNullDist();
 			edgeIndex = nullDist.getEdgeIndex();
+			
+			for (IdeaEdge anEdge : edgeIndex) {
+				
+				if (anEdge.getNormCorr() < pvalue / edgeIndex.size()) { // show
+																		// significant
+					// edges
+					if (anEdge.getDeltaCorr() < 0)
+						anEdge.setLoc(true);// save the flag for significant edge
+					else if (anEdge.getDeltaCorr() > 0)
+						anEdge.setGoc(true);				
+				}
+			}		
+			
 			// *******************************************
 
 		} catch (MathException e) {
