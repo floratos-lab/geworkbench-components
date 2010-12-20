@@ -42,7 +42,6 @@ import org.geworkbench.components.discovery.algorithm.AbstractSequenceDiscoveryA
 import org.geworkbench.components.discovery.algorithm.AlgorithmStub;
 import org.geworkbench.components.discovery.algorithm.RegularDiscoveryFileLoader;
 import org.geworkbench.components.discovery.algorithm.ServerBaseDiscovery;
-import org.geworkbench.components.discovery.model.GenericModel;
 import org.geworkbench.components.discovery.model.PatternTableModelWrapper;
 import org.geworkbench.components.discovery.view.PatternTableView;
 import org.geworkbench.events.HistoryEvent;
@@ -109,7 +108,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 
 	// view and model
 	private JPanel view;
-	private GenericModel model;
+	private PatternTableModelWrapper model;
 
 	private Parameters parms = null;
 	private JPanel sequenceViewPanel = new JPanel();
