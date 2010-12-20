@@ -338,7 +338,6 @@ public final class PromoterViewPanel extends JPanel {
                 jaddNewTFB_actionPerformed(e);
             }
         });
-        jaddNewTFB.setEnabled(false);
         
         jScrollPane1.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         jScrollPane1.setAlignmentX((float) 0.5);
@@ -1277,6 +1276,11 @@ public final class PromoterViewPanel extends JPanel {
             	currentTF = tf;
             	tfMap.put(file.getName(), tf);
             	tfListModel.addElement(file.getName());
+
+            	tfListModel.refresh();
+            	// Highlight
+                int index = tfListModel.indexOf(file.getName());
+                tfListPanel.setHighlightedIndex(index);
             }
         }
     }
