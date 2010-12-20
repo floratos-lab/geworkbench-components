@@ -104,10 +104,7 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 			preGeneList.add(new Gene(edge.geneId2));
 		}
 
-		DSItemList markers = maSet.getMarkers();
-
-		for (Object obj : markers) {
-			DSGeneMarker marker = (DSGeneMarker) obj;
+		for (DSGeneMarker marker : maSet.getMarkers()) {
 			int id = marker.getGeneId();
 
 			for (Gene g : preGeneList) {
@@ -117,11 +114,11 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 					String s2 = g.getExpRows() + marker.getSerial() + "\t";
 					g.setExpRows(s2);
 					if (g.getMarkers() == null) {
-						DSItemList geneMarkers = new CSItemList();
+						DSItemList<DSGeneMarker> geneMarkers = new CSItemList<DSGeneMarker>();
 						geneMarkers.add(marker);
 						g.setMarkers(geneMarkers);
 					} else {
-						DSItemList geneMarkers = g.getMarkers();
+						DSItemList<DSGeneMarker> geneMarkers = g.getMarkers();
 						geneMarkers.add(marker);
 						g.setMarkers(geneMarkers);
 					}
@@ -149,12 +146,8 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 			}
 
 			if ((gene1.getMarkers() != null) && (gene2.getMarkers() != null)) {
-				DSItemList gList1 = gene1.getMarkers();
-				for (Object obj1 : gList1) {
-					DSGeneMarker marker1 = (DSGeneMarker) obj1;
-					DSItemList gList2 = gene2.getMarkers();
-					for (Object obj2 : gList2) {
-						DSGeneMarker marker2 = (DSGeneMarker) obj2;
+				for (DSGeneMarker marker1 : gene1.getMarkers()) {
+					for (DSGeneMarker marker2 : gene2.getMarkers()) {
 						IdeaEdge anEdge = new IdeaEdge(edge.geneId1,
 								edge.geneId2, marker1, marker2,
 								marker1.getSerial(), marker2.getSerial(),
