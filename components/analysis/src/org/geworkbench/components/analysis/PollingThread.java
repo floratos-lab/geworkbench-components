@@ -61,7 +61,7 @@ public class PollingThread extends Thread {
 				errorMessage += ((Exception) result).getMessage();
 
 				/* This filters out some messages */
-				errorMessage = org.geworkbench.bison.util.StringUtils.filter(
+				errorMessage = org.geworkbench.util.Util.filter(
 						errorMessage, "java.rmi.RemoteException: ");
 
 				JOptionPane.showMessageDialog(null, errorMessage,
