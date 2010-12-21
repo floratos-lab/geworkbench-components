@@ -20,10 +20,10 @@ import javax.swing.SwingUtilities;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.ExampleFilter;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.events.AnnotationsEvent;
 import org.geworkbench.util.BrowserLauncher;
+import org.geworkbench.util.CsvFileFilter;
 import org.geworkbench.util.OWFileChooser;
 import org.geworkbench.util.ProgressItem;
 import org.jfree.ui.SortableTableModel;
@@ -223,10 +223,7 @@ public class AnnotationTableModel extends SortableTableModel {
 	        export.addActionListener(new ActionListener() {
 	            public void actionPerformed(ActionEvent actionEvent) {
 	                OWFileChooser chooser = new OWFileChooser(pathwayData.pathway.getPathwayName() + ".csv");
-	                ExampleFilter filter = new ExampleFilter();
-	                filter.addExtension("csv");
-	                filter.setDescription("CSV Files");
-	                chooser.setFileFilter(filter);
+	                chooser.setFileFilter(new CsvFileFilter());
 	                int returnVal = chooser.showSaveDialog(null);
 	                if (returnVal == JFileChooser.APPROVE_OPTION) {
 	                    ExportTask exportTask = new ExportTask(ProgressItem.INDETERMINATE_TYPE,
