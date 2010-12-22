@@ -1,5 +1,17 @@
 package org.geworkbench.components.hierarchicalclustering;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
+import java.lang.reflect.Array;
+import java.util.Vector;
+
+import javax.swing.JPanel;
+
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
@@ -10,13 +22,6 @@ import org.geworkbench.bison.model.clusters.MarkerHierCluster;
 import org.geworkbench.bison.model.clusters.MicroarrayHierCluster;
 import org.geworkbench.bison.util.colorcontext.ColorContext;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.lang.reflect.Array;
-import java.util.Enumeration;
-import java.util.Vector;
-
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>
@@ -26,10 +31,12 @@ import java.util.Vector;
  * Microarrays used for Hierarchical clustering are painted on
  *
  * @author manjunath at genomecenter dot columbia dot edu
- * @version 3.0
+ * @version $Id$
  */
 public class HierClusterDisplay extends JPanel {
-    /**
+	private static final long serialVersionUID = -1551868794872426240L;
+
+	/**
      * Value for height of marker in pixels
      */
     protected static int geneHeight = 5;
@@ -118,7 +125,7 @@ public class HierClusterDisplay extends JPanel {
     /**
      * Keeps track of the positions where the markers are drawn
      */
-    private Vector markerPositions = new Vector();
+    private Vector<MarkerInfoPosition> markerPositions = new Vector<MarkerInfoPosition>();
 
     /**
      * Default Constructor
@@ -137,7 +144,7 @@ public class HierClusterDisplay extends JPanel {
      *
      * @param chips the reference microarray set
      */
-    public void setChips(DSMicroarraySetView chips) {
+    public void setChips(DSMicroarraySetView<DSGeneMarker, DSMicroarray> chips) {
         microarraySet = chips;
     }
 
@@ -154,12 +161,7 @@ public class HierClusterDisplay extends JPanel {
             java.util.List<Cluster> leaves = currentMarkerCluster.getLeafChildren();
             leafMarkers = (Cluster[]) Array.newInstance(Cluster.class, leaves.size());
             leaves.toArray(leafMarkers);
-
-//            leafMarkers = currentMarkerCluster.getLeafChildren();
         }
-
-        //if (parent != null && mhc.getLeafChildrenCount() > 1)
-        //geneHeight =  parent.getHeight() / mhc.getLeafChildrenCount();
     }
 
     /**
@@ -221,7 +223,7 @@ public class HierClusterDisplay extends JPanel {
                 ColorContext colorCtx = null;
 
                 if (microarraySet.getDataSet() instanceof DSMicroarraySet) {
-                    colorCtx = (org.geworkbench.bison.util.colorcontext.ColorContext) ((DSMicroarraySet) microarraySet.getDataSet()).getObject(org.geworkbench.bison.util.colorcontext.ColorContext.class);
+                    colorCtx = (org.geworkbench.bison.util.colorcontext.ColorContext) ((DSMicroarraySet<DSMicroarray>) microarraySet.getDataSet()).getObject(org.geworkbench.bison.util.colorcontext.ColorContext.class);
                 } else {
                     colorCtx = new org.geworkbench.bison.util.colorcontext.DefaultColorContext();
                 }
@@ -359,9 +361,7 @@ public class HierClusterDisplay extends JPanel {
     DSGeneMarker getMarkerInfoClicked(int x, int y) {
         DSGeneMarker mInfo = null;
 
-        for (Enumeration e = markerPositions.elements(); e.hasMoreElements();) {
-            MarkerInfoPosition mip = (MarkerInfoPosition) e.nextElement();
-
+        for (MarkerInfoPosition mip : markerPositions) {
             if (mip.contains(x, y)) {
                 return mip.getMarkerInfo();
             }
@@ -486,7 +486,7 @@ public class HierClusterDisplay extends JPanel {
      * Encapsulates individual <code>Rectangle</code> regions between points
      * drawn as a part of the Eisen plot canvas
      */
-    class MarkerInfoPosition {
+    private class MarkerInfoPosition {
         Rectangle rectangle = null;
         DSGeneMarker markerInfo = null;
 

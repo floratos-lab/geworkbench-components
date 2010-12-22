@@ -1,11 +1,10 @@
 package org.geworkbench.components.hierarchicalclustering;
 
-import java.util.HashSet;
 import java.util.Set;
-import java.io.PrintStream;
 
 /**
  * @author John Watkinson
+ * @version $Id$
  */
 public class HNode {
 
@@ -16,7 +15,7 @@ public class HNode {
     private int depth;
     private double height;
 
-    public HNode(int id, Set<String> items, HNode left, HNode right, double height) {
+    public HNode(final int id, final Set<String> items, final HNode left, final HNode right, final double height) {
         this.id = id;
         this.items = items;
         this.left = left;
@@ -82,19 +81,6 @@ public class HNode {
             return items.iterator().next();
         } else {
             return "" + height;
-        }
-    }
-
-    public void printCluster(PrintStream out) {
-        if (left == null) {
-            out.println(this);
-        } else {
-            left.printCluster(out);
-            for (int i = 0; i < depth * 4; i++) {
-                out.print(' ');
-            }
-            out.println(this);
-            right.printCluster(out);
         }
     }
 

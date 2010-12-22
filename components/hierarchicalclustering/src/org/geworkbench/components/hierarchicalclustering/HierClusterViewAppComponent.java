@@ -1,27 +1,28 @@
 package org.geworkbench.components.hierarchicalclustering;
 
+import java.awt.Component;
+import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+
+import javax.swing.ImageIcon;
+import javax.swing.event.EventListenerList;
+
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.clusters.DSHierClusterDataSet;
-import org.geworkbench.bison.model.clusters.MarkerHierCluster;
-import org.geworkbench.bison.model.clusters.MicroarrayHierCluster;
 import org.geworkbench.engine.config.MenuListener;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
-import org.geworkbench.events.*;
-
-import javax.swing.*;
-import javax.swing.event.EventListenerList;
-import java.awt.*;
-import java.awt.event.ActionListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
+import org.geworkbench.events.HierClusterModelEvent;
+import org.geworkbench.events.HierClusterModelEventListener;
+import org.geworkbench.events.ImageSnapshotEvent;
+import org.geworkbench.events.ProjectEvent;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>
@@ -69,7 +70,7 @@ public class HierClusterViewAppComponent implements VisualPlugin, MenuListener, 
      * @param source
      */
     @Subscribe public void receive(ProjectEvent event, Object source) {
-        DSDataSet dataSet = event.getDataSet();
+        DSDataSet<?> dataSet = event.getDataSet();
         if ((dataSet != null) && (dataSet instanceof DSHierClusterDataSet)) {
             DSHierClusterDataSet clusterSet = (DSHierClusterDataSet) dataSet;
             HierClusterModelEvent hcme = new HierClusterModelEvent(source, clusterSet);
@@ -119,12 +120,14 @@ public class HierClusterViewAppComponent implements VisualPlugin, MenuListener, 
         return event;
     }
 
-    @Publish
+    @SuppressWarnings("rawtypes")
+	@Publish
     public org.geworkbench.events.SubpanelChangedEvent publishSubpanelChangedEvent(org.geworkbench.events.SubpanelChangedEvent event) {
         return event;
     }
 
-    public void propertyChange(PropertyChangeEvent event) {
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	public void propertyChange(PropertyChangeEvent event) {
         String propertyName = event.getPropertyName();
         if (propertyName.equals(HierClusterViewWidget.SAVEIMAGE_PROPERTY)) {
             publishImageSnapshotEvent(new ImageSnapshotEvent("Cluster ImageSnapshot", (ImageIcon) event.getNewValue(), org.geworkbench.events.ImageSnapshotEvent.Action.SAVE));
