@@ -10,7 +10,6 @@ import javax.swing.JOptionPane;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.analysis.AbstractGridAnalysis;
 import org.geworkbench.bison.annotation.CSAnnotationContextManager;
 import org.geworkbench.bison.annotation.DSAnnotationContext;
@@ -44,10 +43,9 @@ import org.geworkbench.util.SpearmanRankDistance;
 class FastHierClustAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
 
-	private static final long serialVersionUID = 1L;
-	private static Log log = LogFactory.getLog(FastHierClustAnalysis.class);
+	private static final long serialVersionUID = 4486758109656693283L;
 
-	private int localAnalysisType;
+	private static Log log = LogFactory.getLog(FastHierClustAnalysis.class);
 
 	private int dim = 0;
 
@@ -58,7 +56,6 @@ class FastHierClustAnalysis extends AbstractGridAnalysis implements
 	private final String analysisName = "Hierarchical";
 
 	public FastHierClustAnalysis() {
-		localAnalysisType = AbstractAnalysis.HIERARCHICAL_CLUSTERING_TYPE;
 		setDefaultPanel(new HierClustPanel());
 	}
 
@@ -74,7 +71,7 @@ class FastHierClustAnalysis extends AbstractGridAnalysis implements
 		if (input == null)
 			return new AlgorithmExecutionResults(false, "Invalid input.", null);
 		assert input instanceof DSMicroarraySetView;
-		data = (DSMicroarraySetView) input;
+		data = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
 		DSMicroarraySet<DSMicroarray> maSet = data.getMicroarraySet();
 		int numMAs = data.items().size();
 		int numMarkers = data.getUniqueMarkers().size();
@@ -165,16 +162,8 @@ class FastHierClustAnalysis extends AbstractGridAnalysis implements
 		return new AlgorithmExecutionResults(true, "No errors.", dataSet);
 	}
 
-	/**
-	 * TODO remove this - It is not being called, and this class no longer
-	 * extends AbstractAnalysis, SLink does. Return a code identifying the type
-	 * of the analysis.
-	 * 
-	 * @return int
-	 * @todo Implement this org.geworkbench.analysis.AbstractAnalysis method
-	 */
 	public int getAnalysisType() {
-		return localAnalysisType;
+		return IGNORE_TYPE;
 	}
 
 	/**
@@ -201,45 +190,30 @@ class FastHierClustAnalysis extends AbstractGridAnalysis implements
 	}
 
 	private HierCluster hierarchical(int metric, int dim, int method) {
-		long start = System.currentTimeMillis();
-
-		final HierarchicalClusterAlgorithm[] algo = { new SimpleClustering(HClustering.Linkage.SINGLE),
-				new SimpleClustering(HClustering.Linkage.AVERAGE),
-				new SimpleClustering(HClustering.Linkage.COMPLETE) };
+		HClustering.Linkage linkageType = null;
+		switch(method) {
+		case 0: linkageType = HClustering.Linkage.SINGLE; break;
+		case 1: linkageType = HClustering.Linkage.AVERAGE; break;
+		case 2: linkageType = HClustering.Linkage.COMPLETE; break;
+		default: log.error("error in linkage type");
+		}
 
 		final Distance[] distance = { EuclideanDistance.instance,
 				CorrelationDistance.instance, SpearmanRankDistance.instance };
 		HierClusterFactory[] cluster = {
 				new HierClusterFactory.Gene(data.markers()),
 				new HierClusterFactory.Microarray(data.items()) };
-		/*
-		 * 3 matrix models have been experimented, the times for webmatrix.exp
-		 * 12600 genes are reported here: MatrixModel.Gene: 7000766
-		 * MatrixModelByCopy.Gene: 690922 double[][]: 64844 There are about 10
-		 * times speedup for each improvement.
-		 */
-		// MatrixModel[] matrix = { new MatrixModel.Gene(data),
-		// new MatrixModel.Microarray(data) };
-		// MatrixModel[] matrix = { new MatrixModelByCopy.Gene(data),
-		// new MatrixModelByCopy.Microarray(data) };
+
 		double[][][] matrix = {
 				FastMatrixModel.getMatrix(data, FastMatrixModel.Metric.GENE),
 				FastMatrixModel.getMatrix(data,
 						FastMatrixModel.Metric.MICROARRAY) };
-
-		// Check to make sure we have enough data to support the requested
-		// dimension, otherwise fall back to single dimension
 		
-		reportJavaHeapMemory("before HierarchicalClusterAlgorithm.compute(...)");
 		try {
-			HierCluster result = algo[method].compute(this, matrix[dim],
+			HierCluster result = new HierarchicalClustering(linkageType).compute(this, matrix[dim],
 					cluster[dim], distance[metric]);
-			long time = System.currentTimeMillis() - start;
-			log.debug("  TIME: " + time + "   ");
-			reportJavaHeapMemory("after HierarchicalClusterAlgorithm.compute(...)");
 			return result;
 		} catch (OutOfMemoryError e) {
-			reportJavaHeapMemory("after OutOfMemoryError is caught");
 			log
 					.error("OutOfMemoryError: "+e.getMessage()
 							+ ". The application is not stable to continue. It is suggested to quit the geWorkbench.");
@@ -251,14 +225,6 @@ class FastHierClustAnalysis extends AbstractGridAnalysis implements
 
 	}
 	
-	private static void reportJavaHeapMemory(String message) {
-		long usableFreeMemory= Runtime.getRuntime().maxMemory()
-	    -Runtime.getRuntime().totalMemory()
-	    +Runtime.getRuntime().freeMemory();
-		//http://stackoverflow.com/questions/555580/finding-memory-usage-in-java
-		log.debug(message+": "+usableFreeMemory+" out of "+Runtime.getRuntime().maxMemory()+" Java heap memory is usable");
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -325,7 +291,7 @@ class FastHierClustAnalysis extends AbstractGridAnalysis implements
 	 * @see org.geworkbench.analysis.AbstractGridAnalysis#getBisonReturnType()
 	 */
 	@Override
-	public Class getBisonReturnType() {
+	public Class<?> getBisonReturnType() {
 		return CSHierClusterDataSet.class;
 	}
 	
@@ -368,12 +334,12 @@ class FastHierClustAnalysis extends AbstractGridAnalysis implements
 	}
 
 	@Override
-	public ParamValidationResults validInputData(DSMicroarraySetView maSetView,
-			DSDataSet refMASet) {
+	public ParamValidationResults validInputData(DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView,
+			DSDataSet<?> refMASet) {
 		if (maSetView == null)
 			return new ParamValidationResults(false, "Invalid input.");
 		assert maSetView instanceof DSMicroarraySetView;
-		DSMicroarraySet<DSMicroarray> maSet = maSetView.getMicroarraySet();
+
 		int numMAs = maSetView.items().size();
 		int numMarkers = maSetView.getUniqueMarkers().size();
 		if ((numMAs < 3)&&(numMarkers < 3)) {
