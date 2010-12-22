@@ -13,9 +13,9 @@ import org.geworkbench.util.ProgressBar;
  * Straightforward implementations of Hierarchical Clustering.
  *
  * @author John Watkinson
- * @version $Id: SimpleClustering.java,v 1.1 2008-12-09 16:53:45 chiangy Exp $
+ * @version $Id$
  */
-public class SimpleClustering implements HierarchicalClusterAlgorithm, Observer {
+public class HierarchicalClustering implements Observer {
 
     HClustering.Linkage linkage;     
     private AbstractAnalysis analysis = null;
@@ -24,7 +24,7 @@ public class SimpleClustering implements HierarchicalClusterAlgorithm, Observer 
      * 
      * @param linkage
      */
-    public SimpleClustering(HClustering.Linkage linkage) {
+    public HierarchicalClustering(HClustering.Linkage linkage) {
         this.linkage = linkage;
     }
     
