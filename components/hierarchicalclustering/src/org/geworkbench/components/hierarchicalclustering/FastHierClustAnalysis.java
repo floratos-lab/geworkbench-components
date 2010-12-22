@@ -190,11 +190,11 @@ class FastHierClustAnalysis extends AbstractGridAnalysis implements
 	}
 
 	private HierCluster hierarchical(int metric, int dim, int method) {
-		HClustering.Linkage linkageType = null;
+		ClusteringAlgorithm.Linkage linkageType = null;
 		switch(method) {
-		case 0: linkageType = HClustering.Linkage.SINGLE; break;
-		case 1: linkageType = HClustering.Linkage.AVERAGE; break;
-		case 2: linkageType = HClustering.Linkage.COMPLETE; break;
+		case 0: linkageType = ClusteringAlgorithm.Linkage.SINGLE; break;
+		case 1: linkageType = ClusteringAlgorithm.Linkage.AVERAGE; break;
+		case 2: linkageType = ClusteringAlgorithm.Linkage.COMPLETE; break;
 		default: log.error("error in linkage type");
 		}
 

@@ -17,14 +17,14 @@ import org.geworkbench.util.ProgressBar;
  */
 public class HierarchicalClustering implements Observer {
 
-    HClustering.Linkage linkage;     
+    ClusteringAlgorithm.Linkage linkage;     
     private AbstractAnalysis analysis = null;
     
     /**
      * 
      * @param linkage
      */
-    public HierarchicalClustering(HClustering.Linkage linkage) {
+    public HierarchicalClustering(ClusteringAlgorithm.Linkage linkage) {
         this.linkage = linkage;
     }
     
@@ -60,7 +60,7 @@ public class HierarchicalClustering implements Observer {
         pb.setBounds(new ProgressBar.IncrementModel(0, n, 0, n, 1));
         pb.start();
         
-        HClustering clustering = new HClustering(this.analysis, items, mm, distance, linkage, pb);
+        ClusteringAlgorithm clustering = new ClusteringAlgorithm(this.analysis, items, mm, distance, linkage, pb);
         HNode root = clustering.doClustering();
         if ( root == null )
         	return null;
