@@ -77,23 +77,4 @@ public abstract class HierClusterFactory {
         }
     }
 
-    public static class Test extends HierClusterFactory {
-
-        String[] items;
-
-        public Test(String[] items) {
-            this.items = items;
-        }
-
-        public HierCluster newCluster() {
-            return new SimpleHierCluster();
-        }
-
-        public HierCluster newLeaf(int i) {
-            SimpleHierCluster leaf = new SimpleHierCluster();
-            leaf.setItem(items[i]);
-            return leaf;
-        }
-    }
-
 }
