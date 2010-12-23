@@ -397,6 +397,12 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
     	setTranscriptionFactor(TF);
     	networkFrom.setSelectedIndex((Integer)parameters.get("networkFrom"));
     	networkTextField.setText((String)parameters.get("networkField"));
+    	if (maSet!=null){
+    		AdjacencyMatrixDataSet adjMatrix2=new AdjacencyMatrixDataSet(null, 0, 0, 0, networkTextField.getText(), networkTextField.getText(), maSet); 
+    		adjMatrix2.readFromFile(networkTextField.getText(), maSet);
+    		this.adjMatrix.remove("adjMatrix");
+			this.adjMatrix.put("adjMatrix", adjMatrix2);
+    	}
     	tfFrom.setSelectedIndex((Integer)parameters.get("tfFrom"));
     	stopNotifyAnalysisPanelTemporary(false);
     }
