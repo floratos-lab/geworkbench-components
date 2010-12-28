@@ -231,10 +231,10 @@ public class SkyBaseViewer implements VisualPlugin {
 				String[][] second = new String[linecnt][];
 				while ((line = br.readLine()) != null) {
 					String[] toks = line.split("\t");
-					String aln = new String(toks[26]+" - "+toks[27]+"\n\n"+toks[28]+"\n"+toks[29]+" - "+toks[30]+"\n\n"+toks[31]+"\n");
+					String aln = new String(toks[23]+" - "+toks[24]+"\n\n"+toks[25]+"\n"+toks[26]+" - "+toks[27]+"\n\n"+toks[28]+"\n");
 					second[i] = new String[] { toks[20], toks[10], toks[5],
 							toks[1], toks[13], toks[4], toks[9], toks[6],
-							toks[14], toks[17], toks[32], aln };
+							toks[14], toks[17], toks[29], aln };
 
 					toks[3] = toks[3].substring(0, toks[3].lastIndexOf("."));
 					mod[i] = toks[3];
