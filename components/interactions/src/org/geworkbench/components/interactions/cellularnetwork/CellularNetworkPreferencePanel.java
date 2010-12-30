@@ -349,6 +349,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 							.getHits();
 					for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits)
 					{	
+						c.getLegendItems().clear();
 						cellularNetWorkElementInformation.setDirty(true);
 					    cellularNetWorkElementInformation.reset();
 					}
