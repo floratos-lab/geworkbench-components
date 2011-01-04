@@ -54,6 +54,7 @@ public class MRATtestPanel extends TtestAnalysisPanel {
 	private JRadioButton stepdownMinP = new JRadioButton("minP");
     
     private ParameterActionListener parameterActionListener = null;
+    final static int NUM_COMBS_DEFAULT=100;
     
 	/*
 	 * (non-Javadoc)
@@ -179,7 +180,7 @@ public class MRATtestPanel extends TtestAnalysisPanel {
         else if (numCombs.getValue() instanceof Long)
             return ((Long) numCombs.getValue()).intValue();
         else
-            return Integer.parseInt(numCombs.getText());
+            return NUM_COMBS_DEFAULT;
     }
 
     @Override
@@ -227,7 +228,7 @@ public class MRATtestPanel extends TtestAnalysisPanel {
         builder.nextLine();
         builder.append(pvaluesByPerm);
         builder.append(randomlyGroup);
-        numCombs.setText("100");
+        numCombs.setText(""+NUM_COMBS_DEFAULT);
         builder.append("(# times)", numCombs);
         builder.nextLine();
         builder.append("",allPerms);
@@ -280,6 +281,7 @@ public class MRATtestPanel extends TtestAnalysisPanel {
 			public void actionPerformed(ActionEvent e) {
 				randomlyGroup.setEnabled(true);
 		        numCombs.setEnabled(true);
+		        numCombs.setText(""+NUM_COMBS_DEFAULT);
 		        allPerms.setEnabled(true);
 		        stepdownMinP.setEnabled(true);
 		        stepdownMaxT.setEnabled(true);
