@@ -2054,8 +2054,9 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			}
 		};
 
-		SwingUtilities.invokeLater(r);
-
+		//SwingUtilities.invokeLater(r);
+        Thread thread = new Thread(r);
+		thread.start();
 	}
 
 	/**
