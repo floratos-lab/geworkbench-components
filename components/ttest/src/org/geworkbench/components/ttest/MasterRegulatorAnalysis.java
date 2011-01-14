@@ -27,6 +27,7 @@ import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrix;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixDataSet;
 
@@ -41,6 +42,7 @@ public class MasterRegulatorAnalysis extends AbstractAnalysis implements
 	private Log log = LogFactory.getLog(this.getClass());
 	private final String analysisName = "MRA";
 	private MasterRegulatorPanel mraAnalysisPanel = new MasterRegulatorPanel();
+	private DSPanel<DSGeneMarker> selectorPanel = null;
 
 	public MasterRegulatorAnalysis() {
 		setDefaultPanel(mraAnalysisPanel);
@@ -251,6 +253,16 @@ public class MasterRegulatorAnalysis extends AbstractAnalysis implements
 				+ mraAnalysisPanel.getAdjMatrixDataSet().getDataSetName()
 				+ "\n\n\n";
 		return histStr;
+	}
+	
+	@Subscribe
+	public void receive(GeneSelectorEvent e, Object source) {
+		DSGeneMarker marker = e.getGenericMarker(); // GeneselectorEvent can be	
+		if (e.getPanel() != null) {
+			this.selectorPanel = e.getPanel();
+			((MasterRegulatorPanel) aspp).setSelectorPanel(((MasterRegulatorPanel) aspp), this.selectorPanel);
+		} else
+			log.debug("MRA Received Gene Selector Event: Selection panel sent was null");
 	}
 
 	@SuppressWarnings("rawtypes")
