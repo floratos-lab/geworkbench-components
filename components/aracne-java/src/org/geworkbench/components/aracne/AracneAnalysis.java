@@ -32,6 +32,7 @@ import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.AdjacencyMatrixEvent;
+import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrix;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixDataSet;
@@ -63,7 +64,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 	private DSMicroarraySetView<DSGeneMarker, DSMicroarray> mSetView;
 	private AdjacencyMatrixDataSet adjMatrix;
 	private final String analysisName = "Aracne";
-
+	private DSPanel<DSGeneMarker> selectorPanel = null;
 	/**
 	 *
 	 */
@@ -710,6 +711,16 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 			params.setMicroarraySet((DSMicroarraySet<DSMicroarray>)dataSet);
 			params.maMode();
 		}
+	}
+
+	@Subscribe
+	public void receive(GeneSelectorEvent e, Object source) {
+		DSGeneMarker marker = e.getGenericMarker(); // GeneselectorEvent can be	
+		if (e.getPanel() != null) {
+			this.selectorPanel = e.getPanel();
+			((AracneParamPanel) aspp).setSelectorPanel(((AracneParamPanel) aspp), this.selectorPanel);
+		} else
+			log.debug("Aracne Received Gene Selector Event: Selection panel sent was null");
 	}
 
 	/**

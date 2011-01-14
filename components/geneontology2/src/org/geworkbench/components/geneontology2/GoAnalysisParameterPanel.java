@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.swing.ButtonGroup;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
@@ -30,6 +31,7 @@ import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
@@ -64,7 +66,7 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 
 	private JTabbedPane jTabbedPane1 = null;
 	private JPanel selectionPanel = null;
-	private JPanel ontologizer20Panel = null;
+	private JPanel ontologizer20Panel = null;	
 
 	/*
 	 * these names must match the exact same names coded in ontologizer2.0's
@@ -527,8 +529,19 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 
 		referenceListSets.addActionListener(new GeneSetComboListener(
 				referenceList));
-		changedListSets.addActionListener(new GeneSetComboListener(
-				changedList));
+				
+		changedListSets.addActionListener(new ActionListener() {
+    		public void actionPerformed(ActionEvent actionEvent) {
+    			String selectedLabel = (String) changedListSets.getSelectedItem();
+    			if (!StringUtils.isEmpty(selectedLabel))
+    				if (!chooseMarkersFromSet(selectedLabel, changedList)) {
+    					changedListSets.setSelectedIndex(0);
+    					changedList.setText("");
+    				}
+    		}
+    	});
+		
+		
 
 		// define the 'update/refreshing'behavior of GUI components - see the
 		// examples
@@ -736,6 +749,7 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 	private void refreshMarkerSetList(JComboBox listSets) {
 		listSets.removeAllItems();
 		List<String> allMarkerSet = getMarkerSets();
+		listSets.addItem(" ");
 		for (String setName : allMarkerSet) {
 			listSets.addItem(setName);
 		}
@@ -859,4 +873,27 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 		}
 
 	}
+	
+	void setSelectorPanel(GoAnalysisParameterPanel aspp, DSPanel<DSGeneMarker> ap) {
+		aspp.selectorPanel = ap;		
+		String currentTargetSet = (String) aspp.changedListSets.getSelectedItem();
+		DefaultComboBoxModel targetComboModel = (DefaultComboBoxModel) changedListSets.getModel();
+		targetComboModel.removeAllElements();
+		targetComboModel.addElement(" ");		
+		changedList.setText("");
+		for (DSPanel<DSGeneMarker> panel : selectorPanel.panels()) {
+			String label = panel.getLabel().trim();
+			targetComboModel.addElement(label);
+			if(currentTargetSet!=null){
+				if (StringUtils.equals(label, currentTargetSet.trim())){
+					targetComboModel.setSelectedItem(label);					
+				}				
+				
+			}
+		}
+	}	
+	
+	
+	
+	
 }

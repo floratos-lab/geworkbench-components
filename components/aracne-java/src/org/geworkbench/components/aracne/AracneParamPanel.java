@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -25,6 +26,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
 import javax.swing.JTextField;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
@@ -34,6 +36,7 @@ import org.geworkbench.bison.annotation.DSAnnotationContextManager;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.events.listeners.ParameterActionListener;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixDataSet;
 
@@ -94,7 +97,7 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
     private JTextField targetList = new JTextField();
     private JButton loadTargetsButton = new JButton("Load Targets");
 
-    private String targetListFile = new String("data/targets.txt");
+    private String targetListFile = new String("data/targets.txt");    
 
     // Add two new parameters for "hardening" ARACNE. They are adapted from perl script instead of Java implementation.
     private JFormattedTextField bootstrapField = new JFormattedTextField("1");
@@ -119,8 +122,7 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
         builder.setDefaultDialogBorder();
         builder.appendSeparator("ARACNE Paramaters");
 
-        builder.append("Hub Marker(s)", hubCombo);
-        markerSetCombo.addActionListener(new MarkerSetComboListener());
+        builder.append("Hub Marker(s)", hubCombo);        
 		markerSetCombo.setEnabled(false);
         builder.append(markerSetCombo, hubMarkerList, loadMarkersButton);
 
@@ -147,6 +149,18 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 
         builder.append("Bootstrap number", bootstrapField);
         builder.append("Consensus threshold", pThresholdField);
+        
+        markerSetCombo.addActionListener(new ActionListener() {
+    		public void actionPerformed(ActionEvent actionEvent) {
+    			String selectedLabel = (String) markerSetCombo.getSelectedItem();
+    			if (!StringUtils.isEmpty(selectedLabel))
+    				if (!chooseMarkersFromSet(selectedLabel, hubMarkerList)) {
+    					markerSetCombo.setSelectedIndex(0);
+    					hubMarkerList.setText("");
+    				}
+    		}
+    	});
+        
 
         hubCombo.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -162,6 +176,7 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
                     loadMarkersButton.setEnabled(false);
 
                     markerSetCombo.removeAllItems();
+                    markerSetCombo.addItem(" ");
                 	for(String setName: getMarkerSets()) {
                 		markerSetCombo.addItem(setName);
                 	}
@@ -736,6 +751,7 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
             loadMarkersButton.setEnabled(false);
 
         	markerSetCombo.removeAllItems();
+        	markerSetCombo.addItem(" ");
         	for(String setName: getMarkerSets()) {
         		markerSetCombo.addItem(setName);
         	}
@@ -775,33 +791,7 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 	 */
 	public void setMicroarraySet(DSMicroarraySet<DSMicroarray> maSet){
 		this.maSet = maSet;
-	}
-
-	/**
-	 * Listener to update the marker list based on marker combo selection.
-	 *
-	 */
-	private class MarkerSetComboListener implements ActionListener {
-		public void actionPerformed(ActionEvent e) {
-	        JComboBox cb = (JComboBox)e.getSource();
-	        String setName = (String)cb.getSelectedItem();
-
-	        if(setName==null || !markerSetCombo.isFocusOwner() )return; // so do not clear out existing marker list
-
-    		DSAnnotationContextManager manager = CSAnnotationContextManager
-    		.getInstance();
-    		DSAnnotationContext<DSGeneMarker> markerSet = manager
-    				.getCurrentContext(maSet.getMarkers());
-			StringBuilder sb = new StringBuilder();
-    		for (DSGeneMarker marker : markerSet.getItemsWithLabel(setName)){
-    			sb.append(marker.getLabel() + ", ");
-    		}
-            String markerListString = sb.toString();
-            if (markerListString.length()>2)
-            	markerListString = markerListString.substring(0, markerListString.length() - 2);
-            hubMarkerList.setText(markerListString);
-	    }
-    }
+	}	
 
 	/**
 	 * Get the list of available mark sets.
@@ -851,5 +841,23 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 
 		return DATASETNAME_ALGORITHM_kernel_file;
 	}
-
+	
+	void setSelectorPanel(AracneParamPanel aspp, DSPanel<DSGeneMarker> ap) {
+		aspp.selectorPanel = ap;		
+		String currentTargetSet = (String) aspp.markerSetCombo.getSelectedItem();
+		DefaultComboBoxModel targetComboModel = (DefaultComboBoxModel) markerSetCombo.getModel();
+		targetComboModel.removeAllElements();
+		targetComboModel.addElement(" ");
+		hubMarkerList.setText("");
+		for (DSPanel<DSGeneMarker> panel : selectorPanel.panels()) {
+			String label = panel.getLabel().trim();
+			targetComboModel.addElement(label);
+			if(currentTargetSet!=null){
+				if (StringUtils.equals(label, currentTargetSet.trim())){
+					targetComboModel.setSelectedItem(label);					
+				}
+			}
+		}
+	}
+	
 }

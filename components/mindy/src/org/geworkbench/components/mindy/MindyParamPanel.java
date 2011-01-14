@@ -146,9 +146,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 
 	private JTabbedPane tabs;
 
-	private DSDataSet<?> dataSet;
-
-	private DSPanel<DSGeneMarker> selectorPanel;
+	private DSDataSet<?> dataSet;	
 
 	private boolean calledFromProgram = false;
 
@@ -644,56 +642,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 		}
 	}
 
-	static public DSPanel<DSGeneMarker> chooseMarkersSet(String setLabel, DSPanel<DSGeneMarker> selectorPanel){
-		DSPanel<DSGeneMarker> selectedSet = null;
-		if (selectorPanel != null){
-			setLabel = setLabel.trim();
-			for (DSPanel<DSGeneMarker> panel : selectorPanel.panels()) {
-				if (StringUtils.equals(setLabel, panel.getLabel().trim())) {
-					selectedSet = panel;
-					break;
-				}
-			}
-		}
-
-		return selectedSet;
-	}
-
-	public boolean chooseMarkersFromSet(String setLabel, JTextField toPopulate) {
-		DSPanel<DSGeneMarker> selectedSet = chooseMarkersSet(setLabel, selectorPanel);
-
-/*		if (selectorPanel == null)
-			return false;
-		setLabel = setLabel.trim();
-		for (DSPanel<DSGeneMarker> panel : selectorPanel.panels()) {
-			if (StringUtils.equals(setLabel, panel.getLabel().trim())) {
-				selectedSet = panel;
-				break;
-			}
-		}
-*/
-		if (selectedSet != null) {
-			if (selectedSet.size() > 0) {
-				StringBuilder sb = new StringBuilder();
-				for (DSGeneMarker m : selectedSet) {
-					sb.append(m.getLabel());
-					sb.append(",");
-				}
-				sb.trimToSize();
-				sb.deleteCharAt(sb.length() - 1); // getting rid of last comma
-				toPopulate.setText(sb.toString());
-				return true;
-			} else {
-				JOptionPane.showMessageDialog(null, "Marker set, " + setLabel
-						+ ", is empty.", "Input Error",
-						JOptionPane.ERROR_MESSAGE);
-				return false;
-			}
-		}
-
-		return false;
-	}
-
+	
 	/*
 	 * (non-Javadoc)
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)

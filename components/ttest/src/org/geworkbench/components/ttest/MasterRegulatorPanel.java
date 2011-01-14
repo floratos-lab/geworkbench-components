@@ -1,6 +1,8 @@
 package org.geworkbench.components.ttest;
 
 import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
@@ -13,6 +15,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
@@ -20,15 +23,14 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.ListModel;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
-import org.geworkbench.bison.annotation.CSAnnotationContextManager;
-import org.geworkbench.bison.annotation.DSAnnotationContext;
-import org.geworkbench.bison.annotation.DSAnnotationContextManager;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.events.listeners.ParameterActionListener;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixDataSet;
 
@@ -49,12 +51,12 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 	
 	private static final float PValueThresholdDefault = 0.05f;
 	private static final String TFGeneListDefault = ("AFFX-HUMGAPDH/M33197_3_at, AFFX-HUMGAPDH/M33197_5_at, AFFX-HUMGAPDH/M33197_M_at, AFFX-HUMRGE/M10098_3_at, AFFX-HUMRGE/M10098_M_at");
+	static final String[] DEFAULT_SET = { " " };
 
 	private Log log = LogFactory.getLog(this.getClass());
 	private ArrayListModel<String> networkFromModel; //used for 0,0 drop down box
 	private ArrayListModel<String> adjModel; //used for 0,1 drop down box
 	private ArrayListModel<String> tfFromModel; //used for 1,0 drop down box
-	private ArrayListModel<String> groupModel; //used for 0,1 drop down box
 	private ValueModel correctionHolder; //No correction, Standard Bonferroni, Adj Bonferroni
 	private JTextField pValueTextField = null;
 	private JTextField TFGeneListTextField = null; //Marker 1, Marker 2...
@@ -63,11 +65,12 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 	private DSMicroarraySet<DSMicroarray> maSet=null;
 	private MRATtestPanel tTestPanel= new MRATtestPanel();
 	private JComboBox networkMatrix = createNetworkMatrixComboBox();
-	private JComboBox tfGroups = createGroupsComboBox();
+	private JComboBox tfGroups = new JComboBox(new DefaultComboBoxModel(DEFAULT_SET));
 	private JButton loadNetworkButton=new JButton("Load");
 	private JButton loadTFButton=new JButton("Load");
 	private JComboBox networkFrom = null;
-	private JComboBox tfFrom = null;
+	private JComboBox tfFrom = null;	
+	
 	public MasterRegulatorPanel(){
 		networkTextField = new JTextField();
 		networkTextField.setEditable(false);
@@ -160,6 +163,17 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
         jTabbedPane1.add(tTestPanel,"T-test");
         //t-test panel
         this.add(jTabbedPane1,BorderLayout.CENTER);
+        
+        tfGroups.addActionListener(new ActionListener() {
+    		public void actionPerformed(ActionEvent actionEvent) {
+    			String selectedLabel = (String) tfGroups.getSelectedItem();
+    			if (!StringUtils.isEmpty(selectedLabel))
+    				if (!chooseMarkersFromSet(selectedLabel, TFGeneListTextField)) {
+    					tfGroups.setSelectedIndex(0);
+    					TFGeneListTextField.setText(TFGeneListDefault);
+    				}
+    		}
+    	});
         
         ParameterActionListener parameterActionListener = new ParameterActionListener(this);
         pValueTextField.addActionListener(parameterActionListener);
@@ -265,34 +279,7 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		selectionInList.addPropertyChangeListener(tfFromListener);
 		return BasicComponentFactory.createComboBox(selectionInList);
 	}
-	private JComboBox createGroupsComboBox(){
-		groupModel = new ArrayListModel<String>();
-		//we'll generate group list in getGroups() 
-		GroupListener groupListener= new GroupListener();
-		SelectionInList<String> selectionInList=new SelectionInList<String>((ListModel)groupModel);
-		selectionInList.addPropertyChangeListener(groupListener);
-		return BasicComponentFactory.createComboBox(selectionInList);
-	}
-	private class GroupListener implements PropertyChangeListener {
-        public void propertyChange(PropertyChangeEvent evt) {
-        	if ((evt.getPropertyName()=="value")&&(evt.getNewValue()!=null)&&(evt.getNewValue().toString()!="")){
-        		log.info("User select "+evt.getNewValue()+" group in probe set.");
-        		DSAnnotationContextManager manager = CSAnnotationContextManager
-        		.getInstance();
-        		DSAnnotationContext<DSGeneMarker> markerGroups = manager
-        				.getCurrentContext(maSet.getMarkers());
-    			StringBuilder geneListBuilder = new StringBuilder();
-        		for (DSGeneMarker marker : markerGroups.getItemsWithLabel(evt.getNewValue().toString())){
-        			log.debug("add marker "+marker.getLabel()+" to text field.");
-        			geneListBuilder.append(marker.getLabel() + ", ");
-        		}
-                String geneString = geneListBuilder.toString();
-                if (geneString.length()>2)
-                	geneString = geneString.substring(0, geneString.length() - 2);
-                TFGeneListTextField.setText(geneString);
-        	}
-        }
-    }
+
 	private class AdjListener implements PropertyChangeListener {
 		HashMap<String, AdjacencyMatrixDataSet> adjMatrix;
 		public AdjListener(HashMap<String, AdjacencyMatrixDataSet> adjMatrix){
@@ -367,15 +354,6 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		this.maSet = maSet;
 	}
 	public void getGroups(){
-		DSAnnotationContextManager manager = CSAnnotationContextManager
-		.getInstance();
-		DSAnnotationContext<DSGeneMarker> markerGroups = manager
-				.getCurrentContext(maSet.getMarkers());
-		groupModel.clear();
-		for (int cx=0;cx<markerGroups.getNumberOfLabels();cx++){
-			log.debug("get group name "+markerGroups.getLabel(cx)+" from probe set and add to dropdown box.");
-			groupModel.add(markerGroups.getLabel(cx));
-		}
 	}
 	public void addGroupsToComboBox(){
 		
@@ -426,4 +404,23 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		// TODO Auto-generated method stub
 		
 	}
+	void setSelectorPanel(MasterRegulatorPanel aspp, DSPanel<DSGeneMarker> ap) {
+		aspp.selectorPanel = ap;		
+		String currentTargetSet = (String) aspp.tfGroups.getSelectedItem();
+		DefaultComboBoxModel targetComboModel = (DefaultComboBoxModel) aspp.tfGroups.getModel();
+		targetComboModel.removeAllElements();
+		targetComboModel.addElement(" ");
+		TFGeneListTextField.setText(TFGeneListDefault);
+		for (DSPanel<DSGeneMarker> panel : selectorPanel.panels()) {
+			String label = panel.getLabel().trim();
+			targetComboModel.addElement(label);
+			if (StringUtils.equals(label, currentTargetSet.trim())){
+				targetComboModel.setSelectedItem(label);				
+			}
+		}
+	}	
+	
+	
+	
+	
 }
