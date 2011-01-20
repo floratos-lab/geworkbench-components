@@ -27,6 +27,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.events.AnalysisInvokedEvent;
 import org.geworkbench.events.EventHandler;
 
 /**
@@ -52,105 +53,10 @@ public class GenspaceLogger {
 	 */
 	@Subscribe
 	public void getEvent(Object event, Object source) throws Exception {
+		if (event != null && event.getClass().equals(AnalysisInvokedEvent.class)) {
+			log.info("event: " + event.getClass().getSimpleName());
 
-		hier = new ArrayList<Class>();
-
-		stop = false;
-
-		if (event != null) {
-			log.debug("event: " + event.getClass().getSimpleName());
-
-			Class clazz = event.getClass();
-
-			traverseEventHierarchy(clazz);
-
-			EventHandler logger = createLoggerForEvent(event, source);
-
-			if (logger != null) {
-				logger.log();
-				// TODO add other EventHandler method calls here
-			}
-
-		} else {
-			log.debug("null event");
+			ObjectHandler logger = new ObjectHandler(event,source);
 		}
-
-	}
-
-	/**
-	 * 
-	 * @param clazz
-	 * @return
-	 */
-	private void traverseEventHierarchy(Class clazz) {
-
-		if (stop) {
-			return;
-		}
-
-		hier.add(clazz);
-
-		Type superClassType = clazz.getGenericSuperclass();
-
-		if (superClassType == null) {
-			stop = true;
-			return;
-		}
-
-		else {
-			Class cl = (Class) superClassType;
-			traverseEventHierarchy(cl);
-		}
-
-		return;
-	}
-
-	/**
-	 * 
-	 * @param event
-	 * @param source
-	 * @throws Exception
-	 */
-	private EventHandler createLoggerForEvent(Object event, Object source) {
-
-		EventHandler logger = null;
-
-		//for (Class clazz : hier) {
-			StringBuffer buf = new StringBuffer();
-			//buf.append(clazz.getName());
-			buf.append("org.geworkbench.components.genspace.Object");
-			buf.append("Handler");
-
-			Class clazzToInstantiate = null;
-			try {
-				clazzToInstantiate = Class.forName(buf.toString());
-
-				Class[] parameterTypes = new Class[] { Object.class,
-						Object.class };
-
-				Constructor constructor = clazzToInstantiate
-						.getDeclaredConstructor(parameterTypes);
-
-				Object[] parameters = { event, source };
-
-				logger = (EventHandler) constructor.newInstance(parameters);
-
-				/* if you reach here, instantiation was successful */
-				log.info("Successfully instantiated event handler: "
-						+ buf.toString());
-
-				log.info("Type of event: " + event.getClass().getName());
-
-				log.info("Source of event: " + source.getClass().getName());
-
-				//break;
-
-			} catch (Exception e) {
-				// e.printStackTrace();
-				log.debug("Cannot instantiate event handler of type: " + buf.toString()	+ ".  Will attempt to instantiate super class.");
-				//continue;
-			}
-		//}
-		return logger;
 	}
 }
