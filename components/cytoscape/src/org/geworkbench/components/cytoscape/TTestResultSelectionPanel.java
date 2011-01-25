@@ -49,17 +49,15 @@ import giny.view.NodeView;
 public class TTestResultSelectionPanel extends JPanel {
 	private Log log = LogFactory.getLog(this.getClass());
 	public JDialog parent = null;
-	public CytoscapeWidget cytoscapeWidget = null;
+	//public CytoscapeWidget cytoscapeWidget = null;
 	private JList list;
 	private List<String> TTestNameList = new ArrayList<String>();
 	protected Map<String, CSSignificanceResultSet<DSGeneMarker>> ttestResultMap;
     protected DSMicroarraySet<? extends DSMicroarray> maSet;
-	public TTestResultSelectionPanel(JDialog parent,CytoscapeWidget cytoscapeWidget,
-			Map<String, CSSignificanceResultSet<DSGeneMarker>> map, DSMicroarraySet<? extends DSMicroarray> maSet) {
+	public TTestResultSelectionPanel(JDialog parent, Map<String, CSSignificanceResultSet<DSGeneMarker>> map, DSMicroarraySet<? extends DSMicroarray> maSet) {
 		setLayout(new BorderLayout());
 
-		this.parent = parent;
-		this.cytoscapeWidget = cytoscapeWidget;
+		this.parent = parent;		 
 		this.ttestResultMap = map;
 		this.maSet = maSet;		
 		init();
@@ -113,7 +111,7 @@ public class TTestResultSelectionPanel extends JPanel {
 		if (view != null && Cytoscape.getCurrentNetwork() != null) {
 			CyAttributes attrs = Cytoscape.getNodeAttributes();			 
 			Iterator<?> iter = view.getNodeViewsIterator();
-			cytoscapeWidget.publishEnabled = false;
+			CytoscapeWidget.getInstance().publishEnabled = false;
 			while (iter.hasNext()) {
 				NodeView nodeView = (NodeView) iter.next();				 
 				String id = nodeView.getNode().getIdentifier();
@@ -132,8 +130,8 @@ public class TTestResultSelectionPanel extends JPanel {
 					    nodeView.unselect();
 		
 			}				
-			cytoscapeWidget.getComponent().repaint();
-			cytoscapeWidget.publishEnabled = true;
+			CytoscapeWidget.getInstance().getComponent().repaint();
+			CytoscapeWidget.getInstance().publishEnabled = true;
 		}		
 		
 		this.parent.dispose();
@@ -236,7 +234,7 @@ public class TTestResultSelectionPanel extends JPanel {
 	}
 	
 	
-
+   
 	ListModel listModel = new AbstractListModel() {
 		public Object getElementAt(int index) {
 			return TTestNameList.get(index);

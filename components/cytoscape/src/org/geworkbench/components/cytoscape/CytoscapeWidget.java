@@ -48,6 +48,7 @@ import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.AdjacencyMatrixEvent;
 import org.geworkbench.events.GeneTaggedEvent;
+import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.events.ProjectNodeRemovedEvent;
 import org.geworkbench.util.Util;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrix;
@@ -144,7 +145,7 @@ public class CytoscapeWidget implements VisualPlugin {
 	private Set<String> dataSetIDs = new HashSet<String>();
 	private volatile Set<Integer> cancelList = new HashSet<Integer>();
 	private DiscreteMapping nodeDm = null, edgeDm = null;
-	
+
 	private int shapeIndex = 0;
 	private NodeShape[] shapes = { NodeShape.HEXAGON, NodeShape.RECT,
 			NodeShape.DIAMOND, NodeShape.ELLIPSE, NodeShape.TRIANGLE,
@@ -161,7 +162,22 @@ public class CytoscapeWidget implements VisualPlugin {
 	JProgressBar jProgressBar = new JProgressBar();
 	DSMicroarraySet<? extends DSMicroarray> maSet = null;
 	boolean publishEnabled = true;
+
 	Map<String, List<Integer>> geneIdToMarkerIdMap = new HashMap<String, List<Integer>>();
+	Map<String, List<Integer>> geneNameToMarkerIdMap = new HashMap<String, List<Integer>>();
+
+	private static CytoscapeWidget INSTANCE = null;
+
+	public static CytoscapeWidget getInstance() {
+		if (INSTANCE != null)
+			return INSTANCE;
+		else
+			try {
+				return new CytoscapeWidget();
+			} catch (Exception e) { // exception only for INSTANCE is not null
+				return INSTANCE;
+			}
+	}
 
 	public CytoscapeWidget() {
 		UIManager.put(Options.USE_SYSTEM_FONTS_APP_KEY, Boolean.TRUE);
@@ -169,6 +185,8 @@ public class CytoscapeWidget implements VisualPlugin {
 
 		init();
 		publishEnabled = true;
+
+		INSTANCE = this;
 
 	}
 
@@ -219,6 +237,13 @@ public class CytoscapeWidget implements VisualPlugin {
 		return event;
 	}
 
+	@Publish
+	public ProjectNodeAddedEvent publishProjectNodeAddedEvent(
+			ProjectNodeAddedEvent pe) {
+		return pe;
+	}
+	
+	
 	public static final String GENE_SEPARATOR = " /// ";
 
 	/**
@@ -346,6 +371,8 @@ public class CytoscapeWidget implements VisualPlugin {
 				if (maSet != null) {
 					geneIdToMarkerIdMap = AnnotationParser
 							.getGeneIdToMarkerIDMapping(maSet);
+					geneNameToMarkerIdMap = AnnotationParser
+							.getGeneNameToMarkerIDMapping(maSet);
 				}
 				boolean found = false;
 				String foundID = null;
@@ -412,8 +439,9 @@ public class CytoscapeWidget implements VisualPlugin {
 				if (cyNetwork.getTitle().equals(
 						adjMatrixDataSet.getNetworkName())) {
 					Cytoscape.destroyNetwork(cyNetwork);
-					//Cytoscape.getVisualMappingManager()
-					//.getCalculatorCatalog().removeVisualStyle(cyNetwork.getTitle() + " Style");
+					// Cytoscape.getVisualMappingManager()
+					// .getCalculatorCatalog().removeVisualStyle(cyNetwork.getTitle()
+					// + " Style");
 					return;
 				}
 			} else {
@@ -625,12 +653,13 @@ public class CytoscapeWidget implements VisualPlugin {
 						marker1.getLabel());
 			} else {
 				try {
-					Cytoscape.getNodeAttributes().setAttribute(
-							cyNode.getIdentifier(), "geneID",
-							new Integer(geneIdStr));
+
 					Cytoscape.getNodeAttributes().setAttribute(
 							cyNode.getIdentifier(), "geneName",
 							cyNode.getIdentifier());
+					Cytoscape.getNodeAttributes().setAttribute(
+							cyNode.getIdentifier(), "geneID",
+							new Integer(geneIdStr));
 
 				} catch (NumberFormatException ne) {
 					// if geneIdStr is not an integer, just ignore it.
@@ -856,10 +885,12 @@ public class CytoscapeWidget implements VisualPlugin {
 	}
 
 	private void init() {
-		
+
 		if (System.getProperty("os.name").startsWith("Mac")) {
-			System.setProperty("com.apple.mrj.application.apple.menu.about.name", "Cytoscape");
-		} 
+			System.setProperty(
+					"com.apple.mrj.application.apple.menu.about.name",
+					"Cytoscape");
+		}
 		Cytoscape.getDesktop().setVisible(false);
 		CytoscapeInit initializer = new CytoscapeInit();
 
@@ -877,7 +908,7 @@ public class CytoscapeWidget implements VisualPlugin {
 
 		VisualMappingManager manager = Cytoscape.getVisualMappingManager();
 		CalculatorCatalog catalog = manager.getCalculatorCatalog();
-	    Calculator nc = catalog.getCalculator(VisualPropertyType.NODE_SHAPE,
+		Calculator nc = catalog.getCalculator(VisualPropertyType.NODE_SHAPE,
 				"Nested Network Style-Node Shape-Discrete Mapper");
 
 		Vector<?> v = nc.getMappings();
@@ -913,7 +944,7 @@ public class CytoscapeWidget implements VisualPlugin {
 			vs.getNodeAppearanceCalculator().setCalculator((nc));
 			vs.getEdgeAppearanceCalculator().setCalculator(ec);
 
-		} 
+		}
 	}
 
 	private void receiveMatrix(int adjMatrixId) {
@@ -933,7 +964,7 @@ public class CytoscapeWidget implements VisualPlugin {
 		}
 		name = Util.getUniqueName(name, names);
 		adjSet.setNetworkName(name);
-				
+
 		cytoNetwork = Cytoscape.createNetwork(name);
 
 		try {
@@ -958,8 +989,6 @@ public class CytoscapeWidget implements VisualPlugin {
 			return;
 
 		}
-         
-		
 
 		CalculatorCatalog catalog = Cytoscape.getVisualMappingManager()
 				.getCalculatorCatalog();
@@ -969,17 +998,15 @@ public class CytoscapeWidget implements VisualPlugin {
 		try {
 			catalog.addVisualStyle(visualStyle);
 		} catch (DuplicateCalculatorNameException ex) {
-            String existStyle = visualStyle.getName();           
-            visualStyle = new VisualStyle(catalog
+			String existStyle = visualStyle.getName();
+			visualStyle = new VisualStyle(catalog
 					.getVisualStyle("Nested Network Style"), catalog
 					.checkVisualStyleName(name + " Style"));
 			catalog.addVisualStyle(visualStyle);
 			catalog.removeVisualStyle(existStyle);
-            
+
 		}
-		
-		
-		
+
 		CytoPanel temp = Cytoscape.getDesktop().getCytoPanel(
 				SwingConstants.WEST);
 
@@ -997,7 +1024,7 @@ public class CytoscapeWidget implements VisualPlugin {
 			view = Cytoscape.createNetworkView(cytoNetwork, maSet.getLabel());
 
 			view.applyVizmapper(visualStyle);
-		 
+
 			view.addGraphViewChangeListener(new GraphViewChangeListener() {
 				public void graphViewChanged(
 						GraphViewChangeEvent graphViewChangeEvent) {
@@ -1015,7 +1042,7 @@ public class CytoscapeWidget implements VisualPlugin {
 
 	@SuppressWarnings("unchecked")
 	// only because adjSet.getValuesForName("GENEMAP");
-	private HashMap<String, String> getGeneIdToNameMap() {
+	public HashMap<String, String> getGeneIdToNameMap() {
 		HashMap<String, String> map = new HashMap<String, String>();
 
 		Object[] list = null;
@@ -1027,6 +1054,16 @@ public class CytoscapeWidget implements VisualPlugin {
 
 		}
 		return map;
+
+	}
+
+	public AdjacencyMatrix getAdjMatrix() {
+		return this.adjMatrix;
+
+	}
+
+	public AdjacencyMatrixDataSet getAdjMatrixDataSet() {
+		return this.adjSet;
 
 	}
 
@@ -1102,6 +1139,26 @@ public class CytoscapeWidget implements VisualPlugin {
 			nodeView.setSelectedPaint(c);
 		}
 
+	}
+
+	public void resetNetwork() {
+		CyAttributes attrs = null;
+		CyNetworkView view = Cytoscape.getCurrentNetworkView();
+		if (view != null && Cytoscape.getCurrentNetwork() != null) {
+			attrs = Cytoscape.getNodeAttributes();
+			Iterator<?> iter = view.getNodeViewsIterator();
+
+			while (iter.hasNext()) {
+				NodeView nodeView = (NodeView) iter.next();
+				nodeView.unselect();
+				String id = nodeView.getNode().getIdentifier();
+				if (attrs.hasAttribute(id, CytoscapeWidget.NODE_FILL_COLOR))
+					attrs.deleteAttribute(id, CytoscapeWidget.NODE_FILL_COLOR);
+
+			}
+
+			Cytoscape.getCurrentNetworkView().redrawGraph(false, true);
+		}
 	}
 
 }
