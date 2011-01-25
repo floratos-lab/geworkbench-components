@@ -43,6 +43,7 @@ public class UrlLabelListener implements MouseListener {
 		this.GRID_HOST_KEY = GRID_HOST_KEY;
 		this.urlId = urlId;
 		gridServicePanel.url[urlId] = System.getProperty(DEFAULT_URL_KEY);
+		readProperties();
 	}
 
 	/*
