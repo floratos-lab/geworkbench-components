@@ -2,8 +2,8 @@ package org.geworkbench.components.cytoscape;
 
 import giny.model.Node;
 import giny.view.NodeView;
- 
-import java.awt.event.ActionEvent; 
+
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -26,15 +26,16 @@ import javax.swing.JProgressBar;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+ 
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker; 
+import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSSignificanceResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSTTestResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
-import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.bison.datastructure.complex.panels.DSPanel; 
 import org.geworkbench.builtin.projects.DataSetNode;
 import org.geworkbench.builtin.projects.DataSetSubNode;
 import org.geworkbench.builtin.projects.ProjectPanel;
@@ -46,29 +47,28 @@ import cytoscape.CyNetwork;
 import cytoscape.CyNode;
 import cytoscape.Cytoscape;
 import cytoscape.data.CyAttributes;
-import cytoscape.view.CyNetworkView;  
-import ding.view.DNodeView;  
+import cytoscape.view.CyNetworkView;
+import ding.view.DNodeView;
 import ding.view.NodeContextMenuListener;
- 
 
 public class ExpandMenuListener implements NodeContextMenuListener,
 		MouseListener {
 	final static Log log = LogFactory.getLog(ExpandMenuListener.class);
 
-	private CytoscapeWidget cytoscapeWidget = null;
+	//private CytoscapeWidget cytoscapeWidget = null;
 
 	// following fields are a temporary solution for refactoring
 	protected Map<String, List<Integer>> geneIdToMarkerIdMap = null;
 	protected DSMicroarraySet<? extends DSMicroarray> maSet = null;
 	protected JProgressBar jProgressBar = null;
-	protected CyNetwork cytoNetwork = null;  
+	protected CyNetwork cytoNetwork = null;
 	protected List<Long> runningThreads = null;
 
-	private CyAttributes attrs = null;
+	 
 
 	public ExpandMenuListener(CytoscapeWidget cytoscapeWidget) {
 
-		this.cytoscapeWidget = cytoscapeWidget;
+		 
 		geneIdToMarkerIdMap = cytoscapeWidget.geneIdToMarkerIdMap;
 		maSet = cytoscapeWidget.maSet;
 		jProgressBar = cytoscapeWidget.jProgressBar;
@@ -85,11 +85,11 @@ public class ExpandMenuListener implements NodeContextMenuListener,
 	 *            popup menu to add the Bypass menu
 	 */
 	public void addNodeContextMenuItems(final NodeView nodeView, JPopupMenu menu) {
-		 
+
 		if (menu == null) {
 			menu = new JPopupMenu();
 		}
-  
+
 		JMenu addToSetMenu = new JMenu("Add to set ");
 		JMenuItem menuItemIntersection = new JMenuItem(new IntersectionAction(
 				"Intersection"));
@@ -98,15 +98,13 @@ public class ExpandMenuListener implements NodeContextMenuListener,
 		addToSetMenu.add(menuItemUnion);
 		menu.add(addToSetMenu);
 	}
-	
- 
 
 	public void mousePressed(MouseEvent e) {
-		
+
 	}
 
 	public void mouseReleased(MouseEvent e) {
-		
+
 	}
 
 	public void mouseEntered(MouseEvent e) {
@@ -117,22 +115,28 @@ public class ExpandMenuListener implements NodeContextMenuListener,
 
 	}
 
-	public void mouseClicked(MouseEvent e) {		
-		 
-        if (e.isMetaDown()) {
+	public void mouseClicked(MouseEvent e) {
+
+		if (e.isMetaDown()) {
 
 			JPopupMenu menu = new JPopupMenu();
 
 			JMenuItem menuItemTTestResults = new JMenuItem(
 					new ShowTTestResultAction("Show t-test results"));
+
+			JMenuItem menuItemComputeEdgeCorrelations = new JMenuItem(
+					new ComputeEdgeCorrelationsAction(
+							"Compute edge correlations"));
+
 			JMenuItem menuItemClear = new JMenuItem(new ClearNodeColorAction(
-					"Clear node colors"));
+					"Restore network"));
 			menu.add(menuItemTTestResults);
+			menu.add(menuItemComputeEdgeCorrelations);
 			menu.add(menuItemClear);
 
 			menu.show(e.getComponent(), e.getPoint().x, e.getPoint().y);
 
-		} 
+		}
 	}
 
 	private class IntersectionAction extends AbstractAction {
@@ -198,7 +202,7 @@ public class ExpandMenuListener implements NodeContextMenuListener,
 				 * skip if GeneTaggedEvent is being processed, to avoid event
 				 * cycle.
 				 */
-				if (cytoscapeWidget.publishEnabled)
+				if (CytoscapeWidget.getInstance().publishEnabled)
 					publishSubpanelChangedEvent(new org.geworkbench.events.SubpanelChangedEvent<DSGeneMarker>(
 							DSGeneMarker.class,
 							IntersectionMarkers,
@@ -211,7 +215,7 @@ public class ExpandMenuListener implements NodeContextMenuListener,
 
 	private void publishSubpanelChangedEvent(
 			SubpanelChangedEvent<DSGeneMarker> subpanelChangedEvent) {
-		cytoscapeWidget.publishSubpanelChangedEvent(subpanelChangedEvent);
+		CytoscapeWidget.getInstance().publishSubpanelChangedEvent(subpanelChangedEvent);
 
 	}
 
@@ -259,7 +263,7 @@ public class ExpandMenuListener implements NodeContextMenuListener,
 				 * Skip if GeneTaggedEvent is being processed, to avoid event
 				 * cycle.
 				 */
-				if (cytoscapeWidget.publishEnabled)
+				if (CytoscapeWidget.getInstance().publishEnabled)
 					publishSubpanelChangedEvent(new org.geworkbench.events.SubpanelChangedEvent<DSGeneMarker>(
 							DSGeneMarker.class,
 							UnionMarkers,
@@ -271,7 +275,6 @@ public class ExpandMenuListener implements NodeContextMenuListener,
 
 	private class ShowTTestResultAction extends AbstractAction {
 
-		 
 		private static final long serialVersionUID = 5057482753345747183L;
 
 		public ShowTTestResultAction(String name) {
@@ -286,29 +289,45 @@ public class ExpandMenuListener implements NodeContextMenuListener,
 					.getSelectedDataSetNode();
 			searchTestResultNodes(dataSetNode, map, CSTTestResultSet.class);
 
-			if (map.size() == 0)
-			{
+			if (map.size() == 0) {
 				JOptionPane
-				.showMessageDialog(
-						null,
-						"There are no T-Test result nodes associated with the currently selected microarray set.",
+						.showMessageDialog(
+								null,
+								"There are no T-Test result nodes associated with the currently selected microarray set.",
 
-						"Information",
-						JOptionPane.INFORMATION_MESSAGE);
-			}
-			else
-			{
+								"Information", JOptionPane.INFORMATION_MESSAGE);
+			} else {
 				JDialog dialog = new JDialog();
-				dialog.add(new TTestResultSelectionPanel(dialog, cytoscapeWidget, map, maSet));
+				dialog.add(new TTestResultSelectionPanel(dialog, map, maSet));
 				dialog.setModal(true);
-				dialog.setTitle("Please Select T-Test Result");					 
+				dialog.setTitle("Please Select T-Test Result");
 				dialog.pack();
 				Util.centerWindow(dialog);
 				dialog.setVisible(true);
 			}
-				
-			
-		
+
+		}
+	}
+
+	private class ComputeEdgeCorrelationsAction extends AbstractAction {
+
+		private static final long serialVersionUID = 5057482753345747184L;
+
+		public ComputeEdgeCorrelationsAction(String name) {
+			super(name);
+		}
+
+		@SuppressWarnings( { "unchecked" })
+		public void actionPerformed(ActionEvent actionEvent) {
+
+			JDialog dialog = new JDialog();
+			dialog
+					.add(new ArraysSelectionPanel(dialog));
+			dialog.setModal(true);
+			dialog.setTitle("Select microarrays to use");
+			dialog.pack();
+			Util.centerWindow(dialog);
+			dialog.setVisible(true);		
 		}
 	}
 
@@ -325,23 +344,7 @@ public class ExpandMenuListener implements NodeContextMenuListener,
 
 		@SuppressWarnings( { "unchecked" })
 		public void actionPerformed(ActionEvent actionEvent) {
-			CyNetworkView view = Cytoscape.getCurrentNetworkView();
-			if (view != null && Cytoscape.getCurrentNetwork() != null) {
-				attrs = Cytoscape.getNodeAttributes();
-				Iterator<?> iter = view.getNodeViewsIterator();
-
-				while (iter.hasNext()) {
-					NodeView nodeView = (NodeView) iter.next();
-					nodeView.unselect();
-					String id = nodeView.getNode().getIdentifier();
-					if (attrs.hasAttribute(id, CytoscapeWidget.NODE_FILL_COLOR))
-						attrs.deleteAttribute(id,
-								CytoscapeWidget.NODE_FILL_COLOR);
-
-				}
-
-				Cytoscape.getCurrentNetworkView().redrawGraph(false, true);
-			}
+			CytoscapeWidget.getInstance().resetNetwork();
 		}
 	}
 
