@@ -5,7 +5,6 @@ import java.util.Observer;
 
 import org.geworkbench.bison.model.clusters.HierCluster;
 import org.geworkbench.analysis.AbstractAnalysis;
-import org.geworkbench.util.MatrixModel;
 import org.geworkbench.util.Distance;
 import org.geworkbench.util.ProgressBar;
 
@@ -26,15 +25,6 @@ public class HierarchicalClustering implements Observer {
      */
     public HierarchicalClustering(ClusteringAlgorithm.Linkage linkage) {
         this.linkage = linkage;
-    }
-    
-    /*
-     * (non-Javadoc)
-     * @see org.geworkbench.components.clustering.HierarchicalClusterAlgorithm#compute(org.geworkbench.analysis.AbstractAnalysis, org.geworkbench.util.MatrixModel, org.geworkbench.components.clustering.HierClusterFactory, org.geworkbench.util.Distance)
-     */
-    public HierCluster compute(AbstractAnalysis analysis, MatrixModel mm, HierClusterFactory clusterFactory, Distance dist) {
-        // Not used
-        return null;	
     }
     
     /*
