@@ -26,7 +26,10 @@ import javax.swing.JProgressBar;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
- 
+
+import org.geworkbench.bison.annotation.CSAnnotationContextManager;
+import org.geworkbench.bison.annotation.DSAnnotationContext;
+import org.geworkbench.bison.annotation.DSAnnotationContextManager;
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
@@ -35,7 +38,8 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.CSSignificanceR
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSTTestResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
-import org.geworkbench.bison.datastructure.complex.panels.DSPanel; 
+import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
+import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.builtin.projects.DataSetNode;
 import org.geworkbench.builtin.projects.DataSetSubNode;
 import org.geworkbench.builtin.projects.ProjectPanel;
@@ -55,7 +59,7 @@ public class ExpandMenuListener implements NodeContextMenuListener,
 		MouseListener {
 	final static Log log = LogFactory.getLog(ExpandMenuListener.class);
 
-	//private CytoscapeWidget cytoscapeWidget = null;
+	// private CytoscapeWidget cytoscapeWidget = null;
 
 	// following fields are a temporary solution for refactoring
 	protected Map<String, List<Integer>> geneIdToMarkerIdMap = null;
@@ -64,11 +68,8 @@ public class ExpandMenuListener implements NodeContextMenuListener,
 	protected CyNetwork cytoNetwork = null;
 	protected List<Long> runningThreads = null;
 
-	 
-
 	public ExpandMenuListener(CytoscapeWidget cytoscapeWidget) {
 
-		 
 		geneIdToMarkerIdMap = cytoscapeWidget.geneIdToMarkerIdMap;
 		maSet = cytoscapeWidget.maSet;
 		jProgressBar = cytoscapeWidget.jProgressBar;
@@ -128,10 +129,14 @@ public class ExpandMenuListener implements NodeContextMenuListener,
 					new ComputeEdgeCorrelationsAction(
 							"Compute edge correlations"));
 
+			JMenuItem menuItemCreateSubNetwork = new JMenuItem(
+					new CreateSubnetworkAction("Create sub network"));
+
 			JMenuItem menuItemClear = new JMenuItem(new ClearNodeColorAction(
 					"Restore network"));
 			menu.add(menuItemTTestResults);
 			menu.add(menuItemComputeEdgeCorrelations);
+			menu.add(menuItemCreateSubNetwork);
 			menu.add(menuItemClear);
 
 			menu.show(e.getComponent(), e.getPoint().x, e.getPoint().y);
@@ -215,7 +220,8 @@ public class ExpandMenuListener implements NodeContextMenuListener,
 
 	private void publishSubpanelChangedEvent(
 			SubpanelChangedEvent<DSGeneMarker> subpanelChangedEvent) {
-		CytoscapeWidget.getInstance().publishSubpanelChangedEvent(subpanelChangedEvent);
+		CytoscapeWidget.getInstance().publishSubpanelChangedEvent(
+				subpanelChangedEvent);
 
 	}
 
@@ -321,13 +327,59 @@ public class ExpandMenuListener implements NodeContextMenuListener,
 		public void actionPerformed(ActionEvent actionEvent) {
 
 			JDialog dialog = new JDialog();
-			dialog
-					.add(new ArraysSelectionPanel(dialog));
+			dialog.add(new ArraysSelectionPanel(dialog));
 			dialog.setModal(true);
 			dialog.setTitle("Select microarrays to use");
 			dialog.pack();
 			Util.centerWindow(dialog);
-			dialog.setVisible(true);		
+			dialog.setVisible(true);
+		}
+	}
+
+	private class CreateSubnetworkAction extends AbstractAction {
+
+		private static final long serialVersionUID = 5057482753345747185L;
+
+		public CreateSubnetworkAction(String name) {
+			super(name);
+		}
+
+		@SuppressWarnings( { "unchecked" })
+		public void actionPerformed(ActionEvent actionEvent) {
+			List<Object> markerSetList = new ArrayList<Object>();
+
+			DSAnnotationContextManager manager = CSAnnotationContextManager
+					.getInstance();
+			DSAnnotationContext context = manager.getCurrentContext(maSet);
+
+			// DSItemList<DSPanel> itemList = context.getLabelTree().panels();
+
+			DSAnnotationContext<DSGeneMarker> markerGroups = manager
+					.getCurrentContext(maSet.getMarkers());
+			DSItemList<DSPanel<DSGeneMarker>> itemList = markerGroups
+					.getLabelTree().panels();
+			for (DSPanel dp : itemList) {
+				if (dp.getNumberOfProperItems() > 0)
+					markerSetList.add(dp);
+			}
+
+			if (markerSetList.size() == 0) {
+				JOptionPane
+						.showMessageDialog(
+								null,
+								"You need to define non-empty marker sets in order to create a subnetwork.",
+								"Information", JOptionPane.INFORMATION_MESSAGE);
+
+			} else {
+			
+				JDialog dialog = new JDialog();
+				dialog.add(new MarkerSelectionPanel(dialog, markerSetList));
+				dialog.setModal(true);
+				dialog.setTitle("Select markers to use");
+				dialog.pack();
+				Util.centerWindow(dialog);
+				dialog.setVisible(true);
+			}
 		}
 	}
 
