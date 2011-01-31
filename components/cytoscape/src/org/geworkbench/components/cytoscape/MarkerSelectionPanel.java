@@ -99,7 +99,10 @@ public class MarkerSelectionPanel extends JPanel implements Observer {
 		});
 		cancelButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				markerSetList.clear();				 
 				parent.dispose();
+				
+				
 			}
 		});
 
@@ -191,55 +194,7 @@ public class MarkerSelectionPanel extends JPanel implements Observer {
 
 	}
 
-	public double[] getValues(Node node, CyAttributes attrs, int[] serials) {
-		double[] values = null;
-		String nodeId = node.getIdentifier();
-		String markerLabel = attrs.getStringAttribute(nodeId, "markerName");
-		List<Integer> markerIds = null;
-		if (markerLabel != null && markerLabel.equals(nodeId)) {
-			markerIds = new ArrayList<Integer>(1);
-			markerIds.add(maSet.getMarkers().get(markerLabel).getSerial());
-		} else {
-			markerIds = CytoscapeWidget.getInstance().geneNameToMarkerIdMap.get(nodeId);
-		}
-
-		if (markerIds == null || markerIds.size() == 0)
-			return null;
-
-		if (serials != null && serials.length > 0) {
-			values = new double[serials.length];
-			double[] valuesForOneArray = new double[markerIds.size()];
-			for (int i = 0; i < serials.length; i++) {
-
-				for (int j = 0; j < markerIds.size(); j++)
-					valuesForOneArray[j] = maSet.getValue(markerIds.get(j),
-							serials[i]);
-				values[i] = StatUtils.mean(valuesForOneArray);
-			}
-		} else // use all arrays
-		{
-			int num = maSet.getRow(0).length;
-
-			values = new double[num];
-			double[] valuesForOneArray = new double[markerIds.size()];
-
-			for (int i = 0; i < num; i++) {
-
-				for (int j = 0; j < markerIds.size(); j++) {
-					valuesForOneArray[j] = maSet.getValue(markerIds.get(j), i);
-				}
-
-				values[i] = StatUtils.mean(valuesForOneArray);
-			}
-		}
-
-		return values;
-
-	}
-
-	 
-
-	 
+ 
 
 	public void update(Observable o, Object arg) {
 		//cancelAction = true;
