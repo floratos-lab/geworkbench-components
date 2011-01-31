@@ -135,8 +135,12 @@ public final class ServerBaseDiscovery extends
                     progressBarEvent.setMessage("Collating");
                 }
             } else {
-                progressBarEvent.setMessage("Done");
-                progressBarEvent.setPercentDone(100);
+				if (isStop()) {
+					progressBarEvent.setMessage("Canceled by user");
+				} else {
+					progressBarEvent.setMessage("Done");
+				}
+				progressBarEvent.setPercentDone(100);
             }
 
             fireProgressBarChanged(progressBarEvent);
@@ -184,9 +188,12 @@ public final class ServerBaseDiscovery extends
         fireProgressBarChanged(progressBarEvent);
         for (int i = 0; i < databaseSize; ++i) {
             //check that we were not stopped.
-            if (isStop()) {
-                return false;
-            }
+			if (isStop()) {
+				progressBarEvent = new ProgressBarEvent("Canceled by user",
+						Color.black, 0, 0, databaseSize);
+				fireProgressBarEvent(progressBarEvent,i);
+				return false;
+			}
             upload(i);
             fireProgressBarEvent(progressBarEvent, i);
         }
@@ -269,6 +276,10 @@ public final class ServerBaseDiscovery extends
                 done = discoverySession.isDone();
                 tryWait();
             }
+            if(isStop()){
+            	return;
+            }
+
             writeToResultfile();
         } catch (SessionOperationException ex) {
             System.out.println(ex.toString());
@@ -404,7 +415,7 @@ public final class ServerBaseDiscovery extends
         fireDisplayUpdate();
 
     }
-    
+
     public boolean writeToResultfile(){
          try{
         DiscoverySession session = getSession();
@@ -424,6 +435,6 @@ public final class ServerBaseDiscovery extends
          }
         return true;
     }
-    
+
     private String algorithmType = null;
 }
