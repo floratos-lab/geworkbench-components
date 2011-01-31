@@ -351,52 +351,7 @@ public class NetworkRedrawWindow {
 		}
 		else
 		{
-			/*Map<Integer, ArrayList<Integer>> listNeedDeleted = new HashMap<Integer,  ArrayList<Integer>>();
-			
-			matrix.getGeneRowsNotInMicroarray().clear();
-			HashMap<Integer, HashMap<Integer, Float>> geneRowsMap = matrix
-			.getGeneRows();
-			HashMap<Integer, HashMap<Integer, String>> geneInteractionRowsMap = matrix.getInteractionMap();
-			
-			Iterator<Integer> keysIt = geneRowsMap.keySet().iterator();
 			 
-			while (keysIt.hasNext()) {
-			 
-				Integer key1 = keysIt.next();
-				HashMap<Integer, String> interactionGeneRows = geneInteractionRowsMap.get(key1);
-				HashMap<Integer, Float> geneRows = geneRowsMap.get(key1);
-			     
-				if (geneRows == null)				 
-					continue;
-				if (geneRows.size() == 0)
-				{					 
-					listNeedDeleted.put(key1, null);
-				}
-				DSGeneMarker marker1 = null, marker2 = null;
-				marker1 = (DSGeneMarker) CytoscapeWidget.getInstance().maSet.getMarkers().get(key1);
-				for (Integer key2 : geneRows.keySet()) {				 
-					String type = interactionGeneRows.get(key2);
-					marker2 = (DSGeneMarker) CytoscapeWidget.getInstance().maSet.getMarkers().get(key2);
-				    
-					String edgeName1 = key1 + "."+ type + "." + key2+ "/" + marker1.getGeneName()  + "-" + marker2.getGeneName();
-					String edgeName2 = key2 + "."+ type + "." + key1 + "/" + marker2.getGeneName()  + "-" + marker1.getGeneName();
-				    Double d1 = pearsonCorrelations.get(edgeName1);				   
-				    Double d2 = pearsonCorrelations.get(edgeName2);
-					if ( (d1 != null && d1.doubleValue() < value) || (d2 != null && d2.doubleValue() < value))
-					{
-						ArrayList<Integer> intList = listNeedDeleted.get(key1);
-					    if (intList == null)
-					    {
-					    	intList = new ArrayList<Integer>();
-					    	listNeedDeleted.put(key1, intList);
-					    }
-					    intList.add(key2);
-					}			
-				
-				}
-			
-			} */
-            
 		    for (String key : pearsonCorrelations.keySet())
 		    {
 		    	if (Math.abs(pearsonCorrelations.get(key)) >= value)
@@ -418,6 +373,20 @@ public class NetworkRedrawWindow {
 		    	}
 		    	 
 		    }
+		    
+		    if (matrix.getGeneRows().size()==0 && matrix.getGeneRowsNotInMicroarray().size()==0)
+			{
+				JOptionPane
+				.showMessageDialog(
+						null,
+						"The sub-network you want to create is empty.",
+
+						"Information", JOptionPane.INFORMATION_MESSAGE);
+			
+			    return;
+			}
+			
+		    
 		    
 			adjacencyMatrixdataSet = new AdjacencyMatrixDataSet(matrix, 0, 0.5f, 2,
 					"Adjacency Matrix", CytoscapeWidget.getInstance().maSet
