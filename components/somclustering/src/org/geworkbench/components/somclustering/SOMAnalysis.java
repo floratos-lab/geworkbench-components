@@ -29,7 +29,7 @@ import org.geworkbench.util.ProgressBar;
  * <p>Company: First Genetic Trust Inc.</p>
  *
  * @author First Genetic Trust
- * @version 1.0
+ * @version $Id$
  */
 
 /**
@@ -47,23 +47,22 @@ import org.geworkbench.util.ProgressBar;
 public class SOMAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
 	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2630277710658744215L;
+
+	/**
 	 * Analysis type
 	 */
 	private int localAnalysisType;
 
 	private org.geworkbench.util.ProgressBar pb = null;
 
-	private int function;
-
 	private int dim_x;
 
 	private int dim_y;
 
 	private float factor;
-
-	private boolean absolute;
-
-	private String topology;
 
 	private int number_of_genes;
 
@@ -72,8 +71,6 @@ public class SOMAnalysis extends AbstractGridAnalysis implements
 	private float[][] expMatrix;
 
 	private float[][][] somCodes;
-
-	private int validN = 0;
 
 	private final String analysisName = "Som";
 
@@ -102,12 +99,13 @@ public class SOMAnalysis extends AbstractGridAnalysis implements
 	 * @return <code>AlgorithmExecutionResults</code> containing the result of
 	 *         clustering
 	 */
+	@SuppressWarnings("unchecked")
 	public AlgorithmExecutionResults execute(Object input) {
 		if (input == null) {
 			return new AlgorithmExecutionResults(false, "Invalid input.", null);
 		}
 		assert input instanceof DSMicroarraySetView;
-		DSMicroarraySetView<? extends DSGeneMarker, ? extends DSMicroarray> data = (DSMicroarraySetView) input;
+		DSMicroarraySetView<? extends DSGeneMarker, ? extends DSMicroarray> data = (DSMicroarraySetView<? extends DSGeneMarker, ? extends DSMicroarray>) input;
 		if (data.items().size()<2){
 			return new AlgorithmExecutionResults(false,
 					"You'll need to select at least two microarrays for SOM analysis.\n"
@@ -123,9 +121,9 @@ public class SOMAnalysis extends AbstractGridAnalysis implements
 					"Microarray set contains missing values.\n"
 							+ "Remove before proceeding.", null);
 		}
-		function = 1;
+
 		factor = 1.0f;
-		absolute = false;
+
 		SOMCluster result_cluster = new DefaultSOMCluster();
 		dim_x = ((SOMPanel) aspp).getRows();
 		dim_y = ((SOMPanel) aspp).getColumns();
@@ -176,7 +174,7 @@ public class SOMAnalysis extends AbstractGridAnalysis implements
 		int[] winner_info = new int[2];
 		float cRadius = radius;
 		float cAlpha = alpha;
-		// int sample = 0;
+
 		Random random = new Random(System.currentTimeMillis());
 		for (int i = 0; i < iterations && !stopAlgorithm; i++) {
 			int sample = random.nextInt(number_of_genes);
@@ -202,14 +200,15 @@ public class SOMAnalysis extends AbstractGridAnalysis implements
 
 		// clustering...
 		// SOMMatrix clusters = new SOMMatrix(dim_x, dim_y, 0);
-		ArrayList clusters = new ArrayList(dim_y);
-		ArrayList list1, list2;
+		ArrayList<ArrayList<ArrayList<Integer>>> clusters = new ArrayList<ArrayList<ArrayList<Integer>>>(dim_y);
+		ArrayList<ArrayList<Integer>> list1;
+		ArrayList<Integer> list2;
 		for (int i = 0; i < dim_y && !stopAlgorithm; i++) {
-			list1 = new ArrayList(dim_x);
+			list1 = new ArrayList<ArrayList<Integer>>(dim_x);
 			for (int j = 0; j < dim_x && !stopAlgorithm; j++) {
-				list2 = new ArrayList(0);
+				list2 = new ArrayList<Integer>(0);
 				for (int k = 0; k < 0; k++) {
-					list2.add(new Float(0));
+					list2.add(new Integer(0));
 				}
 				list1.add(list2);
 			}
@@ -222,7 +221,7 @@ public class SOMAnalysis extends AbstractGridAnalysis implements
 		// Cluster result_cluster = new Cluster();
 		// NodeList nodeList = result_cluster.getNodeList();
 		for (int i = 0; i < clusters.size() && !stopAlgorithm; i++) {
-			ArrayList c = (ArrayList) clusters.get(i);
+			ArrayList<ArrayList<Integer>> c = clusters.get(i);
 			for (int j = 0; j < c.size(); j++) {
 				Cluster clusterRep = new DefaultSOMCluster();
 				result_cluster.addNode(clusterRep);
@@ -235,10 +234,10 @@ public class SOMAnalysis extends AbstractGridAnalysis implements
 		for (int x = 0; x < dim_x && !stopAlgorithm; x++) {
 			for (int y = 0; y < dim_y && !stopAlgorithm; y++) {
 				dimension = x * dim_y + y;
-				ArrayList c = (ArrayList) ((ArrayList) clusters.get(y)).get(x);
+				ArrayList<Integer> c = clusters.get(y).get(x);
 				int size = c.size();
 				for (int i = 0; i < size && !stopAlgorithm; i++) {
-					int geneIndex = ((Integer) c.get(i)).intValue();
+					int geneIndex = c.get(i).intValue();
 					// Transform the following to SOMCluster
 					Cluster node = new LeafSOMCluster(data.markers().get(
 							geneIndex));
@@ -308,8 +307,7 @@ public class SOMAnalysis extends AbstractGridAnalysis implements
 
 	private void bubbleAdapt(int sample, int[] winner_info, float radius,
 			float alpha, boolean rectangular) {
-		long index = 0;
-		int tx, ty, xdim, ydim;
+
 		int x, y;
 		for (y = 0; y < dim_y; y++) {
 			for (x = 0; x < dim_x; x++) {
@@ -333,8 +331,7 @@ public class SOMAnalysis extends AbstractGridAnalysis implements
 
 	private void gaussianAdapt(int sample, int[] winner_info, float radius,
 			float alpha, boolean rectangular) {
-		long index = 0;
-		int tx, ty, xdim, ydim;
+
 		float dd, alp;
 		int x, y;
 		for (y = 0; y < dim_y; y++) {
@@ -356,56 +353,19 @@ public class SOMAnalysis extends AbstractGridAnalysis implements
 
 	}
 
-	private void fillMean(float[] means, int[] cluster) {
-		float currentMean;
-		int n = cluster.length;
-		validN = 0;
-		float value;
-		for (int i = 0; i < number_of_samples; i++) {
-			currentMean = 0f;
-			validN = 0;
-			for (int j = 0; j < n; j++) {
-				value = expMatrix[cluster[j]][i];
-				if (!Float.isNaN(value)) {
-					currentMean += value;
-					validN++;
-				}
-
-			}
-
-			means[i] = currentMean / (float) validN;
-		}
-
-	}
-
-	private void fillVariance(float[] variances, float[] means, int[] cluster) {
-		for (int i = 0; i < number_of_samples; i++) {
-			variances[i] = getSampleVariance(cluster, i, means[i]);
-		}
-
-	}
-
-	private int[] getFeatures(ArrayList source) {
-		int[] cluster = new int[source.size()];
-		for (int i = 0; i < cluster.length; i++) {
-			cluster[i] = ((Integer) source.get(i)).intValue();
-		}
-
-		return cluster;
-	}
-
-	private void calculateClusters(ArrayList clusters, float[][] u_matrix) {
+	private void calculateClusters(ArrayList<ArrayList<ArrayList<Integer>>> clusters, float[][] u_matrix) {
 		pb.reset();
 		pb.setMessage("Calculating Clusters");
 		pb.setBounds(new org.geworkbench.util.ProgressBar.IncrementModel(0,
 				number_of_genes, 0, number_of_genes, 1));
 		// SOMMatrix distances = new SOMMatrix(dim_x, dim_y, 0);
-		ArrayList distances = new ArrayList(dim_y);
-		ArrayList list1, list2;
+		ArrayList<ArrayList<ArrayList<Float>>> distances = new ArrayList<ArrayList<ArrayList<Float>>>(dim_y);
+		ArrayList<ArrayList<Float>> list1;
+		ArrayList<Float> list2;
 		for (int i = 0; i < dim_y && !stopAlgorithm; i++) {
-			list1 = new ArrayList(dim_x);
+			list1 = new ArrayList<ArrayList<Float>>(dim_x);
 			for (int j = 0; j < dim_x && !stopAlgorithm; j++) {
-				list2 = new ArrayList(0);
+				list2 = new ArrayList<Float>(0);
 				for (int k = 0; k < 0; k++) {
 					list2.add(new Float(0));
 				}
@@ -435,24 +395,23 @@ public class SOMAnalysis extends AbstractGridAnalysis implements
 					u_matrix[winner_info[0]][winner_info[1]] = winner_distance;
 				}
 				counter = 0;
-				for (int j = 0; j < ((ArrayList) ((ArrayList) distances
-						.get(winner_info[1])).get(winner_info[0])).size(); j++) {
-					if (winner_distance < ((Float) ((ArrayList) ((ArrayList) distances
-							.get(winner_info[1])).get(winner_info[0])).get(j))
-							.floatValue()) {
+				for (int j = 0; j < distances
+						.get(winner_info[1]).get(winner_info[0]).size(); j++) {
+					if (winner_distance < distances
+							.get(winner_info[1]).get(winner_info[0]).get(j)) {
 						break;
 					}
 					counter++;
 				}
 
-				((ArrayList) ((ArrayList) distances.get(winner_info[1]))
-						.get(winner_info[0])).add(counter, new Float(
+				distances.get(winner_info[1])
+						.get(winner_info[0]).add(counter, new Float(
 						winner_distance));
 				// distances.insertValue(winner_info[0], winner_info[1],
 				// counter,
 				// winner_distance);
-				((ArrayList) ((ArrayList) clusters.get(winner_info[1]))
-						.get(winner_info[0])).add(counter, new Integer(i));
+				clusters.get(winner_info[1])
+						.get(winner_info[0]).add(counter, new Integer(i));
 				// clusters.insertValue(winner_info[0], winner_info[1], counter,
 				// i);
 			}
@@ -502,28 +461,6 @@ public class SOMAnalysis extends AbstractGridAnalysis implements
 		ret += 0.75 * diff * diff;
 		ret = (float) Math.sqrt((float) ret);
 		return (ret);
-	}
-
-	private float[][] getSubExperiment(float[][] experiment, int[] features) {
-		int columnSize = 0;
-		if (experiment[0] != null) {
-			columnSize = experiment[0].length;
-		}
-		float[][] subExperiment = new float[features.length][columnSize];
-		for (int i = 0; i < features.length; i++) {
-			subExperiment[i] = experiment[features[i]];
-		}
-		return subExperiment;
-	}
-
-	private float getSampleVariance(int[] cluster, int column, float mean) {
-		if (validN > 1) {
-			return (float) Math.sqrt(getSampleNormalizedSum(cluster, column,
-					mean)
-					/ (float) (validN - 1));
-		} else {
-			return 0f;
-		}
 	}
 
 	private float[][][] randomGeneInit() {
@@ -589,20 +526,6 @@ public class SOMAnalysis extends AbstractGridAnalysis implements
 			}
 		}
 		return somCodes;
-	}
-
-	private float getSampleNormalizedSum(int[] cluster, int column, float mean) {
-		float sum = 0f;
-		float value;
-		validN = 0;
-		for (int i = 0; i < cluster.length; i++) {
-			value = expMatrix[cluster[i]][column];
-			if (!Float.isNaN(value)) {
-				sum += Math.pow(value - mean, 2);
-				validN++;
-			}
-		}
-		return sum;
 	}
 
 	private float geneEuclidianDistance(float[][] matrix, float[][] M, int g1,
@@ -702,7 +625,7 @@ public class SOMAnalysis extends AbstractGridAnalysis implements
 	 * @see org.geworkbench.analysis.AbstractGridAnalysis#getBisonReturnType()
 	 */
 	@Override
-	public Class getBisonReturnType() {
+	public Class<?> getBisonReturnType() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -726,12 +649,12 @@ public class SOMAnalysis extends AbstractGridAnalysis implements
 	}
 
 	@Override
-	public ParamValidationResults validInputData(DSMicroarraySetView maSetView, DSDataSet refMASet) {
+	public ParamValidationResults validInputData(DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView, DSDataSet<?> refMASet) {
 		if (maSetView == null) {
 			return new ParamValidationResults(false, "Invalid input.");
 		}
 		assert maSetView instanceof DSMicroarraySetView;
-		DSMicroarraySetView<? extends DSGeneMarker, ? extends DSMicroarray> data = (DSMicroarraySetView) maSetView;
+		DSMicroarraySetView<? extends DSGeneMarker, ? extends DSMicroarray> data = maSetView;
 		if (data.items().size()<2){
 			return new ParamValidationResults(false,
 					"You'll need to select at least two microarrays for SOM analysis.\n"
