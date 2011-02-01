@@ -991,7 +991,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 		else if (significanceMethod == TtestAnalysisPanel.STD_BONFERRONI)
 			histStr += "Alpha Corrections: Standard Bonferroni" + "\n";
 		else if (significanceMethod == TtestAnalysisPanel.ADJ_BONFERRONI)
-			histStr += "Alpha Corrections: Ajusted Bonferroni" + "\n";
+			histStr += "Alpha Corrections: Adjusted Bonferroni" + "\n";
 		else if (significanceMethod == TtestAnalysisPanel.MIN_P)
 			histStr += "Alpha Corrections: minP" + "\n";
 		else if (significanceMethod == TtestAnalysisPanel.MAX_T)
