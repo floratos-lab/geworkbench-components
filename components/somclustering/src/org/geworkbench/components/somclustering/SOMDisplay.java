@@ -27,6 +27,7 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.bison.datastructure.properties.DSNamed;
 import org.geworkbench.bison.model.clusters.Cluster;
 import org.geworkbench.bison.model.clusters.DSSOMClusterDataSet;
 import org.geworkbench.bison.model.clusters.LeafSOMCluster;
@@ -57,7 +58,7 @@ import org.jfree.data.xy.XYSeriesCollection;
  * {@link org.geworkbench.bison.model.clusters.SOMCluster} format
  * 
  * @author manjunath
- * @version $Id: SOMDisplay.java,v 1.2 2009-06-09 20:27:25 keshav Exp $
+ * @version $Id$
  */
 @SuppressWarnings("unchecked")
 @AcceptTypes( { DSSOMClusterDataSet.class })
@@ -97,8 +98,6 @@ public class SOMDisplay implements VisualPlugin, MenuListener,
 
 			}
 		};
-		// throw new UnsupportedOperationException(
-		// "Listeners have to be extracted from SOM Plots");
 	}
 
 	/**
@@ -113,24 +112,17 @@ public class SOMDisplay implements VisualPlugin, MenuListener,
 	@Subscribe(Asynchronous.class)
 	public void receive(ProjectEvent event, Object source) {
 		// Create and throw a HierClusterModelEvent event.
-		DSDataSet dataSet = event.getDataSet();
+		DSDataSet<?> dataSet = event.getDataSet();
 		if ((dataSet != null) && (dataSet instanceof DSSOMClusterDataSet)) {
 			DSSOMClusterDataSet newClusterSet = (DSSOMClusterDataSet) dataSet;
 			if (newClusterSet != clusterSet) {
 				clusterSet = newClusterSet;
 				originalClusters = clusterSet.getClusters();
-				mASet = (DSMicroarraySetView) clusterSet.getDataSetView();
+				mASet = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) clusterSet.getDataSetView();
 				origX = originalClusters.length;
 				origY = originalClusters[0].length;
 			
 				reset();
-				// Thread t = new Thread() {
-				// public void run() {
-				// reset();
-				// }
-				// };
-				// t.setPriority(Thread.MIN_PRIORITY);
-				// t.start();
 			}
 		}
 	}
@@ -154,8 +146,8 @@ public class SOMDisplay implements VisualPlugin, MenuListener,
 	}
 
 	@Publish
-	public org.geworkbench.events.SubpanelChangedEvent publishSubpanelChangedEvent(
-			org.geworkbench.events.SubpanelChangedEvent event) {
+	public org.geworkbench.events.SubpanelChangedEvent<? extends DSNamed> publishSubpanelChangedEvent(
+			org.geworkbench.events.SubpanelChangedEvent<?> event) {
 		return event;
 	}
 
@@ -252,7 +244,7 @@ public class SOMDisplay implements VisualPlugin, MenuListener,
 				plot.setSize(diffWidth, diffHeight);
 				plot.setPreferredSize(new Dimension(diffWidth, diffHeight));
 
-				DSMicroarraySetView subSet = new CSMicroarraySetView(mASet
+				DSMicroarraySetView<DSGeneMarker, DSMicroarray> subSet = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(mASet
 						.getMicroarraySet());
 
 				Cluster[] leaves = originalClusters[i][j].getChildrenNodes();
@@ -374,7 +366,7 @@ public class SOMDisplay implements VisualPlugin, MenuListener,
 	 * The underlying micorarray set used in the hierarchical clustering
 	 * analysis.
 	 */
-	private DSMicroarraySetView mASet = null;
+	private DSMicroarraySetView<DSGeneMarker, DSMicroarray> mASet = null;
 
 	/**
 	 * The <code>SOMCluster[][]</code> received from the SOM analysis
@@ -414,19 +406,14 @@ public class SOMDisplay implements VisualPlugin, MenuListener,
 	private int origY;
 
 	/**
-	 * Keeps track of the name of the microarray set
-	 */
-	private String mASetName;
-
-	/**
 	 * Keeps track of state of zoom checkbox
 	 */
-	boolean singleChart = false;
+	private boolean singleChart = false;
 
 	/**
 	 * Keeps track of any zoom inviked by user
 	 */
-	boolean isReset = false;
+	private boolean isReset = false;
 
 	/**
 	 * Visual Widget

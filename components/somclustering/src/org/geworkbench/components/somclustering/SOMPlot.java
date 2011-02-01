@@ -33,13 +33,15 @@ import java.text.NumberFormat;
  * <code>SOMCluster</code>
  *
  * @author manjunath at genomecenter dot columbia dot edu
- * @version 3.0
+ * @version $Id$
  */
 
 public class SOMPlot extends ChartPanel {
 
-    DSItemList<DSGeneMarker> markerStats;
-    DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView;
+	private static final long serialVersionUID = 1563687038438582101L;
+	
+	private DSItemList<DSGeneMarker> markerStats;
+    private DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView;
     /**
      * Property used for conveying the origin of a <code>PropertyChange</code>
      * event for distinguishing messages from other components which throw
@@ -165,13 +167,8 @@ public class SOMPlot extends ChartPanel {
 	 */
 	private class ExpressionXYToolTip extends SymbolicXYItemLabelGenerator {
 
-		/**
-		 * @param data
-		 * @param series
-		 * @param item
-		 * @return String
-		 */
-
+		private static final long serialVersionUID = 6347518430675084013L;
+		
 		DSPanel<DSGeneMarker> markers = new CSPanel<DSGeneMarker>("");
 		DSPanel<DSMicroarray> arrays = new CSPanel<DSMicroarray>("");
 
