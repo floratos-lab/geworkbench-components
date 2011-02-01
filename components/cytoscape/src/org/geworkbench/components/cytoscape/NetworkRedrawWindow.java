@@ -273,6 +273,8 @@ public class NetworkRedrawWindow {
 	 * @return void
 	 */
 	private void graph_actionPerformed(ActionEvent e) {
+		
+		
 		Cursor hourglassCursor = new Cursor(Cursor.WAIT_CURSOR);
 		frame.setCursor(hourglassCursor);
 
@@ -280,9 +282,21 @@ public class NetworkRedrawWindow {
 		frame.setCursor(normalCursor);		
 
 		CyNetworkView view = Cytoscape.getCurrentNetworkView();
-		
 		HashMap<String, Double> pearsonCorrelations  = pearsonCorrelationsMap
-		.get(view.getIdentifier());	
+		.get(view.getIdentifier());
+		
+		if (pearsonCorrelations == null)
+		{
+			JOptionPane
+			.showMessageDialog(
+					null,
+					"Please compute edge correlations for the currently selected network view.",
+
+					"Information", JOptionPane.INFORMATION_MESSAGE);
+		
+		    return;
+		}
+	
 		 Object[] values = pearsonCorrelations.values().toArray();
 		 double[] dlist = new double[values.length];
 	     for(int i=0; i<dlist.length; i++)
