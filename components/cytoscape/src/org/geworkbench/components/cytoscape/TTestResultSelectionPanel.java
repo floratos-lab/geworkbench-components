@@ -122,15 +122,16 @@ public class TTestResultSelectionPanel extends JPanel {
 						Color c = (Color)tTestResultSetColorMap.get(id.trim().toUpperCase()).get(1);						 
 						attrs.setAttribute(id, CytoscapeWidget.NODE_FILL_COLOR, ObjectToString.getStringValue(c));
 						 
-						nodeView.setUnselectedPaint(c);
+						//nodeView.setUnselectedPaint(c);
 						//nodeView.setSelectedPaint(c);
 						//nodeView.select();
 						nodeView.unselect();
 				} else
 					    nodeView.unselect();
 		
-			}				
-			CytoscapeWidget.getInstance().getComponent().repaint();
+			}	
+			Cytoscape.getCurrentNetworkView().redrawGraph(false, true);
+			//CytoscapeWidget.getInstance().getComponent().repaint();
 			CytoscapeWidget.getInstance().publishEnabled = true;
 		}		
 		
@@ -208,13 +209,13 @@ public class TTestResultSelectionPanel extends JPanel {
 	}
 	
 	private Color calculateColor(int numMarkers, int numOfPositiveTValues, double minTValue, double maxTValue, int rank, double tValue){
-		int Y = (int)Math.max(minTValue,maxTValue);
+		int maxAbs = (int)Math.max(Math.abs(minTValue),Math.abs(maxTValue));
 		//System.out.println(numMarkers+","+minTValue+","+maxTValue+","+rank+","+tValue);
 		int disToZero = 0;
 		Color result = null;
-		disToZero = numOfPositiveTValues - rank;
-		if (Y!=0){
-			int colorindex = (int)(255 * (tValue) / (maxTValue-minTValue));
+	 
+		if (maxAbs!=0){
+			int colorindex = (int)(255 * (tValue) /Math.abs(maxAbs));
 			if (colorindex < 0){
 				colorindex = Math.abs(colorindex);
 				if (colorindex > 255) colorindex =255;
