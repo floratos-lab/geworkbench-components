@@ -168,6 +168,10 @@ public class CytoscapeWidget implements VisualPlugin {
 
 	private static CytoscapeWidget INSTANCE = null;
 
+	
+	/*
+	 * make sure the CytoscapeWidget() constructor only be called one time.
+	 */
 	public static CytoscapeWidget getInstance() {
 		if (INSTANCE != null)
 			return INSTANCE;
@@ -179,7 +183,13 @@ public class CytoscapeWidget implements VisualPlugin {
 			}
 	}
 
-	public CytoscapeWidget() {
+	public CytoscapeWidget() throws Exception{
+		// singleton: this constructor should never be called the second time.
+		if (INSTANCE != null)
+			throw new Exception(
+					"Second instance of CytoscapeWidget cannot be created.");
+
+		
 		UIManager.put(Options.USE_SYSTEM_FONTS_APP_KEY, Boolean.TRUE);
 		Options.setDefaultIconSize(new Dimension(18, 18));
 
@@ -469,6 +479,7 @@ public class CytoscapeWidget implements VisualPlugin {
 		return results;
 	}
 
+ 
 	public void memoryUsage() {
 		Runtime rtime = Runtime.getRuntime();
 		System.out.println("Total Memory---->" + rtime.totalMemory());
@@ -813,14 +824,7 @@ public class CytoscapeWidget implements VisualPlugin {
 			java.util.List<?> edges = Cytoscape.getCurrentNetworkView()
 					.getSelectedEdges();
 			CytoscapeDesktop test = Cytoscape.getDesktop();
-			/*
-			 * if (newFrame==null){ newFrame = new JFrame(); for (int cx=0;cx<test
-			 * .getCytoPanel(SwingConstants.SOUTH).getCytoPanelComponentCount
-			 * ();cx++){ try{ Component
-			 * comp=test.getCytoPanel(SwingConstants.SOUTH).getComponentAt(cx);
-			 * newFrame.add(comp.getParent()); }catch (Exception ex){ } } }
-			 * newFrame.setVisible(true); newFrame.pack();
-			 */
+		 
 			if (edges.size() > 0) {
 				test.getCytoPanel(SwingConstants.SOUTH).setSelectedIndex(1);
 			} else {
@@ -1036,7 +1040,10 @@ public class CytoscapeWidget implements VisualPlugin {
 					new ExpandMenuListener(CytoscapeWidget.this));
 
 			log.info("DrawAction finished.");
+			resetNetwork();
 		}
+		
+		
 
 	}
 
@@ -1134,13 +1141,16 @@ public class CytoscapeWidget implements VisualPlugin {
 				.getNodeViewsIterator();
 
 		while (iter.hasNext()) {
-			NodeView nodeView = (NodeView) iter.next();
-			// nodeView.unselect();
+			NodeView nodeView = (NodeView) iter.next();		 
 			nodeView.setSelectedPaint(c);
 		}
 
 	}
 
+	
+	/*
+	 * This function restore the original status for current selected network.
+	 */
 	public void resetNetwork() {
 		CyAttributes attrs = null;
 		CyNetworkView view = Cytoscape.getCurrentNetworkView();
