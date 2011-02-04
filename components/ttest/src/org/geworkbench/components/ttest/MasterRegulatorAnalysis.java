@@ -42,7 +42,6 @@ public class MasterRegulatorAnalysis extends AbstractAnalysis implements
 	private Log log = LogFactory.getLog(this.getClass());
 	private final String analysisName = "MRA";
 	private MasterRegulatorPanel mraAnalysisPanel = new MasterRegulatorPanel();
-	private DSPanel<DSGeneMarker> selectorPanel = null;
 
 	public MasterRegulatorAnalysis() {
 		setDefaultPanel(mraAnalysisPanel);
@@ -257,10 +256,9 @@ public class MasterRegulatorAnalysis extends AbstractAnalysis implements
 	
 	@Subscribe
 	public void receive(GeneSelectorEvent e, Object source) {
-		DSGeneMarker marker = e.getGenericMarker(); // GeneselectorEvent can be	
 		if (e.getPanel() != null) {
-			this.selectorPanel = e.getPanel();
-			((MasterRegulatorPanel) aspp).setSelectorPanel(((MasterRegulatorPanel) aspp), this.selectorPanel);
+			DSPanel<DSGeneMarker> selectorPanel = e.getPanel();
+			((MasterRegulatorPanel) aspp).setSelectorPanel(((MasterRegulatorPanel) aspp), selectorPanel);
 		} else
 			log.debug("MRA Received Gene Selector Event: Selection panel sent was null");
 	}
