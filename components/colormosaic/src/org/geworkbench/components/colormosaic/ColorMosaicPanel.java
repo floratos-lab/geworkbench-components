@@ -662,7 +662,11 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
 		} else {
 			if(markerSet==null)return;
 			
-			int markerNo = markerSet.size();
+			List<DSGeneMarker> markers = markerSet;
+			DSPanel<DSGeneMarker> mp = colorMosaicImage.getPanel();
+			if (mp!=null && mp.size()>0) markers = mp;
+
+			int markerNo = markers.size();
 			if (colorMosaicImage.significanceResultSet != null)
 				markerNo = colorMosaicImage.markerList.size();
 			found = false;
@@ -672,7 +676,7 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
 				int i = 0;
 				if (offset < 0)  i = (index + markerNo - idx) % markerNo;
 				else  i = (index + idx) % markerNo;
-				DSGeneMarker marker = markerSet.get(i);
+				DSGeneMarker marker = markers.get(i);
 				if (colorMosaicImage.significanceResultSet != null)
 					marker = colorMosaicImage.markerList.get(i);
 				String name = "";
