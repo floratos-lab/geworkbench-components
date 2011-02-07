@@ -214,9 +214,14 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 		if (stopIndex > geneNo) {
 			stopIndex = geneNo;
 		}
+		if (this.significanceResultSet!=null) {
+			for (int i = 0; i < geneNo; i++) {
+				DSGeneMarker stats = cluster.getGeneLabel(i);
+				 markerList.add(stats);
+			}
+		}
 		for (int i = startIndex; i < stopIndex; i++) {
 			DSGeneMarker stats = cluster.getGeneLabel(i);
-			if (this.significanceResultSet!=null)  markerList.add(stats);
 			if(stats==null)continue;
 			
 			DSGeneMarker mkInfo = microarraySet.getMarkers().get(
