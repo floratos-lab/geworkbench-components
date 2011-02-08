@@ -22,6 +22,7 @@ import javax.swing.JSlider;
 
 import javax.swing.event.ChangeEvent;
 
+import java.text.DecimalFormat;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.HashMap; 
@@ -51,13 +52,15 @@ public class NetworkRedrawWindow {
 
 	private JButton redrawNetworkButton = new JButton("Redraw network");
 	private JButton graphButton = new JButton("Graph correlation values");
-	private JButton createSubNetworkButton = new JButton("Create sub network");
+	private JButton createSubNetworkButton = new JButton("Create subnetwork");
 	private JButton resetButton = new JButton("Reset network");
 
 	private JLabel sliderLabel = new JLabel("Correlation Threshold: ",
 			JLabel.CENTER);
+	
+	private DecimalFormat myFormatter = new DecimalFormat("0.00");
 
-	private static JLabel selectedValueLabel = new JLabel("0.0");
+	private static JLabel selectedValueLabel = new JLabel("0.00");
 
 	private static JSlider thresholdSlider;
 	private static Map<String, HashMap<String, Double>> pearsonCorrelationsMap = null;
@@ -87,7 +90,7 @@ public class NetworkRedrawWindow {
 
 		
 		thresholdSlider.setValue(0);
-		selectedValueLabel.setText("0.0");	 
+		selectedValueLabel.setText("0.00");	 
 		pearsonCorrelationsMap.put(networkId, correlationResultMap);
 
 		networkRedrawWindow.frame.setExtendedState(Frame.NORMAL);
@@ -130,7 +133,7 @@ public class NetworkRedrawWindow {
 				});
 
 		topPanel.add(sliderLabel);
-
+	 
 		topPanel.add(thresholdSlider);
 
 		topPanel.add(selectedValueLabel);
@@ -251,8 +254,9 @@ public class NetworkRedrawWindow {
 						.get(edgeView.getEdge().getIdentifier()).doubleValue();
 				if (Math.abs(value) < selectedSliderValue)
 				{	
-					edgeView.setUnselectedPaint(Color.WHITE);
-					edgeView.setSelectedPaint(Color.WHITE);
+					//edgeView.setUnselectedPaint(Color.WHITE);
+					//edgeView.setSelectedPaint(Color.WHITE);
+					view.hideGraphObject(edgeView);
 				
 				}
 				else if (value < 0)
@@ -303,7 +307,8 @@ public class NetworkRedrawWindow {
 	        {
 	        	dlist[i] = (Double)values[i];
 	        }
-		HistogramGraph.CreateInstance("Histogram Graph", dlist);
+	     String networkName = view.getTitle();
+		HistogramGraph.CreateInstance("Histogram Graph - " + networkName, dlist);
     	 
 		
 	}
@@ -420,7 +425,7 @@ public class NetworkRedrawWindow {
 	void thresholdSlider_stateChanged() {
 		Double value = new Double(thresholdSlider.getValue());
 		value = value / 100;
-		selectedValueLabel.setText(value.toString());
+		selectedValueLabel.setText(myFormatter.format(value));
 
 	}
 
