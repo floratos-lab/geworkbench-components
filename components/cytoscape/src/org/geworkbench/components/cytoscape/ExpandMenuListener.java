@@ -130,7 +130,7 @@ public class ExpandMenuListener implements NodeContextMenuListener,
 							"Compute edge correlations"));
 
 			JMenuItem menuItemCreateSubNetwork = new JMenuItem(
-					new CreateSubnetworkAction("Create sub network"));
+					new CreateSubnetworkAction("Create subnetwork"));
 
 			JMenuItem menuItemClear = new JMenuItem(new ClearNodeColorAction(
 					"Restore network"));

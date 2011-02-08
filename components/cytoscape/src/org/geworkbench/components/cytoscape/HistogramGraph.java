@@ -93,7 +93,7 @@ public class HistogramGraph {
      */
     static private JFreeChart createChart(HistogramDataset dataset) {
         JFreeChart chart = ChartFactory.createHistogram(
-            "Histogram graph", 
+            "Edge correlations", 
             "Pearson's correlation", 
             "Frequency", 
             dataset, 
@@ -102,6 +102,8 @@ public class HistogramGraph {
             false, 
             false
         );
+        
+        chart.getXYPlot().getDomainAxis().setRange(-1.00, 1.00);
         
         chart.getXYPlot().getRenderer().setToolTipGenerator(new XYToolTipGenerator() {
 

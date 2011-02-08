@@ -1,6 +1,7 @@
 package org.geworkbench.components.cytoscape;
 
 import giny.model.Node;
+import giny.view.EdgeView;
 import giny.view.GraphViewChangeEvent;
 import giny.view.GraphViewChangeListener;
 import giny.view.NodeView;
@@ -1156,17 +1157,27 @@ public class CytoscapeWidget implements VisualPlugin {
 		CyNetworkView view = Cytoscape.getCurrentNetworkView();
 		if (view != null && Cytoscape.getCurrentNetwork() != null) {
 			attrs = Cytoscape.getNodeAttributes();
-			Iterator<?> iter = view.getNodeViewsIterator();
+			Iterator<?> nodeIter = view.getNodeViewsIterator();
 
-			while (iter.hasNext()) {
-				NodeView nodeView = (NodeView) iter.next();
+			while (nodeIter.hasNext()) {
+				NodeView nodeView = (NodeView) nodeIter.next();
 				nodeView.unselect();
 				String id = nodeView.getNode().getIdentifier();
 				if (attrs.hasAttribute(id, CytoscapeWidget.NODE_FILL_COLOR))
 					attrs.deleteAttribute(id, CytoscapeWidget.NODE_FILL_COLOR);
 
 			}
-
+			
+			
+			Iterator<?> edgeIter = view.getEdgeViewsIterator();
+			while (edgeIter.hasNext()) 				
+			{	
+				EdgeView edgeView = (EdgeView) edgeIter.next();
+			    view.showGraphObject(edgeView);
+			}
+			
+		 
+         
 			Cytoscape.getCurrentNetworkView().redrawGraph(false, true);
 		}
 	}

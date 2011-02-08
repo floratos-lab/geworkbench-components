@@ -5,25 +5,28 @@ package org.geworkbench.components.cytoscape;
  * @version $Id$ 
  */
 
-import java.util.ArrayList; 
-import java.util.HashMap; 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Iterator; 
+import java.util.Iterator;
 import java.util.Observable;
 import java.util.Observer;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener; 
+import java.awt.event.ActionListener;
 
 import javax.swing.AbstractListModel;
 import javax.swing.JButton;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListModel;
 import javax.swing.JDialog;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingWorker;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.math.stat.StatUtils;
@@ -31,43 +34,41 @@ import org.geworkbench.bison.annotation.CSAnnotationContextManager;
 import org.geworkbench.bison.annotation.DSAnnotationContext;
 import org.geworkbench.bison.annotation.DSAnnotationContextManager;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
- 
+
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
- 
+
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
- 
+
 import org.geworkbench.util.ProgressBar;
-  
+
 import cytoscape.Cytoscape;
 import cytoscape.data.CyAttributes;
 import cytoscape.view.CyNetworkView;
- 
-import giny.view.EdgeView;
- 
-import giny.model.Node;
 
-/* @author yc2480
-* @version $Id
-*/
+import giny.view.EdgeView;
+
+import giny.model.Node;
+ 
 
 @SuppressWarnings("unchecked")
-public class ArraysSelectionPanel extends JPanel implements Observer {
+public class ArraysSelectionPanel extends JPanel   {
 	private Log log = LogFactory.getLog(this.getClass());
 	public JDialog parent = null;
- 
+
 	private JList list;
 	private List<Object> arraySetList = new ArrayList<Object>();
-	//private AdjacencyMatrixDataSet adjSet = null;
+	 
 	private ProgressBar computePb = null;
-    private boolean cancelAction = false;
+	 
 	protected DSMicroarraySet<? extends DSMicroarray> maSet;
+	CalculationWorker worker = null;
 
 	public ArraysSelectionPanel(JDialog parent) {
 		setLayout(new BorderLayout());
 
-		this.parent = parent;	 
+		this.parent = parent;
 		this.maSet = CytoscapeWidget.getInstance().maSet;
 		init();
 
@@ -114,88 +115,14 @@ public class ArraysSelectionPanel extends JPanel implements Observer {
 
 		list.setSelectedIndex(0);
 	}
-
+	 
 	private void continueButtonActionPerformed() {
-		computePb = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
-		computePb.addObserver(this);
-		Runnable r = new Runnable() {
-			public void run() {		
-				cancelAction = false;
-				CSPanel panel = null;
-				int[] arraySerials = null;
-				
-				HashMap<String, Double> pearsonCorrelationMap = null;
-				
-				
-				Object selectedObject = list.getSelectedValue();
-
-				if (!selectedObject.toString().trim().equalsIgnoreCase(
-						"Use all arrays")) {
-					panel = (CSPanel) selectedObject;
-					arraySerials = new int[panel.getNumberOfProperItems()];
-					for (int i = 0; i < panel.getNumberOfProperItems(); i++) {
-						DSMicroarray item = (DSMicroarray) panel
-								.getProperItem(i);
-						arraySerials[i] = item.getSerial();
-					}
-
-				}
-
-				CyNetworkView view = Cytoscape.getCurrentNetworkView();
-
-				if (view != null && Cytoscape.getCurrentNetwork() != null) {
-					 
-					CyAttributes nodeAttrs = Cytoscape.getNodeAttributes();
-					Iterator<?> iter = view.getEdgeViewsIterator();
-					// cytoscapeWidget.publishEnabled = false;
-					pearsonCorrelationMap = new HashMap<String, Double>();		
-					while (iter.hasNext()) {
-						if 	(cancelAction == true)
-						{	
-							pearsonCorrelationMap.clear();				
-							break;
-						}
-						EdgeView edgeView = (EdgeView) iter.next();
-						Node source = edgeView.getEdge().getSource();
-						Node target = edgeView.getEdge().getTarget();
-
-						double[] source_values = getValues(source, nodeAttrs,
-								arraySerials);
-						double[] target_values = getValues(target, nodeAttrs,
-								arraySerials);
-						double pcResult = 0;
-						pcResult = calculate(source_values, target_values);
-						pcResult = ((double)Math.round(pcResult*100000))/100000;
-						
-						pearsonCorrelationMap.put(edgeView.getEdge()
-								.getIdentifier(), pcResult);
-					}
-					
-					NetworkRedrawWindow.load(view.getIdentifier(), pearsonCorrelationMap);
-
-					// cytoscapeWidget.publishEnabled = true;
-				}
-				
-				computePb.dispose();
-				
-
-			}
-		};
 
 		parent.dispose();
-		computePb.setTitle("Compute Pearson's correlatio");
-		computePb.setMessage("Process computation ...");		
-		// computePb.setModal(true);
-		computePb.start();
-		computePb.toFront();
-		 
-		
-		Thread thread = new Thread(r);
-		thread.start();
-		
-		
-	
-		
+		computePb = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
+
+		worker = new CalculationWorker(computePb);
+		worker.execute();
 
 	}
 
@@ -208,7 +135,8 @@ public class ArraysSelectionPanel extends JPanel implements Observer {
 			markerIds = new ArrayList<Integer>(1);
 			markerIds.add(maSet.getMarkers().get(markerLabel).getSerial());
 		} else {
-			markerIds = CytoscapeWidget.getInstance().geneNameToMarkerIdMap.get(nodeId);
+			markerIds = CytoscapeWidget.getInstance().geneNameToMarkerIdMap
+					.get(nodeId);
 		}
 
 		if (markerIds == null || markerIds.size() == 0)
@@ -245,8 +173,6 @@ public class ArraysSelectionPanel extends JPanel implements Observer {
 
 	}
 
-	 
-
 	private double calculate(double[] x_values, double[] y_values) {
 		double result = 0;
 		if (x_values != null && y_values != null) {
@@ -268,12 +194,6 @@ public class ArraysSelectionPanel extends JPanel implements Observer {
 		return result;
 	}
 
-	public void update(Observable o, Object arg) {
-		cancelAction = true;
-		this.computePb.dispose();
-
-	}
-
 	 
 	ListModel listModel = new AbstractListModel() {
 		public Object getElementAt(int index) {
@@ -284,5 +204,111 @@ public class ArraysSelectionPanel extends JPanel implements Observer {
 			return arraySetList.size();
 		}
 	};
+
+	private class CalculationWorker extends SwingWorker<Void, Void> implements
+			Observer {
+		ProgressBar pb = null;
+		HashMap<String, Double> pearsonCorrelationMap = null;
+
+		CalculationWorker(ProgressBar pb) {
+			super();
+			this.pb = pb;
+		}
+
+		@Override
+		protected void done() {
+			if (this.isCancelled()) {
+				log.info("Calculation task is cancel.");
+				
+			} else {
+				log.info("Calculation task is done.");
+				parent.dispose();
+				pb.dispose();
+				NetworkRedrawWindow.load(Cytoscape.getCurrentNetworkView()
+						.getIdentifier(), pearsonCorrelationMap);
+			}
+		}
+
+		@Override
+		protected Void doInBackground() {
+
+			pb.addObserver(this);
+			pb.setTitle("Compute Pearson's correlatio");
+			pb.setMessage("Process computation ...");
+			pb.start();
+			pb.toFront();
+			CSPanel panel = null;
+			int[] arraySerials = null;
+
+			Object selectedObject = list.getSelectedValue();
+
+			if (!selectedObject.toString().trim().equalsIgnoreCase(
+					"Use all arrays")) {
+				panel = (CSPanel) selectedObject;
+				arraySerials = new int[panel.getNumberOfProperItems()];
+				for (int i = 0; i < panel.getNumberOfProperItems(); i++) {
+					DSMicroarray item = (DSMicroarray) panel.getProperItem(i);
+					arraySerials[i] = item.getSerial();
+				}
+
+			}
+
+			CyNetworkView view = Cytoscape.getCurrentNetworkView();
+
+			if (view != null && Cytoscape.getCurrentNetwork() != null) {
+
+				CyAttributes nodeAttrs = Cytoscape.getNodeAttributes();
+				Iterator<?> iter = view.getEdgeViewsIterator();
+				// cytoscapeWidget.publishEnabled = false;
+				pearsonCorrelationMap = new HashMap<String, Double>();
+				while (iter.hasNext()) {
+					if (this.isCancelled() == true) {
+						pearsonCorrelationMap.clear();
+						pb.dispose();
+						break;
+					}
+					EdgeView edgeView = (EdgeView) iter.next();
+					Node source = edgeView.getEdge().getSource();
+					Node target = edgeView.getEdge().getTarget();
+
+					double[] source_values = getValues(source, nodeAttrs,
+							arraySerials);
+					double[] target_values = getValues(target, nodeAttrs,
+							arraySerials);
+					double pcResult = 0;
+					pcResult = calculate(source_values, target_values);
+					pcResult = ((double) Math.round(pcResult * 100000)) / 100000;
+
+					if (log.isDebugEnabled()) {
+						if (pcResult > 1 || pcResult < -1) {
+							JOptionPane.showMessageDialog(null,
+									"The pearson correlation value for edge "
+											+ source.getIdentifier() + "-"
+											+ target.getIdentifier() + " is "
+											+ pcResult
+											+ ". It does not look correct.",
+
+									"Information",
+									JOptionPane.INFORMATION_MESSAGE);
+						}
+					}
+
+					pearsonCorrelationMap.put(edgeView.getEdge()
+							.getIdentifier(), pcResult);
+				}
+			}
+
+			return null;
+		}
+
+		protected ProgressBar getProgressBar() {
+			return pb;
+		}
+
+		public void update(Observable o, Object arg) {		 
+			worker.cancel(true);		 
+		}
+
+	}
 
 }
