@@ -226,41 +226,8 @@ public class HierClustPanel extends AbstractSaveableParameterPanel{
 			}
 		}
     }
-
-    // This method will be moved to AbstractSaveableParameterPanel.java.
-	// PS: getDataSetHistory() should be moved too.
-	/**
-	 * Currently this method is used to generate dataset history, will be used
-	 * by GenSpace and others.
-	 * 
-	 * @return This method returns human readable parameters. The data should be
-	 *         the same as returned from getParameters(), but human readable. If
-	 *         getParameters() returns metric:euclidean, this method would
-	 *         probably return "Clustering Metric: euclidean"
-	 */
-	public Map<Serializable, Serializable> getHumanReadableParameters() {
-		/*
-		 * We use LinkedHashMap to retain the order of parameters, so we can
-		 * control the order when displaying it.
-		 */
-		Map<Serializable, Serializable> parameters = new LinkedHashMap<Serializable, Serializable>();
-
-		int method = (Integer) getParameters().get(METHOD);
-		parameters.put(METHOD_HR, METHODS[method]);
-
-		int dimension = (Integer) getParameters().get(DIMENSION);
-		parameters.put(DIMENSION_HR, DIMENSIONS[dimension]);
-
-		int metric = (Integer) getParameters().get(METRIC);
-		parameters.put(METRIC_HR, METRICS[metric]);
-
-		return parameters;
-	}
-
 	
-	// getDataSetHistory() is general enough to be moved to
-	// AbstractSaveableParameterPanel.java after getHumanReadableParameters()
-	// moved.
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -270,7 +237,7 @@ public class HierClustPanel extends AbstractSaveableParameterPanel{
 	public String getDataSetHistory() {
 		/* translate between machine index to human readable text. */
 		String histStr = "";
-		Map<Serializable, Serializable> pMap = getHumanReadableParameters();
+		Map<Serializable, Serializable> pMap = getParameters();
 		// Header, could be moved to AbstractAnalysis.java
 		histStr += "Hierarchical Clustering Analysis run with parameters:"
 				+ NEWLINE;
@@ -285,15 +252,26 @@ public class HierClustPanel extends AbstractSaveableParameterPanel{
 		}
 		return histStr;
 	}
-    
-    /*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
-	 *      Since HierClustPanel only has three parameters, we return metric,
-	 *      dimension and method in the format same as getBisonParameters().
-	 */
-    public Map<Serializable, Serializable> getParameters() {
+  
+	public Map<Serializable, Serializable> getParameters() {
+		
+		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
+
+		int method = (Integer) getParametersIndex().get(METHOD);
+		parameters.put(METHOD_HR, METHODS[method]);
+
+		int dimension = (Integer) getParametersIndex().get(DIMENSION);
+		parameters.put(DIMENSION_HR, DIMENSIONS[dimension]);
+
+		int metric = (Integer) getParametersIndex().get(METRIC);
+		parameters.put(METRIC_HR, METRICS[metric]);
+
+		return parameters;
+	}
+	
+	
+	
+    public Map<Serializable, Serializable> getParametersIndex() {
 		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
 
 		parameters.put(METRIC, this.metric.getSelectedIndex());
@@ -301,6 +279,8 @@ public class HierClustPanel extends AbstractSaveableParameterPanel{
 		parameters.put(METHOD, this.method.getSelectedIndex());
 		return parameters;
 	}
+    
+    
 
     /*
 	 * (non-Javadoc)
