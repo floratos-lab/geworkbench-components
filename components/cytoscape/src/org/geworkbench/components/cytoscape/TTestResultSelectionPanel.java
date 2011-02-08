@@ -103,7 +103,8 @@ public class TTestResultSelectionPanel extends JPanel {
 		String selectedTTestName = list.getSelectedValue().toString().trim();
 		Map<String, List<Object>> tTestResultSetColorMap = new HashMap<String, List<Object>>();
 
-		CSSignificanceResultSet<DSGeneMarker> ttestResultSet = ttestResultMap
+		CSSignificanceResultSet<DSGeneMarker> ttestResultSet =
+			ttestResultMap
 				.get(selectedTTestName);		
 		
 		tTestResultSetColorMap = getTTestResultSetColorMap(ttestResultSet);
