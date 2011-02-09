@@ -256,31 +256,15 @@ public class HierClustPanel extends AbstractSaveableParameterPanel{
 		
 		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
 
-		int method = (Integer) getParametersIndex().get(METHOD);
-		parameters.put(METHOD_HR, METHODS[method]);
+		parameters.put(METHOD_HR, METHODS[method.getSelectedIndex()]);
 
-		int dimension = (Integer) getParametersIndex().get(DIMENSION);
-		parameters.put(DIMENSION_HR, DIMENSIONS[dimension]);
+		parameters.put(DIMENSION_HR, DIMENSIONS[dimension.getSelectedIndex()]);
 
-		int metric = (Integer) getParametersIndex().get(METRIC);
-		parameters.put(METRIC_HR, METRICS[metric]);
+		parameters.put(METRIC_HR, METRICS[metric.getSelectedIndex()]);
 
 		return parameters;
 	}
 	
-	
-	
-    public Map<Serializable, Serializable> getParametersIndex() {
-		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
-
-		parameters.put(METRIC, this.metric.getSelectedIndex());
-		parameters.put(DIMENSION, this.dimension.getSelectedIndex());
-		parameters.put(METHOD, this.method.getSelectedIndex());
-		return parameters;
-	}
-    
-    
-
     /*
 	 * (non-Javadoc)
 	 * 
