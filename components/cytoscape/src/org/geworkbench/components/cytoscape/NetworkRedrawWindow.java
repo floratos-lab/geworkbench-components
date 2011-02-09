@@ -308,7 +308,7 @@ public class NetworkRedrawWindow {
 	        	dlist[i] = (Double)values[i];
 	        }
 	     String networkName = view.getTitle();
-		HistogramGraph.CreateInstance("Histogram Graph - " + networkName, dlist);
+		HistogramGraph.CreateInstance("Edge correlations - " + networkName, dlist);
     	 
 		
 	}
