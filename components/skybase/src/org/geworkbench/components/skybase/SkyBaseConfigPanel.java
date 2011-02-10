@@ -10,16 +10,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import javax.naming.OperationNotSupportedException;
 import javax.swing.JTextField;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.events.listeners.ParameterActionListener;
 
@@ -34,7 +27,6 @@ import com.jgoodies.forms.layout.FormLayout;
  * 
  */
 public class SkyBaseConfigPanel extends AbstractSaveableParameterPanel {
-	private Log log = LogFactory.getLog(this.getClass());
 	private JTextField mincovEdit = new JTextField();
 	private JTextField minsidEdit = new JTextField();
 	private JTextField rphitsEdit = new JTextField();
