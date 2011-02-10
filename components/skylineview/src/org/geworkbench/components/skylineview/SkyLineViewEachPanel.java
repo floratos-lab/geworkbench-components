@@ -59,7 +59,7 @@ import org.jmol.api.JmolSimpleViewer;
  * SkyLine result viewer for each homology model
  * 
  * @author mw2518
- * @version $Id: SkyLineViewEachPanel.java,v 1.12 2009-08-10 15:40:37 wangm Exp $
+ * @version $Id$
  */
 @AcceptTypes( { SkyLineResultDataSet.class })
 public class SkyLineViewEachPanel extends JPanel implements VisualPlugin,
@@ -93,10 +93,9 @@ public class SkyLineViewEachPanel extends JPanel implements VisualPlugin,
 			"Surface Energy", "Combined Energy" };
 	private JmolPanel jmolPanel = new JmolPanel();
 
-	@SuppressWarnings("unchecked")
 	@Subscribe
 	public void receive(StructureAnalysisEvent event, Object source) {
-		DSDataSet dataset = event.getDataSet();
+		DSDataSet<?> dataset = event.getDataSet();
 		if (dataset instanceof DSProteinStructure) {
 			proteinData = (DSProteinStructure) dataset;
 			String htmlText = event.getAnalyzedStructure();
@@ -107,10 +106,9 @@ public class SkyLineViewEachPanel extends JPanel implements VisualPlugin,
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@Subscribe
 	public void receive(ProjectEvent event, Object source) {
-		DSDataSet dataset = event.getDataSet();
+		DSDataSet<?> dataset = event.getDataSet();
 		if (dataset instanceof SkyLineResultDataSet) {
 			SkyLineResultDataSet r = (SkyLineResultDataSet) dataset;
 			proteinData = (DSProteinStructure) r.getParentDataSet();
@@ -438,12 +436,6 @@ public class SkyLineViewEachPanel extends JPanel implements VisualPlugin,
 
 		// redraw .profile plot using jfree library
 		if (title.endsWith(".profile")) {
-			if (false) {
-				Runtime.getRuntime().exec(
-						"C:/gstools/gsview/gsview32.exe "
-								+ new URL(fname).openConnection()
-										.getInputStream());
-			}
 			XYDataset data = getData(fname);
 			JFreeChart ch = ChartFactory
 					.createXYLineChart(null, "Residue", "Energy", data,

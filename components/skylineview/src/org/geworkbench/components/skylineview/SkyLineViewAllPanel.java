@@ -42,7 +42,7 @@ import org.geworkbench.events.StructureAnalysisEvent;
  * SkyLine result viewer for all homology models
  * 
  * @author mw2518
- * @version $Id: SkyLineViewAllPanel.java,v 1.9 2009-08-10 15:40:37 wangm Exp $
+ * @version $Id$
  */
 @AcceptTypes( { SkyLineResultDataSet.class })
 public class SkyLineViewAllPanel implements VisualPlugin, ActionListener {
@@ -62,10 +62,9 @@ public class SkyLineViewAllPanel implements VisualPlugin, ActionListener {
 	private JLabel choosefile = new JLabel();
 	private int maxhitcols = 16;
 
-	@SuppressWarnings("unchecked")
 	@Subscribe
 	public void receive(StructureAnalysisEvent event, Object source) {
-		DSDataSet dataset = event.getDataSet();
+		DSDataSet<?> dataset = event.getDataSet();
 		if (dataset instanceof DSProteinStructure) {
 			proteinData = (DSProteinStructure) dataset;
 			String htmlText = event.getAnalyzedStructure();
@@ -77,10 +76,9 @@ public class SkyLineViewAllPanel implements VisualPlugin, ActionListener {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@Subscribe
 	public void receive(ProjectEvent event, Object source) {
-		DSDataSet dataset = event.getDataSet();
+		DSDataSet<?> dataset = event.getDataSet();
 		if (dataset instanceof SkyLineResultDataSet) {
 			SkyLineResultDataSet r = (SkyLineResultDataSet) dataset;
 			proteinData = (DSProteinStructure) r.getParentDataSet();
