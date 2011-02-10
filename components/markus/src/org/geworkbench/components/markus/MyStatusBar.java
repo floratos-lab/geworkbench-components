@@ -19,18 +19,28 @@ package org.geworkbench.components.markus;
  * USA.
  */ 
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Toolkit;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JLabel;
+import javax.swing.SwingConstants;
 
 
 /**
- * JDIC API demo class.
- * <p>
- * The class represents a status bar.
+ * The class represents a status bar based on JDIC API demo class.
+ * 
+ * @version $Id$
  */
 
 class MyStatusBar extends Box {
-    public JLabel lblStatus, lblDesc;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8592087916108452377L;
+	public JLabel lblStatus, lblDesc;
 
     public MyStatusBar() {
         super(BoxLayout.X_AXIS);
