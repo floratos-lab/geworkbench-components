@@ -9,9 +9,8 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
-import java.awt.Rectangle;
 import java.awt.GridLayout;
-import java.awt.event.ActionListener;
+import java.awt.Rectangle;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -28,24 +27,22 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JFrame;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
-import javax.swing.JComboBox;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableModel;
-import javax.swing.table.DefaultTableCellRenderer;
 
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.logging.Log;
@@ -85,14 +82,12 @@ import org.jfree.ui.StandardGradientPaintTransformer;
 import org.jmol.adapter.smarter.SmarterJmolAdapter;
 import org.jmol.api.JmolAdapter;
 import org.jmol.api.JmolSimpleViewer;
-import org.jmol.api.JmolStatusListener;
-import org.jmol.api.JmolViewer;
 
 /**
  * Display SkyBase blast results in table, bar chart and jmol
  * 
  * @author mw2518
- * @version $Id: SkyBaseViewer.java,v 1.7 2009-03-05 23:21:55 wangm Exp $
+ * @version $Id$
  * 
  */
 
@@ -138,7 +133,8 @@ public class SkyBaseViewer implements VisualPlugin {
 			+ "webpdb/";
 	File webpdbdir = new File(tmpfiledir);
 	JComboBox alncombo[] = new JComboBox[2];
-	Vector<String> vec[] = new Vector[2];
+	@SuppressWarnings("unchecked")
+	private Vector<String> vec[] = new Vector[2];
 	DefaultTableCellRenderer cellrdr = new DefaultTableCellRenderer();
 
 	private String trimdot(String result) {
@@ -151,7 +147,7 @@ public class SkyBaseViewer implements VisualPlugin {
 	 */
 	@Subscribe
 	public void receive(ProjectEvent event, Object source) {
-		DSDataSet dataset = event.getDataSet();
+		DSDataSet<?> dataset = event.getDataSet();
 		if (dataset instanceof DSPrtDBResultSet) {
 			result = ((DSPrtDBResultSet) dataset).getDataSetName();
 			qname = trimdot(result);
@@ -573,7 +569,7 @@ public class SkyBaseViewer implements VisualPlugin {
 			return data[row][col];
 		}
 
-		public Class getColumnClass(int c) {
+		public Class<?> getColumnClass(int c) {
 			if (c == 0)
 				return Integer.class;
 			return getValueAt(0, c).getClass();
