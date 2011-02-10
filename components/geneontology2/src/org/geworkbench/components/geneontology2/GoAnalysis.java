@@ -42,12 +42,11 @@ import org.geworkbench.util.ProgressBar;
  * Go Term Analysis component of geWorkbench.
  *
  * @author zji
- * @version $Id: GoAnalysis.java,v 1.12 2009-10-01 16:49:50 jiz Exp $
+ * @version $Id$
  */
 public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 	/* necessary to implement ClusteringAnalysis for the AnalysisPanel to pick it up. No other effect. */
 	static Log log = LogFactory.getLog(GoAnalysis.class);
-	private DSPanel<DSGeneMarker> selectorPanel = null;
 
 	/**
 	 *
@@ -299,10 +298,9 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 
 	@Subscribe
 	public void receive(GeneSelectorEvent e, Object source) {
-		DSGeneMarker marker = e.getGenericMarker(); // GeneselectorEvent can be	
 		if (e.getPanel() != null) {
-			this.selectorPanel = e.getPanel();
-			((GoAnalysisParameterPanel) aspp).setSelectorPanel(((GoAnalysisParameterPanel) aspp), this.selectorPanel);
+			DSPanel<DSGeneMarker> selectorPanel = e.getPanel();
+			((GoAnalysisParameterPanel) aspp).setSelectorPanel(((GoAnalysisParameterPanel) aspp), selectorPanel);
 		} else
 			log.debug("GO Received Gene Selector Event: Selection panel sent was null");
 	}
