@@ -12,6 +12,7 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
  
+import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -29,11 +30,18 @@ import javax.swing.plaf.metal.MetalTabbedPaneUI;
  * To have an extra icon on each tab (e.g. like in JBuilder, showing the file
  * type) use the method addTab(String, Component, Icon). Only clicking the 'X'
  * closes the tab.
+ * 
+ * @version $Id$
  */
 public class CloseableTabbedPane extends JTabbedPane implements MouseListener,
   MouseMotionListener {
  
   /**
+	 * 
+	 */
+	private static final long serialVersionUID = -6988251214476482260L;
+
+/**
    * The <code>EventListenerList</code>.
    */
   private EventListenerList listenerList = null;
@@ -225,15 +233,15 @@ public class CloseableTabbedPane extends JTabbedPane implements MouseListener,
       Rectangle drawRect = new Rectangle(
         rect.x - pos.x, rect.y - pos.y, rect.width, rect.height);
  
-      if (e.getID() == e.MOUSE_PRESSED) {
-        icon.mousepressed = e.getModifiers() == e.BUTTON1_MASK;
+      if (e.getID() == MouseEvent.MOUSE_PRESSED) {
+        icon.mousepressed = e.getModifiers() == InputEvent.BUTTON1_MASK;
         repaint(drawRect);
-      } else if (e.getID() == e.MOUSE_MOVED || e.getID() == e.MOUSE_DRAGGED ||
-                 e.getID() == e.MOUSE_CLICKED) {
+      } else if (e.getID() == MouseEvent.MOUSE_MOVED || e.getID() == MouseEvent.MOUSE_DRAGGED ||
+                 e.getID() == MouseEvent.MOUSE_CLICKED) {
         pos.x += e.getX();
         pos.y += e.getY();
         if (rect.contains(pos)) {
-          if (e.getID() == e.MOUSE_CLICKED) {
+          if (e.getID() == MouseEvent.MOUSE_CLICKED) {
             int selIndex = getSelectedIndex();
             if (fireCloseTab(selIndex)) {
               if (selIndex > 0) {
@@ -261,7 +269,7 @@ public class CloseableTabbedPane extends JTabbedPane implements MouseListener,
             }
           } else {
             icon.mouseover = true;
-            icon.mousepressed = e.getModifiers() == e.BUTTON1_MASK;
+            icon.mousepressed = e.getModifiers() == InputEvent.BUTTON1_MASK;
           }
         } else {
           icon.mouseover = false;
