@@ -11,6 +11,7 @@ import java.net.URL;
 
 import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
+import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.datastructure.bioobjects.structure.PudgeResultSet;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ProteinSequenceAnalysis;
@@ -46,7 +47,7 @@ public class PudgeAnalysis extends AbstractAnalysis implements
 			return new AlgorithmExecutionResults(false, "Invalid input. ", null);
 		assert input instanceof DSSequenceSet;
 
-		DSSequenceSet seq = (DSSequenceSet) input;
+		DSSequenceSet<? extends DSSequence> seq = (DSSequenceSet<? extends DSSequence>) input;
 		File seqfile = seq.getFile();
 		File fastafile = seqfile.getAbsoluteFile();
 		String resultURL = "";
