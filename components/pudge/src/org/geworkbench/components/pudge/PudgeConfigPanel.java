@@ -33,7 +33,7 @@ import com.jgoodies.forms.layout.FormLayout;
  * Configuration panel for Pudge analysis
  * 
  * @author mw2518
- * @version $Id: PudgeConfigPanel.java,v 1.3 2009-06-19 19:23:34 jiz Exp $
+ * @version $Id$
  */
 public class PudgeConfigPanel extends AbstractSaveableParameterPanel implements Serializable
 {
@@ -115,7 +115,7 @@ public class PudgeConfigPanel extends AbstractSaveableParameterPanel implements 
 	public void actionPerformed(ActionEvent ae)
 	{
 	    int ret = jfc.showOpenDialog(PudgeConfigPanel.this);
-	    if (ret == jfc.APPROVE_OPTION)
+	    if (ret == JFileChooser.APPROVE_OPTION)
 	    {
 		File file = jfc.getSelectedFile();
 		natives.setText(file.getAbsolutePath());
