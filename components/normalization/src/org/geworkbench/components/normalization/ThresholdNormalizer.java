@@ -12,7 +12,7 @@ import org.geworkbench.builtin.projects.ProjectPanel;
  * <p>Copyright: Copyright (c) 2003</p>
  * <p>Company: First Genetic Trust Inc.</p>
  * @author First Genetic Trust Inc.
- * @version 1.0
+ * @version $Id$
  */
 
 /**
@@ -20,7 +20,11 @@ import org.geworkbench.builtin.projects.ProjectPanel;
  * with the value X.
  */
 public class ThresholdNormalizer extends AbstractAnalysis implements NormalizingAnalysis {
-    // Static fields used to designate the available user option within the
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 4760738713499085859L;
+	// Static fields used to designate the available user option within the
     // normalizer's parameters panel.
     public static final int MINIMUM = 0;
     public static final int MAXIMUM = 1;
@@ -38,11 +42,12 @@ public class ThresholdNormalizer extends AbstractAnalysis implements Normalizing
         return THRESHOLD_NORMALIZER_TYPE;
     }
 
-    public AlgorithmExecutionResults execute(Object input) {
-        if (input == null)
+    @SuppressWarnings("unchecked")
+	public AlgorithmExecutionResults execute(Object input) {
+        if (input == null || !(input instanceof DSMicroarraySet))
             return new AlgorithmExecutionResults(false, "Invalid input.", null);
-        assert input instanceof DSMicroarraySet;
-        DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet) input;
+
+        DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet<DSMicroarray>) input;
         // Collect the parameters needed for the execution of the normalizer
         threshold = ((ThresholdNormalizerPanel) aspp).getCutoffValue();
         thresholdType = ((ThresholdNormalizerPanel) aspp).getCutoffType();

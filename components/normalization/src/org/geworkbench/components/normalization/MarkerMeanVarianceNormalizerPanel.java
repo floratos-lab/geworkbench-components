@@ -1,7 +1,6 @@
 package org.geworkbench.components.normalization;
 
 import java.awt.BorderLayout;
-import java.awt.GridLayout;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -9,7 +8,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.swing.JComboBox;
-import javax.swing.JLabel;
 
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.events.listeners.ParameterActionListener;
@@ -27,15 +25,15 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * Parameters panel for the <code>MarkerMeanVarianceNormalizer</code>..
  * @author unknown, yc2480
- * @version $ID$
+ * @version $Id$
  */
 public class MarkerMeanVarianceNormalizerPanel extends AbstractSaveableParameterPanel {
-    final String MIN_OPTION = "Min profile";
+	private static final long serialVersionUID = 2566041410176133609L;
+	
+	final String MIN_OPTION = "Min profile";
     final String MAX_OPTION = "Max profile";
     final String ZERO_OPTION = "Zero";
     final String IGNORE_OPTION = "Ignore";
-    private GridLayout gridLayout1 = new GridLayout();
-    private JLabel missingValuesTreatmentLabel = new JLabel("Missing values");
     /**
      * Available options for computing the center to be
      */

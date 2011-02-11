@@ -1,7 +1,6 @@
 package org.geworkbench.components.normalization;
 
 import java.awt.BorderLayout;
-import java.awt.GridLayout;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -9,7 +8,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.swing.JComboBox;
-import javax.swing.JLabel;
 
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.events.listeners.ParameterActionListener;
@@ -27,13 +25,13 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * Parameters panels used by the <code>MissingValueNormalizer</code>.
  * @author unknown, yc2480
- * @version $Id: MissingValueNormalizerPanel.java,v 1.7 2009-06-19 19:23:05 jiz Exp $
+ * @version $Id$
  */
 public class MissingValueNormalizerPanel extends AbstractSaveableParameterPanel {
-    final String MARKER_OPTION = "Mean profile marker";
+	private static final long serialVersionUID = 3819922726353717412L;
+	
+	final String MARKER_OPTION = "Mean profile marker";
     final String MICROARRAY_OPTION = "Mean microarray value";
-    private GridLayout gridLayout1 = new GridLayout();
-    private JLabel averagingTypeLabel = new JLabel("Averaging method");
     private JComboBox averagingTypeSelection = new JComboBox(new String[]{MARKER_OPTION, MICROARRAY_OPTION});
 
 	/*

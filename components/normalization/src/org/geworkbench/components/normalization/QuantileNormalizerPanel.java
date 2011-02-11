@@ -1,7 +1,6 @@
 package org.geworkbench.components.normalization;
 
 import java.awt.BorderLayout;
-import java.awt.GridLayout;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -9,7 +8,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.swing.JComboBox;
-import javax.swing.JLabel;
 
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.events.listeners.ParameterActionListener;
@@ -26,7 +24,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * Parameters panels used by the <code>QuantileNormalizer</code>.
  * @author unknown, yc2480
- * @version $ID$
+ * @version $Id$
  */
 public class QuantileNormalizerPanel extends AbstractSaveableParameterPanel {
     /**
@@ -36,8 +34,6 @@ public class QuantileNormalizerPanel extends AbstractSaveableParameterPanel {
 
 	final String MARKER_OPTION = "Mean profile marker";
     final String MICROARRAY_OPTION = "Mean microarray value";
-    private GridLayout gridLayout1 = new GridLayout();
-    private JLabel averagingTypeLabel = new JLabel("Averaging method");
     private JComboBox averagingTypeSelection = new JComboBox(new String[]{MARKER_OPTION, MICROARRAY_OPTION});
 
 	/*

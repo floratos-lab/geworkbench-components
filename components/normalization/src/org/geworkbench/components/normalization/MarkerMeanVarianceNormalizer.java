@@ -15,7 +15,7 @@ import java.util.Arrays;
  * <p>Copyright: Copyright (c) 2003</p>
  * <p>Company: First Genetic Trust Inc.</p>
  * @author First Genetic Trust Inc.
- * @version 1.0
+ * @version $Id$
  */
 
 /**
@@ -34,7 +34,9 @@ import java.util.Arrays;
  * </UL>
  */
 public class MarkerMeanVarianceNormalizer extends AbstractAnalysis implements NormalizingAnalysis {
-    // Static fields used to designate the available user option within the
+	private static final long serialVersionUID = -2513689098793608007L;
+	
+	// Static fields used to designate the available user option within the
     // normalizer's parameters panel.
     public static final int MINIMUM = 0;
     public static final int MAXIMUM = 1;
@@ -50,14 +52,15 @@ public class MarkerMeanVarianceNormalizer extends AbstractAnalysis implements No
         return AbstractAnalysis.MARKER_MEAN_VARIANCE_NORMALIZER_TYPE;
     }
 
-    public AlgorithmExecutionResults execute(Object input) {
-        if (input == null)
+    @SuppressWarnings("unchecked")
+	public AlgorithmExecutionResults execute(Object input) {
+        if (input == null || !(input instanceof DSMicroarraySet))
             return new AlgorithmExecutionResults(false, "Invalid input.", null);
+
         // Collect the parameters needed for the execution of the normalizer
         missingValues = ((MarkerMeanVarianceNormalizerPanel) aspp).getMissingValueTreatment();
-        // Variables needed for the computations.
-        assert input instanceof DSMicroarraySet;
-        DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet) input;
+
+        DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet<DSMicroarray>) input;
         double[] profile = null;
         DSMutableMarkerValue markerValue = null;
         double signal = 0.0d;
@@ -160,7 +163,7 @@ public class MarkerMeanVarianceNormalizer extends AbstractAnalysis implements No
     private double getMean(double[] profile) {
         if (profile == null)
             return 0.0;
-        int totalPresent = 0;
+
         double sum = 0.0d;
         for (int i = 0; i < profile.length; i++)
             sum += profile[i];

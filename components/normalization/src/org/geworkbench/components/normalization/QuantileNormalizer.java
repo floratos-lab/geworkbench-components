@@ -16,7 +16,7 @@ import java.util.Comparator;
  * <p>Copyright: Copyright (c) 2005</p>
  * <p>Company: Columbia University</p>
  * @author non attributable
- * @version 1.0
+ * @version $Id$
  */
 
 /**
@@ -39,7 +39,11 @@ import java.util.Comparator;
  * the exact same approach can be used ar the probeset level.
  */
 public class QuantileNormalizer extends AbstractAnalysis implements NormalizingAnalysis {
-    // Static fields used to designate the available user option within the
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 5147146459001795596L;
+	// Static fields used to designate the available user option within the
     // normalizer's parameters panel.
     public static final int MARKER_PROFILE_MEAN = 0;
     public static final int MICROARRAY_MEAN = 1;
@@ -61,13 +65,15 @@ public class QuantileNormalizer extends AbstractAnalysis implements NormalizingA
         return AbstractAnalysis.QUANTILE_NORMALIZER_TYPE;
     }
 
-    public AlgorithmExecutionResults execute(Object input) {
-        if (input == null)
-            return null;
-        assert input instanceof DSMicroarraySet;
+    @SuppressWarnings("unchecked")
+	public AlgorithmExecutionResults execute(Object input) {
+        if (input == null || !(input instanceof DSMicroarraySet))
+            return new AlgorithmExecutionResults(false, "Invalid input.", null);
 
-        arrayCount  = ((DSMicroarraySet) input).size();
-        markerCount = ((DSMicroarraySet) input).getMarkers().size();
+        DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet<DSMicroarray>) input;
+        
+        arrayCount  = maSet.size();
+        markerCount = maSet.getMarkers().size();
         if (arrayCount < 2)
             return new AlgorithmExecutionResults(false, "Data set must have at least 2 microarrays", input);
 
@@ -77,15 +83,15 @@ public class QuantileNormalizer extends AbstractAnalysis implements NormalizingA
         averagingType = ((QuantileNormalizerPanel) aspp).getAveragingType();
 
         // Replace missing values with the average specified
-        replaceMissingValues((DSMicroarraySet) input);
+        replaceMissingValues(maSet);
 
         for (int arrayIndex = 0; arrayIndex < arrayCount; ++arrayIndex){
-            DSMutableMarkerValue[] anArray = ((DSMicroarray)((DSMicroarraySet) input).
-                                              get(arrayIndex)).getMarkerValues();
+            DSMutableMarkerValue[] anArray = maSet.
+                                              get(arrayIndex).getMarkerValues();
             for (int markerIndex = 0; markerIndex < markerCount; ++markerIndex)
                 arrays[arrayIndex][markerIndex] = anArray[markerIndex];
 
-            Arrays.sort(arrays[arrayIndex], new MarkerValueComparator());
+            Arrays.sort(arrays[arrayIndex], new MarkerValueComparator<DSMutableMarkerValue>());
         }
 
         for (int markerIndex = 0; markerIndex < markerCount; ++markerIndex){
@@ -95,7 +101,7 @@ public class QuantileNormalizer extends AbstractAnalysis implements NormalizingA
         }
 
 		// add to history
-        ProjectPanel.addHistoryDetail((DSMicroarraySet) input,((QuantileNormalizerPanel) aspp).getParamDetail());
+        ProjectPanel.addHistoryDetail(maSet,((QuantileNormalizerPanel) aspp).getParamDetail());
 
         return new AlgorithmExecutionResults(true, "No errors", input);
     }
