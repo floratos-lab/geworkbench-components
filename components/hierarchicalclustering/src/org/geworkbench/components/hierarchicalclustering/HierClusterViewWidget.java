@@ -320,7 +320,6 @@ public class HierClusterViewWidget extends JPanel implements HierClusterModelEve
      */
     @SuppressWarnings("unchecked")
 	public void hierClusterModelChange(HierClusterModelEvent hcme) {
-    	display.resetVariables();	//fix mantis #1578
         mASet = hcme.getMicroarraySet();
         originalMarkerCluster = hcme.getMarkerCluster();
         originalArrayCluster = hcme.getMicroarrayCluster();
@@ -329,7 +328,7 @@ public class HierClusterViewWidget extends JPanel implements HierClusterModelEve
     	clusterSet = hcme.getClusterSet();
         zoomEnabled = hcme.getSelectionEnabled();
         jCheckBox1.setSelected(zoomEnabled);
-        display.setChips(mASet);
+    	display.resetVariables(mASet);
         markerDendrogram.setChips(mASet);
         arrayDendrogram.setChips(mASet);
         arrayNames.setChips(mASet);
@@ -484,12 +483,12 @@ public class HierClusterViewWidget extends JPanel implements HierClusterModelEve
         jPanel2.add(display, BorderLayout.CENTER);
         display.addMouseMotionListener(motionListener);
         display.addMouseListener(mouseListener);
-        markerDendrogram = new HierClusterTree(this, null, HierClusterTree.HORIZONTAL);
+        markerDendrogram = new HierClusterTree(this, null, HierClusterTree.Orientation.HORIZONTAL);
         markerDendrogram.addMouseListener(dendrogramListener);
         markerDendrogram.addMouseMotionListener(motionListener);
         markerDendrogram.addMouseListener(mouseListener);
         jPanel2.add(markerDendrogram, BorderLayout.WEST);
-        arrayDendrogram = new HierClusterTree(this, null, HierClusterTree.VERTICAL);
+        arrayDendrogram = new HierClusterTree(this, null, HierClusterTree.Orientation.VERTICAL);
         arrayDendrogram.addMouseListener(dendrogramListener);
         arrayDendrogram.addMouseMotionListener(motionListener);
         arrayDendrogram.addMouseListener(mouseListener);
