@@ -6,10 +6,13 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.lang.reflect.Array;
-import java.util.Vector;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.JPanel;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
@@ -33,16 +36,17 @@ import org.geworkbench.bison.util.colorcontext.ColorContext;
  */
 public class HierClusterDisplay extends JPanel {
 	private static final long serialVersionUID = -1551868794872426240L;
-
+	static private Log log = LogFactory.getLog(HierClusterDisplay.class);
+	
 	/**
      * Value for height of marker in pixels
      */
-    protected static int geneHeight = 5;
+    static int geneHeight = 5;
 
     /**
      * Value for width of marker in pixels
      */
-    protected static int geneWidth = 20;
+    static int geneWidth = 20;
 
     /**
      * The underlying micorarray set used in the hierarchical clustering
@@ -86,21 +90,6 @@ public class HierClusterDisplay extends JPanel {
     private int fontSize = 5;
 
     /**
-     * The maximum font height in pixels
-     */
-    private final int maxFontSize = 10;
-
-    /**
-     * Default resolution for text display
-     */
-    private final int defaultResolution = 120;
-
-    /**
-     * The current resolution
-     */
-    private int resolution = defaultResolution;
-
-    /**
      * Insensity of the markers painted set from the intensity slider
      */
     private double intensity = 1.0;
@@ -108,7 +97,7 @@ public class HierClusterDisplay extends JPanel {
     /**
      * Keeps track of the positions where the markers are drawn
      */
-    private Vector<MarkerInfoPosition> markerPositions = new Vector<MarkerInfoPosition>();
+    private Map<Rectangle, DSGeneMarker> markerPositions = new HashMap<Rectangle, DSGeneMarker>();
 
     /**
      * Default Constructor
@@ -116,16 +105,6 @@ public class HierClusterDisplay extends JPanel {
     public HierClusterDisplay() {
         setBackground(Color.white);
         setLayout(new BorderLayout());
-    }
-
-    /**
-     * Receives the reference microarray set on which the hierarchical
-     * clustering analysis is based
-     *
-     * @param chips the reference microarray set
-     */
-    public void setChips(DSMicroarraySetView<DSGeneMarker, DSMicroarray> chips) {
-        microarraySet = chips;
     }
 
     /**
@@ -160,98 +139,99 @@ public class HierClusterDisplay extends JPanel {
         }
     }
 
-    /**
-     * <code>JComponent</code> method used to render this component
-     *
-     * @param g Graphics used for painting
-     */
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
+	/**
+	 * <code>JComponent</code> method used to render this component
+	 * 
+	 * @param g
+	 *            Graphics used for painting
+	 */
+	protected void paintComponent(Graphics g) {
+		super.paintComponent(g);
 
-            if (microarraySet != null) {
-                markerPositions.clear();
+		if (microarraySet == null) {
+			log.warn("unexpected null microarraySet");
+			return;
+		}
+		markerPositions.clear();
 
-                int fontGutter = (int) ((double) geneHeight * .22);
-                int geneNo = 0;
+		int fontGutter = (int) ((double) geneHeight * .22);
+		int geneNo = 0;
 
-                if (currentMarkerCluster == null) {
-                    geneNo = microarraySet.markers().size();
-                } else {
-                    geneNo = leafMarkers.length;
-                }
+		if (currentMarkerCluster == null) {
+			geneNo = microarraySet.markers().size();
+		} else {
+			geneNo = leafMarkers.length;
+		}
 
-                //geneNo = currentMarkerCluster.getLeafChildrenCount();
-                int chipNo = 0;
+		int chipNo = 0;
 
-                if (currentArrayCluster == null) {
-                    chipNo = microarraySet.items().size();
-                } else {
-                    chipNo = leafArrays.length;
-                }
+		if (currentArrayCluster == null) {
+			chipNo = microarraySet.items().size();
+		} else {
+			chipNo = leafArrays.length;
+		}
 
-                //chipNo = currentArrayCluster.getLeafChildrenCount();
-                ColorContext colorCtx = null;
+		ColorContext colorCtx = null;
 
-                if (microarraySet.getDataSet() instanceof DSMicroarraySet) {
-                    colorCtx = (org.geworkbench.bison.util.colorcontext.ColorContext) ((DSMicroarraySet<DSMicroarray>) microarraySet.getDataSet()).getObject(org.geworkbench.bison.util.colorcontext.ColorContext.class);
-                } else {
-                    colorCtx = new org.geworkbench.bison.util.colorcontext.DefaultColorContext();
-                }
+		if (microarraySet.getDataSet() instanceof DSMicroarraySet) {
+			colorCtx = (org.geworkbench.bison.util.colorcontext.ColorContext) ((DSMicroarraySet<DSMicroarray>) microarraySet
+					.getDataSet())
+					.getObject(org.geworkbench.bison.util.colorcontext.ColorContext.class);
+		} else {
+			colorCtx = new org.geworkbench.bison.util.colorcontext.DefaultColorContext();
+		}
 
-                    for (int i = 0; i < geneNo; i++) {
-                        DSGeneMarker stats = null;
+		for (int i = 0; i < geneNo; i++) {
+			DSGeneMarker stats = null;
 
-                        if (leafMarkers != null) {
-                            stats = ((MarkerHierCluster) leafMarkers[i]).getMarkerInfo();
-                        } else {
-                            stats = microarraySet.markers().get(i);
-                        }
+			if (leafMarkers != null) {
+				stats = ((MarkerHierCluster) leafMarkers[i]).getMarkerInfo();
+			} else {
+				stats = microarraySet.markers().get(i);
+			}
 
-                        int y = i * geneHeight;
+			int y = i * geneHeight;
 
-                        //if(i + 1 > 500) {
-                        //  return;
-                        //}
-                        for (int j = 0; j < chipNo; j++) {
-                            DSMicroarray mArray = null;
+			for (int j = 0; j < chipNo; j++) {
+				DSMicroarray mArray = null;
 
-                            if (leafArrays != null) {
-                                mArray = ((MicroarrayHierCluster) leafArrays[j]).getMicroarray();
-                            } else {
-                                mArray = microarraySet.get(j);
-                            }
+				if (leafArrays != null) {
+					mArray = ((MicroarrayHierCluster) leafArrays[j])
+							.getMicroarray();
+				} else {
+					mArray = microarraySet.get(j);
+				}
 
-                            int x = (j * geneWidth);
-                            int width = ((j + 1) * geneWidth) - x;
-                            DSMutableMarkerValue marker = mArray.getMarkerValue(stats);
+				int x = (j * geneWidth);
+				int width = ((j + 1) * geneWidth) - x;
+				DSMutableMarkerValue marker = mArray.getMarkerValue(stats);
 
-                            //MarkerValue marker = mArray.getMarker(microarraySet.
-                            //                                    getMarkerInfoIndex(
-                            //stats));
-                            Color color = colorCtx.getMarkerValueColor(marker, stats, (float) intensity);
-                            g.setColor(color);
-                            g.fillRect(x, y, width, geneHeight);
-                        }
+				Color color = colorCtx.getMarkerValueColor(marker, stats,
+						(float) intensity);
+				g.setColor(color);
+				g.fillRect(x, y, width, geneHeight);
+			}
 
-                        g.setColor(Color.black);
-                        setFont();
-                        g.setFont(labelFont);
+			g.setColor(Color.black);
+			setFont();
+			g.setFont(labelFont);
 
-                        int xRatio = (chipNo * geneWidth) + labelGutter;
-                        int yRatio = (y + geneHeight) - fontGutter;
-                        String accession = stats.getLabel();
-						String geneName = stats.getShortName();
-	                    markerPositions.add(new MarkerInfoPosition(stats, 0, y + geneHeight));
-						if (accession == null) {
-							accession = "Undefined";
-						}
-						String drawMe = accession + (geneName != null
-										&& accession.compareTo(geneName) != 0 ? " ("
-										+ geneName + ")" : "");
-						g.drawString(drawMe, xRatio, yRatio);
-					}
-            }
-    }
+			int xRatio = (chipNo * geneWidth) + labelGutter;
+			int yRatio = (y + geneHeight) - fontGutter;
+			String accession = stats.getLabel();
+			String geneName = stats.getShortName();
+			Rectangle rectangle = new Rectangle(0, y, microarraySet.items().size() * geneWidth, geneHeight);
+			markerPositions.put(rectangle, stats);
+			if (accession == null) {
+				accession = "Undefined";
+			}
+			String drawMe = accession
+					+ (geneName != null && accession.compareTo(geneName) != 0 ? " ("
+							+ geneName + ")"
+							: "");
+			g.drawString(drawMe, xRatio, yRatio);
+		}
+	}
 
     /**
      * Gets the <code>MarkerInfo</code> corresponding to a region on the
@@ -262,15 +242,7 @@ public class HierClusterDisplay extends JPanel {
      * @return <code>MarkerInfo</code> cooresponding to the point queried
      */
     DSGeneMarker getMarkerInfoClicked(int x, int y) {
-        DSGeneMarker mInfo = null;
-
-        for (MarkerInfoPosition mip : markerPositions) {
-            if (mip.contains(x, y)) {
-                return mip.getMarkerInfo();
-            }
-        }
-
-        return mInfo;
+    	return markerPositions.get(new Rectangle(x, y));
     }
 
     /**
@@ -287,21 +259,17 @@ public class HierClusterDisplay extends JPanel {
      * Sets the <code>Font</code> used for drawing text
      */
     private void setFont() {
-        int fontSize = Math.min(getFontSize(), (int) ((double) maxFontSize / (double) defaultResolution * (double) resolution));
+        final int maxFontSize = 10;
+        final int minFontSize = 5;
+        
+    	int fontSize = geneHeight;
+    	if(fontSize<minFontSize) fontSize = minFontSize;
+        if(fontSize>maxFontSize) fontSize = maxFontSize;
 
         if ((fontSize != this.fontSize) || (labelFont == null)) {
             this.fontSize = fontSize;
             labelFont = new Font("Times New Roman", Font.PLAIN, this.fontSize);
         }
-    }
-
-    /**
-     * Gets the <code>Font</code> size
-     *
-     * @return <code>Font</code> size
-     */
-    private int getFontSize() {
-        return Math.max(geneHeight, 5);
     }
 
     /**
@@ -375,38 +343,18 @@ public class HierClusterDisplay extends JPanel {
         }
     }
 
-    /**
-     * Encapsulates individual <code>Rectangle</code> regions between points
-     * drawn as a part of the Eisen plot canvas
-     */
-    private class MarkerInfoPosition {
-        Rectangle rectangle = null;
-        DSGeneMarker markerInfo = null;
-
-        public MarkerInfoPosition(DSGeneMarker mInfo, int x, int y) {
-            markerInfo = mInfo;
-            rectangle = new Rectangle(x, y - geneHeight, microarraySet.items().size() * geneWidth, geneHeight);
-        }
-
-        public boolean contains(int x, int y) {
-            return rectangle.contains(x, y);
-        }
-
-        public DSGeneMarker getMarkerInfo() {
-            return markerInfo;
-        }
-    }
 	/**
-	 * detail see mantis #1578. 
+	 * 
 	 * Clear old variables. 
 	 * This method will be called in hierClusterModelChange() in HierClusterViewWidget.java 
 	 * when new data arrives.
 	 */
-	public void resetVariables() {
-		this.currentArrayCluster = null;
-		this.currentMarkerCluster = null;
-		this.leafArrays = null;
-		this.leafMarkers = null;
-		this.microarraySet = null;
+	public void resetVariables(DSMicroarraySetView<DSGeneMarker, DSMicroarray> microrraySetView) {
+		currentArrayCluster = null;
+		currentMarkerCluster = null;
+		leafArrays = null;
+		leafMarkers = null;
+
+        microarraySet = microrraySetView;
 	}    
 }
