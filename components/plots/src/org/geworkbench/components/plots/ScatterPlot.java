@@ -41,7 +41,6 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
-import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
@@ -80,7 +79,6 @@ import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.annotations.XYLineAnnotation;
-import org.jfree.chart.axis.Axis;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.entity.ChartEntity;
 import org.jfree.chart.entity.XYItemEntity;
@@ -106,7 +104,7 @@ public class ScatterPlot implements VisualPlugin {
     /**
      * Maximum number of charts that can be viewed at once.
      */
-    public static final int MAXIMUM_CHARTS = 6;
+    private static final int MAXIMUM_CHARTS = 6;
 
     /**
      * The two types of plots.
@@ -122,14 +120,15 @@ public class ScatterPlot implements VisualPlugin {
     ;
 
     private static final int TAB_ARRAY = 0;
-    private static final int TAB_MARKER = 1;
+    // private static final int TAB_MARKER = 1;
 
     /**
      * ListModel for the marker list.
      */
     private class MarkerListModel extends AbstractListModel {
+		private static final long serialVersionUID = -2709192821511189399L;
 
-        public int getSize() {
+		public int getSize() {
             if (dataSetView.getMicroarraySet() == null) {
                 return 0;
             }
@@ -162,10 +161,6 @@ public class ScatterPlot implements VisualPlugin {
             }
         }
 
-        public DSGeneMarker getMarker(int index) {
-            return dataSetView.getMicroarraySet().getMarkers().get(index);
-        }
-
         /**
          * Indicates to the associated JList that the contents need to be redrawn.
          */
@@ -187,8 +182,9 @@ public class ScatterPlot implements VisualPlugin {
      * ListModel for the microarray list.
      */
     private class MicroarrayListModel extends AbstractListModel {
+		private static final long serialVersionUID = 1508449468167888966L;
 
-        public int getSize() {
+		public int getSize() {
             if (dataSetView.getMicroarraySet() == null) {
                 return 0;
             }
@@ -220,10 +216,6 @@ public class ScatterPlot implements VisualPlugin {
             }
         }
 
-        public DSBioObject getMicroarray(int index) {
-            return dataSetView.getMicroarraySet().get(index);
-        }
-
         /**
          * Indicates to the associated JList that the contents need to be redrawn.
          */
@@ -245,8 +237,9 @@ public class ScatterPlot implements VisualPlugin {
      * The marker JAutoList type.
      */
     private class MarkerAutoList extends JAutoList {
+		private static final long serialVersionUID = -2486840260492993013L;
 
-        public MarkerAutoList() {
+		public MarkerAutoList() {
             super(markerModel);
         }
 
@@ -264,8 +257,9 @@ public class ScatterPlot implements VisualPlugin {
      * The microarray JAutoList type.
      */
     private class MicroarrayAutoList extends JAutoList {
+		private static final long serialVersionUID = 2260567334770861847L;
 
-        public MicroarrayAutoList() {
+		public MicroarrayAutoList() {
             super(microarrayModel);
         }
 
@@ -313,7 +307,9 @@ public class ScatterPlot implements VisualPlugin {
      * Cell rendered for the lists that handles the special selection conditions.
      */
     private class CellRenderer extends DefaultListCellRenderer {
-        @Override
+		private static final long serialVersionUID = -33685131076219308L;
+
+		@Override
         public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
             JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);    //To change body of overridden methods use File | Settings | File Templates.
             String labelToMatch = label.getText().trim();
@@ -419,7 +415,7 @@ public class ScatterPlot implements VisualPlugin {
         public DSGeneMarker getMarker(int series, int item) {
             ArrayList<RankSorter> list = xyPoints.get(series);
             org.geworkbench.util.pathwaydecoder.RankSorter rs = (RankSorter) list.get(item);
-            DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet) dataSetView.getDataSet();
+            DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet<DSMicroarray>) dataSetView.getDataSet();
             if (maSet != null) {
                 if (rs.id < maSet.getMarkers().size()) {
                     DSGeneMarker marker = maSet.getMarkers().get(rs.id);
@@ -432,7 +428,7 @@ public class ScatterPlot implements VisualPlugin {
         public DSMicroarray getMicroarray(int series, int item) {
             ArrayList<RankSorter> list = xyPoints.get(series);
             RankSorter rs = (org.geworkbench.util.pathwaydecoder.RankSorter) list.get(item);
-            DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet) dataSetView.getDataSet();
+            DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet<DSMicroarray>) dataSetView.getDataSet();
             if (maSet != null) {
                 if (rs.id < maSet.size()) {
                     DSMicroarray ma = maSet.get(rs.id);
@@ -469,8 +465,9 @@ public class ScatterPlot implements VisualPlugin {
      * Tool-tip renderer for gene charts.
      */
     private class GeneXYToolTip extends StandardXYToolTipGenerator {
-
-        private ChartData chartData;
+		private static final long serialVersionUID = 3928716706611595907L;
+		
+		private ChartData chartData;
 
         public GeneXYToolTip(ChartData data) {
             this.chartData = data;
@@ -484,7 +481,7 @@ public class ScatterPlot implements VisualPlugin {
             DSMicroarray ma = chartData.getMicroarray(series, item);
             if (ma != null) {
                 org.geworkbench.util.pathwaydecoder.RankSorter rs = chartData.getRankSorter(series, item);
-                DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet) dataSetView.getDataSet();
+                DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet<DSMicroarray>) dataSetView.getDataSet();
                 DSAnnotationContext<DSMicroarray> context = CSAnnotationContextManager.getInstance().getCurrentContext(maSet);
                 String xLabel = nf.format(rs.x);
                 String yLabel = nf.format(rs.y);
@@ -506,8 +503,9 @@ public class ScatterPlot implements VisualPlugin {
      * Tool-tip renderer for microarray charts.
      */
     private class MicroarrayXYToolTip extends StandardXYToolTipGenerator {
-
-        private ChartData chartData;
+		private static final long serialVersionUID = -896282253416405020L;
+		
+		private ChartData chartData;
         private ChartPanel chartPanel;
         private Rectangle2D shapeBound;
         private XYPlot xyPlot;
@@ -556,7 +554,7 @@ public class ScatterPlot implements VisualPlugin {
 
 			DSPanel<DSGeneMarker> panel = dataSetView.getMarkerPanel();
 
-			DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet) dataSetView
+			DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet<DSMicroarray>) dataSetView
 			.getDataSet();
 			if (maSet == null)
 				return ""; /*
@@ -637,23 +635,17 @@ public class ScatterPlot implements VisualPlugin {
     	private Boolean  rangeTickMarksVisible  = null;
     	private Boolean  rangeVisible           = null;
     		
-//    	private XYAnnotation xyAnnotations = null;
     	private Paint paint = null;
     	private PlotOrientation plotOrientation = null;
     		
     	private Boolean  domainCrosshairLockedOnData     = null;
     	private Boolean  domainCrosshairVisible          = null; 
     	private Boolean  domainGridlinesVisible          = null; 
-//    	private Boolean  domainMinorGridlinesVisible     = null; 
-//    	private Boolean  domainZeroBaselineVisible       = null; 
-//    	private Boolean  domainZoomable                  = null;
     		
     	private Boolean  rangeCrosshairLockedOnData      = null; 
     	private Boolean  rangeCrosshairVisible           = null;
     	private Boolean  rangeGridlinesVisible           = null;
-//    	private Boolean  rangeMinorGridlinesVisible      = null; 
     	private Boolean  rangeZeroBaselineVisible        = null;
-//    	private Boolean  rangeZoomable                   = null;    		
     		
     	public JFreeChartProperties(JFreeChart jFreeChartOriginal) {
     
@@ -675,23 +667,17 @@ public class ScatterPlot implements VisualPlugin {
 	    	rangeTickMarksVisible  = rangeAxis.isTickMarksVisible();
 	    	rangeVisible           = rangeAxis.isVisible();
 	    		
-//	    	XYAnnotation xyAnnotations = xyPlot.getAnnotations();
 	    	paint = xyPlot.getBackgroundPaint();
 	    	plotOrientation =  xyPlot.getOrientation();
 	    		
 	    	domainCrosshairLockedOnData     = xyPlot.isDomainCrosshairLockedOnData();
 	    	domainCrosshairVisible          = xyPlot.isDomainCrosshairVisible(); 
 	    	domainGridlinesVisible          = xyPlot.isDomainGridlinesVisible(); 
-//	    	domainMinorGridlinesVisible     = xyPlot.isDomainMinorGridlinesVisible(); 
-//	    	domainZeroBaselineVisible       = xyPlot.isDomainZeroBaselineVisible(); 
-//	    	domainZoomable                  = xyPlot.isDomainZoomable() ;
 	    		
 	    	rangeCrosshairLockedOnData      = xyPlot.isRangeCrosshairLockedOnData(); 
 	    	rangeCrosshairVisible           = xyPlot.isRangeCrosshairVisible() ;
 	    	rangeGridlinesVisible           = xyPlot.isRangeGridlinesVisible() ;
-//	    	rangeMinorGridlinesVisible      = xyPlot.isRangeMinorGridlinesVisible(); 
 	    	rangeZeroBaselineVisible        = xyPlot.isRangeZeroBaselineVisible();
-// 	    	rangeZoomable                   = xyPlot.isRangeZoomable() ;
     	}		
 	
 		public void updateJFreeChartProperties(JFreeChart jFreeChart){
@@ -716,23 +702,17 @@ public class ScatterPlot implements VisualPlugin {
 			rangeAxis.setTickMarksVisible(rangeTickMarksVisible);
 			rangeAxis.setVisible(rangeVisible);
 			
-	//		xyPlot.getAnnotations(xyAnnotations);
 			xyPlot.setBackgroundPaint(paint);
 			xyPlot.setOrientation(plotOrientation);
 			
 			xyPlot.setDomainCrosshairLockedOnData(domainCrosshairLockedOnData);
 	        xyPlot.setDomainCrosshairVisible(domainCrosshairVisible); 
 	        xyPlot.setDomainGridlinesVisible(domainGridlinesVisible); 
-//			xyPlot.setDomainMinorGridlinesVisible(domainMinorGridlinesVisible); 
-//			xyPlot.setDomainZeroBaselineVisible(domainZeroBaselineVisible); 
-//	        xyPlot.setDomainZoomable(domainZoomable);
 	        
 	        xyPlot.setRangeCrosshairLockedOnData(rangeCrosshairLockedOnData); 
 	        xyPlot.setRangeCrosshairVisible(rangeCrosshairVisible);
 	        xyPlot.setRangeGridlinesVisible(rangeGridlinesVisible) ;
-//	        xyPlot.setRangeMinorGridlinesVisible(rangeMinorGridlinesVisible);
 			xyPlot.setRangeZeroBaselineVisible(rangeZeroBaselineVisible);
-//			xyPlot.setRangeZoomable(rangeZoomable);
 		}
 	}
 
@@ -807,10 +787,7 @@ public class ScatterPlot implements VisualPlugin {
         rankStatisticsCheckbox = new JCheckBox("Rank Statistics Plot");
         topPanel.add(rankStatisticsCheckbox);
         rightPanel.add(topPanel, BorderLayout.NORTH);
-        //        XYLineAnnotation identityAnnotation = getXYLineAnnotation(1.0);
-        //        JFreeChart chart = ChartFactory.createScatterPlot("", "", "", new XYSeriesCollection(), PlotOrientation.VERTICAL, false, true, true);
-        //        chart.getXYPlot().addAnnotation(identityAnnotation);
-        //        blankChartPanel = new ChartPanel(chart);
+
         chartPanel = new JPanel();
         chartPanel.setLayout(new BoxLayout(chartPanel, BoxLayout.Y_AXIS));
         topChartPanel = new JPanel();
@@ -830,7 +807,9 @@ public class ScatterPlot implements VisualPlugin {
         referenceLineCheckBox = new JCheckBox("Reference Line", true);
         JLabel slopeLabel = new JLabel("Slope:");
         slopeField = new JTextField("1.0", 10) {
-            @Override public Dimension getMaximumSize() {
+			private static final long serialVersionUID = 6545882976044437591L;
+
+			@Override public Dimension getMaximumSize() {
                 return super.getPreferredSize();
             }
         };
@@ -1090,7 +1069,9 @@ public class ScatterPlot implements VisualPlugin {
                 // Add padding component so that charts are not stretched at the bottom
                 final JPanel template = panel;
                 JComponent padding = new JComponent() {
-                    @Override public Dimension getPreferredSize() {
+					private static final long serialVersionUID = -8827231207172510858L;
+
+					@Override public Dimension getPreferredSize() {
                         return template.getPreferredSize();
                     }
 
@@ -1347,16 +1328,6 @@ public class ScatterPlot implements VisualPlugin {
     }
 
     /**
-     * Makes the chart fit in with the background color of the application.
-     */
-    private void setChartBackgroundColor(JFreeChart chart) {
-        Color c = UIManager.getColor("Panel.background");
-        if (c != null) {
-            chart.setBackgroundPaint(c);
-        }
-    }
-
-    /**
      * Gets the chart for the given attributes.
      *
      * @param type  the chart type (microarray or marker).
@@ -1451,7 +1422,7 @@ public class ScatterPlot implements VisualPlugin {
      * @param e      the event.
      * @param source the source of the event (unused).
      */
-    @Subscribe public void receive(org.geworkbench.events.PhenotypeSelectorEvent e, Object source) {   
+    @Subscribe public void receive(org.geworkbench.events.PhenotypeSelectorEvent<DSMicroarray> e, Object source) {   
         if (e.getTaggedItemSetTree() != null) {
     		DSPanel<DSMicroarray> activatedArrays = e.getTaggedItemSetTree().activeSubset();
             if((activatedArrays != null) && (activatedArrays.size() > 0) && !allArraysCheckBox.isSelected() && (limitArrays != activatedArrays.size())){
@@ -1504,20 +1475,18 @@ public class ScatterPlot implements VisualPlugin {
      * @param e      the event.
      * @param source the source of the event (unused).
      */
-    @Subscribe public void receive(ProjectEvent e, Object source) {
+    @SuppressWarnings("unchecked")
+	@Subscribe public void receive(ProjectEvent e, Object source) {
         boolean doClear = true;
         if (e.getMessage().equals(org.geworkbench.events.ProjectEvent.CLEARED)) {
             dataSetView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>();
             markerModel.refresh();
             microarrayModel.refresh();
-//            makeDefaultMarkerList();
-//            makeDefaultMicroArrayList();
-//            tabbedPane.invalidate();
         } else {
             ProjectSelection selection = ((ProjectPanel) source).getSelection();
-            DSDataSet dataFile = selection.getDataSet();
+            DSDataSet<? extends DSBioObject> dataFile = selection.getDataSet();
             if (dataFile != null && dataFile instanceof DSMicroarraySet) {
-                DSMicroarraySet set = (DSMicroarraySet) dataFile;
+                DSMicroarraySet<DSMicroarray> set = (DSMicroarraySet<DSMicroarray>) dataFile;
                 // If it is the same dataset as before, then don't reset everything
                 if (dataSetView.getDataSet() != set) {
                     dataSetView.setMicroarraySet(set);
@@ -1566,22 +1535,21 @@ public class ScatterPlot implements VisualPlugin {
     	DSGeneMarker currentXMarker = null;
     	DSGeneMarker currentYMarker = null;
     	if(!StringUtils.isEmpty(chartData.getXLabel())) currentXMarker = findMarker(chartData.getXLabel());
-    	if(!StringUtils.isEmpty(chartData.getYLabel())) currentXMarker = findMarker(chartData.getYLabel());
+    	if(!StringUtils.isEmpty(chartData.getYLabel())) currentYMarker = findMarker(chartData.getYLabel());
         XYSeriesCollection plots = new XYSeriesCollection();
-        ArrayList seriesList = new ArrayList();
+        ArrayList<XYSeries> seriesList = new ArrayList<XYSeries>();
         ArrayList<PanelVisualProperties> propertiesList = new ArrayList<PanelVisualProperties>();
         PanelVisualPropertiesManager propertiesManager = PanelVisualPropertiesManager.getInstance();
 
-        DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet) dataSetView.getDataSet();
+        DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet<DSMicroarray>) dataSetView.getDataSet();
         boolean rankPlot = rankStatisticsCheckbox.isSelected();
-        HashMap map = new HashMap();
+        HashMap<Integer, RankSorter> map = new HashMap<Integer, RankSorter>();
         int microarrayNo = dataSetView.getMicroarraySet().size();
 
         // First put all the gene pairs in the xyValues array
         org.geworkbench.util.pathwaydecoder.RankSorter[] xyValues = new RankSorter[microarrayNo];
         ArrayList<ArrayList<RankSorter>> xyPoints = new ArrayList<ArrayList<org.geworkbench.util.pathwaydecoder.RankSorter>>();
         for (int i = 0; i < microarrayNo; i++) {
-            //            DSMicroarray ma = maSet.get(i);
             xyValues[i] = new org.geworkbench.util.pathwaydecoder.RankSorter();
             if (dataSetView.useMarkerPanel() && (currentXMarker != null) && (currentYMarker != null) ){
             	xyValues[i].x = dataSetView.getMicroarraySet().getValue(currentXMarker, i);
@@ -1616,35 +1584,15 @@ public class ScatterPlot implements VisualPlugin {
 
         // Perform rank sorting if required
         int rank = 0;
-        /*
-        Arrays.sort(xyValues, RankSorter.SORT_Y);
-        for (int j = 1; j < xyValues.length; j++) {
-            if (rankPlot) {
-                if (xyValues[j].y == xyValues[j - 1].y) {
-                    xyValues[j - 1].y += Math.random() * 0.1 - 0.05;
-                }
-            }
-        }
-        */
+
         Arrays.sort(xyValues, RankSorter.SORT_Y);
         for (int j = 0; j < xyValues.length; j++) {
             if (showAllArrays || xyValues[j].isActive() || xyValues[j].isFiltered()) {
                 xyValues[j].iy = rank++;
             }
         }
-        double maxY = xyValues[xyValues.length - 1].y;
 
         rank = 0;
-        /*
-        Arrays.sort(xyValues, RankSorter.SORT_X);
-        for (int j = 1; j < xyValues.length; j++) {
-            if (rankPlot) {
-                if (xyValues[j].x == xyValues[j - 1].x) {
-                    xyValues[j - 1].x += Math.random() * 0.1 - 0.05;
-                }
-            }
-        }
-        */
         
         Arrays.sort(xyValues, org.geworkbench.util.pathwaydecoder.RankSorter.SORT_X);
         for (int j = 0; j < xyValues.length; j++) {
@@ -1652,7 +1600,6 @@ public class ScatterPlot implements VisualPlugin {
                 xyValues[j].ix = rank++;
             }
         }
-        double maxX = xyValues[xyValues.length - 1].x;
 
         boolean panelsUsed = false;
         int panelIndex = 0;
@@ -1677,14 +1624,11 @@ public class ScatterPlot implements VisualPlugin {
                             y = xy.iy;
                             series.add(x, y);
                         } else {
-                            //if ( (x < 4000) && (y < 4000)) {
                             x = xy.x;
                             y = xy.y;
                             series.add(x, y);
-                            //}
                         }
                     }
-                    //plots.addSeries(series);
                     seriesList.add(series);
                     PanelVisualProperties properties = propertiesManager.getVisualProperties(panel);
                     if (properties == null) {
@@ -1710,11 +1654,9 @@ public class ScatterPlot implements VisualPlugin {
                         y = xyValues[serial].iy;
                         series.add(x, y);
                     } else {
-                        //if ( (x < 4000) && (y < 4000)) {
                         x = xyValues[serial].x;
                         y = xyValues[serial].y;
                         series.add(x, y);
-                        //}
                     }
                 }
             }
@@ -1752,13 +1694,12 @@ public class ScatterPlot implements VisualPlugin {
             renderer.setSeriesShape(index, panelVisualProperties.getShape());
         }
         mainChart.getXYPlot().setRenderer(renderer);
-        //BufferedImage image = mainChart.createBufferedImage(width, height);
-        //return image;
+
         return mainChart;
     }
     
     private DSMicroarray findMA(String label){
-    	DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet) dataSetView.getDataSet();
+    	DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet<DSMicroarray>) dataSetView.getDataSet();
     	for(DSMicroarray ma: maSet){
     		if(StringUtils.equals(ma.getLabel(), label))
     			return ma;
@@ -1767,7 +1708,7 @@ public class ScatterPlot implements VisualPlugin {
     }
     
     private int findMAIndex(String label){
-    	DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet) dataSetView.getDataSet();
+    	DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet<DSMicroarray>) dataSetView.getDataSet();
     	for(int i = 0; i < maSet.size(); i++){
     		if(StringUtils.equals(maSet.get(i).getLabel(), label))
     			return i;
@@ -1776,7 +1717,7 @@ public class ScatterPlot implements VisualPlugin {
     }
 
     /**
-     * @todo Merge this method with {@link #createGeneChart(int, int, org.geworkbench.components.plots.ScatterPlot.ChartData)} .
+     * @TODO Merge this method with {@link #createGeneChart(int, int, org.geworkbench.components.plots.ScatterPlot.ChartData)} .
      */
     private JFreeChart createMicroarrayChart(int exp1, int exp2, ChartData chartData, ChartPanel chartPanel) throws SeriesException {
     	DSMicroarray ma1 = null;
@@ -1784,13 +1725,13 @@ public class ScatterPlot implements VisualPlugin {
         if(!StringUtils.isEmpty(chartData.getXLabel())) ma1 = findMA(chartData.getXLabel());
         if(!StringUtils.isEmpty(chartData.getYLabel())) ma2 = findMA(chartData.getYLabel());
         XYSeriesCollection plots = new XYSeriesCollection();
-        ArrayList seriesList = new ArrayList();
+        ArrayList<XYSeries> seriesList = new ArrayList<XYSeries>();
         ArrayList<PanelVisualProperties> propertiesList = new ArrayList<PanelVisualProperties>();
         PanelVisualPropertiesManager propertiesManager = PanelVisualPropertiesManager.getInstance();
-        //boolean showAll = allMarkersCheckBox.isSelected();
-        DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet) dataSetView.getDataSet();
+
+        DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet<DSMicroarray>) dataSetView.getDataSet();
         boolean rankPlot = rankStatisticsCheckbox.isSelected();
-        HashMap map = new HashMap();
+        HashMap<Integer, RankSorter> map = new HashMap<Integer, RankSorter>();
         int numMarkers = maSet.getMarkers().size();
         // First put all the gene pairs in the xyValues array
         RankSorter[] xyValues = new RankSorter[numMarkers];
@@ -1827,42 +1768,22 @@ public class ScatterPlot implements VisualPlugin {
 
         // Perform rank sorting if required
         int rank = 0;
-        /*
-        Arrays.sort(xyValues, RankSorter.SORT_Y);
-        for (int j = 1; j < xyValues.length; j++) {
-            if (rankPlot) {
-                if (xyValues[j].y == xyValues[j - 1].y) {
-                    xyValues[j - 1].y += Math.random() * 0.1 - 0.05;
-                }
-            }
-        }
-        */
+
         Arrays.sort(xyValues, RankSorter.SORT_Y);
         for (int j = 0; j < xyValues.length; j++) {
             if (showAllMarkers || xyValues[j].isActive() || xyValues[j].isFiltered()) {
                 xyValues[j].iy = rank++;
             }
         }
-        double maxY = xyValues[xyValues.length - 1].y;
 
         rank = 0;
-        /*
-        Arrays.sort(xyValues, RankSorter.SORT_X);
-        for (int j = 1; j < xyValues.length; j++) {
-            if (rankPlot) {
-                if (xyValues[j].x == xyValues[j - 1].x) {
-                    xyValues[j - 1].x += Math.random() * 0.1 - 0.05;
-                }
-            }
-        }
-        */
+
         Arrays.sort(xyValues, RankSorter.SORT_X);
         for (int j = 0; j < xyValues.length; j++) {
             if (showAllMarkers || xyValues[j].isActive() || xyValues[j].isFiltered()) {
                 xyValues[j].ix = rank++;
             }
         }
-        double maxX = xyValues[xyValues.length - 1].x;
 
         int panelIndex = 0;
         boolean panelsUsed = false;
@@ -1888,11 +1809,9 @@ public class ScatterPlot implements VisualPlugin {
                             y = xy.iy;
                             series.add(x, y);
                         } else {
-                            //if ( (x < 4000) && (y < 4000)) {
                             x = xy.x;
                             y = xy.y;
                             series.add(x, y);
-                            //}
                         }
                     }
                     //plots.addSeries(series);
@@ -1921,11 +1840,9 @@ public class ScatterPlot implements VisualPlugin {
                         y = xyValues[serial].iy;
                         series.add(x, y);
                     } else {
-                        //if ( (x < 4000) && (y < 4000)) {
                         x = xyValues[serial].x;
                         y = xyValues[serial].y;
                         series.add(x, y);
-                        //}
                     }
                 }
             }
@@ -1960,8 +1877,7 @@ public class ScatterPlot implements VisualPlugin {
             renderer.setSeriesShape(index, panelVisualProperties.getShape());
         }
         mainChart.getXYPlot().setRenderer(renderer);
-        //BufferedImage image = mainChart.createBufferedImage(width, height);
-        //return image;
+
         return mainChart;
     }
 
