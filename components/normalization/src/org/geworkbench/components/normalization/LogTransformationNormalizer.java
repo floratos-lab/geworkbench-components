@@ -14,7 +14,7 @@ import org.geworkbench.engine.management.Script;
  * <p>Copyright: Copyright (c) 2003</p>
  * <p>Company: First Genetic Trust Inc.</p>
  * @author First Genetic Trust Inc.
- * @version 1.0
+ * @version $Id$
  */
 
 /**
@@ -24,7 +24,9 @@ import org.geworkbench.engine.management.Script;
  * applied to the ratio and *NOT* the individual channel intensities.
  */
 public class LogTransformationNormalizer extends AbstractAnalysis implements NormalizingAnalysis {
-    int analysisType;
+	private static final long serialVersionUID = -4074483295931773960L;
+	
+	int analysisType;
 
     public LogTransformationNormalizer() {
         analysisType = AbstractAnalysis.LOG_TRANSFORMATION_NORMALIZER_TYPE;
@@ -39,12 +41,14 @@ public class LogTransformationNormalizer extends AbstractAnalysis implements Nor
         execute(input);
     }
 
-    public AlgorithmExecutionResults execute(Object input) {
-        if (input == null)
-            return null;
-        assert input instanceof DSMicroarraySet;
-        DSItemList<DSGeneMarker> markerInfo = ((DSMicroarraySet) input).getMarkers();
-        int count = ((DSMicroarraySet) input).size();
+    @SuppressWarnings("unchecked")
+	public AlgorithmExecutionResults execute(Object input) {
+        if (input == null || !(input instanceof DSMicroarraySet))
+            return new AlgorithmExecutionResults(false, "Invalid input.", null);
+
+        DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet<DSMicroarray>) input;
+        DSItemList<DSGeneMarker> markerInfo = maSet.getMarkers();
+        int count = maSet.size();
         DSMicroarray microarray = null;
         DSMutableMarkerValue markerValue = null;
         double signal;
@@ -52,7 +56,7 @@ public class LogTransformationNormalizer extends AbstractAnalysis implements Nor
         // Before applying any transformation, check there are no non-positive values
         for (int i = 0; i < markerInfo.size(); i++) {
             for (int j = 0; j < count; j++) {
-                microarray = ((DSMicroarraySet<DSMicroarray>) input).get(j);
+                microarray = maSet.get(j);
                 markerValue = microarray.getMarkerValue(markerInfo.get(i));
                 signal = markerValue.getValue();
                 if (!markerValue.isMissing() && signal <= 0.0d)
@@ -67,7 +71,7 @@ public class LogTransformationNormalizer extends AbstractAnalysis implements Nor
         // Now proceed with the actual transformations.
         for (int i = 0; i < markerInfo.size(); i++) {
             for (int j = 0; j < count; j++) {
-                microarray = ((DSMicroarraySet<DSMicroarray>) input).get(j);
+                microarray = maSet.get(j);
                 markerValue = microarray.getMarkerValue(markerInfo.get(i));
                 signal = markerValue.getValue();
                 if ((!markerValue.isMissing())) {

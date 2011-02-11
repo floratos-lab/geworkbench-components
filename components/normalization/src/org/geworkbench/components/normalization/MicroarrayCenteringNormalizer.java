@@ -15,7 +15,7 @@ import java.util.Arrays;
  * <p>Copyright: Copyright (c) 2003</p>
  * <p>Company: First Genetic Trust Inc.</p>
  * @author First Genetic Trust Inc.
- * @version 1.0
+ * @version $Id$
  */
 
 /**
@@ -34,7 +34,11 @@ import java.util.Arrays;
  * </UL>
  */
 public class MicroarrayCenteringNormalizer extends AbstractAnalysis implements NormalizingAnalysis {
-    int meanMedianType;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 7298160027785635567L;
+	int meanMedianType;
     int missingValues;
 
     public MicroarrayCenteringNormalizer() {
@@ -45,15 +49,16 @@ public class MicroarrayCenteringNormalizer extends AbstractAnalysis implements N
         return AbstractAnalysis.MICROARRAY_MEAN_MEDIAN_CENTERING_NORMALIZER_TYPE;
     }
 
-    public AlgorithmExecutionResults execute(Object input) {
-        if (input == null)
+    @SuppressWarnings("unchecked")
+	public AlgorithmExecutionResults execute(Object input) {
+        if (input == null || !(input instanceof DSMicroarraySet))
             return new AlgorithmExecutionResults(false, "Invalid input.", null);
+
         // Collect the parameters needed for the execution of the normalizer
         meanMedianType = ((CenteringNormalizerPanel) aspp).getAveragingSelection();
         missingValues = ((CenteringNormalizerPanel) aspp).getMissingValueTreatment();
-        // Variables needed for the computations.
-        assert input instanceof DSMicroarraySet;
-        DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet) input;
+
+        DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet<DSMicroarray>) input;
         DSMicroarray mArray = null;
         double[] arrayValues = null;
         DSMutableMarkerValue markerValue = null;
