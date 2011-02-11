@@ -194,7 +194,6 @@ public class VolcanoPlot implements VisualPlugin {
 		}
 	}
 
-    @SuppressWarnings("unchecked")
 	private void generateChart() {
         DSMicroarraySet<DSMicroarray> set = significance.getParentDataSet();
         String[] caseLabels = significance.getLabels(DSTTestResultSet.CASE);
