@@ -12,7 +12,7 @@ import org.geworkbench.builtin.projects.ProjectPanel;
  * <p>Copyright: Copyright (c) 2003</p>
  * <p>Company: First Genetic Trust Inc.</p>
  * @author First Genetic Trust Inc.
- * @version 1.0
+ * @version $Id$
  */
 
 /**
@@ -20,7 +20,9 @@ import org.geworkbench.builtin.projects.ProjectPanel;
  * marker or the mean value of the microarray they belong to.
  */
 public class MissingValueNormalizer extends AbstractAnalysis implements NormalizingAnalysis {
-    // Static fields used to designate the available user option within the
+	private static final long serialVersionUID = -1660053432440941051L;
+	
+	// Static fields used to designate the available user option within the
     // normalizer's parameters panel.
     public static final int MARKER_PROFILE_MEAN = 0;
     public static final int MICROARRAY_MEAN = 1;
@@ -39,15 +41,16 @@ public class MissingValueNormalizer extends AbstractAnalysis implements Normaliz
         return MISSING_VALUE_NORMALIZER_TYPE;
     }
 
-    public AlgorithmExecutionResults execute(Object input) {
-        if (input == null)
+    @SuppressWarnings("unchecked")
+	public AlgorithmExecutionResults execute(Object input) {
+        if (input == null || !(input instanceof DSMicroarraySet))
             return new AlgorithmExecutionResults(false, "Invalid input.", null);
-        assert input instanceof DSMicroarraySet;
+
         // Set things up for the calculations to begin.
-        DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet) input;
+        DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet<DSMicroarray>) input;
         int arrayCount = maSet.size();
         int markerCount = maSet.getMarkers().size();
-        DSMicroarray microarray = null;
+
         DSMutableMarkerValue markerValue = null;
         double meanValue = 0.0;
         int totalPresent;

@@ -1,7 +1,6 @@
 package org.geworkbench.components.normalization;
 
 import java.awt.BorderLayout;
-import java.awt.GridLayout;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -10,7 +9,6 @@ import java.util.Set;
 
 import javax.swing.JComboBox;
 import javax.swing.JFormattedTextField;
-import javax.swing.JLabel;
 
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.events.listeners.ParameterActionListener;
@@ -28,17 +26,18 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * Parameters panel used by the <code>ThresholdNormalizer</code>.
  * @author unknown, yc2480
- * @version $ID$
+ * @version $Id$
  */
 public class ThresholdNormalizerPanel extends AbstractSaveableParameterPanel {
-    final String MIN_OPTION = "Minimum";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1914307168083336201L;
+	final String MIN_OPTION = "Minimum";
     final String MAX_OPTION = "Maximum";
     final String IGNORE_OPTION = "Ignore";
     final String REPLACE_OPTION = "Replace";
-    private GridLayout gridLayout1 = new GridLayout();
-    private JLabel cutoffLabel = new JLabel("Cut-off value");
-    private JLabel minMaxLabel = new JLabel("Cut-off type");
-    private JLabel missingValuesLabel = new JLabel("Missing values");
+
     private JFormattedTextField cutoffEdit = new JFormattedTextField();
     private JComboBox cutoffTypeSelection = new JComboBox(new String[]{MIN_OPTION, MAX_OPTION});
     private JComboBox missingValuesSelection = new JComboBox(new String[]{IGNORE_OPTION, REPLACE_OPTION});
