@@ -688,21 +688,14 @@ public class HierClusterViewWidget extends JPanel implements HierClusterModelEve
      */
     private void saveImage_actionPerformed(ActionEvent e) {
         if ((markerDendrogram != null) && (arrayDendrogram != null) && (display != null)) {
-            display.imageSnapshot = markerDendrogram.imageSnapshot = arrayDendrogram.imageSnapshot = arrayNames.imageSnapshot = true;
-            display.paint(this.getGraphics());
-            arrayNames.paint(this.getGraphics());
-            repaint();
 
-            int w = display.image.getWidth() + markerDendrogram.getWidth();
-            int h = arrayDendrogram.getHeight() + display.image.getHeight() + arrayNames.image.getHeight();
+            int w = display.getWidth() + markerDendrogram.getWidth();
+            int h = arrayDendrogram.getHeight() + display.getHeight() + arrayNames.getHeight();
             BufferedImage tempImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
             Graphics2D ig = tempImage.createGraphics();
-            ig.setColor(Color.white);
             jPanel2.paint(ig);
-            ig.drawImage(display.image, null, markerDendrogram.getWidth(), arrayDendrogram.getHeight() + arrayNames.image.getHeight());
 
             ImageIcon newIcon = new ImageIcon(tempImage, "Hierarchical Clustering Image : " + mASet.getDataSet().getLabel());
-            display.imageSnapshot = markerDendrogram.imageSnapshot = arrayDendrogram.imageSnapshot = arrayNames.imageSnapshot = false;
             firePropertyChange(SAVEIMAGE_PROPERTY, null, newIcon);
         }
     }

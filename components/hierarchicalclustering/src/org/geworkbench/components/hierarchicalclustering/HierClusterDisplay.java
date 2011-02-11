@@ -4,9 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.awt.image.BufferedImage;
 import java.lang.reflect.Array;
 import java.util.Vector;
 
@@ -108,21 +106,6 @@ public class HierClusterDisplay extends JPanel {
     private double intensity = 1.0;
 
     /**
-     * Swing layout manager for this <code>JPanel</code>
-     */
-    private BorderLayout borderLayout1 = new BorderLayout();
-
-    /**
-     * <code>Image</code> painted on synchronously with this panel
-     */
-    BufferedImage image = null;
-
-    /**
-     * Bit to paint the offline image
-     */
-    boolean imageSnapshot = false;
-
-    /**
      * Keeps track of the positions where the markers are drawn
      */
     private Vector<MarkerInfoPosition> markerPositions = new Vector<MarkerInfoPosition>();
@@ -131,11 +114,8 @@ public class HierClusterDisplay extends JPanel {
      * Default Constructor
      */
     public HierClusterDisplay() {
-        try {
-            jbInit();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        setBackground(Color.white);
+        setLayout(new BorderLayout());
     }
 
     /**
@@ -188,18 +168,8 @@ public class HierClusterDisplay extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        try {
             if (microarraySet != null) {
                 markerPositions.clear();
-
-                Graphics2D ig = null;
-
-                if (imageSnapshot) {
-                    image = new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_RGB);
-                    ig = image.createGraphics();
-                    ig.setColor(Color.white);
-                    ig.fillRect(0, 0, this.getWidth(), this.getHeight());
-                }
 
                 int fontGutter = (int) ((double) geneHeight * .22);
                 int geneNo = 0;
@@ -228,64 +198,6 @@ public class HierClusterDisplay extends JPanel {
                     colorCtx = new org.geworkbench.bison.util.colorcontext.DefaultColorContext();
                 }
 
-                int firstMarker = (int) this.getVisibleRect().getY() / geneHeight;
-                int lastMarker = firstMarker + ((int) this.getVisibleRect().getHeight() / geneHeight) + 2;
-                lastMarker = (lastMarker > geneNo) ? geneNo : lastMarker;
-
-                for (int i = firstMarker; i < lastMarker; i++) {
-                    DSGeneMarker stats = null;
-
-                    if ((leafMarkers != null)&&(i < leafMarkers.length)) {
-                        stats = ((MarkerHierCluster) leafMarkers[i]).getMarkerInfo();
-                    } else {
-                        stats = microarraySet.markers().get(i);
-                    }
-
-                    int y = i * geneHeight;
-
-                    //if(i + 1 > 500) {
-                    //  return;
-                    //}
-                    for (int j = 0; j < chipNo; j++) {
-                        DSMicroarray mArray = null;
-
-                        if ((leafArrays != null)&&(j < leafArrays.length)) {
-                            mArray = ((MicroarrayHierCluster) leafArrays[j]).getMicroarray();
-                        } else {
-                            mArray = microarraySet.items().get(j);
-                        }
-
-                        int x = (j * geneWidth);
-                        int width = ((j + 1) * geneWidth) - x;
-                        DSMutableMarkerValue marker = mArray.getMarkerValue(stats);
-
-                        //MarkerValue marker = mArray.getMarker(microarraySet.
-                        //                                    getMarkerInfoIndex(
-                        //stats));
-                        Color color = colorCtx.getMarkerValueColor(marker, stats, (float) intensity);
-                        g.setColor(color);
-                        g.fillRect(x, y, width, geneHeight);
-                    }
-
-                    g.setColor(Color.black);
-                    setFont();
-                    g.setFont(labelFont);
-
-                    int xRatio = (chipNo * geneWidth) + labelGutter;
-                    int yRatio = (y + geneHeight) - fontGutter;
-                    String accession = stats.getLabel();
-                    String geneName = stats.getShortName();
-                    markerPositions.add(new MarkerInfoPosition(stats, 0, y + geneHeight));
-
-                    if (accession == null) {
-                        accession = "Undefined";
-                    }
-
-                    g.drawString(accession + (geneName != null && accession.compareTo(geneName) != 0 ?
-                       " (" + geneName + ")" : ""), xRatio, yRatio);
-                }
-
-                if (imageSnapshot) {
                     for (int i = 0; i < geneNo; i++) {
                         DSGeneMarker stats = null;
 
@@ -317,37 +229,28 @@ public class HierClusterDisplay extends JPanel {
                             //                                    getMarkerInfoIndex(
                             //stats));
                             Color color = colorCtx.getMarkerValueColor(marker, stats, (float) intensity);
-                            ig.setColor(color);
-                            ig.fillRect(x, y, width, geneHeight);
+                            g.setColor(color);
+                            g.fillRect(x, y, width, geneHeight);
                         }
 
-                        ig.setColor(Color.black);
+                        g.setColor(Color.black);
                         setFont();
-                        ig.setFont(labelFont);
+                        g.setFont(labelFont);
 
                         int xRatio = (chipNo * geneWidth) + labelGutter;
                         int yRatio = (y + geneHeight) - fontGutter;
                         String accession = stats.getLabel();
 						String geneName = stats.getShortName();
+	                    markerPositions.add(new MarkerInfoPosition(stats, 0, y + geneHeight));
 						if (accession == null) {
 							accession = "Undefined";
 						}
 						String drawMe = accession + (geneName != null
 										&& accession.compareTo(geneName) != 0 ? " ("
 										+ geneName + ")" : "");
-						ig.drawString(drawMe, xRatio, yRatio);
+						g.drawString(drawMe, xRatio, yRatio);
 					}
-                }
             }
-        } catch (NullPointerException npe) {
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException ie) {
-            }
-
-            ;
-            repaint();
-        }
     }
 
     /**
@@ -470,16 +373,6 @@ public class HierClusterDisplay extends JPanel {
                 this.setToolTipText(null);
             }
         }
-    }
-
-    /**
-     * Configures the Graphical User Interface and Listeners
-     *
-     * @throws Exception
-     */
-    private void jbInit() throws Exception {
-        this.setBackground(Color.white);
-        this.setLayout(borderLayout1);
     }
 
     /**
