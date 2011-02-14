@@ -426,7 +426,11 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		} else {
 			// set Default View
 			setCurrentView(DEFAULT_VIEW);
-			setCurrentParameterPanel(new ParameterPanel());
+			ParameterPanel paramP = new ParameterPanel();
+
+			//bug 2425
+			paramP.setMaxSeqNumber(getSequenceDB().size());
+			setCurrentParameterPanel(paramP);
 		}
 	}
 
