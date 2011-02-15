@@ -52,12 +52,13 @@ public class GridServicesButtonListener implements ActionListener {
 	 */
 	public GridServicesButtonListener(
 			final GridServicePanel gridServicePanel,
-			final IndexServiceSelectionButtonListener indexServiceSelectionButtonListener
+			final IndexServiceSelectionButtonListener indexServiceSelectionButtonListener,
+			final ButtonGroup servicesButtonGroup
 			) {
 		super();
 		this.gridServicePanel = gridServicePanel;
 		this.indexServiceSelectionButtonListener = indexServiceSelectionButtonListener;
-		this.servicesButtonGroup = new ButtonGroup();
+		this.servicesButtonGroup = servicesButtonGroup;
 	}
 
 	/*
