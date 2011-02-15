@@ -32,7 +32,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * 
  * @author keshav
- * @version $Id: GridServicePanel.java,v 1.37 2009-06-24 14:48:55 wangm Exp $
+ * @version $Id$
  */
 public class GridServicePanel extends JPanel {
 	private static final long serialVersionUID = -5691010510843212800L;
@@ -47,9 +47,7 @@ public class GridServicePanel extends JPanel {
 	JScrollPane serviceDetailsBuilderScrollPane = null;
 	DefaultFormBuilder urlServiceBuilder = createUrlServiceBuilder();
 
-	private String gridButtonString = "Grid";
-	private JRadioButton gridButton = new JRadioButton(gridButtonString);
-
+	private JRadioButton localButton = new JRadioButton("Local");
 
 	public GridServicePanel(String name) {
 		super();
@@ -84,20 +82,13 @@ public class GridServicePanel extends JPanel {
 		indexServiceBuilder.appendColumn("right:pref");
 		indexServiceBuilder.appendColumn("10dlu");
 
-		String localButtonString = "Local";
-		JRadioButton localButton = new JRadioButton(localButtonString);
 		localButton.setSelected(true);
-		localButton.setActionCommand(localButtonString);
 
-		gridButton.setSelected(false);
-		gridButton.setActionCommand(gridButtonString);
-		/* add to the button group */
+		/* create and add to the button group */
 		ButtonGroup buttonGroup = new ButtonGroup();
 		buttonGroup.add(localButton);
-		buttonGroup.add(gridButton);
 
 		indexServiceBuilder.append(localButton);
-		indexServiceBuilder.append(gridButton);
 
 		// index service label
 		final JLabel indexServiceLabel = new JLabel(SwingUtil
@@ -136,7 +127,7 @@ public class GridServicePanel extends JPanel {
 		indexServiceBuilder.append(dispatcherLabel);
 
 		// grid services button
-		JButton getServicesButton = new JButton("Grid Services");
+		JButton getServicesButton = new JButton("Search Grid Services");
 		indexServiceBuilder.append(getServicesButton);
 
 		/* part B */
@@ -161,7 +152,7 @@ public class GridServicePanel extends JPanel {
 			= new IndexServiceSelectionButtonListener(this);
 
 		gridServicesButtonListener = new GridServicesButtonListener(this,
-				indexServiceSelectionButtonListener);
+				indexServiceSelectionButtonListener, buttonGroup);
 		getServicesButton.addActionListener(gridServicesButtonListener);
 
 		/* add A, B, and C to the main (this) */
@@ -221,8 +212,7 @@ public class GridServicePanel extends JPanel {
 	}
 
 	public boolean isCaGridVersion() {
-		if (gridButton.isSelected()) return true;
-		else return false;
+		return !localButton.isSelected();
 	}
 
 
