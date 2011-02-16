@@ -1,4 +1,4 @@
-package org.geworkbench.components.promoter.modulediscovery;
+package org.geworkbench.components.promoter;
 
 
 import java.io.*;

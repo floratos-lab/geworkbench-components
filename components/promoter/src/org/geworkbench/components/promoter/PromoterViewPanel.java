@@ -82,7 +82,6 @@ import org.geworkbench.bison.datastructure.complex.pattern.DSMatchedPattern;
 import org.geworkbench.bison.datastructure.complex.pattern.DSPattern;
 import org.geworkbench.bison.datastructure.complex.pattern.DSPatternMatch;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.CSSeqRegistration;
-import org.geworkbench.components.promoter.modulediscovery.SequenceFileReader;
 import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.SequenceDiscoveryTableEvent;
 import org.geworkbench.util.FilePathnameUtils;
