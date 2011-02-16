@@ -96,7 +96,7 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 	// Menu items
 	protected JPopupMenu itemListPopup = new JPopupMenu();
 	protected JMenuItem addToPanelItem = new JMenuItem("Add to Set");
-	protected JMenuItem clearSelectionItem = new JMenuItem("Clear Selection");
+	protected JMenuItem clearSelectionItem = new JMenuItem("Clear \"Selection\" Set");
 	protected JPopupMenu treePopup = new JPopupMenu();
 	protected JMenuItem renamePanelItem = new JMenuItem("Rename");
 	protected JMenuItem copyPanelItem = new JMenuItem("Copy");
@@ -234,7 +234,7 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 			}
 		};
 		clearSelectionItem.addActionListener(clearListener);
-		menuListeners.put("View.Clear Selection", clearListener);
+		menuListeners.put("Commands.Clear \"Selection\" Set", clearListener);
 		ActionListener renameListener = new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				renameLabelPressed(rightClickedPath);
