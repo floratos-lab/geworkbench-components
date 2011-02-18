@@ -753,8 +753,8 @@ public class CytoscapeWidget implements VisualPlugin {
 
 		if (map == null || map.size() == 0)
 		{
-			CyNode n = createNode(String.valueOf(serialId), geneIdToNameMap);
-			cytoNetwork.addNode(n);
+			//CyNode n = createNode(String.valueOf(serialId), geneIdToNameMap);
+			//cytoNetwork.addNode(n);
 			return;
 		}
 
