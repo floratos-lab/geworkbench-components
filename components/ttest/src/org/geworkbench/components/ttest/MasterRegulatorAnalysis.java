@@ -1,6 +1,7 @@
 package org.geworkbench.components.ttest;
 
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.StringTokenizer;
 
@@ -11,6 +12,7 @@ import org.geworkbench.bison.annotation.CSAnnotationContext;
 import org.geworkbench.bison.annotation.CSAnnotationContextManager;
 import org.geworkbench.bison.annotation.DSAnnotationContext;
 import org.geworkbench.bison.annotation.DSAnnotationContextManager;
+import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
@@ -25,7 +27,10 @@ import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
+import org.geworkbench.builtin.projects.DataSetNode;
+import org.geworkbench.builtin.projects.DataSetSubNode;
 import org.geworkbench.builtin.projects.ProjectPanel;
+import org.geworkbench.builtin.projects.ProjectSelection;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrix;
@@ -295,16 +300,25 @@ public class MasterRegulatorAnalysis extends AbstractAnalysis implements
 	}
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Subscribe
-	public void receive(org.geworkbench.events.ProjectEvent e,
-			Object source) {
-		if (e.getMessage().equals(org.geworkbench.events.ProjectEvent.SELECTED)){
-			DSDataSet dataSet = e.getDataSet();
-			if (dataSet instanceof DSMicroarraySet) {
-				this.mraAnalysisPanel.setMicroarraySet((DSMicroarraySet<DSMicroarray>)dataSet);
-			}else{
-				this.mraAnalysisPanel.setMicroarraySet(null);
-			}
-		}
+	public void receive(org.geworkbench.events.ProjectEvent e, Object source) {
+
+        ProjectSelection selection = ((ProjectPanel) source).getSelection();
+        DataSetNode dNode = selection.getSelectedDataSetNode();
+        if(dNode == null){
+        	return;
+        }
+        
+        this.mraAnalysisPanel.clearAdjMatrixCombobox();
+        Enumeration children = dNode.children();
+        while (children.hasMoreElements()) {
+            Object obj = children.nextElement();
+            if (obj instanceof DataSetSubNode) {
+                DSAncillaryDataSet ads = ((DataSetSubNode) obj)._aDataSet;
+                if (ads instanceof AdjacencyMatrixDataSet) {
+                    this.mraAnalysisPanel.addAdjMatrixToCombobox((AdjacencyMatrixDataSet) ads);
+                }
+            }
+        }
 	}
 	private String GenerateGroupAndChipsString(DSPanel<DSMicroarray> panel) {
 		String histStr = null;
