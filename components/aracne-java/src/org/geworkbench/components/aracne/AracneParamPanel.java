@@ -842,9 +842,9 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 		return DATASETNAME_ALGORITHM_kernel_file;
 	}
 	
-	void setSelectorPanel(AracneParamPanel aspp, DSPanel<DSGeneMarker> ap) {
-		aspp.selectorPanel = ap;		
-		String currentTargetSet = (String) aspp.markerSetCombo.getSelectedItem();
+	void setSelectorPanel(DSPanel<DSGeneMarker> ap) {
+		selectorPanel = ap;		
+		String currentTargetSet = (String) markerSetCombo.getSelectedItem();
 		DefaultComboBoxModel targetComboModel = (DefaultComboBoxModel) markerSetCombo.getModel();
 		targetComboModel.removeAllElements();
 		targetComboModel.addElement(" ");
