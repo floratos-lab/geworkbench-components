@@ -10,8 +10,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
+import java.util.HashSet; 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -49,9 +48,7 @@ import org.geworkbench.util.Util;
 
 import cytoscape.CyNetwork;
 import cytoscape.CyNode;
-import cytoscape.Cytoscape;
-import cytoscape.data.CyAttributes;
-import cytoscape.view.CyNetworkView;
+import cytoscape.Cytoscape; 
 import ding.view.DNodeView;
 import ding.view.NodeContextMenuListener;
 
@@ -350,10 +347,7 @@ public class ExpandMenuListener implements NodeContextMenuListener,
 
 			DSAnnotationContextManager manager = CSAnnotationContextManager
 					.getInstance();
-			DSAnnotationContext context = manager.getCurrentContext(maSet);
-
-			// DSItemList<DSPanel> itemList = context.getLabelTree().panels();
-
+		 
 			DSAnnotationContext<DSGeneMarker> markerGroups = manager
 					.getCurrentContext(maSet.getMarkers());
 			DSItemList<DSPanel<DSGeneMarker>> itemList = markerGroups

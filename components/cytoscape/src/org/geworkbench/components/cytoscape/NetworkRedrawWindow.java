@@ -26,8 +26,6 @@ import java.text.DecimalFormat;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.HashMap; 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
  
 import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrix;
@@ -42,9 +40,7 @@ import cytoscape.view.CyNetworkView;
  * @version $Id$
  */
 public class NetworkRedrawWindow {
-
-	private static Log log = LogFactory.getLog(NetworkRedrawWindow.class);
-
+ 
 	private JFrame frame;
 	private JPanel topPanel;
 

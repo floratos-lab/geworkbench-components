@@ -752,7 +752,11 @@ public class CytoscapeWidget implements VisualPlugin {
 		HashMap<Integer, Float> map = geneRows.get((Integer) serialId);
 
 		if (map == null || map.size() == 0)
+		{
+			CyNode n = createNode(String.valueOf(serialId), geneIdToNameMap);
+			cytoNetwork.addNode(n);
 			return;
+		}
 
 		for (Integer key : map.keySet()) {
 			if (key.intValue() == serialId)
