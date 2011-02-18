@@ -298,7 +298,7 @@ public class MasterRegulatorAnalysis extends AbstractAnalysis implements
 					.renameAdjMatrixToCombobox((AdjacencyMatrixDataSet)dataSet, e.getOldName(),e.getNewName());
 		}
 	}
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({ "rawtypes" })
 	@Subscribe
 	public void receive(org.geworkbench.events.ProjectEvent e, Object source) {
 
