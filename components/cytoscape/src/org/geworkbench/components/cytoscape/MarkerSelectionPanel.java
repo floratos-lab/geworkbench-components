@@ -5,88 +5,83 @@ package org.geworkbench.components.cytoscape;
  * @version $Id$ 
  */
 
-import java.util.ArrayList; 
-import java.util.HashMap; 
+import java.util.ArrayList;
+
 import java.util.List;
-import java.util.Iterator; 
+import java.util.Iterator;
 import java.util.Observable;
 import java.util.Observer;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener; 
+import java.awt.event.ActionListener;
 
 import javax.swing.AbstractListModel;
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JList; 
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListModel;
 import javax.swing.JDialog;
 import javax.swing.ListSelectionModel;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.math.stat.StatUtils;
-import org.geworkbench.bison.annotation.CSAnnotationContextManager;
-import org.geworkbench.bison.annotation.DSAnnotationContext;
-import org.geworkbench.bison.annotation.DSAnnotationContextManager;
+
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
- 
+
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
- 
-import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
-import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
+
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.events.ProjectNodeAddedEvent;
- 
+
 import org.geworkbench.util.ProgressBar;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrix;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixDataSet;
-  
+
 import cytoscape.Cytoscape;
-import cytoscape.data.CyAttributes;
 import cytoscape.view.CyNetworkView;
- 
+
 import giny.view.EdgeView;
- 
+
 import giny.model.Node;
 
-/* @author yc2480
-* @version $Id
-*/
+/*
+ * @author yc2480
+ * 
+ * @version $Id
+ */
 
 @SuppressWarnings("unchecked")
 public class MarkerSelectionPanel extends JPanel implements Observer {
-	private Log log = LogFactory.getLog(this.getClass());
-	public JDialog parent = null;
  
+	private static final long serialVersionUID = -4774315363368554985L;
+
+	public JDialog parent = null;
+
 	private JList list;
 	private List<Object> markerSetList = new ArrayList<Object>();
- 
+
 	private ProgressBar computePb = null;
-   // private boolean cancelAction = false;
+	// private boolean cancelAction = false;
 	protected DSMicroarraySet<? extends DSMicroarray> maSet;
 
-	public MarkerSelectionPanel(JDialog parent, List<Object>markerSetList ) {
+	public MarkerSelectionPanel(JDialog parent, List<Object> markerSetList) {
 		setLayout(new BorderLayout());
 
-		this.parent = parent;	 
+		this.parent = parent;
 		this.maSet = CytoscapeWidget.getInstance().maSet;
-		this.markerSetList =  markerSetList;
+		this.markerSetList = markerSetList;
 		init();
 
 	}
 
 	@SuppressWarnings("unchecked")
 	private void init() {
- 
+
 		list = new JList(listModel);
 		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-	    
 		JScrollPane pane = new JScrollPane(list);
 		JButton continueButton = new JButton("Continue");
 		JLabel blankLabel = new JLabel("                                      ");
@@ -99,10 +94,9 @@ public class MarkerSelectionPanel extends JPanel implements Observer {
 		});
 		cancelButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				markerSetList.clear();				 
+				markerSetList.clear();
 				parent.dispose();
-				
-				
+
 			}
 		});
 
@@ -158,7 +152,14 @@ public class MarkerSelectionPanel extends JPanel implements Observer {
 					matrix.addDirectional(serial2, serial1,
 							interactionType);
 	    		}
-	    		
+	    		else if ( selectedGeneList.contains(gene1))
+	    		{
+	    			matrix.addGeneRow(serial1);
+	    		}
+	    		else if ( selectedGeneList.contains(gene2))
+	    		{
+	    			matrix.addGeneRow(serial2);
+	    		}
                 
 			}
 			
@@ -194,16 +195,16 @@ public class MarkerSelectionPanel extends JPanel implements Observer {
 
 	}
 
- 
-
 	public void update(Observable o, Object arg) {
-		//cancelAction = true;
+		// cancelAction = true;
 		this.computePb.dispose();
 
 	}
 
-	 
 	ListModel listModel = new AbstractListModel() {
+	 
+		private static final long serialVersionUID = 7949364305898483395L;
+
 		public Object getElementAt(int index) {
 			return markerSetList.get(index);
 		}

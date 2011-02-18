@@ -54,6 +54,8 @@ import giny.model.Node;
 
 @SuppressWarnings("unchecked")
 public class ArraysSelectionPanel extends JPanel   {
+	 
+	private static final long serialVersionUID = 6362289910874562077L;
 	private Log log = LogFactory.getLog(this.getClass());
 	public JDialog parent = null;
 
@@ -192,10 +194,12 @@ public class ArraysSelectionPanel extends JPanel   {
 			result = a / (Math.sqrt(b * c));
 		}
 		return result;
-	}
+	}  
+	
+	
+	ListModel listModel = new AbstractListModel() {	 
+		private static final long serialVersionUID = 4583841683367907053L;
 
-	 
-	ListModel listModel = new AbstractListModel() {
 		public Object getElementAt(int index) {
 			return arraySetList.get(index);
 		}

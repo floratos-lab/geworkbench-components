@@ -47,6 +47,8 @@ import cytoscape.visual.parsers.ObjectToString;
 import giny.view.NodeView;
 
 public class TTestResultSelectionPanel extends JPanel {
+	 
+	private static final long serialVersionUID = 8102056731009933410L;
 	private Log log = LogFactory.getLog(this.getClass());
 	public JDialog parent = null;
 	//public CytoscapeWidget cytoscapeWidget = null;
@@ -237,7 +239,10 @@ public class TTestResultSelectionPanel extends JPanel {
 	
 	
    
-	ListModel listModel = new AbstractListModel() {
+	ListModel listModel = new AbstractListModel() {	 
+	 
+		private static final long serialVersionUID = 8144764953969882081L;
+
 		public Object getElementAt(int index) {
 			return TTestNameList.get(index);
 		}
