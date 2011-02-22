@@ -80,7 +80,7 @@ public class MultipleProbesetFilter extends FilteringAnalysis {
 				String asdf = "asdf";
 			}
 
-			String firstGeneID = AnnotationParser.getFirstGeneID(probeSetID);
+			String firstGeneID = AnnotationParser.getGeneIDs(probeSetID).toArray(new String[0])[0];
 
 			if (firstGeneID == null || firstGeneID.trim().equals("")) {
 				continue;
