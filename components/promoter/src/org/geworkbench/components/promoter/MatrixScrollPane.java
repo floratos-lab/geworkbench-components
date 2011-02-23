@@ -2,37 +2,18 @@ package org.geworkbench.components.promoter;
 
 import java.text.DecimalFormat;
 
-import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 
 /**
- * <p>Title: </p>
- * <p/>
- * <p>Description: </p>
- * <p/>
- * <p>Copyright: Copyright (c) 2005</p>
- * <p/>
- * <p>Company: </p>
  *
  * @author not attributable
- * @version 1.0
+ * @version $Id$
  */
-public class MatrixScrollPane extends JScrollPane {
-    private JTable matrixTable;
+public class MatrixScrollPane {
 
-    public MatrixScrollPane() {
-        super();
-        matrixTable = new JTable();
-
-    }
-
-    public MatrixScrollPane(JTable table) {
-        super(table);
-    }
-
-    public JTable createMatrixTable(boolean showCounts, Matrix matrix) {
+    public static JTable createMatrixTable(boolean showCounts, Matrix matrix) {
 
         final String[] cols = createColumnsName(matrix);
         final Object[][] rowData = createRowsData(showCounts, matrix);
@@ -41,7 +22,9 @@ public class MatrixScrollPane extends JScrollPane {
         }
 
         TableModel tableModel = new AbstractTableModel() {
-            public String getColumnName(int column) {
+			private static final long serialVersionUID = 7240133465615903832L;
+
+			public String getColumnName(int column) {
                 return cols[column].toString();
             }
 
@@ -62,8 +45,7 @@ public class MatrixScrollPane extends JScrollPane {
             }
         };
 
-        matrixTable = new JTable(tableModel);
-        return matrixTable;
+        return new JTable(tableModel);
     }
 
     /**
@@ -72,7 +54,7 @@ public class MatrixScrollPane extends JScrollPane {
      * @param matrix Matrix
      * @return Object[][]
      */
-    private Object[][] createRowsData(boolean showCounts, Matrix matrix) {
+    private static Object[][] createRowsData(boolean showCounts, Matrix matrix) {
     	DecimalFormat formatPV = null; 
     	
     	if (showCounts){
@@ -116,7 +98,7 @@ public class MatrixScrollPane extends JScrollPane {
      * @param matrix Matrix
      * @return String[]
      */
-    private String[] createColumnsName(Matrix matrix) {
+    private static String[] createColumnsName(Matrix matrix) {
         if (matrix != null && matrix.getLength() > 0) {
             int length = matrix.getLength() + 1;
             String[] cols = new String[length];
