@@ -1,35 +1,27 @@
 package org.geworkbench.components.filtering;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.datastructure.bioobjects.markers.CSExpressionMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSRangeMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMarkerValue;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSAffyMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.analysis.FilteringAnalysis;
+import org.geworkbench.components.filtering.MultipleEntrezGeneIDFilterPanel.Action;
 import org.geworkbench.engine.management.Publish;
-import org.geworkbench.events.SubpanelChangedEvent;
 
 /**
- * <p>Copyright: Copyright (c) 2003</p>
- * <p>Company: First Genetic Trust Inc.</p>
- * @author First Genetic Trust Inc.
- * @version $Id$
- */
-
-/**
+ * Multiple Entrez ID filter.
+ * 
  * The user preferences are collected in this filter's associate parameters GUI
  * (<code>MultipleEntrezGeneIDFilter</code>).
+ * 
+ * @version $Id$
  */
 public class MultipleEntrezGeneIDFilter extends FilteringAnalysis {
 	private static final long serialVersionUID = -3603151182199536102L;
@@ -40,25 +32,20 @@ public class MultipleEntrezGeneIDFilter extends FilteringAnalysis {
 	List<Integer> noEntrezIDList = new ArrayList<Integer>();
 	List<Integer> multipleEntrezIDsList = new ArrayList<Integer>();
 
-	protected int filterAction;
-
-	static final int REMOVE = 0;
-	static final int CREATE_FROM_MATCHING = 1;
-	static final int CREATE_FROM_EXCLUDING = 2;
+	private Action filterAction;
 
 	public MultipleEntrezGeneIDFilter() {
 		setDefaultPanel(new MultipleEntrezGeneIDFilterPanel());
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public List<Integer> getMarkersToBeRemoved(DSMicroarraySet<?> input) {
 		
-		if (filterAction == REMOVE) {
+		if (filterAction == Action.REMOVE) {
 			return remove(input);
-		}else if (filterAction == CREATE_FROM_MATCHING) {
+		}else if (filterAction == Action.CREATE_FROM_MATCHING) {
 			createFromMatching(input);
-		}else if (filterAction == CREATE_FROM_EXCLUDING) {
+		}else if (filterAction == Action.CREATE_FROM_EXCLUDING) {
 			createFromExcluding(input);
 		}
 
@@ -95,7 +82,6 @@ public class MultipleEntrezGeneIDFilter extends FilteringAnalysis {
 		for (int i = 0; i < markerCount; i++) {
 			DSGeneMarker dsGeneMarker = dsItemList.get(i);
 			String geneMarkerLabel = dsGeneMarker.getLabel();
-			// Set<String> geneIDs = AnnotationParser.getGeneIDs2(geneMarkerLabel);
 			Set<String> geneIDs = AnnotationParser.getGeneIDs(geneMarkerLabel);
 
 			if (filterNoEntrezID) {
@@ -115,7 +101,7 @@ public class MultipleEntrezGeneIDFilter extends FilteringAnalysis {
 	}
 
 	@SuppressWarnings("unchecked")
-	private List<Integer> createFromMatching(DSMicroarraySet<?> input){
+	private void createFromMatching(DSMicroarraySet<?> input){
 		maSet = (DSMicroarraySet<DSMicroarray>) input;
 		String label = input.getLabel();
 		DSItemList<DSGeneMarker> dsItemList = maSet.getMarkers();
@@ -147,11 +133,10 @@ public class MultipleEntrezGeneIDFilter extends FilteringAnalysis {
 		 publishSubpanelChangedEvent(new org.geworkbench.events.SubpanelChangedEvent<DSGeneMarker>( DSGeneMarker.class, selectedMarkersMultipleEntrezIDs,
 		 org.geworkbench.events.SubpanelChangedEvent.NEW));
 
-		 return null;
 	}
 
 	@SuppressWarnings("unchecked")
-	private List<Integer> createFromExcluding(DSMicroarraySet<?> input){
+	private void createFromExcluding(DSMicroarraySet<?> input){
 		maSet = (DSMicroarraySet<DSMicroarray>) input;
 		String label = input.getLabel();
 		DSItemList<DSGeneMarker> dsItemList = maSet.getMarkers();
@@ -181,7 +166,6 @@ public class MultipleEntrezGeneIDFilter extends FilteringAnalysis {
 		publishSubpanelChangedEvent(new org.geworkbench.events.SubpanelChangedEvent<DSGeneMarker>(DSGeneMarker.class, 
 																						selectedMarkersNonFilteredEntrezIDs,
 																						org.geworkbench.events.SubpanelChangedEvent.NEW));
-		return null;
 	}
 	
 	@SuppressWarnings("rawtypes")
@@ -189,14 +173,6 @@ public class MultipleEntrezGeneIDFilter extends FilteringAnalysis {
 	public org.geworkbench.events.SubpanelChangedEvent publishSubpanelChangedEvent(
 		   org.geworkbench.events.SubpanelChangedEvent event) {
 		return event;
-	}
-
-	@Override
-	protected boolean expectedType() {
-		// assuming the first marker has the same type as all other markers
-		DSMicroarray mArray = maSet.get(0);
-		CSMarkerValue mv = (CSMarkerValue) mArray.getMarkerValue(0);
-		return (mv instanceof DSAffyMarkerValue);
 	}
 
 	@Override
