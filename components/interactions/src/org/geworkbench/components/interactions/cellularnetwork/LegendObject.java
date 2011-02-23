@@ -1,10 +1,6 @@
 package org.geworkbench.components.interactions.cellularnetwork;
 
-import java.awt.Color;
-import java.awt.Paint;
-import java.awt.geom.Rectangle2D;
-
-import org.jfree.chart.LegendItem;
+import java.awt.Color; 
 
 public class LegendObject {
 

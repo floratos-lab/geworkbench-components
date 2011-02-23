@@ -6,10 +6,10 @@ import org.apache.commons.logging.LogFactory;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.ConnectException;
-import java.net.SocketTimeoutException;
-import java.rmi.RemoteException;
+import java.net.SocketTimeoutException; 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.util.network.InteractionDetail;
@@ -53,9 +53,9 @@ public class InteractionsConnectionImpl {
 
 		try {
 
-			String methodAndParams = "getPairWiseInteraction"
-					+ Constants.DEL + id1.toString() + Constants.DEL
-					+ context + Constants.DEL + version;
+			String methodAndParams = "getPairWiseInteraction" + Constants.DEL
+					+ id1.toString() + Constants.DEL + context + Constants.DEL
+					+ version;
 			// String aSQL = "SELECT * FROM pairwise_interaction where ms_id1="
 			// + id1.toString() + " or ms_id2=" + id1.toString();
 			rs = ResultSetlUtil.executeQuery(methodAndParams,
@@ -73,11 +73,9 @@ public class InteractionsConnectionImpl {
 					interactionId = rs.getString("interaction_id");
 					interactionType = rs.getString("interaction_type").trim();
 
-					 
 					InteractionDetail interactionDetail = new InteractionDetail(
 							msid1.toString(), msid2.toString(), geneName1,
-							geneName2, db1_xref,
-							db2_xref, confidenceValue,
+							geneName2, db1_xref, db2_xref, confidenceValue,
 							interactionType, interactionId);
 					arrayList.add(interactionDetail);
 				} catch (NullPointerException npe) {
@@ -116,19 +114,20 @@ public class InteractionsConnectionImpl {
 		}
 		return arrayList;
 	}
-	
-	public List<InteractionDetail> getInteractionsByEntrezIdOrGeneSymbol_1(DSGeneMarker marker,
-			String context, String version) throws UnAuthenticatedException,
-			ConnectException, SocketTimeoutException, IOException {
+
+	public List<InteractionDetail> getInteractionsByEntrezIdOrGeneSymbol_1(
+			DSGeneMarker marker, String context, String version)
+			throws UnAuthenticatedException, ConnectException,
+			SocketTimeoutException, IOException {
 		String interactionType = null;
 		String msid2 = null;
 		String msid1 = null;
 		String geneName1 = null;
 		String geneName2 = null;
 		String db1_xref = null;
-		String db2_xref = null;		 
-        String interactionId = null;
-        
+		String db2_xref = null;
+		String interactionId = null;
+
 		double confidenceValue = 0d;
 
 		List<InteractionDetail> arrayList = new ArrayList<InteractionDetail>();
@@ -138,54 +137,46 @@ public class InteractionsConnectionImpl {
 		try {
 
 			msid1 = new Integer(marker.getGeneId()).toString();
-			db1_xref = ENTREZ_GENE;		 
+			db1_xref = ENTREZ_GENE;
 			geneName1 = marker.getGeneName();
-			
+
 			String methodAndParams = "getInteractionsByEntrezIdOrGeneSymbol"
-					+ Constants.DEL + msid1 + Constants.DEL
-					+ geneName1 + Constants.DEL
-					+ context + Constants.DEL + version;
-		 
+					+ Constants.DEL + msid1 + Constants.DEL + geneName1
+					+ Constants.DEL + context + Constants.DEL + version;
+
 			rs = ResultSetlUtil.executeQuery(methodAndParams,
 					ResultSetlUtil.INTERACTIONS_SERVLET_URL);
-            String previousInteractionId = null;
-            boolean firstHit = true;
+			String previousInteractionId = null;
+			boolean firstHit = true;
 			while (rs.next()) {
-				try {					 
+				try {
 					msid2 = rs.getString("primary_accession");
-					geneName2 = rs.getString("gene_symbol");					 
+					geneName2 = rs.getString("gene_symbol");
 					db2_xref = rs.getString("accession_db");
 					interactionId = rs.getString("interaction_id");
-					if (previousInteractionId == null || !previousInteractionId.equals(interactionId))
-					{
+					if (previousInteractionId == null
+							|| !previousInteractionId.equals(interactionId)) {
 						previousInteractionId = interactionId;
 						firstHit = true;
 					}
-					if ((db2_xref.equals(ENTREZ_GENE) && msid1.equals(msid2)) || (geneName2.equalsIgnoreCase(geneName1)))
-					{
-						if (firstHit == true)
-						{
+					if ((db2_xref.equals(ENTREZ_GENE) && msid1.equals(msid2))
+							|| (geneName2.equalsIgnoreCase(geneName1))) {
+						if (firstHit == true) {
 							firstHit = false;
-						    continue;
-						}
-						else
-						{
+							continue;
+						} else {
 							msid2 = msid1;
 							db2_xref = ENTREZ_GENE;
 						}
-					} 
-					 
-					 
+					}
+
 					confidenceValue = rs.getDouble("confidence_value");
 					interactionType = rs.getString("interaction_type").trim();
-					 
-				 
 
 					InteractionDetail interactionDetail = new InteractionDetail(
-							msid1, msid2, geneName1,
-							geneName2, db1_xref,
-							db2_xref, confidenceValue,
-							interactionType, interactionId);
+							msid1, msid2, geneName1, geneName2, db1_xref,
+							db2_xref, confidenceValue, interactionType,
+							interactionId);
 					arrayList.add(interactionDetail);
 				} catch (NullPointerException npe) {
 					if (logger.isErrorEnabled()) {
@@ -223,17 +214,17 @@ public class InteractionsConnectionImpl {
 		}
 		return arrayList;
 	}
-	
-	
-	public List<InteractionDetail> getInteractionsByEntrezIdOrGeneSymbol_2(DSGeneMarker marker,
-			String context, String version) throws UnAuthenticatedException,
-			ConnectException, SocketTimeoutException, IOException {
+
+	public List<InteractionDetail> getInteractionsByEntrezIdOrGeneSymbol_2(
+			DSGeneMarker marker, String context, String version)
+			throws UnAuthenticatedException, ConnectException,
+			SocketTimeoutException, IOException {
 		String interactionType = null;
-		String msid = null;	 
-		String geneName  = null;		 
+		String msid = null;
+		String geneName = null;
 		String db_xref = null;
 		String interactionId = null;
-	 
+
 		double confidenceValue = 0d;
 
 		List<InteractionDetail> arrayList = new ArrayList<InteractionDetail>();
@@ -242,54 +233,52 @@ public class InteractionsConnectionImpl {
 
 		try {
 
-			String marker_msid = new Integer(marker.getGeneId()).toString();			 	 
+			String marker_msid = new Integer(marker.getGeneId()).toString();
 			String marker_geneName = marker.getGeneName();
-			
+
 			String methodAndParams = "getInteractionsByEntrezIdOrGeneSymbol"
 					+ Constants.DEL + marker_msid + Constants.DEL
-					+ marker_geneName + Constants.DEL
-					+ context + Constants.DEL + version;
-		 
+					+ marker_geneName + Constants.DEL + context + Constants.DEL
+					+ version;
+
 			rs = ResultSetlUtil.executeQuery(methodAndParams,
 					ResultSetlUtil.INTERACTIONS_SERVLET_URL);
 
 			String previousInteractionId = null;
 			List<InteractionParticipant> participantList = new ArrayList<InteractionParticipant>();
 			while (rs.next()) {
-				try {	
-					msid = rs.getString("primary_accession");	
+				try {
+					msid = rs.getString("primary_accession");
 					geneName = rs.getString("gene_symbol");
 					db_xref = rs.getString("accession_db");
 					confidenceValue = rs.getDouble("confidence_value");
 					interactionType = rs.getString("interaction_type").trim();
 					interactionId = rs.getString("interaction_id");
-					if (!db_xref.equalsIgnoreCase(ENTREZ_GENE) && geneName.equals(marker_geneName))
-					{	 
+					if (!db_xref.equalsIgnoreCase(ENTREZ_GENE)
+							&& geneName.equals(marker_geneName)) {
 						msid = marker_msid;
 						db_xref = ENTREZ_GENE;
 					}
-					 
-					if (previousInteractionId == null || !previousInteractionId.equals(interactionId))
-					{
+
+					if (previousInteractionId == null
+							|| !previousInteractionId.equals(interactionId)) {
 						previousInteractionId = interactionId;
 						participantList.clear();
-					}
-					else
-					{
-						for(InteractionParticipant p : participantList)
-						{
+					} else {
+						for (InteractionParticipant p : participantList) {
 							InteractionDetail interactionDetail = new InteractionDetail(
-									p.getdSGeneMarker(), msid, p.getdSGeneName(),
-									geneName, p.getDbSource(),
-									db_xref, confidenceValue,
-									interactionType, interactionId);
+									p.getdSGeneMarker(), msid, p
+											.getdSGeneName(), geneName, p
+											.getDbSource(), db_xref,
+									confidenceValue, interactionType,
+									interactionId);
 							arrayList.add(interactionDetail);
 						}
 					}
-						
-					participantList.add(new InteractionParticipant(msid, geneName, db_xref));
 
-					 
+					participantList.add(new InteractionParticipant(msid,
+							geneName, db_xref));
+
 				} catch (NullPointerException npe) {
 					if (logger.isErrorEnabled()) {
 						logger
@@ -326,14 +315,76 @@ public class InteractionsConnectionImpl {
 		}
 		return arrayList;
 	}
-	
 
-	public List<String> getInteractionTypes() throws ConnectException,
+	public List<String> getInteractionsSifFormat(String context, String version, String interactionType, String presentBy) throws UnAuthenticatedException,
+			ConnectException, SocketTimeoutException, IOException {
+		 
+		 
+		List<String> arrayList = new ArrayList<String>();        
+		ResultSetlUtil rs = null;
+
+		try {          
+                 
+			String methodAndParams = "getInteractionsSifFormat"				  
+					+ Constants.DEL + context + Constants.DEL + version
+			        + Constants.DEL + interactionType
+			        + Constants.DEL + presentBy;
+			rs = ResultSetlUtil.executeQuery(methodAndParams,
+					ResultSetlUtil.INTERACTIONS_SERVLET_URL);
+			
+			String sifLine = null;		
+			while (rs.next()) {
+				try {
+					sifLine = rs.getString("sif format data");				 
+					arrayList.add(sifLine);
+				} catch (NullPointerException npe) {
+					if (logger.isErrorEnabled()) {
+						logger
+								.error("db row is dropped because a NullPointerException");
+					}
+				}
+			}
+			rs.close();
+		} catch (UnAuthenticatedException uae) {
+			throw new UnAuthenticatedException(uae.getMessage());
+
+		} catch (ConnectException ce) {
+			if (logger.isErrorEnabled()) {
+				logger.error(ce.getMessage());
+			}
+			throw new ConnectException(ce.getMessage());
+		} catch (SocketTimeoutException se) {
+			if (logger.isErrorEnabled()) {
+				logger.error(se.getMessage());
+			}
+			throw new SocketTimeoutException(se.getMessage());
+		} catch (IOException ie) {
+			if (logger.isErrorEnabled()) {
+				logger.error(ie.getMessage());
+			}
+			throw new IOException(ie.getMessage());
+
+		} catch (Exception se) {
+			if (logger.isErrorEnabled()) {
+				logger
+						.error("getInteractionsSourceIdList - ResultSetlUtil rs=" + rs); //$NON-NLS-1$
+			}
+			se.printStackTrace();
+		}
+		return arrayList;
+	}
+
+	 
+ 
+	 
+	
+	public HashMap<String, String> getInteractionTypeMap() throws ConnectException,
 			SocketTimeoutException, IOException {
-		List<String> arrayList = new ArrayList<String>();
+		HashMap<String, String> map = new HashMap<String, String>();
 
 		ResultSetlUtil rs = null;
 		String interactionType = null;
+		String short_name = null;
 
 		try {
 
@@ -344,8 +395,9 @@ public class InteractionsConnectionImpl {
 			while (rs.next()) {
 
 				interactionType = rs.getString("interaction_type").trim();
-
-				arrayList.add(interactionType);
+				short_name = rs.getString("short_name").trim();
+				
+				map.put(interactionType, short_name);
 			}
 			rs.close();
 
@@ -372,11 +424,62 @@ public class InteractionsConnectionImpl {
 			}
 
 		}
-		return arrayList;
+		return map;
 	}
 
-	public List<String> getInteractionTypesByInteractomeVersion(String context, String version)
-			throws ConnectException, SocketTimeoutException, IOException {
+	public List<String> getInteractionTypes() throws ConnectException,
+	SocketTimeoutException, IOException {
+List<String> arrayList = new ArrayList<String>();
+
+ResultSetlUtil rs = null;
+String interactionType = null;
+
+try {
+
+	String methodAndParams = "getInteractionTypes";
+	rs = ResultSetlUtil.executeQuery(methodAndParams,
+			ResultSetlUtil.INTERACTIONS_SERVLET_URL);
+
+	while (rs.next()) {
+
+		interactionType = rs.getString("interaction_type").trim();
+
+		arrayList.add(interactionType);
+	}
+	rs.close();
+
+} catch (ConnectException ce) {
+	if (logger.isErrorEnabled()) {
+		logger.error(ce.getMessage());
+	}
+	throw new ConnectException(ce.getMessage());
+} catch (SocketTimeoutException se) {
+	if (logger.isErrorEnabled()) {
+		logger.error(se.getMessage());
+	}
+	throw new SocketTimeoutException(se.getMessage());
+} catch (IOException ie) {
+	if (logger.isErrorEnabled()) {
+		logger.error(ie.getMessage());
+	}
+	throw new IOException(ie.getMessage());
+
+} catch (Exception se) {
+	if (logger.isErrorEnabled()) {
+		logger
+				.error("getInteractionTypes() - ResultSetlUtil: " + se.getMessage()); //$NON-NLS-1$
+	}
+
+}
+return arrayList;
+}
+
+	
+	
+	
+	public List<String> getInteractionTypesByInteractomeVersion(String context,
+			String version) throws ConnectException, SocketTimeoutException,
+			IOException {
 		List<String> arrayList = new ArrayList<String>();
 
 		ResultSetlUtil rs = null;
@@ -385,8 +488,7 @@ public class InteractionsConnectionImpl {
 		try {
 
 			String methodAndParams = "getInteractionTypesByInteractomeVersion"
-				+ Constants.DEL + context
-				+ Constants.DEL + version;
+					+ Constants.DEL + context + Constants.DEL + version;
 			rs = ResultSetlUtil.executeQuery(methodAndParams,
 					ResultSetlUtil.INTERACTIONS_SERVLET_URL);
 
@@ -634,8 +736,8 @@ public class InteractionsConnectionImpl {
 
 		try {
 
-			String methodAndParams = "getVersionDescriptor"
-					+ Constants.DEL + interactomeName;
+			String methodAndParams = "getVersionDescriptor" + Constants.DEL
+					+ interactomeName;
 			rs = ResultSetlUtil.executeQuery(methodAndParams,
 					ResultSetlUtil.INTERACTIONS_SERVLET_URL);
 			while (rs.next()) {
@@ -701,8 +803,10 @@ public class InteractionsConnectionImpl {
 				logger.error(e.getMessage());
 			}
 			return false;
-		}
+		}	
+		
 
 	}
-
-}
+	
+}	
+	 

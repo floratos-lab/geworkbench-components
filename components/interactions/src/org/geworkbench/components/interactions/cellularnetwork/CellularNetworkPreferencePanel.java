@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
+import java.util.Map;
 import java.util.HashMap;
 import javax.swing.AbstractListModel;
 import javax.swing.DefaultComboBoxModel;
@@ -42,8 +43,7 @@ import org.apache.commons.logging.LogFactory;
 import org.geworkbench.engine.properties.PropertiesManager;
 import org.geworkbench.util.Util;
 import org.geworkbench.util.network.CellularNetWorkElementInformation;
-import org.geworkbench.components.interactions.cellularnetwork.Constants;
-
+ 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
 
@@ -53,6 +53,9 @@ import com.jgoodies.forms.layout.FormLayout;
  */
 
 public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
+ 
+	private static final long serialVersionUID = 812513468056544393L;
+
 	private Log log = LogFactory.getLog(this.getClass());
 
 	private PropertiesManager pm = null;
@@ -77,6 +80,8 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 	private JButton networkRemoveButton;
 
 	private JButton changeButton;
+	
+	private JButton exportButton;
 
 	private JList selectedInteractionTypeList;
 	private JList selectedNetworkInteractionTypeList;
@@ -110,12 +115,18 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 
 	private List<String> networkAvailInteractionTypes = new ArrayList<String>();
 
-	private List<String> networkSelectedInteractionTypes = new ArrayList<String>();
-
+	private List<String> networkSelectedInteractionTypes = new ArrayList<String>();	
+	
+	
+	
 	private CellularNetworkKnowledgeWidget c;
 	
 	private HashMap<String, HashMap<String, List<String>>> selectedInteractionTypeMap;
 
+	public static Map<String, String> interactionTypeSifMap = null; 
+	
+	
+	
 	/**
 	 * Creates new form Interactions
 	 */
@@ -191,12 +202,15 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 		availableNetworkInteractionTypeList = new javax.swing.JList();
 		selectedNetworkInteractionTypeList = new javax.swing.JList();
 		selectedInteractionTypeMap = new HashMap<String,HashMap<String, List<String>>>();
+		interactionTypeSifMap = new HashMap<String, String>();
 		
 		addButton = new javax.swing.JButton();
 		removeButton = new javax.swing.JButton();
 		networkAddButton = new javax.swing.JButton();
 		networkRemoveButton = new javax.swing.JButton();
 		changeButton = new javax.swing.JButton();
+		exportButton = new javax.swing.JButton();
+		
      
 		contextJList = new JList();
 		contextJList.setSize(80, 10);
@@ -536,11 +550,19 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 			}
 		});
 
+		exportButton.setText("Export selected interactome");
+		exportButton.setToolTipText("Click the button to export interactions based on the selected Interactome, Version and Network Generation Preference.");
+		exportButton.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				exportButtonHandler(evt);
+			}
+		});
+		
 		setLayout(new BorderLayout());
 		add(buildInteractionsDatabasePanel(), BorderLayout.NORTH);
 		add(buildColumnDisplayPreferencesPanel(), BorderLayout.CENTER);
 		add(buildNetworkGenerationPreferencesPanel(), BorderLayout.SOUTH);
-
+        
 		// displaySelectedInteractionTypes.add(Constants.PROTEIN_DNA);
 		// displaySelectedInteractionTypes.add(Constants.PROTEIN_PROTEIN);
 		readInteractionTypesProperties();
@@ -863,6 +885,8 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 									"No service running. Please check with the administrator of your service infrastructure.",
 									"Error", JOptionPane.ERROR_MESSAGE);
 				}
+				
+				getContextJList().updateUI();
 
 			}
 		});
@@ -894,6 +918,78 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 		changeServicesDialog.setVisible(true);
 
 	}
+	
+	private void exportButtonHandler(ActionEvent e) {
+	 
+		String context = null;
+		if (getContextJList().getSelectedValue() != null) {
+			context = getContextJList()
+					.getSelectedValue().toString().split(" \\(")[0]
+					.trim();
+		}
+
+		String version = null;
+		if (getVersionJList().getSelectedValue() != null)
+			version = ((VersionDescriptor)getVersionJList().getSelectedValue())
+					.getVersion();
+
+		if (context == null
+				|| context.trim().equals("")
+				|| context
+						.equalsIgnoreCase(Constants.SELECTCONTEXT)) {
+			JOptionPane
+					.showMessageDialog(
+							null,
+							"Please go to Preferences window to make sure that you select the correct interactome.",
+
+							"Information",
+							JOptionPane.INFORMATION_MESSAGE);
+			 return;
+			 
+		}
+
+		if (version == null
+				|| version.trim().equals("")
+				|| version
+						.equalsIgnoreCase(Constants.SELECTVERSION)) {
+			JOptionPane
+					.showMessageDialog(
+							null,
+							"Please go to Preferences window to make sure that you select the correct interactome version.",
+
+							"Information",
+							JOptionPane.INFORMATION_MESSAGE);
+			 
+			return;
+		}
+	 
+		if (networkSelectedInteractionTypes == null || networkSelectedInteractionTypes.size() == 0)
+		{
+			JOptionPane
+			.showMessageDialog(
+					null,
+					"Please go to Network Generation Preferences window to make sure that you select at least one interaction type.",
+
+					"Information",
+					JOptionPane.INFORMATION_MESSAGE);
+			return;
+	 
+		}	 
+		
+		JDialog exportDialog = new JDialog();
+		exportDialog.setTitle("Export selected interactome");
+		ExportSelectionPanel exportPanel = new ExportSelectionPanel(exportDialog, context, version, networkSelectedInteractionTypes);
+		 
+		exportDialog.add(exportPanel);
+		exportDialog.setModal(true);
+		exportDialog.pack();
+		Util.centerWindow(exportDialog);
+		exportDialog.setVisible(true);
+
+	}
+	
+	
+	
 
 	private void reInitPreferences() {
 
@@ -1003,6 +1099,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 						.getDatasetAndInteractioCount();
 				allInteractionTypes = interactionsConnection
 						.getInteractionTypes();
+				interactionTypeSifMap = interactionsConnection.getInteractionTypeMap();
 			} catch (ConnectException ce) {
 				JOptionPane
 						.showMessageDialog(
@@ -1078,6 +1175,9 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 	}
 
 	ListModel contextListModel = new AbstractListModel() {
+		 
+		private static final long serialVersionUID = 3896674125748294964L;
+
 		public Object getElementAt(int index) {
 			return contextList.get(index);
 		}
@@ -1088,6 +1188,9 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 	};
 
 	ListModel versionListModel = new AbstractListModel() {
+		 
+		private static final long serialVersionUID = 7368821841064088101L;
+
 		public Object getElementAt(int index) {
 			return versionList.get(index);
 		}
@@ -1098,6 +1201,9 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 	};
 
 	ListModel availableInteractionTypeModel = new AbstractListModel() {
+	 
+		private static final long serialVersionUID = -5249418316840418790L;
+
 		public Object getElementAt(int index) {
 			return displayAvailInteractionTypes.get(index);
 		}
@@ -1108,6 +1214,9 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 	};
 
 	ListModel availNetworkInteractionTypeModel = new AbstractListModel() {
+	 
+		private static final long serialVersionUID = -1159977335482478371L;
+
 		public Object getElementAt(int index) {
 			return networkAvailInteractionTypes.get(index);
 		}
@@ -1118,6 +1227,9 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 	};
 
 	ListModel selectedInteractionTypeModel = new AbstractListModel() {
+		 
+		private static final long serialVersionUID = -1731363979171517441L;
+
 		public Object getElementAt(int index) {
 			return displaySelectedInteractionTypes.get(index);
 		}
@@ -1128,6 +1240,11 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 	};
 
 	ListModel selectedNetworkInteractionTypeModel = new AbstractListModel() {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -7890331646056124792L;
+
 		public Object getElementAt(int index) {
 			return networkSelectedInteractionTypes.get(index);
 		}
@@ -1138,6 +1255,8 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 	};
 
 	private class preferenceJCheckBox extends JCheckBox {
+ 
+		private static final long serialVersionUID = -346069507369382002L;
 
 		public preferenceJCheckBox(String label, boolean isSelected) {
 
@@ -1353,6 +1472,11 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 				selectedNetworkInteractionTypeList, 150));
 
 		builder.nextLine();
+		builder.append(exportButton);
+		
+		
+		
+		
 
 		return builder.getPanel();
 

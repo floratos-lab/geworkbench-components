@@ -71,5 +71,9 @@ public class Constants  {
 	
 	public static final String  PHOSPHATASE= "Phosphatase";
 
+	public static final String SIF_FORMART = "sif format";
+	public static final String ADJ_FORMART = "adj format";
+	public static final String GENE_NAME = "gene name";
+	public static final String GENE_ID = "gene id";
 
 }
