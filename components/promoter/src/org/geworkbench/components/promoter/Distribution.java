@@ -1,9 +1,10 @@
 package org.geworkbench.components.promoter;
 
+import java.util.Iterator;
 
 import org.biojava.bio.dist.SimpleDistribution;
+import org.biojava.bio.gui.DNAStyle;
 import org.biojava.bio.gui.DistributionLogo;
-import org.biojava.bio.gui.TextLogoPainter;
 import org.biojava.bio.seq.DNATools;
 import org.biojava.bio.symbol.FiniteAlphabet;
 import org.biojava.bio.symbol.IllegalAlphabetException;
@@ -11,14 +12,17 @@ import org.biojava.bio.symbol.IllegalSymbolException;
 import org.biojava.bio.symbol.Symbol;
 import org.biojava.utils.ChangeVetoException;
 
-import java.util.Iterator;
-import org.biojava.bio.gui.DNAStyle;
-
+/**
+ * 
+ * @author zji
+ * @version $Id$
+ *
+ */
 public class Distribution {
     private DistributionLogo logo = null; // this is the display of the distribution.
-    public char[] symbols = null;
-    public double[] counts = null;
-    public double totalCounts = 0;
+    private char[] symbols = null;
+    private double[] counts = null;
+    private double totalCounts = 0;
 
     public Distribution(char[] symbolist) {
         symbols = symbolist;
@@ -88,7 +92,7 @@ public class Distribution {
 
     public void normalize() {
         getTotal();
-        double b = Math.sqrt(totalCounts);
+
         for (int i = 0; i < symbols.length; i++) {
         	if (totalCounts ==0){
         		counts[i] = 0;
@@ -132,7 +136,7 @@ public class Distribution {
             FiniteAlphabet a1 = DNATools.getDNA();
             SimpleDistribution sp = new SimpleDistribution(a1);
 
-            for (Iterator it = a1.iterator(); it.hasNext();) {
+            for (Iterator<?> it = a1.iterator(); it.hasNext();) {
                 Symbol x = (Symbol) it.next();
                 try {
                     char sb = x.getName().toUpperCase().charAt(0);
@@ -144,10 +148,7 @@ public class Distribution {
                 }
             }
             DistributionLogo dis = new DistributionLogo();
-            //DistributionLogo dl = new DistributionLogo();
               dis.setStyle(new DNAStyle());
-//            TextLogoPainter bp = new TextLogoPainter();
-//            dis.setLogoPainter(bp);
             try {
                 dis.setDistribution(sp);
             } catch (IllegalAlphabetException ex) {
@@ -159,11 +160,6 @@ public class Distribution {
 
         return logo;
 
-    }
-
-    public char getText() {
-
-        return ' ';
     }
 
 }
