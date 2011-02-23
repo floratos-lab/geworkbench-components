@@ -950,9 +950,8 @@ public final class PromoterViewPanel extends JPanel {
 				annotationMap = new HashMap<String, String[]>();
 				annotationMaps.put(cols[ANNOTATIONS_KEY], annotationMap);
 			}
-			// if more annotations fields are needed, && cols[ANNOTATIONS_TYPE].equals("class")
-			// can be removed.
-			if (cols.length >= ANNOTATIONS_COLUMN_NUM && (cols[ANNOTATIONS_TYPE].equals("class") ||  (cols[ANNOTATIONS_TYPE].equals("tax_group")))) {
+
+			if (cols.length >= ANNOTATIONS_COLUMN_NUM && (cols[ANNOTATIONS_TYPE].equals("family") ||  (cols[ANNOTATIONS_TYPE].equals("tax_group")))) {
 				annotationMap.put(cols[ANNOTATIONS_TYPE], cols);
 			}
 			annotationRow = annotationReader.readLine();
@@ -1022,10 +1021,10 @@ public final class PromoterViewPanel extends JPanel {
 			String name = idNameResult[IDNAME_NAME];
 			
 			HashMap<String, String[]> annotationsResults = annotationMaps.get(key);
-			String[] clazzArray = annotationsResults.get("class");
-			String clazz = clazzArray[ANNOTATIONS_VALUE]; 
+			String[] familyArray = annotationsResults.get("family");
+			String family = familyArray[ANNOTATIONS_VALUE]; 
 			
-			String fullName = name + ":" + clazz + ":" + id;
+			String fullName = name + ":" + family + ":" + id;
 
 			boolean sqrtNSelected = false;
 			double pseduocount = 0;
