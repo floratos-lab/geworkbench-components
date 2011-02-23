@@ -8,6 +8,10 @@ import javax.swing.event.ListSelectionEvent;
 public class TableSelectionEvent extends ListSelectionEvent {
 
   /**
+	 * 
+	 */
+	private static final long serialVersionUID = -1066562486408377868L;
+/**
     * The index of the column whose selection has changed.
     */
   protected int columnIndex;

@@ -1,11 +1,8 @@
 package org.geworkbench.components.interactions.cellularnetwork;
-import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.table.*;
-import javax.swing.plaf.basic.*;
+import javax.swing.*; 
+import javax.swing.table.*; 
 import java.awt.event.*;
-import java.awt.*;
-import java.util.*;
+ 
 
 /**
   * @author min you
@@ -50,10 +47,7 @@ public class CellSelectionlTableTest {
     frame.setVisible(true);
   }
 
-  public static void main(String[] argv) {
-    CellSelectionlTableTest mainClass = new CellSelectionlTableTest();
-  }
-
+  
   /**
     * Sample TableSelectionListener.
     */
@@ -66,7 +60,7 @@ public class CellSelectionlTableTest {
       int firstIndex = e.getFirstIndex();
       int lastIndex = e.getLastIndex();
       boolean isAdjusting = e.getValueIsAdjusting();
-      String strValue = e.toString();      
+      
       System.out.println("tsm="+tsm);
       System.out.println("column="+column);
       System.out.println("firstIndex="+firstIndex);

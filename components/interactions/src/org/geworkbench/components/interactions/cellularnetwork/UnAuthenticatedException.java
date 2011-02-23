@@ -7,7 +7,10 @@ package org.geworkbench.components.interactions.cellularnetwork;
 
  
 public class UnAuthenticatedException extends org.geworkbench.util.BaseException {
-    // ---------------------------------------------------------------------------
+    
+	private static final long serialVersionUID = 6379819293142168996L;
+
+	// ---------------------------------------------------------------------------
     // --------------- Constructors
     // ---------------------------------------------------------------------------
     public UnAuthenticatedException() {

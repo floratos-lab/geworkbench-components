@@ -184,7 +184,7 @@ public class TableSelectionModel
     * @param count the number of columns
     */
   public void setColumns(int count) {
-    listSelectionModels = new Vector();
+    listSelectionModels = new Vector<ListSelectionModel>();
     for (int i=0; i<count; i++) {
       addColumn();
     }

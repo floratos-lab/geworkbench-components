@@ -17,8 +17,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
-import java.io.IOException;
-import java.math.BigDecimal;
+import java.io.IOException; 
 import java.net.Authenticator;
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
@@ -139,6 +138,11 @@ import org.jfree.ui.RectangleInsets;
 @AcceptTypes( { DSMicroarraySet.class })
 public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		implements VisualPlugin, Closable, Observer {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7095407341852521909L;
+
 	private Log log = LogFactory.getLog(this.getClass());
 
 	private Properties iteractionsProp;
@@ -247,6 +251,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	private Vector<Vector<Object>> cachedPreviewData = new Vector<Vector<Object>>();
 
+	@SuppressWarnings("unchecked")
 	private DSMicroarraySet dataset = null;
 
 	private Map<String, String> geneTypeMap = null;
@@ -1568,6 +1573,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	}
 
+	@SuppressWarnings("unchecked")
 	private void createNetworks(ProgressBar createNetworkPb,
 			CreateNetworkHandler handler) {// GEN-FIRST:event_loadfromDBHandler
 
@@ -1611,7 +1617,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 						cellularNetWorkElementInformation.getdSGeneMarker(),
 						eidc);
 				serial = copy.get(index).getSerial();
-				matrix.addGeneRow(serial);
+				//matrix.addGeneRow(serial);
 				log.debug(" index:" + index + ",serial:" + serial + ",CNKB#"
 						+ cellularNetWorkElementInformation.getdSGeneMarker());
 				for (InteractionDetail interactionDetail : arrayList) {
@@ -1758,23 +1764,22 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 						else
 							geneIdToNameMap.put(mid1, "");
 					}
-
+					String shortNameType = CellularNetworkPreferencePanel.interactionTypeSifMap.get(interactionDetail.getInteractionType());
 					if (isGene1InMicroarray == false
 							|| isGene2InMicroarray == false) {
 						if (serial1 != -1)
 							mid1 = String.valueOf(serial1);
 						if (serial2 != -1)
 							mid2 = String.valueOf(serial2);
-
+                       
 						matrix.add(mid1, mid2, isGene1InMicroarray,
 								isGene2InMicroarray, 0.8f);
 
 						matrix.addDirectional(mid1, mid2, isGene1InMicroarray,
-								isGene2InMicroarray, interactionDetail
-										.getInteractionType());
+								isGene2InMicroarray, shortNameType);
 						matrix.addDirectional(mid2, mid1, isGene2InMicroarray,
-								isGene1InMicroarray, interactionDetail
-										.getInteractionType());
+								isGene1InMicroarray, shortNameType);
+										 
 
 					} else {
 						matrix.addGeneRow(serial1);
@@ -1782,9 +1787,9 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 						matrix.add(serial1, serial2, 0.8f);
 
 						matrix.addDirectional(serial1, serial2,
-								interactionDetail.getInteractionType());
+								shortNameType);
 						matrix.addDirectional(serial2, serial1,
-								interactionDetail.getInteractionType());
+								shortNameType);
 					}
 					interactionNum++;
 					if (interactionNum > maxInteractionNum
@@ -2149,6 +2154,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	}
 
 	DefaultTableModel activeMarkersTableModel = new DefaultTableModel() {
+ 
+		private static final long serialVersionUID = 2700694309070316774L;
 
 		@Override
 		public boolean isCellEditable(int r, int c) {
@@ -2230,6 +2237,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	private class PreviewTableModel extends DefaultTableModel
 
 	{
+ 
+		private static final long serialVersionUID = -3314439294428139176L;
 
 		@Override
 		public int getColumnCount() {
@@ -2310,6 +2319,9 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	}
 
 	private class IntegerRenderer extends JLabel implements TableCellRenderer {
+		 
+		private static final long serialVersionUID = 1399618132721043696L;
+
 		Border unselectedBorder = null;
 
 		Border selectedBorder = null;
@@ -2414,6 +2426,9 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	}
 
 	private class ColorRenderer extends JLabel implements TableCellRenderer {
+		 
+		private static final long serialVersionUID = 8232307195673766041L;
+
 		Border unselectedBorder = null;
 
 		Border selectedBorder = null;
@@ -2596,6 +2611,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		return event;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Subscribe
 	public void receive(ProjectEvent pe, Object source) {
 		DSDataSet ds = pe.getDataSet();
@@ -2619,11 +2635,12 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			}
 		};
 		Thread t = new Thread(processEventThread);
-		t.setPriority(t.MAX_PRIORITY);
+		t.setPriority(Thread.MAX_PRIORITY);
 		t.start();
 		log.debug("end GeneSelectorEvent at CNKW");
 	}
 
+	@SuppressWarnings("unchecked")
 	synchronized void processData(DSPanel<DSGeneMarker> panel) {
 		log.debug("start processData");
 		DSDataSet ds = ProjectPanel.getInstance().getDataSet();
@@ -2774,6 +2791,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	}
 
 	private class LengendCheckBox extends JCheckBox {
+ 
+		private static final long serialVersionUID = -8657497943937239528L;
 
 		public LengendCheckBox(String label, boolean isSelected) {
 
