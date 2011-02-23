@@ -26,8 +26,8 @@ import org.geworkbench.engine.management.Publish;
 public class MultipleEntrezGeneIDFilter extends FilteringAnalysis {
 	private static final long serialVersionUID = -3603151182199536102L;
 
-	protected boolean filterNoEntrezID = false;
-	protected boolean filterMultipleEntrezIDs = false;
+	private boolean filterNoEntrezID = false;
+	private boolean filterMultipleEntrezIDs = false;
 
 	List<Integer> noEntrezIDList = new ArrayList<Integer>();
 	List<Integer> multipleEntrezIDsList = new ArrayList<Integer>();
