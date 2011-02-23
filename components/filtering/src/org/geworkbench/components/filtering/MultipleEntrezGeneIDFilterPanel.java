@@ -16,11 +16,15 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.events.listeners.ParameterActionListener;
 
+/**
+ * 
+ * @author zji
+ * @version $Id$
+ *
+ */
 public class MultipleEntrezGeneIDFilterPanel extends
 		AbstractSaveableParameterPanel implements ItemListener {
 
@@ -29,21 +33,24 @@ public class MultipleEntrezGeneIDFilterPanel extends
 	private static final String NOT_FILTERED = "not filtered";
 	private static final String FILTERED = "filtered";
 
-	private static Log log = LogFactory.getLog(MultipleEntrezGeneIDFilterPanel.class);
+	public enum Action {REMOVE, CREATE_FROM_MATCHING, CREATE_FROM_EXCLUDING};
 
-	private JLabel filterOutMarkersLabel = new JLabel("<html><p> </p><p>Filter action: </p></html>");
-	final String NO_ENTREZ_IDS = "No Entrez ID";
-	final String MULTIPLE_ENTREZ_IDS_OPTION = "Multiple Entrez IDs";
-	final String FILTER_ACTION_LABEL_SELECTION = "Filter Action Label";
+	private static final String REMOVE_MARKERS_OPTION = "Remove markers";
+	private static final String NEW_MARKERS_FROM_MATCHING_FILTER_OPTION = "Create new marker set(s) from markers matching filter (_GID_none, _GID_multiple)";
+	private static final String NEW_MARKERS_EXCLUDING_MATCHING_FILTER_OPTION = "Create new marker set excluding markers matching filter ( GID filtered)";
 
-	final String REMOVE_MARKERS_OPTION = "Remove markers";
-	final String NEW_MARKERS_FROM_MATCHING_FILTER_OPTION = "Create new marker set(s) from markers matching filter (_GID_none, _GID_multiple)";
-	final String NEW_MARKERS_EXCLUDING_MATCHING_FILTER_OPTION = "Create new marker set excluding markers matching filter ( GID filtered)";
+	private static final Map<String, Action> actionMap = new HashMap<String, Action>();
+	static {
+		actionMap.put(REMOVE_MARKERS_OPTION, Action.REMOVE);
+		actionMap.put(NEW_MARKERS_FROM_MATCHING_FILTER_OPTION, Action.CREATE_FROM_MATCHING);
+		actionMap.put(NEW_MARKERS_EXCLUDING_MATCHING_FILTER_OPTION, Action.CREATE_FROM_EXCLUDING);
+	}
 
-	private JComboBox filterActionSelectionComboBox = new JComboBox(
-			new String[] { REMOVE_MARKERS_OPTION,
-					NEW_MARKERS_FROM_MATCHING_FILTER_OPTION,
-					NEW_MARKERS_EXCLUDING_MATCHING_FILTER_OPTION });
+	private static final String NO_ENTREZ_IDS = "No Entrez ID";
+	private static final String MULTIPLE_ENTREZ_IDS_OPTION = "Multiple Entrez IDs";
+	private static final String FILTER_ACTION_LABEL_SELECTION = "Filter Action Label";
+
+	private JComboBox filterActionSelectionComboBox = new JComboBox(actionMap.keySet().toArray());
 
 	private JCheckBox noEntrezIDsCheckBox = new JCheckBox(NO_ENTREZ_IDS);
 	private boolean noEntrezIDsStatus;
@@ -52,19 +59,7 @@ public class MultipleEntrezGeneIDFilterPanel extends
 			MULTIPLE_ENTREZ_IDS_OPTION);
 	private boolean multipleEntrezIDsStatus;
 
-	private GridLayout gridLayout = new GridLayout(0, 1);
-	private JLabel filterActionLabel = new JLabel(
-			"<html><p>Filter out markers with: </p><p></p></html>");
-
 	public MultipleEntrezGeneIDFilterPanel() {
-		try {
-			jbInit();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	private void jbInit() throws Exception {
 
 		noEntrezIDsCheckBox.setSelected(false);
 		noEntrezIDsStatus = false;
@@ -72,9 +67,10 @@ public class MultipleEntrezGeneIDFilterPanel extends
 		multipleEntrezIDsCheckBox.setSelected(false);
 		multipleEntrezIDsStatus = false;
 
-		JPanel container = new JPanel(gridLayout);
+		JPanel container = new JPanel(new GridLayout(0, 1));
 		container.setPreferredSize(new Dimension(500, 140));
 
+		JLabel filterActionLabel = new JLabel("<html><p>Filter out markers with: </p><p></p></html>");
 		container.add(filterActionLabel);
 		container.add(noEntrezIDsCheckBox);
 		container.add(multipleEntrezIDsCheckBox);
@@ -83,6 +79,7 @@ public class MultipleEntrezGeneIDFilterPanel extends
 
 		container.setAlignmentX(LEFT_ALIGNMENT);
 
+		JLabel filterOutMarkersLabel = new JLabel("<html><p> </p><p>Filter action: </p></html>");
 		container.add(filterOutMarkersLabel);
 		container.add(filterActionSelectionComboBox);
 
@@ -109,21 +106,8 @@ public class MultipleEntrezGeneIDFilterPanel extends
 		}
 	}
 
-	public int getFilterAction() {
-		if (filterActionSelectionComboBox.getSelectedItem().equals(
-				REMOVE_MARKERS_OPTION))
-			return MultipleEntrezGeneIDFilter.REMOVE;
-		else if (filterActionSelectionComboBox.getSelectedItem().equals(
-				NEW_MARKERS_FROM_MATCHING_FILTER_OPTION))
-			return MultipleEntrezGeneIDFilter.CREATE_FROM_MATCHING;
-		else if (filterActionSelectionComboBox.getSelectedItem().equals(
-				NEW_MARKERS_EXCLUDING_MATCHING_FILTER_OPTION))
-			return MultipleEntrezGeneIDFilter.CREATE_FROM_EXCLUDING;
-		else {
-			// also return ignore option, but not intended
-			log.error("unexcepted option of missing value treatment");
-			return MultipleEntrezGeneIDFilter.REMOVE;
-		}
+	public Action getFilterAction() {
+		return actionMap.get( filterActionSelectionComboBox.getSelectedItem() );
 	}
 
 	@Override
