@@ -1414,8 +1414,14 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		}
 
 		boolean isToolTipEnabled = true;
-
-		chart = ChartFactory.createXYLineChart(title, "likelihood",
+        String context = jPreferencePanel.getSelectedContext();
+        String version = jPreferencePanel.getSelectedVersion();
+        
+        if ((context != null && !context.trim().equals("")) && (version != null && !version.trim().equals("")))
+        {
+        	title += "(" + context + " - " + version + ")";
+        }
+        chart = ChartFactory.createXYLineChart(title, "likelihood",
 				"#interactions", plots, PlotOrientation.VERTICAL, true, true,
 				true);
 
