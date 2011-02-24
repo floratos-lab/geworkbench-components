@@ -12,7 +12,7 @@ import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.bison.model.analysis.Analysis;
 import org.geworkbench.util.FilePathnameUtils;
-import org.jdesktop.swingworker.*;
+import javax.swing.SwingWorker;
 
 /**
  * A handler used to log events.

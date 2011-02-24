@@ -29,7 +29,7 @@ import org.geworkbench.components.genspace.rating.WorkflowVisualizationPopup;
 import org.geworkbench.components.genspace.ui.LoginManager;
 import org.geworkbench.engine.config.VisualPlugin;
 
-import org.jdesktop.swingworker.*;
+import javax.swing.SwingWorker.*;
 
 
 
@@ -388,7 +388,7 @@ public class RealTimeWorkFlowSuggestion extends JPanel implements VisualPlugin, 
 
 	public static void updateCWFStatus(final int hour, final int minute, final int second, final String toolName, final String transactionID) {
 
-		org.jdesktop.swingworker.SwingWorker<Void, Void> worker = new org.jdesktop.swingworker.SwingWorker<Void, Void>() {
+		javax.swing.SwingWorker<Void, Void> worker = new javax.swing.SwingWorker<Void, Void>() {
 			public Void doInBackground() {
 
 				//System.out.println(" ");
