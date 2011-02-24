@@ -730,7 +730,8 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		// TODO parsing annotation is a duplicate effort
 		if (result == null && !GoAnalysisResult.isAnnotationParsed()) {
 			String annotationFileName = dataSet.getAnnotationFileName();
-			GoAnalysisResult.parseAnnotation(annotationFileName);
+			if(annotationFileName!=null)
+				GoAnalysisResult.parseAnnotation(annotationFileName);
 		}
 		Set<Integer> processedTerms = new TreeSet<Integer>();
 		Set<String> genes = genesFomrTermAndDescendants(processedTerms, goId, includeDescendants);
