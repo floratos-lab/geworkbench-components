@@ -165,7 +165,7 @@ public class WorkflowVisualization extends JPanel implements VisualPlugin, Actio
 	public void actionPerformed(ActionEvent e)
 	{
 
-		org.jdesktop.swingworker.SwingWorker<Void, Void> worker = new org.jdesktop.swingworker.SwingWorker<Void, Void>() {
+		javax.swing.SwingWorker<Void, Void> worker = new javax.swing.SwingWorker<Void, Void>() {
 			public Void doInBackground() {
 
 				// get the name of the selected tool and the action

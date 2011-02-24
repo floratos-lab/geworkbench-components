@@ -28,7 +28,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.engine.config.VisualPlugin;
 
-import org.jdesktop.swingworker.*;
+import javax.swing.SwingWorker;
 
 public class ISBUWorkFlowVisualization extends JPanel implements VisualPlugin,
 Runnable {
@@ -137,7 +137,7 @@ Runnable {
 		tools.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent event) {
 
-				org.jdesktop.swingworker.SwingWorker<Void, Void> worker = new org.jdesktop.swingworker.SwingWorker<Void, Void>() {
+				javax.swing.SwingWorker<Void, Void> worker = new javax.swing.SwingWorker<Void, Void>() {
 					public Void doInBackground() {
 
 						try {
@@ -208,7 +208,7 @@ Runnable {
 		top3Button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent topE) {
 
-				org.jdesktop.swingworker.SwingWorker<Void, Void> worker = new org.jdesktop.swingworker.SwingWorker<Void, Void>() {
+				javax.swing.SwingWorker<Void, Void> worker = new javax.swing.SwingWorker<Void, Void>() {
 					public Void doInBackground() {
 
 

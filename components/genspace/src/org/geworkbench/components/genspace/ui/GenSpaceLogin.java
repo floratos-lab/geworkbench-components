@@ -446,6 +446,7 @@ public class GenSpaceLogin extends JPanel implements VisualPlugin, ActionListene
 		this.setLayout(new FlowLayout());
 		this.removeAll();
 		this.add(panel);
+		this.repaint();
 		//this.setSize(500, 500);
 		this.revalidate();
 	}
