@@ -11,8 +11,16 @@ import org.geworkbench.bison.datastructure.biocollections.GoAnalysisResult;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
+import org.geworkbench.bison.datastructure.bioobjects.markers.goterms.GOTerm;
+import org.geworkbench.bison.datastructure.bioobjects.markers.goterms.GeneOntologyTree;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMicroarray;
 
+/**
+ * 
+ * @author zji
+ * @version $Id$
+ *
+ */
 class GoTableModel extends AbstractTableModel {
 	static Log log = LogFactory.getLog( GoTableModel.class );
 
@@ -35,22 +43,44 @@ class GoTableModel extends AbstractTableModel {
 		return COLUMN_COUNT;
 	}
 	
-	// this is potentially useful in other place or as part of annotation parser
-	private void deepParse(String goTermAnnotation, Map<Integer, String> map) {
+	private static GeneOntologyTree geneOntologyTree = GeneOntologyTree.getInstance();
+	private static void parseAndAdd(String goTermAnnotation, Map<Integer, TermPair> map, String namespace) {
 		if(goTermAnnotation.startsWith("---"))
 				return;
 
 		String[] fields = goTermAnnotation.split("//");
 		int id = Integer.parseInt( fields[0].trim() );
-		if(map.get(id)==null) {
-			map.put(id, fields[1].trim());
+		
+		if(id==0) return;
+		
+		GOTerm term = geneOntologyTree.getTerm(id);
+		if(term==null) {
+			log.error("No GO term for ID "+id);
+			return;
 		}
+			
+		String name = geneOntologyTree.getTerm(id).getName();
+		if(name==null) {
+			log.error("GO term name is null for ID "+id);
+			return;
+		}
+			
+		map.put(id, new TermPair(name, namespace));
 	}
 
+	private static class TermPair {
+		String name;
+		String namespace;
+		
+		TermPair(String name, String namespace) {
+			this.name = name;
+			this.namespace = namespace;
+		}
+	}
+	
 	void populateFromDataSet(DSMicroarraySet<CSMicroarray> dataSet) {
-		Map<Integer, String> biologyProcessMap = new HashMap<Integer, String>();
-		Map<Integer, String> cellularComponentMap = new HashMap<Integer, String>();
-		Map<Integer, String> molecularFunctionMap = new HashMap<Integer, String>();
+
+		Map<Integer, TermPair> map = new HashMap<Integer, TermPair>();
 		for (DSGeneMarker marker : dataSet.getMarkers()) {
 
 			String[] biologyProcess = AnnotationParser.getInfo(
@@ -58,7 +88,7 @@ class GoTableModel extends AbstractTableModel {
 					AnnotationParser.GENE_ONTOLOGY_BIOLOGICAL_PROCESS);
 			if (biologyProcess != null) {
 				for (String b : biologyProcess) {
-					deepParse(b, biologyProcessMap);
+					parseAndAdd(b, map, "B");
 				}
 			}
 			String[] cellularComponent = AnnotationParser.getInfo(
@@ -66,7 +96,7 @@ class GoTableModel extends AbstractTableModel {
 					AnnotationParser.GENE_ONTOLOGY_CELLULAR_COMPONENT);
 			if (cellularComponent != null) {
 				for (String c : cellularComponent) {
-					deepParse(c, cellularComponentMap);
+					parseAndAdd(c, map, "C");
 				}
 			}
 			String[] molecularFunction = AnnotationParser.getInfo(
@@ -74,29 +104,18 @@ class GoTableModel extends AbstractTableModel {
 					AnnotationParser.GENE_ONTOLOGY_MOLECULAR_FUNCTION);
 			if (molecularFunction != null) {
 				for (String m : molecularFunction) {
-					deepParse(m, molecularFunctionMap);
+					parseAndAdd(m, map, "M");
 				}
 			}
 		}
 		COLUMN_COUNT = 3;
-		data = new Object[biologyProcessMap.size()+cellularComponentMap.size()+molecularFunctionMap.size()][COLUMN_COUNT];
+		data = new Object[map.size()][COLUMN_COUNT];
 		int index = 0;
-		for(int id: biologyProcessMap.keySet()) {
+		for(Integer id : map.keySet()) {
 			data[index][0] = id;
-			data[index][1] = biologyProcessMap.get(id);
-			data[index][2] = "B";
-			index++;
-		}
-		for(int id: cellularComponentMap.keySet()) {
-			data[index][0] = id;
-			data[index][1] = cellularComponentMap.get(id);
-			data[index][2] = "C";
-			index++;
-		}
-		for(int id: molecularFunctionMap.keySet()) {
-			data[index][0] = id;
-			data[index][1] = molecularFunctionMap.get(id);
-			data[index][2] = "M";
+			TermPair p = map.get(id);
+			data[index][1] = p.name;
+			data[index][2] = p.namespace;
 			index++;
 		}
 		
