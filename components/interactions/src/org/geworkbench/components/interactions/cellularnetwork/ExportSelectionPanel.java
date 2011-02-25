@@ -160,11 +160,10 @@ public class ExportSelectionPanel extends JPanel {
 		@Override
 		protected void done() {
 			if (this.isCancelled()) {
-				log.info("Calculation task is cancel.");
+				log.info("Exporting task is cancel.");
 
 			} else {
-				log.info("Calculation task is done.");
-				parent.dispose();
+				log.info("Exporting task is done.");			 
 				pb.dispose();
 
 			}
@@ -225,10 +224,7 @@ public class ExportSelectionPanel extends JPanel {
 			} catch (Exception ex) {
 				System.out.println(ex.getMessage());
 			}
-			/*
-			 * if (this.isCancelled() == true) { pearsonCorrelationMap.clear();
-			 * pb.dispose(); break; }
-			 */
+			 
 
 			return null;
 		}
@@ -238,7 +234,7 @@ public class ExportSelectionPanel extends JPanel {
 		}
 
 		public void update(Observable o, Object arg) {
-			worker.cancel(true);
+			cancel(true);
 		}
 
 	}
