@@ -528,7 +528,7 @@ public class CytoscapeWidget implements VisualPlugin {
 			// e = Cytoscape.getCyEdge(String.valueOf(geneId),
 			// String.valueOf(geneId) + ".pp." +
 			// String.valueOf(id2), String.valueOf(id2), "");
-			e = Cytoscape.getCyEdge(n1.getIdentifier(), geneId1 + ".pp."
+			e = Cytoscape.getCyEdge(n1.getIdentifier(), geneId1 + "."
 					+ geneId2, n2.getIdentifier(), "");
 			// For Aracne edges, if a reverse edge exist, we
 			// skip it.
@@ -542,7 +542,7 @@ public class CytoscapeWidget implements VisualPlugin {
 				// check it
 				// here.
 				cytoNetwork.addEdge(e);
-			e.setIdentifier(geneId1 + ".pp." + geneId2 + "/"
+			e.setIdentifier(geneId1 + "." + geneId2 + "/"
 					+ n1.getIdentifier() + "-" + n2.getIdentifier());
 
 		}

@@ -347,10 +347,7 @@ public class NetworkRedrawWindow {
 		AdjacencyMatrixDataSet adjacencyMatrixdataSet = null;
 		AdjacencyMatrix matrix = new AdjacencyMatrix();
 		AdjacencyMatrix origMatrix = CytoscapeWidget.getInstance().getAdjMatrix();
-		
-		
-		//matrix.getGeneRows().putAll((HashMap<Integer, HashMap<Integer, Float>>)origMatrix.getGeneRows().clone());
-		//matrix.getInteractionMap().putAll((HashMap<Integer, HashMap<Integer, String>>)origMatrix.getInteractionMap().clone());
+	 
 	    matrix.setMicroarraySet(origMatrix.getMicroarraySet());	 
 	    
 		Double value = new Double(thresholdSlider.getValue());
@@ -371,14 +368,25 @@ public class NetworkRedrawWindow {
 		    {
 		    	if (Math.abs(pearsonCorrelations.get(key)) >= value)
 		    	{
-		    		String[] list = key.split("/");
-		    		list = list[0].split("\\.");
-		    		int serial1 = new Integer(list[0]);
-		    		int serial2 = new Integer(list[2]);
-		    		String  interactionType= list[1];
+		    		String[] list1 = key.split("/");
+		    		String[] list2 = list1[0].split("\\.");
+		    		int serial1 = -1, serial2 = -1;		    		 
+		    		String  interactionType = null;
+		    		if (list2.length == 3)
+		    		{
+		    			serial1 = new Integer(list2[0]);		    		 
+		    		    serial2 = new Integer(list2[2]);
+		    		    interactionType= list2[1];
+		    		}
+		    		else if (list2.length == 2)
+		    		{
+		    			serial1 = new Integer(list2[0]);		    		 
+		    		    serial2 = new Integer(list2[1]);
+		    		}
+		    		
 		    		
 		    		matrix.add(serial1, serial2, 0.8f);
-
+		    	 
 					matrix.addDirectional(serial1, serial2,
 							interactionType);
 					matrix.addDirectional(serial2, serial1,

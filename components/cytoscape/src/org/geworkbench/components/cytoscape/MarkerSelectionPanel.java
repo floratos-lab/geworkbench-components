@@ -137,11 +137,22 @@ public class MarkerSelectionPanel extends JPanel implements Observer {
                 String gene1 =  source.getIdentifier();
                 String gene2 =  target.getIdentifier();
 			    
-                String[] list = edgeView.getEdge().getIdentifier().split("/");
-	    		list = list[0].split("\\.");	    	 
-	    		int serial1 = new Integer(list[0]);
-	    		int serial2 = new Integer(list[2]);
-	    		String  interactionType= list[1];
+                String[] list1 = edgeView.getEdge().getIdentifier().split("/");
+                String[] list2 = list1[0].split("\\.");
+                int serial1 = -1, serial2 = -1;		    		 
+	    		String  interactionType = null;
+	    		if (list2.length == 3)
+	    		{
+	    			serial1 = new Integer(list2[0]);		    		 
+	    		    serial2 = new Integer(list2[2]);
+	    		    interactionType= list2[1];
+	    		}
+	    		else if (list2.length == 2)
+	    		{
+	    			serial1 = new Integer(list2[0]);		    		 
+	    		    serial2 = new Integer(list2[1]);
+	    		}
+	    		
 	    		
 	    		if ( selectedGeneList.contains(gene1) && selectedGeneList.contains(gene2) )
 	    		{
