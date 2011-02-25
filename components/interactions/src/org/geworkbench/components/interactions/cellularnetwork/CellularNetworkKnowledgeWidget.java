@@ -2606,7 +2606,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 			try {				 
 					jPreferencePanel.initPreferences();
-					initDetailTable();		 
+					if (!this.isCancelled())
+					  initDetailTable();		 
 				 
 			} catch (Exception ex) {
 				System.out.println(ex.getMessage());
