@@ -167,6 +167,8 @@ public class CytoscapeWidget implements VisualPlugin {
 	Map<String, List<Integer>> geneIdToMarkerIdMap = new HashMap<String, List<Integer>>();
 	Map<String, List<Integer>> geneNameToMarkerIdMap = new HashMap<String, List<Integer>>();
 
+    Map<String, String> interactionTypeSifMap = null;
+	
 	private static CytoscapeWidget INSTANCE = null;
 
 	
@@ -493,7 +495,7 @@ public class CytoscapeWidget implements VisualPlugin {
 			String geneId2, String type) {
 		// process the edge connecting geneId and key
 		CyEdge e = null;
-
+		String typeName = null;
 		if (type != null) {
 			/*
 			 * if (geneId > id2) { e =
@@ -505,8 +507,9 @@ public class CytoscapeWidget implements VisualPlugin {
 			 * String.valueOf(geneId), type); }
 			 */
 
+			typeName = interactionTypeSifMap.get(type);
 			e = Cytoscape.getCyEdge(n1.getIdentifier(), geneId1 + "." + type
-					+ "." + geneId2, n2.getIdentifier(), type);
+					+ "." + geneId2, n2.getIdentifier(), typeName);
 			// Aracne result will not have an type, so we should
 			// not need to check it here.
 			if (!cytoNetwork.edgeExists(n2, n1))
@@ -557,13 +560,10 @@ public class CytoscapeWidget implements VisualPlugin {
 
 			if (type != null) {
 				Cytoscape.getEdgeAttributes().setAttribute(e.getIdentifier(),
-						"type", type);
-				// Cytoscape.getEdgeAttributes().setAttribute(
-				// e.getIdentifier(), "interaction", type);
-				// getRandomCorlor();
-				// edgeDm.putMapValue(type, getRandomCorlor());
-				if (edgeDm.getMapValue(type) == null) {
-					edgeDm.putMapValue(type, getRandomCorlor());
+						"type", typeName);
+				 
+				if (edgeDm.getMapValue(typeName) == null) {
+					edgeDm.putMapValue(typeName, getRandomCorlor());
 
 				}
 
@@ -953,7 +953,8 @@ public class CytoscapeWidget implements VisualPlugin {
 			vs.getNodeAppearanceCalculator().setCalculator((nc));
 			vs.getEdgeAppearanceCalculator().setCalculator(ec);
 
-		}
+		}		
+		
 	}
 
 	private void receiveMatrix(int adjMatrixId) {
@@ -1086,6 +1087,7 @@ public class CytoscapeWidget implements VisualPlugin {
 			Cytoscape.getCurrentNetwork().removeEdge(cx, true);
 		}
 
+		interactionTypeSifMap = adjMatrix.getInteractionTypeSifMap();
 		Iterator<Integer> keysIt = adjMatrix.getGeneRows().keySet().iterator();
 		int i = 0;
 		while (keysIt.hasNext()) {
