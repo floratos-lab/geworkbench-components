@@ -398,6 +398,7 @@ public class InteractionsConnectionImpl {
 				short_name = rs.getString("short_name").trim();
 				
 				map.put(interactionType, short_name);
+				map.put(short_name, interactionType);
 			}
 			rs.close();
 

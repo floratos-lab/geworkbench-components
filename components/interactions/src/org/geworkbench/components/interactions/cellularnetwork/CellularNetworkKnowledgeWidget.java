@@ -15,11 +15,8 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
+import java.awt.image.BufferedImage; 
+import java.io.FileInputStream; 
 import java.io.IOException;
 import java.net.Authenticator;
 import java.net.ConnectException;
@@ -141,7 +138,7 @@ import org.jfree.ui.RectangleInsets;
  */
 @AcceptTypes( { DSMicroarraySet.class })
 public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
-		implements VisualPlugin, Closable, Observer {
+		implements VisualPlugin, Closable {
 	/**
 	 * 
 	 */
@@ -1156,7 +1153,10 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				"# interactions", null, PlotOrientation.VERTICAL, true, true,
 				true); // Title, X-Axis label, Y-Axis label, Dataset, Show
 		// legend, show ToolTips
-		graph = new ChartPanel(chart, true);
+		//graph = new ChartPanel(chart, true);
+		graph = new ChartPanel(chart, false, true, true, true, true);
+
+		//graph.setChart(chart);
 
 		XYPlot newPlot = (XYPlot) chart.getPlot();
 
@@ -1413,7 +1413,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	 */
 	public void drawPlot(final XYSeriesCollection plots, String title,
 			boolean needCreateLegendItems) {
-		if (plots == null) {
+		if (plots == null ) {
 			return;
 		}
 
@@ -1422,18 +1422,23 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		String version = jPreferencePanel.getSelectedVersion();
 
 		if ((context != null && !context.trim().equals(""))
-				&& (version != null && !version.trim().equals(""))) {
+				&& (version != null && !version.trim().equals("")) && plots.getSeriesCount() > 0) {
 			title += "(" + context + " - " + version + ")";
 		}
+		
+		
 		chart = ChartFactory.createXYLineChart(title, "likelihood",
 				"#interactions", plots, PlotOrientation.VERTICAL, true, true,
 				true);
+		
+	 
 
 		// NOW DO SOME OPTIONAL CUSTOMISATION OF THE CHART...
 		chart.setBackgroundPaint(Color.white);
 
 		// get a reference to the plot for further customisation...
 		XYPlot newPlot = (XYPlot) chart.getPlot();
+	
 		Color c = UIManager.getColor("Panel.background");
 		if (c != null) {
 			newPlot.setBackgroundPaint(c);
@@ -1598,6 +1603,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				.getGeneNameToMarkerIDMapping((DSMicroarraySet) dataset);
 
 		AdjacencyMatrix matrix = new AdjacencyMatrix();
+		matrix.setInteractionTypeSifMap(CellularNetworkPreferencePanel.interactionTypeSifMap);
 		handler.setAdjacencyMatrix(matrix);
 		AdjacencyMatrixDataSet adjacencyMatrixdataSet = null;
 		matrix.setMicroarraySet(dataset);
@@ -1610,9 +1616,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		boolean isGene2InMicroarray = true;
 		String historyStr = "";
 		boolean isRestrictToGenesPresentInMicroarray = jPreferencePanel
-				.isNetworkJCheckBox1Selected();
-
-		createNetworkPb.addObserver(this);
+				.isNetworkJCheckBox1Selected();	
 
 		for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {
 			if (needBreak)
@@ -1852,12 +1856,10 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 					+ ResultSetlUtil.INTERACTIONS_SERVLET_URL
 					+ "\n"
 					+ "      Selected Interactome:     "
-					+ jPreferencePanel.getContextJList().getSelectedValue()
-							.toString().split(" \\(")[0].trim()
+					+ jPreferencePanel.getSelectedContext()
 					+ "\n"
 					+ "      Selected Version:     "
-					+ ((VersionDescriptor) jPreferencePanel.getVersionJList()
-							.getSelectedValue()).getVersion() + "\n"
+					+ jPreferencePanel.getSelectedVersion() + "\n"
 					+ "      Threshold:     " + thresholdTextField.getText()
 					+ "\n" + "      Selected Marker List: \n" + historyStr
 					+ "\n";
@@ -2626,7 +2628,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	}
 
-	private class CreateNetworkHandler extends Thread {
+	private class CreateNetworkHandler extends Thread implements Observer{
 		AdjacencyMatrix matrix = null;
 		ProgressBar pb = null;
 		boolean cancel = false;
@@ -2637,6 +2639,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		}
 
 		public void run() {
+			pb.addObserver(this);
 			createNetworks(pb, this);
 		}
 
@@ -2659,6 +2662,25 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		protected void cancel(boolean cancel) {
 			this.cancel = cancel;
 		}
+		
+		public void update(Observable o, Object arg) {
+			cancel(true);			 
+			if (pb.getTitle().equals("Draw cytoscape graph")) {
+				pb.dispose();
+				publishAdjacencyMatrixEvent(new AdjacencyMatrixEvent(
+						createNetworkHandler.getAdjacencyMatrix(),
+						"Interactions from knowledgebase", -1, 2, 0.5f,
+						AdjacencyMatrixEvent.Action.CANCEL));
+
+			} else {
+				pb.dispose();
+
+			}
+			createNetWorkButton.setEnabled(true);
+			log.info("Create network canceled.");
+		}
+
+		
 
 	}
 
@@ -2955,22 +2977,5 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	 * protected ProgressBar getProgressBar() { return pb; } }
 	 */
 
-	public void update(Observable o, Object arg) {
-		createNetworkHandler.cancel(true);
-		ProgressBar pb = createNetworkHandler.getProgressBar();
-		if (pb.getTitle().equals("Draw cytoscape graph")) {
-			pb.dispose();
-			publishAdjacencyMatrixEvent(new AdjacencyMatrixEvent(
-					createNetworkHandler.getAdjacencyMatrix(),
-					"Interactions from knowledgebase", -1, 2, 0.5f,
-					AdjacencyMatrixEvent.Action.CANCEL));
-
-		} else {
-			pb.dispose();
-
-		}
-		createNetWorkButton.setEnabled(true);
-		log.info("Create network canceled.");
-	}
-
+	
 }

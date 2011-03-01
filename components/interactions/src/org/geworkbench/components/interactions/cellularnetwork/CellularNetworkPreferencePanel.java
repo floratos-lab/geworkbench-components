@@ -44,6 +44,7 @@ import org.geworkbench.engine.properties.PropertiesManager;
 import org.geworkbench.util.Util;
 import org.geworkbench.util.network.CellularNetWorkElementInformation;
  
+
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
 
@@ -1121,6 +1122,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 				allInteractionTypes = interactionsConnection
 						.getInteractionTypes();
 				interactionTypeSifMap = interactionsConnection.getInteractionTypeMap();
+				
 			} catch (ConnectException ce) {
 				JOptionPane
 						.showMessageDialog(
