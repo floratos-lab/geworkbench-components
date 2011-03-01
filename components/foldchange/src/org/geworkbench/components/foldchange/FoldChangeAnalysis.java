@@ -353,9 +353,12 @@ public class FoldChangeAnalysis extends AbstractAnalysis implements
 		numbValidValuesB/=numberGroupB;
 		
 		
-		 double fcValue=0;
-		if (isRatio&&(numbValidValuesB>SMALLDOUBLE))
+		double fcValue=0;
+		if (isRatio&&(numbValidValuesB>SMALLDOUBLE)){
 			fcValue=numbValidValuesA/numbValidValuesB;
+			if((fcValue<1)&&(Math.abs(fcValue)>SMALLDOUBLE))
+				fcValue=-1.0/fcValue;
+		}
 		else if(!isRatio)
 			fcValue=numbValidValuesA-numbValidValuesB;
 		
