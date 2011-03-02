@@ -46,10 +46,10 @@ import giny.view.EdgeView;
 
 import giny.model.Node;
 
-/*
+/**
  * @author yc2480
  * 
- * @version $Id
+ * @version $Id$
  */
 
 @SuppressWarnings("unchecked")
@@ -155,12 +155,7 @@ public class MarkerSelectionPanel extends JPanel implements Observer {
 	    		
 	    		if ( selectedGeneList.contains(gene1) && selectedGeneList.contains(gene2) )
 	    		{
-	    			matrix.add(serial1, serial2, 0.8f);
-
-					matrix.addDirectional(serial1, serial2,
-							interactionType);
-					matrix.addDirectional(serial2, serial1,
-							interactionType);
+	    			matrix.add(serial1, serial2, 0.8f, interactionType);
 	    		}
 	    		else if ( selectedGeneList.contains(gene1))
 	    		{

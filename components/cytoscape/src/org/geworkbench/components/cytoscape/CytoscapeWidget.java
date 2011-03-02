@@ -482,15 +482,6 @@ public class CytoscapeWidget implements VisualPlugin {
 		return results;
 	}
 
- 
-	public void memoryUsage() {
-		Runtime rtime = Runtime.getRuntime();
-		System.out.println("Total Memory---->" + rtime.totalMemory());
-		System.out.println("Free Memory---->" + rtime.freeMemory());
-		System.out.println("Used Memory---->"
-				+ (rtime.totalMemory() - rtime.freeMemory()));
-	}
-
 	private void createEdge(CyNode n1, CyNode n2, String geneId1,
 			String geneId2, String type) {
 		// process the edge connecting geneId and key
@@ -746,11 +737,9 @@ public class CytoscapeWidget implements VisualPlugin {
 			return;
 		}
 
-		HashMap<Integer, HashMap<Integer, Float>> geneRows = adjMatrix
+		HashMap<Integer, HashMap<Integer, AdjacencyMatrix.EdgeInfo>> geneRows = adjMatrix
 				.getGeneRows();
-		HashMap<Integer, String> interactionGeneRows = adjMatrix
-				.getInteractionMap().get(serialId);
-		HashMap<Integer, Float> map = geneRows.get((Integer) serialId);
+		HashMap<Integer, AdjacencyMatrix.EdgeInfo> map = geneRows.get((Integer) serialId);
 
 		if (map == null || map.size() == 0)
 		{
@@ -763,11 +752,9 @@ public class CytoscapeWidget implements VisualPlugin {
 			if (key.intValue() == serialId)
 				continue;
 
-			String type = null;
-			if (interactionGeneRows != null)
-				type = interactionGeneRows.get(key);
+			String type = map.get(key).type;
 
-			if (map.get(key) <= threshold)
+			if (map.get(key).value <= threshold)
 				continue;
 
 			// process the two nodes
@@ -789,11 +776,9 @@ public class CytoscapeWidget implements VisualPlugin {
 			return;
 		}
 
-		HashMap<String, HashMap<String, Float>> geneRowsNotInMicroarray = adjMatrix
+		HashMap<String, HashMap<String, AdjacencyMatrix.EdgeInfo>> geneRowsNotInMicroarray = adjMatrix
 				.getGeneRowsNotInMicroarray();
-		HashMap<String, String> interactionGeneRowsNotInMicroarray = adjMatrix
-				.getInteractionNotInMicroarrayMap().get(geneId);
-		HashMap<String, Float> map = geneRowsNotInMicroarray
+		HashMap<String, AdjacencyMatrix.EdgeInfo> map = geneRowsNotInMicroarray
 				.get((String) geneId);
 
 		if (map == null || map.size() == 0)
@@ -803,11 +788,9 @@ public class CytoscapeWidget implements VisualPlugin {
 			if (key.equals(geneId))
 				continue;
 
-			String type = null;
-			if (interactionGeneRowsNotInMicroarray != null)
-				type = interactionGeneRowsNotInMicroarray.get(key);
+			String type = map.get(key).type;
 
-			if (map.get(key) <= threshold)
+			if (map.get(key).value <= threshold)
 				continue;
 
 			// process the two nodes

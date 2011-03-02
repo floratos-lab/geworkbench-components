@@ -1602,8 +1602,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		Map<String, List<Integer>> geneNameToMarkerIdMap = AnnotationParser
 				.getGeneNameToMarkerIDMapping((DSMicroarraySet) dataset);
 
-		AdjacencyMatrix matrix = new AdjacencyMatrix(null, dataset);
-		matrix.setInteractionTypeSifMap(CellularNetworkPreferencePanel.interactionTypeSifMap);
+		AdjacencyMatrix matrix = new AdjacencyMatrix(null, dataset,
+				CellularNetworkPreferencePanel.interactionTypeSifMap);
 		handler.setAdjacencyMatrix(matrix);
 		AdjacencyMatrixDataSet adjacencyMatrixdataSet = null;
 
@@ -1787,20 +1787,10 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 							mid2 = String.valueOf(serial2);
 
 						matrix.add(mid1, mid2, isGene1InMicroarray,
-								isGene2InMicroarray, 0.8f);
-
-						matrix.addDirectional(mid1, mid2, isGene1InMicroarray,
-								isGene2InMicroarray, shortNameType);
-						matrix.addDirectional(mid2, mid1, isGene2InMicroarray,
-								isGene1InMicroarray, shortNameType);
+								isGene2InMicroarray, 0.8f, shortNameType);
 
 					} else {
-						matrix.addGeneRow(serial1);
-
-						matrix.add(serial1, serial2, 0.8f);
-
-						matrix.addDirectional(serial1, serial2, shortNameType);
-						matrix.addDirectional(serial2, serial1, shortNameType);
+						matrix.add(serial1, serial2, 0.8f, shortNameType);
 					}
 					interactionNum++;
 					if (interactionNum > maxInteractionNum
