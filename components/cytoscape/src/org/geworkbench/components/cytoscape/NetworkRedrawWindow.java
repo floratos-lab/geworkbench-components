@@ -383,14 +383,7 @@ public class NetworkRedrawWindow {
 		    		}
 		    		
 		    		
-		    		matrix.add(serial1, serial2, 0.8f);
-		    	 
-					matrix.addDirectional(serial1, serial2,
-							interactionType);
-					matrix.addDirectional(serial2, serial1,
-							interactionType);				
-			
-		    		
+		    		matrix.add(serial1, serial2, 0.8f, interactionType);
 		    	}
 		    	 
 		    }

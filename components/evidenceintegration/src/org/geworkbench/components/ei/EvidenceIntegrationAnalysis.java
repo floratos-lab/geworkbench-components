@@ -145,17 +145,17 @@ public class EvidenceIntegrationAnalysis extends AbstractGridAnalysis implements
     public Evidence convert(AdjacencyMatrixDataSet adjMatrix, DSMicroarraySetView<DSGeneMarker, DSMicroarray> mSet) {
         Evidence evidence = new Evidence(adjMatrix.getLabel());
         AdjacencyMatrix matrix = adjMatrix.getMatrix();
-        HashMap<Integer, HashMap<Integer, Float>> geneRows = matrix.getGeneRows();
+        HashMap<Integer, HashMap<Integer, AdjacencyMatrix.EdgeInfo>> geneRows = matrix.getGeneRows();
         DSItemList<DSGeneMarker> markers = mSet.markers();
-        for (Map.Entry<Integer, HashMap<Integer, Float>> entry : geneRows.entrySet()) {
+        for (Map.Entry<Integer, HashMap<Integer, AdjacencyMatrix.EdgeInfo>> entry : geneRows.entrySet()) {
             DSGeneMarker gene1 = markers.get(entry.getKey());
             if (gene1 != null) {
-                HashMap<Integer, Float> destGenes = entry.getValue();
-                for (Map.Entry<Integer, Float> destEntry : destGenes.entrySet()) {
+                HashMap<Integer, AdjacencyMatrix.EdgeInfo> destGenes = entry.getValue();
+                for (Map.Entry<Integer, AdjacencyMatrix.EdgeInfo> destEntry : destGenes.entrySet()) {
                     DSGeneMarker destGene = markers.get(destEntry.getKey());
                     if (destGene != null) {
                         log.debug("Adding evidence: " + gene1.getGeneId() + ", " + destGene.getGeneId() + ", " + destEntry.getValue());
-                        evidence.addEdge(gene1.getGeneId(), destGene.getGeneId(), destEntry.getValue());
+                        evidence.addEdge(gene1.getGeneId(), destGene.getGeneId(), destEntry.getValue().value);
 //                        graph.addEdge(gene1.getShortName(), destGene.getShortName(), destEntry.getValue());
                     } else {
                         log.debug("Gene with index " + destEntry.getKey() + " not found in selected genes, skipping.");
