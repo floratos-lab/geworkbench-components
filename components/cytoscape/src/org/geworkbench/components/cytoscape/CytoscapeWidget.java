@@ -764,43 +764,40 @@ public class CytoscapeWidget implements VisualPlugin {
 
 			createSubNetwork(edge.node2, geneIdToNameMap, threshold, level - 1);
 
-		} // end of the loop for map
+		} // end of the loop for edges
 	}
 
-	private void createSubNetwork(String geneId,
+	private void createSubNetwork(String node1,
 			HashMap<String, String> geneIdToNameMap, double threshold, int level) {
 
 		if (level == 0) {
 			return;
 		}
 
-		HashMap<String, HashMap<String, AdjacencyMatrix.EdgeInfo>> geneRowsNotInMicroarray = adjMatrix
-				.getGeneRowsNotInMicroarray();
-		HashMap<String, AdjacencyMatrix.EdgeInfo> map = geneRowsNotInMicroarray
-				.get((String) geneId);
+		List<AdjacencyMatrix.EdgeWithStringNode> edges = adjMatrix.getEdgesNotInMicroarray(node1);
 
-		if (map == null || map.size() == 0)
+		if (edges == null || edges.size() == 0)
 			return;
 
-		for (String key : map.keySet()) {
-			if (key.equals(geneId))
+		for (AdjacencyMatrix.EdgeWithStringNode edge : edges) {
+			if (edge.node2.equals(node1))
 				continue;
 
-			String type = map.get(key).type;
+			String type = edge.info.type;
 
-			if (map.get(key).value <= threshold)
+			if (edge.info.value <= threshold)
 				continue;
 
 			// process the two nodes
-			CyNode n1 = createNode(geneId, geneIdToNameMap);
-			CyNode n2 = createNode(key, geneIdToNameMap);
+			CyNode n1 = createNode(node1, geneIdToNameMap);
+			CyNode n2 = createNode(edge.node2, geneIdToNameMap);
 
 			// process the edge connecting geneId and key
-			createEdge(n1, n2, geneId, key, type);
+			createEdge(n1, n2, node1, edge.node2, type);
 
-			createSubNetwork(key, geneIdToNameMap, threshold, level - 1);
+			createSubNetwork(edge.node2, geneIdToNameMap, threshold, level - 1);
 
-		} // end of the loop for map
+		} // end of the loop for edges
 	}
 
 	private void cyNetWorkView_graphViewChanged(GraphViewChangeEvent gvce) {
@@ -1081,17 +1078,13 @@ public class CytoscapeWidget implements VisualPlugin {
 			log.debug("iteration: " + i);
 		}
 
-		Iterator<String> keysNotInMicroarray = adjMatrix
-				.getGeneRowsNotInMicroarray().keySet().iterator();
-
-		while (keysNotInMicroarray.hasNext()) {
+		for(String node: adjMatrix.getNodesNotInMicroarray()) {
 			if (cancelList.contains(adjMatrixId)) {
 				log.info("got cancel action");
 				return;
 			}
 			i++;
-			String key = keysNotInMicroarray.next();
-			createSubNetwork(key, geneIdToNameMap, threshold, 1);
+			createSubNetwork(node, geneIdToNameMap, threshold, 1);
 			log.debug("iteration: " + i);
 		}
 
