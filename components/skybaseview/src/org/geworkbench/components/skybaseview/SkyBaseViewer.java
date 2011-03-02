@@ -112,7 +112,7 @@ public class SkyBaseViewer implements VisualPlugin {
 	JTable table;
 	ChartPanel cp;
 	String pdburl;
-	String pdbroot = "http://156.145.102.40/";
+	String pdbroot = "http://skybase.c2b2.columbia.edu/nesg3/skynesg/";
 	String seqid = null;
 	//String blastroot = "http://skyline.c2b2.columbia.edu:8080/SkyBaseData/tmpblast/";
 	String blastroot = "http://cagridnode.c2b2.columbia.edu:8080/v2.0.0/SkyBaseData/tmpblast/";
