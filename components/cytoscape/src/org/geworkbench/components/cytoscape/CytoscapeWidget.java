@@ -730,41 +730,39 @@ public class CytoscapeWidget implements VisualPlugin {
 		return cyNode;
 	}
 
-	private void createSubNetwork(int serialId,
+	private void createSubNetwork(int node1,
 			HashMap<String, String> geneIdToNameMap, double threshold, int level) {
 
 		if (level == 0) {
 			return;
 		}
 
-		HashMap<Integer, HashMap<Integer, AdjacencyMatrix.EdgeInfo>> geneRows = adjMatrix
-				.getGeneRows();
-		HashMap<Integer, AdjacencyMatrix.EdgeInfo> map = geneRows.get((Integer) serialId);
+		List<AdjacencyMatrix.Edge> edges = adjMatrix.getEdges(node1);
 
-		if (map == null || map.size() == 0)
+		if (edges == null || edges.size() == 0)
 		{
-			CyNode n = createNode(String.valueOf(serialId), geneIdToNameMap);
+			CyNode n = createNode(String.valueOf(node1), geneIdToNameMap);
 			cytoNetwork.addNode(n);
 			return;
 		}
 
-		for (Integer key : map.keySet()) {
-			if (key.intValue() == serialId)
+		for (AdjacencyMatrix.Edge edge : edges) {
+			if (edge.node2 == node1)
 				continue;
 
-			String type = map.get(key).type;
+			String type = edge.info.type;
 
-			if (map.get(key).value <= threshold)
+			if (edge.info.value <= threshold)
 				continue;
 
 			// process the two nodes
-			CyNode n1 = createNode(String.valueOf(serialId), geneIdToNameMap);
-			CyNode n2 = createNode(key.toString(), geneIdToNameMap);
+			CyNode n1 = createNode(String.valueOf(node1), geneIdToNameMap);
+			CyNode n2 = createNode(String.valueOf(edge.node2), geneIdToNameMap);
 
-			createEdge(n1, n2, String.valueOf(serialId), String.valueOf(key),
+			createEdge(n1, n2, String.valueOf(node1), String.valueOf(edge.node2),
 					type);
 
-			createSubNetwork(key, geneIdToNameMap, threshold, level - 1);
+			createSubNetwork(edge.node2, geneIdToNameMap, threshold, level - 1);
 
 		} // end of the loop for map
 	}
@@ -1072,16 +1070,14 @@ public class CytoscapeWidget implements VisualPlugin {
 		}
 
 		interactionTypeSifMap = adjMatrix.getInteractionTypeSifMap();
-		Iterator<Integer> keysIt = adjMatrix.getGeneRows().keySet().iterator();
 		int i = 0;
-		while (keysIt.hasNext()) {
+		for (Integer node: adjMatrix.getNodes()) {
 			if (cancelList.contains(adjMatrixId)) {
 				log.info("got cancel action");
 				return;
 			}
 			i++;
-			int key = keysIt.next().intValue();
-			createSubNetwork(key, geneIdToNameMap, threshold, 1);
+			createSubNetwork(node, geneIdToNameMap, threshold, 1);
 			log.debug("iteration: " + i);
 		}
 

@@ -2,7 +2,6 @@ package org.geworkbench.components.ei;
 
 import java.io.Serializable;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -145,27 +144,27 @@ public class EvidenceIntegrationAnalysis extends AbstractGridAnalysis implements
     public Evidence convert(AdjacencyMatrixDataSet adjMatrix, DSMicroarraySetView<DSGeneMarker, DSMicroarray> mSet) {
         Evidence evidence = new Evidence(adjMatrix.getLabel());
         AdjacencyMatrix matrix = adjMatrix.getMatrix();
-        HashMap<Integer, HashMap<Integer, AdjacencyMatrix.EdgeInfo>> geneRows = matrix.getGeneRows();
+
         DSItemList<DSGeneMarker> markers = mSet.markers();
-        for (Map.Entry<Integer, HashMap<Integer, AdjacencyMatrix.EdgeInfo>> entry : geneRows.entrySet()) {
-            DSGeneMarker gene1 = markers.get(entry.getKey());
-            if (gene1 != null) {
-                HashMap<Integer, AdjacencyMatrix.EdgeInfo> destGenes = entry.getValue();
-                for (Map.Entry<Integer, AdjacencyMatrix.EdgeInfo> destEntry : destGenes.entrySet()) {
-                    DSGeneMarker destGene = markers.get(destEntry.getKey());
-                    if (destGene != null) {
-                        log.debug("Adding evidence: " + gene1.getGeneId() + ", " + destGene.getGeneId() + ", " + destEntry.getValue());
-                        evidence.addEdge(gene1.getGeneId(), destGene.getGeneId(), destEntry.getValue().value);
-//                        graph.addEdge(gene1.getShortName(), destGene.getShortName(), destEntry.getValue());
-                    } else {
-                        log.debug("Gene with index " + destEntry.getKey() + " not found in selected genes, skipping.");
-                    }
-                }
-            } else {
-                log.debug("Gene with index " + entry.getKey() + " not found in selected genes, skipping.");
-            }
-        }
-        return evidence;
+		for (AdjacencyMatrix.Edge edge : matrix.getEdges()) {
+			DSGeneMarker gene1 = markers.get(edge.node1);
+			if (gene1 != null) {
+				DSGeneMarker destGene = markers.get(edge.node2);
+				if (destGene != null) {
+					log.debug("Adding evidence: " + gene1.getGeneId() + ", "
+							+ destGene.getGeneId() + ", " + edge.info.value);
+					evidence.addEdge(gene1.getGeneId(), destGene.getGeneId(),
+							edge.info.value);
+				} else {
+					log.debug("Gene with index " + edge.node2
+							+ " not found in selected genes, skipping.");
+				}
+			} else {
+				log.debug("Gene with index " + edge.node1
+						+ " not found in selected genes, skipping.");
+			}
+		}
+		return evidence;
     }
 
     @Publish

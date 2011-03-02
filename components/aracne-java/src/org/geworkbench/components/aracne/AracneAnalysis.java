@@ -205,30 +205,25 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 			DSMicroarraySetView<DSGeneMarker, DSMicroarray> mSet) {
 		WeightedGraph graph = new WeightedGraph(adjMatrix.getNetworkName());
 		AdjacencyMatrix matrix = adjMatrix.getMatrix();
-		HashMap<Integer, HashMap<Integer, AdjacencyMatrix.EdgeInfo>> geneRows = matrix
-				.getGeneRows();
+
 		DSItemList<DSGeneMarker> markers = mSet.markers();
 		for (DSGeneMarker marker : markers) {
 			log.debug(marker.getLabel() + "added");
 			graph.addEdge(marker.getLabel(), marker.getLabel(), 0);
 		}
-		for (Map.Entry<Integer, HashMap<Integer, AdjacencyMatrix.EdgeInfo>> entry : geneRows
-				.entrySet()) {
-			DSGeneMarker gene1 = mSet.allMarkers().get(entry.getKey());
+		for (AdjacencyMatrix.Edge edge : matrix.getEdges()) {
+			DSGeneMarker gene1 = mSet.allMarkers().get(edge.node1);
 			if (gene1 != null) {
-				HashMap<Integer, AdjacencyMatrix.EdgeInfo> destGenes = entry.getValue();
-				for (Map.Entry<Integer, AdjacencyMatrix.EdgeInfo> destEntry : destGenes.entrySet()) {
-					DSGeneMarker destGene = mSet.allMarkers().get(destEntry.getKey());
-					if (destGene != null) {
-						graph.addEdge(gene1.getLabel(), destGene.getLabel(),
-								destEntry.getValue().value);
-					} else {
-						log.debug("Gene with index " + destEntry.getKey()
-								+ " not found in selected genes, skipping.");
-					}
+				DSGeneMarker destGene = mSet.allMarkers().get(edge.node2);
+				if (destGene != null) {
+					graph.addEdge(gene1.getLabel(), destGene.getLabel(),
+							edge.info.value);
+				} else {
+					log.debug("Gene with index " + edge.node2
+							+ " not found in selected genes, skipping.");
 				}
 			} else {
-				log.debug("Gene with index " + entry.getKey()
+				log.debug("Gene with index " + edge.node1
 						+ " not found in selected genes, skipping.");
 			}
 		}
