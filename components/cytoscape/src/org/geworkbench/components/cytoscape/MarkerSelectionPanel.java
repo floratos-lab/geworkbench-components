@@ -111,9 +111,8 @@ public class MarkerSelectionPanel extends JPanel implements Observer {
 	private void continueButtonActionPerformed() {
 		 
 		AdjacencyMatrixDataSet adjacencyMatrixdataSet = null;
-		AdjacencyMatrix matrix = new AdjacencyMatrix();
 		AdjacencyMatrix origMatrix = CytoscapeWidget.getInstance().getAdjMatrix();	 
-	    matrix.setMicroarraySet(origMatrix.getMicroarraySet());	 
+		AdjacencyMatrix matrix = new AdjacencyMatrix(null, origMatrix.getMicroarraySet());
 	   
 	    DSPanel<DSGeneMarker> selectedObject = (DSPanel<DSGeneMarker>)list.getSelectedValue();
         List selectedGeneList = new ArrayList();

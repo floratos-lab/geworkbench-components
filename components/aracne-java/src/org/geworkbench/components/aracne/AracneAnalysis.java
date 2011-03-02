@@ -275,8 +275,8 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 	 */
 	private AdjacencyMatrix convert(WeightedGraph graph,
 			DSMicroarraySet<DSMicroarray> mSet) {
-		AdjacencyMatrix matrix = new AdjacencyMatrix();
-		matrix.setMicroarraySet(mSet);
+		AdjacencyMatrix matrix = new AdjacencyMatrix(null, mSet);
+
 		for (String node : graph.getNodes()) {
 			DSGeneMarker marker = mSet.getMarkers().get(node);
 			matrix.addGeneRow(marker.getSerial());
