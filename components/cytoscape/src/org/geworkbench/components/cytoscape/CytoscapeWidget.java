@@ -596,10 +596,11 @@ public class CytoscapeWidget implements VisualPlugin {
 
 		if (isInSelectedMicroarray == true) {
 			marker1 = (DSGeneMarker) maSet.getMarkers().get(serialId);
-			if (marker1.getGeneName().equals(""))
+			String geneName = marker1.getGeneName().trim();
+			if (geneName.equals("") || geneName.equals("---"))
 				cp1 = marker1.getLabel();
 			else
-				cp1 = marker1.getGeneName();
+				cp1 = geneName;
 		}
 
 		/*

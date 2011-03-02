@@ -1602,11 +1602,10 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		Map<String, List<Integer>> geneNameToMarkerIdMap = AnnotationParser
 				.getGeneNameToMarkerIDMapping((DSMicroarraySet) dataset);
 
-		AdjacencyMatrix matrix = new AdjacencyMatrix();
+		AdjacencyMatrix matrix = new AdjacencyMatrix(null, dataset);
 		matrix.setInteractionTypeSifMap(CellularNetworkPreferencePanel.interactionTypeSifMap);
 		handler.setAdjacencyMatrix(matrix);
 		AdjacencyMatrixDataSet adjacencyMatrixdataSet = null;
-		matrix.setMicroarraySet(dataset);
 
 		int serial = 0;
 		int interactionNum = 0;
