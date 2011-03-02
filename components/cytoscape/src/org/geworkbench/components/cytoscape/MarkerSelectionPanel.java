@@ -171,7 +171,7 @@ public class MarkerSelectionPanel extends JPanel implements Observer {
 		 }
         
         
-         if (matrix.getGeneRows().size() == 0)
+         if (matrix.getNodeNumber() == 0)
          {
         	 JOptionPane
 				.showMessageDialog(

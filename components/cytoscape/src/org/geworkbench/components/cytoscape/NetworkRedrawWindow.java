@@ -388,7 +388,7 @@ public class NetworkRedrawWindow {
 		    	 
 		    }
 		    
-		    if (matrix.getGeneRows().size()==0 && matrix.getGeneRowsNotInMicroarray().size()==0)
+		    if (matrix.getNodeNumber()==0 && matrix.getGeneRowsNotInMicroarray().size()==0)
 			{
 				JOptionPane
 				.showMessageDialog(
