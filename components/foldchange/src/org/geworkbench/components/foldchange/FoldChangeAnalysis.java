@@ -271,7 +271,7 @@ public class FoldChangeAnalysis extends AbstractAnalysis implements
 		return event;
 	}
 
-	protected String GenerateHistoryHeader() {
+	private String GenerateHistoryHeader() {
 
 		String histStr = "";
 		// Header
@@ -307,16 +307,16 @@ public class FoldChangeAnalysis extends AbstractAnalysis implements
 		return histStr;
 	}
 
-	String GenerateMarkerString(
+	private String GenerateMarkerString(
 			DSMicroarraySetView<? extends DSGeneMarker, ? extends DSMicroarray> view) {
-		String histStr = null;
+		StringBuffer histStr = new StringBuffer();
 
-		histStr = view.markers().size() + " markers analyzed:\n";
+		histStr .append( view.markers().size() ).append( " markers analyzed:\n");
 		for (DSGeneMarker marker : view.markers()) {
-			histStr += "\t" + marker.getLabel() + "\n";
+			histStr .append( "\t" + marker.getLabel() ).append( "\n");
 		}
 
-		return histStr;
+		return histStr.toString();
 
 	}
 	
