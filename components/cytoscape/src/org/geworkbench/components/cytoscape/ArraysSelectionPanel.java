@@ -64,8 +64,8 @@ public class ArraysSelectionPanel extends JPanel   {
 	 
 	private ProgressBar computePb = null;
 	 
-	protected DSMicroarraySet<? extends DSMicroarray> maSet;
-	CalculationWorker worker = null;
+	private final DSMicroarraySet<? extends DSMicroarray> maSet;
+	private CalculationWorker worker = null;
 
 	public ArraysSelectionPanel(JDialog parent) {
 		setLayout(new BorderLayout());
@@ -76,18 +76,17 @@ public class ArraysSelectionPanel extends JPanel   {
 
 	}
 
-	@SuppressWarnings("unchecked")
 	private void init() {
 
 		String s = "Use all arrays                                                         ";
 		arraySetList.add(s);
 		DSAnnotationContextManager manager = CSAnnotationContextManager
 				.getInstance();
-		DSAnnotationContext context = manager.getCurrentContext(maSet);
+		DSAnnotationContext<DSMicroarray> context = (DSAnnotationContext<DSMicroarray>) manager.getCurrentContext(maSet);
 
-		DSItemList<DSPanel> itemList = context.getLabelTree().panels();
+		DSItemList<DSPanel<DSMicroarray>> itemList = context.getLabelTree().panels();
 
-		for (DSPanel dp : itemList) {
+		for (DSPanel<DSMicroarray> dp : itemList) {
 			if (dp.getNumberOfProperItems() > 1)
 				arraySetList.add(dp);
 		}
@@ -241,14 +240,14 @@ public class ArraysSelectionPanel extends JPanel   {
 			pb.setMessage("Process computation ...");
 			pb.start();
 			pb.toFront();
-			CSPanel panel = null;
+
 			int[] arraySerials = null;
 
 			Object selectedObject = list.getSelectedValue();
 
 			if (!selectedObject.toString().trim().equalsIgnoreCase(
 					"Use all arrays")) {
-				panel = (CSPanel) selectedObject;
+				CSPanel<DSMicroarray> panel = (CSPanel<DSMicroarray>) selectedObject;
 				arraySerials = new int[panel.getNumberOfProperItems()];
 				for (int i = 0; i < panel.getNumberOfProperItems(); i++) {
 					DSMicroarray item = (DSMicroarray) panel.getProperItem(i);
@@ -303,10 +302,6 @@ public class ArraysSelectionPanel extends JPanel   {
 			}
 
 			return null;
-		}
-
-		protected ProgressBar getProgressBar() {
-			return pb;
 		}
 
 		public void update(Observable o, Object arg) {		 
