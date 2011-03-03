@@ -346,8 +346,8 @@ public class NetworkRedrawWindow {
 		
 		AdjacencyMatrixDataSet adjacencyMatrixdataSet = null;
 		AdjacencyMatrix origMatrix = CytoscapeWidget.getInstance().getAdjMatrix();
-		AdjacencyMatrix matrix = new AdjacencyMatrix(null, origMatrix.getMicroarraySet());
-	 
+		AdjacencyMatrix matrix = new AdjacencyMatrix(null, origMatrix.getMicroarraySet(), origMatrix.getInteractionTypeSifMap());
+		 
 		Double value = new Double(thresholdSlider.getValue());
 		value = value / 100;
 		
