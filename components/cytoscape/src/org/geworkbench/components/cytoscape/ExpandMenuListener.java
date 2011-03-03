@@ -4,13 +4,13 @@ import giny.model.Node;
 import giny.view.NodeView;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet; 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -21,11 +21,9 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
-import javax.swing.JProgressBar;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.geworkbench.bison.annotation.CSAnnotationContextManager;
 import org.geworkbench.bison.annotation.DSAnnotationContext;
 import org.geworkbench.bison.annotation.DSAnnotationContextManager;
@@ -46,9 +44,8 @@ import org.geworkbench.builtin.projects.ProjectTreeNode;
 import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.util.Util;
 
-import cytoscape.CyNetwork;
 import cytoscape.CyNode;
-import cytoscape.Cytoscape; 
+import cytoscape.Cytoscape;
 import ding.view.DNodeView;
 import ding.view.NodeContextMenuListener;
 
@@ -56,23 +53,13 @@ public class ExpandMenuListener implements NodeContextMenuListener,
 		MouseListener {
 	final static Log log = LogFactory.getLog(ExpandMenuListener.class);
 
-	// private CytoscapeWidget cytoscapeWidget = null;
+	final private Map<String, List<Integer>> geneIdToMarkerIdMap;
+	final private DSMicroarraySet<? extends DSMicroarray> maSet;
 
-	// following fields are a temporary solution for refactoring
-	protected Map<String, List<Integer>> geneIdToMarkerIdMap = null;
-	protected DSMicroarraySet<? extends DSMicroarray> maSet = null;
-	protected JProgressBar jProgressBar = null;
-	protected CyNetwork cytoNetwork = null;
-	protected List<Long> runningThreads = null;
-
-	public ExpandMenuListener(CytoscapeWidget cytoscapeWidget) {
+	public ExpandMenuListener(final CytoscapeWidget cytoscapeWidget) {
 
 		geneIdToMarkerIdMap = cytoscapeWidget.geneIdToMarkerIdMap;
 		maSet = cytoscapeWidget.maSet;
-		jProgressBar = cytoscapeWidget.jProgressBar;
-		cytoNetwork = cytoscapeWidget.cytoNetwork;
-
-		runningThreads = new ArrayList<Long>();
 
 	}
 
@@ -156,7 +143,7 @@ public class ExpandMenuListener implements NodeContextMenuListener,
 		public void actionPerformed(ActionEvent actionEvent) {
 			if (Cytoscape.getCurrentNetworkView() != null
 					&& Cytoscape.getCurrentNetwork() != null) {
-				java.util.List nodes = Cytoscape.getCurrentNetworkView()
+				java.util.List<DNodeView> nodes = Cytoscape.getCurrentNetworkView()
 						.getSelectedNodes();
 
 				if (nodes.size() == 0)
@@ -171,9 +158,9 @@ public class ExpandMenuListener implements NodeContextMenuListener,
 				 * If we have N nodes, we'll need N lists to hold their
 				 * neighbors
 				 */
-				List[] neighborsOfNodes = new ArrayList[nodes.size()];
+				List<Node>[] neighborsOfNodes = new ArrayList[nodes.size()];
 				for (int i = 0; i < nodes.size(); i++) {
-					DNodeView pnode = (DNodeView) nodes.get(i);
+					DNodeView pnode = nodes.get(i);
 					Node node = pnode.getNode();
 					List<Node> neighbors = Cytoscape.getCurrentNetworkView()
 							.getNetwork().neighborsList(node);
@@ -237,7 +224,7 @@ public class ExpandMenuListener implements NodeContextMenuListener,
 		public void actionPerformed(ActionEvent actionEvent) {
 			if (Cytoscape.getCurrentNetworkView() != null
 					&& Cytoscape.getCurrentNetwork() != null) {
-				java.util.List nodes = Cytoscape.getCurrentNetworkView()
+				java.util.List<DNodeView> nodes = Cytoscape.getCurrentNetworkView()
 						.getSelectedNodes();
 				log.debug(nodes.size() + " node(s) selected");
 
@@ -246,7 +233,7 @@ public class ExpandMenuListener implements NodeContextMenuListener,
 				Set<Node> neighborsOfAllNodes = new HashSet<Node>();
 				/* Add all neighbors */
 				for (int i = 0; i < nodes.size(); i++) {
-					DNodeView pnode = (DNodeView) nodes.get(i);
+					DNodeView pnode = nodes.get(i);
 					Node node = pnode.getNode();
 					List<Node> neighbors = Cytoscape.getCurrentNetworkView()
 							.getNetwork().neighborsList(node);
@@ -284,7 +271,6 @@ public class ExpandMenuListener implements NodeContextMenuListener,
 			super(name);
 		}
 
-		@SuppressWarnings( { "unchecked" })
 		public void actionPerformed(ActionEvent actionEvent) {
 
 			Map<String, CSSignificanceResultSet<DSGeneMarker>> map = new HashMap<String, CSSignificanceResultSet<DSGeneMarker>>();
@@ -320,7 +306,6 @@ public class ExpandMenuListener implements NodeContextMenuListener,
 			super(name);
 		}
 
-		@SuppressWarnings( { "unchecked" })
 		public void actionPerformed(ActionEvent actionEvent) {
 
 			JDialog dialog = new JDialog();
@@ -341,7 +326,6 @@ public class ExpandMenuListener implements NodeContextMenuListener,
 			super(name);
 		}
 
-		@SuppressWarnings( { "unchecked" })
 		public void actionPerformed(ActionEvent actionEvent) {
 			List<Object> markerSetList = new ArrayList<Object>();
 
@@ -352,7 +336,7 @@ public class ExpandMenuListener implements NodeContextMenuListener,
 					.getCurrentContext(maSet.getMarkers());
 			DSItemList<DSPanel<DSGeneMarker>> itemList = markerGroups
 					.getLabelTree().panels();
-			for (DSPanel dp : itemList) {
+			for (DSPanel<DSGeneMarker> dp : itemList) {
 				if (dp.getNumberOfProperItems() > 0)
 					markerSetList.add(dp);
 			}
@@ -388,7 +372,6 @@ public class ExpandMenuListener implements NodeContextMenuListener,
 			super(name);
 		}
 
-		@SuppressWarnings( { "unchecked" })
 		public void actionPerformed(ActionEvent actionEvent) {
 			CytoscapeWidget.getInstance().resetNetwork();
 		}
@@ -422,7 +405,7 @@ public class ExpandMenuListener implements NodeContextMenuListener,
 		return selectedMarkers;
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private static void searchTestResultNodes(ProjectTreeNode pnode,
 			Map<String, CSSignificanceResultSet<DSGeneMarker>> map,
 			Class<? extends CSSignificanceResultSet> clazz) {
