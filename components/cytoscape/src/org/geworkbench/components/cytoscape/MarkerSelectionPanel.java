@@ -5,46 +5,38 @@ package org.geworkbench.components.cytoscape;
  * @version $Id$ 
  */
 
-import java.util.ArrayList;
-
-import java.util.List;
-import java.util.Iterator;
-import java.util.Observable;
-import java.util.Observer;
+import giny.model.Node;
+import giny.view.EdgeView;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 
 import javax.swing.AbstractListModel;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListModel;
-import javax.swing.JDialog;
 import javax.swing.ListSelectionModel;
 
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.events.ProjectNodeAddedEvent;
-
 import org.geworkbench.util.ProgressBar;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrix;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixDataSet;
 
 import cytoscape.Cytoscape;
 import cytoscape.view.CyNetworkView;
-
-import giny.view.EdgeView;
-
-import giny.model.Node;
 
 /**
  * @author yc2480
@@ -57,26 +49,22 @@ public class MarkerSelectionPanel extends JPanel implements Observer {
  
 	private static final long serialVersionUID = -4774315363368554985L;
 
-	public JDialog parent = null;
+	final private JDialog parent;
 
 	private JList list;
 	private List<Object> markerSetList = new ArrayList<Object>();
 
 	private ProgressBar computePb = null;
-	// private boolean cancelAction = false;
-	protected DSMicroarraySet<? extends DSMicroarray> maSet;
 
 	public MarkerSelectionPanel(JDialog parent, List<Object> markerSetList) {
 		setLayout(new BorderLayout());
 
 		this.parent = parent;
-		this.maSet = CytoscapeWidget.getInstance().maSet;
 		this.markerSetList = markerSetList;
 		init();
 
 	}
 
-	@SuppressWarnings("unchecked")
 	private void init() {
 
 		list = new JList(listModel);
@@ -115,7 +103,7 @@ public class MarkerSelectionPanel extends JPanel implements Observer {
 		AdjacencyMatrix matrix = new AdjacencyMatrix(null, origMatrix.getMicroarraySet());
 	   
 	    DSPanel<DSGeneMarker> selectedObject = (DSPanel<DSGeneMarker>)list.getSelectedValue();
-        List selectedGeneList = new ArrayList();
+        List<String> selectedGeneList = new ArrayList<String>();
         for (int i = 0; i < selectedObject.size(); i++) {
         	DSGeneMarker marker =   selectedObject.get(i);					 
         	selectedGeneList.add(marker.getGeneName());
