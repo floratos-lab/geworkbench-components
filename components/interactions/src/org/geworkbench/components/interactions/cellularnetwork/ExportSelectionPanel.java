@@ -33,28 +33,23 @@ import org.apache.commons.logging.LogFactory;
 
 import org.geworkbench.util.ProgressBar;
 
-@SuppressWarnings("unchecked")
 public class ExportSelectionPanel extends JPanel {
 
 	private static final long serialVersionUID = 8300065011440745717L;
 
-	private Log log = LogFactory.getLog(this.getClass());
+	private Log log = LogFactory.getLog(ExportSelectionPanel.class);
 
-	public JDialog parent = null;
+	private final JDialog parent;
 
 	private JComboBox formatJcb = new JComboBox();
 	private JComboBox presentJcb = new JComboBox();
 
-	private ProgressBar computePb = null;
 	private String fileName  = null;
-	private String context = null;
-	private String version = null;
-	private List<String> interactionTypes = null;
+	private final String context;
+	private final String version;
+	private final List<String> interactionTypes;
 
- 
-	exportWorker worker = null;
-
-	public ExportSelectionPanel(JDialog parent, String context, String version,
+ 	public ExportSelectionPanel(JDialog parent, String context, String version,
 			List<String> interactionTypes) {
 
 		this.context = context;
@@ -68,7 +63,6 @@ public class ExportSelectionPanel extends JPanel {
 
 	}
 
-	@SuppressWarnings("unchecked")
 	private void init() {
 
 		JLabel label1 = new JLabel("File Format:    ");
@@ -114,19 +108,15 @@ public class ExportSelectionPanel extends JPanel {
 
 	private void continueButtonActionPerformed() {
 
-		
-
 		File f = new File("export_" + context + "_" + version + ".sif");
 		JFileChooser jFileChooser1 = new JFileChooser(f);
 		jFileChooser1.setSelectedFile(f);
 		String newFileName = null;
 		if (JFileChooser.APPROVE_OPTION == jFileChooser1.showSaveDialog(null)) {
-
 			newFileName = jFileChooser1.getSelectedFile().getPath();
-
-		}
-		else
+		} else {
 			return;
+		}
 
 		if (new File(newFileName).exists()) {
 			int o = JOptionPane.showConfirmDialog(null,
@@ -139,19 +129,18 @@ public class ExportSelectionPanel extends JPanel {
 		}
 
 		parent.dispose();
-		computePb = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
+		ProgressBar computePb = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
 
-		worker = new exportWorker(computePb, newFileName);
-		worker.execute();
+		new ExportWorker(computePb, newFileName).execute();
 
 	}
 
-	private class exportWorker extends SwingWorker<Void, Void> implements
+	private class ExportWorker extends SwingWorker<Void, Void> implements
 			Observer {
 		
 		ProgressBar pb = null;
 		
-		exportWorker(ProgressBar pb, String newFileName) {
+		ExportWorker(ProgressBar pb, String newFileName) {
 			super();
 			this.pb = pb;
 			fileName = newFileName;
@@ -227,10 +216,6 @@ public class ExportSelectionPanel extends JPanel {
 			 
 
 			return null;
-		}
-
-		protected ProgressBar getProgressBar() {
-			return pb;
 		}
 
 		public void update(Observable o, Object arg) {
