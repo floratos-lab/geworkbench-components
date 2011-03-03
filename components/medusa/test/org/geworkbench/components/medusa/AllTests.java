@@ -13,7 +13,7 @@ import org.geworkbench.components.medusa.heatmap.MedusaHeatMapTest;
  * All tests in the medusa component.
  * 
  * @author keshav
- * @version $Id: AllTests.java,v 1.1 2007-05-30 21:17:35 keshav Exp $
+ * @version $Id$
  */
 public class AllTests extends TestCase {
 
@@ -37,7 +37,6 @@ public class AllTests extends TestCase {
 
 	public static Test suite() {
 		TestSuite suite = new TestSuite("Medusa Tests");
-		suite.addTestSuite(DiscretizationUtilTest.class);
 		suite.addTestSuite(MedusaAnalysisTest.class);
 		suite.addTestSuite(MedusaUtilTest.class);
 
