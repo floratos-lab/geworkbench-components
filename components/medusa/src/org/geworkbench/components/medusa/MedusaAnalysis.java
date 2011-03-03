@@ -23,10 +23,12 @@ import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.medusa.MedusaCommand;
 import org.geworkbench.bison.datastructure.biocollections.medusa.MedusaData;
 import org.geworkbench.bison.datastructure.biocollections.medusa.MedusaDataSet;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
@@ -42,7 +44,7 @@ import edu.columbia.ccls.medusa.MedusaLoader;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaAnalysis.java,v 1.42 2009-09-10 16:40:26 chiangy Exp $
+ * @version $Id$
  */
 public class MedusaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -55,7 +57,7 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 	private StringBuilder s = null;
 
 	// TODO change name to inputdataset.labels
-	String fileLabels = "data/medusa/dataset/web100_test.labels";
+	final private String fileLabels = "data/medusa/dataset/web100_test.labels";
 	private static final String outdir = FilePathnameUtils.getTemporaryFilesDirectoryPath()+"temp/medusa/dataset/output/";
 
 	private ArrayList<DSGeneMarker> regulators = null;
@@ -189,9 +191,8 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 		/* PHASE 1 - discretize and create the labels file */
 
 		// discretize
-		DiscretizationUtil discretizationUtil = new DiscretizationUtil();
-		DSMicroarraySetView<DSGeneMarker, DSMicroarray> discretizedInput = discretizationUtil
-				.discretize(newMicroarraySetView, params.getIntervalBase(), params
+		DSMicroarraySetView<DSGeneMarker, DSMicroarray> discretizedInput = 
+				discretize(newMicroarraySetView, params.getIntervalBase(), params
 						.getIntervalBound());
 
 		// create labels file (and get targets & regulators)
@@ -551,5 +552,81 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 			}
 		} else valid = true;
 		return valid;
+	}
+
+	/**
+	 * 
+	 * @param microarraySetView
+	 * @param base
+	 * @param bound
+	 * @return
+	 */
+	static private DSMicroarraySetView<DSGeneMarker, DSMicroarray> discretize(
+			DSMicroarraySetView<DSGeneMarker, DSMicroarray> microarraySetView, double base, double bound) {
+
+		DSMicroarraySet<DSMicroarray> microarraySet = microarraySetView.getMicroarraySet();
+
+		/* extract microarray info from DSMicroarraySet */
+		int numArrays = microarraySetView.size();
+
+		for (int i = 0; i < numArrays; i++) {
+			/* geworkbench array */
+			DSMicroarray microarray = (DSMicroarray) microarraySetView.get(i);
+			float data[] = microarray.getRawMarkerData();
+			String name = microarray.getLabel();
+			if (name == null || StringUtils.isEmpty(name))
+				name = "i";// give array a name
+
+			float[] ddata = discretize(data, base, bound);
+			DSMicroarray discreteMicroarray = microarray;
+
+			for (int j = 0; j < ddata.length; j++) {
+
+				DSMutableMarkerValue markerValue = discreteMicroarray
+						.getMarkerValue(j);
+				markerValue.setValue(ddata[j]);
+				discreteMicroarray.setMarkerValue(j, markerValue);
+			}
+			microarraySet.setLabel(microarraySet.getLabel());
+		}
+
+		return microarraySetView;
+	}
+	
+	/**
+	 * Creates a dircretized array of data from the original data.
+	 * <p>
+	 * If data[i] < base - bound, discreteData[i] = -1
+	 * <p>
+	 * If data[i] > base + bound, discreteData[i] = 1.
+	 * <p>
+	 * If base - bound <= data[i] < base + bound, discreteData[i] = 0.
+	 * 
+	 * @param data
+	 * @param base
+	 * @param bound
+	 * @return
+	 */
+	static private float[] discretize(float[] data, double base, double bound) {
+		float[] discreteData = new float[data.length];
+
+		double pinterval = base + bound;
+
+		double ninterval = base - bound;
+
+		for (int i = 0; i < discreteData.length; i++) {
+
+			float val = data[i];
+			if ((ninterval) <= val && val <= (pinterval)) {
+				discreteData[i] = 0;
+			} else if (val < ninterval) {
+				discreteData[i] = -1;
+			} else {
+				discreteData[i] = 1;
+			}
+		}
+
+		return discreteData;
+
 	}
 }
