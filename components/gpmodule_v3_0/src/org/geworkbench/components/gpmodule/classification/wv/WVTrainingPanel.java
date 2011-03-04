@@ -34,7 +34,7 @@ import org.geworkbench.bison.algorithm.classification.CSClassifier;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.builtin.projects.LoadData;
+import org.geworkbench.builtin.projects.LoadDataDialog;
 import org.geworkbench.components.gpmodule.classification.GPTrainingPanel;
 import org.geworkbench.events.listeners.ParameterActionListener;
 import org.geworkbench.util.ClassifierException;
@@ -320,7 +320,7 @@ public class WVTrainingPanel extends GPTrainingPanel {
 
     private void featureFileLoadHandler()
     {
-        String lwd = LoadData.getLastDataDirectory();
+        String lwd = LoadDataDialog.getLastDataDirectory();
         featureFileChooser.setCurrentDirectory(new File(lwd));
         featureFileChooser.showOpenDialog(this);
         File file = featureFileChooser.getSelectedFile();
