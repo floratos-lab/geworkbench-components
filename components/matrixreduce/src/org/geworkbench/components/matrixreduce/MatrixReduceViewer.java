@@ -55,7 +55,7 @@ import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.complex.pattern.matrix.DSMatrixReduceExperiment;
 import org.geworkbench.bison.datastructure.complex.pattern.matrix.DSMatrixReduceSet;
 import org.geworkbench.bison.datastructure.complex.pattern.matrix.DSPositionSpecificAffintyMatrix;
-import org.geworkbench.builtin.projects.LoadData;
+import org.geworkbench.builtin.projects.LoadDataDialog;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
@@ -615,7 +615,7 @@ public class MatrixReduceViewer implements VisualPlugin {
 
 	private void exportPSAMs(Set<DSPositionSpecificAffintyMatrix> psams) {
 		// Pop up a file chooser
-		String dir = LoadData.getLastDataDirectory();
+		String dir = LoadDataDialog.getLastDataDirectory();
 		if (dir == null) {
 			dir = ".";
 		}
