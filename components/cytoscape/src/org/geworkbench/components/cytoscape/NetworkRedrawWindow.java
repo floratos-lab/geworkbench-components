@@ -63,12 +63,7 @@ public class NetworkRedrawWindow {
 
 	private static NetworkRedrawWindow networkRedrawWindow = null;
 
-	/**
-	 * Constructor Provides a call-back to the
-	 * {@link ComponentConfigurationManagerMenu}.
-	 * 
-	 * @param ComponentConfigurationManagerMenu
-	 */
+	 
 	private NetworkRedrawWindow() {
 
 		initComponents();
@@ -216,7 +211,7 @@ public class NetworkRedrawWindow {
 	}
 
 	/**
-	 * Display a dialog box with a components license in it.
+	 * redrawNetwork action
 	 * 
 	 * @param ActionEvent
 	 * @return void
@@ -249,11 +244,8 @@ public class NetworkRedrawWindow {
 				double value = pearsonCorrelations
 						.get(edgeView.getEdge().getIdentifier()).doubleValue();
 				if (Math.abs(value) < selectedSliderValue)
-				{	
-					//edgeView.setUnselectedPaint(Color.WHITE);
-					//edgeView.setSelectedPaint(Color.WHITE);
-					view.hideGraphObject(edgeView);
-				
+				{						 
+					view.hideGraphObject(edgeView);				
 				}
 				else if (value < 0)
 					edgeView.setUnselectedPaint(Color.BLUE);
@@ -265,10 +257,7 @@ public class NetworkRedrawWindow {
 		}
 	}
 
-	/**
-	 * Persist users component selections Add newly selected components Remove
-	 * newly unselected components Leave CCM Window open
-	 * 
+	/**	 
 	 * @param ActionEvent
 	 * @return void
 	 */
@@ -277,9 +266,6 @@ public class NetworkRedrawWindow {
 		
 		Cursor hourglassCursor = new Cursor(Cursor.WAIT_CURSOR);
 		frame.setCursor(hourglassCursor);
-
-		Cursor normalCursor = new Cursor(Cursor.DEFAULT_CURSOR);
-		frame.setCursor(normalCursor);		
 
 		CyNetworkView view = Cytoscape.getCurrentNetworkView();
 		HashMap<String, Double> pearsonCorrelations  = pearsonCorrelationsMap
@@ -305,7 +291,10 @@ public class NetworkRedrawWindow {
 	        }
 	     String networkName = view.getTitle();
 		HistogramGraph.CreateInstance("Edge correlations - " + networkName, dlist);
-    	 
+
+		Cursor normalCursor = new Cursor(Cursor.DEFAULT_CURSOR);
+		frame.setCursor(normalCursor);		
+
 		
 	}
 
@@ -321,9 +310,7 @@ public class NetworkRedrawWindow {
 
 	}
 
-	/**
-	 * Reset selections Close CCM Window
-	 * 
+	/**	 
 	 * @param ActionEvent
 	 * @return void
 	 */
