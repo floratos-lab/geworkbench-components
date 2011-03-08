@@ -452,14 +452,14 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 		}
 		if (params.isThresholdMI()) {
 			try {
-				if ((0 <= params.getThreshold())
-						&& (params.getThreshold() <= 1)) {
-				} else
+				if ( 0 <= params.getThreshold() ) {
+				} else {
 					return new ParamValidationResults(false,
-							"Threshold Mutual Info. should between 0.0 and 1.0");
+							"Threshold Mutual Info. should be larger than or equal to zero.");
+				}
 			} catch (NumberFormatException nfe) {
 				return new ParamValidationResults(false,
-						"Threshold Mutual Info. should be a float number between 0.0 and 1.0.");
+						"Threshold Mutual Info. should be a float number larger than or equal to zero.");
 			}
 			;
 		} else {
@@ -468,7 +468,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 						&& (params.getThreshold() <= 1)) {
 				} else
 					return new ParamValidationResults(false,
-							"Threshold P-Value should between 0.0 and 1.0");
+							"Threshold P-Value should be between 0.0 and 1.0");
 			} catch (NumberFormatException nfe) {
 				return new ParamValidationResults(false,
 						"Threshold P-Value should be a float number between 0.0 and 1.0.");
