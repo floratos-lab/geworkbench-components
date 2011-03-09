@@ -334,7 +334,7 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
 
         createMaSetToolBar.add(Box.createRigidArea(new Dimension(9, 0)));
 
-        createMaSetButton = new JButton("Create MicroarraySet");
+        createMaSetButton = new JButton("Create array set");
         createMaSetButton.setMinimumSize(new Dimension(128, 23));
         createMaSetButton.setPreferredSize(new Dimension(128, 23));
         createMaSetButton.setMaximumSize(new Dimension(128, 23));
@@ -459,7 +459,7 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
         testDataPanel.add(maSetNodeComboBox);
         testDataPanel.add(Box.createRigidArea(new Dimension(0, 8)));
 
-        JLabel maSetLabel = new JLabel("Select Array/Phenotype Set Group:");
+        JLabel maSetLabel = new JLabel("Select Array/Phenotype Set List:");
         maSetLabel.setAlignmentX(JLabel.LEFT_ALIGNMENT);
         maSetLabel.setMinimumSize(new Dimension(maSetLabel.getMinimumSize().width, 28));
         maSetLabel.setPreferredSize(new Dimension(maSetLabel.getPreferredSize().width, 28));
@@ -508,7 +508,7 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
         testDataPanel.add(maSetComboBox);
         testDataPanel.add(Box.createRigidArea(new Dimension(0, 8)));
 
-        JLabel maSetGroupLabel = new JLabel("Select Microarray Set:");
+        JLabel maSetGroupLabel = new JLabel("Select Test Array Set(s):");
         maSetGroupLabel.setAlignmentX(JLabel.LEFT_ALIGNMENT);
         testDataPanel.add(maSetGroupLabel);
 
