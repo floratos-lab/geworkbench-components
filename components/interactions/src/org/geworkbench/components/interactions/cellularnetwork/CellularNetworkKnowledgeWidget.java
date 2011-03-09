@@ -2709,12 +2709,12 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 					.getValuesForName(Constants.CNKB_SELECTION_INDEX)[0]);
 
 			if (dataset
-					.getValuesForName(Constants.CNKB_THROTTLE_GRAPH_PROPERTIES) == null)
+					.getValuesForName(Constants.CNKB_PREFERENCE) == null)
 				dataset.addNameValuePair(
-						Constants.CNKB_THROTTLE_GRAPH_PROPERTIES,
+						Constants.CNKB_PREFERENCE,
 						new CellularNetworkPreference("Throttle Graph"));
 			tgPreference = (CellularNetworkPreference) dataset
-					.getValuesForName(Constants.CNKB_THROTTLE_GRAPH_PROPERTIES)[0];
+					.getValuesForName(Constants.CNKB_PREFERENCE)[0];
 
 			needDraw = true;
 
