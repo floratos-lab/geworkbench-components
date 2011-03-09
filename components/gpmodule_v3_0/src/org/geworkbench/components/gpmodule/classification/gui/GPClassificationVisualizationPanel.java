@@ -51,6 +51,7 @@ import java.text.DecimalFormat;
 
 /**
  * @author Marc-Danie Nazaire
+ * @version $Id$
  */
 public class GPClassificationVisualizationPanel extends JPanel implements ItemListener
 {
@@ -458,8 +459,6 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
         testDataPanel.add(maSetNodeComboBox);
         testDataPanel.add(Box.createRigidArea(new Dimension(0, 8)));
 
-        testDataPanel.add(Box.createVerticalGlue());
-
         JLabel maSetLabel = new JLabel("Select Array/Phenotype Set Group:");
         maSetLabel.setAlignmentX(JLabel.LEFT_ALIGNMENT);
         maSetLabel.setMinimumSize(new Dimension(maSetLabel.getMinimumSize().width, 28));
@@ -509,8 +508,6 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
         testDataPanel.add(maSetComboBox);
         testDataPanel.add(Box.createRigidArea(new Dimension(0, 8)));
 
-        testDataPanel.add(Box.createVerticalGlue());
-
         JLabel maSetGroupLabel = new JLabel("Select Microarray Set:");
         maSetGroupLabel.setAlignmentX(JLabel.LEFT_ALIGNMENT);
         testDataPanel.add(maSetGroupLabel);
@@ -539,6 +536,7 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
         JScrollPane scrollPane = new JScrollPane();
 
         scrollPane.setViewportView(maSetGroupTree);
+        scrollPane.setPreferredSize(new Dimension(scrollPane.getPreferredSize().width, 100));
         JPanel jPanel = new JPanel();
         jPanel.setAlignmentX(JComboBox.LEFT_ALIGNMENT);
         jPanel.add(scrollPane);
@@ -627,8 +625,6 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
 
         jPanel.add(testButton);
         testDataPanel.add(jPanel);
-
-        testDataPanel.add(Box.createVerticalGlue());
 
         Iterator it = GPClassificationVisualComponent.microarraySets.keySet().iterator();
         while(it.hasNext())
