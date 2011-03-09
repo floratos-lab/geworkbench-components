@@ -105,6 +105,7 @@ import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.util.BrowserLauncher;
 import org.geworkbench.util.ProgressBar;
 import org.geworkbench.util.network.CellularNetWorkElementInformation;
+import org.geworkbench.util.network.CellularNetworkPreference;
 import org.geworkbench.util.network.InteractionDetail;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrix;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixDataSet;
@@ -115,7 +116,10 @@ import org.jfree.chart.LegendItem;
 import org.jfree.chart.LegendItemCollection;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.event.ChartChangeEvent;
+import org.jfree.chart.event.ChartChangeListener;
 import org.jfree.chart.event.ChartProgressEvent;
+import org.jfree.chart.event.TitleChangeEvent;
 import org.jfree.chart.event.ChartProgressListener;
 import org.jfree.chart.labels.XYToolTipGenerator;
 import org.jfree.chart.plot.PlotOrientation;
@@ -128,7 +132,8 @@ import org.jfree.ui.RectangleInsets;
 
 /**
  * @author manjunath at genomecenter dot columbia dot edu, xiaoqing zhang
- * @version $Id$
+ * @version $Id: CellularNetworkKnowledgeWidget.java 7531 2011-03-03 15:19:05Z
+ *          zji $
  */
 @AcceptTypes( { DSMicroarraySet.class })
 public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
@@ -156,6 +161,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	private static TableColumn[] tableColumns;
 
 	private Integer cnkbSelectionIndex = 0;
+
+	private CellularNetworkPreference tgPreference = null;
 
 	public PropertiesManager pm = null;
 
@@ -269,8 +276,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 		detailTable.getTableHeader().setEnabled(true);
 		detailTable.setDefaultRenderer(String.class, new ColorRenderer());
-		detailTable
-				.setDefaultRenderer(Integer.class, new IntegerRenderer());
+		detailTable.setDefaultRenderer(Integer.class, new IntegerRenderer());
 	}
 
 	public Component getComponent() {
@@ -453,7 +459,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			}
 			hits.removeAllElements();
 
-			drawPlot(createCollection(0, 1, 1, true), "Throttle Graph", true);
+			drawPlot(createCollection(0, 1, 1, true), false, true);
 			throttlePanel.repaint();
 
 		}
@@ -517,7 +523,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				hits.removeAll(removeRows);
 			removeRows.clear();
 
-			drawPlot(createCollection(0, 1, 1, true), "Throttle Graph", true);
+			drawPlot(createCollection(0, 1, 1, true), false, true);
 			throttlePanel.repaint();
 
 		}
@@ -910,8 +916,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 						previewTableModel.fireTableDataChanged();
 						detailTable.revalidate();
 
-						drawPlot(createCollection(0, 1, 1, true),
-								"Throttle Graph", true);
+						drawPlot(createCollection(0, 1, 1, true), false, true);
 						throttlePanel.repaint();
 
 					}
@@ -1105,15 +1110,15 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		jTabbedPane1.add("Preferences", jScrollPane5);
 
 		jTabbedPane1.addChangeListener(new ChangeListener() {
-			public void stateChanged(ChangeEvent e) {				
-			
+			public void stateChanged(ChangeEvent e) {
+
 				if (jTabbedPane1.getSelectedIndex() == 1
 						&& (jPreferencePanel.getAllInteractionTypes() == null || jPreferencePanel
 								.getAllInteractionTypes().size() == 0)) {
-					InitPrefWorker worker = new InitPrefWorker();			 
+					InitPrefWorker worker = new InitPrefWorker();
 					worker.execute();
 
-				} 
+				}
 
 			}
 		});
@@ -1139,10 +1144,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				"# interactions", null, PlotOrientation.VERTICAL, true, true,
 				true); // Title, X-Axis label, Y-Axis label, Dataset, Show
 		// legend, show ToolTips
-		//graph = new ChartPanel(chart, true);
-		graph = new ChartPanel(chart, false, true, true, true, true);
-
-		//graph.setChart(chart);
+		graph = new ChartPanel(chart, true);
 
 		XYPlot newPlot = (XYPlot) chart.getPlot();
 
@@ -1360,7 +1362,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		detailTable.repaint();
 
 		if (needRedraw) {
-			drawPlot(createCollection(0, 1, 1, true), "Throttle Graph", true);
+			drawPlot(createCollection(0, 1, 1, true), false, true);
 			throttlePanel.repaint();
 
 		}
@@ -1383,103 +1385,132 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	 * @param plots
 	 * @param title
 	 */
-	private void drawPlot(final XYSeriesCollection plots, String title,
+	public void drawPlot(final XYSeriesCollection plots, boolean needRedraw,
 			boolean needCreateLegendItems) {
-		if (plots == null ) {
+		if (plots == null) {
 			return;
 		}
 
 		boolean isToolTipEnabled = true;
-		String context = jPreferencePanel.getSelectedContext();
-		String version = jPreferencePanel.getSelectedVersion();
+		XYPlot xyPlot = null;
+		XYLineAndShapeRenderer renderer = null;
 
-		if ((context != null && !context.trim().equals(""))
-				&& (version != null && !version.trim().equals("")) && plots.getSeriesCount() > 0) {
-			title += "(" + context + " - " + version + ")";
-		}
-		
-		
-		chart = ChartFactory.createXYLineChart(title, "likelihood",
-				"#interactions", plots, PlotOrientation.VERTICAL, true, true,
-				true);
-		
-	 
+		if (needRedraw || plots.getSeriesCount() == 0) {
+			String context = jPreferencePanel.getSelectedContext();
+			String version = jPreferencePanel.getSelectedVersion();
 
-		// NOW DO SOME OPTIONAL CUSTOMISATION OF THE CHART...
-		chart.setBackgroundPaint(Color.white);
+			if (plots.getSeriesCount() > 0) {
+				tgPreference.setTitle("Throttle Graph(" + context + " V"
+						+ version + ")");
+			} else
+				tgPreference.setTitle("Throttle Graph");
 
-		// get a reference to the plot for further customisation...
-		XYPlot newPlot = (XYPlot) chart.getPlot();
-	
-		Color c = UIManager.getColor("Panel.background");
-		if (c != null) {
-			newPlot.setBackgroundPaint(c);
-		} else {
-			c = Color.white;
-		}
-		newPlot.setBackgroundPaint(c);
-		newPlot.setAxisOffset(new RectangleInsets(5.0, 5.0, 5.0, 5.0));
-		newPlot.setDomainGridlinePaint(Color.white);
-		newPlot.setRangeGridlinePaint(Color.white);
-		newPlot.setDomainCrosshairVisible(true);
-		newPlot.setDomainCrosshairLockedOnData(true);
-		chart.addProgressListener(new ChartProgressListener() {
+			chart = ChartFactory.createXYLineChart(tgPreference.getTitle(),
+					"likelihood", "#interactions", plots,
+					PlotOrientation.VERTICAL, true, true, true);
+			xyPlot = (XYPlot) chart.getPlot();
+			chart.setBackgroundPaint(Color.white);
+			Color c = UIManager.getColor("Panel.background");
+			if (c != null) {
+				xyPlot.setBackgroundPaint(c);
+			} else {
+				c = Color.white;
+			}
+			xyPlot.setBackgroundPaint(c);
 
-			public void chartProgress(ChartProgressEvent event) {
-				if (event.getType() == ChartProgressEvent.DRAWING_FINISHED) {
-					// set text field and slider
-					JFreeChart chart = event.getChart();
-					XYPlot plot = (XYPlot) chart.getPlot();
-					double aCrosshair = plot.getDomainCrosshairValue();
+			renderer = (XYLineAndShapeRenderer) xyPlot.getRenderer();
+			renderer.setShapesVisible(true);
+			renderer.setShapesFilled(true);
+			if (isToolTipEnabled) {
 
-					String s = myFormatter.format(aCrosshair);
-					thresholdTextField.setText(s);
+				renderer.setToolTipGenerator(new XYToolTipGenerator() {
 
-					double newSliderValue = aCrosshair
-							* (CellularNetWorkElementInformation.getBinNumber() - 1);
-					thresholdSlider.setValue((int) newSliderValue);
-				}
+					public String generateToolTip(XYDataset dataset,
+							int series, int item) {
+						String resultStr = "";
+						
+						String label = (String) (dataset.getSeriesKey(series));
+								 
+						double x = dataset.getXValue(series, item);
+						if (Double.isNaN(x)
+								&& dataset.getX(series, item) == null) {
+							return resultStr;
+						}
+
+						double y = dataset.getYValue(series, item);
+						if (Double.isNaN(y)
+								&& dataset.getX(series, item) == null) {
+							return resultStr;
+						}
+						String xStr = myFormatter.format(x);
+
+						return resultStr = label + ": ([" + xStr + ", "
+								+ myFormatter.format(x + 0.01) + "], "
+								+ (int) y + ")";
+					}
+				});
 			}
 
-		});
+			xyPlot.setAxisOffset(new RectangleInsets(5.0, 5.0, 5.0, 5.0));
+			xyPlot.setDomainGridlinePaint(Color.white);
+			xyPlot.setRangeGridlinePaint(Color.white);
+			xyPlot.setDomainCrosshairVisible(true);
+			xyPlot.setDomainCrosshairLockedOnData(true);
 
-		// Set up fixed ranges.
-		// ValueAxis xaxis = new NumberAxis();
-		// xaxis.setRange(minValue, maxValue);
-		// newPlot.setRangeAxis(xaxis);
-		XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) newPlot
-				.getRenderer();
-		renderer.setShapesVisible(true);
-		renderer.setShapesFilled(true);
-		if (isToolTipEnabled) {
+			// change the auto tick unit selection to integer units only...
+			NumberAxis rangeAxis = (NumberAxis) xyPlot.getRangeAxis();
+			rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
 
-			renderer.setToolTipGenerator(new XYToolTipGenerator() {
+			ValueAxis xAxis = xyPlot.getDomainAxis();
 
-				public String generateToolTip(XYDataset dataset, int series,
-						int item) {
-					String resultStr = "";
-					String label = (String) (plots.getSeries(series).getKey());
-					double x = dataset.getXValue(series, item);
-					if (Double.isNaN(x) && dataset.getX(series, item) == null) {
-						return resultStr;
+			xAxis.setRange(0, 1);
+			// OPTIONAL CUSTOMISATION COMPLETED.
+
+			chart.addProgressListener(new ChartProgressListener() {
+            
+				public void chartProgress(ChartProgressEvent event) {
+					if (event.getType() == ChartProgressEvent.DRAWING_FINISHED) {
+						// set text field and slider
+						JFreeChart chart = event.getChart();
+						XYPlot plot = (XYPlot) chart.getPlot();
+						double aCrosshair = plot.getDomainCrosshairValue();
+
+						String s = myFormatter.format(aCrosshair);
+						thresholdTextField.setText(s);
+
+						double newSliderValue = aCrosshair
+								* (CellularNetWorkElementInformation
+										.getBinNumber() - 1);
+						thresholdSlider.setValue((int) newSliderValue);
 					}
-
-					double y = dataset.getYValue(series, item);
-					if (Double.isNaN(y) && dataset.getX(series, item) == null) {
-						return resultStr;
-					}
-					String xStr = myFormatter.format(x);
-
-					return resultStr = label + ": ([" + xStr + ", "
-							+ myFormatter.format(x + 0.01) + "], " + (int) y
-							+ ")";
 				}
+
 			});
+			
+			chart.addChangeListener(new ChartChangeListener() {
+	            
+				public void chartChanged(ChartChangeEvent event) {
+					if (event instanceof TitleChangeEvent)
+						tgPreference.setTitle(chart.getTitle().getText());
+				}
+
+			});
+
+		} else {
+			xyPlot = (XYPlot) chart.getPlot();
+			xyPlot.setDataset(plots);
+			renderer = (XYLineAndShapeRenderer) xyPlot.getRenderer();
+			chart.setTitle(tgPreference.getTitle());
 		}
 
-		for (int i = 0; i < newPlot.getDatasetCount(); i++) {
+		for (int i = 0; i < xyPlot.getDatasetCount(); i++) {
 			renderer.setSeriesLinesVisible(i, true);
 		}
+
+		for (int i = 0; i < plots.getSeriesCount(); i++) {
+			renderer.setSeriesVisible(i, true);
+		}
+		renderer.setSeriesVisibleInLegend(true);
 
 		LegendItemCollection legendItems = renderer.getLegendItems();
 		for (int i = 0; i < legendItems.getItemCount(); i++) {
@@ -1490,17 +1521,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		}
 
 		renderer.setSeriesVisibleInLegend(false);
-
-		// change the auto tick unit selection to integer units only...
-		NumberAxis rangeAxis = (NumberAxis) newPlot.getRangeAxis();
-		rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-
-		ValueAxis xAxis = newPlot.getDomainAxis();
-
-		xAxis.setRange(0, 1);
-		// OPTIONAL CUSTOMISATION COMPLETED.
 		graph.setChart(chart);
-
+   
 		for (int i = 0; i < legendItems.getItemCount(); i++) {
 			LegendItem lg = legendItems.get(i);
 			LegendObject lo = legendList.get(lg.getLabel());
@@ -1508,11 +1530,14 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				renderer.setSeriesVisible(lg.getSeriesIndex(), false);
 
 		}
+
 		if (needCreateLegendItems)
 			createLegendPanel();
 
 		setThresholdSliderValue();
 		thresholdSlider_stateChanged();
+
+	
 
 	}
 
@@ -1586,7 +1611,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		boolean isGene2InMicroarray = true;
 		String historyStr = "";
 		boolean isRestrictToGenesPresentInMicroarray = jPreferencePanel
-				.isNetworkJCheckBox1Selected();	
+				.isNetworkJCheckBox1Selected();
 
 		for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {
 			if (needBreak)
@@ -1813,11 +1838,9 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 			historyStr = "Cellular Network Parameters: \n"
 					+ "      URL Used:     "
-					+ ResultSetlUtil.INTERACTIONS_SERVLET_URL
-					+ "\n"
+					+ ResultSetlUtil.INTERACTIONS_SERVLET_URL + "\n"
 					+ "      Selected Interactome:     "
-					+ jPreferencePanel.getSelectedContext()
-					+ "\n"
+					+ jPreferencePanel.getSelectedContext() + "\n"
 					+ "      Selected Version:     "
 					+ jPreferencePanel.getSelectedVersion() + "\n"
 					+ "      Threshold:     " + thresholdTextField.getText()
@@ -2001,9 +2024,18 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 					if (!cancelAction) {
 						updateProgressBar(1, "Query is finished.");
-
-						drawPlot(createCollection(0, 1, 1, true),
-								"Throttle Graph", true);
+						boolean needNewProperties = false;
+						 if (tgPreference.getContext() == null
+								|| !tgPreference.getContext().equals(context)
+								|| !tgPreference.getVersion().equals(version) || tgPreference.getTitle().equals("Throttle Graph")) {
+							 needNewProperties = true;
+							 tgPreference.setContext(context);
+							 tgPreference.setVersion(version);							 
+						} 
+						 
+						
+						drawPlot(createCollection(0, 1, 1, true), needNewProperties,
+								true);
 						throttlePanel.repaint();
 
 					} else {
@@ -2519,13 +2551,13 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	}
 
 	private class InitPrefWorker extends SwingWorker<Void, Void> implements
-			Observer {	 
+			Observer {
 
 		ProgressBar pb = null;
 
 		InitPrefWorker() {
 			super();
-			
+
 		}
 
 		@Override
@@ -2535,7 +2567,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 			} else {
 				log.info("Init task is done.");
-				 
+
 				pb.dispose();
 
 			}
@@ -2544,18 +2576,18 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		@Override
 		protected Void doInBackground() {
 			pb = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
-			 
+
 			pb.addObserver(this);
 			pb.setTitle("Initialize preference data");
 			pb.setMessage("Retrieve data from database ...");
 			pb.start();
 			pb.toFront();
 
-			try {				 
-					jPreferencePanel.initPreferences();
-					if (!this.isCancelled())
-					  initDetailTable();		 
-				 
+			try {
+				jPreferencePanel.initPreferences();
+				if (!this.isCancelled())
+					initDetailTable();
+
 			} catch (Exception ex) {
 				System.out.println(ex.getMessage());
 			}
@@ -2564,12 +2596,12 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		}
 
 		public void update(Observable o, Object arg) {
-			   cancel(true);
+			cancel(true);
 		}
 
 	}
 
-	private class CreateNetworkHandler extends Thread implements Observer{
+	private class CreateNetworkHandler extends Thread implements Observer {
 		AdjacencyMatrix matrix = null;
 		ProgressBar pb = null;
 		boolean cancel = false;
@@ -2599,9 +2631,9 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		protected void cancel(boolean cancel) {
 			this.cancel = cancel;
 		}
-		
+
 		public void update(Observable o, Object arg) {
-			cancel(true);			 
+			cancel(true);
 			if (pb.getTitle().equals("Draw cytoscape graph")) {
 				pb.dispose();
 				publishAdjacencyMatrixEvent(new AdjacencyMatrixEvent(
@@ -2616,8 +2648,6 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			createNetWorkButton.setEnabled(true);
 			log.info("Create network canceled.");
 		}
-
-		
 
 	}
 
@@ -2660,7 +2690,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	synchronized void processData(DSPanel<DSGeneMarker> panel) {
 		log.debug("start processData");
 		DSDataSet<?> ds = ProjectPanel.getInstance().getDataSet();
-
+		boolean needDraw = false;
 		if (ds == null || !(ds instanceof DSMicroarraySet))
 			return;
 
@@ -2678,7 +2708,19 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			cnkbSelectionIndex = (Integer) (dataset
 					.getValuesForName(Constants.CNKB_SELECTION_INDEX)[0]);
 
+			if (dataset
+					.getValuesForName(Constants.CNKB_THROTTLE_GRAPH_PROPERTIES) == null)
+				dataset.addNameValuePair(
+						Constants.CNKB_THROTTLE_GRAPH_PROPERTIES,
+						new CellularNetworkPreference("Throttle Graph"));
+			tgPreference = (CellularNetworkPreference) dataset
+					.getValuesForName(Constants.CNKB_THROTTLE_GRAPH_PROPERTIES)[0];
+
+			needDraw = true;
+
 		}
+
+		int currentCount = hits.size();
 
 		if (panel != null) {
 			if (panel.size() == 0) {
@@ -2700,8 +2742,11 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 			checkSelectedTableWithNewDataSet(panel);
 
-			drawPlot(createCollection(0, 1, 1, true), "Throttle Graph", true);
-			throttlePanel.repaint();
+			if (needDraw == true || hits == null || hits.size() == 0
+					|| hits.size() != currentCount) {
+				drawPlot(createCollection(0, 1, 1, true), false, true);
+				throttlePanel.repaint();
+			}
 
 		}
 		repaint();
@@ -2809,8 +2854,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 							item.setColor(Color.GRAY);
 						}
 
-						drawPlot(createCollection(0, 1, 1, true),
-								"Throttle Graph", false);
+						drawPlot(createCollection(0, 1, 1, true), false, false);
 						throttlePanel.repaint();
 
 					}
@@ -2867,5 +2911,5 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		}
 
 	}
-	
+
 }
