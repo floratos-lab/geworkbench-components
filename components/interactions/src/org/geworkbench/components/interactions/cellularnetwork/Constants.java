@@ -47,7 +47,7 @@ public class Constants  {
 
 	public static final String CNKB_SELECTION_INDEX = "CNKB_SELECTION_INDEX";
 	
-	public static final String CNKB_THROTTLE_GRAPH_PROPERTIES = "CNKB_THROTTLE_GRAPH_PROPERTIES";
+	public static final String CNKB_PREFERENCE = "CNKB_PREFERENCE";
 
 	public static final String SELECTCONTEXT = "Select Context";
 
