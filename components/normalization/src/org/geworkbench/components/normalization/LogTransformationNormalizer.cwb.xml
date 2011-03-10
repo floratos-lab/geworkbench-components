@@ -12,7 +12,6 @@
 				loadByDefault="true"
 				category="normalizer"
 	 >
-		<required-component class="org.geworkbench.components.microarrays.TabularMicroarrayPanel" />
 		<required-component class="org.geworkbench.components.normalization.NormalizationPanel" />
 		<license><![CDATA[
 			<html><head><meta http-equiv=Content-Type content="text/html; charset=windows-1252"></head>

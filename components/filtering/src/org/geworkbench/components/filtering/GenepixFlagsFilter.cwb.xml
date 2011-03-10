@@ -11,7 +11,7 @@
 				description="Remove values flagged in the Genepix software."
 				category="filter"
 	 >
-		<required-component class="org.geworkbench.components.microarrays.TabularMicroarrayPanel" />
+		<required-component class="org.geworkbench.components.filtering.FilteringPanel" />
 		<license><![CDATA[
 			<html><head><meta http-equiv=Content-Type content="text/html; charset=windows-1252"></head>
 				<body>----</body>

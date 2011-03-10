@@ -13,7 +13,6 @@
  expression as a fixed reference against which to normalize each array."
 	 	 >	
  	 	<required-component class="org.geworkbench.components.normalization.NormalizationPanel" />
-		<required-component class="org.geworkbench.components.microarrays.TabularMicroarrayPanel" />
 		<license><![CDATA[
 			<html><head><meta http-equiv=Content-Type content="text/html; charset=windows-1252"></head>
 				<body>----</body>

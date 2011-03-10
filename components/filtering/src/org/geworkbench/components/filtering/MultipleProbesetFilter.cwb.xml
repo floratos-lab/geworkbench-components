@@ -11,6 +11,7 @@
 				category="filter"
 				description="In Affymetrix3’ gene expression chips, some genes may be represented by more than one probeset. Such probesets may have different levels of specificity or may favor alternate splice variants.  Not all splice variants of a gene may be expressed in any given cellular system.  In addition, different variants of the same may have quite different expression patterns in a given system, e.g. one might be up-regulated, while another is down-regulated (REF)."
 	 >
+		<required-component class="org.geworkbench.components.filtering.FilteringPanel" />
 
 		<license><![CDATA[
 			<html><head><meta http-equiv=Content-Type content="text/html; charset=windows-1252"></head>
