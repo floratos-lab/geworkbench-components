@@ -7,6 +7,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.text.DecimalFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -210,6 +211,20 @@ public class ParameterPanel extends JPanel {
 		AdvancedPane.setLayout(new BoxLayout(AdvancedPane, BoxLayout.LINE_AXIS));
 
 		jExactOnlyBox.setSelected(true);
+		jMatrixBox.setEnabled(false);
+		jExactOnlyBox.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(jExactOnlyBox.isSelected()) {
+					jMatrixBox.setEnabled(false);
+				} else {
+					jMatrixBox.setEnabled(true);
+				}
+				
+			}
+			
+		});
 		jExactOnlyBox.setText("Exact Only");
 		jSimThresholdBox.setText("2");
 
