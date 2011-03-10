@@ -55,17 +55,17 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 
 	static Log log = LogFactory.getLog(AracneParamPanel.class);
 
-    public static final String DEFAULT_HUB = "31564_at";
+    private static final String DEFAULT_HUB = "31564_at";
 
-    public static final String HUB_ALL = "All vs. All";
-    public static final String FROM_SETS = "From Sets";
-    public static final String FROM_FILE = "From File";
-    public static final String THRESHOLD_MI = "Mutual Info.";
-    public static final String THRESHOLD_PVALUE = "P-Value";
-    public static final String KERNEL_INFERRED = "Inferred";
-    public static final String KERNEL_SPECIFY = "Specify";
-    public static final String DPI_NONE = "Do Not Apply";
-    public static final String DPI_APPLY = "Apply";
+    private static final String HUB_ALL = "All vs. All";
+    private static final String FROM_SETS = "From Sets";
+    private static final String FROM_FILE = "From File";
+    private static final String THRESHOLD_MI = "Mutual Info.";
+    private static final String THRESHOLD_PVALUE = "P-Value";
+    private static final String KERNEL_INFERRED = "Inferred";
+    private static final String KERNEL_SPECIFY = "Specify";
+    private static final String DPI_NONE = "Do Not Apply";
+    private static final String DPI_APPLY = "Apply";
 
     public static final String FIXED_BANDWIDTH = "Fixed Bandwidth";
     public static final String ADAPTIVE_PARTITIONING = "Adaptive Partitioning";
@@ -126,18 +126,18 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 		markerSetCombo.setEnabled(false);
         builder.append(markerSetCombo, hubMarkerList, loadMarkersButton);
 
-        builder.append("Threshold Type", thresholdCombo, threshold);
+        /* choices of three modes     */
+        builder.append("Mode", modeCombo);
         builder.nextRow();
 
         /* choices of two algorithms for now     */
         builder.append("Algorithm", algorithmCombo);
         builder.nextRow();
 
-        /* choices of three modes     */
-        builder.append("Mode", modeCombo);
+        builder.append("Kernel Width", kernelCombo, kernelWidth);
         builder.nextRow();
 
-        builder.append("Kernel Width", kernelCombo, kernelWidth);
+        builder.append("Threshold Type", thresholdCombo, threshold);
         builder.nextRow();
 
         builder.append("DPI Tolerance", dpiCombo, dpiTolerance);
