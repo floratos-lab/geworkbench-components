@@ -212,14 +212,17 @@ public class ParameterPanel extends JPanel {
 
 		jExactOnlyBox.setSelected(true);
 		jMatrixBox.setEnabled(false);
+		jSimThresholdBox.setEnabled(false);
 		jExactOnlyBox.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if(jExactOnlyBox.isSelected()) {
 					jMatrixBox.setEnabled(false);
+					jSimThresholdBox.setEnabled(false);
 				} else {
 					jMatrixBox.setEnabled(true);
+					jSimThresholdBox.setEnabled(true);
 				}
 				
 			}
