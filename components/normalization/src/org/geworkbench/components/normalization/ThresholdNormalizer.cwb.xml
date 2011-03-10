@@ -13,7 +13,6 @@
  (or greater than) a user-specified minimum (maximum) value
  are raised (reduced) to that minimum (maximum) value."
 	 	 >
-		<required-component class="org.geworkbench.components.microarrays.TabularMicroarrayPanel" />
 		<required-component class="org.geworkbench.components.normalization.NormalizationPanel" />
 		<license><![CDATA[
 			<html><head><meta http-equiv=Content-Type content="text/html; charset=windows-1252"></head>

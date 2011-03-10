@@ -11,6 +11,7 @@
 				category="filter"
 				description="Due to incomplete knowledge or error at the time of design, some Affymetrix probesets may have no Entrez Gene ID assigned, or they may have more than one such ID assigned."
 	 >
+		<required-component class="org.geworkbench.components.filtering.FilteringPanel" />
 	 
 		<license><![CDATA[
 			<html><head><meta http-equiv=Content-Type content="text/html; charset=windows-1252"></head>

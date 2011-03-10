@@ -11,7 +11,6 @@
 				category="normalizer"
 				description="Subtracts the mean or median measurement of a marker profile from every measurement in the profile."
  	 >
-		<required-component class="org.geworkbench.components.microarrays.TabularMicroarrayPanel" />
 		<required-component class="org.geworkbench.components.normalization.NormalizationPanel" />
 		<license><![CDATA[
 			<html><head><meta http-equiv=Content-Type content="text/html; charset=windows-1252"></head>
