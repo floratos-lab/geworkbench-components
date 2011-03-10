@@ -1,6 +1,7 @@
 package org.geworkbench.components.discovery;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -11,6 +12,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.InputVerifier;
 import javax.swing.JCheckBox;
@@ -60,7 +63,6 @@ public class ParameterPanel extends JPanel {
 	private BorderLayout jborderLayout = new BorderLayout();
 
 	private GridBagLayout jBasicGridBL = new GridBagLayout();
-	private GridBagLayout jAdvancedgridBL = new GridBagLayout();
 	private GridBagLayout jLimitsGridBL = new GridBagLayout();
 	private GridBagLayout jExhaustiveGridBL = new GridBagLayout();
 
@@ -82,7 +84,6 @@ public class ParameterPanel extends JPanel {
 	private JCheckBox jExactOnlyBox = new JCheckBox();
 
 	private JComboBox jMatrixBox = new JComboBox();
-	private JLabel jSimThresholdLabel = new JLabel();
 	private JTextField jSimThresholdBox = new JTextField();
 
 	// Groups Panel
@@ -206,11 +207,10 @@ public class ParameterPanel extends JPanel {
 		jMatrixBox.addItem("BLOSUM62");
 		jMatrixBox.addItem("BLOSUM100");
 		jMatrixBox.setSelectedIndex(0);
-		AdvancedPane.setLayout(jAdvancedgridBL);
+		AdvancedPane.setLayout(new BoxLayout(AdvancedPane, BoxLayout.LINE_AXIS));
 
 		jExactOnlyBox.setSelected(true);
 		jExactOnlyBox.setText("Exact Only");
-		jSimThresholdLabel.setText("Similarity Threshold:");
 		jSimThresholdBox.setText("2");
 
 		// add a verifier
@@ -326,20 +326,25 @@ public class ParameterPanel extends JPanel {
 				1.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
 				new Insets(2, 2, 2, 2), 0, 0));
 
-		AdvancedPane.add(jExactOnlyBox, new GridBagConstraints(0, 0, 1, 1, 0.0,
-				0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
-				new Insets(1, 2, 1, 2), 0, 0));
+		jExactOnlyBox.setAlignmentY(Component.TOP_ALIGNMENT);
+		AdvancedPane.add(Box.createRigidArea(new Dimension(5,0)));
+		AdvancedPane.add(jExactOnlyBox);
+		AdvancedPane.add(Box.createRigidArea(new Dimension(5,0)));
 
-		AdvancedPane.add(jMatrixBox, new GridBagConstraints(1, 0, 2, 1, 1.0,
-				0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-				new Insets(2, 2, 2, 2), 0, 0));
-		AdvancedPane.add(jSimThresholdLabel, new GridBagConstraints(1, 1, 1, 1,
-				0.0, 0.0, GridBagConstraints.CENTER,
-				GridBagConstraints.HORIZONTAL, new Insets(1, 2, 2, 2), 0, 0));
-		AdvancedPane.add(jSimThresholdBox, new GridBagConstraints(2, 1, 1, 1,
-				0.0, 0.0, GridBagConstraints.CENTER,
-				GridBagConstraints.HORIZONTAL, new Insets(1, 1, 2, 2), 0, 0));
-
+		JPanel advancedRightPanel = new JPanel();
+		advancedRightPanel.setAlignmentY(Component.TOP_ALIGNMENT);
+		advancedRightPanel.setLayout(new BoxLayout(advancedRightPanel, BoxLayout.PAGE_AXIS));
+		jMatrixBox.setMaximumSize(new Dimension(200, 30));
+		advancedRightPanel.add(jMatrixBox);
+		advancedRightPanel.add(Box.createRigidArea(new Dimension(0,5)));
+		JPanel similarityThresholdPanel = new JPanel();
+		similarityThresholdPanel.setLayout(new BoxLayout(similarityThresholdPanel, BoxLayout.LINE_AXIS));
+		similarityThresholdPanel.setMaximumSize(new Dimension(200, 30));
+		similarityThresholdPanel.add(new JLabel("Similarity Threshold:"));
+		similarityThresholdPanel.add(jSimThresholdBox);
+		advancedRightPanel.add(similarityThresholdPanel);
+		AdvancedPane.add(advancedRightPanel);
+		
 		jLimitsPane.add(jMaxPatternNoLabel, new GridBagConstraints(0, 0, 1, 1,
 				0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
 				new Insets(2, 2, 2, 2), 0, 0));
