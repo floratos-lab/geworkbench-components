@@ -5,6 +5,7 @@ import org.geworkbench.events.StatusBarEvent;
 import org.geworkbench.events.listeners.ProgressChangeListener;
 import org.geworkbench.events.listeners.StatusChangeListener;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
+import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.datastructure.complex.pattern.SoapParmsDataSet;
 import org.geworkbench.components.discovery.SequenceDiscoveryViewWidget;
 
@@ -20,7 +21,7 @@ import java.io.File;
  * <p>Company: </p>
  *
  * @author not attributable
- * @version 1.0
+ * @version $Id$
  */
 
 public abstract class AbstractSequenceDiscoveryAlgorithm {
@@ -29,15 +30,12 @@ public abstract class AbstractSequenceDiscoveryAlgorithm {
      */
     private EventListenerList listenerList = new EventListenerList();
 
-    File resultFile;
-    SoapParmsDataSet result;
-    DSSequenceSet sequenceInputData;
+    protected File resultFile;
+    protected SoapParmsDataSet result;
+    protected DSSequenceSet<DSSequence> sequenceInputData;
 
     // SequenceDiscoveryViewWidget which created this stub
     protected SequenceDiscoveryViewWidget viewWidget = null;
-    public SequenceDiscoveryViewWidget getViewWidget() {
-		return viewWidget;
-	}
 
 	public void setViewWidget(SequenceDiscoveryViewWidget viewWidget) {
 		this.viewWidget = viewWidget;
@@ -51,7 +49,7 @@ public abstract class AbstractSequenceDiscoveryAlgorithm {
      */
     public void addProgressChangeListener(ProgressChangeListener listener) {
         if (listener instanceof ProgressChangeListener) {
-            addListener(ProgressChangeListener.class, listener);
+            addListener(EventListener.class, listener);
             progressChangeListenerAdded();
         }
     }
@@ -63,7 +61,7 @@ public abstract class AbstractSequenceDiscoveryAlgorithm {
      */
     public void removeProgressChangeListener(ProgressChangeListener listener) {
         if (listener instanceof ProgressChangeListener) {
-            removeListener(ProgressChangeListener.class, listener);
+            removeListener(EventListener.class, listener);
             progressChangeListenerRemoved();
         }
     }
@@ -75,19 +73,19 @@ public abstract class AbstractSequenceDiscoveryAlgorithm {
      */
     public void addStatusChangeListener(StatusChangeListener listener) {
         if (listener instanceof StatusChangeListener) {
-            addListener(StatusChangeListener.class, listener);
+            addListener(EventListener.class, listener);
             statusChangedListenerAdded();
         }
     }
 
     /**
-     * Removes a listener fom the list.
+     * Removes a listener from the list.
      *
      * @param	listener		the StatusChangeListener
      */
     public void removeStatusChangeListener(StatusChangeListener listener) {
         if (listener instanceof StatusChangeListener) {
-            removeListener(StatusChangeListener.class, listener);
+            removeListener(EventListener.class, listener);
             statusChangedListenerRemoved();
         }
     }
@@ -141,7 +139,7 @@ public abstract class AbstractSequenceDiscoveryAlgorithm {
      * It will unblock when a lister is added to the object.
      */
     protected synchronized void tryWait() {
-        if (getListenerListSize() == 0) {
+        if (listenerList.getListenerCount() == 0) {
             synchronized (this) {
                 try {
                     wait();
@@ -164,7 +162,7 @@ public abstract class AbstractSequenceDiscoveryAlgorithm {
      * @param listenerClass
      * @param listener
      */
-    private synchronized void addListener(Class listenerClass, EventListener listener) {
+    private synchronized void addListener(Class<EventListener> listenerClass, EventListener listener) {
         listenerList.add(listenerClass, listener);
     }
 
@@ -174,7 +172,7 @@ public abstract class AbstractSequenceDiscoveryAlgorithm {
      * @param listenerClass
      * @param listener
      */
-    private synchronized void removeListener(Class listenerClass, EventListener listener) {
+    private synchronized void removeListener(Class<EventListener> listenerClass, EventListener listener) {
         listenerList.remove(listenerClass, listener);
     }
 
@@ -216,32 +214,10 @@ public abstract class AbstractSequenceDiscoveryAlgorithm {
      * This method is called every time a ProgressChangeListener is
      * removed from the algorithm. The default behavior of this method is unblokck the
      * algorithm if it was blocked before.
-     * Subclass can overide the method in order to customize behavior.
+     * Subclass can override the method in order to customize behavior.
      */
     protected void progressChangeListenerRemoved() {
         wakeUp();
-    }
-
-    /**
-     * Returns the number of listeners.
-     *
-     * @return the number of listerners.
-     */
-    private int getListenerListSize() {
-        return listenerList.getListenerCount();
-    }
-
-    /**
-     * As specifiend by the Algorithm. Not used.
-     *
-     * @return double
-     */
-    public double getCompletion() {
-        return 0.0;
-    }
-
-    public File getResultFile() {
-        return resultFile;
     }
 
     public void setResultFile(SoapParmsDataSet result) {
@@ -249,13 +225,9 @@ public abstract class AbstractSequenceDiscoveryAlgorithm {
         this.resultFile = result.getResultFile();
     }
 
-    public DSSequenceSet getSequenceInputData() {
-        return sequenceInputData;
-    }
-
-    public void setSequenceInputData(DSSequenceSet sequenceInputData) {
-    	//System.out.println("IN ASDAlgo: " + sequenceInputData.size());
-        this.sequenceInputData = sequenceInputData;
+    @SuppressWarnings("unchecked")
+	public void setSequenceInputData(DSSequenceSet<? extends DSSequence> sequenceInputData) {
+        this.sequenceInputData = (DSSequenceSet<DSSequence>) sequenceInputData;
     }
 
     /**
