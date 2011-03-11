@@ -85,11 +85,8 @@ public class ParameterPanel extends JPanel {
 	private JTextField jDecreaseSupportBox = new JTextField();
 	private JComboBox jDecreaseDensitySupportBox = new JComboBox();
 
-	private JLabel jEntThreshLabel = new JLabel();
 	private JTextField jEntThreshBox = new JTextField();
-	private JLabel jConsRegionExtLabel = new JLabel();
 	private JTextField jConsRegionExtBox = new JTextField();
-	private JLabel jSlidWindowSizeLabel = new JLabel();
 	private JTextField jSlidingWindowBox = new JTextField();
 	private ButtonGroup buttonGroup1 = new ButtonGroup();
 	private JRadioButton jSequenceRadioButton = new JRadioButton();
@@ -138,15 +135,11 @@ public class ParameterPanel extends JPanel {
 		jMinWTokensBox.setMaximumSize(size1);
 		jMinWTokensBox.setText("4");
 
-		jEntThreshLabel.setText("Entropy Threshold:");
-		jConsRegionExtLabel.setText("Conserved Region Extension:");
-
 		jEntThreshBox.setEnabled(true);
 		jEntThreshBox.setSelectionEnd(0);
 		jEntThreshBox.setSelectionStart(0);
 		jEntThreshBox.setText("16");
 
-		jSlidWindowSizeLabel.setText("Sliding Window Size:");
 		jSequenceRadioButton.setEnabled(false);
 		jSequenceRadioButton.setDoubleBuffered(false);
 		jSequenceRadioButton.setText("sequence");
