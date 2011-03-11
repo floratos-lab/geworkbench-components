@@ -183,7 +183,6 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 				JOptionPane.INFORMATION_MESSAGE);
 	}
 
-	@SuppressWarnings("unchecked")
 	void updateDataSetView() {
 
 		boolean activateMarkers = true;
@@ -194,14 +193,14 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 		if (activatedMarkers != null && activatedMarkers.size() > 0) {
 			if (activateMarkers && (fullSequenceDB != null)) {
 				// createActivatedSequenceSet();
-				activeSequenceDB = (CSSequenceSet) ((CSSequenceSet) fullSequenceDB)
+				activeSequenceDB = (CSSequenceSet<? extends DSSequence>) ((CSSequenceSet<? extends DSSequence>) fullSequenceDB)
 						.getActiveSequenceSet(activatedMarkers);
 			}
 		} else {
-			activeSequenceDB = (CSSequenceSet) fullSequenceDB;
+			activeSequenceDB = (CSSequenceSet<? extends DSSequence>) fullSequenceDB;
 		}
 		if (activeSequenceDB == null) {
-			activeSequenceDB = (CSSequenceSet) fullSequenceDB;
+			activeSequenceDB = (CSSequenceSet<? extends DSSequence>) fullSequenceDB;
 		} else if (activeSequenceDB.size() < fullSequenceDB.size()) {
 			// create a temp folder for new Sequence.
 			String tempFolder = FilePathnameUtils
@@ -210,7 +209,7 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 					+ activeSequenceDB.size();
 			File tempFile = new File(tempFolder + tempString);
 			if (SequencePatternUtils.createFile(tempFile, activeSequenceDB)) {
-				activeSequenceDB = new CSSequenceSet();
+				activeSequenceDB = new CSSequenceSet<DSSequence>();
 				activeSequenceDB.readFASTAFile(tempFile);
 				activeSequenceDB.setFASTAFile(tempFile);
 			}
@@ -250,27 +249,27 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 			return;
 		}
 		ProjectSelection selection = ((ProjectPanel) source).getSelection();
-		DSDataSet df = selection.getDataSet();
+		DSDataSet<?> df = selection.getDataSet();
 		if (df != null) {
 			// update db with the selected file in the project
 			if (df instanceof DSSequenceSet) {
 				currentStatus = SEQUENCE;
-				fullSequenceDB = (DSSequenceSet) df;
-				sDiscoveryViewWidget.setSequenceDB((DSSequenceSet) df,
+				fullSequenceDB = (DSSequenceSet<? extends DSSequence>) df;
+				sDiscoveryViewWidget.setSequenceDB((DSSequenceSet<? extends DSSequence>) df,
 						false, null, null, null);
 			} else {
 				currentStatus = NONSEQUENCE;
 			}
 		}
 
-		DSDataSet dataset = e.getDataSet();
+		DSDataSet<?> dataset = e.getDataSet();
 		if (dataset instanceof SoapParmsDataSet) {
 			SoapParmsDataSet soapParmsDataSet = (SoapParmsDataSet) dataset;
 			File resultFile = soapParmsDataSet.getResultFile();
 			log.debug("result file is "+resultFile.getAbsolutePath());
 			Parameters parms = ParameterTranslation
 					.getParameters(soapParmsDataSet.getParameters());
-			DSSequenceSet sequenceDB = (DSSequenceSet)df;
+			DSSequenceSet<? extends DSSequence> sequenceDB = (DSSequenceSet<? extends DSSequence>)df;
 			if (df.equals(fullSequenceDB)) sequenceDB = activeSequenceDB;
 			sDiscoveryViewWidget.setSequenceDB(sequenceDB, true,
 					soapParmsDataSet.getID(), parms, resultFile);
@@ -286,7 +285,7 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 			log.debug("result file is "+resultFile.getAbsolutePath());
 			Parameters parms = ParameterTranslation
 			.getParameters(new org.geworkbench.bison.datastructure.complex.pattern.Parameters());
-			DSSequenceSet sequenceDB = (DSSequenceSet)df;
+			DSSequenceSet<? extends DSSequence> sequenceDB = (DSSequenceSet<? extends DSSequence>)df;
 			if (df.equals(fullSequenceDB)) sequenceDB = activeSequenceDB;
 			sDiscoveryViewWidget.setSequenceDB(sequenceDB, true,
 					patternDB.getID(), parms, resultFile);

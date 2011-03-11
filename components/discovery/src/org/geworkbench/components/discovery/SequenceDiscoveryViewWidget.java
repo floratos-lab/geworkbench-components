@@ -405,7 +405,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 				.get(currentStubId);
 
 		if (currentResultFile != null) {
-			loadPatternFile(currentResultFile);
+			loadPatternFile(currentResultFile, false);
 		}
 		if (oldStub == null && newStub == null) {
 			// no algorithm stub is mapped
@@ -621,7 +621,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		ois.defaultReadObject();
 	}
 
-	private void loadPatternFile(File patternfile) {
+	private void loadPatternFile(File patternfile, boolean newNode) {
 		File sequenceFile = getSequenceDB().getFile();
 		if (!patternfile.getName().endsWith(".pat")) {
 			String msg = "Not a valid file! File extension must end with .pat";
@@ -650,23 +650,22 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 			e1.printStackTrace();
 		}
 
-		AbstractSequenceDiscoveryAlgorithm loader = null;
-		String algoPanelName = "";
-		int id = DEFAULT_VIEW;
 		if (type != null
 				&& type.equalsIgnoreCase(AlgorithmSelectionPanel.DISCOVER)) {
-			loader = new RegularDiscoveryFileLoader(sequenceFile, patternfile, appComponent, false, (DSDataSet<DSSequence>) getSequenceDB());
-			id = PATTERN_TABLE;
-			algoPanelName = AlgorithmSelectionPanel.DISCOVER;
+			@SuppressWarnings("unchecked")
+			AbstractSequenceDiscoveryAlgorithm loader = new RegularDiscoveryFileLoader(
+					sequenceFile, patternfile, appComponent, newNode,
+					(DSDataSet<DSSequence>) getSequenceDB());
+			String algoPanelName = AlgorithmSelectionPanel.DISCOVER;
+
+			switchAlgo(algoPanelName, loader, PATTERN_TABLE);
+
+			// fire a clear table event
+			firePropertyChange(TABLE_EVENT, null, null);
 		} else {
-			System.err.println("Loading failed. Did not recognize the data.");
+			log.error("Loading failed. Did not recognize the data.");
 			return;
 		}
-
-		switchAlgo(algoPanelName, loader, id);
-
-		// fire a clear table event
-		firePropertyChange(TABLE_EVENT, null, null);
 	}
 
 	private void loadBttn_actionPerformed(ActionEvent e) {
@@ -681,54 +680,8 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		if (returnVal != JFileChooser.APPROVE_OPTION) {
 			return;
 		}
-		// updateFileProperty(chooser.getSelectedFile().getAbsolutePath());
-		File sequenceFile = getSequenceDB().getFile();
 		File patternfile = chooser.getSelectedFile();
-
-		if (!patternfile.getName().endsWith(".pat")) {
-			String msg = "Not a valid file! File extension must end with .pat";
-
-			JOptionPane.showMessageDialog(null, msg, "Error",
-					JOptionPane.ERROR_MESSAGE);
-			return;
-		}
-
-		if (!patternfile.exists()) {
-			String msg = "Not a valid file! File " + patternfile.getName()
-					+ " does not exist";
-
-			JOptionPane.showMessageDialog(null, msg, "Error",
-					JOptionPane.ERROR_MESSAGE);
-			return;
-
-		}
-
-		String type = "";
-		try {
-			BufferedReader bf = new BufferedReader(new FileReader(patternfile));
-			type = bf.readLine();
-			bf.close();
-		} catch (Exception e1) {
-			e1.printStackTrace();
-		}
-
-		RegularDiscoveryFileLoader loader = null;
-		String algoPanelName = "";
-		int id = DEFAULT_VIEW;
-		if (type != null
-				&& type.equalsIgnoreCase(AlgorithmSelectionPanel.DISCOVER)) {
-			loader = new RegularDiscoveryFileLoader(sequenceFile, patternfile, appComponent, true, (DSDataSet<DSSequence>) getSequenceDB());
-			id = PATTERN_TABLE;
-			algoPanelName = AlgorithmSelectionPanel.DISCOVER;
-		} else {
-			System.err.println("Loading failed. Did not recognize the data.");
-			return;
-		}
-
-		switchAlgo(algoPanelName, loader, id);
-
-		// fire a clear table event
-		firePropertyChange(TABLE_EVENT, null, null);
+		loadPatternFile(patternfile, true);
 	}
 
 	/**

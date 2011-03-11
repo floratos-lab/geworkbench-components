@@ -49,7 +49,7 @@ public abstract class AbstractSequenceDiscoveryAlgorithm {
      */
     public void addProgressChangeListener(ProgressChangeListener listener) {
         if (listener instanceof ProgressChangeListener) {
-            addListener(EventListener.class, listener);
+            addListener(ProgressChangeListener.class, listener);
             progressChangeListenerAdded();
         }
     }
@@ -61,7 +61,7 @@ public abstract class AbstractSequenceDiscoveryAlgorithm {
      */
     public void removeProgressChangeListener(ProgressChangeListener listener) {
         if (listener instanceof ProgressChangeListener) {
-            removeListener(EventListener.class, listener);
+            removeListener(ProgressChangeListener.class, listener);
             progressChangeListenerRemoved();
         }
     }
@@ -73,7 +73,7 @@ public abstract class AbstractSequenceDiscoveryAlgorithm {
      */
     public void addStatusChangeListener(StatusChangeListener listener) {
         if (listener instanceof StatusChangeListener) {
-            addListener(EventListener.class, listener);
+            addListener(StatusChangeListener.class, listener);
             statusChangedListenerAdded();
         }
     }
@@ -85,7 +85,7 @@ public abstract class AbstractSequenceDiscoveryAlgorithm {
      */
     public void removeStatusChangeListener(StatusChangeListener listener) {
         if (listener instanceof StatusChangeListener) {
-            removeListener(EventListener.class, listener);
+            removeListener(StatusChangeListener.class, listener);
             statusChangedListenerRemoved();
         }
     }
@@ -162,7 +162,8 @@ public abstract class AbstractSequenceDiscoveryAlgorithm {
      * @param listenerClass
      * @param listener
      */
-    private synchronized void addListener(Class<EventListener> listenerClass, EventListener listener) {
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private synchronized void addListener(Class listenerClass, EventListener listener) {
         listenerList.add(listenerClass, listener);
     }
 
@@ -172,7 +173,8 @@ public abstract class AbstractSequenceDiscoveryAlgorithm {
      * @param listenerClass
      * @param listener
      */
-    private synchronized void removeListener(Class<EventListener> listenerClass, EventListener listener) {
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+	private synchronized void removeListener(Class listenerClass, EventListener listener) {
         listenerList.remove(listenerClass, listener);
     }
 
