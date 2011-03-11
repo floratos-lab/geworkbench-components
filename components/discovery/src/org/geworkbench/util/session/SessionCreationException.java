@@ -7,11 +7,13 @@ package org.geworkbench.util.session;
  * <p>Company: </p>
  *
  * @author not attributable
- * @version 1.0
+ * @version $Id$
  */
 
 public class SessionCreationException extends Exception {
-    public SessionCreationException() {
+	private static final long serialVersionUID = 5398002228641189789L;
+
+	public SessionCreationException() {
     }
 
     public SessionCreationException(String message) {
