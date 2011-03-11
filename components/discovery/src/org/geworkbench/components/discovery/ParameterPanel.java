@@ -3,9 +3,6 @@ package org.geworkbench.components.discovery;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.DecimalFormat;
@@ -58,14 +55,6 @@ public class ParameterPanel extends JPanel {
 	static final String SUPPORT_PERCENT_1_100 = "Support Percent %(1-100)";
 	
 	private JTabbedPane jTabbedPane1 = new JTabbedPane();
-	private JPanel BasicPane = new JPanel();
-	private JPanel AdvancedPane = new JPanel();
-
-	private BorderLayout jborderLayout = new BorderLayout();
-
-	private GridBagLayout jBasicGridBL = new GridBagLayout();
-	private GridBagLayout jLimitsGridBL = new GridBagLayout();
-	private GridBagLayout jExhaustiveGridBL = new GridBagLayout();
 
 	private JTextField jMinPatternNoBox = new JTextField();
 	private JLabel jMinClusterSizeLabel = new JLabel();
@@ -73,9 +62,6 @@ public class ParameterPanel extends JPanel {
 
 	// Basic Panel
 	private JComboBox jMinSupportMenu = new JComboBox();
-	private JLabel jMinTokensLabel = new JLabel();
-	private JLabel jWindowLabel = new JLabel();
-	private JLabel jMinWTokensLabel = new JLabel();
 	private JTextField jMinSupportBox = new JTextField();
 	private JTextField jMinTokensBox = new JTextField();
 	private JTextField jMinWTokensBox = new JTextField();
@@ -88,23 +74,15 @@ public class ParameterPanel extends JPanel {
 	private JTextField jSimThresholdBox = new JTextField();
 
 	// Groups Panel
-	private JLabel jGroupsLabel = new JLabel();
-	private JLabel jGroupSizeLabel = new JLabel();
 	private JComboBox jGroupsBox = new JComboBox();
 	private JTextField jGroupSizeBox = new JTextField();
 
 	// Limits Panel
-	private JPanel jLimitsPane = new JPanel();
-	private JLabel jMaxPatternNoLabel = new JLabel();
+	private JPanel limitPanel = new JPanel();
 	private JTextField jMaxPatternNoBox = new JTextField();
-	private JLabel jMaxRunTimeLabel = new JLabel();
 	private JTextField jMaxRunTimeBox = new JTextField();
 
-	// Exhaustive Panel
-	private JPanel jExhaustivePane = new JPanel();
-	private JLabel jDecreaseSupportLabel = new JLabel();
 	private JTextField jDecreaseSupportBox = new JTextField();
-	private JLabel jDecreaseDensitySupportLabel = new JLabel();
 	private JComboBox jDecreaseDensitySupportBox = new JComboBox();
 
 	private JLabel jEntThreshLabel = new JLabel();
@@ -116,22 +94,10 @@ public class ParameterPanel extends JPanel {
 	private ButtonGroup buttonGroup1 = new ButtonGroup();
 	private JRadioButton jSequenceRadioButton = new JRadioButton();
 	private JRadioButton jOccurenceRadioButton = new JRadioButton();
-	private JLabel jLabel1 = new JLabel();
-	private JLabel jLabel2 = new JLabel();
 
-	private JLabel jLabel3 = new JLabel();
 	private JTextField jMinSupportExhaustive = new JTextField();
-	private JPanel jPanel1 = new JPanel();
-	private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
-	private Border border2;
-	private Border border3;
-	private Border border5;
-	private Border border7;
-	private JPanel jPanel2 = new JPanel();
-	private GridBagLayout gridBagLayout2 = new GridBagLayout();
-	private JLabel jLabel4 = new JLabel();
-	private JTextField jTextField1 = new JTextField();
+	private JTextField minPatternNumberField = new JTextField();
 	private JTextField jMinClusterSizeBox = new JTextField();
 	private JCheckBox jUseHMMBox = new JCheckBox();
 	private String currentSupportMenuStr = SUPPORT_PERCENT_1_100;
@@ -146,32 +112,31 @@ public class ParameterPanel extends JPanel {
 	}
 
 	private void jbInit() throws Exception {
-		// Basic Panel
-		border2 = BorderFactory.createEmptyBorder(2, 2, 2, 2);
-		border3 = BorderFactory.createEmptyBorder(2, 2, 2, 2);
-		border5 = BorderFactory.createEmptyBorder(2, 2, 2, 2);
-		border7 = BorderFactory.createEmptyBorder(2, 2, 2, 2);
-		BasicPane.setLayout(jBasicGridBL);
-		BasicPane.setPreferredSize(new Dimension(10, 100));
-		BasicPane.setBorder(border3);
-		BasicPane.setMinimumSize(new Dimension(10, 100));
-		jMinWTokensLabel.setText("Density Tokens:");
-		jMinWTokensLabel.setToolTipText("");
-		this.setLayout(jborderLayout);
+		
+		this.setLayout(new BorderLayout());
 
 		jMinSupportMenu.addItem(SUPPORT_PERCENT_1_100);
 		jMinSupportMenu.addItem(SUPPORT_SEQUENCES);
 		jMinSupportMenu.addItem(SUPPORT_OCCURANCES);
 		jMinSupportMenu.setSelectedIndex(0);
-		jMinSupportMenu
-				.addActionListener(new ParameterPanel_jSupportMenu_actionAdapter(
-						this));
-		jWindowLabel.setText("Density Window:");
-		jMinTokensBox.setText("7");
-		jWindowBox.setText("5");
-		jMinWTokensBox.setText("4");
-		jMinTokensLabel.setText("Min Tokens:");
+		jMinSupportMenu.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				jSupportMenu_actionPerformed();
+			}
+		});
+		jMinSupportMenu.setMaximumSize(new Dimension(200, 30));
+		
+		final Dimension size1 = new Dimension(150, 30);
+		jMinSupportBox.setMaximumSize(size1);
 		jMinSupportBox.setText("70");
+		jMinTokensBox.setMaximumSize(size1);
+		jMinTokensBox.setText("7");
+		jWindowBox.setMaximumSize(size1);
+		jWindowBox.setText("5");
+		jMinWTokensBox.setMaximumSize(size1);
+		jMinWTokensBox.setText("4");
 
 		jEntThreshLabel.setText("Entropy Threshold:");
 		jConsRegionExtLabel.setText("Conserved Region Extension:");
@@ -187,13 +152,10 @@ public class ParameterPanel extends JPanel {
 		jSequenceRadioButton.setText("sequence");
 		jOccurenceRadioButton.setEnabled(false);
 		jOccurenceRadioButton.setText("occurence");
-		jLabel1.setText("By sequence:");
-		jLabel1.setVerticalAlignment(javax.swing.SwingConstants.CENTER);
-		jLabel2.setText("By occurence:");
-		jLabel3.setText("Min. Support:");
+
+		jMinSupportExhaustive.setMaximumSize(size1);
 		jMinSupportExhaustive.setText("10%");
-		jPanel1.setLayout(gridBagLayout1);
-		jPanel1.setBorder(null);
+
 		// add a verifier
 		jMinTokensBox.setInputVerifier(new RegularExpressionVerifier(
 				"(\\d){1,9}"));
@@ -208,7 +170,6 @@ public class ParameterPanel extends JPanel {
 		jMatrixBox.addItem("BLOSUM62");
 		jMatrixBox.addItem("BLOSUM100");
 		jMatrixBox.setSelectedIndex(0);
-		AdvancedPane.setLayout(new BoxLayout(AdvancedPane, BoxLayout.LINE_AXIS));
 
 		jExactOnlyBox.setSelected(true);
 		jMatrixBox.setEnabled(false);
@@ -243,13 +204,6 @@ public class ParameterPanel extends JPanel {
 		jGroupsBox.setSelectedIndex(0);
 		jGroupsBox.setSelectedItem("Normal");
 
-		jGroupsLabel.setMaximumSize(new Dimension(63, 15));
-		jGroupsLabel.setMinimumSize(new Dimension(50, 15));
-		jGroupsLabel.setText("Type: ");
-		jGroupSizeLabel.setMaximumSize(new Dimension(63, 15));
-		jGroupSizeLabel.setMinimumSize(new Dimension(50, 15));
-		jGroupSizeLabel.setText("Size: ");
-
 		jGroupSizeBox.setEnabled(false);
 		jGroupSizeBox.setMinimumSize(new Dimension(4, 21));
 		jGroupSizeBox.setText("1");
@@ -258,47 +212,37 @@ public class ParameterPanel extends JPanel {
 		jGroupSizeBox.setInputVerifier(new RegularExpressionVerifier(
 				"(\\d){1,9}"));
 		// Limits Panel
-		jLimitsPane.setLayout(jLimitsGridBL);
-		jMaxPatternNoLabel.setMinimumSize(new Dimension(60, 15));
-		jMaxPatternNoLabel.setText("Max. Pattern Number: ");
-		jMaxPatternNoBox.setMinimumSize(new Dimension(6, 21));
+		jMaxPatternNoBox.setMaximumSize(size1);
 		jMaxPatternNoBox.setText("100000");
-		jMaxRunTimeLabel.setMinimumSize(new Dimension(60, 15));
-		jMaxRunTimeLabel.setText("Max. Run Time (sec.):");
 		jMaxRunTimeBox.setEnabled(false);
+		jMaxRunTimeBox.setMaximumSize(size1);
 		jMaxRunTimeBox.setText("0");
 		// input verifier
 		jMaxPatternNoBox.setInputVerifier(new RegularExpressionVerifier(
 				"(\\d){1,9}"));
 		jMaxRunTimeBox.setInputVerifier(new RegularExpressionVerifier(
 				"(\\d){1,9}"));
+
 		// Exhaustive Panel
-		jExhaustivePane.setLayout(jExhaustiveGridBL);
-		jDecreaseDensitySupportLabel.setMinimumSize(new Dimension(50, 15));
-		jDecreaseDensitySupportLabel.setText("Dec. density support:");
 		jDecreaseDensitySupportBox.addItem("0");
 		jDecreaseDensitySupportBox.addItem("1");
 		jDecreaseDensitySupportBox.addItem("2");
 		jDecreaseDensitySupportBox.setEnabled(false);
-		jDecreaseDensitySupportBox.setMinimumSize(new Dimension(6, 21));
+		jDecreaseDensitySupportBox.setMaximumSize(size1);
 		jDecreaseDensitySupportBox.setSelectedIndex(0);
 		jDecreaseDensitySupportBox.setSelectedItem("0");
-		jDecreaseSupportLabel.setMinimumSize(new Dimension(50, 15));
-		jDecreaseSupportLabel.setText("Dec. support (%):");
+
+		jDecreaseSupportBox.setMaximumSize(size1);
 		jDecreaseSupportBox.setText("5");
 		jSlidingWindowBox.setEnabled(true);
 		jSlidingWindowBox.setText("10");
 		jConsRegionExtBox.setEnabled(false);
 		jConsRegionExtBox.setText("");
-		jLimitsPane.setBorder(border2);
 
-		jExhaustivePane.setBorder(border5);
-		AdvancedPane.setBorder(border7);
 		jMinPatternNoBox.setPreferredSize(new Dimension(20, 20));
-		jPanel2.setMaximumSize(new Dimension(32767, 32767));
-		jPanel2.setLayout(gridBagLayout2);
-		jLabel4.setText("Min. Pattern Number:");
-		jTextField1.setText("");
+
+		minPatternNumberField.setMaximumSize(size1);
+		minPatternNumberField.setText("");
 		jMinClusterSizeBox.setPreferredSize(new Dimension(20, 20));
 		jMinClusterSizeBox.setText("10");
 		jMinClusterSizeBox.setInputVerifier(new RegularExpressionVerifier(
@@ -319,35 +263,42 @@ public class ParameterPanel extends JPanel {
 		jMinPatternNoBox.setInputVerifier(new RegularExpressionVerifier(
 				"(\\d){1,9}"));
 
-		BasicPane.add(jMinSupportBox, new GridBagConstraints(1, 0, 1, 1, 0.7,
-				1.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
-				new Insets(2, 2, 2, 4), 0, 0));
-		BasicPane.add(jMinTokensBox, new GridBagConstraints(1, 1, 1, 1, 0.7,
-				1.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
-				new Insets(2, 2, 2, 4), 0, 0));
-		BasicPane.add(jWindowBox, new GridBagConstraints(1, 2, 1, 1, 0.7, 1.0,
-				GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
-				new Insets(2, 2, 2, 4), 0, 0));
-		BasicPane.add(jMinSupportMenu, new GridBagConstraints(0, 0, 1, 1, 0.0,
-				1.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
-				new Insets(2, 2, 2, 2), 0, 0));
-		BasicPane.add(jMinWTokensBox, new GridBagConstraints(1, 3, 1, 1, 0.7,
-				1.0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL,
-				new Insets(2, 2, 2, 4), 0, 0));
-		BasicPane.add(jMinTokensLabel, new GridBagConstraints(0, 1, 1, 1, 0.0,
-				1.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
-				new Insets(2, 2, 2, 2), 0, 0));
-		BasicPane.add(jWindowLabel, new GridBagConstraints(0, 2, 1, 1, 0.0,
-				1.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
-				new Insets(2, 2, 2, 2), 0, 0));
-		BasicPane.add(jMinWTokensLabel, new GridBagConstraints(0, 3, 1, 1, 0.0,
-				1.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
-				new Insets(2, 2, 2, 2), 0, 0));
+		Border emptyBorder = BorderFactory.createEmptyBorder(5, 5, 5, 5);
+		JPanel basic1 = new JPanel();
+		basic1.setLayout(new BoxLayout(basic1, BoxLayout.LINE_AXIS));
+		basic1.setAlignmentX(Component.LEFT_ALIGNMENT);
+		basic1.add(jMinSupportMenu);
+		basic1.add(jMinSupportBox);
+		JPanel basic2 = new JPanel();
+		basic2.setLayout(new BoxLayout(basic2, BoxLayout.LINE_AXIS));
+		basic2.setAlignmentX(Component.LEFT_ALIGNMENT);
+		basic2.add(new JLabel("Min Tokens:"));
+		basic2.add(jMinTokensBox);
+		JPanel basic3 = new JPanel();
+		basic3.setLayout(new BoxLayout(basic3, BoxLayout.LINE_AXIS));
+		basic3.setAlignmentX(Component.LEFT_ALIGNMENT);
+		basic3.add(new JLabel("Density Window:"));
+		basic3.add(jWindowBox);
+		JPanel basic4 = new JPanel();
+		basic4.setLayout(new BoxLayout(basic4, BoxLayout.LINE_AXIS));
+		basic4.setAlignmentX(Component.LEFT_ALIGNMENT);
+		basic4.add(new JLabel("Density Tokens:"));
+		basic4.add(jMinWTokensBox);
+		JPanel basicPanel = new JPanel();
+		basicPanel.setLayout(new BoxLayout(basicPanel, BoxLayout.PAGE_AXIS));
+		basicPanel.setBorder(emptyBorder);
+		basicPanel.add(basic1);
+		basicPanel.add(basic2);
+		basicPanel.add(basic3);
+		basicPanel.add(basic4);
 
 		jExactOnlyBox.setAlignmentY(Component.TOP_ALIGNMENT);
-		AdvancedPane.add(Box.createRigidArea(new Dimension(5,0)));
-		AdvancedPane.add(jExactOnlyBox);
-		AdvancedPane.add(Box.createRigidArea(new Dimension(5,0)));
+		JPanel advancedPanel = new JPanel();
+		advancedPanel.setLayout(new BoxLayout(advancedPanel, BoxLayout.LINE_AXIS));
+		advancedPanel.setBorder(emptyBorder);
+		advancedPanel.add(Box.createRigidArea(new Dimension(5,0)));
+		advancedPanel.add(jExactOnlyBox);
+		advancedPanel.add(Box.createRigidArea(new Dimension(5,0)));
 
 		JPanel advancedRightPanel = new JPanel();
 		advancedRightPanel.setAlignmentY(Component.TOP_ALIGNMENT);
@@ -361,69 +312,65 @@ public class ParameterPanel extends JPanel {
 		similarityThresholdPanel.add(new JLabel("Similarity Threshold:"));
 		similarityThresholdPanel.add(jSimThresholdBox);
 		advancedRightPanel.add(similarityThresholdPanel);
-		AdvancedPane.add(advancedRightPanel);
+		advancedPanel.add(advancedRightPanel);
 		
-		jLimitsPane.add(jMaxPatternNoLabel, new GridBagConstraints(0, 0, 1, 1,
-				0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
-				new Insets(2, 2, 2, 2), 0, 0));
-		jLimitsPane.add(jMaxRunTimeLabel, new GridBagConstraints(0, 1, 1, 1,
-				0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
-				new Insets(2, 2, 2, 2), 0, 0));
-		jLimitsPane.add(jMaxRunTimeBox, new GridBagConstraints(1, 1, 1, 1, 1.0,
-				0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
-				new Insets(2, 4, 2, 4), 0, 0));
-		jLimitsPane.add(jMaxPatternNoBox, new GridBagConstraints(1, 0, 1, 1,
-				1.0, 0.0, GridBagConstraints.WEST,
-				GridBagConstraints.HORIZONTAL, new Insets(2, 4, 2, 4), 0, 0));
+		limitPanel.setLayout(new BoxLayout(limitPanel, BoxLayout.PAGE_AXIS));
+		limitPanel.setBorder(emptyBorder);
+		JPanel limitTopPanel = new JPanel();
+		limitTopPanel.setLayout(new BoxLayout(limitTopPanel, BoxLayout.LINE_AXIS));
+		limitTopPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		limitTopPanel.add(new JLabel("Max. Pattern Number: "));
+		limitTopPanel.add(jMaxPatternNoBox);
+		JPanel limitBottomPanel = new JPanel();
+		limitBottomPanel.setLayout(new BoxLayout(limitBottomPanel, BoxLayout.LINE_AXIS));
+		limitBottomPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		limitBottomPanel.add(new JLabel("Max. Run Time (sec.):"));
+		limitBottomPanel.add(jMaxRunTimeBox);
+		limitPanel.add(limitTopPanel);
+		limitPanel.add(limitBottomPanel);
 
-		jPanel1.add(jDecreaseSupportLabel, new GridBagConstraints(0, 0, 1, 1,
-				0.0, 0.0, GridBagConstraints.WEST,
-				GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 2), 0, 0));
-		jPanel1.add(jDecreaseSupportBox, new GridBagConstraints(1, 0, 1, 1,
-				1.0, 0.0, GridBagConstraints.WEST,
-				GridBagConstraints.HORIZONTAL, new Insets(0, 2, 0, 2), 0, 0));
-		jPanel1.add(jLabel3, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
-				GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0,
-						2, 0, 2), 0, 0));
-		jPanel1.add(jMinSupportExhaustive, new GridBagConstraints(3, 0, 1, 1,
-				1.0, 0.0, GridBagConstraints.WEST,
-				GridBagConstraints.HORIZONTAL, new Insets(0, 2, 0, 0), 0, 0));
-		jExhaustivePane.add(jPanel2, new GridBagConstraints(0, 1, 2, 1, 0.0,
-				0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
-				new Insets(0, 0, 0, 0), 0, 0));
+		JPanel supportPercentagePanel = new JPanel();
+		supportPercentagePanel.setLayout(new BoxLayout(supportPercentagePanel, BoxLayout.LINE_AXIS));
+		supportPercentagePanel.setBorder(emptyBorder);
+		supportPercentagePanel.add(new JLabel("Dec. support (%):"));
+		supportPercentagePanel.add(jDecreaseSupportBox);
+		supportPercentagePanel.add(Box.createRigidArea(new Dimension(5,0)));
+		supportPercentagePanel.add(new JLabel("Min. Support:"));
+		supportPercentagePanel.add(jMinSupportExhaustive);
 
-		jPanel2.add(jDecreaseDensitySupportLabel, new GridBagConstraints(0, 0,
-				1, 1, 0.0, 0.0, GridBagConstraints.WEST,
-				GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
-		jPanel2.add(jDecreaseDensitySupportBox, new GridBagConstraints(1, 0, 1,
-				1, 0.5, 0.0, GridBagConstraints.CENTER,
-				GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
-		jPanel2.add(jLabel4, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
-				GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(
-						2, 2, 2, 2), 0, 0));
-		jPanel2.add(jTextField1, new GridBagConstraints(3, 0, 1, 1, 0.5, 0.0,
-				GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
-				new Insets(0, 0, 0, 0), 0, 0));
-		jExhaustivePane.add(jSequenceRadioButton, new GridBagConstraints(1, 3,
-				1, 1, 0.0, 0.0, GridBagConstraints.WEST,
-				GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
-		jExhaustivePane.add(jLabel1, new GridBagConstraints(0, 3, 1, 1, 0.0,
-				0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
-				new Insets(2, 2, 2, 2), 0, 0));
-		jExhaustivePane.add(jLabel2, new GridBagConstraints(0, 2, 1, 1, 0.0,
-				0.0, GridBagConstraints.WEST, GridBagConstraints.NONE,
-				new Insets(2, 2, 0, 2), 0, 0));
-		jExhaustivePane.add(jOccurenceRadioButton, new GridBagConstraints(1, 2,
-				1, 1, 0.0, 0.0, GridBagConstraints.WEST,
-				GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
-		jExhaustivePane.add(jPanel1, new GridBagConstraints(0, 0, 2, 1, 1.0,
-				0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
-				new Insets(2, 2, 2, 2), 0, 0));
+		JPanel densityPanel = new JPanel();
+		densityPanel.setLayout(new BoxLayout(densityPanel, BoxLayout.LINE_AXIS));
+		densityPanel.setBorder(emptyBorder);
+		densityPanel.add(new JLabel("Dec. density support:"));
+		densityPanel.add(jDecreaseDensitySupportBox);
+		densityPanel.add(Box.createRigidArea(new Dimension(5,0)));
+		densityPanel.add(new JLabel("Min. Pattern Number:"));
+		densityPanel.add(minPatternNumberField);
+		
+		JPanel exhaustivePanel = new JPanel();
+		exhaustivePanel.setLayout(new BoxLayout(exhaustivePanel, BoxLayout.PAGE_AXIS));
+		exhaustivePanel.setBorder(emptyBorder);
+		supportPercentagePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		densityPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		exhaustivePanel.add(supportPercentagePanel); // support
+		exhaustivePanel.add(densityPanel); // density
+		JPanel exhaustiveOccurencePanel = new JPanel();
+		exhaustiveOccurencePanel.setLayout(new BoxLayout(exhaustiveOccurencePanel, BoxLayout.LINE_AXIS));
+		exhaustiveOccurencePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		exhaustiveOccurencePanel.add(new JLabel("By occurence:"));
+		exhaustiveOccurencePanel.add(jOccurenceRadioButton);
+		JPanel exhaustiveSequencePanel = new JPanel();
+		exhaustiveSequencePanel.setLayout(new BoxLayout(exhaustiveSequencePanel, BoxLayout.LINE_AXIS));
+		exhaustiveSequencePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		exhaustiveSequencePanel.add(new JLabel("By sequence:"));
+		exhaustiveSequencePanel.add(jSequenceRadioButton);
+		exhaustivePanel.add(exhaustiveOccurencePanel);
+		exhaustivePanel.add(exhaustiveSequencePanel);
 
-		jTabbedPane1.add(BasicPane, "Basic");
-		jTabbedPane1.add(jExhaustivePane, "Exhaustive");
-		jTabbedPane1.add(jLimitsPane, "Limits");
-		jTabbedPane1.add(AdvancedPane, "Advanced");
+		jTabbedPane1.add(basicPanel, "Basic");
+		jTabbedPane1.add(exhaustivePanel, "Exhaustive");
+		jTabbedPane1.add(limitPanel, "Limits");
+		jTabbedPane1.add(advancedPanel, "Advanced");
 		this.add(jTabbedPane1, BorderLayout.NORTH);
 		jTabbedPane1.setSelectedIndex(0);
 	}
@@ -609,7 +556,7 @@ public class ParameterPanel extends JPanel {
 		return decConstraint;
 	}
 
-	void jSupportMenu_actionPerformed(ActionEvent e) {
+	private void jSupportMenu_actionPerformed() {
 		String selectedSupportStr = (String) jMinSupportMenu.getSelectedItem();
 		if (!currentSupportMenuStr.equalsIgnoreCase(selectedSupportStr)) {
 			log.debug(currentSupportMenuStr+"=>"+selectedSupportStr);
@@ -686,19 +633,6 @@ public class ParameterPanel extends JPanel {
 			return match;
 		}// end of verify()
 
-	}
-
-	private static class ParameterPanel_jSupportMenu_actionAdapter implements
-			java.awt.event.ActionListener {
-		ParameterPanel adaptee;
-
-		ParameterPanel_jSupportMenu_actionAdapter(ParameterPanel adaptee) {
-			this.adaptee = adaptee;
-		}
-
-		public void actionPerformed(ActionEvent e) {
-			adaptee.jSupportMenu_actionPerformed(e);
-		}
 	}
 
 }
