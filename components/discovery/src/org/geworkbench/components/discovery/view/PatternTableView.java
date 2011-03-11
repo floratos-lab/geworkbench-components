@@ -1,23 +1,9 @@
 package org.geworkbench.components.discovery.view;
 
-import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
-import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
-import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSMatchedSeqPattern;
-import org.geworkbench.bison.datastructure.complex.pattern.Parameters;
-import org.geworkbench.components.discovery.PatFilter;
-import org.geworkbench.components.discovery.SequenceDiscoveryViewWidget;
-import org.geworkbench.components.discovery.ParameterTranslation;
-import org.geworkbench.components.discovery.model.PatternTableModelWrapper;
-import org.geworkbench.events.listeners.ProgressChangeListener;
-import org.geworkbench.util.patterns.PatternDB;
-import org.geworkbench.util.patterns.PatternOperations;
-import org.geworkbench.util.patterns.PatternTableModel;
-import org.geworkbench.util.remote.SPLASHDefinition;
-
-import javax.swing.*;
-import javax.swing.table.JTableHeader;
-import javax.swing.table.TableColumnModel;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -25,6 +11,29 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+
+import javax.swing.JFileChooser;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableColumnModel;
+
+import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
+import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
+import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSMatchedSeqPattern;
+import org.geworkbench.components.discovery.ParameterTranslation;
+import org.geworkbench.components.discovery.PatFilter;
+import org.geworkbench.components.discovery.SequenceDiscoveryViewWidget;
+import org.geworkbench.components.discovery.model.PatternTableModelWrapper;
+import org.geworkbench.events.listeners.ProgressChangeListener;
+import org.geworkbench.util.patterns.PatternDB;
+import org.geworkbench.util.patterns.PatternOperations;
+import org.geworkbench.util.patterns.PatternTableModel;
+import org.geworkbench.util.remote.SPLASHDefinition;
 
 /**
  * <p>Title: Sequence and Pattern Plugin</p>
@@ -384,22 +393,3 @@ public class PatternTableView extends JPanel {
         model.mask(null, true);
     }
 }
-
-
-/** file filter class */
-/*class PatFilter
-    extends FileFilter{
-  public boolean accept(File f){
-    if(f.isDirectory()){
-      return true;
-    }
-    if(f.getName().endsWith("pat")){
-      return true;
-    }
-    return false;
-  }
-
-  public String getDescription(){
-    return "Motif Files";
-  };
- }*/

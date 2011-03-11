@@ -26,8 +26,6 @@ public class AlgorithmStub {
         };
         public void stop() {
         };
-        public void setParameter(Object params) {
-        }
     };
 
     //Visual parameter panel
@@ -60,7 +58,7 @@ public class AlgorithmStub {
     }
 
     public AlgorithmStub() {
-        algorithm = this.emptyAlgorithm;
+        algorithm = AlgorithmStub.emptyAlgorithm;
     }
 
     /**

@@ -1,9 +1,12 @@
 package org.geworkbench.components.discovery.algorithm;
 
+import java.io.File;
+import java.util.Arrays;
+
+import javax.swing.JOptionPane;
+
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
-import org.geworkbench.bison.datastructure.complex.pattern.SoapParmsDataSet;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSMatchedSeqPattern;
 import org.geworkbench.bison.util.RandomNumberGenerator;
 import org.geworkbench.components.discovery.SequenceDiscoveryViewAppComponent;
@@ -11,12 +14,6 @@ import org.geworkbench.events.ProgressChangeEvent;
 import org.geworkbench.events.StatusBarEvent;
 import org.geworkbench.util.patterns.PatternSorter;
 import org.geworkbench.util.patterns.SequentialPatternSource;
-
-import javax.swing.*;
-
-import java.awt.Component;
-import java.io.File;
-import java.util.Arrays;
 
 /**
  * This class loads saved patterns from a file.

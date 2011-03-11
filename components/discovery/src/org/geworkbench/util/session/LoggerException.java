@@ -8,11 +8,13 @@ package org.geworkbench.util.session;
  * <p>Company: </p>
  *
  * @author not attributable
- * @version 1.0
+ * @version $Id$
  */
 
 public class LoggerException extends Exception {
-    public LoggerException() {
+	private static final long serialVersionUID = 7589218659609671843L;
+
+	public LoggerException() {
     }
 
     public LoggerException(String message) {
