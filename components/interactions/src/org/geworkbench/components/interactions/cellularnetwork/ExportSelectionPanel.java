@@ -9,7 +9,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.BufferedWriter;
 
-import java.util.ArrayList; 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
@@ -29,7 +29,7 @@ import javax.swing.JLabel;
 import javax.swing.SwingWorker;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory; 
+import org.apache.commons.logging.LogFactory;
 
 import org.geworkbench.util.ProgressBar;
 
@@ -44,12 +44,12 @@ public class ExportSelectionPanel extends JPanel {
 	private JComboBox formatJcb = new JComboBox();
 	private JComboBox presentJcb = new JComboBox();
 
-	private String fileName  = null;
+	private String fileName = null;
 	private final String context;
 	private final String version;
 	private final List<String> interactionTypes;
 
- 	public ExportSelectionPanel(JDialog parent, String context, String version,
+	public ExportSelectionPanel(JDialog parent, String context, String version,
 			List<String> interactionTypes) {
 
 		this.context = context;
@@ -68,7 +68,7 @@ public class ExportSelectionPanel extends JPanel {
 		JLabel label1 = new JLabel("File Format:    ");
 
 		formatJcb.addItem(Constants.SIF_FORMART);
-		// formatJcb.addItem("adj format");
+		formatJcb.addItem(Constants.ADJ_FORMART);
 		JLabel label2 = new JLabel("Node Present By:   ");
 
 		presentJcb.addItem(Constants.GENE_NAME);
@@ -109,6 +109,9 @@ public class ExportSelectionPanel extends JPanel {
 	private void continueButtonActionPerformed() {
 
 		File f = new File("export_" + context + "_" + version + ".sif");
+		String selectedFormart = formatJcb.getSelectedItem().toString();
+		if (selectedFormart.equals(Constants.ADJ_FORMART))
+			f = new File("export_" + context + "_" + version + ".adj");
 		JFileChooser jFileChooser1 = new JFileChooser(f);
 		jFileChooser1.setSelectedFile(f);
 		String newFileName = null;
@@ -129,7 +132,8 @@ public class ExportSelectionPanel extends JPanel {
 		}
 
 		parent.dispose();
-		ProgressBar computePb = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
+		ProgressBar computePb = ProgressBar
+				.create(ProgressBar.INDETERMINATE_TYPE);
 
 		new ExportWorker(computePb, newFileName).execute();
 
@@ -137,9 +141,9 @@ public class ExportSelectionPanel extends JPanel {
 
 	private class ExportWorker extends SwingWorker<Void, Void> implements
 			Observer {
-		
+
 		ProgressBar pb = null;
-		
+
 		ExportWorker(ProgressBar pb, String newFileName) {
 			super();
 			this.pb = pb;
@@ -152,7 +156,7 @@ public class ExportSelectionPanel extends JPanel {
 				log.info("Exporting task is cancel.");
 
 			} else {
-				log.info("Exporting task is done.");			 
+				log.info("Exporting task is done.");
 				pb.dispose();
 
 			}
@@ -185,25 +189,29 @@ public class ExportSelectionPanel extends JPanel {
 
 				InteractionsConnectionImpl interactionsConnection = new InteractionsConnectionImpl();
 
-				if (selectedFormart.equalsIgnoreCase(Constants.SIF_FORMART)) {
+				for (String interactionType : interactionTypes) {
+					if (isCancelled())
+						break;
+					List<String> lines = new ArrayList<String>();
 
-					
-					for (String interactionType : interactionTypes) {
-						if (isCancelled())
-							break;
-						List<String> sifLines = new ArrayList<String>();
-						sifLines = interactionsConnection
+					if (selectedFormart.equalsIgnoreCase(Constants.SIF_FORMART))
+						lines = interactionsConnection
 								.getInteractionsSifFormat(context, version,
 										interactionType, selectedPresent);
-						for (String line : sifLines) {
-							if (isCancelled())
-								break;
-							writer.write(line);
-							writer.write("\n");
+					else if ((selectedFormart
+							.equalsIgnoreCase(Constants.ADJ_FORMART)))
+						lines = interactionsConnection
+								.getInteractionsAdjFormat(context, version,
+										interactionType, selectedPresent);
 
-						}
-                        writer.flush();
+					for (String line : lines) {
+						if (isCancelled())
+							break;
+						writer.write(line);
+						writer.write("\n");
+
 					}
+					writer.flush();
 				}
 
 				writer.close();
@@ -213,7 +221,6 @@ public class ExportSelectionPanel extends JPanel {
 			} catch (Exception ex) {
 				System.out.println(ex.getMessage());
 			}
-			 
 
 			return null;
 		}
