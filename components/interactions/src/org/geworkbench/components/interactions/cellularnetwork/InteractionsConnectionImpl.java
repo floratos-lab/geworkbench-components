@@ -6,7 +6,7 @@ import org.apache.commons.logging.LogFactory;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.ConnectException;
-import java.net.SocketTimeoutException; 
+import java.net.SocketTimeoutException;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -316,26 +316,26 @@ public class InteractionsConnectionImpl {
 		return arrayList;
 	}
 
-	public List<String> getInteractionsSifFormat(String context, String version, String interactionType, String presentBy) throws UnAuthenticatedException,
-			ConnectException, SocketTimeoutException, IOException {
-		 
-		 
-		List<String> arrayList = new ArrayList<String>();        
+	public List<String> getInteractionsSifFormat(String context,
+			String version, String interactionType, String presentBy)
+			throws UnAuthenticatedException, ConnectException,
+			SocketTimeoutException, IOException {
+
+		List<String> arrayList = new ArrayList<String>();
 		ResultSetlUtil rs = null;
 
-		try {          
-                 
-			String methodAndParams = "getInteractionsSifFormat"				  
-					+ Constants.DEL + context + Constants.DEL + version
-			        + Constants.DEL + interactionType
-			        + Constants.DEL + presentBy;
+		try {
+
+			String methodAndParams = "getInteractionsSifFormat" + Constants.DEL
+					+ context + Constants.DEL + version + Constants.DEL
+					+ interactionType + Constants.DEL + presentBy;
 			rs = ResultSetlUtil.executeQuery(methodAndParams,
 					ResultSetlUtil.INTERACTIONS_SERVLET_URL);
-			
-			String sifLine = null;		
+
+			String sifLine = null;
 			while (rs.next()) {
 				try {
-					sifLine = rs.getString("sif format data");				 
+					sifLine = rs.getString("sif format data");
 					arrayList.add(sifLine);
 				} catch (NullPointerException npe) {
 					if (logger.isErrorEnabled()) {
@@ -367,19 +367,73 @@ public class InteractionsConnectionImpl {
 		} catch (Exception se) {
 			if (logger.isErrorEnabled()) {
 				logger
-						.error("getInteractionsSourceIdList - ResultSetlUtil rs=" + rs); //$NON-NLS-1$
+						.error("getInteractionsSifFormat - ResultSetlUtil rs=" + rs); //$NON-NLS-1$
 			}
 			se.printStackTrace();
 		}
 		return arrayList;
 	}
 
-	 
- 
-	 
-	
-	public HashMap<String, String> getInteractionTypeMap() throws ConnectException,
+	public List<String> getInteractionsAdjFormat(String context,
+			String version, String interactionType, String presentBy)
+			throws UnAuthenticatedException, ConnectException,
 			SocketTimeoutException, IOException {
+
+		List<String> arrayList = new ArrayList<String>();
+		ResultSetlUtil rs = null;
+
+		try {
+
+			String methodAndParams = "getInteractionsAdjFormat" + Constants.DEL
+					+ context + Constants.DEL + version + Constants.DEL
+					+ interactionType + Constants.DEL + presentBy;
+			rs = ResultSetlUtil.executeQuery(methodAndParams,
+					ResultSetlUtil.INTERACTIONS_SERVLET_URL);
+
+			String adjLine = null;
+			while (rs.next()) {
+				try {
+					adjLine = rs.getString("adj format data");
+					arrayList.add(adjLine);
+				} catch (NullPointerException npe) {
+					if (logger.isErrorEnabled()) {
+						logger
+								.error("db row is dropped because a NullPointerException");
+					}
+				}
+			}
+			rs.close();
+		} catch (UnAuthenticatedException uae) {
+			throw new UnAuthenticatedException(uae.getMessage());
+
+		} catch (ConnectException ce) {
+			if (logger.isErrorEnabled()) {
+				logger.error(ce.getMessage());
+			}
+			throw new ConnectException(ce.getMessage());
+		} catch (SocketTimeoutException se) {
+			if (logger.isErrorEnabled()) {
+				logger.error(se.getMessage());
+			}
+			throw new SocketTimeoutException(se.getMessage());
+		} catch (IOException ie) {
+			if (logger.isErrorEnabled()) {
+				logger.error(ie.getMessage());
+			}
+			throw new IOException(ie.getMessage());
+
+		} catch (Exception se) {
+			if (logger.isErrorEnabled()) {
+				logger
+						.error("getInteractionsAdjFormat - ResultSetlUtil rs=" + rs); //$NON-NLS-1$
+			}
+			se.printStackTrace();
+		}
+		return arrayList;
+	}
+
+	public HashMap<String, String> getInteractionTypeMap()
+			throws ConnectException, SocketTimeoutException, IOException {
 		HashMap<String, String> map = new HashMap<String, String>();
 
 		ResultSetlUtil rs = null;
@@ -396,7 +450,7 @@ public class InteractionsConnectionImpl {
 
 				interactionType = rs.getString("interaction_type").trim();
 				short_name = rs.getString("short_name").trim();
-				
+
 				map.put(interactionType, short_name);
 				map.put(short_name, interactionType);
 			}
@@ -429,55 +483,52 @@ public class InteractionsConnectionImpl {
 	}
 
 	public List<String> getInteractionTypes() throws ConnectException,
-	SocketTimeoutException, IOException {
-List<String> arrayList = new ArrayList<String>();
+			SocketTimeoutException, IOException {
+		List<String> arrayList = new ArrayList<String>();
 
-ResultSetlUtil rs = null;
-String interactionType = null;
+		ResultSetlUtil rs = null;
+		String interactionType = null;
 
-try {
+		try {
 
-	String methodAndParams = "getInteractionTypes";
-	rs = ResultSetlUtil.executeQuery(methodAndParams,
-			ResultSetlUtil.INTERACTIONS_SERVLET_URL);
+			String methodAndParams = "getInteractionTypes";
+			rs = ResultSetlUtil.executeQuery(methodAndParams,
+					ResultSetlUtil.INTERACTIONS_SERVLET_URL);
 
-	while (rs.next()) {
+			while (rs.next()) {
 
-		interactionType = rs.getString("interaction_type").trim();
+				interactionType = rs.getString("interaction_type").trim();
 
-		arrayList.add(interactionType);
+				arrayList.add(interactionType);
+			}
+			rs.close();
+
+		} catch (ConnectException ce) {
+			if (logger.isErrorEnabled()) {
+				logger.error(ce.getMessage());
+			}
+			throw new ConnectException(ce.getMessage());
+		} catch (SocketTimeoutException se) {
+			if (logger.isErrorEnabled()) {
+				logger.error(se.getMessage());
+			}
+			throw new SocketTimeoutException(se.getMessage());
+		} catch (IOException ie) {
+			if (logger.isErrorEnabled()) {
+				logger.error(ie.getMessage());
+			}
+			throw new IOException(ie.getMessage());
+
+		} catch (Exception se) {
+			if (logger.isErrorEnabled()) {
+				logger
+						.error("getInteractionTypes() - ResultSetlUtil: " + se.getMessage()); //$NON-NLS-1$
+			}
+
+		}
+		return arrayList;
 	}
-	rs.close();
 
-} catch (ConnectException ce) {
-	if (logger.isErrorEnabled()) {
-		logger.error(ce.getMessage());
-	}
-	throw new ConnectException(ce.getMessage());
-} catch (SocketTimeoutException se) {
-	if (logger.isErrorEnabled()) {
-		logger.error(se.getMessage());
-	}
-	throw new SocketTimeoutException(se.getMessage());
-} catch (IOException ie) {
-	if (logger.isErrorEnabled()) {
-		logger.error(ie.getMessage());
-	}
-	throw new IOException(ie.getMessage());
-
-} catch (Exception se) {
-	if (logger.isErrorEnabled()) {
-		logger
-				.error("getInteractionTypes() - ResultSetlUtil: " + se.getMessage()); //$NON-NLS-1$
-	}
-
-}
-return arrayList;
-}
-
-	
-	
-	
 	public List<String> getInteractionTypesByInteractomeVersion(String context,
 			String version) throws ConnectException, SocketTimeoutException,
 			IOException {
@@ -804,10 +855,8 @@ return arrayList;
 				logger.error(e.getMessage());
 			}
 			return false;
-		}	
-		
+		}
 
 	}
-	
-}	
-	 
+
+}
