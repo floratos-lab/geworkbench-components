@@ -69,7 +69,7 @@ public class ExportSelectionPanel extends JPanel {
 
 		formatJcb.addItem(Constants.SIF_FORMART);
 		formatJcb.addItem(Constants.ADJ_FORMART);
-		JLabel label2 = new JLabel("Node Present By:   ");
+		JLabel label2 = new JLabel("Node Represnted By:   ");
 
 		presentJcb.addItem(Constants.GENE_NAME);
 
