@@ -1,6 +1,6 @@
 package org.geworkbench.components.plots;
 
-import java.awt.*;
+import java.awt.Color;
 
 /**
  * Color palette generator based on GMT standards, see:
