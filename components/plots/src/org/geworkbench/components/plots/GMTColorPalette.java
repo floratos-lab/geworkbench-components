@@ -15,7 +15,7 @@ import java.awt.*;
 public class GMTColorPalette {
 
     public GMTColorPalette(ColorRange[] range) {
-        this(range, Color.CYAN, Color.MAGENTA, Color.BLACK);
+        this(range, range[0].minColor, range[range.length-1].maxColor, Color.BLACK);
     }
 
     public GMTColorPalette(ColorRange[] range, Color smallColor,
@@ -47,9 +47,7 @@ public class GMTColorPalette {
             if(range[i].isInRange(val)) { return range[i].getColor(val); }
         }
         if(val < range[0].min) { return smallColor; }
-        // this special case is to make the color more continuous at the boundary value
-        if(val == range[range.length - 1].max) { return range[range.length - 1].maxColor; }
-        if(val > range[range.length - 1].max) { return largeColor; }
+        if(val >= range[range.length - 1].max) { return largeColor; }
         // assume NaN, probably never happens...
         return NaNColor;
     }
