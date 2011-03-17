@@ -33,17 +33,21 @@ import java.util.ArrayList;
  * An abstract trainer for a machine learning algorithm.
  *
  * @author John Watkinson
+ * @version $Id$
  */
 public abstract class AbstractTraining extends AbstractAnalysis implements ClusteringAnalysis {
 
-    static Log log = LogFactory.getLog(AbstractTraining.class);
+	private static final long serialVersionUID = -2763961636709389815L;
+
+	static Log log = LogFactory.getLog(AbstractTraining.class);
 
     protected AbstractTrainingPanel panel;
 
-    public AlgorithmExecutionResults execute(Object input) {
+    @SuppressWarnings("unchecked")
+	public AlgorithmExecutionResults execute(Object input) {
         assert (input instanceof DSMicroarraySetView);
         DSMicroarraySetView<DSGeneMarker, DSMicroarray> view = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
-        DSMicroarraySet maSet = view.getMicroarraySet();
+        DSMicroarraySet<DSMicroarray> maSet = view.getMicroarraySet();
         DSItemList<DSGeneMarker> markers = view.markers();
 
         DSAnnotationContext<DSMicroarray> context = CSAnnotationContextManager.getInstance().getCurrentContext(maSet);
@@ -131,7 +135,7 @@ public abstract class AbstractTraining extends AbstractAnalysis implements Clust
      */
     protected abstract CSClassifier trainClassifier(List<float[]> caseData, List<float[]> controlData);
 
-    @Publish public SubpanelChangedEvent publishSubpanelChangedEvent(SubpanelChangedEvent event) {
+    @Publish public SubpanelChangedEvent<DSMicroarray> publishSubpanelChangedEvent(SubpanelChangedEvent<DSMicroarray> event) {
         return event;
     }
 
@@ -139,12 +143,13 @@ public abstract class AbstractTraining extends AbstractAnalysis implements Clust
         return event;
     }
 
-    @Subscribe public void receive(ProjectEvent event, Object source) {
+    @SuppressWarnings("unchecked")
+	@Subscribe public void receive(ProjectEvent event, Object source) {
         log.debug("abstracttraining received project event.");
 
-        DSDataSet dataSet = event.getDataSet();
+        DSDataSet<?> dataSet = event.getDataSet();
         if ((dataSet != null) && (dataSet instanceof DSMicroarraySet)) {
-            panel.setMaSet((DSMicroarraySet) dataSet);
+            panel.setMaSet((DSMicroarraySet<DSMicroarray>) dataSet);
             panel.rebuildForm();
         }
     }
@@ -158,7 +163,7 @@ public abstract class AbstractTraining extends AbstractAnalysis implements Clust
         }
     }
 
-    @Subscribe public void receive(PhenotypeSelectorEvent event, Object source) {
+    @Subscribe public void receive(PhenotypeSelectorEvent<DSMicroarray> event, Object source) {
         panel.rebuildForm();
     }
 
