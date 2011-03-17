@@ -9,6 +9,8 @@ import java.awt.*;
  * User: mhall
  * Date: Nov 15, 2005
  * Time: 5:31:58 PM
+ * 
+ * @version $Id$
  */
 public class GMTColorPalette {
 
@@ -45,6 +47,8 @@ public class GMTColorPalette {
             if(range[i].isInRange(val)) { return range[i].getColor(val); }
         }
         if(val < range[0].min) { return smallColor; }
+        // this special case is to make the color more continuous at the boundary value
+        if(val == range[range.length - 1].max) { return range[range.length - 1].maxColor; }
         if(val > range[range.length - 1].max) { return largeColor; }
         // assume NaN, probably never happens...
         return NaNColor;
