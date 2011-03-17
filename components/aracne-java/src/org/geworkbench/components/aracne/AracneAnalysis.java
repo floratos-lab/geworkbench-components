@@ -359,6 +359,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 				ProjectPanel.addToHistory(dataSet,
 						"Generated with ARACNE run with paramters:\n"
 								+ p.getParamterDescription()
+								+ dpiTargetListDescription()+"\n"
 								+ hubMarkersDescription(p)
 								+ paramDescB.toString());
 				publishProjectNodeAddedEvent(new ProjectNodeAddedEvent(
@@ -388,6 +389,13 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 				builder.append(", " + subnet.get(i));
 			builder.append("\n");
 			return builder.toString();
+		}
+		
+		private String dpiTargetListDescription(){
+			String listString="[PARA] DPI Target List: ";
+			AracneParamPanel params = (AracneParamPanel) aspp;
+			listString+=params.getTargetGeneString();		
+			return listString;
 		}
 
 		/**
@@ -502,13 +510,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 			}
 			;
 		}
-		if (params.isTargetListSpecified()) {
-			if (params.getTargetGenes() == null
-					|| params.getTargetGenes().size() == 0) {
-				return new ParamValidationResults(false,
-						"You did not load any target genes.");
-			}
-		}
+		
 		if (params.getBootstrapNumber() <= 0) {
 			return new ParamValidationResults(false,
 					"Bootstrap number is not valid.");
@@ -566,13 +568,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 				targetGene += ",";
 			String gene = (String) iterator.next();
 			targetGene += gene;
-		}
-		bisonParameters.put("isTargetListSpecified", paramPanel
-				.isTargetListSpecified());
-		if (paramPanel.isTargetListSpecified())
-			bisonParameters.put("target", targetGene);
-		else
-			bisonParameters.put("target", "");
+		}		
 
 		bisonParameters.put("isMI", paramPanel.isThresholdMI());
 

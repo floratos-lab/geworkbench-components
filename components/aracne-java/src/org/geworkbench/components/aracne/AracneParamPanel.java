@@ -20,7 +20,6 @@ import java.util.Vector;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
@@ -91,9 +90,11 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
     private JComboBox markerSetCombo = new JComboBox();
     private JTextField hubMarkerList = new JTextField(DEFAULT_HUB);
     private JTextField kernelWidth = new JTextField("0.1");
-    private JTextField threshold = new JTextField("0.3");
+    private JTextField threshold = new JTextField("0.01");
     private JTextField dpiTolerance = new JTextField("0.1");
-    private JCheckBox targetCheckbox = new JCheckBox();
+    //private JCheckBox targetCheckbox = new JCheckBox();
+    private JComboBox dpiTargetCombo=new JComboBox(new String[]{DPI_NONE, FROM_SETS, FROM_FILE});
+    private JComboBox targetSetCombo=new JComboBox();
     private JTextField targetList = new JTextField();
     private JButton loadTargetsButton = new JButton("Load Targets");
 
@@ -122,7 +123,8 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
         builder.setDefaultDialogBorder();
         builder.appendSeparator("ARACNE Paramaters");
 
-        builder.append("Hub Marker(s)", hubCombo);        
+        builder.append("Hub Marker(s)", hubCombo); 
+        hubCombo.setSelectedIndex(1);	//default setting is From Sets
 		markerSetCombo.setEnabled(false);
         builder.append(markerSetCombo, hubMarkerList, loadMarkersButton);
 
@@ -141,11 +143,13 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
         builder.nextRow();
 
         builder.append("DPI Tolerance", dpiCombo, dpiTolerance);
+        dpiCombo.setSelectedIndex(0);
         builder.nextRow();
 
-        builder.append("DPI Target List", targetCheckbox);
-        builder.append(targetList, loadTargetsButton);
-        builder.nextRow();
+        builder.append("DPI Target List", dpiTargetCombo);
+        dpiTargetCombo.setEnabled(false);
+        targetSetCombo.setEnabled(false);
+        builder.append(targetSetCombo,targetList, loadTargetsButton);       
 
         builder.append("Bootstrap number", bootstrapField);
         builder.append("Consensus threshold", pThresholdField);
@@ -157,6 +161,17 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
     				if (!chooseMarkersFromSet(selectedLabel, hubMarkerList)) {
     					markerSetCombo.setSelectedIndex(0);
     					hubMarkerList.setText("");
+    				}
+    		}
+    	});
+        
+        targetSetCombo.addActionListener(new ActionListener() {
+    		public void actionPerformed(ActionEvent actionEvent) {
+    			String selectedLabel = (String) targetSetCombo.getSelectedItem();
+    			if (!StringUtils.isEmpty(selectedLabel))
+    				if (!chooseMarkersFromSet(selectedLabel, targetList)) {
+    					targetSetCombo.setSelectedIndex(0);
+    					targetList.setText("");
     				}
     		}
     	});
@@ -188,6 +203,35 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
                 }
             }
         });
+        
+        dpiTargetCombo.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                JComboBox cb = (JComboBox) e.getSource();
+                String selectedItem = (String) cb.getSelectedItem();
+                if (DPI_NONE.equals(selectedItem)) {
+                    targetSetCombo.setEnabled(false);
+                    targetList.setEnabled(false);
+                    loadTargetsButton.setEnabled(false);
+                } else if (FROM_SETS.equals(selectedItem)) {
+                	targetSetCombo.setEnabled(true);
+                    targetList.setEnabled(true);
+                    loadTargetsButton.setEnabled(false);
+/*
+                    targetSetCombo.removeAllItems();
+                    targetSetCombo.addItem(" ");
+                	for(String setName: getMarkerSets()) {
+                		targetSetCombo.addItem(setName);
+                	}
+                	targetSetCombo.setSelectedIndex(-1); // -1 for no selection
+                	*/
+                } else if (FROM_FILE.equals(selectedItem)) {
+                	targetSetCombo.setEnabled(false);
+                    targetList.setEnabled(true);
+                    loadTargetsButton.setEnabled(true);
+                }
+            }
+        });
+        
 
         algorithmCombo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -209,44 +253,38 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
                 String selectedItem = (String) cb.getSelectedItem();
                 if (DPI_NONE.equals(selectedItem)) {
                     dpiTolerance.setEnabled(false);
-                } else {
-                    dpiTolerance.setEnabled(true);
-                }
-            }
-        });
-
-        targetCheckbox.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent actionEvent) {
-                if (!targetCheckbox.isSelected()) {
+                    dpiTargetCombo.setEnabled(false);
+                    dpiTargetCombo.setSelectedIndex(0);
+                    targetSetCombo.setEnabled(false);                    
                     targetList.setEnabled(false);
                     loadTargetsButton.setEnabled(false);
                 } else {
-                    targetList.setEnabled(true);
-                    loadTargetsButton.setEnabled(true);
+                    dpiTolerance.setEnabled(true);
+                    dpiTargetCombo.setEnabled(true);
                 }
             }
-        });
+        });       
 
         loadMarkersButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent actionEvent) {
-//                hubGenes = new ArrayList<String>();
                 StringBuilder geneListBuilder = new StringBuilder();
                 try {
                     File hubFile = new File(hubMarkersFile);
                     JFileChooser chooser = new JFileChooser(hubFile.getParent());
-                    chooser.showOpenDialog(AracneParamPanel.this);
-                    hubMarkersFile = chooser.getSelectedFile().getPath();
-
-                    BufferedReader reader = new BufferedReader(new FileReader(hubMarkersFile));
-                    String hub = reader.readLine();
-                    while (hub != null && !"".equals(hub)) {
-//                        hubGenes.add(hub);
-                        geneListBuilder.append(hub + ", ");
-                        hub = reader.readLine();
+                    int returnVal=chooser.showOpenDialog(AracneParamPanel.this);
+                    if (returnVal == JFileChooser.APPROVE_OPTION){
+	                    hubMarkersFile = chooser.getSelectedFile().getPath();
+	
+	                    BufferedReader reader = new BufferedReader(new FileReader(hubMarkersFile));
+	                    String hub = reader.readLine();
+	                    while (hub != null && !"".equals(hub)) {
+	                        geneListBuilder.append(hub + ", ");
+	                        hub = reader.readLine();
+	                    }
+	
+	                    String geneString = geneListBuilder.toString();
+	                    hubMarkerList.setText(geneString.substring(0, geneString.length() - 2));
                     }
-
-                    String geneString = geneListBuilder.toString();
-                    hubMarkerList.setText(geneString.substring(0, geneString.length() - 2));
 
                 } catch (IOException e) {
                     log.error(e);
@@ -257,25 +295,25 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 
         loadTargetsButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent actionEvent) {
-//                targetGenes = new ArrayList<String>();
                 StringBuilder geneListBuilder = new StringBuilder();
                 try {
                     File targetFile = new File(targetListFile);
                     JFileChooser chooser = new JFileChooser(targetFile.getParent());
-                    chooser.showOpenDialog(AracneParamPanel.this);
-                    targetListFile = chooser.getSelectedFile().getPath();
-
-                    BufferedReader reader = new BufferedReader(new FileReader(targetListFile));
-                    String target = reader.readLine();
-                    while (target != null && !"".equals(target)) {
-//                        targetGenes.add(target);
-                        geneListBuilder.append(target + ", ");
-                        target = reader.readLine();
-                    }
-
-                    String geneString = geneListBuilder.toString();
-                    targetList.setText(geneString.substring(0, geneString.length() - 2));
-
+                    int returnVal=chooser.showOpenDialog(AracneParamPanel.this);
+                   
+            		if (returnVal == JFileChooser.APPROVE_OPTION){ 	
+	                    targetListFile = chooser.getSelectedFile().getPath();
+	
+	                    BufferedReader reader = new BufferedReader(new FileReader(targetListFile));
+	                    String target = reader.readLine();
+	                    while (target != null && !"".equals(target)) {
+	                        geneListBuilder.append(target + ", ");
+	                        target = reader.readLine();
+	                    }
+	
+	                    String geneString = geneListBuilder.toString();
+	                    targetList.setText(geneString.substring(0, geneString.length() - 2));
+            		}
                 } catch (IOException e) {
                     log.error(e);
                 }
@@ -335,7 +373,8 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 	    kernelWidth.addActionListener(parameterActionListener);
 	    dpiCombo.addActionListener(parameterActionListener);
 	    dpiTolerance.addActionListener(parameterActionListener);
-	    targetCheckbox.addActionListener(parameterActionListener);
+	    dpiTargetCombo.addActionListener(parameterActionListener);
+	    targetSetCombo.addActionListener(parameterActionListener);
 	    targetList.addActionListener(parameterActionListener);
 	    algorithmCombo.addActionListener(parameterActionListener);
 	    modeCombo.addActionListener(parameterActionListener);
@@ -359,6 +398,10 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
         return hubCombo.getSelectedItem().equals(FROM_FILE) || hubCombo.getSelectedItem().equals(FROM_SETS);
     }
 
+    public boolean isTargetListSpecified() {
+        return dpiTargetCombo.getSelectedItem().equals(FROM_FILE) || dpiTargetCombo.getSelectedItem().equals(FROM_SETS);
+    }
+    
     public void setIsHubListSpecified(boolean b) {
     	if (!b)
     		hubCombo.setSelectedItem(HUB_ALL);
@@ -486,15 +529,28 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 
         return markerSet;
     }
+    
+    public String getTargetSet(){
+    	String s=(String) targetSetCombo.getSelectedItem();
+    	return s;
+    }
 
     public void setMarkerSet(String markerSet) {
     	markerSetCombo.setSelectedItem(markerSet);
 	}
 
+    public void setTargetSet(String targetSet){    	
+    	targetSetCombo.setSelectedItem(targetSet);    	
+    }
+    
     public String getHubAsString() {
 		String mode = hubCombo.getSelectedItem().toString();
 
         return mode;
+    }
+    public String getTargetAsString(){
+    	String s=dpiTargetCombo.getSelectedItem().toString();
+    	return s;
     }
 
     public void setHub(String hub) {
@@ -535,20 +591,13 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
     }
 
     public String getTargetGeneString() {
-        return targetList.getText();
+    	String s=targetList.getText();
+        return s;
     }
 
     public void setTargetGeneString(String s) {
     	targetList.setText(s);
-    }
-
-    public boolean isTargetListSpecified() {
-        return targetCheckbox.isSelected();
-    }
-
-    public void setIsTargetListSpecified(boolean b) {
-    	targetCheckbox.setSelected(b);
-    }
+    }   
 
     public ArrayList<String> getTargetGenes() {
         String geneString = targetList.getText();
@@ -616,9 +665,7 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
         if (params.isDPIToleranceSpecified()) {
             p.setEps(params.getDPITolerance());
         }
-        if (params.isTargetListSpecified()) {
-            p.setTf_list(new Vector<String>(params.getTargetGenes()));
-        }
+        
         return p.getParamterDescription();
 
 	}
@@ -663,16 +710,7 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 			if (key.equals("DPITolerance")){
 				setDPITolerance((Float)value);
 			}
-			if (key.equals("isTargetListSpecified")){
-				setIsTargetListSpecified((Boolean)value);
-                if (!targetCheckbox.isSelected()) {
-                    targetList.setEnabled(false);
-                    loadTargetsButton.setEnabled(false);
-                } else {
-                    targetList.setEnabled(true);
-                    loadTargetsButton.setEnabled(true);
-                }
-			}
+			
 			if (key.equals("TargetGenes")){
 				setTargetGeneString((String)value);
 			}
@@ -686,9 +724,15 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 			if (key.equals("Hub")){
 				setHub((String)value);
 			}
+			if (key.equals("dpiTargetCombo")){
+				dpiTargetCombo.setSelectedItem((String)value);
+			}
 			if (key.equals("MarkerSet")){
 				markerSetTmp = (String)value;
 //				setMarkerSet(markerSetTmp);
+			}
+			if (key.equals("targetSet")){
+				setTargetSet((String)value);
 			}
 			if (key.equals("BootstrapNumber")){
 				setBootstrapField((String)value);
@@ -715,21 +759,22 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
 
 		parameters.put("Hub", this.getHubAsString());
+		parameters.put("dpiTargetCombo", this.getTargetAsString());
 		parameters.put("MarkerSet", this.getMarkerSet());
-
+		parameters.put("targetSet", this.getTargetSet());
+		
 		parameters.put("isHubListSpecified", this.isHubListSpecified());
 		parameters.put("HubGeneList", this.getHubGeneString());
 		parameters.put("isThresholdMI", this.isThresholdMI());
 		parameters.put("Threshold", this.getThreshold());
 		parameters.put("isKernelWidthSpecified", this.isKernelWidthSpecified());
 		parameters.put("KernelWidth", this.getKernelWidth());
-		parameters.put("isDPIToleranceSpecified", this.isDPIToleranceSpecified());
+		parameters.put("isDPIToleranceSpecified", this.isDPIToleranceSpecified());		
 		parameters.put("DPITolerance", this.getDPITolerance());
-		parameters.put("isTargetListSpecified", this.isTargetListSpecified());
+		
 		parameters.put("TargetGenes", this.getTargetGeneString());
 		parameters.put("Algorithm", this.getAlgorithmAsString());
 		parameters.put("Mode", this.getModeAsString());
-
 		parameters.put("BootstrapNumber", this.getBootstrapField());
 		parameters.put("ConsensusThreshold", this.getConsensusThresholdAsText());
 
@@ -845,18 +890,30 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 	void setSelectorPanel(DSPanel<DSGeneMarker> ap) {
 		selectorPanel = ap;		
 		String currentTargetSet = (String) markerSetCombo.getSelectedItem();
+		String current2TargetSet = (String) targetSetCombo.getSelectedItem();
 		DefaultComboBoxModel targetComboModel = (DefaultComboBoxModel) markerSetCombo.getModel();
+		DefaultComboBoxModel target2ComboModel = (DefaultComboBoxModel) targetSetCombo.getModel();
 		targetComboModel.removeAllElements();
 		targetComboModel.addElement(" ");
+		target2ComboModel.removeAllElements();
+		target2ComboModel.addElement(" ");		
 		hubMarkerList.setText("");
+		targetList.setText("");
 		for (DSPanel<DSGeneMarker> panel : selectorPanel.panels()) {
 			String label = panel.getLabel().trim();
 			targetComboModel.addElement(label);
+			target2ComboModel.addElement(label);
 			if(currentTargetSet!=null){
 				if (StringUtils.equals(label, currentTargetSet.trim())){
 					targetComboModel.setSelectedItem(label);					
 				}
 			}
+			if(current2TargetSet!=null){
+				if (StringUtils.equals(label, current2TargetSet.trim())){
+					target2ComboModel.setSelectedItem(label);					
+				}
+			}
+			
 		}
 	}
 	
