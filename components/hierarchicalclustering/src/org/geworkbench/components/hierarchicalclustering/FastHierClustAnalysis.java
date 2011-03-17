@@ -30,7 +30,6 @@ import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.util.CorrelationDistance;
 import org.geworkbench.util.Distance;
 import org.geworkbench.util.EuclideanDistance;
-import org.geworkbench.util.FastMatrixModel;
 import org.geworkbench.util.SpearmanRankDistance;
  
 
@@ -204,10 +203,8 @@ public class FastHierClustAnalysis extends AbstractGridAnalysis implements
 				new HierClusterFactory.Gene(data.markers()),
 				new HierClusterFactory.Microarray(data.items()) };
 
-		double[][][] matrix = {
-				FastMatrixModel.getMatrix(data, FastMatrixModel.Metric.GENE),
-				FastMatrixModel.getMatrix(data,
-						FastMatrixModel.Metric.MICROARRAY) };
+		double[][][] matrix = { getMatrixWithMarkerAsRow(),
+				getMatrixWithMicroarrayAsRow() };
 		
 		try {
 			HierCluster result = new HierarchicalClustering(linkageType).compute(this, matrix[dim],
@@ -223,6 +220,30 @@ public class FastHierClustAnalysis extends AbstractGridAnalysis implements
 			return null;
 		}
 
+	}
+	
+	private double[][] getMatrixWithMarkerAsRow() {
+		int rows = data.markers().size();
+		int cols = data.items().size();
+		double[][] array = new double[rows][cols];
+		for (int i = 0; i < rows; i++) {
+			for (int j = 0; j < cols; j++) {
+				array[i][j] = data.getValue(i, j);
+			}
+		}
+		return array;
+	}
+
+	private double[][] getMatrixWithMicroarrayAsRow() {
+		int rows = data.items().size();
+		int cols = data.markers().size();
+		double[][] array = new double[rows][cols];
+		for (int i = 0; i < rows; i++) {
+			for (int j = 0; j < cols; j++) {
+				array[i][j] = data.getValue(j, i);
+			}
+		}
+		return array;
 	}
 	
 	/*
