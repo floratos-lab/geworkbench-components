@@ -68,7 +68,6 @@ public class MarkUsAnalysis extends AbstractGridAnalysis implements ProteinStruc
     }
 
     /** implements org.geworkbench.bison.model.analysis.Analysis.execute */
-    @SuppressWarnings("unchecked")
 	public AlgorithmExecutionResults execute(Object input) {
 		if (input == null)
 			return new AlgorithmExecutionResults(false, "Invalid input. ", null);
