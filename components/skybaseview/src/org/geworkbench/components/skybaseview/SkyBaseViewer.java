@@ -49,7 +49,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.bioobjects.structure.CSProteinStructure;
-import org.geworkbench.bison.datastructure.bioobjects.structure.DSPrtDBResultSet;
+import org.geworkbench.bison.datastructure.bioobjects.structure.SkybaseResultSet;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
@@ -91,7 +91,7 @@ import org.jmol.api.JmolSimpleViewer;
  * 
  */
 
-@AcceptTypes( { DSPrtDBResultSet.class })
+@AcceptTypes( { SkybaseResultSet.class })
 public class SkyBaseViewer implements VisualPlugin {
 	private Log log = LogFactory.getLog(this.getClass());
 	private JPanel mainPanel = new JPanel();
@@ -148,8 +148,8 @@ public class SkyBaseViewer implements VisualPlugin {
 	@Subscribe
 	public void receive(ProjectEvent event, Object source) {
 		DSDataSet<?> dataset = event.getDataSet();
-		if (dataset instanceof DSPrtDBResultSet) {
-			result = ((DSPrtDBResultSet) dataset).getDataSetName();
+		if (dataset instanceof SkybaseResultSet) {
+			result = ((SkybaseResultSet) dataset).getDataSetName();
 			qname = trimdot(result);
 			try {
 				jbInit(result);
