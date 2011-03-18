@@ -1400,7 +1400,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			String version = jPreferencePanel.getSelectedVersion();
 
 			if (plots.getSeriesCount() > 0) {
-				tgPreference.setTitle("Throttle Graph(" + context + " V"
+				tgPreference.setTitle("Throttle Graph(" + context + " v"
 						+ version + ")");
 			} else
 				tgPreference.setTitle("Throttle Graph");
