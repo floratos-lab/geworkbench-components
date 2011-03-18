@@ -39,10 +39,13 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.JTree;
 import javax.swing.ListModel;
 import javax.swing.SwingUtilities;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.tree.TreePath;
 
 import org.apache.commons.logging.Log;
@@ -84,7 +87,7 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 	protected DSItemList<T> itemList;
 	//protected HashSet currentSelectedIndecies = new HashSet<Integer>();
 	// protected DSPanel<T> itemPanel;
-	protected ItemListModel listModel;
+	protected FilterListModel listModel;
 	// protected PanelsEnabledTreeModel treeModel;
 	// protected CSPanel<T> emptyPanel;
 	protected CSAnnotationContext<T> emptyContext;
@@ -142,7 +145,7 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 	public SelectorPanel(Class<T> panelType, String name) {
 		this.panelType = panelType;
 		this.typeName = name;
-		listModel = new ItemListModel();
+		listModel = new FilterListModel();
 		itemAutoList = new ItemList(listModel);
 		// Initialize data models
 		emptyList = new CSItemList<T>();
@@ -1001,6 +1004,8 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 		} else {
 			itemAutoList.getList().clearSelection();
 		}
+		//if (((ItemList)itemAutoList).getFilterString().length()>0)
+		//	((ItemList)itemAutoList).clearFilterString();
 	}
 
 	/**
@@ -1152,24 +1157,31 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 	/**
 	 * List Model backed by the item list.
 	 */
-	protected class ItemListModel extends AbstractListModel {
+	protected class FilterListModel extends AbstractListModel {
+		private static final long serialVersionUID = -6491855100913408738L;
+		private ArrayList<T> filterItems=null;
+		private String searchText="";
 
+		public FilterListModel() {
+			super();
+			filterItems = new ArrayList<T>();
+		}
 		public int getSize() {
-			if (itemList == null) {
-				return 0;
-			}
-			return itemList.size();
+			if (itemList == null)     return 0;
+			if (searchText.length()==0)  return itemList.size();
+			return filterItems.size();
 		}
-
 		public Object getElementAt(int index) {
-			if (itemList == null) {
-				return null;
-			}
-			return itemList.get(index);
+			if (itemList == null)      return null;
+			if (searchText.length()==0)   return itemList.get(index);
+			if (index<filterItems.size())  return filterItems.get(index);
+			return null;
 		}
-
 		public T getItem(int index) {
-			return itemList.get(index);
+			if (itemList == null)      return null;
+			if (searchText.length()==0)   return itemList.get(index);
+			if (index<filterItems.size())  return filterItems.get(index);
+			return null;
 		}
 
 		/**
@@ -1180,14 +1192,24 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 			if (itemList == null) {
 				fireContentsChanged(this, 0, 0);
 			} else {
-				fireContentsChanged(this, 0, itemList.size());
+				refilter();
 			}
 		}
 
 		public void refreshItem(int index) {
 			fireContentsChanged(this, index, index);
 		}
+		private void refilter() {
+			filterItems.clear();
+			searchText = ((ItemList)itemAutoList).getFilterString();
 
+			for (int i = 0; i < itemList.size(); i++){
+				if (itemList.get(i).toString().toLowerCase().indexOf(searchText, 0) != -1){
+					filterItems.add(itemList.get(i));
+				}
+			}
+			fireContentsChanged(this, 0, getSize());
+		}
 	}
 
 	/**
@@ -1199,6 +1221,7 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 	    private JToggleButton jToolTipToggleButton = new JToggleButton();
 	    private boolean showToolTip = false;
 	    private static final int iconsize = 28;
+		private JTextField filterField;
 
 		public ItemList(ListModel model) {
 			super(model);
@@ -1234,6 +1257,14 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 			itemClicked(index, e);
 		}
 
+		public String getFilterString(){
+			return filterField.getText().toLowerCase();
+		}
+
+		public void clearFilterString(){
+			filterField.setText("");
+		}
+
 		public void setList(ListModel model) {
 			list = new JList(model) {
 				private static final long serialVersionUID = 7273196340245426337L;
@@ -1251,6 +1282,15 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 	        		return text;
 	        	}
 	        };
+	        filterField = new JTextField();
+			filterField.getDocument().addDocumentListener(new DocumentListener(){
+		        public void changedUpdate (DocumentEvent e) {((FilterListModel)getModel()).refilter();}
+		        public void insertUpdate (DocumentEvent e) {((FilterListModel)getModel()).refilter();}
+		        public void removeUpdate (DocumentEvent e) {((FilterListModel)getModel()).refilter();}
+			});
+			topPanel.removeAll();
+			topPanel.add(new JLabel(SEARCH_LABEL_TEXT));
+	        topPanel.add(filterField);
 	        revalidate(); repaint();
 	        scrollPane.getViewport().setView(list);
 	        list.addMouseListener(new MouseAdapter() {
