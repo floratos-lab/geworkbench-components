@@ -140,6 +140,7 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
         builder.nextRow();
 
         builder.append("Threshold Type", thresholdCombo, threshold);
+        thresholdCombo.setSelectedIndex(1);	//default is p-value
         builder.nextRow();
 
         builder.append("DPI Tolerance", dpiCombo, dpiTolerance);
