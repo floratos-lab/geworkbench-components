@@ -36,6 +36,7 @@ import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSe
 import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
+import org.geworkbench.bison.datastructure.complex.pattern.PatternDiscoveryParameters;
 import org.geworkbench.bison.datastructure.complex.pattern.SoapParmsDataSet;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.components.discovery.algorithm.AbstractSequenceDiscoveryAlgorithm;
@@ -354,12 +355,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 				getSequenceDB().getSequenceNo(), type);
 		parms = p;
 		// fire a parameter change to the application
-		org.geworkbench.bison.datastructure.complex.pattern.Parameters pp;
-		pp = ParameterTranslation.translate(parms);
-		pp.setMinSupportType(parameterPanel.getCurrentSupportMenuStr());// To
-																		// fix
-																		// bug
-																		// 849
+		PatternDiscoveryParameters pp = ParameterTranslation.translate(parms);
 
 		SoapParmsDataSet pds = new SoapParmsDataSet(pp, "Pattern Discovery",
 				getSequenceDB());
