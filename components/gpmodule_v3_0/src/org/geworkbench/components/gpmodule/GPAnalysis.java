@@ -252,7 +252,7 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
 
             if(analysisResult.hasStandardError())
             {
-                File errorFile = new File(System.getProperty("temporary.files.directory") + "/stderr.txt");
+                File errorFile = new File(FilePathnameUtils.getTemporaryFilesDirectoryPath() + "/stderr.txt");
 
                 boolean result = extractErrorMessages(errorFile, analysisName);
                 if(!result)
