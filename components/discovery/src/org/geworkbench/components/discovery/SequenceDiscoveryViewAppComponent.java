@@ -24,6 +24,7 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.datastructure.complex.pattern.DSMatchedPattern;
+import org.geworkbench.bison.datastructure.complex.pattern.PatternDiscoveryParameters;
 import org.geworkbench.bison.datastructure.complex.pattern.SoapParmsDataSet;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.CSSeqRegistration;
 import org.geworkbench.builtin.projects.ProjectPanel;
@@ -284,7 +285,7 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 			patternDB.write(resultFile);
 			log.debug("result file is "+resultFile.getAbsolutePath());
 			Parameters parms = ParameterTranslation
-			.getParameters(new org.geworkbench.bison.datastructure.complex.pattern.Parameters());
+			.getParameters(new PatternDiscoveryParameters());
 			DSSequenceSet<? extends DSSequence> sequenceDB = (DSSequenceSet<? extends DSSequence>)df;
 			if (df.equals(fullSequenceDB)) sequenceDB = activeSequenceDB;
 			sDiscoveryViewWidget.setSequenceDB(sequenceDB, true,
