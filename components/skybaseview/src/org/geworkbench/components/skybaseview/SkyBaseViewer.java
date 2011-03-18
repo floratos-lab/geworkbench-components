@@ -193,6 +193,10 @@ public class SkyBaseViewer implements VisualPlugin {
 			mPanel.add(new JTextArea(""));
 		} else {
 			try {
+				String indexurl = System.getProperty("indexServer.url");
+				int id = 0;
+				if (indexurl!=null && (id = indexurl.indexOf("/wsrf/")) > -1)
+					blastroot = indexurl.substring(0, id)+"/SkyBaseData/tmpblast/";
 				URL url = new URL(blastroot + result);
 				URLConnection uc = url.openConnection();
 
