@@ -4,8 +4,8 @@
 				class="org.geworkbench.components.skyline.SkyLineAnalysis"
 				version="1.0"
 				author="Murray lab (C2B2)"
-				authorURL="http://ph7wnu.cpmc.columbia.edu/index.html"
-				toolURL="http://ph7wnu.cpmc.columbia.edu/nesg3/nesg.php"
+				authorURL="http://skybase.c2b2.columbia.edu/nesg3/index.html"
+				toolURL="http://skybase.c2b2.columbia.edu/nesg3/research/pages/pipeline.html"
 				description="A high-throughput comparative modeling pipeline. It is used to find  homology models for a protein whose structure has been experimentally determined. It first finds the protein sequence neighbors in the NCBI non-redundant protein sequence database using PSI-BLAST, then builds models for each of the homology sequences using the protein structure as the template. Model qualities are evaluated to decide which models are likely to be meaningful. It has enabled the discovery of new members of protein families and new functional inferences about individual structures at the family level. "
 				analysis="true"
 	 >
