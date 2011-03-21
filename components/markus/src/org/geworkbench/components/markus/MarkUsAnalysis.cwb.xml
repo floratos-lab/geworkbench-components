@@ -1,13 +1,13 @@
 <component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
-	<component  name="Mark-Us Analysis"
+	<component  name="MarkUs Analysis"
 				class="org.geworkbench.components.markus.MarkUsAnalysis"
 				version="1.0"
 				author="Honig lab (C2B2)"
 				authorURL="http://wiki.c2b2.columbia.edu/honiglab_public/index.php/Main_Page"
 				toolURL="http://wiki.c2b2.columbia.edu/honiglab_public/index.php/Software:Mark-Us"
-				tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_Mark-Us"
+				tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Mark-Us"
 				description="The MarkUs component assists in the assessment
  of the biochemical function for a given protein structure.  The component
  in geWorkbench provides an inteface to the Mark-Us web server at Columbia.

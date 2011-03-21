@@ -1,7 +1,7 @@
 <component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
-	<component  name="Mark-Us Browser"
+	<component  name="MarkUs Browser"
 				class="org.geworkbench.components.markus.MarkUsBrowser"
 				version="1.0"
 				author="Honig lab (C2B2)"
