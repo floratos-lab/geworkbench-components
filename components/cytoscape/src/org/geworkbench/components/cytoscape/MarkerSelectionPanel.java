@@ -14,6 +14,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -28,6 +29,9 @@ import javax.swing.JScrollPane;
 import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
 
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.events.ProjectNodeAddedEvent;
@@ -36,6 +40,7 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrix;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixDataSet;
 
 import cytoscape.Cytoscape;
+import cytoscape.data.CyAttributes;
 import cytoscape.view.CyNetworkView;
 
 /**
@@ -97,7 +102,7 @@ public class MarkerSelectionPanel extends JPanel implements Observer {
 	}
 
 	private void continueButtonActionPerformed() {
-		 
+	 
 		AdjacencyMatrixDataSet adjacencyMatrixdataSet = null;
 		AdjacencyMatrix origMatrix = CytoscapeWidget.getInstance().getAdjMatrix();	 
 		AdjacencyMatrix matrix = new AdjacencyMatrix(null, origMatrix.getMicroarraySet(), origMatrix.getInteractionTypeSifMap());
@@ -111,9 +116,9 @@ public class MarkerSelectionPanel extends JPanel implements Observer {
         
     	CyNetworkView view = Cytoscape.getCurrentNetworkView();
 
-		if (view != null && Cytoscape.getCurrentNetwork() != null) {
-			 
-		 
+		if (view != null && Cytoscape.getCurrentNetwork() != null) {		 
+			CyAttributes nodeAttrs = Cytoscape.getNodeAttributes();	 
+			CyAttributes edgeAttrs = Cytoscape.getEdgeAttributes();	 
 			Iterator<?> iter = view.getEdgeViewsIterator();
 		 		
 			while (iter.hasNext()) {
@@ -123,24 +128,18 @@ public class MarkerSelectionPanel extends JPanel implements Observer {
 				Node target = edgeView.getEdge().getTarget();
                 String gene1 =  source.getIdentifier();
                 String gene2 =  target.getIdentifier();
-			    
-                String[] list1 = edgeView.getEdge().getIdentifier().split("/");
-                String[] list2 = list1[0].split("\\.");
-                int serial1 = -1, serial2 = -1;		    		 
+              
+                Integer serial1 = null, serial2 = null;		    		 
 	    		String  interactionType = null;
-	    		if (list2.length == 3)
-	    		{
-	    			serial1 = new Integer(list2[0]);		    		 
-	    		    serial2 = new Integer(list2[2]);
-	    		    interactionType= list2[1];
-	    		}
-	    		else if (list2.length == 2)
-	    		{
-	    			serial1 = new Integer(list2[0]);		    		 
-	    		    serial2 = new Integer(list2[1]);
-	    		}
 	    		
-	    		
+	    		serial1 = nodeAttrs.getIntegerAttribute(gene1, "serial");
+	    		serial2 = nodeAttrs.getIntegerAttribute(gene2, "serial");
+	    		interactionType = edgeAttrs.getStringAttribute(edgeView.getEdge().getIdentifier(), "type");
+	    	    if (interactionType != null && !interactionType.trim().equals(""))
+	    	    {
+	    	    	interactionType = CytoscapeWidget.getInstance().interactionTypeSifMap.get(interactionType);
+	    	    }
+	    	    
 	    		if ( selectedGeneList.contains(gene1) && selectedGeneList.contains(gene2) )
 	    		{
 	    			matrix.add(serial1, serial2, 0.8f, interactionType);
@@ -187,6 +186,7 @@ public class MarkerSelectionPanel extends JPanel implements Observer {
 		
 
 	}
+
 
 	public void update(Observable o, Object arg) {
 		// cancelAction = true;

@@ -499,15 +499,15 @@ public class CytoscapeWidget implements VisualPlugin {
 			 */
 
 			typeName = interactionTypeSifMap.get(type);
-			e = Cytoscape.getCyEdge(n1.getIdentifier(), geneId1 + "." + type
-					+ "." + geneId2, n2.getIdentifier(), typeName);
+			e = Cytoscape.getCyEdge(n1.getIdentifier(), n1.getIdentifier() + " (" + type
+					+ ") " + n1.getIdentifier(), n2.getIdentifier(), type);
 			// Aracne result will not have an type, so we should
 			// not need to check it here.
 			if (!cytoNetwork.edgeExists(n2, n1))
 				cytoNetwork.addEdge(e);
 
-			e.setIdentifier(geneId1 + "." + type + "." + geneId2 + "/"
-					+ n1.getIdentifier() + "-" + n2.getIdentifier());
+			e.setIdentifier(n1.getIdentifier() + " (" + type + ") " + n2.getIdentifier());
+					 
 
 		} else {
 			/*
@@ -522,8 +522,8 @@ public class CytoscapeWidget implements VisualPlugin {
 			// e = Cytoscape.getCyEdge(String.valueOf(geneId),
 			// String.valueOf(geneId) + ".pp." +
 			// String.valueOf(id2), String.valueOf(id2), "");
-			e = Cytoscape.getCyEdge(n1.getIdentifier(), geneId1 + "."
-					+ geneId2, n2.getIdentifier(), "");
+			e = Cytoscape.getCyEdge(n1.getIdentifier(), n1.getIdentifier() + " () "
+					+ n2.getIdentifier(), n2.getIdentifier(), "");
 			// For Aracne edges, if a reverse edge exist, we
 			// skip it.
 			// For Geneways edges,
@@ -536,8 +536,7 @@ public class CytoscapeWidget implements VisualPlugin {
 				// check it
 				// here.
 				cytoNetwork.addEdge(e);
-			e.setIdentifier(geneId1 + "." + geneId2 + "/"
-					+ n1.getIdentifier() + "-" + n2.getIdentifier());
+			e.setIdentifier(n1.getIdentifier() + " () " + n2.getIdentifier());  
 
 		}
 		try {
@@ -565,6 +564,10 @@ public class CytoscapeWidget implements VisualPlugin {
 		}
 
 	}
+
+
+
+
 
 	private CyNode createNode(String geneIdStr,
 			HashMap<String, String> geneIdToNameMap) {
@@ -655,6 +658,11 @@ public class CytoscapeWidget implements VisualPlugin {
 				Cytoscape.getNodeAttributes().setAttribute(
 						cyNode.getIdentifier(), "markerName",
 						marker1.getLabel());
+				
+				Cytoscape.getNodeAttributes().setAttribute(
+						cyNode.getIdentifier(), "serial",
+						marker1.getSerial());
+				
 			} else {
 				try {
 
