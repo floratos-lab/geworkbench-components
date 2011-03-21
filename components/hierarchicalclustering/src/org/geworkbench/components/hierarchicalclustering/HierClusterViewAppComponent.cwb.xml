@@ -7,7 +7,7 @@
 				author="geWorkbench Development Team"
 				authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 				toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
-				tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_Hierarchical_Clustering"
+				tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Hierarchical_Clustering"
 				visualizer="true"
 				description="This component implenents a tree-like dendrogram view
  of the results of hierarchical clustering."

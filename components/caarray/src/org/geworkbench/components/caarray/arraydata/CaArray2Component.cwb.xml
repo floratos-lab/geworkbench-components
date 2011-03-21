@@ -7,7 +7,7 @@
 		author="geWorkbench Development Team"
 		authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 		toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
-		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_Remote_Data_Sources"
+		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Remote_Data_Sources"
 		description="Allows gene expression data to be searched
  for and downloaded from instances of caArray (an NCI microarray
  database product).  Currently only gene-level data downloads are

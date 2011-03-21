@@ -6,7 +6,7 @@
 		version="1.0" 
 		author="geWorkbench Development Team"
 		authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
-		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_BLAST"
+		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/BLAST"
 		toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 		description="The Alignment Results component parses and displays
  the results of sequence similarity searches which were run on the

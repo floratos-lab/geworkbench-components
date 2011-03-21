@@ -86,6 +86,7 @@ public class MarkUsAnalysis extends AbstractGridAnalysis implements ProteinStruc
 
 		String results = null;
 		/* for quick display of previous results without doing analysis */
+/*
 		if (pdbname.equals("2pk7.pdb"))
 			results = "MUS569";
 		else if (pdbname.equals("1e09.pdb"))
@@ -100,6 +101,7 @@ public class MarkUsAnalysis extends AbstractGridAnalysis implements ProteinStruc
 			results = "MUS670";
 
 		else {
+		*/
 			if(STOPSIG)
 				return new AlgorithmExecutionResults(false, "MarkUs analysis cancelled", null);
 
@@ -126,7 +128,9 @@ public class MarkUsAnalysis extends AbstractGridAnalysis implements ProteinStruc
 			} catch (Exception e) {
 				log.warn("MarkUsWeb submitJob error: " + cfgcommand);
 			}
+			/*
 		}
+		*/
 
 		if(results==null)
 			return new AlgorithmExecutionResults(false, "No result for MarkUs analysis", null);

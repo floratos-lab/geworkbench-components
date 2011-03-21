@@ -7,7 +7,7 @@
 				author="Honig lab (C2B2)"
 				authorURL="http://wiki.c2b2.columbia.edu/honiglab_public/index.php/Main_Page"
 				toolURL="http://wiki.c2b2.columbia.edu/honiglab_public/index.php/Software:Mark-Us"
-				tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_Mark-Us"
+				tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/MarkUs"
 				description="Displays the results of a MarkUs analysis.  
  The results can be browsed by an interactive web interface
  that integrates Gene Ontology terms, UniProt features, and the Enzyme Classification."

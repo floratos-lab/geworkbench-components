@@ -8,7 +8,7 @@
 		author="Cytoscape Development Team"
 		authorURL="http://www.cytoscape.org/people.php"
 		toolURL="http://www.cytoscape.org/"
-		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_Cytoscape_Network_Viewer"
+		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Cytoscape_Network_Viewer"
 		description="The Cytoscape ccmponent (http://www.cytoscape.org/)
  is used to display network graphs, as created e.g. by ARACNe.
  The component allows selected network nodes (genes) to be
