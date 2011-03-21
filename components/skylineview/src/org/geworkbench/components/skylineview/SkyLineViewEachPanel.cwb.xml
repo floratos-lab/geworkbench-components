@@ -4,8 +4,8 @@
 				class="org.geworkbench.components.skylineview.SkyLineViewEachPanel"
 				version="1.0"
 				author="Murray lab (C2B2)"
-				authorURL="http://ph7wnu.cpmc.columbia.edu/index.html"
-				toolURL="http://ph7wnu.cpmc.columbia.edu/nesg3/nesg.php"
+				authorURL="http://skybase.c2b2.columbia.edu/nesg3/index.html"
+				toolURL="http://skybase.c2b2.columbia.edu/nesg3/research/pages/pipeline.html"
 				description="Displays details about each homology model resulting from the Skyline Comparative Modeling analysis (including energy profile, zscore, pdb file, and alignment between template and model). "
 				visualizer="true"
 	 >

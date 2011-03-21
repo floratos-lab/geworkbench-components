@@ -4,8 +4,8 @@
 				class="org.geworkbench.components.skylineview.SkyLineViewAllPanel"
 				version="1.0"
 				author="Murray lab (C2B2)"
-				authorURL="http://ph7wnu.cpmc.columbia.edu/index.html"
-				toolURL="http://ph7wnu.cpmc.columbia.edu/nesg3/nesg.php"
+				authorURL="http://skybase.c2b2.columbia.edu/nesg3/index.html"
+				toolURL="http://skybase.c2b2.columbia.edu/nesg3/research/pages/pipeline.html"
 				description="Displays summary run statistics for all models resulting from the Skyline Comparative Modeling analysis (including run statistics, alignment results for all models, a hit list with rank, evalue, sequence identity, coverage, species... and a model list with model quality pG score). "
 				visualizer="true"
 	 >
