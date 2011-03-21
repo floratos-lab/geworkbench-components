@@ -1,5 +1,6 @@
 package org.geworkbench.components.cytoscape;
 
+import giny.model.Node;
 import giny.view.EdgeView;
 
 import java.awt.BorderLayout;
@@ -25,13 +26,14 @@ import javax.swing.event.ChangeEvent;
 import java.text.DecimalFormat;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.HashMap; 
- 
+import java.util.HashMap;
+
 import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrix;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixDataSet;
- 
-import cytoscape.Cytoscape; 
+
+import cytoscape.Cytoscape;
+import cytoscape.data.CyAttributes;
 import cytoscape.view.CyNetworkView;
 
 /**
@@ -40,7 +42,7 @@ import cytoscape.view.CyNetworkView;
  * @version $Id$
  */
 public class NetworkRedrawWindow {
- 
+
 	private JFrame frame;
 	private JPanel topPanel;
 
@@ -53,7 +55,7 @@ public class NetworkRedrawWindow {
 
 	private JLabel sliderLabel = new JLabel("Correlation Threshold: ",
 			JLabel.CENTER);
-	
+
 	private DecimalFormat myFormatter = new DecimalFormat("0.00");
 
 	private static JLabel selectedValueLabel = new JLabel("0.00");
@@ -63,7 +65,6 @@ public class NetworkRedrawWindow {
 
 	private static NetworkRedrawWindow networkRedrawWindow = null;
 
-	 
 	private NetworkRedrawWindow() {
 
 		initComponents();
@@ -79,9 +80,8 @@ public class NetworkRedrawWindow {
 			pearsonCorrelationsMap = new HashMap<String, HashMap<String, Double>>();
 		}
 
-		
 		thresholdSlider.setValue(0);
-		selectedValueLabel.setText("0.00");	 
+		selectedValueLabel.setText("0.00");
 		pearsonCorrelationsMap.put(networkId, correlationResultMap);
 
 		networkRedrawWindow.frame.setExtendedState(Frame.NORMAL);
@@ -124,7 +124,7 @@ public class NetworkRedrawWindow {
 				});
 
 		topPanel.add(sliderLabel);
-	 
+
 		topPanel.add(thresholdSlider);
 
 		topPanel.add(selectedValueLabel);
@@ -217,37 +217,34 @@ public class NetworkRedrawWindow {
 	 * @return void
 	 */
 	private void redrawNetwork_actionPerformed(ActionEvent e) {
-		
+
 		CytoscapeWidget.getInstance().resetNetwork();
 
 		CyNetworkView view = Cytoscape.getCurrentNetworkView();
-		
-		HashMap<String, Double> pearsonCorrelations  = pearsonCorrelationsMap
-		.get(view.getIdentifier());
-		
-		if (pearsonCorrelations == null)
-		{
-			JOptionPane
-			.showMessageDialog(
-					null,
-					"Please compute edge correlations for the currently selected network view.",
 
-					"Information", JOptionPane.INFORMATION_MESSAGE);
-		
-		    return;
+		HashMap<String, Double> pearsonCorrelations = pearsonCorrelationsMap
+				.get(view.getIdentifier());
+
+		if (pearsonCorrelations == null) {
+			JOptionPane
+					.showMessageDialog(
+							null,
+							"Please compute edge correlations for the currently selected network view.",
+
+							"Information", JOptionPane.INFORMATION_MESSAGE);
+
+			return;
 		}
 		if (view != null && Cytoscape.getCurrentNetwork() != null) {
 			double selectedSliderValue = (double) thresholdSlider.getValue() / 100;
 			Iterator<?> iter = view.getEdgeViewsIterator();
 			while (iter.hasNext()) {
 				EdgeView edgeView = (EdgeView) iter.next();
-				double value = pearsonCorrelations
-						.get(edgeView.getEdge().getIdentifier()).doubleValue();
-				if (Math.abs(value) < selectedSliderValue)
-				{						 
-					view.hideGraphObject(edgeView);				
-				}
-				else if (value < 0)
+				double value = pearsonCorrelations.get(
+						edgeView.getEdge().getIdentifier()).doubleValue();
+				if (Math.abs(value) < selectedSliderValue) {
+					view.hideGraphObject(edgeView);
+				} else if (value < 0)
 					edgeView.setUnselectedPaint(Color.BLUE);
 				else
 					edgeView.setUnselectedPaint(Color.RED);
@@ -257,45 +254,42 @@ public class NetworkRedrawWindow {
 		}
 	}
 
-	/**	 
+	/**
 	 * @param ActionEvent
 	 * @return void
 	 */
 	private void graph_actionPerformed(ActionEvent e) {
-		
-		
+
 		Cursor hourglassCursor = new Cursor(Cursor.WAIT_CURSOR);
 		frame.setCursor(hourglassCursor);
 
 		CyNetworkView view = Cytoscape.getCurrentNetworkView();
-		HashMap<String, Double> pearsonCorrelations  = pearsonCorrelationsMap
-		.get(view.getIdentifier());
-		
-		if (pearsonCorrelations == null)
-		{
-			JOptionPane
-			.showMessageDialog(
-					null,
-					"Please compute edge correlations for the currently selected network view.",
+		HashMap<String, Double> pearsonCorrelations = pearsonCorrelationsMap
+				.get(view.getIdentifier());
 
-					"Information", JOptionPane.INFORMATION_MESSAGE);
-		
-		    return;
+		if (pearsonCorrelations == null) {
+			JOptionPane
+					.showMessageDialog(
+							null,
+							"Please compute edge correlations for the currently selected network view.",
+
+							"Information", JOptionPane.INFORMATION_MESSAGE);
+
+			return;
 		}
-	
-		 Object[] values = pearsonCorrelations.values().toArray();
-		 double[] dlist = new double[values.length];
-	     for(int i=0; i<dlist.length; i++)
-	        {
-	        	dlist[i] = (Double)values[i];
-	        }
-	     String networkName = view.getTitle();
-		HistogramGraph.CreateInstance("Edge correlations - " + networkName, dlist);
+
+		Object[] values = pearsonCorrelations.values().toArray();
+		double[] dlist = new double[values.length];
+		for (int i = 0; i < dlist.length; i++) {
+			dlist[i] = (Double) values[i];
+		}
+		String networkName = view.getTitle();
+		HistogramGraph.CreateInstance("Edge correlations - " + networkName,
+				dlist);
 
 		Cursor normalCursor = new Cursor(Cursor.DEFAULT_CURSOR);
-		frame.setCursor(normalCursor);		
+		frame.setCursor(normalCursor);
 
-		
 	}
 
 	/**
@@ -310,98 +304,96 @@ public class NetworkRedrawWindow {
 
 	}
 
-	/**	 
+	/**
 	 * @param ActionEvent
 	 * @return void
 	 */
 	private void createSubNetworkSelections_actionPerformed(ActionEvent e) {
-		 
-		HashMap<String, Double> pearsonCorrelations  = pearsonCorrelationsMap
-		.get(Cytoscape.getCurrentNetworkView().getIdentifier());
-		
-		if (pearsonCorrelations == null)
-		{
-			JOptionPane
-			.showMessageDialog(
-					null,
-					"Please compute edge correlations for the currently selected network view.",
 
-					"Information", JOptionPane.INFORMATION_MESSAGE);
-		
-		    return;
+		HashMap<String, Double> pearsonCorrelations = pearsonCorrelationsMap
+				.get(Cytoscape.getCurrentNetworkView().getIdentifier());
+
+		if (pearsonCorrelations == null) {
+			JOptionPane
+					.showMessageDialog(
+							null,
+							"Please compute edge correlations for the currently selected network view.",
+
+							"Information", JOptionPane.INFORMATION_MESSAGE);
+
+			return;
 		}
-		
+
 		AdjacencyMatrixDataSet adjacencyMatrixdataSet = null;
-		AdjacencyMatrix origMatrix = CytoscapeWidget.getInstance().getAdjMatrix();
-		AdjacencyMatrix matrix = new AdjacencyMatrix(null, origMatrix.getMicroarraySet(), origMatrix.getInteractionTypeSifMap());
-		 
+		AdjacencyMatrix origMatrix = CytoscapeWidget.getInstance()
+				.getAdjMatrix();
+		AdjacencyMatrix matrix = new AdjacencyMatrix(null, origMatrix
+				.getMicroarraySet(), origMatrix.getInteractionTypeSifMap());
+
 		Double value = new Double(thresholdSlider.getValue());
 		value = value / 100;
-		
-		if (value == 0)
-		{
-			adjacencyMatrixdataSet = new AdjacencyMatrixDataSet(origMatrix, 0, 0.5f, 2,
-					"Adjacency Matrix", CytoscapeWidget.getInstance().maSet
-							.getLabel(), CytoscapeWidget.getInstance().maSet);
-			 
-			adjacencyMatrixdataSet.addNameValuePair("GENEMAP", CytoscapeWidget.getInstance().getGeneIdToNameMap());
-		}
-		else
-		{
-			 
-		    for (String key : pearsonCorrelations.keySet())
-		    {
-		    	if (Math.abs(pearsonCorrelations.get(key)) >= value)
-		    	{
-		    		String[] list1 = key.split("/");
-		    		String[] list2 = list1[0].split("\\.");
-		    		int serial1 = -1, serial2 = -1;		    		 
-		    		String  interactionType = null;
-		    		if (list2.length == 3)
-		    		{
-		    			serial1 = new Integer(list2[0]);		    		 
-		    		    serial2 = new Integer(list2[2]);
-		    		    interactionType= list2[1];
-		    		}
-		    		else if (list2.length == 2)
-		    		{
-		    			serial1 = new Integer(list2[0]);		    		 
-		    		    serial2 = new Integer(list2[1]);
-		    		}
-		    		
-		    		
-		    		matrix.add(serial1, serial2, 0.8f, interactionType);
-		    	}
-		    	 
-		    }
-		    
-		    if (matrix.getNodeNumber()==0 && matrix.getNodeNumberNotInMicroarray()==0)
-			{
-				JOptionPane
-				.showMessageDialog(
-						null,
+
+		if (value == 0) {
+			adjacencyMatrixdataSet = new AdjacencyMatrixDataSet(origMatrix, 0,
+					0.5f, 2, "Adjacency Matrix",
+					CytoscapeWidget.getInstance().maSet.getLabel(),
+					CytoscapeWidget.getInstance().maSet);
+
+			adjacencyMatrixdataSet.addNameValuePair("GENEMAP", CytoscapeWidget
+					.getInstance().getGeneIdToNameMap());
+		} else {
+			CyNetworkView view = Cytoscape.getCurrentNetworkView();
+			if (view != null && Cytoscape.getCurrentNetwork() != null) {
+				CyAttributes nodeAttrs = Cytoscape.getNodeAttributes();
+				CyAttributes edgeAttrs = Cytoscape.getEdgeAttributes();
+				Iterator<?> iter = view.getEdgeViewsIterator();
+
+				while (iter.hasNext()) {
+
+					EdgeView edgeView = (EdgeView) iter.next();
+					String edgeIdentifier = edgeView.getEdge().getIdentifier();
+					if (Math.abs(pearsonCorrelations.get(edgeIdentifier)) >= value) {
+						Node source = edgeView.getEdge().getSource();
+						Node target = edgeView.getEdge().getTarget();
+						String gene1 = source.getIdentifier();
+						String gene2 = target.getIdentifier();
+
+						Integer serial1 = null, serial2 = null;
+						String interactionType = null;
+
+						serial1 = nodeAttrs
+								.getIntegerAttribute(gene1, "serial");
+						serial2 = nodeAttrs
+								.getIntegerAttribute(gene2, "serial");
+						interactionType = edgeAttrs.getStringAttribute(edgeView
+								.getEdge().getIdentifier(), "type");
+
+						matrix.add(serial1, serial2, 0.8f, interactionType);
+					}
+
+				}
+			}
+			if (matrix.getNodeNumber() == 0
+					&& matrix.getNodeNumberNotInMicroarray() == 0) {
+				JOptionPane.showMessageDialog(null,
 						"The sub-network you want to create is empty.",
 
 						"Information", JOptionPane.INFORMATION_MESSAGE);
-			
-			    return;
-			}
-			
-		    
-		    
-			adjacencyMatrixdataSet = new AdjacencyMatrixDataSet(matrix, 0, 0.5f, 2,
-					"Adjacency Matrix", CytoscapeWidget.getInstance().maSet
-							.getLabel(), CytoscapeWidget.getInstance().maSet);
-			 
-		    
-		
-		}
-	
-		CytoscapeWidget.getInstance().publishProjectNodeAddedEvent(new ProjectNodeAddedEvent(
-					"Adjacency Matrix Added", null, adjacencyMatrixdataSet));
 
-	
-	
+				return;
+			}
+
+			adjacencyMatrixdataSet = new AdjacencyMatrixDataSet(matrix, 0,
+					0.5f, 2, "Adjacency Matrix",
+					CytoscapeWidget.getInstance().maSet.getLabel(),
+					CytoscapeWidget.getInstance().maSet);
+
+		}
+
+		CytoscapeWidget.getInstance().publishProjectNodeAddedEvent(
+				new ProjectNodeAddedEvent("Adjacency Matrix Added", null,
+						adjacencyMatrixdataSet));
+
 	}
 
 	void thresholdSlider_stateChanged() {
