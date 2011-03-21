@@ -5,7 +5,7 @@
 		author="geWorkbench Development Team" 
 		authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 		toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
-		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_Pudge"
+		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Pudge"
 		description="Visualization of Pudge results." visualizer="true"
 	 >
 	 	<related-component class="org.geworkbench.components.pudge.PudgeAnalysis" />

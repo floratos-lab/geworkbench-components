@@ -6,7 +6,7 @@
 				author="Bussemaker lab (C2B2)"
 				authorURL="http://bussemaker.bio.columbia.edu/lab"
 				toolURL="http://bussemaker.bio.columbia.edu/software/MatrixREDUCE/"
-				tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_MatrixREDUCE"
+				tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/MatrixREDUCE"
 				description="MatrixREDUCE is a tool for inferring the binding
  specificity and nuclear concentration of transcription
  factors from microarray data."

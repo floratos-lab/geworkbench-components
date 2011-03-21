@@ -7,7 +7,7 @@
 				author="geWorkbench Development Team"
 				authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 				toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
-				tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_Filtering_and_Normalizing"
+				tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Normalization"
 				category="normalizer"
 				description="For each marker profile in a microarray dataset, subtracts the mean
  or median value and then divides by the standard deviation."

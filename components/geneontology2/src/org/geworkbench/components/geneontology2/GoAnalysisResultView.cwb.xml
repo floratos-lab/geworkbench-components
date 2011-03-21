@@ -6,7 +6,7 @@
 				author="geWorkbench Development Team"
 				authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 				toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
-				tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_Gene_Ontology_Term_Analysis"
+				tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Gene_Ontology_Term_Analysis"
 				description="Tabular, list and detail views of Gene Ontology Over-representation analysis results."
 				visualizer="true"
 	 >

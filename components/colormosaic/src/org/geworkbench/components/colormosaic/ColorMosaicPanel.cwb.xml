@@ -7,7 +7,7 @@
 		author="geWorkbench Development Team"
 		authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 		toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
-		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_Color_Mosaic"
+		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Color_Mosaic"
 		description="A color spectrum is used to indicate the relative magnitudes of the measurements.
  The arrays (columns) are grouped by input group membership,
  i.e. set 1,set 2 etc. Each row corresponds to a marker,

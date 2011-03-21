@@ -8,7 +8,7 @@
 		author="MeV (Consortium)"
 		authorURL="http://www.tm4.org/mev/"
 		toolURL="http://www.tm4.org/mev/?q=documentation/manual"
-		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_ANOVA"
+		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/ANOVA"
 		description="Analysis of Variance is used in geWorkbench to deterimine
  if significant differences in expression exist among three or more groups
  of microarray gene expression profiles.  Formally, it tests the null

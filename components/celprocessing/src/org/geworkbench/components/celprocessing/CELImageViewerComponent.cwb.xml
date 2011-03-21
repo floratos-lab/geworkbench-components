@@ -7,6 +7,7 @@
 		author="geWorkbench Development Team"
 		authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 		toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
+		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Viewing_a_Microarray_Dataset"
 		description="Visualizer for Affymetrix CEL files, allowing inspection of processed images for defects."
 		visualizer="true">
 		<license><![CDATA[

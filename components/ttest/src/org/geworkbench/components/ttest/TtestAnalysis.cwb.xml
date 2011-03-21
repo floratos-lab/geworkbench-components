@@ -8,7 +8,7 @@
 		author="geWorkbench Development Team"
 		authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 		toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
-		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_Differential_Expression"
+		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Differential_Expression"
 		description="This component computes the Student's t-test result
  for the significance of any differential expression seen between two
  clases of microarray gene expression profiles (case and control)."
