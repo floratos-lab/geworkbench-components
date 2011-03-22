@@ -82,7 +82,9 @@ public class JmolComponent extends JPanel implements VisualPlugin {
                 return;
             }
             viewer.openStringInline(new String(fileBytes));*/
-            viewer.openFile(proteinData.getFile().getAbsolutePath());
+            String msg = viewer.openFile(proteinData.getFile().getAbsolutePath());
+            if (msg != null && msg.contains("Error"))
+            	JOptionPane.showMessageDialog(null, msg, "Error", JOptionPane.ERROR_MESSAGE);
             viewer.evalString(strScript);
 //
 //            revalidate();
