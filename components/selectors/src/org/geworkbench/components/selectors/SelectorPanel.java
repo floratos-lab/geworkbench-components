@@ -645,7 +645,7 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 	private void itemClicked(int index, MouseEvent e) {
 		if (index != -1) {
 			if (itemList != null) {
-				T item = itemList.get(index);
+				T item = listModel.getItem(index);
 				publishSingleSelectionEvent(item);
 			}
 		}
@@ -654,7 +654,7 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 	private void itemDoubleClicked(int index, MouseEvent e) {
 		 
 		// Get double-clicked item
-		T item = itemList.get(index);
+		T item = listModel.getItem(index);
 		if (context.hasLabel(item, SELECTION_LABEL)) {
 			 //currentSelectedIndecies.remove(index);
 			context.removeLabelFromItem(item, SELECTION_LABEL);
@@ -905,7 +905,7 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 		int n = indices.length;
 		T[] items = (T[]) Array.newInstance(panelType, n);
 		for (int i = 0; i < n; i++) {
-			items[i] = itemList.get(indices[i]);
+			items[i] = listModel.getItem(indices[i]);
 		}
 		return items;
 	}
@@ -1308,7 +1308,7 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 
 			JLabel component = (JLabel) super.getListCellRendererComponent(
 					list, value, index, isSelected, cellHasFocus);
-			if (context.hasLabel(itemList.get(index), SELECTION_LABEL)) {
+			if (context.hasLabel(listModel.getItem(index), SELECTION_LABEL)) {
 				Font font = component.getFont();
 				Font boldFont = font.deriveFont(Font.BOLD);
 				component.setFont(boldFont);
