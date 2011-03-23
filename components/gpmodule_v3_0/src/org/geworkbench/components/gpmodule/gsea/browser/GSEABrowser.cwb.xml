@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
 	<component  name="GSEA Browser"
@@ -8,10 +9,9 @@
 				toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 				tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Classification"				
 				description="====="
-				visualizer="true"
+				category="visualizer"
 				
 				loadByDefault="false"
-				hidden="true"
 	 >
 		<required-component class="org.geworkbench.components.gpmodule.gsea.GSEAAnalysis" />
 		<license><![CDATA[
