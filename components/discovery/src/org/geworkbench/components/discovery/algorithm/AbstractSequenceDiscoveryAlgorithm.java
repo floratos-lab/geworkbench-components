@@ -1,17 +1,18 @@
 package org.geworkbench.components.discovery.algorithm;
 
+import java.io.File;
+import java.util.EventListener;
+
+import javax.swing.event.EventListenerList;
+
+import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
+import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
+import org.geworkbench.bison.datastructure.complex.pattern.PatternResult;
+import org.geworkbench.components.discovery.SequenceDiscoveryViewWidget;
 import org.geworkbench.events.ProgressChangeEvent;
 import org.geworkbench.events.StatusBarEvent;
 import org.geworkbench.events.listeners.ProgressChangeListener;
 import org.geworkbench.events.listeners.StatusChangeListener;
-import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
-import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
-import org.geworkbench.bison.datastructure.complex.pattern.SoapParmsDataSet;
-import org.geworkbench.components.discovery.SequenceDiscoveryViewWidget;
-
-import javax.swing.event.EventListenerList;
-import java.util.EventListener;
-import java.io.File;
 
 /**
  * <p>Title: Sequence and Pattern Plugin</p>
@@ -30,8 +31,8 @@ public abstract class AbstractSequenceDiscoveryAlgorithm {
      */
     private EventListenerList listenerList = new EventListenerList();
 
-    protected File resultFile;
-    protected SoapParmsDataSet result;
+    protected File resultFile; // FIXME make sure it is not used anywhere
+    protected PatternResult result;
     protected DSSequenceSet<DSSequence> sequenceInputData;
 
     // SequenceDiscoveryViewWidget which created this stub
@@ -222,9 +223,8 @@ public abstract class AbstractSequenceDiscoveryAlgorithm {
         wakeUp();
     }
 
-    public void setResultFile(SoapParmsDataSet result) {
+    public void setPatternResult(PatternResult result) {
     	this.result = result;
-        this.resultFile = result.getResultFile();
     }
 
     @SuppressWarnings("unchecked")

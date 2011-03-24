@@ -6,7 +6,7 @@ import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
-import org.geworkbench.bison.datastructure.complex.pattern.SoapParmsDataSet;
+import org.geworkbench.bison.datastructure.complex.pattern.PatternResult;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.ProjectSelection;
 import org.geworkbench.engine.config.VisualPlugin;
@@ -16,7 +16,7 @@ import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.ImageSnapshotEvent;
 import org.geworkbench.events.ProjectEvent;
 
-@AcceptTypes({ CSSequenceSet.class, SoapParmsDataSet.class })
+@AcceptTypes({ CSSequenceSet.class, PatternResult.class })
 public class PromoterView implements VisualPlugin {
 
 	PromoterViewPanel main = new PromoterViewPanel();
