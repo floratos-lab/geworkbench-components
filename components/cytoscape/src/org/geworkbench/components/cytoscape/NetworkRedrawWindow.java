@@ -368,6 +368,12 @@ public class NetworkRedrawWindow {
 						interactionType = edgeAttrs.getStringAttribute(edgeView
 								.getEdge().getIdentifier(), "type");
 
+						 if (interactionType != null && !interactionType.trim().equals(""))
+				    	    {
+				    	    	interactionType = CytoscapeWidget.getInstance().interactionTypeSifMap.get(interactionType);
+				    	    }
+				    	    
+						
 						matrix.add(serial1, serial2, 0.8f, interactionType);
 					}
 
