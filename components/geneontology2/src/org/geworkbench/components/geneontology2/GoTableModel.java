@@ -55,13 +55,13 @@ class GoTableModel extends AbstractTableModel {
 		
 		GOTerm term = geneOntologyTree.getTerm(id);
 		if(term==null) {
-			log.error("No GO term for ID "+id);
+			log.info("No GO term for ID "+id);
 			return;
 		}
 			
 		String name = geneOntologyTree.getTerm(id).getName();
 		if(name==null) {
-			log.error("GO term name is null for ID "+id);
+			log.info("GO term name is null for ID "+id);
 			return;
 		}
 			
