@@ -312,8 +312,6 @@ public class KMAnalysis extends GPAnalysis{
             
             JobResult analysisResult = server.runAnalysis(classifierName, parameters);
            
-            String[] outputFiles = analysisResult.getOutputFileNames();
-
             String modelFileName = null;
             modelFileName =RESULT_TEXT_FILE;
          
