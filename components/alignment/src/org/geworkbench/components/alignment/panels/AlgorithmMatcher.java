@@ -2,6 +2,8 @@ package org.geworkbench.components.alignment.panels;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -537,7 +539,13 @@ public class AlgorithmMatcher {
                 	cmd += "&EXCLUDE_SEQ_UNCULT=yes";
                 }
                 if (!(ps.getEntrezQuery()==null)||(ps.getEntrezQuery().trim()!="")){
-                	cmd += "&EQ_TEXT="+ps.getEntrezQuery();
+                	String entrezQuery = ps.getEntrezQuery();
+                	try {
+                		entrezQuery = URLEncoder.encode(entrezQuery, "UTF-8");
+        		    } catch (UnsupportedEncodingException ex) {
+        			    throw new RuntimeException("UTF-8 not supported", ex);
+        		    }                 	
+                	cmd += "&EQ_TEXT="+entrezQuery;
                 }
                 if (!(ps.getFromQuery()==null)||(ps.getFromQuery().trim()!="")){
                 	cmd += "&QUERY_FROM="+ps.getFromQuery();
