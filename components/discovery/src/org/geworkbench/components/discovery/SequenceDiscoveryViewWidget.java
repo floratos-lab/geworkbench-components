@@ -13,6 +13,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,6 +27,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JToolBar;
+import javax.swing.SwingUtilities;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -37,7 +39,7 @@ import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.datastructure.complex.pattern.PatternDiscoveryParameters;
-import org.geworkbench.bison.datastructure.complex.pattern.SoapParmsDataSet;
+import org.geworkbench.bison.datastructure.complex.pattern.PatternResult;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.components.discovery.algorithm.AbstractSequenceDiscoveryAlgorithm;
 import org.geworkbench.components.discovery.algorithm.AlgorithmStub;
@@ -92,7 +94,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 	private String currentStubId = "";
 
 	// Hold the reference to current PD result.
-	private File currentResultFile;
+	private File currentResultFile; // FIXME let's assume this is always null 
 
 	// Contains all the algorithm Stubs - they are mapped by the selected file.
 	private Map<String, AlgorithmStub> algorithmStubMap = new HashMap<String, AlgorithmStub>();
@@ -269,7 +271,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		// get a discoverySession for running the algo
 		DiscoverySession discoverySession = appComponent.getSession();
 		// we cannot run this algorithm with no discoverySession
-		if ((discoverySession != null) && (currentStubId != null)) {
+		if ( discoverySession != null ) {
 			firePropertyChange(TABLE_EVENT, null, null);
 			selectAlgorithm(discoverySession);
 		} else {
@@ -337,8 +339,8 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 	 *
 	 * @param type
 	 */
-	private SoapParmsDataSet readParameterAndCreateResultfile(String type) {
-		SoapParmsDataSet pds = getParamsDataSet(type);
+	private PatternResult readParameterAndCreateResultfile(String type) {
+		PatternResult pds = getParamsDataSet(type);
 		String id = pds.getID();
 		currentStubId = currentNodeID + id;
 		resultData = pds;
@@ -350,14 +352,14 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		firePropertyChange(TABLE_EVENT, null, null);
 	}
 
-	private SoapParmsDataSet getParamsDataSet(String type) {
+	private PatternResult getParamsDataSet(String type) {
 		Parameters p = parmsHandler.readParameter(parameterPanel,
 				getSequenceDB().getSequenceNo(), type);
 		parms = p;
 		// fire a parameter change to the application
 		PatternDiscoveryParameters pp = ParameterTranslation.translate(parms);
 
-		SoapParmsDataSet pds = new SoapParmsDataSet(pp, "Pattern Discovery",
+		PatternResult pds = new PatternResult(pp, "Pattern Discovery",
 				getSequenceDB());
 		return pds;
 	}
@@ -387,7 +389,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 			return;
 		}
 
-		if (currentStubId.equals(stub)) {
+		if (currentStubId!=null && currentStubId.equals(stub)) {
 			return; // same stub no need to update
 		}
 
@@ -432,11 +434,34 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 
 	/**
 	 * Replaces the view for this component.
+	 * This method is invoked from either EDT or non-EDT.
 	 *
 	 * @param i
 	 *            the index of a view.
 	 */
-	public void setCurrentView(int i) {
+	public void setCurrentView(final int i) {
+		if(SwingUtilities.isEventDispatchThread()) {
+			setCurrentViewFromEDT(i);
+		} else {
+			try {
+				SwingUtilities.invokeAndWait(new Runnable() {
+
+					@Override
+					public void run() {
+						setCurrentViewFromEDT(i);
+					}
+					
+				});
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	// this method should be invoked only from EDT
+	private void setCurrentViewFromEDT(int i) {
 		Component comp = null;
 		if (i == DEFAULT_VIEW) {
 			comp = DefaultLook.panel;
@@ -501,10 +526,10 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 	 */
 	private AbstractSequenceDiscoveryAlgorithm createDiscoveryAlgorithm(
 			DiscoverySession session) {
-		SoapParmsDataSet resultFile = readParameterAndCreateResultfile("Discovery");
+		PatternResult resultFile = readParameterAndCreateResultfile("Discovery");
 		AbstractSequenceDiscoveryAlgorithm abstractSequenceDiscoveryAlgorithm = new ServerBaseDiscovery(
 				session, getParameters(), SPLASHDefinition.Algorithm.REGULAR);
-		abstractSequenceDiscoveryAlgorithm.setResultFile(resultFile);
+		abstractSequenceDiscoveryAlgorithm.setPatternResult(resultFile);
 		abstractSequenceDiscoveryAlgorithm.setSequenceInputData(this
 				.getSequenceDB());
 		return abstractSequenceDiscoveryAlgorithm;
@@ -532,10 +557,10 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 	 */
 	private AbstractSequenceDiscoveryAlgorithm createExhaustive(
 			DiscoverySession discoverySession) {
-		SoapParmsDataSet resultFile = readParameterAndCreateResultfile("Exhaustive");
+		PatternResult resultFile = readParameterAndCreateResultfile("Exhaustive");
 		AbstractSequenceDiscoveryAlgorithm abstractSequenceDiscoveryAlgorithm = new ServerBaseDiscovery(
 				discoverySession, getParameters(), SPLASHDefinition.Algorithm.EXHAUSTIVE);
-		abstractSequenceDiscoveryAlgorithm.setResultFile(resultFile);
+		abstractSequenceDiscoveryAlgorithm.setPatternResult(resultFile);
 		abstractSequenceDiscoveryAlgorithm.setSequenceInputData(this
 				.getSequenceDB());
 		return abstractSequenceDiscoveryAlgorithm;
@@ -551,13 +576,12 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 
 	// invoked by SequenceDiscoveryViewAppComponent.receive(ProjectEvent, Object)
 	synchronized void setSequenceDB(DSSequenceSet<? extends DSSequence> sDB,
-			boolean withExistedPatternNode, String patternNodeID, Parameters p,
-			File resultFile) {
+			boolean withExistedPatternNode, String patternNodeID, Parameters p, PatternResult result) {
 		// reset the currentResultFile.
-		currentResultFile = null;
+		//currentResultFile = null; // FIXME I expect this is always null
 		parameterPanel.setMaxSeqNumber(sDB.size());
-		if (resultFile != null) {
-			currentResultFile = resultFile;
+		if (result != null) {
+			currentResultFile = result.getFile();
 		}
 		 if (sequenceDB.getID() != sDB.getID()) {
 			sequenceDB = sDB;
@@ -590,7 +614,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 
 	// invoked by SequnceDiscoveryViewAppComponent.updateDataSetView()
 	synchronized void setSequenceDB(DSSequenceSet<? extends DSSequence> sDB) {
-		if(sequenceDB!=null)
+		//if(sequenceDB!=null)
 		 sequenceDB = sDB;
 	}
 
@@ -654,6 +678,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 					(DSDataSet<DSSequence>) getSequenceDB());
 			String algoPanelName = AlgorithmSelectionPanel.DISCOVER;
 
+			currentStubId = null;
 			switchAlgo(algoPanelName, loader, PATTERN_TABLE);
 
 			// fire a clear table event

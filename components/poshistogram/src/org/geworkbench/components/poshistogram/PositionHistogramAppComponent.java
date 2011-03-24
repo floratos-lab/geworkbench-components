@@ -8,7 +8,7 @@ import java.util.Map;
 
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
-import org.geworkbench.bison.datastructure.complex.pattern.SoapParmsDataSet;
+import org.geworkbench.bison.datastructure.complex.pattern.PatternResult;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.ProjectSelection;
 import org.geworkbench.engine.config.MenuListener;
@@ -29,7 +29,7 @@ import org.geworkbench.events.SequenceDiscoveryTableEvent;
  * @author Saroja Hanasoge
  * @version $Id$
  */
-@AcceptTypes({SoapParmsDataSet.class})
+@AcceptTypes({PatternResult.class})
 public class PositionHistogramAppComponent implements VisualPlugin, MenuListener {
 
     PositionHistogramWidget pHistogramWidget = null;

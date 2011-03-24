@@ -24,13 +24,13 @@ import javax.swing.table.TableColumnModel;
 
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
+import org.geworkbench.bison.datastructure.complex.pattern.PatternResult;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSMatchedSeqPattern;
 import org.geworkbench.components.discovery.ParameterTranslation;
 import org.geworkbench.components.discovery.PatFilter;
 import org.geworkbench.components.discovery.SequenceDiscoveryViewWidget;
 import org.geworkbench.components.discovery.model.PatternTableModelWrapper;
 import org.geworkbench.events.listeners.ProgressChangeListener;
-import org.geworkbench.util.patterns.PatternDB;
 import org.geworkbench.util.patterns.PatternOperations;
 import org.geworkbench.util.patterns.PatternTableModel;
 import org.geworkbench.util.remote.SPLASHDefinition;
@@ -273,7 +273,7 @@ public class PatternTableView extends JPanel {
                     //disable menu item and save
                     jSavePatternsWInfoItem.setEnabled(false);
                     updateFileProperty(chooser.getSelectedFile().getAbsolutePath());
-                    org.geworkbench.util.patterns.PatternDB patternDB = (saveAllPatterns) ? getPatternDB() : getPatternDB(patternTable.getSelectedRows());
+                    PatternResult patternDB = (saveAllPatterns) ? getPatternDB() : getPatternDB(patternTable.getSelectedRows());
 
                     saveAllPatterns = false;
 
@@ -306,9 +306,9 @@ public class PatternTableView extends JPanel {
         t.start();
     }
 
-    private PatternDB getPatternDB() {
+    private PatternResult getPatternDB() {
         DSSequenceSet<? extends DSSequence> db = widget.getSequenceDB();
-        org.geworkbench.util.patterns.PatternDB patternDB = new PatternDB(db.getFile(), null);
+        PatternResult patternDB = new PatternResult(db.getFile(), null);
 
         for (int i = 0; i < model.size(); i++) {
             DSMatchedSeqPattern pattern = model.getPattern(i);
@@ -319,9 +319,9 @@ public class PatternTableView extends JPanel {
         return patternDB;
     }
 
-    private org.geworkbench.util.patterns.PatternDB getPatternDB(int[] rows) {
+    private PatternResult getPatternDB(int[] rows) {
         DSSequenceSet<? extends DSSequence> db = widget.getSequenceDB();
-        org.geworkbench.util.patterns.PatternDB patternDB = new PatternDB(db.getFile(), null);
+        PatternResult patternDB = new PatternResult(db.getFile(), null);
 
         for (int i = 0; i < rows.length; i++) {
             DSMatchedSeqPattern pattern = model.getPattern(rows[i]);
@@ -334,7 +334,7 @@ public class PatternTableView extends JPanel {
     }
 
     private void addPatToProj_actionPerformed() {
-        org.geworkbench.util.patterns.PatternDB db = getPatternDB();
+        PatternResult db = getPatternDB();
         widget.getAppComponent().createNewNode(db);
     }
 

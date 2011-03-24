@@ -8,7 +8,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
@@ -25,7 +24,7 @@ import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.datastructure.complex.pattern.DSMatchedPattern;
 import org.geworkbench.bison.datastructure.complex.pattern.PatternDiscoveryParameters;
-import org.geworkbench.bison.datastructure.complex.pattern.SoapParmsDataSet;
+import org.geworkbench.bison.datastructure.complex.pattern.PatternResult;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.CSSeqRegistration;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.ProjectSelection;
@@ -40,7 +39,6 @@ import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.events.SequenceDiscoveryTableEvent;
 import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbench.util.PropertiesMonitor;
-import org.geworkbench.util.patterns.PatternDB;
 import org.geworkbench.util.patterns.SequencePatternUtils;
 import org.geworkbench.util.remote.Connection;
 import org.geworkbench.util.remote.ConnectionCreationException;
@@ -75,7 +73,7 @@ import polgara.soapPD_wsdl.Parameters;
  * @version $Id$
  */
 
-@AcceptTypes( { CSSequenceSet.class, SoapParmsDataSet.class, PatternDB.class } )
+@AcceptTypes( { CSSequenceSet.class, PatternResult.class } )
 public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 		PropertyChangeListener {
 
@@ -264,32 +262,17 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 		}
 
 		DSDataSet<?> dataset = e.getDataSet();
-		if (dataset instanceof SoapParmsDataSet) {
-			SoapParmsDataSet soapParmsDataSet = (SoapParmsDataSet) dataset;
-			File resultFile = soapParmsDataSet.getResultFile();
-			log.debug("result file is "+resultFile.getAbsolutePath());
+		if (dataset instanceof PatternResult) {
+			PatternResult soapParmsDataSet = (PatternResult) dataset;
+			PatternDiscoveryParameters p = soapParmsDataSet.getParameters();
+			if(p==null)
+				p = new PatternDiscoveryParameters();
 			Parameters parms = ParameterTranslation
-					.getParameters(soapParmsDataSet.getParameters());
+					.getParameters(p);
 			DSSequenceSet<? extends DSSequence> sequenceDB = (DSSequenceSet<? extends DSSequence>)df;
 			if (df.equals(fullSequenceDB)) sequenceDB = activeSequenceDB;
 			sDiscoveryViewWidget.setSequenceDB(sequenceDB, true,
-					soapParmsDataSet.getID(), parms, resultFile);
-			sDiscoveryViewWidget
-					.setCurrentView(SequenceDiscoveryViewWidget.PATTERN_TABLE);
-		} else if (dataset instanceof PatternDB ) {
-			PatternDB patternDB = (PatternDB) dataset;
-			String tempFolder = FilePathnameUtils
-					.getTemporaryFilesDirectoryPath();
-			File resultFile = new File(tempFolder + "Loaded"
-					+ new Random().nextLong() + ".pat");
-			patternDB.write(resultFile);
-			log.debug("result file is "+resultFile.getAbsolutePath());
-			Parameters parms = ParameterTranslation
-			.getParameters(new PatternDiscoveryParameters());
-			DSSequenceSet<? extends DSSequence> sequenceDB = (DSSequenceSet<? extends DSSequence>)df;
-			if (df.equals(fullSequenceDB)) sequenceDB = activeSequenceDB;
-			sDiscoveryViewWidget.setSequenceDB(sequenceDB, true,
-					patternDB.getID(), parms, resultFile);
+					soapParmsDataSet.getID(), parms, soapParmsDataSet);
 			sDiscoveryViewWidget
 					.setCurrentView(SequenceDiscoveryViewWidget.PATTERN_TABLE);
 		} else {
