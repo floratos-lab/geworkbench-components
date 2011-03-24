@@ -2,10 +2,15 @@ package org.geworkbench.components.gpmodule.kmeans;
 
 import java.io.File;
 import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geworkbench.bison.annotation.CSAnnotationContextManager;
+import org.geworkbench.bison.annotation.DSAnnotationContext;
+import org.geworkbench.bison.annotation.DSAnnotationContextManager;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
@@ -13,6 +18,8 @@ import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.KMeansResult;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
+import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.components.gpmodule.GPAnalysis;
@@ -40,14 +47,19 @@ public class KMAnalysis extends GPAnalysis{
 	private static Log log = LogFactory.getLog(KMAnalysis.class);	
 
 	private static final String RESULT_TEXT_FILE="stdout.txt";
+	private static final int MAXIUM_MARKERS_ONELINE=14;
+	private static final int INDEX_OF_GENE=0;
+	private static final int INDEX_OF_ARRAY=1;
+	
 	private int numGenes;
-	private String clusterNum="6";	
+	private String clusterNum;
+	private int clusterBy;
 	
 	private Parameter[] parameters = new Parameter[6];
-	private File resultFile=null; 
+	
 	
 	public KMAnalysis() {
-		//localAnalysisType = AbstractAnalysis.FOLD_CHANGE_TYPE;
+		//localAnalysisType = AbstractAnalysis.KMEANS_ANALYSIS_TYPE;
 		setDefaultPanel(new KMeansPanel());        
 	}
 	
@@ -69,12 +81,30 @@ public class KMAnalysis extends GPAnalysis{
 		DSMicroarraySetView<? extends DSGeneMarker, ? extends DSMicroarray> data = (DSMicroarraySetView<? extends DSGeneMarker, ? extends DSMicroarray>) input;
 		boolean allArrays = !data.useItemPanel();
 		log.info("All arrays: " + allArrays);
-		
 
 		if (input == null || !(input instanceof DSMicroarraySetView)) {
 			return new AlgorithmExecutionResults(false, "Invalid input.", null);
 		}
-
+		
+		DSMicroarraySetView<DSGeneMarker, DSMicroarray> view = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
+		String gctFileName = createGCTFile("KMDataset", view.markers(),
+				view.items()).getAbsolutePath();
+		
+		try{
+			clusterNum=((KMeansPanel) aspp).getNumClusters();
+			clusterBy=((KMeansPanel) aspp).getClusterBy();
+			if(Integer.parseInt(clusterNum)<2)
+				return new AlgorithmExecutionResults(false, "Number of clusters should not be less than 2.", null);
+			if((view.items().size()<Integer.parseInt(clusterNum))&&clusterBy==INDEX_OF_ARRAY)
+				return new AlgorithmExecutionResults(false, "Number of clusters should be greater than the size of arrays", null);
+			if((view.markers().size()<Integer.parseInt(clusterNum))&&clusterBy==INDEX_OF_GENE)
+				return new AlgorithmExecutionResults(false, "Number of clusters should be greater than the size of markers", null);
+		}
+		catch(NumberFormatException e){			
+			return new AlgorithmExecutionResults(false,
+					"Parameters are not valid.", null);
+		}	
+		
 		ProgressBar pbFCtest = ProgressBar
 			.create(ProgressBar.INDETERMINATE_TYPE);
 		pbFCtest.addObserver(this);
@@ -84,15 +114,9 @@ public class KMAnalysis extends GPAnalysis{
 		
 		pbFCtest.setMessage("getting results from server, please wait...");
 		pbFCtest.start();
-		this.stopAlgorithm = false;
-		
-		DSMicroarraySetView<DSGeneMarker, DSMicroarray> view = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
-		String gctFileName = createGCTFile("KMDataset", view.markers(),
-				view.items()).getAbsolutePath();
+		this.stopAlgorithm = false;	
 		
 		numGenes = data.markers().size();
-		data.items().size();
-
 		
 		DSDataSet<? extends DSBioObject> set = data.getDataSet();
 
@@ -101,51 +125,116 @@ public class KMAnalysis extends GPAnalysis{
 			return null;
 		}
 
-		DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet<DSMicroarray>) set;		
-		try{
-			clusterNum=((KMeansPanel) aspp).getNumClusters();		
-		}
-		catch(NumberFormatException e){
-			pbFCtest.dispose();
-			return new AlgorithmExecutionResults(false,
-					"Parameters are not valid.", null);
-		}
+		DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet<DSMicroarray>) set;			
 		
+		DSAnnotationContextManager manager = CSAnnotationContextManager
+			.getInstance();
+		DSAnnotationContext<DSMicroarray> arraySet = manager
+			.getCurrentContext(maSet);
+
 		parameters[0] = new Parameter("input.filename", gctFileName);
         parameters[1] = new Parameter("output.base.name", "<input.filename_basename>_KMcluster_output");
         parameters[2] = new Parameter("number.of.clusters", clusterNum); 
         parameters[3] = new Parameter("seed.value", "12345");
-        parameters[4] = new Parameter("cluster.by", "0");
+        parameters[4] = new Parameter("cluster.by", Integer.toString(clusterBy));
         parameters[5] = new Parameter("distance.metric", "0");		
-		
+        File resultFile=null; 
 		try{
 			resultFile = trainData("urn:lsid:broad.mit.edu:cancer.software.genepattern.module.analysis:00081:1", parameters);
 		}
 		catch (ClassifierException e){
 			return new AlgorithmExecutionResults(false, "trainData process aborted.", null);
-		}		
+		}
+		
+		ArrayList<List<String[]>> resultList=new ArrayList<List<String[]>>();
 		
 		String resultText="";
+		
+		DSItemList<DSGeneMarker> dsList=maSet.getMarkers();
+		
 		try{
 			FileReader reader=new FileReader(resultFile);
 			Scanner in = new Scanner(reader);
+			boolean clusterFollow=false;
+			boolean clusterContinue=false;
+			List<String[]> aClusterItems=null;
 			while (in.hasNextLine()){
 				String line = in.nextLine();
 				resultText+=line+"\n";
+				
+				int numOfItemsInLine=0;
+				
+				if(clusterFollow){
+					if(!clusterContinue)
+						aClusterItems=new ArrayList<String[]>();
+					String[] itemsStr = line.split ("\\t");
+					for(String s:itemsStr){
+						String[] anItemRow=new String[3];
+						anItemRow[0]=s;
+						anItemRow[1]="n/a";
+						if(clusterBy==INDEX_OF_GENE){//markers
+							for(DSGeneMarker d:dsList){							
+								if(d.getLabel().equalsIgnoreCase(s)){
+									anItemRow[1]=d.getGeneName();
+									anItemRow[2]=d.getDescription();
+								}								
+							}						
+						}
+						else{	//arrays
+							String arrayMemberShip=null;
+							for (int cx = 0; cx < arraySet.getNumberOfLabels(); cx++) {								
+								DSPanel<DSMicroarray> selectorArrayPanel=
+									(DSPanel<DSMicroarray>) arraySet.getItemsWithLabel(arraySet.getLabel(cx));								
+								for(int i=0;i<selectorArrayPanel.getNumberOfProperItems();i++){									
+									if(s.equalsIgnoreCase(selectorArrayPanel.get(i).toString())){
+										if(arrayMemberShip==null)
+											arrayMemberShip=arraySet.getLabel(cx);
+										else
+											arrayMemberShip+=", "+arraySet.getLabel(cx);	
+									}
+								}
+									
+									
+							}
+							anItemRow[1]=arrayMemberShip;
+						
+						}
+						aClusterItems.add(anItemRow);
+						numOfItemsInLine++;
+					}
+					if(numOfItemsInLine<MAXIUM_MARKERS_ONELINE)
+						resultList.add(aClusterItems);
+				}
+				int markersAhead1=line.indexOf("Cluster:");
+				int markersAhead2=line.indexOf("Size :");
+				if(!((clusterFollow)&&(numOfItemsInLine>=MAXIUM_MARKERS_ONELINE))){
+					clusterContinue=false;
+					if((markersAhead1!=-1)&&(markersAhead2!=-1))
+						clusterFollow=true;									
+					else
+						clusterFollow=false;				
+				}
+				else
+					clusterContinue=true;
 			}
+			if(clusterContinue){
+				resultList.add(aClusterItems);
+			}
+			in.close();
+			reader.close();
+			
 		}
 		catch(Exception e){
 			return new AlgorithmExecutionResults(false, "No invalid output.", null);
 		}
 		
-		
 		String histHeader = null;
-		String histMarkerString = GenerateMarkerString(data);
-	
+		String histMarkerString = GenerateMarkerString(data);		
 		
-		KMeansResult analysisResult = new KMeansResult(maSet,"K-Means Clustering", resultText);
+		KMeansResult analysisResult = new KMeansResult(maSet,"K-Means Clustering",
+				clusterBy,resultText,resultList);
 		AlgorithmExecutionResults results = new AlgorithmExecutionResults(true,
-				"Fold Change Analysis", analysisResult);
+				"K-Means Analysis", analysisResult);
 		
 		// add data set history.
 		histHeader = GenerateHistoryHeader();
@@ -172,7 +261,10 @@ public class KMAnalysis extends GPAnalysis{
 		histStr += "----------------------------------------------------------\n";
 
 		histStr += "Input Parameters:" + "\n";			
-		histStr += "\t" + "number of cluster: " + clusterNum + "\n";
+		histStr += "\t" + "Number of cluster: " + clusterNum + "\n";
+		String st= (clusterBy==INDEX_OF_GENE)? "Gene" :"Array";
+		histStr += "\t" + "Cluster by: "+ st + "\n";
+		histStr += "\t" + "Distance metric: "+ "Euclidean" + "\n";
 		
 		return histStr;
 	}
@@ -185,14 +277,8 @@ public class KMAnalysis extends GPAnalysis{
 		for (DSGeneMarker marker : view.markers()) {
 			histStr += "\t" + marker.getLabel() + "\n";
 		}
-
 		return histStr;
-
-	}
-	
-	
-	
-	
+	}	
 	
     public File trainData(String classifierName, Parameter[] parameters) throws ClassifierException
     {
@@ -224,23 +310,17 @@ public class KMAnalysis extends GPAnalysis{
              String   password="";
             GPClient server = new GPClient(serverName, userName, password);
             
-            JobResult analysisResult = server.runAnalysis(classifierName, parameters);//FIX ME LATER
-            //JobResult analysisResult=server.runAnalysis("urn:lsid:broad.mit.edu:cancer.software.genepattern.module.analysis:00081:1", new Parameter[]{new Parameter("input.filename", "c:\\temp\\all_aml_test.res"), new Parameter("output.base.name", "<input.filename_basename>_KMcluster_output"), new Parameter("number.of.clusters", "7"), new Parameter("seed.value", "12345"), new Parameter("cluster.by", "0"), new Parameter("distance.metric", "0")});
-            //String[] outputFiles = analysisResult.getOutputFileNames();
+            JobResult analysisResult = server.runAnalysis(classifierName, parameters);
+           
+            String[] outputFiles = analysisResult.getOutputFileNames();
 
             String modelFileName = null;
             modelFileName =RESULT_TEXT_FILE;
-/*          
-            for(int i = 0; i < outputFiles.length; i++)
-            {
-                String extension = IOUtil.getExtension(outputFiles[i]);
-                if(extension.equalsIgnoreCase("odf") || extension.equalsIgnoreCase("model"))
-                    modelFileName = outputFiles[i];
-            }
-
+         
+           
             if(modelFileName == null)
-                throw new ClassifierException("Error: Classifier model could not be generated");
-*/
+                throw new ClassifierException("Error: model could not be generated from server.");
+
             //download model result file from server
             AnalysisWebServiceProxy analysisProxy = new AnalysisWebServiceProxy(server.getServer(), server.getUsername(), password);
             String[] resultFiles = new String[1] ;
@@ -250,7 +330,6 @@ public class KMAnalysis extends GPAnalysis{
             if(result == null || result.length == 0)
                 throw new ClassifierException("Error: Could not retrieve training model from GenePattern");
 
-            // save the model of the classifier
             modelFile =  result[0];
 
             // remove job from GenePattern server

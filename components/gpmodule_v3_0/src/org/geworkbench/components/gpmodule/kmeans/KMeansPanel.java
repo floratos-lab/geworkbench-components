@@ -51,7 +51,7 @@ public class KMeansPanel extends GPAnalysisPanel
     {
  
     	numClusters=new JTextField(3);
-    	numClusters.setText("7");
+    	numClusters.setText("6");	//default value of number of clusters
     	clusterBy = new JComboBox();
         clusterBy.addItem("Genes");
         clusterBy.addItem("Arrays");
@@ -68,15 +68,15 @@ public class KMeansPanel extends GPAnalysisPanel
 	    builder.nextRow(); 
 	
 	    builder.appendColumn(new ColumnSpec("25dlu"));
-	    builder.append("number of clusters", numClusters); 
+	    builder.append("Number of clusters", numClusters); 
 	 // add the GenePattern logo
 	    builder.setColumn(7);
 	    builder.add(getGPLogo());
 	   
 	    builder.nextRow();
-	    builder.append("cluster by", clusterBy);
+	    builder.append("Cluster by", clusterBy);
 	    builder.nextRow();
-	    builder.append("distance metric", distanceMetric);
+	    builder.append("Distance metric", distanceMetric);
 	
 	    parameterPanel.add(builder.getPanel(), BorderLayout.WEST);
         
@@ -117,6 +117,10 @@ public class KMeansPanel extends GPAnalysisPanel
     
     public String getNumClusters(){
     	return numClusters.getText();
+    }
+    
+    public int getClusterBy(){
+    	return clusterBy.getSelectedIndex();
     }
 
     protected String getParamDescriptFile()
