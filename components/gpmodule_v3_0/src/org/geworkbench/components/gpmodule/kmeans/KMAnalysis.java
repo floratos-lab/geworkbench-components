@@ -87,8 +87,6 @@ public class KMAnalysis extends GPAnalysis{
 		}
 		
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> view = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
-		String gctFileName = createGCTFile("KMDataset", view.markers(),
-				view.items()).getAbsolutePath();
 		
 		try{
 			clusterNum=((KMeansPanel) aspp).getNumClusters();
@@ -115,6 +113,10 @@ public class KMAnalysis extends GPAnalysis{
 		pbFCtest.setMessage("getting results from server, please wait...");
 		pbFCtest.start();
 		this.stopAlgorithm = false;	
+		
+		String gctFileName = createGCTFile("KMDataset", view.markers(),
+				view.items()).getAbsolutePath();
+		
 		
 		numGenes = data.markers().size();
 		
