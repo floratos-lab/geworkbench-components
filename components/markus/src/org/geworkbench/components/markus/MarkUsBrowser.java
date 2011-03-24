@@ -114,7 +114,7 @@ public class MarkUsBrowser implements VisualPlugin {
 	protected MarkUsBrowser() {
 	}
 
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings("unchecked")
 	@Subscribe
 	public void receive(ProjectEvent event, Object source) {
 		DSDataSet dataset = event.getDataSet();

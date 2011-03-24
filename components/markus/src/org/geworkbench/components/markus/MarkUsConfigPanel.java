@@ -3,18 +3,23 @@ package org.geworkbench.components.markus;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
@@ -24,6 +29,9 @@ import javax.swing.border.TitledBorder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
+import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
+import org.geworkbench.bison.datastructure.bioobjects.structure.MarkUsResultDataSet;
+import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.events.listeners.ParameterActionListener;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
@@ -80,6 +88,9 @@ public class MarkUsConfigPanel extends AbstractSaveableParameterPanel {
 	JFormattedTextField filter4 = new JFormattedTextField();
 	JComboBox msa3 = new JComboBox(new String[] { "Muscle", "ClustalW" });
 	JComboBox msa4 = new JComboBox(new String[] { "Muscle", "ClustalW" });
+	
+	private JFormattedTextField priorTf = new JFormattedTextField();
+	private static final Pattern pattern = Pattern.compile("^MUS\\d+");
 
 	// markus parameters 1st part - totally 9
 	public boolean getskanValue() {
@@ -222,6 +233,7 @@ public class MarkUsConfigPanel extends AbstractSaveableParameterPanel {
 		tp.addTab("DelPhi Parameters", buildDelphiPanel());
 		tp.addTab("Add Customized ConSurf analysis 3", buildConsurf3Panel());
 		tp.addTab("Add Customized ConSurf analysis 4", buildConsurf4Panel());
+		tp.addTab("Retrieve Prior", buildPriorPanel());
 
 		ToolTipManager.sharedInstance().setDismissDelay(1000 * 120);
 
@@ -429,6 +441,33 @@ public class MarkUsConfigPanel extends AbstractSaveableParameterPanel {
 		builder.append("Multiple Sequence Alignment", msa4);
 
 		return builder.getPanel();
+	}
+
+	private JComponent buildPriorPanel() {
+		FormLayout layout = new FormLayout(
+				"left:max(25dlu;pref), 10dlu, max(60dlu;pref), 10dlu, left:max(35dlu;pref), 20dlu, left:max(35dlu;pref)", "");
+		DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+		JButton priorBtn = new JButton("Retrieve Prior Result");
+		builder.append("MarkUs ID", priorTf);
+		builder.append(priorBtn, new JLabel("MarkUs job results are only retained for 90 days on the server."));
+
+		priorBtn.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				String results = priorTf.getText().toUpperCase();
+				if (!pattern.matcher(results).find()){
+					JOptionPane.showMessageDialog(null, "Not a valid MarkUs ID!", "Invalid MUS ID", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				MarkUsResultDataSet<DSBioObject> resultset = new MarkUsResultDataSet<DSBioObject>(null, results);
+				resultset.setResult(results);			
+				ProjectPanel.getInstance().addDataSetSubNode(resultset);
+			}
+		});
+		JPanel jp = new JPanel();
+		jp.add(builder.getPanel());
+
+		return jp;
+
 	}
 
 	private void setDefaultParameters() {
