@@ -466,7 +466,7 @@ public class MarkUsAnalysis extends AbstractGridAnalysis implements ProteinStruc
     	    br = new BufferedReader(new InputStreamReader(uc.getInputStream()));
     	    String tmp = null;
     	    while((tmp = br.readLine()) != null) {
-    	    	if (tmp.indexOf("<div class=\"error\">") > -1) {
+    	    	if (tmp.indexOf("functional annotation is pending") > -1) {
     	    		br.close();
     	    		return UrlStatus.PENDING;
     	    	}

@@ -1,5 +1,6 @@
 package org.geworkbench.components.markus;
 import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JTabbedPane;
 import javax.swing.JViewport;
@@ -21,6 +22,8 @@ import javax.swing.event.EventListenerList;
 import java.util.EventListener; 
 import javax.swing.plaf.basic.BasicTabbedPaneUI;
 import javax.swing.plaf.metal.MetalTabbedPaneUI;
+
+import org.jdesktop.jdic.browser.WebBrowser;
  
 /**
  * A JTabbedPane which has a close ('X') icon on each tab.
@@ -137,10 +140,12 @@ public class CloseableTabbedPane extends JTabbedPane implements MouseListener,
       }
     } catch (Exception ignored) {/*Could probably be a ClassCastException*/}
  
+    System.out.println("addtab: "+getTabCount());
     //make the first main tab noncloseable
     if (getTabCount()==0) doPaintCloseIcon = false;
+    CloseTabIcon refreshIcon = new CloseTabIcon(new ImageIcon("classes/images/Reload.png"));
     super.addTab(title,
-                 doPaintCloseIcon ? new CloseTabIcon(extraIcon) : null,
+                 doPaintCloseIcon ? new CloseTabIcon(extraIcon) : refreshIcon,
                  component);
  
     if (headerViewport == null) {
@@ -243,7 +248,9 @@ public class CloseableTabbedPane extends JTabbedPane implements MouseListener,
         if (rect.contains(pos)) {
           if (e.getID() == MouseEvent.MOUSE_CLICKED) {
             int selIndex = getSelectedIndex();
-            if (fireCloseTab(selIndex)) {
+            //refresh browser in the first main tab
+            if (selIndex==0)  tb.refresh();
+            else if (fireCloseTab(selIndex)) {
               if (selIndex > 0) {
                 // to prevent uncatchable null-pointers
                 Rectangle rec = getUI().getTabBounds(this, selIndex - 1);
@@ -277,6 +284,15 @@ public class CloseableTabbedPane extends JTabbedPane implements MouseListener,
         repaint(drawRect);
       }
     }
+  }
+  private WebBrowser tb;
+  public void setTabBrowser(WebBrowser tb){
+    removeAll();
+    System.out.println("settab: "+getTabCount());
+    this.tb = tb;
+  }
+  public WebBrowser getWebBrowser(){
+    return tb;
   }
  
   /**
@@ -398,6 +414,15 @@ public class CloseableTabbedPane extends JTabbedPane implements MouseListener,
           doPaintCloseIcon = (Boolean) prop;
         }
       } catch (Exception ignored) {/*Could probably be a ClassCastException*/}
+      if (fileIcon != null) {
+    	  normalCloseIcon = fileIcon;
+    	  hooverCloseIcon = fileIcon;
+    	  pressedCloseIcon = fileIcon;
+      } else {
+    	  normalCloseIcon = null;
+    	  hooverCloseIcon = null;
+    	  pressedCloseIcon = null;
+      }
       if (doPaintCloseIcon) {
         x_pos = x;
         y_pos = y;
@@ -433,9 +458,7 @@ public class CloseableTabbedPane extends JTabbedPane implements MouseListener,
           g.drawLine(x+10, y_p+4, x+4, y_p+10);
           g.drawLine(x+9, y_p+3, x+3, y_p+9);
           g.setColor(col);
-          if (fileIcon != null) {
-            fileIcon.paintIcon(c, g, x+width, y_p);
-          }
+
         }
       }
     }
@@ -445,7 +468,7 @@ public class CloseableTabbedPane extends JTabbedPane implements MouseListener,
      * @return an int specifying the fixed width of the icon.
      */
     public int getIconWidth() {
-      return width + (fileIcon != null ? fileIcon.getIconWidth() : 0);
+      return width;
     }
  
     /**

@@ -136,6 +136,7 @@ public class MarkUsBrowser implements VisualPlugin {
 			System.out.println("In receive(ProjectEvent event: " + proteinData + " "
 					+ musid4prt.get(proteinData));
 			System.out.println("initial: "+initial);
+			jtp.removeAll();
 			if (!initial) {
 				if ((tc = jtp.getTabCount()) > 1)
 					for (int i = tc - 1; i > 0; i--)
@@ -166,9 +167,10 @@ public class MarkUsBrowser implements VisualPlugin {
 					tb.setMainBrowser(this);
 					jp.removeAll();
 					jp.add(tb, BorderLayout.CENTER);
+					jtp.setTabBrowser(tb);
 					jtp.addTab(tabtitle, jp);
 					mainPanel.add(jtp, BorderLayout.CENTER);
-					mainPanel.invalidate();
+					mainPanel.revalidate();
 					mainPanel.repaint();
 				} catch (MalformedURLException e) {
 					// TODO Auto-generated catch block
@@ -194,9 +196,10 @@ public class MarkUsBrowser implements VisualPlugin {
 				    wb = new WebBrowser(new URL(MARKUS_RESULT_URL+process_id));
 				    jp.removeAll();
 				    jp.add(wb, BorderLayout.CENTER);
+				    jtp.setTabBrowser(wb);
 				    jtp.addTab(process_id, jp);
 				    mainPanel.add(jtp, BorderLayout.CENTER);
-				    mainPanel.invalidate();
+				    mainPanel.revalidate();
 				    mainPanel.repaint();
 				}
 			    }catch(Exception e){
@@ -292,6 +295,7 @@ public class MarkUsBrowser implements VisualPlugin {
 	
 					jp.removeAll();
 					jp.add(tb, BorderLayout.CENTER);
+					jtp.setTabBrowser(tb);
 					jtp.addTab(tabtitle, jp);
 			    }
 			    else
@@ -300,6 +304,7 @@ public class MarkUsBrowser implements VisualPlugin {
 					wb = new WebBrowser(new URL(url), useIE);
 					jp.removeAll();
 					jp.add(wb, BorderLayout.CENTER);
+					jtp.setTabBrowser(wb);
 					jtp.addTab(process_id, jp);
 			    }
 			    mainPanel.add(jtp, BorderLayout.CENTER);
@@ -314,6 +319,7 @@ public class MarkUsBrowser implements VisualPlugin {
 					wb = new WebBrowser(new URL(url));
 				    jp.removeAll();
 				    jp.add(wb, BorderLayout.CENTER);
+				    jtp.setTabBrowser(wb);
 				    jtp.addTab(process_id, jp);
 				    mainPanel.add(jtp, BorderLayout.CENTER);
 				    mainPanel.invalidate();
@@ -419,7 +425,7 @@ public class MarkUsBrowser implements VisualPlugin {
 
 		public void titleChange(WebBrowserEvent event) {
 			tabtitle = event.getData();
-			jtp.setTitleAt(jtp.getTabCount() - 1, tabtitle);
+			jtp.setTitleAt(jtp.getSelectedIndex(), tabtitle);
 			updateStatusInfo("Title of the browser window changed.");
 		}
 
