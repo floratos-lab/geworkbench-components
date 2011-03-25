@@ -7,7 +7,7 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSAnnotatedPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
-import org.geworkbench.util.associationdiscovery.cluster.CSMatchedMatrixPattern;
+import org.geworkbench.util.associationdiscovery.cluster.DSMatrixPattern;
 
 /**
  * <p>Title: Plug And Play</p>
@@ -22,7 +22,7 @@ import org.geworkbench.util.associationdiscovery.cluster.CSMatchedMatrixPattern;
 public final class EisenBlock {
     boolean showAllMarkers = true;
     
-    private CSMatchedMatrixPattern pattern;
+    private DSMatrixPattern pattern;
     private DSPanel<DSGeneMarker> panel;
     private DSMicroarraySet<DSMicroarray> microarraySet = null;
     /**
@@ -32,7 +32,7 @@ public final class EisenBlock {
 
     private HashMap<DSGeneMarker, Object> annotCache = new HashMap<DSGeneMarker, Object>();
 
-    EisenBlock(CSMatchedMatrixPattern _pattern, DSPanel<DSGeneMarker> _panel, DSMicroarraySet<DSMicroarray> mArraySet) {
+    EisenBlock(DSMatrixPattern _pattern, DSPanel<DSGeneMarker> _panel, DSMicroarraySet<DSMicroarray> mArraySet) {
         panel = _panel;
         pattern = _pattern;
         microarraySet = mArraySet;
@@ -46,7 +46,7 @@ public final class EisenBlock {
         }
         if (pattern != null) {          
             if (showAllMarkers ) {
-            	return pattern.getPattern().markers().length;
+            	return pattern.markers().length;
             } else {
                if (panel != null)
             	 return panel.size();
@@ -80,7 +80,7 @@ public final class EisenBlock {
             if (pattern != null) {
                 //return MarkerCache.GetMarkerStat(row - FirstRow).GetMarkerId();
                 if (showAllMarkers || (panel == null) || (panel.size() == 0)) {
-                    return pattern.getPattern().markers()[row];
+                    return pattern.markers()[row];
                 } else {
                     return panel.get(row);
                 }
@@ -98,7 +98,7 @@ public final class EisenBlock {
         }
     }
 
-    public CSMatchedMatrixPattern getPattern() {
+    public DSMatrixPattern getPattern() {
         return pattern;
     }
 
