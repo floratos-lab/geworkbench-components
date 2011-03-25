@@ -499,11 +499,9 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 							TableModel model = geneListTable.getModel();
 							for (int i = 0; i < model.getRowCount(); i++)
 								genes.add((String) (model.getValueAt(i, 0)));
-							int modelIndex = table.convertRowIndexToModel(table.getSelectedRow()); 
-							String goTermName = (String)tableModel.getValueAt(modelIndex, GoTableModel.TABLE_COLUMN_INDEX_GO_TERM_NAME);
 							publishSubpanelChangedEvent(new org.geworkbench.events.SubpanelChangedEvent<DSGeneMarker>(
 									DSGeneMarker.class,
-									GeneToMarkers(goTermName, genes),
+									GeneToMarkers(getMarkerSetName(), genes),
 									org.geworkbench.events.SubpanelChangedEvent.SET_CONTENTS));
 
 						}
@@ -522,6 +520,24 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		});
 	}
 
+	// choose the name for the new marker set to be created
+	private String getMarkerSetName() {
+		if(primaryView.getSelectedComponent()==tableTab) {
+			int modelIndex = table.convertRowIndexToModel(table.getSelectedRow()); 
+			String goTermName = (String)tableModel.getValueAt(modelIndex, GoTableModel.TABLE_COLUMN_INDEX_GO_TERM_NAME);
+			return goTermName;
+		} else if (primaryView.getSelectedComponent()==treeTab) {
+			GoTreeNode node = (GoTreeNode) tree.getLastSelectedPathComponent();
+			if(node==null) {
+				return "No Term Selected";
+			}
+			return node.goTerm.getName();
+		} else {
+			log.error("invalid selection of primaryView");
+			return null;
+		}
+	}
+	
 	@SuppressWarnings("unchecked")
 	private DSPanel<DSGeneMarker> GeneToMarkers(String setLabel, Set<String> genes) {
 		DSPanel<DSGeneMarker> selectedMarkers = new CSPanel<DSGeneMarker>(
