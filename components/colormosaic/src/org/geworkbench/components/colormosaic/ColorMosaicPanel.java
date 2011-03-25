@@ -73,7 +73,6 @@ import org.geworkbench.events.PhenotypeSelectedEvent;
 import org.geworkbench.events.PhenotypeSelectorEvent;
 import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.util.ColorScale;
-import org.geworkbench.util.associationdiscovery.cluster.CSMatchedMatrixPattern;
 import org.geworkbench.util.associationdiscovery.cluster.CSMatrixPattern;
 
 /**
@@ -755,11 +754,10 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
             int markerNo = markerSet.size();
             CSMatrixPattern thePattern = new CSMatrixPattern();
             thePattern.init(markerNo);
-            CSMatchedMatrixPattern matchedPattern = new CSMatchedMatrixPattern(thePattern);
             for (int i = 0; i < markerNo; i++) {
-                matchedPattern.getPattern().markers()[i] = markerSet.get(i);
+            	thePattern.markers()[i] = markerSet.get(i);
             }
-            colorMosaicImage.addPattern(matchedPattern);
+            colorMosaicImage.addPattern(thePattern);
             
             org.geworkbench.bison.util.colorcontext.ColorContext colorContext = (org.geworkbench.bison.util.colorcontext.ColorContext) mArraySet
 			.getObject(org.geworkbench.bison.util.colorcontext.ColorContext.class);

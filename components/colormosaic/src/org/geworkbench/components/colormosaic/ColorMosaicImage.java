@@ -1,9 +1,9 @@
 package org.geworkbench.components.colormosaic;
 
 import java.awt.AlphaComposite;
-import java.awt.Composite;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -36,7 +36,7 @@ import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.util.colorcontext.ColorContext;
 import org.geworkbench.events.MarkerSelectedEvent;
 import org.geworkbench.events.PhenotypeSelectedEvent;
-import org.geworkbench.util.associationdiscovery.cluster.CSMatchedMatrixPattern;
+import org.geworkbench.util.associationdiscovery.cluster.DSMatrixPattern;
 
 /**
  * Color mosaic image.
@@ -261,7 +261,7 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 				if (pl instanceof DSMicroarray) {
 					DSMicroarray mArray = (DSMicroarray) pl;
 					if (showPattern) {
-						if (cluster.getPattern().getPattern().match(mArray)
+						if (cluster.getPattern().match(mArray)
 								.getPValue() < 1.0) {
 							int x = (j * geneWidth) / 1;
 							int width = ((j + 1) * geneWidth) / 1 - x;
@@ -470,7 +470,7 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 	}
 
 	/* used only by ColorMosaicPanel */
-	void addPattern(CSMatchedMatrixPattern pattern)
+	void addPattern(DSMatrixPattern pattern)
 			throws ArrayIndexOutOfBoundsException {
 		if (clusterNo < maxClusterNo) {
 			cluster[clusterNo] = new EisenBlock(pattern, markerPanel,
