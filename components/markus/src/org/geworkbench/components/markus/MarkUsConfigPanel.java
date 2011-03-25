@@ -29,7 +29,6 @@ import javax.swing.border.TitledBorder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
-import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.structure.MarkUsResultDataSet;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.events.listeners.ParameterActionListener;
@@ -458,7 +457,7 @@ public class MarkUsConfigPanel extends AbstractSaveableParameterPanel {
 					JOptionPane.showMessageDialog(null, "Not a valid MarkUs ID!", "Invalid MUS ID", JOptionPane.ERROR_MESSAGE);
 					return;
 				}
-				MarkUsResultDataSet<DSBioObject> resultset = new MarkUsResultDataSet<DSBioObject>(null, results);
+				MarkUsResultDataSet resultset = new MarkUsResultDataSet(null, results);
 				resultset.setResult(results);			
 				ProjectPanel.getInstance().addDataSetSubNode(resultset);
 			}

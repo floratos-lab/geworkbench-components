@@ -114,10 +114,9 @@ public class MarkUsBrowser implements VisualPlugin {
 	protected MarkUsBrowser() {
 	}
 
-	@SuppressWarnings("unchecked")
 	@Subscribe
 	public void receive(ProjectEvent event, Object source) {
-		DSDataSet dataset = event.getDataSet();
+		DSDataSet<?> dataset = event.getDataSet();
 		if (is_mac && webBrowser != null && dataset instanceof DSProteinStructure)
 		{
 			boolean isshowing = ((java.awt.Component) webBrowser).isShowing();
