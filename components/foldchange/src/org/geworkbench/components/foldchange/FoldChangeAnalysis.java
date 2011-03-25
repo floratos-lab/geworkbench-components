@@ -185,7 +185,7 @@ public class FoldChangeAnalysis extends AbstractAnalysis implements
 				else if(isLinear&&(!isRatio)){
 					if (data.getValue(i, j)<SMALLDOUBLE) {
 						pbFCtest.dispose();
-						return new AlgorithmExecutionResults(false, "Input data is invalid for the parameter settings", null);
+						return new AlgorithmExecutionResults(false, "Cannot log2 transform this dataset, some values are zero, negative or n/a.", null);
 					}
 					expMatrix[i][j]=Math.log( data.getValue(i, j))/LOG2;
 				}
