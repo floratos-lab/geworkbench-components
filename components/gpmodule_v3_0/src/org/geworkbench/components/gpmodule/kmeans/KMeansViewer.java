@@ -79,8 +79,9 @@ public class KMeansViewer extends JPanel implements VisualPlugin {
 		
 		JPanel clusterSum=new JPanel();
 		detailedPane=new JPanel();
+		detailedPane.setLayout(new BorderLayout());
 		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-				clusterSum, detailedPane);		
+				clusterSum, new JScrollPane(detailedPane));		
 		
 		JPanel smallSumPane=new JPanel();
 		smallSumPane.setLayout(new BoxLayout(smallSumPane, BoxLayout.Y_AXIS));
@@ -325,14 +326,16 @@ public class KMeansViewer extends JPanel implements VisualPlugin {
 			averageLabel.setText(""+((int)(mean*10))/10.0);
 			stdDeviationLabel.setText(""+((int)(stdDev*10))/10.0);
 			
-			detailedPane.removeAll();
+			detailedPane.removeAll();		
 			JPanel detailSum=new JPanel();
-			detailSum.setLayout(new GridLayout(0,3));			
+			detailSum.setLayout(new GridLayout(0,4));
+			detailedPane.add(detailSum,BorderLayout.NORTH);			
+			
 			JPanel no1Pane=new JPanel();
 			no1Pane.add(new JLabel("Showing results for cluster:"));
-			no1Pane.add(clusterIdLabel);		
+			no1Pane.add(clusterIdLabel);
 			detailSum.add(no1Pane);
-			detailSum.add(new JLabel());
+			detailSum.add(new JLabel());			
 			
 			final DSItemList<DSGeneMarker> allMarkerList=maSet.getMarkers();//all markers
 			DSAnnotationContextManager manager = CSAnnotationContextManager
@@ -388,13 +391,13 @@ public class KMeansViewer extends JPanel implements VisualPlugin {
 	            }
 	        });
 	        detailSum.add(jAddBttn);
-	        
+	        detailSum.add(new JLabel());	        
+	     
 			JPanel no2Pane=new JPanel();
 			no2Pane.add(new JLabel("Cluster size:                         "));
 			no2Pane.add(clusterSizeLabel);
 			clusterSizeLabel.setText(""+resultList.get(0).size());
-			detailSum.add(no2Pane);
-			detailedPane.add(detailSum);
+			detailSum.add(no2Pane);			
 			
 			JTable clusterDetailTab=null;
 			if(kmResult.getClusterBy()==INDEX_OF_GENE){
@@ -410,7 +413,8 @@ public class KMeansViewer extends JPanel implements VisualPlugin {
 			clusterDetailTab.setPreferredScrollableViewportSize(new Dimension(700, 240));
 			clusterDetailTab.setFillsViewportHeight(true);
 			JScrollPane tablePane=new JScrollPane(clusterDetailTab);
-			detailedPane.add(tablePane);
+			
+			detailedPane.add(tablePane,BorderLayout.CENTER);
 		}
 	}
 
