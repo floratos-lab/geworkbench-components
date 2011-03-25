@@ -293,42 +293,15 @@ public class KMAnalysis extends GPAnalysis{
         {
             String serverName = GPpropertiesManager.getProperty("gp.server");
             String userName = GPpropertiesManager.getProperty("gp.user.name");
-/*            
-            String password = ((GPTrainingPanel)this.panel).getPassword();
-
-            String passwordRequired = ((GPTrainingPanel)this.panel).
-                    getConfigPanel().passwordRequired(serverName, userName);
-
-            //Check if password needs to be entered
-            if((password == null || password.equals("")) && (passwordRequired != null &&  passwordRequired.equals("true")))
-            {
-                ((GPTrainingPanel)this.panel).
-                    getConfigPanel().highlightPassword(true);
-                ((GPTrainingPanel)this.panel).
-                    getConfigPanel().showEditServerSettingsFrame("Please enter your password");
-                password = ((GPTrainingPanel)this.panel).getPassword();
-                ((GPTrainingPanel)this.panel).
-                    getConfigPanel().highlightPassword(false);
-            }
-
-            if(password == null)
-            */
-             String   password="";
+            String   password="";
             GPClient server = new GPClient(serverName, userName, password);
             
             JobResult analysisResult = server.runAnalysis(classifierName, parameters);
            
-            String modelFileName = null;
-            modelFileName =RESULT_TEXT_FILE;
-         
-           
-            if(modelFileName == null)
-                throw new ClassifierException("Error: model could not be generated from server.");
-
             //download model result file from server
             AnalysisWebServiceProxy analysisProxy = new AnalysisWebServiceProxy(server.getServer(), server.getUsername(), password);
             String[] resultFiles = new String[1] ;
-            resultFiles[0] = modelFileName;
+            resultFiles[0] = RESULT_TEXT_FILE;
 
             File[] result = analysisProxy.getResultFiles(analysisResult.getJobNumber(), resultFiles, new File(FilePathnameUtils.getTemporaryFilesDirectoryPath()), true);
             if(result == null || result.length == 0)
