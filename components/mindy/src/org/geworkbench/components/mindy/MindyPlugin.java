@@ -1033,7 +1033,7 @@ public class MindyPlugin extends JPanel {
 
 				List<DSGeneMarker> modList = mindyData.getModulators();
 				for (DSGeneMarker mod : modList) {
-		            ModulatorInfo modInfo = new ModulatorInfo(mod);
+		            ModulatorInfo modInfo = new ModulatorInfo();
 
 					List<MindyResultRow> tmpRows = mindyData.getRows(mod, markers);
 					for (MindyResultRow mindyResultRow : tmpRows) {

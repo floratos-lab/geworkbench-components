@@ -480,7 +480,7 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 						HashMap<DSGeneMarker, ModulatorInfo> modInfoMap = mindyData.getModulatorInfoMap();
 						ModulatorInfo modInfo = modInfoMap.get(mod);
 			            if (modInfo == null) {
-			            	modInfo = new ModulatorInfo(mod);
+			            	modInfo = new ModulatorInfo();
 			            	modInfoMap.put(mod, modInfo);
 			            }
 						modInfo.insertRow(row);
