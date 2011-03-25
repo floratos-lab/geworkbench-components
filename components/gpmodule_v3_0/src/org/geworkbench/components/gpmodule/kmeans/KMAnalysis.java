@@ -169,41 +169,45 @@ public class KMAnalysis extends GPAnalysis{
 				if(clusterFollow){
 					if(!clusterContinue)
 						aClusterItems=new ArrayList<String[]>();
-					String[] itemsStr = line.split ("\\t");
-					for(String s:itemsStr){
-						String[] anItemRow=new String[3];
-						anItemRow[0]=s;
-						anItemRow[1]="n/a";
-						if(clusterBy==INDEX_OF_GENE){//markers
-							for(DSGeneMarker d:dsList){							
-								if(d.getLabel().equalsIgnoreCase(s)){
-									anItemRow[1]=d.getGeneName();
-									anItemRow[2]=d.getDescription();
-								}								
-							}						
-						}
-						else{	//arrays
-							String arrayMemberShip=null;
-							for (int cx = 0; cx < arraySet.getNumberOfLabels(); cx++) {								
-								DSPanel<DSMicroarray> selectorArrayPanel=
-									(DSPanel<DSMicroarray>) arraySet.getItemsWithLabel(arraySet.getLabel(cx));								
-								for(int i=0;i<selectorArrayPanel.getNumberOfProperItems();i++){									
-									if(s.equalsIgnoreCase(selectorArrayPanel.get(i).toString())){
-										if(arrayMemberShip==null)
-											arrayMemberShip=arraySet.getLabel(cx);
-										else
-											arrayMemberShip+=", "+arraySet.getLabel(cx);	
-									}
-								}
-									
-									
+					String[] itemsStr = line.split ("[\\t\\n]");
+					
+						for(String s:itemsStr){
+							String[] anItemRow=new String[3];
+							anItemRow[0]=s;
+							anItemRow[1]="n/a";
+							if(clusterBy==INDEX_OF_GENE){//markers
+								for(DSGeneMarker d:dsList){							
+									if(d.getLabel().equalsIgnoreCase(s)){
+										anItemRow[1]=d.getGeneName();
+										anItemRow[2]=d.getDescription();
+									}								
+								}						
 							}
-							anItemRow[1]=arrayMemberShip;
-						
+							else{	//arrays
+								String arrayMemberShip=null;
+								for (int cx = 0; cx < arraySet.getNumberOfLabels(); cx++) {								
+									DSPanel<DSMicroarray> selectorArrayPanel=
+										(DSPanel<DSMicroarray>) arraySet.getItemsWithLabel(arraySet.getLabel(cx));								
+									for(int i=0;i<selectorArrayPanel.getNumberOfProperItems();i++){									
+										if(s.equalsIgnoreCase(selectorArrayPanel.get(i).toString())){
+											if(arrayMemberShip==null)
+												arrayMemberShip=arraySet.getLabel(cx);
+											else
+												arrayMemberShip+=", "+arraySet.getLabel(cx);	
+										}
+									}
+										
+										
+								}
+								anItemRow[1]=arrayMemberShip;
+							
+							}
+							if (!(anItemRow[0].equals("")||anItemRow[0].equals(" "))){//sometimes there are extra line feed in the results
+								aClusterItems.add(anItemRow);
+								numOfItemsInLine++;
+							}
 						}
-						aClusterItems.add(anItemRow);
-						numOfItemsInLine++;
-					}
+						
 					if(numOfItemsInLine<MAXIUM_MARKERS_ONELINE)
 						resultList.add(aClusterItems);
 				}
@@ -218,7 +222,7 @@ public class KMAnalysis extends GPAnalysis{
 				}
 				else
 					clusterContinue=true;
-			}
+			}//end of line process
 			if(clusterContinue){
 				resultList.add(aClusterItems);
 			}
