@@ -57,7 +57,9 @@ import org.geworkbench.util.AlgorithmSelectionPanel;
 import org.geworkbench.util.remote.SPLASHDefinition;
 import org.geworkbench.util.session.DiscoverySession;
 
+import polgara.soapPD_wsdl.Exhaustive;
 import polgara.soapPD_wsdl.Parameters;
+import polgara.soapPD_wsdl.ProfileHMM;
 
 /**
  * <p>
@@ -126,7 +128,6 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 	private JLabel jPatternLabel = new JLabel();
 	private ParameterPanel parameterPanel = new ParameterPanel();
 
-	private ParametersHandler parmsHandler = new ParametersHandler();
 	private String currentNodeID = "";
 
 	private JButton executeButton = new JButton();
@@ -271,13 +272,41 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		// get a discoverySession for running the algo
 		DiscoverySession discoverySession = appComponent.getSession();
 		// we cannot run this algorithm with no discoverySession
-		if ( discoverySession != null ) {
-			firePropertyChange(TABLE_EVENT, null, null);
-			selectAlgorithm(discoverySession);
-		} else {
+		if ( discoverySession == null ) {
 			log.error("Warning: registerSession failed" + "[subId=" + currentStubId
 					+ " session=" + discoverySession + "]");
 		}
+		
+		firePropertyChange(TABLE_EVENT, null, null);
+
+		String selectedAlgo = algoPanel.getSelectedAlgorithmName();
+
+		// select the algorithm to run
+		boolean exhaustive = false;
+		String algorithmName = SPLASHDefinition.Algorithm.REGULAR;
+		if (selectedAlgo.equalsIgnoreCase(AlgorithmSelectionPanel.EXHAUSTIVE)) {
+			exhaustive = true;
+			algorithmName = SPLASHDefinition.Algorithm.EXHAUSTIVE;
+		}
+
+		parms = readParameter(parameterPanel, getSequenceDB().getSequenceNo(),
+				exhaustive);
+		;
+		// fire a parameter change to the application
+		PatternDiscoveryParameters pp = ParameterTranslation.translate(parms);
+
+		PatternResult patternResult = new PatternResult(pp,
+				"Pattern Discovery", getSequenceDB());
+		String id = patternResult.getID();
+		currentStubId = currentNodeID + id;
+		resultData = patternResult;
+
+		AbstractSequenceDiscoveryAlgorithm algorithm = new ServerBaseDiscovery(
+				discoverySession, getParameters(), algorithmName);
+		algorithm.setPatternResult(patternResult);
+		algorithm.setSequenceInputData(this.getSequenceDB());
+
+		switchAlgo(selectedAlgo, algorithm, DEFAULT_VIEW);
 	}
 
 	// invoked from SequenceDiscoveryViewAppComponent.receive(ProjectEvent, Object)
@@ -286,32 +315,15 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 			parameterPanel.setCurrentSupportMenuStr(currentMinSupportTypeName);
 	};
 
-	private void selectAlgorithm(DiscoverySession discoverySession) {
-
-		String selectedAlgo = algoPanel.getSelectedAlgorithmName();
-		// the algorithm to run
-		AbstractSequenceDiscoveryAlgorithm algorithm = null;
-
-		// select the algorithm to run
-		if (selectedAlgo.equalsIgnoreCase(AlgorithmSelectionPanel.DISCOVER)) {
-			algorithm = createDiscoveryAlgorithm(discoverySession);
-		} else if (selectedAlgo
-				.equalsIgnoreCase(AlgorithmSelectionPanel.EXHAUSTIVE)) {
-			algorithm = createExhaustive(discoverySession);
-		} else {
-			log.error("No Algorithm found...");
-			return;
-		}
-
-		switchAlgo(selectedAlgo, algorithm, DEFAULT_VIEW);
-
-	}
-
 	private void switchAlgo(String selectedAlgo,
 			AbstractSequenceDiscoveryAlgorithm algorithm, int viewId) {
 		algorithm.addProgressChangeListener(this);
 		AlgorithmStub stub = getStub(currentStubId);
-		setStubAlgoAndPanel(stub, algorithm, selectedAlgo);
+		
+		stub.setAlgorithm(algorithm);
+		stub.setParameterPanel(parameterPanel);
+		stub.setDescription(selectedAlgo);
+
 		algorithmStubMap.put(currentStubId, stub);
 
 		algorithm.addStatusChangeListener(this);
@@ -334,36 +346,130 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		this.resultData = resultData;
 	}
 
-	/**
-	 * Reads the parameters from the parameter panel.
-	 *
-	 * @param type
-	 */
-	private PatternResult readParameterAndCreateResultfile(String type) {
-		PatternResult pds = getParamsDataSet(type);
-		String id = pds.getID();
-		currentStubId = currentNodeID + id;
-		resultData = pds;
-		return pds;
-	}
-
 	public void firePropertyChangeAlgo(){
 		appComponent.createNewNode(resultData);
 		firePropertyChange(TABLE_EVENT, null, null);
 	}
 
-	private PatternResult getParamsDataSet(String type) {
-		Parameters p = parmsHandler.readParameter(parameterPanel,
-				getSequenceDB().getSequenceNo(), type);
-		parms = p;
-		// fire a parameter change to the application
-		PatternDiscoveryParameters pp = ParameterTranslation.translate(parms);
+	/**
+	 * Reads the parameters in the parameter panel.
+	 * 
+	 * @return Parameters the parameters from the panel
+	 */
+	private Parameters readParameter(ParameterPanel parmsPanel, int seqNo,
+			boolean exhaustive) {
+		Parameters parms = new Parameters();
+		try {
 
-		PatternResult pds = new PatternResult(pp, "Pattern Discovery",
-				getSequenceDB());
-		return pds;
+			String supportString = parmsPanel.getMinSupport();
+			String supportType = parmsPanel.getCurrentSupportMenuStr();
+			if (supportType.equalsIgnoreCase(ParameterPanel.SUPPORT_PERCENT_1_100)) {
+				double minSupport = Double.parseDouble(supportString.replace(
+						'%', ' ')) / 100.0;
+				parms.setMinPer100Support(minSupport);
+				parms.setMinSupport((int) (Math.ceil(parms
+						.getMinPer100Support()
+						* (double) seqNo)));
+				parms.setCountSeq(1);
+			}
+			if (supportType.equalsIgnoreCase(ParameterPanel.SUPPORT_SEQUENCES)) {
+				// parms.setMinPer100Support(0);
+				int minSupport = (int) Double.parseDouble(supportString);
+				parms.setMinSupport(minSupport);
+				// parms.setMinSupport((int)
+				// (Math.ceil(parms.getMinPer100Support() * (double) seqNo)));
+				parms.setCountSeq(1);
+
+			}
+			if (supportType.equalsIgnoreCase(ParameterPanel.SUPPORT_OCCURANCES)) {
+				// parms.setMinPer100Support(0);
+				int minSupport = (int) Double.parseDouble(supportString);
+				parms.setMinSupport(minSupport);
+				// parms.setMinSupport((int)
+				// (Math.ceil(parms.getMinPer100Support() * (double) seqNo)));
+				parms.setCountSeq(0);
+
+			}
+
+			parms.setMinTokens(parmsPanel.getMinTokens());
+			parms.setWindow(parmsPanel.getWindow());
+			parms.setMinWTokens(parmsPanel.getMinWTokens());
+
+			// Parsing the ADVANCED panel
+			parms.setExactTokens(2);
+			parms.setExact(parmsPanel.getExactOnlySelected());
+			parms.setPrintDetails(0);// false by default
+			parms.setComputePValue(parmsPanel.getPValueBoxSelected());
+			parms.setSimilarityMatrix(parmsPanel.getMatrixSelection());
+			parms.setSimilarityThreshold(parmsPanel.getSimilarityThreshold());
+			parms.setMinPValue(parmsPanel.getMinPValue());
+
+			// Parsing the GROUPING panel
+			parms.setGroupingType(parmsPanel.getGroupingType());
+			parms.setGroupingN(parmsPanel.getGroupingN());
+
+			// Parsing the LIMITS panel
+			parms.setMaxPatternNo(parmsPanel.getMaxPatternNo());
+			parms.setMinPatternNo(parmsPanel.getMinPatternNo());
+			parms.setMaxRunTime(parmsPanel.getMaxRunTime());
+			parms.setThreadNo(1);
+			parms.setThreadId(0);
+			parms.setInputName("gp.fa");
+			parms.setOutputName("results.txt");
+
+			ProfileHMM hmm = new ProfileHMM();
+			hmm.setEntropy(parmsPanel.getProfileEntropy());
+			hmm.setWindow(parmsPanel.getWindow());
+			parms.setProfile(hmm);
+
+			if (exhaustive) {
+				Exhaustive eparams = new Exhaustive();
+				String decSupport = parmsPanel.getDecSupportExhaustive();
+				final double REDUCTION = 0.95; // 5% default
+				double reduction = REDUCTION;
+				// If this is a percentage then CountSeq is true by default
+				reduction = (1.0 - ((double) Integer.parseInt(decSupport) / 100.0));
+				if (reduction <= 0.0 || reduction >= 1.0) {
+					reduction = REDUCTION;
+				} else {
+					eparams.setDecrease(reduction);
+				}
+
+				final int SUPPORT = 1; // default
+				int minSupport = SUPPORT;
+
+				String minSupportStr = parmsPanel.getMinSupportExhaustive();
+				if (minSupportStr.endsWith("%")) {
+					String temp = minSupportStr.replace('%', ' ').trim();
+					double minSupportInt = Double.parseDouble(temp);
+
+					double percent = (minSupportInt / 100.0);
+					if (percent > 0.0 && percent < 1.0) {
+						minSupport = (int) (percent * (double) parms
+								.getMinSupport());
+					}
+				} else {
+					minSupport = Integer.parseInt(minSupportStr.replace('%',
+							' '));
+				}
+				// check that the min support is less than the initial support
+				if ((minSupport > parms.getMinSupport()) || (minSupport == 0)) {
+					minSupport = SUPPORT;
+				}
+
+				eparams.setMinSupport(minSupport);
+
+				// ok set the Exhaustive parameters:
+				parms.setExhaustive(eparams);
+
+			}
+
+		} catch (NumberFormatException ex) {
+			return null;
+		}
+		return parms;
 	}
-
+	
 	/**
 	 * The views communicate with this widget through property changes.
 	 *
@@ -521,52 +627,6 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		return stub;
 	}
 
-	/**
-	 * The plain vanilla sequence discovery.
-	 */
-	private AbstractSequenceDiscoveryAlgorithm createDiscoveryAlgorithm(
-			DiscoverySession session) {
-		PatternResult resultFile = readParameterAndCreateResultfile("Discovery");
-		AbstractSequenceDiscoveryAlgorithm abstractSequenceDiscoveryAlgorithm = new ServerBaseDiscovery(
-				session, getParameters(), SPLASHDefinition.Algorithm.REGULAR);
-		abstractSequenceDiscoveryAlgorithm.setPatternResult(resultFile);
-		abstractSequenceDiscoveryAlgorithm.setSequenceInputData(this
-				.getSequenceDB());
-		return abstractSequenceDiscoveryAlgorithm;
-	}
-
-	/**
-	 * Initialize the stub.
-	 *
-	 * @param stub
-	 *            AlgorithmStub
-	 * @param algorithm
-	 *            AbstractSequenceDiscoveryAlgorithm
-	 * @param description
-	 *            String
-	 */
-	private void setStubAlgoAndPanel(AlgorithmStub stub,
-			AbstractSequenceDiscoveryAlgorithm algorithm, String description) {
-		stub.setAlgorithm(algorithm);
-		stub.setParameterPanel(parameterPanel);
-		stub.setDescription(description);
-	}
-
-	/**
-	 * Exhaustive
-	 */
-	private AbstractSequenceDiscoveryAlgorithm createExhaustive(
-			DiscoverySession discoverySession) {
-		PatternResult resultFile = readParameterAndCreateResultfile("Exhaustive");
-		AbstractSequenceDiscoveryAlgorithm abstractSequenceDiscoveryAlgorithm = new ServerBaseDiscovery(
-				discoverySession, getParameters(), SPLASHDefinition.Algorithm.EXHAUSTIVE);
-		abstractSequenceDiscoveryAlgorithm.setPatternResult(resultFile);
-		abstractSequenceDiscoveryAlgorithm.setSequenceInputData(this
-				.getSequenceDB());
-		return abstractSequenceDiscoveryAlgorithm;
-
-	}
-
 	private void stopButton_actionPerformed(ActionEvent e) {
 		AlgorithmStub stub = algorithmStubMap.get(currentStubId);
 		if (stub != null) {
@@ -607,7 +667,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 			// change the stub for the widget
 			projectFileChanged(stubID);
 			if (p != null) {
-				parmsHandler.writeParameter(parameterPanel, p);
+				parameterPanel.setParameters(p);
 			}
 		}
 	}
