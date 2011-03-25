@@ -23,7 +23,6 @@ import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractGridAnalysis;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
-import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.structure.DSProteinStructure;
@@ -168,7 +167,7 @@ public class MarkUsAnalysis extends AbstractGridAnalysis implements ProteinStruc
 			urlstat = checkUrlStatus(url);
 		}
 
-		MarkUsResultDataSet<DSBioObject> resultset = new MarkUsResultDataSet<DSBioObject>(prt, results);
+		MarkUsResultDataSet resultset = new MarkUsResultDataSet(prt, results);
 		resultset.setResult(results);
 		pBar.stop();
 		return new AlgorithmExecutionResults(true, "No errors", resultset);
