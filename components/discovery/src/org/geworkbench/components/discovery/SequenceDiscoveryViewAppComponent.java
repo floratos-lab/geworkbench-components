@@ -4,6 +4,8 @@ import java.awt.Component;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -20,6 +22,7 @@ import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSe
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.datastructure.complex.pattern.DSMatchedPattern;
@@ -39,7 +42,6 @@ import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.events.SequenceDiscoveryTableEvent;
 import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbench.util.PropertiesMonitor;
-import org.geworkbench.util.patterns.SequencePatternUtils;
 import org.geworkbench.util.remote.Connection;
 import org.geworkbench.util.remote.ConnectionCreationException;
 import org.geworkbench.util.remote.SPLASHDefinition;
@@ -207,7 +209,7 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 			String tempString = fullSequenceDB.getFile().getName() + "temp-"
 					+ activeSequenceDB.size();
 			File tempFile = new File(tempFolder + tempString);
-			if (SequencePatternUtils.createFile(tempFile, activeSequenceDB)) {
+			if (createFile(tempFile)) {
 				activeSequenceDB = new CSSequenceSet<DSSequence>();
 				activeSequenceDB.readFASTAFile(tempFile);
 				activeSequenceDB.setFASTAFile(tempFile);
@@ -218,6 +220,40 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 			sDiscoveryViewWidget.setSequenceDB(activeSequenceDB);
 		}
 
+	}
+
+	/**
+	 * Write the sequence data into a file.
+	 * 
+	 * @return <code>true<code> if succeeds.
+	 * @param tempFile
+	 * @param sequences
+	 * @return
+	 */
+	private boolean createFile(File tempFile) {
+		try {
+			if (activeSequenceDB == null || activeSequenceDB.size() == 0) {
+				return false;
+			}
+			PrintWriter out = new PrintWriter(new FileOutputStream(tempFile));
+			for (int i = 0; i < activeSequenceDB.size(); i++) {
+
+				CSSequence seq = (CSSequence) activeSequenceDB.get(i);
+				if (seq != null) {
+					out.println(">" + seq.getLabel());
+					out.println(seq.getSequence());
+				}
+			}
+
+			out.flush();
+			out.close();
+
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
