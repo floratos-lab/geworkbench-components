@@ -89,6 +89,7 @@ public class PudgeBrowser implements VisualPlugin {
 	private final static boolean is_64bit = (osarch.indexOf("_64") > -1);
     private static String osversion = System.getProperty("os.version").toLowerCase();
     private final static boolean is_10_5 = (osversion.indexOf("10.5") > -1);
+	private static String jvmbit = System.getProperty("sun.arch.data.model").toLowerCase();
 	private static Properties prop = new Properties();
 	private static String mozilla_path = null;
 	private static enum Status {CONFIG, PENDING, FINAL};
@@ -139,7 +140,7 @@ public class PudgeBrowser implements VisualPlugin {
 			if (resultURL != r1)
 				resultData.setResult(resultURL);
 			
-			if ((is_windows && is_64bit) || (is_mac && (!is_64bit||is_10_5))) {
+			if ((is_windows && jvmbit.equals("64")) || (is_mac && (!is_64bit||is_10_5))) {
 				handleUnsupportedOS();
 				return;
 			}

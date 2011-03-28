@@ -152,7 +152,7 @@ public class MarkUsBrowser implements VisualPlugin {
 			process_id = resultData.getResult();
 			log.debug("proteinData found: "+process_id);
 
-			if ((is_windows && is_64bit && jvmbit.equals("64")) || is_mac) {
+			if ((is_windows && jvmbit.equals("64")) || is_mac) {
 				handleUnsupportedOS();
 				return;
 			}
