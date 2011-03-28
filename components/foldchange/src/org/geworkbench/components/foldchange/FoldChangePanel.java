@@ -132,6 +132,8 @@ public class FoldChangePanel extends AbstractSaveableParameterPanel {
 		builder.append(ratioBtn);
 		builder.append(diffBtn);
 		builder.nextLine();
+		builder.append(new JLabel(" "));
+		builder.nextLine();
 		builder.append(" ",noteTitle,aNote);
 		noteTitle.setVisible(false);
 		aNote.setVisible(false);
