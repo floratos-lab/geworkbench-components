@@ -100,7 +100,7 @@ public class FoldChangePanel extends AbstractSaveableParameterPanel {
     	logBtn.setSelected(false);
     	linearBtn.setSelected(true);
     	ratioBtn.setText("Ratio");    	
-    	diffBtn.setText("Difference of average logs");    	
+    	diffBtn.setText("Difference of average log2 values");    	
     	group2.add(ratioBtn);
     	group2.add(diffBtn);
     	diffBtn.setSelected(false);
