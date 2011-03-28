@@ -20,7 +20,6 @@ import org.geworkbench.util.PropertiesMonitor;
  */
 public class LoginPanelModel {
 	
-    @SuppressWarnings("unchecked")
 	public LoginPanelModel() {
         //parse initial Model data from the properties monitor
         PropertiesMonitor pm = org.geworkbench.util.PropertiesMonitor.getPropertiesMonitor();
