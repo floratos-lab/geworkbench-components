@@ -293,11 +293,11 @@ public class FoldChangeAnalysis extends AbstractAnalysis implements
 			histStr +="Linear\n";
 		else
 			histStr +="Log2-transformed\n";
-		histStr += "\t" + "Caculation method: ";
+		histStr += "\t" + "Calculation method: ";
 		if (isRatio)
 			histStr +="Ratio" +"\n";
 		else
-			histStr +="Difference" +"\n";
+			histStr +="Difference of average log2 values" +"\n";
 		
 		return histStr;
 	}
