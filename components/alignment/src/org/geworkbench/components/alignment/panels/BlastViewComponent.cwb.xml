@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
-	<component name="Alignment Results"
+	<component name="BLAST Alignment Results"
 		class="org.geworkbench.components.alignment.panels.BlastViewComponent"
 		version="1.0" 
 		author="geWorkbench Development Team"
 		authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/BLAST"
 		toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
-		description="The Alignment Results component parses and displays
+		description="The BLAST Alignment Results component parses and displays
  the results of sequence similarity searches which were run on the
  NCBI BLAST service.  Sequence hits can be returned to the Project
  for further analysis."
