@@ -198,6 +198,7 @@ public class MarkUsAnalysis extends AbstractGridAnalysis implements ProteinStruc
 		bisonParameters.put("consurf4", paramPanel.getconsurf4Value());
 		// string
 		bisonParameters.put("chain", paramPanel.getChain());
+		bisonParameters.put("key", paramPanel.getkeyValue());
 
 		// delphi
 		bisonParameters.put("grid_size", paramPanel.getgridsizeValue()); // int
@@ -355,12 +356,14 @@ public class MarkUsAnalysis extends AbstractGridAnalysis implements ProteinStruc
 					.append(" C4P=").append(mcp.getfilter4Value())
 					.append(" C4MSA=").append(mcp.getmsa4Value());
 		}
+		if (mcp.getkeyValue())
+			cfgcommand.append(" privateKey=1");
 		
 		String chain = mcp.getChain();
 
 		cfgcommand
 				.append(
-						" Skan=1 SkanBox=1 Screen=1 ScreenBox=1 BlastBox=1 IPSBox=1 CBox=1")
+						" Skan=1 SkanBox=1 Screen=1 ScreenBox=1 VASP=1 LBias=1 PredUs=1 BlastBox=1 IPSBox=1 CBox=1")
 				.append(" D1B=")
 				.append(mcp.getibcValue())
 				.append(" D1EX=")
@@ -427,12 +430,12 @@ public class MarkUsAnalysis extends AbstractGridAnalysis implements ProteinStruc
 				in = new BufferedReader(new InputStreamReader(
 						dat));
 
-				String line = null; int i=-1;
+				String line = null; int i=-1; int j = -1;
 				while ((line = in.readLine()) != null)
 				{
-				    if ((i = line.indexOf("Submission ID: MUS")) > -1)
+					if ((i = line.indexOf("pdb_id=")) > -1 && (j = line.indexOf("\">")) > -1)
 				    {
-			    		process_id = line.substring(i+15, line.length()-4);
+						process_id = line.substring(i+7, j);
 				    }
 				}
 				in.close();
