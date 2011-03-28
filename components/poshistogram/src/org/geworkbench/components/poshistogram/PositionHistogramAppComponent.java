@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
+import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.datastructure.complex.pattern.PatternResult;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.ProjectSelection;
@@ -63,13 +64,13 @@ public class PositionHistogramAppComponent implements VisualPlugin, MenuListener
         return listeners.get(var);
     }
 
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({ "unchecked" })
 	@Subscribe
     public void receiveProjectSelection(ProjectEvent e, Object source) {
         ProjectSelection selection = ((ProjectPanel) source).getSelection();
-        DSDataSet dataFile = selection.getDataSet();
+        DSDataSet<?> dataFile = selection.getDataSet();
         if (dataFile instanceof DSSequenceSet) {
-            pHistogramWidget.setSequenceDB((DSSequenceSet) dataFile);
+            pHistogramWidget.setSequenceDB((DSSequenceSet<DSSequence>) dataFile);
         }
     }
 

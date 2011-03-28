@@ -65,8 +65,8 @@ public final class PositionHistogramWidget extends JPanel {
     private JTextField jStepBox = new JTextField(5);
     private Component component6;
     private Component component7;
-    @SuppressWarnings("rawtypes")
-	private DSSequenceSet sequenceDB = null;
+
+	private DSSequenceSet<DSSequence> sequenceDB = null;
     private PositionHistogramAppComponent parentComponent;
 
     public PositionHistogramWidget(PositionHistogramAppComponent positionHistogramAppComponent) {
@@ -210,8 +210,7 @@ public final class PositionHistogramWidget extends JPanel {
         }
     }
 
-    @SuppressWarnings("rawtypes")
-	public void setSequenceDB(DSSequenceSet sDB) {
+	public void setSequenceDB(DSSequenceSet<DSSequence> sDB) {
         sequenceDB = sDB;
     }
 }
