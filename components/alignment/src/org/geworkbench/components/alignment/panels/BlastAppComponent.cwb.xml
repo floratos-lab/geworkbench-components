@@ -2,7 +2,7 @@
 <component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
-	<component name="Sequence Alignment"
+	<component name="BLAST Analysis"
 		class="org.geworkbench.components.alignment.panels.BlastAppComponent"
 		version="1.0" 
 		author="geWorkbench Development Team"
