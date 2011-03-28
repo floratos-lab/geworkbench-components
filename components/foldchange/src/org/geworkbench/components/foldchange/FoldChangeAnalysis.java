@@ -362,7 +362,7 @@ public class FoldChangeAnalysis extends AbstractAnalysis implements
 		else if(!isRatio)
 			fcValue=numbValidValuesA-numbValidValuesB;
 		
-		if (fcValue>alpha) sig=true;
+		if (fcValue>=alpha || fcValue <= -alpha) sig=true;
 		
 		return sig;		
 	}	
