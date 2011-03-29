@@ -82,7 +82,6 @@ public class MarkUsBrowser implements VisualPlugin {
     private final static boolean is_mac = (osname.indexOf("mac") > -1);
     private final static boolean is_windows = (osname.indexOf("windows") > -1);
 	private static String osarch = System.getProperty("os.arch").toLowerCase();
-	private final static boolean is_64bit = (osarch.indexOf("_64") > -1);
 	private static String jvmbit = System.getProperty("sun.arch.data.model").toLowerCase();
 
 	// set true for jdic to use IE browser; false for Mozilla(FIXME: LINK in TAB
