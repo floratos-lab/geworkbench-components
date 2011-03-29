@@ -167,7 +167,7 @@ public class MarkerSelectionPanel extends JPanel implements Observer {
 	 
 	   
          
-        adjacencyMatrixdataSet = new AdjacencyMatrixDataSet(matrix, 0, 0.5f, 2,
+        adjacencyMatrixdataSet = new AdjacencyMatrixDataSet(matrix, 0.5f,
 					"Adjacency Matrix", CytoscapeWidget.getInstance().maSet
 							.getLabel(), CytoscapeWidget.getInstance().maSet);
 			 
