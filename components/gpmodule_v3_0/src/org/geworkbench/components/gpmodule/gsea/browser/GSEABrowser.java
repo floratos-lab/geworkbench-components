@@ -4,8 +4,8 @@ import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.bison.datastructure.biocollections.gsea.CSGSEAResultDataSet;
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.events.ProjectEvent;
+import org.geworkbench.util.BrowserLauncher;
 import org.geworkbench.util.FilePathnameUtils;
 import org.genepattern.io.ArchiveUtil;
 import org.jdesktop.jdic.browser.*;
@@ -16,10 +16,13 @@ import java.net.MalformedURLException;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.*;
 
 import java.util.Properties;
 import java.util.StringTokenizer;
+import java.util.Vector;
 import java.lang.reflect.Method;
 
 /**
@@ -32,7 +35,6 @@ public class GSEABrowser implements VisualPlugin
     private String gseaURL;
 
     private CSGSEAResultDataSet gseaResultDataSet;
-    private DSDataSet dataSet;
 
     private JPanel mainPanel = new JPanel(new BorderLayout());
 	private JPanel jp = new JPanel(new BorderLayout());
@@ -52,6 +54,11 @@ public class GSEABrowser implements VisualPlugin
     private static String osname = System.getProperty("os.name").toLowerCase();
     private final static boolean is_mac = (osname.indexOf("mac") > -1);
     private final static boolean is_windows = (osname.indexOf("windows") > -1);
+	private static String osarch = System.getProperty("os.arch").toLowerCase();
+	private final static boolean is_64bit = (osarch.indexOf("_64") > -1);
+    private static String osversion = System.getProperty("os.version").toLowerCase();
+    private final static boolean is_10_5 = (osversion.indexOf("10.5") > -1);
+	private static String jvmbit = System.getProperty("sun.arch.data.model").toLowerCase();
 
     private final static boolean useIE = is_windows;
 
@@ -128,7 +135,7 @@ public class GSEABrowser implements VisualPlugin
                 initial = false;
                 if (is_mac)
                 {
-                    Class wkwbc = Class.forName("org.jdesktop.jdic.browser.WebKitWebBrowser");
+                    Class<?> wkwbc = Class.forName("org.jdesktop.jdic.browser.WebKitWebBrowser");
 			        webBrowser = wkwbc.newInstance();
                     Method setContent = wkwbc.getMethod("setContent", Class.forName("java.lang.String"));
 			        setURL = wkwbc.getMethod("setURL", Class.forName("java.net.URL"));
@@ -234,14 +241,16 @@ public class GSEABrowser implements VisualPlugin
 		mainPanel.repaint();
     }
 
+    private static final String resultBase = FilePathnameUtils.getTemporaryFilesDirectoryPath() + "/gsearesults/";
     private void extractResults()
     {
         ArchiveUtil.unzipRecursive(new File(gseaResultDataSet.getReportFile()), new File( FilePathnameUtils.getTemporaryFilesDirectoryPath() + "/gsearesults"));
 
         System.out.println("report file:" + gseaResultDataSet.getReportFile());
+        convertLinkTab(resultBase + "index.html", true);
         try
         {
-            gseaURL = (new File( FilePathnameUtils.getTemporaryFilesDirectoryPath() + "/gsearesults/"+ "index.html")).toURL().toString();
+            gseaURL = (new File(resultBase + "index.html")).toURI().toURL().toString();
             System.out.println("GSEA url:" + gseaURL);
         }
         catch(MalformedURLException me)
@@ -250,6 +259,53 @@ public class GSEABrowser implements VisualPlugin
         }
     }
 
+    /**
+     * make links in html page open in new tab
+     * @param filename: url of html page to be converted
+     * @param index: if the url is index.html
+     */
+    private void convertLinkTab(String filename, boolean index){
+        BufferedReader br = null;
+        BufferedWriter bw = null;
+        Vector<String> rptnames = new Vector<String>();
+        try
+        {
+        	br = new BufferedReader(new FileReader(filename));
+        	String line = null;
+        	StringBuilder contents = new StringBuilder();
+        	while((line = br.readLine()) != null){
+                int i=0, j=0;
+                //gather html reports for later conversion
+                while (index && (i=line.indexOf("gsea_report_for", j))>-1){
+                	j = line.indexOf("'>", i);
+                	String rptname = line.substring(i, j);
+                	if (rptname.endsWith(".html")){
+                		rptnames.add(resultBase + rptname);
+                	}
+                }
+                //open link in new tab
+        		if (line.contains("<a href"))
+        			line = line.replaceAll("<a href", "<a target=\"_blank\" href");
+        		contents.append(line);
+                contents.append(System.getProperty("line.separator"));
+        	}
+        	bw = new BufferedWriter(new FileWriter(filename));
+        	bw.write(contents.toString());
+        }catch(IOException e){
+        	e.printStackTrace();
+        }finally{
+        	try{
+        		br.close();
+        		bw.close();
+        	}catch(Exception e){
+        		e.printStackTrace();
+        	}
+        }
+        
+    	for (String rptname: rptnames)
+    		convertLinkTab(rptname, false);
+    }
+    
     @Subscribe
     public void receive(ProjectEvent e, Object source)
     {
@@ -258,9 +314,12 @@ public class GSEABrowser implements VisualPlugin
             System.out.println("GSEABrowser received project node added event.");
 
             gseaResultDataSet = ((CSGSEAResultDataSet)e.getDataSet());
-            dataSet = gseaResultDataSet.getParentDataSet();
 
             extractResults();
+            if ((is_windows && jvmbit.equals("64")) || (is_mac && (!is_64bit||is_10_5))) {
+				handleUnsupportedOS();
+				return;
+			}
             display();
         }
 
@@ -368,4 +427,34 @@ public class GSEABrowser implements VisualPlugin
             e.printStackTrace();
         }
     }
+
+	private void handleUnsupportedOS() {
+		mainPanel.removeAll();
+		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.PAGE_AXIS));
+		JPanel jp = new JPanel();
+		jp.add(new JLabel("Embedded browser doesn't support "+osname+" "+osarch+". "));
+		JLabel rstlb = new JLabel("<html><u>Click here to</u></html>");
+		jp.add(rstlb);
+		jp.add(new JLabel("access GSEA result directly"));
+		mainPanel.add(new JLabel(" "));
+		mainPanel.add(jp);
+		rstlb.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		rstlb.addMouseListener(new MouseAdapter() {
+				public void mousePressed(MouseEvent me) {
+					try {
+						BrowserLauncher.openURL(gseaURL);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+				public void mouseEntered(MouseEvent evt) {
+					evt.getComponent().setForeground(new Color(0xC0, 0xC0, 0xF0));
+				}
+				public void mouseExited(MouseEvent evt) {
+					evt.getComponent().setForeground(Color.BLACK);
+				}
+			});
+		mainPanel.revalidate();
+		mainPanel.repaint();
+	}
 }
