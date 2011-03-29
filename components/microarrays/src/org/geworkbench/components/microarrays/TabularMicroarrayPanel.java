@@ -4,16 +4,26 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.math.RoundingMode;
+
 import java.util.ArrayList;
 
+import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.JToolBar;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.TableColumnModelEvent;
@@ -34,95 +44,110 @@ import org.geworkbench.util.microarrayutils.MicroarrayViewEventBase;
 
 /**
  * 
- * <p>Copyright Columbia University</p>
- *
+ * <p>
+ * Copyright Columbia University
+ * </p>
+ * 
  * @author Adam Margolin
  * @author zji
  * @version $Id$
  */
-@AcceptTypes({DSMicroarraySet.class})
+@AcceptTypes( { DSMicroarraySet.class })
 public class TabularMicroarrayPanel extends MicroarrayViewEventBase {
 
 	private static Log log = LogFactory.getLog(TabularMicroarrayPanel.class);
 
-    public TabularMicroarrayPanel() {
-        try {
-        	initialize();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+	private final String NUMBERS = "Numbers";
+	private final String SCIENTIFIC = "Scientific";
 
-    private static TableCellRenderer defaultRenderer = new DefaultTableCellRenderer();
-    
-    private TableCellRenderer renderer = new DefaultTableCellRenderer() {
-        private static final long serialVersionUID = -2148986327315654796L;
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
-            Component defaultComponent = defaultRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
-            Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
+	private String selectedFormat = null;
+	private int decimalPlaces;
+	private NumberFormat nf = null;
+	private DecimalFormat sf = null;
+
+	public TabularMicroarrayPanel() {
+		try {
+			initialize();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private static TableCellRenderer defaultRenderer = new DefaultTableCellRenderer();
+
+	private TableCellRenderer renderer = new DefaultTableCellRenderer() {
+		private static final long serialVersionUID = -2148986327315654796L;
+
+		public Component getTableCellRendererComponent(JTable table,
+				Object value, boolean isSelected, boolean hasFocus, int row,
+				int col) {
+			Component defaultComponent = defaultRenderer
+					.getTableCellRendererComponent(table, value, isSelected,
+							hasFocus, row, col);
+			Component c = super.getTableCellRendererComponent(table, value,
+					isSelected, hasFocus, row, col);
 
 			/* Convert the model index to the visual index */
 			int modelCol = table.convertColumnIndexToModel(col);
-            
-			// note: because c is in fact reused, we need to reset the properties that may be changed
-            if (modelCol == 0) {
-            	if(!isSelected) {
-	                c.setBackground(Color.lightGray);
-	                c.setForeground(defaultComponent.getForeground());
-            	}
-                ((JLabel) c).setHorizontalAlignment(JLabel.LEFT);
-                ((JComponent) c).setBorder(BorderFactory.createLineBorder(Color.white));
-            } else {
-                DSGeneMarker stats = uniqueMarkers.get(row);
-                if (stats != null) {
-                    DSMutableMarkerValue marker = maSetView.items().get(modelCol - 1).getMarkerValue(stats.getSerial());
-                    if (marker.isMissing()) {
-                        c.setBackground(Color.yellow);
-                        c.setForeground(Color.blue);
-                    } else if (marker.isMasked()) {
-                        c.setBackground(Color.pink);
-                        c.setForeground(Color.blue);
-                    } else {
-                        c.setBackground(defaultComponent.getBackground());
-                        c.setForeground(defaultComponent.getForeground());
-                    }
-                    ((JLabel) c).setHorizontalAlignment(JLabel.CENTER);
-                }
-            }
-            return c;
-        }
-    };
-    
-    private AbstractTableModel microarrayTableModel = new AbstractTableModel() {
-		private static final long serialVersionUID = -6400581862850298421L;
-		final NumberFormat nf = NumberFormat.getInstance();
-		{
-			nf.setMaximumFractionDigits(2);
+
+			// note: because c is in fact reused, we need to reset the
+			// properties that may be changed
+			if (modelCol == 0) {
+				if (!isSelected) {
+					c.setBackground(Color.lightGray);
+					c.setForeground(defaultComponent.getForeground());
+				}
+				((JLabel) c).setHorizontalAlignment(JLabel.LEFT);
+				((JComponent) c).setBorder(BorderFactory
+						.createLineBorder(Color.white));
+			} else {
+				DSGeneMarker stats = uniqueMarkers.get(row);
+				if (stats != null) {
+					DSMutableMarkerValue marker = maSetView.items().get(
+							modelCol - 1).getMarkerValue(stats.getSerial());
+					if (marker.isMissing()) {
+						c.setBackground(Color.yellow);
+						c.setForeground(Color.blue);
+					} else if (marker.isMasked()) {
+						c.setBackground(Color.pink);
+						c.setForeground(Color.blue);
+					} else {
+						c.setBackground(defaultComponent.getBackground());
+						c.setForeground(defaultComponent.getForeground());
+					}
+					((JLabel) c).setHorizontalAlignment(JLabel.CENTER);
+				}
+			}
+			return c;
+		}
+	};
+
+	private AbstractTableModel microarrayTableModel = new AbstractTableModel() {
+		private static final long serialVersionUID = -6400581862850298421L;		 
+
+		public int getColumnCount() {
+			if (maSetView == null || refMASet == null) {
+				return 0;
+			} else {
+				int cCount = maSetView.items().size() + 1;
+				return cCount;
+			}
 		}
 
-        public int getColumnCount() {
-            if (maSetView == null || refMASet == null) {
-                return 0;
-            } else {
-                int cCount = maSetView.items().size() + 1;
-                return cCount;
-            }
-        }
+		public int getRowCount() {
+			if (uniqueMarkers == null) {
+				return 0;
+			} else {
+				return uniqueMarkers.size();
+			}
+		}
 
-        public int getRowCount() {
-            if (uniqueMarkers == null) {
-                return 0;
-            } else {
-                return uniqueMarkers.size();
-            }
-        }
+		public Object getValueAt(int row, int col) {
+			if (row >= uniqueMarkers.size()) {
+				return "";
+			}
 
-        public Object getValueAt(int row, int col) {
-            if (row >= uniqueMarkers.size()) {
-            	return "";
-            }
-
-            DSGeneMarker marker = uniqueMarkers.get(row);
+			DSGeneMarker marker = uniqueMarkers.get(row);
 			if (marker != null) {
 				if (col == 0) {
 					return marker.toString();
@@ -132,90 +157,167 @@ public class TabularMicroarrayPanel extends MicroarrayViewEventBase {
 
 					if (value.isMissing())
 						return "n/a";
-					else
-						return nf.format(value.getValue());
+					else {
+						if (selectedFormat.equals(NUMBERS))
+							return nf.format(maSetView.getValue(row, col - 1));
+						else
+							return sf.format(maSetView.getValue(row, col - 1));
+					}
 				}
 			} else {
 				return "Invalid";
 			}
-        }
+		}
 
-        public String getColumnName(int col) {
-            if (col == 0) {
-                return "Marker";
-            } else {
-                return maSetView.items().get(col - 1).getLabel();
-            }
-        }
+		public String getColumnName(int col) {
+			if (col == 0) {
+				return "Marker";
+			} else {
+				return maSetView.items().get(col - 1).getLabel();
+			}
+		}
 
-        public boolean isCellEditable(int row, int col) {
-            return false;
-        }
-    };
+		public boolean isCellEditable(int row, int col) {
+			return false;
+		}
+	};
 
-    private JTable jTable1 = null;
+	private JTable jTable1 = null;
 
-    private void initialize() {
-        JScrollPane jScrollPane1 = new JScrollPane();
-        JToolBar jToolBar1 = new JToolBar();
-        JCheckBox jShowAllMArrays = new JCheckBox();
-        JCheckBox jShowAllMarkers = new JCheckBox();
+	private void initialize() {
+		JScrollPane jScrollPane1 = new JScrollPane();
+		JToolBar jToolBar1 = new JToolBar();
+		JCheckBox jShowAllMArrays = new JCheckBox();
+		JCheckBox jShowAllMarkers = new JCheckBox();
 
-        jTable1 = new JTable(microarrayTableModel) {
+		JRadioButton jrbNumbers = new JRadioButton(NUMBERS);
+		jrbNumbers.setSelected(true);
+		JRadioButton jrbScientific = new JRadioButton(SCIENTIFIC);
+		ButtonGroup group = new ButtonGroup();
+		group.add(jrbNumbers);
+		group.add(jrbScientific);
+
+		ActionListener radioActionListener = new ActionListener() {
+			public void actionPerformed(ActionEvent actionEvent) {
+				AbstractButton aButton = (AbstractButton) actionEvent
+						.getSource();
+				if (aButton.getText().equals(NUMBERS)) {
+					selectedFormat = NUMBERS;
+				} else {
+					selectedFormat = SCIENTIFIC;
+				}
+				microarrayTableModel.fireTableDataChanged();
+			}
+		};
+
+		jrbNumbers.addActionListener(radioActionListener);
+		jrbScientific.addActionListener(radioActionListener);
+
+		JLabel labelBlank = new JLabel("  ");
+		JLabel labelDecimalPlaces = new JLabel("   Decimal places:");
+		JSpinner jspDecimalPlaces = new JSpinner(new SpinnerNumberModel(2, 0,
+				30, 1));
+
+		jspDecimalPlaces
+				.addChangeListener(new javax.swing.event.ChangeListener() {
+					public void stateChanged(ChangeEvent e) {
+						decimalPlaces = ((Integer) ((JSpinner) e.getSource())
+								.getValue()).intValue();
+					 
+						nf.setMinimumFractionDigits(decimalPlaces);
+						nf.setMaximumFractionDigits(decimalPlaces);
+						 
+
+						String s = "";
+						for (int i = 0; i < decimalPlaces; i++) {
+							s = s + "#";
+						}
+                    
+						sf.applyPattern("0." + s + "E0");
+						sf.setMinimumFractionDigits(decimalPlaces);
+					 
+						microarrayTableModel.fireTableDataChanged();
+
+					}
+				});
+
+		jTable1 = new JTable(microarrayTableModel) {
 			private static final long serialVersionUID = 8762298664180020948L;
 
 			public Dimension getPreferredScrollableViewportSize() {
-                return new Dimension(20 * getModel().getColumnCount(), 20 * getModel().getRowCount());
-            }
+				return new Dimension(20 * getModel().getColumnCount(),
+						20 * getModel().getRowCount());
+			}
 
-            public boolean getScrollableTracksViewportWidth() {
-                return false;
-            }
-        };
+			public boolean getScrollableTracksViewportWidth() {
+				return false;
+			}
+		};
 
-        jTable1.setEnabled(true);
-        jTable1.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-        jTable1.setDefaultRenderer(Object.class, renderer);
-        jTable1.setCellSelectionEnabled(true);
-		jTable1.getColumnModel().addColumnModelListener(new ColumnOrderTableModelListener(jTable1));
+		jTable1.setEnabled(true);
+		jTable1.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		jTable1.setDefaultRenderer(Object.class, renderer);
+		jTable1.setCellSelectionEnabled(true);
+		jTable1.getColumnModel().addColumnModelListener(
+				new ColumnOrderTableModelListener(jTable1));
 
-        jToolBar1.setBorder(null);
-        mainPanel.add(jScrollPane1, BorderLayout.CENTER);
-        jToolBar1.add(jShowAllMArrays, null);
-        jToolBar1.add(jShowAllMarkers, null);
-        jScrollPane1.getViewport().add(jTable1, null);
-    }
+		jToolBar1.setBorder(null);
+		mainPanel.add(jScrollPane1, BorderLayout.CENTER);
+		jToolBar1.add(jShowAllMArrays, null);
+		jToolBar1.add(jShowAllMarkers, null);
+		jScrollPane1.getViewport().add(jTable1, null);
+
+		jToolBar3.add(labelBlank);
+		jToolBar3.add(jrbNumbers);
+		jToolBar3.add(jrbScientific);
+		jToolBar3.add(labelDecimalPlaces);
+		jToolBar3.add(jspDecimalPlaces);
+
+		selectedFormat = NUMBERS;
+		decimalPlaces = 2;
+		nf = NumberFormat.getInstance();
+	    nf.setRoundingMode(RoundingMode.HALF_UP);
+		nf.setMinimumFractionDigits(decimalPlaces);
+		nf.setMaximumFractionDigits(decimalPlaces);
+		sf = new DecimalFormat("0.##E0");
+		sf.setRoundingMode(RoundingMode.HALF_UP);
+		sf.setMinimumFractionDigits(decimalPlaces);
+
+	}
 
 	@Override
-    protected void fireModelChangedEvent() {
-    	microarrayTableModel.fireTableStructureChanged();
-    	log.debug("fireModelChangedEvent");
+	protected void fireModelChangedEvent() {
+		microarrayTableModel.fireTableStructureChanged();
+		log.debug("fireModelChangedEvent");
 		if (activatedArrays != null && activatedArrays.panels().size() > 0
 				&& activatedArrays.size() > 0)
 			return;
 
 		ArrayList<Integer> columnOrder = new ArrayList<Integer>();
 
-		if(maSetView!=null && maSetView.getDataSet()!=null 
+		if (maSetView != null && maSetView.getDataSet() != null
 				&& !maSetView.getDataSet().getColumnOrder().isEmpty())
 			columnOrder = maSetView.getDataSet().getColumnOrder();
 
-		if (!columnOrder.isEmpty())
-		{
-	    	int columncount = jTable1.getColumnCount();
+		if (!columnOrder.isEmpty()) {
+			int columncount = jTable1.getColumnCount();
 			for (int i = 0; i < columncount; i++)
-				jTable1.addColumn(jTable1.getColumnModel().getColumn(columnOrder.get(i)));
+				jTable1.addColumn(jTable1.getColumnModel().getColumn(
+						columnOrder.get(i)));
 
 			for (int i = 0; i < columncount; i++)
 				jTable1.removeColumn(jTable1.getColumnModel().getColumn(0));
 		}
-    }
+	}
 
-    private class ColumnOrderTableModelListener implements TableColumnModelListener {
-    	private JTable table;
-    	public ColumnOrderTableModelListener(JTable mytable){
-    		table = mytable;
-    	}
+	private class ColumnOrderTableModelListener implements
+			TableColumnModelListener {
+		private JTable table;
+
+		public ColumnOrderTableModelListener(JTable mytable) {
+			table = mytable;
+		}
+
 		@Override
 		public void columnAdded(TableColumnModelEvent e) {
 			// TODO Auto-generated method stub
@@ -231,7 +333,8 @@ public class TabularMicroarrayPanel extends MicroarrayViewEventBase {
 			// TODO Auto-generated method stub
 			int from = e.getFromIndex();
 			int to = e.getToIndex();
-			if (from == to) return;
+			if (from == to)
+				return;
 			if (activatedArrays != null && activatedArrays.panels().size() > 0
 					&& activatedArrays.size() > 0)
 				return;
@@ -245,14 +348,14 @@ public class TabularMicroarrayPanel extends MicroarrayViewEventBase {
 
 		@Override
 		public void columnRemoved(TableColumnModelEvent e) {
-			// TODO Auto-generated method stub		
+			// TODO Auto-generated method stub
 		}
 
 		@Override
 		public void columnSelectionChanged(ListSelectionEvent e) {
 			// TODO Auto-generated method stub
-			
+
 		}
-    }
-    
+	}
+
 }
