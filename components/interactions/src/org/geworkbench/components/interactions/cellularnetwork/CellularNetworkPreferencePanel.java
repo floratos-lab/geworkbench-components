@@ -59,8 +59,6 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 
 	private Log log = LogFactory.getLog(this.getClass());
 
-	private PropertiesManager pm = null;
-
 	private boolean isUserSelected = true;
 
 	private JList contextJList;
@@ -133,7 +131,6 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 	 */
 	public CellularNetworkPreferencePanel(CellularNetworkKnowledgeWidget c) {
 
-		pm = c.pm;
 		this.c = c;
 		initComponent();
 
@@ -617,6 +614,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 		String isChecked = "";
 
 		try {
+			PropertiesManager pm = PropertiesManager.getInstance();
 			String contextProperty = pm.getProperty(this.getClass(),
 					Constants.SELECTCONTEXT, "");
 			if (!contextProperty.equals("")
@@ -735,6 +733,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 
 		String interactionStr = null;
 		try {
+			PropertiesManager pm = PropertiesManager.getInstance();
 			interactionStr = pm.getProperty(this.getClass(),
 					Constants.DISPLAYSELECTEDINTERACTIONTYPE, null);
 			if (interactionStr != null && !interactionStr.trim().equals("")) {
@@ -1039,6 +1038,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 	public void savePreferences() {
 
 		try {
+			PropertiesManager pm = PropertiesManager.getInstance();
 
 			if (allInteractionTypes.size() == 0)
 				return;
@@ -1197,7 +1197,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 
 	}
 
-	ListModel contextListModel = new AbstractListModel() {
+	private ListModel contextListModel = new AbstractListModel() {
 		 
 		private static final long serialVersionUID = 3896674125748294964L;
 
@@ -1210,7 +1210,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 		}
 	};
 
-	ListModel versionListModel = new AbstractListModel() {
+	private ListModel versionListModel = new AbstractListModel() {
 		 
 		private static final long serialVersionUID = 7368821841064088101L;
 
@@ -1223,7 +1223,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 		}
 	};
 
-	ListModel availableInteractionTypeModel = new AbstractListModel() {
+	private ListModel availableInteractionTypeModel = new AbstractListModel() {
 	 
 		private static final long serialVersionUID = -5249418316840418790L;
 
@@ -1236,7 +1236,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 		}
 	};
 
-	ListModel availNetworkInteractionTypeModel = new AbstractListModel() {
+	private ListModel availNetworkInteractionTypeModel = new AbstractListModel() {
 	 
 		private static final long serialVersionUID = -1159977335482478371L;
 
@@ -1249,7 +1249,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 		}
 	};
 
-	ListModel selectedInteractionTypeModel = new AbstractListModel() {
+	private ListModel selectedInteractionTypeModel = new AbstractListModel() {
 		 
 		private static final long serialVersionUID = -1731363979171517441L;
 
@@ -1262,7 +1262,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 		}
 	};
 
-	ListModel selectedNetworkInteractionTypeModel = new AbstractListModel() {
+	private ListModel selectedNetworkInteractionTypeModel = new AbstractListModel() {
 		/**
 		 * 
 		 */
