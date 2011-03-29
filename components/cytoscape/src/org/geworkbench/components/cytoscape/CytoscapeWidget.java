@@ -47,7 +47,7 @@ import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
-import org.geworkbench.events.AdjacencyMatrixEvent;
+import org.geworkbench.events.AdjacencyMatrixCancelEvent;
 import org.geworkbench.events.GeneTaggedEvent;
 import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.events.ProjectNodeRemovedEvent;
@@ -345,20 +345,17 @@ public class CytoscapeWidget implements VisualPlugin {
 	}
 
 	@Subscribe
-	public void receive(AdjacencyMatrixEvent ae, Object source) {
-		if (ae.getAction() != null
-				&& ae.getAction().equals(AdjacencyMatrixEvent.Action.CANCEL)) {
-			cancelList.add(ae.getAdjacencyMatrix().hashCode());
-			log.info("got AdjacencyMatrixEvent.action.CANCEL event");
-			try {
-				Thread.sleep(100);
-			} catch (Exception ex) {
-				log.error(ex.getMessage());
-			}
-			if (ae.getAdjacencyMatrix() == adjMatrix)
-				ProjectPanel.getInstance().removeAddedSubNode(adjSet);
-		}
+	public void receive(AdjacencyMatrixCancelEvent ae, Object source) {
 
+		cancelList.add(ae.getAdjacencyMatrix().hashCode());
+		log.info("got AdjacencyMatrixEvent.action.CANCEL event");
+		try {
+			Thread.sleep(100);
+		} catch (Exception ex) {
+			log.error(ex.getMessage());
+		}
+		if (ae.getAdjacencyMatrix() == adjMatrix)
+			ProjectPanel.getInstance().removeAddedSubNode(adjSet);
 	}
 
 	/**
