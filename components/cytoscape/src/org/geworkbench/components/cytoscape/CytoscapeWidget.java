@@ -432,7 +432,6 @@ public class CytoscapeWidget implements VisualPlugin {
 
 	}
 
-	@SuppressWarnings("unchecked")
 	@Subscribe
 	public void receive(ProjectNodeRemovedEvent event, Object source) {
 		log.info("receive ProjectNodeRemovedEvent event");
