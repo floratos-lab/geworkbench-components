@@ -318,7 +318,6 @@ public class HierClusterViewWidget extends JPanel implements HierClusterModelEve
      *
      * @param hcme the new model wrapping the clustering data
      */
-    @SuppressWarnings("unchecked")
 	public void hierClusterModelChange(HierClusterModelEvent hcme) {
         mASet = hcme.getMicroarraySet();
         originalMarkerCluster = hcme.getMarkerCluster();
