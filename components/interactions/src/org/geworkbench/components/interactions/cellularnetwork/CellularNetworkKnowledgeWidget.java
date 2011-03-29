@@ -2638,7 +2638,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				pb.dispose();
 				publishAdjacencyMatrixEvent(new AdjacencyMatrixEvent(
 						createNetworkHandler.getAdjacencyMatrix(),
-						"Interactions from knowledgebase", -1, 2, 0.5f,
+						"Interactions from knowledgebase",
 						AdjacencyMatrixEvent.Action.CANCEL));
 
 			} else {

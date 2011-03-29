@@ -367,7 +367,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 
 				publishAdjacencyMatrixEvent(new AdjacencyMatrixEvent(convert(
 						weightedGraph, mSetView.getMicroarraySet()),
-						"ARACNE Set", -1, 2, 0.5f,
+						"ARACNE Set",
 						AdjacencyMatrixEvent.Action.DRAW_NETWORK));
 			} else {
 				tellUserToRelaxThresholds();
