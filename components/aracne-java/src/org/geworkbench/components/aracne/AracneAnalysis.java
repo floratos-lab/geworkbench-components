@@ -51,10 +51,8 @@ import edu.columbia.c2b2.aracne.Parameter;
  */
 public class AracneAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
-	/**
-	 *
-	 */
-	private static final long serialVersionUID = 1L;
+
+	private static final long serialVersionUID = -4501531893816533232L;
 
 	private static final int MINIMUM_ARRAY_NUMBER = 100;
 
@@ -339,7 +337,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 			if (weightedGraph.getEdges().size() > 0) {
 				AdjacencyMatrixDataSet dataSet = new AdjacencyMatrixDataSet(
 						convert(weightedGraph, mSetView.getMicroarraySet()),
-						-1, 0, 1000, "Adjacency Matrix", "ARACNE Set", mSetView
+						0, "Adjacency Matrix", "ARACNE Set", mSetView
 								.getMicroarraySet());
 				StringBuilder paramDescB = new StringBuilder(
 						"Generated with ARACNE run with data:\n");

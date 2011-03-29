@@ -1831,8 +1831,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		}
 		if (createNetwork == true) {
 
-			adjacencyMatrixdataSet = new AdjacencyMatrixDataSet(matrix, serial,
-					0.5f, 2, "Adjacency Matrix", dataset.getLabel(), dataset);
+			adjacencyMatrixdataSet = new AdjacencyMatrixDataSet(matrix,
+					0.5f, "Adjacency Matrix", dataset.getLabel(), dataset);
 			adjacencyMatrixdataSet.clearName("GENEMAP");
 			adjacencyMatrixdataSet.addNameValuePair("GENEMAP", geneIdToNameMap);
 

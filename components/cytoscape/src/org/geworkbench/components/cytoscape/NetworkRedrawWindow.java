@@ -334,8 +334,8 @@ public class NetworkRedrawWindow {
 		value = value / 100;
 
 		if (value == 0) {
-			adjacencyMatrixdataSet = new AdjacencyMatrixDataSet(origMatrix, 0,
-					0.5f, 2, "Adjacency Matrix",
+			adjacencyMatrixdataSet = new AdjacencyMatrixDataSet(origMatrix,
+					0.5f, "Adjacency Matrix",
 					CytoscapeWidget.getInstance().maSet.getLabel(),
 					CytoscapeWidget.getInstance().maSet);
 
@@ -389,8 +389,8 @@ public class NetworkRedrawWindow {
 				return;
 			}
 
-			adjacencyMatrixdataSet = new AdjacencyMatrixDataSet(matrix, 0,
-					0.5f, 2, "Adjacency Matrix",
+			adjacencyMatrixdataSet = new AdjacencyMatrixDataSet(matrix,
+					0.5f, "Adjacency Matrix",
 					CytoscapeWidget.getInstance().maSet.getLabel(),
 					CytoscapeWidget.getInstance().maSet);
 
