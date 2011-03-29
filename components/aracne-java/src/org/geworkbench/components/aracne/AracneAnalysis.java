@@ -31,7 +31,6 @@ import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
-import org.geworkbench.events.AdjacencyMatrixEvent;
 import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrix;
@@ -287,17 +286,6 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 
 	/**
 	 *
-	 * @param ae
-	 * @return
-	 */
-	@Publish
-	public AdjacencyMatrixEvent publishAdjacencyMatrixEvent(
-			AdjacencyMatrixEvent ae) {
-		return ae;
-	}
-
-	/**
-	 *
 	 * @param event
 	 * @return
 	 */
@@ -364,11 +352,6 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 								+ paramDescB.toString());
 				publishProjectNodeAddedEvent(new ProjectNodeAddedEvent(
 						"Adjacency Matrix Added", null, dataSet));
-
-				publishAdjacencyMatrixEvent(new AdjacencyMatrixEvent(convert(
-						weightedGraph, mSetView.getMicroarraySet()),
-						"ARACNE Set",
-						AdjacencyMatrixEvent.Action.DRAW_NETWORK));
 			} else {
 				tellUserToRelaxThresholds();
 			}

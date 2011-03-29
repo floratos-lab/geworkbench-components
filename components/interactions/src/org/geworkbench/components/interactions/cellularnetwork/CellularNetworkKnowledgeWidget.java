@@ -97,7 +97,7 @@ import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.engine.properties.PropertiesManager;
-import org.geworkbench.events.AdjacencyMatrixEvent;
+import org.geworkbench.events.AdjacencyMatrixCancelEvent;
 import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.ImageSnapshotEvent;
 import org.geworkbench.events.ProjectEvent;
@@ -119,8 +119,8 @@ import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.event.ChartChangeEvent;
 import org.jfree.chart.event.ChartChangeListener;
 import org.jfree.chart.event.ChartProgressEvent;
-import org.jfree.chart.event.TitleChangeEvent;
 import org.jfree.chart.event.ChartProgressListener;
+import org.jfree.chart.event.TitleChangeEvent;
 import org.jfree.chart.labels.XYToolTipGenerator;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
@@ -2636,10 +2636,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			cancel(true);
 			if (pb.getTitle().equals("Draw cytoscape graph")) {
 				pb.dispose();
-				publishAdjacencyMatrixEvent(new AdjacencyMatrixEvent(
-						createNetworkHandler.getAdjacencyMatrix(),
-						"Interactions from knowledgebase",
-						AdjacencyMatrixEvent.Action.CANCEL));
+				publishAdjacencyMatrixCancelEvent(new AdjacencyMatrixCancelEvent(
+						createNetworkHandler.getAdjacencyMatrix()) );
 
 			} else {
 				pb.dispose();
@@ -2798,8 +2796,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	}
 
 	@Publish
-	public AdjacencyMatrixEvent publishAdjacencyMatrixEvent(
-			AdjacencyMatrixEvent ae) {
+	public AdjacencyMatrixCancelEvent publishAdjacencyMatrixCancelEvent(
+			AdjacencyMatrixCancelEvent ae) {
 		return ae;
 	}
 
