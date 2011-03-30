@@ -1440,13 +1440,12 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		handler.setAdjacencyMatrix(matrix);
 		AdjacencyMatrixDataSet adjacencyMatrixdataSet = null;
 
-		int serial = 0;
 		int interactionNum = 0;
 		boolean createNetwork = false;
 		boolean needBreak = false;
 		boolean isGene1InMicroarray = true;
 		boolean isGene2InMicroarray = true;
-		String historyStr = "";
+		StringBuffer historyStr = new StringBuffer();
 		boolean isRestrictToGenesPresentInMicroarray = jPreferencePanel
 				.isNetworkJCheckBox1Selected();
 
@@ -1458,203 +1457,197 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			ArrayList<InteractionDetail> arrayList = cellularNetWorkElementInformation
 					.getSelectedInteractions(jPreferencePanel
 							.getNetworkSelectedInteractionTypes());
-			if (arrayList != null && arrayList.size() > 0) {
-				int index = Collections.binarySearch(copy,
-						cellularNetWorkElementInformation.getdSGeneMarker(),
-						eidc);
-				serial = copy.get(index).getSerial();
-				// matrix.addGeneRow(serial);
-				log.debug(" index:" + index + ",serial:" + serial + ",CNKB#"
-						+ cellularNetWorkElementInformation.getdSGeneMarker());
-				for (InteractionDetail interactionDetail : arrayList) {
-					if (handler.isCancelled() == true)
-						return;
-					isGene1InMicroarray = true;
-					isGene2InMicroarray = true;
-					DSGeneMarker marker = new CSGeneMarker();
-					String mid2 = interactionDetail.getdSGeneMarker2();
-					String mid1 = interactionDetail.getdSGeneMarker1();
-					int serial2 = -1;
 
-					if (interactionDetail.getDbSource2().equalsIgnoreCase(
-							Constants.ENTREZ_GENE)) {
-						try {
-							marker.setGeneId(new Integer(mid2));
-						} catch (NumberFormatException ne) {
-							if (log.isErrorEnabled()) {
-								log
-										.error("ms_id2 is expect to be an integer: "
-												+ mid2
-												+ "This interaction is going to be dropped");
-							}
-							continue;
-						}
-						index = Collections.binarySearch(copy, marker, eidc);
-						if (index >= 0)
-							serial2 = copy.get(index).getSerial();
-						else
-							isGene2InMicroarray = false;
-
-					} else {
-						Collection<Integer> markerIds = geneNameToMarkerIdMap
-								.get(interactionDetail.getdSGeneName2());
-						if (markerIds != null) {
-							for (Integer markerId : markerIds) {
-
-								marker = (DSGeneMarker) dataset.getMarkers()
-										.get(markerId);
-								if (interactionDetail.getDbSource2()
-										.equalsIgnoreCase(Constants.UNIPORT)) {
-									Set<String> SwissProtIds = AnnotationParser
-											.getSwissProtIDs(marker.getLabel());
-									if (SwissProtIds.contains(interactionDetail
-											.getdSGeneMarker2())) {
-										serial2 = marker.getSerial();
-										break;
-									}
-								} else {
-									serial2 = marker.getSerial();
-									break;
-								}
-
-							}
-						} else
-							isGene2InMicroarray = false;
-					}
-
-					if (isGene2InMicroarray == false) {
-						log.info("Marker "
-								+ interactionDetail.getdSGeneMarker2()
-								+ " does not exist at the dataset. ");
-						if (isRestrictToGenesPresentInMicroarray)
-							continue;
-
-						if (interactionDetail.getdSGeneName2() != null
-								&& !interactionDetail.getdSGeneName2().trim()
-										.equals("")
-								&& !interactionDetail.getdSGeneName2().trim()
-										.equals("null"))
-							geneIdToNameMap.put(mid2, interactionDetail
-									.getdSGeneName2());
-						else
-							geneIdToNameMap.put(mid2, "");
-
-					}
-
-					mid1 = interactionDetail.getdSGeneMarker1();
-					DSGeneMarker marker1 = new CSGeneMarker();
-					int serial1 = -1;
-					if (interactionDetail.getDbSource1().equalsIgnoreCase(
-							Constants.ENTREZ_GENE)) {
-
-						try {
-							marker1.setGeneId(Integer.parseInt(mid1));
-						} catch (NumberFormatException ne) {
-							if (log.isErrorEnabled()) {
-								log
-										.error("ms_id1 is expect to be an integer: "
-												+ mid1
-												+ "This interaction is going to be dropped");
-							}
-							continue;
-						}
-						int index1 = Collections.binarySearch(copy, marker1,
-								eidc);
-
-						if (index1 < 0) {
-							isGene1InMicroarray = false;
-						} else {
-							serial1 = copy.get(index1).getSerial();
-						}
-					} else {
-						Collection<Integer> markerIds = geneNameToMarkerIdMap
-								.get(interactionDetail.getdSGeneName1());
-						if (markerIds != null) {
-							for (Integer markerId : markerIds) {
-
-								marker = (DSGeneMarker) dataset.getMarkers()
-										.get(markerId);
-								if (interactionDetail.getDbSource1()
-										.equalsIgnoreCase(Constants.UNIPORT)) {
-									Set<String> SwissProtIds = AnnotationParser
-											.getSwissProtIDs(marker.getLabel());
-									if (SwissProtIds.contains(interactionDetail
-											.getdSGeneMarker1())) {
-										serial1 = marker.getSerial();
-										break;
-									}
-								} else {
-									serial1 = marker.getSerial();
-									break;
-								}
-
-							}
-						} else
-							isGene1InMicroarray = false;
-					}
-					if (isGene1InMicroarray == false) {
-						log.info("Marker "
-								+ interactionDetail.getdSGeneMarker1()
-								+ " does not exist at the dataset. ");
-
-						if (isRestrictToGenesPresentInMicroarray)
-							continue;
-
-						if (interactionDetail.getdSGeneName1() != null
-								&& !interactionDetail.getdSGeneName1().trim()
-										.equals("")
-								&& !interactionDetail.getdSGeneName1().trim()
-										.equals("null"))
-							geneIdToNameMap.put(mid1, interactionDetail
-									.getdSGeneName1());
-						else
-							geneIdToNameMap.put(mid1, "");
-					}
-					String shortNameType = CellularNetworkPreferencePanel.interactionTypeSifMap
-							.get(interactionDetail.getInteractionType());
-					if (isGene1InMicroarray == false
-							|| isGene2InMicroarray == false) {
-						if (serial1 != -1)
-							mid1 = String.valueOf(serial1);
-						if (serial2 != -1)
-							mid2 = String.valueOf(serial2);
-
-						matrix.add(mid1, mid2, isGene1InMicroarray,
-								isGene2InMicroarray, 0.8f, shortNameType);
-
-					} else {
-						matrix.add(serial1, serial2, 0.8f, shortNameType);
-					}
-					interactionNum++;
-					if (interactionNum > maxInteractionNum
-							&& createNetwork == false) {
-						String theMessage = "Too many interactions in the selected marker list. It will take long time and maybe run out of memory.\nDo you want to cancel the process? Please click \"YES\" to terminate this process.";
-						int result = JOptionPane.showConfirmDialog(
-								(Component) null, theMessage, "alert",
-								JOptionPane.YES_NO_OPTION);
-						if (result == JOptionPane.NO_OPTION)
-							createNetwork = true;
-						else {
-							createNetwork = false;
-							needBreak = true;
-							break;
-						}
-					}
-				}
-			}
 			List<String> networkSelectedInteractionTypes = jPreferencePanel
 					.getNetworkSelectedInteractionTypes();
 			if (networkSelectedInteractionTypes.size() > 0)
-				historyStr += "           "
-						+ cellularNetWorkElementInformation.getdSGeneMarker()
-								.getLabel() + ": \n";
+				historyStr
+						.append("           ")
+						.append(cellularNetWorkElementInformation
+								.getdSGeneMarker().getLabel()).append(": \n");
 			for (String interactionType : networkSelectedInteractionTypes)
-				historyStr += "\t Include "
-						+ interactionType
-						+ ": "
-						+ cellularNetWorkElementInformation
-								.getInteractionNum(interactionType) + "\n";
+				historyStr
+						.append("\t Include ")
+						.append(interactionType)
+						.append(": ")
+						.append(cellularNetWorkElementInformation
+								.getInteractionNum(interactionType))
+						.append("\n");
 
+			if (arrayList == null || arrayList.size() <= 0) {
+				continue;
+			}
+			
+			for (InteractionDetail interactionDetail : arrayList) {
+				if (handler.isCancelled() == true)
+					return;
+				isGene1InMicroarray = true;
+				isGene2InMicroarray = true;
+				DSGeneMarker marker = new CSGeneMarker();
+				String mid2 = interactionDetail.getdSGeneMarker2();
+				String mid1 = interactionDetail.getdSGeneMarker1();
+				int serial2 = -1;
+
+				if (interactionDetail.getDbSource2().equalsIgnoreCase(
+						Constants.ENTREZ_GENE)) {
+					try {
+						marker.setGeneId(new Integer(mid2));
+					} catch (NumberFormatException ne) {
+						if (log.isErrorEnabled()) {
+							log.error("ms_id2 is expect to be an integer: "
+									+ mid2
+									+ "This interaction is going to be dropped");
+						}
+						continue;
+					}
+					int index = Collections.binarySearch(copy, marker, eidc);
+					if (index >= 0)
+						serial2 = copy.get(index).getSerial();
+					else
+						isGene2InMicroarray = false;
+
+				} else {
+					Collection<Integer> markerIds = geneNameToMarkerIdMap
+							.get(interactionDetail.getdSGeneName2());
+					if (markerIds != null) {
+						for (Integer markerId : markerIds) {
+
+							marker = (DSGeneMarker) dataset.getMarkers().get(
+									markerId);
+							if (interactionDetail.getDbSource2()
+									.equalsIgnoreCase(Constants.UNIPORT)) {
+								Set<String> SwissProtIds = AnnotationParser
+										.getSwissProtIDs(marker.getLabel());
+								if (SwissProtIds.contains(interactionDetail
+										.getdSGeneMarker2())) {
+									serial2 = marker.getSerial();
+									break;
+								}
+							} else {
+								serial2 = marker.getSerial();
+								break;
+							}
+
+						}
+					} else
+						isGene2InMicroarray = false;
+				}
+
+				if (isGene2InMicroarray == false) {
+					log.info("Marker " + interactionDetail.getdSGeneMarker2()
+							+ " does not exist at the dataset. ");
+					if (isRestrictToGenesPresentInMicroarray)
+						continue;
+
+					if (interactionDetail.getdSGeneName2() != null
+							&& !interactionDetail.getdSGeneName2().trim()
+									.equals("")
+							&& !interactionDetail.getdSGeneName2().trim()
+									.equals("null"))
+						geneIdToNameMap.put(mid2,
+								interactionDetail.getdSGeneName2());
+					else
+						geneIdToNameMap.put(mid2, "");
+
+				}
+
+				mid1 = interactionDetail.getdSGeneMarker1();
+				DSGeneMarker marker1 = new CSGeneMarker();
+				int serial1 = -1;
+				if (interactionDetail.getDbSource1().equalsIgnoreCase(
+						Constants.ENTREZ_GENE)) {
+
+					try {
+						marker1.setGeneId(Integer.parseInt(mid1));
+					} catch (NumberFormatException ne) {
+						if (log.isErrorEnabled()) {
+							log.error("ms_id1 is expect to be an integer: "
+									+ mid1
+									+ "This interaction is going to be dropped");
+						}
+						continue;
+					}
+					int index1 = Collections.binarySearch(copy, marker1, eidc);
+
+					if (index1 < 0) {
+						isGene1InMicroarray = false;
+					} else {
+						serial1 = copy.get(index1).getSerial();
+					}
+				} else {
+					Collection<Integer> markerIds = geneNameToMarkerIdMap
+							.get(interactionDetail.getdSGeneName1());
+					if (markerIds != null) {
+						for (Integer markerId : markerIds) {
+
+							marker = (DSGeneMarker) dataset.getMarkers().get(
+									markerId);
+							if (interactionDetail.getDbSource1()
+									.equalsIgnoreCase(Constants.UNIPORT)) {
+								Set<String> SwissProtIds = AnnotationParser
+										.getSwissProtIDs(marker.getLabel());
+								if (SwissProtIds.contains(interactionDetail
+										.getdSGeneMarker1())) {
+									serial1 = marker.getSerial();
+									break;
+								}
+							} else {
+								serial1 = marker.getSerial();
+								break;
+							}
+
+						}
+					} else
+						isGene1InMicroarray = false;
+				}
+				if (isGene1InMicroarray == false) {
+					log.info("Marker " + interactionDetail.getdSGeneMarker1()
+							+ " does not exist at the dataset. ");
+
+					if (isRestrictToGenesPresentInMicroarray)
+						continue;
+
+					if (interactionDetail.getdSGeneName1() != null
+							&& !interactionDetail.getdSGeneName1().trim()
+									.equals("")
+							&& !interactionDetail.getdSGeneName1().trim()
+									.equals("null"))
+						geneIdToNameMap.put(mid1,
+								interactionDetail.getdSGeneName1());
+					else
+						geneIdToNameMap.put(mid1, "");
+				}
+				String shortNameType = CellularNetworkPreferencePanel.interactionTypeSifMap
+						.get(interactionDetail.getInteractionType());
+				if (isGene1InMicroarray == false
+						|| isGene2InMicroarray == false) {
+					if (serial1 != -1)
+						mid1 = String.valueOf(serial1);
+					if (serial2 != -1)
+						mid2 = String.valueOf(serial2);
+
+					matrix.add(mid1, mid2, isGene1InMicroarray,
+							isGene2InMicroarray, 0.8f, shortNameType);
+
+				} else {
+					matrix.add(serial1, serial2, 0.8f, shortNameType);
+				}
+				interactionNum++;
+				if (interactionNum > maxInteractionNum
+						&& createNetwork == false) {
+					String theMessage = "Too many interactions in the selected marker list. It will take long time and maybe run out of memory.\nDo you want to cancel the process? Please click \"YES\" to terminate this process.";
+					int result = JOptionPane.showConfirmDialog(
+							(Component) null, theMessage, "alert",
+							JOptionPane.YES_NO_OPTION);
+					if (result == JOptionPane.NO_OPTION)
+						createNetwork = true;
+					else {
+						createNetwork = false;
+						needBreak = true;
+						break;
+					}
+				}
+			}
 		} // end for loop
 
 		if (interactionNum <= maxInteractionNum && interactionNum > 0) {
@@ -1673,7 +1666,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			adjacencyMatrixdataSet.clearName("GENEMAP");
 			adjacencyMatrixdataSet.addNameValuePair("GENEMAP", geneIdToNameMap);
 
-			historyStr = "Cellular Network Parameters: \n"
+			String history = "Cellular Network Parameters: \n"
 					+ "      URL Used:     "
 					+ ResultSetlUtil.INTERACTIONS_SERVLET_URL + "\n"
 					+ "      Selected Interactome:     "
@@ -1683,7 +1676,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 					+ "      Threshold:     " + thresholdTextField.getText()
 					+ "\n" + "      Selected Marker List: \n" + historyStr
 					+ "\n";
-			ProjectPanel.addToHistory(adjacencyMatrixdataSet, historyStr);
+			ProjectPanel.addToHistory(adjacencyMatrixdataSet, history);
 
 			if (handler.isCancelled())
 				return;
