@@ -27,7 +27,6 @@ import javax.swing.Box;
 import javax.swing.JInternalFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
-import javax.swing.JProgressBar;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 
@@ -157,10 +156,7 @@ public class CytoscapeWidget implements VisualPlugin {
 
 	private CyNetworkView view = null;
 
-	// these are default because ExpandMenuListener needs access
-
-	CyNetwork cytoNetwork = null;
-	JProgressBar jProgressBar = new JProgressBar();
+	private CyNetwork cytoNetwork = null;
 	DSMicroarraySet<? extends DSMicroarray> maSet = null;
 	boolean publishEnabled = true;
 
@@ -224,7 +220,6 @@ public class CytoscapeWidget implements VisualPlugin {
 			Component comp1 = menuBar;
 			BiModalJSplitPane comp2 = (BiModalJSplitPane) components[0];
 			CytoscapeToolBar comp3 = (CytoscapeToolBar) components[1];
-			Component comp4 = jProgressBar;
 
 			menuBar.setAlignmentX(Component.LEFT_ALIGNMENT);
 			comp2.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -233,11 +228,9 @@ public class CytoscapeWidget implements VisualPlugin {
 			box.add(comp1);
 			box.add(comp2);
 			box.add(comp3);
-			box.add(comp4);
 
 			contentPane.add(box);
 
-			jProgressBar.setVisible(false);
 			uiSetup = true;
 		}
 
@@ -480,22 +473,10 @@ public class CytoscapeWidget implements VisualPlugin {
 
 	private void createEdge(CyNode n1, CyNode n2, String geneId1,
 			String geneId2, String type) {
-		// process the edge connecting geneId and key
-		CyEdge e = null;
-		String typeName = null;
 		if (type != null) {
-			/*
-			 * if (geneId > id2) { e =
-			 * Cytoscape.getCyEdge(String.valueOf(geneId),
-			 * String.valueOf(geneId) + "." + type + "." + String.valueOf(id2),
-			 * String.valueOf(id2), type); } else { e =
-			 * Cytoscape.getCyEdge(String.valueOf(id2), String.valueOf(id2) +
-			 * "." + type + "." + String.valueOf(geneId),
-			 * String.valueOf(geneId), type); }
-			 */
 
-			typeName = interactionTypeSifMap.get(type);
-			e = Cytoscape.getCyEdge(n1.getIdentifier(), n1.getIdentifier() + " (" + type
+			String typeName = interactionTypeSifMap.get(type);
+			CyEdge e = Cytoscape.getCyEdge(n1.getIdentifier(), n1.getIdentifier() + " (" + type
 					+ ") " + n1.getIdentifier(), n2.getIdentifier(), type);
 			// Aracne result will not have an type, so we should
 			// not need to check it here.
@@ -504,66 +485,31 @@ public class CytoscapeWidget implements VisualPlugin {
 
 			e.setIdentifier(n1.getIdentifier() + " (" + type + ") " + n2.getIdentifier());
 					 
-
-		} else {
-			/*
-			 * if (geneId < id2) { e =
-			 * Cytoscape.getCyEdge(String.valueOf(geneId),
-			 * String.valueOf(geneId) + ".pp." + String.valueOf(id2),
-			 * String.valueOf(id2), ""); } else { e =
-			 * Cytoscape.getCyEdge(String.valueOf(geneId),
-			 * String.valueOf(geneId) + ".pp." + String.valueOf(id2),
-			 * String.valueOf(id2), ""); }
-			 */
-			// e = Cytoscape.getCyEdge(String.valueOf(geneId),
-			// String.valueOf(geneId) + ".pp." +
-			// String.valueOf(id2), String.valueOf(id2), "");
-			e = Cytoscape.getCyEdge(n1.getIdentifier(), n1.getIdentifier() + " () "
-					+ n2.getIdentifier(), n2.getIdentifier(), "");
-			// For Aracne edges, if a reverse edge exist, we
-			// skip it.
-			// For Geneways edges,
-			if (!cytoNetwork.edgeExists(n2, n1)) // Aracne
-				// result
-				// will not
-				// have an
-				// type, so
-				// we should
-				// check it
-				// here.
-				cytoNetwork.addEdge(e);
-			e.setIdentifier(n1.getIdentifier() + " () " + n2.getIdentifier());  
-
-		}
-		try {
-
-			/*
-			 * Cytoscape.getEdgeAttributes() .setAttribute(e.getIdentifier(),
-			 * "attr1", new Double(v12));
-			 */
-			log.debug("edge " + geneId1 + "-" + geneId2 + ":"
-					+ n1.getIdentifier() + "-" + n2.getIdentifier());
-
-			if (type != null) {
+			try {
 				Cytoscape.getEdgeAttributes().setAttribute(e.getIdentifier(),
 						"type", typeName);
-				 
+
 				if (edgeDm.getMapValue(typeName) == null) {
 					edgeDm.putMapValue(typeName, getRandomCorlor());
 
 				}
-
+			} catch (Exception ex) {
+				ex.printStackTrace();
 			}
+		} else {
+			CyEdge e = Cytoscape.getCyEdge(n1.getIdentifier(), n1.getIdentifier() + " () "
+					+ n2.getIdentifier(), n2.getIdentifier(), "");
+			// For Aracne edges, if a reverse edge exist, we skip it.
+			if (!cytoNetwork.edgeExists(n2, n1)) {
+				// Aracne result will not have an type, 
+				// so we should check it here.
+				cytoNetwork.addEdge(e);
+			}
+			e.setIdentifier(n1.getIdentifier() + " () " + n2.getIdentifier());  
 
-		} catch (Exception ex) {
-			ex.printStackTrace();
 		}
 
 	}
-
-
-
-
 
 	private CyNode createNode(String geneIdStr,
 			HashMap<String, String> geneIdToNameMap) {
@@ -849,10 +795,6 @@ public class CytoscapeWidget implements VisualPlugin {
 						// swissprotIdToMarkerIdMap contains nothing
 						selectedMarkers.add(maSet.getMarkers().get(id));
 
-					// int serial = ((Integer)
-					// Cytoscape.getCurrentNetworkView().getNetwork().getNodeAttributeValue((CyNode)
-					// node, "Serial")).intValue();
-					// selectedMarkers.add(maSet.getMarkers().get(serial));
 				}
 			}
 			selectedMarkers.setActive(true);
@@ -1031,8 +973,6 @@ public class CytoscapeWidget implements VisualPlugin {
 			log.info("DrawAction finished.");
 			resetNetwork();
 		}
-		
-		
 
 	}
 
@@ -1130,7 +1070,6 @@ public class CytoscapeWidget implements VisualPlugin {
 		}
 
 	}
-
 	
 	/*
 	 * This function restore the original status for current selected network.
