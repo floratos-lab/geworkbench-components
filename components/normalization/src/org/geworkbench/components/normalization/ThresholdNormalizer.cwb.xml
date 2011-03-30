@@ -8,6 +8,7 @@
 				authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 				toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 				tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Normalization"
+				loadByDefault="true"
 				category="normalizer"
 				description="All data points whose value is less than
  (or greater than) a user-specified minimum (maximum) value
