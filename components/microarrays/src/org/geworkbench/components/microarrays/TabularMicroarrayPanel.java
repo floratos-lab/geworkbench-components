@@ -57,7 +57,7 @@ public class TabularMicroarrayPanel extends MicroarrayViewEventBase {
 
 	private static Log log = LogFactory.getLog(TabularMicroarrayPanel.class);
 
-	private final String NUMBERS = "Numbers";
+	private final String NUMBERS = "Number";
 	private final String SCIENTIFIC = "Scientific";
 
 	private String selectedFormat = null;
@@ -213,6 +213,7 @@ public class TabularMicroarrayPanel extends MicroarrayViewEventBase {
 		jrbNumbers.addActionListener(radioActionListener);
 		jrbScientific.addActionListener(radioActionListener);
 
+		JLabel labelFormat = new JLabel("                      Format: ");
 		JLabel labelBlank = new JLabel("  ");
 		JLabel labelDecimalPlaces = new JLabel("   Decimal places:");
 		JSpinner jspDecimalPlaces = new JSpinner(new SpinnerNumberModel(2, 0,
@@ -267,8 +268,9 @@ public class TabularMicroarrayPanel extends MicroarrayViewEventBase {
 		jToolBar1.add(jShowAllMarkers, null);
 		jScrollPane1.getViewport().add(jTable1, null);
 
-		jToolBar3.add(labelBlank);
+		jToolBar3.add(labelFormat);
 		jToolBar3.add(jrbNumbers);
+		jToolBar3.add(labelBlank);
 		jToolBar3.add(jrbScientific);
 		jToolBar3.add(labelDecimalPlaces);
 		jToolBar3.add(jspDecimalPlaces);
