@@ -668,11 +668,7 @@ public class CytoscapeWidget implements VisualPlugin {
 	}
 
 	private void createSubNetwork(int node1,
-			HashMap<String, String> geneIdToNameMap, double threshold, int level) {
-
-		if (level == 0) {
-			return;
-		}
+			HashMap<String, String> geneIdToNameMap, double threshold) {
 
 		List<AdjacencyMatrix.Edge> edges = adjMatrix.getEdges(node1);
 
@@ -699,17 +695,11 @@ public class CytoscapeWidget implements VisualPlugin {
 			createEdge(n1, n2, String.valueOf(node1), String.valueOf(edge.node2),
 					type);
 
-			createSubNetwork(edge.node2, geneIdToNameMap, threshold, level - 1);
-
 		} // end of the loop for edges
 	}
 
 	private void createSubNetwork(String node1,
-			HashMap<String, String> geneIdToNameMap, double threshold, int level) {
-
-		if (level == 0) {
-			return;
-		}
+			HashMap<String, String> geneIdToNameMap, double threshold) {
 
 		List<AdjacencyMatrix.EdgeWithStringNode> edges = adjMatrix.getEdgesNotInMicroarray(node1);
 
@@ -731,8 +721,6 @@ public class CytoscapeWidget implements VisualPlugin {
 
 			// process the edge connecting geneId and key
 			createEdge(n1, n2, node1, edge.node2, type);
-
-			createSubNetwork(edge.node2, geneIdToNameMap, threshold, level - 1);
 
 		} // end of the loop for edges
 	}
@@ -1013,7 +1001,7 @@ public class CytoscapeWidget implements VisualPlugin {
 				return;
 			}
 			i++;
-			createSubNetwork(node, geneIdToNameMap, threshold, 1);
+			createSubNetwork(node, geneIdToNameMap, threshold);
 			log.debug("iteration: " + i);
 		}
 
@@ -1023,7 +1011,7 @@ public class CytoscapeWidget implements VisualPlugin {
 				return;
 			}
 			i++;
-			createSubNetwork(node, geneIdToNameMap, threshold, 1);
+			createSubNetwork(node, geneIdToNameMap, threshold);
 			log.debug("iteration: " + i);
 		}
 
