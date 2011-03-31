@@ -65,6 +65,7 @@ public class SOMPlot extends ChartPanel {
 
 
     static String PLOT_MOUSE_CLICKED = "SOMMouseClicked";
+    private String titleText;
 
     /**
      * Constructor
@@ -73,6 +74,8 @@ public class SOMPlot extends ChartPanel {
      */
     public SOMPlot(JFreeChart chart) {
         super(chart, false);
+        titleText=chart.getTitle().getText();
+        chart.setTitle("");
         this.setLayout(new BorderLayout());
         JPopupMenu popup = createPopupMenu(true, false, false, true);
         setPopupMenu(popup);
@@ -146,7 +149,7 @@ public class SOMPlot extends ChartPanel {
 					for (int maCtr = 0; maCtr < arrays.size(); maCtr++)
 						alist[maCtr] = arrays.get(maCtr).getLabel() + " ";
 					chart.getXYPlot().setDomainAxis(
-							new SymbolAxis("Experiment", alist));
+							new SymbolAxis("Cluster "+titleText, alist));
 					chart.getXYPlot().getDomainAxis().setVerticalTickLabels(
 							true);
 

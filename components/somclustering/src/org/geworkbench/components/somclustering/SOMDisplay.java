@@ -233,7 +233,7 @@ public class SOMDisplay implements VisualPlugin, MenuListener,
 
 		for (int i = 0; i < x; i++) {
 			for (int j = 0; j < y; j++) {
-				JFreeChart chart = ChartFactory.createXYLineChart(null, // Title
+				JFreeChart chart = ChartFactory.createXYLineChart(""+(i*y+j+1), // Title 
 						"Experiment", // X-Axis label
 						"Value", // Y-Axis label
 						new XYSeriesCollection(), // Dataset
