@@ -78,12 +78,15 @@ import cytoscape.view.cytopanels.BiModalJSplitPane;
 import cytoscape.view.cytopanels.CytoPanel;
 import cytoscape.visual.CalculatorCatalog;
 import cytoscape.visual.DuplicateCalculatorNameException;
+import cytoscape.visual.NodeAppearanceCalculator;
 import cytoscape.visual.NodeShape;
 import cytoscape.visual.VisualMappingManager;
 import cytoscape.visual.VisualPropertyType;
 import cytoscape.visual.VisualStyle;
 import cytoscape.visual.calculators.Calculator;
 import cytoscape.visual.mappings.DiscreteMapping;
+import cytoscape.visual.mappings.ObjectMapping;
+import cytoscape.visual.mappings.PassThroughMapping;
 import cytoscape.visual.parsers.ObjectToString;
 import ding.view.DNodeView;
 
@@ -417,6 +420,7 @@ public class CytoscapeWidget implements VisualPlugin {
 			}
 
 		} catch (Exception ex) {
+			ex.printStackTrace();
 			log.error(ex.getMessage());
 		}
 
@@ -526,65 +530,48 @@ public class CytoscapeWidget implements VisualPlugin {
 		boolean n1new = true;
 		CyNode cyNode = Cytoscape.getCyNode(geneIdStr);
 
+		// cp1 will be the unique ID; displayName will be what it is called
 		String cp1 = null;
+		String displayedName = null;
 
 		DSGeneMarker marker1 = null;
 
 		if (isInSelectedMicroarray == true) {
 			marker1 = (DSGeneMarker) maSet.getMarkers().get(serialId);
 			String geneName = marker1.getGeneName().trim();
+			cp1 = marker1.getLabel();
 			if (geneName.equals("") || geneName.equals("---"))
-				cp1 = marker1.getLabel();
+				displayedName = marker1.getLabel();
 			else
-				cp1 = geneName;
+				displayedName = geneName;
 		}
 
-		/*
-		 * //if we already have this node in name, we use that one if (n1 ==
-		 * null) if(cp1 != null) n1 = Cytoscape.getCyNode(cp1.getName()); //if
-		 * it doesn't exist, we create one. if we get name, we create by name,
-		 * if not, we create by number if (n1 == null) if(cp1 == null) n1 =
-		 * Cytoscape.getCyNode(String.valueOf(geneId), true); else n1 =
-		 * Cytoscape.getCyNode(cp1.getName(), true); else n1new = false;
-		 */
-		// if there's some node has the same name, even we
-		// already got a node, we need to use only one node.
 		if (cp1 != null) {
-			if (cyNode != null)
-				if (cytoNetwork.containsNode(cyNode)) {
-					cytoNetwork.removeNode(serialId, true);
-					log.debug("I removed " + serialId);
-				}
 			cyNode = Cytoscape.getCyNode(cp1);
 		}
 
-		if (cyNode == null) {
+		if (cyNode == null) { // new node
 			cyNode = Cytoscape.getCyNode(geneIdStr, true);
 			log.debug("I create " + cyNode.getIdentifier());
-			if (cp1 == null) {
+			if (cp1 == null) { // not in microarray dataset
 				String n1GeneName = geneIdToNameMap.get(geneIdStr);
-				if (n1GeneName != null && !n1GeneName.trim().equals(""))
+				if (n1GeneName != null && !n1GeneName.trim().equals("")) {
 					cyNode.setIdentifier(n1GeneName);
-				else {
+					displayedName = n1GeneName;
+				} else {
 					cyNode.setIdentifier(geneIdStr);
+					displayedName = geneIdStr;
 				}
-			} else {
+			} else { // in microarray dataset
 				cyNode.setIdentifier(cp1);
 				log.debug("I name it " + serialId + cyNode.getIdentifier());
 			}
-		} else {
+
+			Cytoscape.getNodeAttributes().setAttribute(
+					cyNode.getIdentifier(), "displayedName", displayedName);
+
+		} else { // existing node
 			n1new = false;
-			if (cp1 != null) {
-				cyNode.setIdentifier(cp1);
-				log.debug("I got " + cyNode.getIdentifier() + " for "
-						+ geneIdStr);
-			} else {
-				String n1GeneName = geneIdToNameMap.get(geneIdStr);
-				if (n1GeneName != null && !n1GeneName.trim().equals(""))
-					cyNode.setIdentifier(n1GeneName);
-				else
-					cyNode.setIdentifier(geneIdStr);
-			}
 		}
 
 		try {
@@ -958,6 +945,14 @@ public class CytoscapeWidget implements VisualPlugin {
 		if (maSet != null) {
 			view = Cytoscape.createNetworkView(cytoNetwork, maSet.getLabel());
 
+			NodeAppearanceCalculator nac = visualStyle.getNodeAppearanceCalculator();
+			ObjectMapping oMapping = nac.getCalculator(VisualPropertyType.NODE_LABEL).getMapping(0);
+			if(oMapping instanceof PassThroughMapping) {
+				PassThroughMapping m = (PassThroughMapping)oMapping;
+				m.setControllingAttributeName("displayedName", Cytoscape.getCurrentNetwork(), false);
+			} else {
+				log.error("Wrong type of ObjectMapping: "+oMapping.getClass().getName());
+			}
 			view.applyVizmapper(visualStyle);
 
 			view.addGraphViewChangeListener(new GraphViewChangeListener() {
