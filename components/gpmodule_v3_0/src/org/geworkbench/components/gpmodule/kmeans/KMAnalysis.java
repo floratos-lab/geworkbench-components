@@ -21,6 +21,10 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
+import org.geworkbench.bison.model.clusters.Cluster;
+import org.geworkbench.bison.model.clusters.DefaultSOMCluster;
+import org.geworkbench.bison.model.clusters.LeafSOMCluster;
+import org.geworkbench.bison.model.clusters.SOMCluster;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.components.gpmodule.GPAnalysis;
 import org.geworkbench.engine.management.Publish;
@@ -50,6 +54,7 @@ public class KMAnalysis extends GPAnalysis{
 	private static final int MAXIUM_MARKERS_ONELINE=14;
 	private static final int INDEX_OF_GENE=0;
 	private static final int INDEX_OF_ARRAY=1;
+	private static final int ITEMS_PER_ROW=3;
 	
 	private int numGenes;
 	private String clusterNum;
@@ -234,11 +239,56 @@ public class KMAnalysis extends GPAnalysis{
 			return new AlgorithmExecutionResults(false, "No invalid output.", null);
 		}
 		
+		int dimension;
+		int dim_y=ITEMS_PER_ROW;
+		int dim_x=Integer.parseInt(clusterNum)/dim_y;
+		if(Integer.parseInt(clusterNum)>(dim_x*dim_y)) dim_x++;
+		
+		SOMCluster[][] graphResults = new SOMCluster[dim_x][dim_y];		
+		
+		SOMCluster result_cluster = new DefaultSOMCluster();
+	
+		for (int i = 0; i < (dim_x*dim_y) && !stopAlgorithm; i++) {		
+				Cluster clusterRep = new DefaultSOMCluster();
+				result_cluster.addNode(clusterRep);		
+		}
+
+
+		SOMCluster[] nodeList = (SOMCluster[]) result_cluster
+				.getChildrenNodes();
+		//SOMCluster[][] results = new SOMCluster[dim_x][dim_y];
+		for (int x = 0; x < dim_x && !stopAlgorithm; x++) {
+			for (int y = 0; y < dim_y && !stopAlgorithm; y++) {
+				dimension = x * dim_y + y;
+				ArrayList<String[]> oneCluster=null;
+				if (dimension<=resultList.size()-1){
+					oneCluster=(ArrayList<String[]>) resultList.get(dimension);
+				}				
+				if(oneCluster!=null){
+					int size=oneCluster.size();
+					for (int i = 0; i < size && !stopAlgorithm; i++) {						
+						// Transform the following to SOMCluster
+						Cluster node = new LeafSOMCluster(data.markers().get(
+								oneCluster.get(i)[0]));
+						nodeList[dimension].addNode(node);
+					}
+				}
+				graphResults[x][y] = nodeList[dimension];
+			}
+		}
+		
+		
+		
+		
+		
+		
+		
+		
 		String histHeader = null;
 		String histMarkerString = GenerateMarkerString(data);		
 		
 		KMeansResult analysisResult = new KMeansResult(maSet,"K-Means Clustering",
-				clusterBy,resultText,resultList);
+				data, graphResults, clusterBy, resultList);
 		AlgorithmExecutionResults results = new AlgorithmExecutionResults(true,
 				"K-Means Analysis", analysisResult);
 		

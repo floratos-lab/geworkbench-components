@@ -14,7 +14,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
-import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -52,8 +51,7 @@ public class KMeansViewer extends JPanel implements VisualPlugin {
 	private static final long serialVersionUID = 8763573636321803637L;
 	private static final int INDEX_OF_GENE=0;
 	DSMicroarraySet<DSMicroarray> maSet;
-	private String resultText="see result here!";
-	private JTextArea textBox=null;
+	
 	private ArrayList<List<String[]>> resultList=null;
 	int selectedRow=0;
 	private JPanel detailedPane=null;
@@ -70,10 +68,7 @@ public class KMeansViewer extends JPanel implements VisualPlugin {
 	private JLabel clusterIdLabel=new JLabel("1");
 	private JLabel clusterSizeLabel=new JLabel();
 	
-	public KMeansViewer() {
-		
-		textBox=new JTextArea();
-		textBox.setText(resultText);		
+	public KMeansViewer() {			
 
 		JSplitPane splitPane;
 		
@@ -297,8 +292,7 @@ public class KMeansViewer extends JPanel implements VisualPlugin {
 		if (dataSet instanceof KMeansResult) {
 			kmResult=(KMeansResult) dataSet;
 			maSet=kmResult.getMaSet();
-			resultText=kmResult.getResultText();
-			textBox.setText(resultText);
+			
 			resultList=kmResult.getResultList();
 			List<String[]> clustersBrief=new ArrayList<String[]>();
 			double mean=0;
