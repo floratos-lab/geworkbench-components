@@ -107,7 +107,7 @@ public class MarkerSelectionPanel extends JPanel implements Observer {
         List<String> selectedGeneList = new ArrayList<String>();
         for (int i = 0; i < selectedObject.size(); i++) {
         	DSGeneMarker marker =   selectedObject.get(i);					 
-        	selectedGeneList.add(marker.getGeneName());
+        	selectedGeneList.add(marker.getLabel());
 		}
         
     	CyNetworkView view = Cytoscape.getCurrentNetworkView();
