@@ -338,51 +338,46 @@ public class KMeansViewer extends JPanel implements VisualPlugin {
 				.getCurrentContext(maSet);
 			
 			final DSItemList<DSMicroarray> allArrayList=arraySet.getItemList();//all arrays
-		/*//removed later	
-			for(DSMicroarray d:allArrayList){
-				System.out.println(d.getLabel());
-			}
-		 */		
+		
 			jAddBttn = new JButton();
 	        jAddBttn.setText("Add to Set");	        
 	        jAddBttn.addActionListener(new java.awt.event.ActionListener() {
-	            public void actionPerformed(ActionEvent e) {
-	                
-	            	List<String[]> clusterStrs=resultList.get(selectedRow);
-	            	if(kmResult.getClusterBy()==INDEX_OF_GENE){   		//by markers
-	            		DSAnnotatedPanel<DSGeneMarker, Float> panelSignificant = new CSAnnotPanel<DSGeneMarker, Float>(
-	            				"KMeans_cluster_"+(selectedRow+1));
-	            		
-	            		for(int i=0;i<clusterStrs.size();i++){
-	            			String[] ss=clusterStrs.get(i);
-	            			for(DSGeneMarker d: allMarkerList){
-	            				if(ss[0].equalsIgnoreCase(d.getLabel())){
-	            					panelSignificant.add(d, new Float(i));	
-	            				}
+	          public void actionPerformed(ActionEvent e) {
+            	List<String[]> clusterStrs=resultList.get(selectedRow);
+	            if(kmResult.getClusterBy()==INDEX_OF_GENE){   		//by markers
+	            	DSAnnotatedPanel<DSGeneMarker, Float> panelSignificant = new CSAnnotPanel<DSGeneMarker, Float>(
+	            			"KMeans_cluster_"+(selectedRow+1));
+	            	
+	            	for(int i=0;i<clusterStrs.size();i++){
+	            		String[] ss=clusterStrs.get(i);
+	            		for(DSGeneMarker d: allMarkerList){
+	            			if(ss[0].equalsIgnoreCase(d.getLabel())){
+	            				panelSignificant.add(d, new Float(i));	
 	            			}
 	            		}
-	            		publishSubpanelChangedEvent(new SubpanelChangedEvent<DSGeneMarker>(
-	            				DSGeneMarker.class, panelSignificant,
-	            				SubpanelChangedEvent.NEW));	
-	            		
 	            	}
-	            	else{	//by arrays
-	            		DSAnnotatedPanel<DSMicroarray, Float> panelToBeAdded = new CSAnnotPanel<DSMicroarray, Float>(
-	            				"KMeans_cluster_"+(selectedRow+1));
-	            		
-	            		for(int i=0;i<clusterStrs.size();i++){
-	            			String[] ss=clusterStrs.get(i);
-	            			for(DSMicroarray d: allArrayList){
-	            				if(ss[0].equalsIgnoreCase(d.getLabel())){
-	            					panelToBeAdded.add(d, new Float(i));	
-	            				}
-	            			}
-	            		}	            		
-	            		
-	            		publishSubpanelChangedEvent(new SubpanelChangedEvent<DSMicroarray>(
-	            				DSMicroarray.class, panelToBeAdded,	SubpanelChangedEvent.NEW));	
-	            	}
+	            	publishSubpanelChangedEvent(new SubpanelChangedEvent<DSGeneMarker>(
+	            			DSGeneMarker.class, panelSignificant,
+	            			SubpanelChangedEvent.NEW));	
+	            	
 	            }
+	            else{	//by arrays
+	            	DSAnnotatedPanel<DSMicroarray, Float> panelToBeAdded = new CSAnnotPanel<DSMicroarray, Float>(
+	            			"KMeans_cluster_"+(selectedRow+1));
+	            	
+	            	for(int i=0;i<clusterStrs.size();i++){
+	            		String[] ss=clusterStrs.get(i);
+	            		for(DSMicroarray d: allArrayList){
+	            			if(ss[0].equalsIgnoreCase(d.getLabel())){
+	            				panelToBeAdded.add(d, new Float(i));	
+	            			}
+	            		}
+	            	}	            		
+	            	
+	            publishSubpanelChangedEvent(new SubpanelChangedEvent<DSMicroarray>(
+	            		DSMicroarray.class, panelToBeAdded,	SubpanelChangedEvent.NEW));	
+	            }
+	          }
 	        });
 	        detailSum.add(jAddBttn);
 	        detailSum.add(new JLabel());	        

@@ -153,10 +153,7 @@ public class KMAnalysis extends GPAnalysis{
 			return new AlgorithmExecutionResults(false, "trainData process aborted.", null);
 		}
 		
-		ArrayList<List<String[]>> resultList=new ArrayList<List<String[]>>();
-		
-		String resultText="";
-		
+		ArrayList<List<String[]>> resultList=new ArrayList<List<String[]>>();		
 		DSItemList<DSGeneMarker> dsList=maSet.getMarkers();
 		
 		try{
@@ -166,11 +163,8 @@ public class KMAnalysis extends GPAnalysis{
 			boolean clusterContinue=false;
 			List<String[]> aClusterItems=null;
 			while (in.hasNextLine()){
-				String line = in.nextLine();
-				resultText+=line+"\n";
-				
-				int numOfItemsInLine=0;
-				
+				String line = in.nextLine();				
+				int numOfItemsInLine=0;				
 				if(clusterFollow){
 					if(!clusterContinue)
 						aClusterItems=new ArrayList<String[]>();
@@ -253,10 +247,9 @@ public class KMAnalysis extends GPAnalysis{
 				result_cluster.addNode(clusterRep);		
 		}
 
-
 		SOMCluster[] nodeList = (SOMCluster[]) result_cluster
 				.getChildrenNodes();
-		//SOMCluster[][] results = new SOMCluster[dim_x][dim_y];
+		
 		for (int x = 0; x < dim_x && !stopAlgorithm; x++) {
 			for (int y = 0; y < dim_y && !stopAlgorithm; y++) {
 				dimension = x * dim_y + y;
@@ -275,14 +268,7 @@ public class KMAnalysis extends GPAnalysis{
 				}
 				graphResults[x][y] = nodeList[dimension];
 			}
-		}
-		
-		
-		
-		
-		
-		
-		
+		}		
 		
 		String histHeader = null;
 		String histMarkerString = GenerateMarkerString(data);		
@@ -333,6 +319,11 @@ public class KMAnalysis extends GPAnalysis{
 		for (DSGeneMarker marker : view.markers()) {
 			histStr += "\t" + marker.getLabel() + "\n";
 		}
+		histStr+=view.items().size() +" microarray analyzed:\n";		
+		for (DSMicroarray microarray : view.items()){
+			histStr+="\t"+microarray.getLabel()+"\n";
+		}	
+		
 		return histStr;
 	}	
 	
