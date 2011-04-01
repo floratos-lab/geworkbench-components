@@ -1509,11 +1509,12 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				} else {
 					Collection<Integer> markerIds = geneNameToMarkerIdMap
 							.get(interactionDetail.getdSGeneName2());
-					if (markerIds != null) {
+					if (markerIds != null && !markerIds.isEmpty()) {
 						for (Integer markerId : markerIds) {
 
 							marker = (DSGeneMarker) dataset.getMarkers().get(
 									markerId);
+							 
 							if (interactionDetail.getDbSource2()
 									.equalsIgnoreCase(Constants.UNIPORT)) {
 								Set<String> SwissProtIds = AnnotationParser
@@ -1523,10 +1524,13 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 									serial2 = marker.getSerial();
 									break;
 								}
-							} else {
+							} else { 
 								serial2 = marker.getSerial();
 								break;
 							}
+							
+							if (serial2 == -1)
+								serial2 = marker.getSerial();; 
 
 						}
 					} else
@@ -1577,7 +1581,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				} else {
 					Collection<Integer> markerIds = geneNameToMarkerIdMap
 							.get(interactionDetail.getdSGeneName1());
-					if (markerIds != null) {
+					if (markerIds != null && !markerIds.isEmpty()) {
 						for (Integer markerId : markerIds) {
 
 							marker = (DSGeneMarker) dataset.getMarkers().get(
@@ -1597,6 +1601,10 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 							}
 
 						}
+						
+						if (serial1 == -1)
+							serial1 = marker.getSerial();; 
+						
 					} else
 						isGene1InMicroarray = false;
 				}
