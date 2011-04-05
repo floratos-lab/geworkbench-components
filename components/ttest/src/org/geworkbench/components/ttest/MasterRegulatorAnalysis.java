@@ -298,9 +298,17 @@ public class MasterRegulatorAnalysis extends AbstractAnalysis implements
 					.renameAdjMatrixToCombobox((AdjacencyMatrixDataSet)dataSet, e.getOldName(),e.getNewName());
 		}
 	}
-	@SuppressWarnings({ "rawtypes" })
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Subscribe
 	public void receive(org.geworkbench.events.ProjectEvent e, Object source) {
+		if (e.getMessage().equals(org.geworkbench.events.ProjectEvent.SELECTED)){
+			DSDataSet dataSet = e.getDataSet();
+			if (dataSet instanceof DSMicroarraySet) {
+				this.mraAnalysisPanel.setMicroarraySet((DSMicroarraySet<DSMicroarray>)dataSet);
+			}else{
+				this.mraAnalysisPanel.setMicroarraySet(null);
+			}
+		}
 
         ProjectSelection selection = ((ProjectPanel) source).getSelection();
         DataSetNode dNode = selection.getSelectedDataSetNode();
