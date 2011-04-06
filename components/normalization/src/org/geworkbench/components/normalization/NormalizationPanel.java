@@ -594,7 +594,7 @@ public class NormalizationPanel implements VisualPlugin, ReHighlightable {
 				publishNormalizationEvent(new NormalizationEvent(maSet,
 						normalizedData, selectedNormalizer.getLabel()));
 				AnalysisInvokedEvent event = new AnalysisInvokedEvent(
-						selectedNormalizer, "");
+						selectedNormalizer, maSet.getDataSetName());
 				publishAnalysisInvokedEvent(event);
 				
 			} else {
