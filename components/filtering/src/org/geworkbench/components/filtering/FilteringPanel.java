@@ -646,7 +646,7 @@ public class FilteringPanel implements VisualPlugin, ReHighlightable {
 			
 			progressBar.stop();
 			AnalysisInvokedEvent event = new AnalysisInvokedEvent(
-					selectedFilter,"" );
+					selectedFilter,maSet.getDataSetName() );
 			publishAnalysisInvokedEvent(event);
 			publishFilteringEvent(new FilteringEvent(maSet, filteredData,
 					historyString));
