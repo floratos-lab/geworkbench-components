@@ -91,7 +91,7 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 
 	private JButton loadRegulatorsButton = new JButton("Load Regulators");
 
-	private String regulatorsFilePath = new String("data/regulators.txt");
+	private String regulatorsFilePath = new String("components/medusa/data/test/dataset/web100_test_regulators.txt");
 
 	/* targets */
 	private String TARGET_LIST = "Specify";
@@ -110,7 +110,7 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 	private JButton loadTargetsButton = new JButton("Load Targets");
 
 	private String targetsFilePath = new String(
-			"data/medusa/dataset/targets.txt");
+			"components/medusa/data/test/dataset/web100_test_targets.txt");
 
 	/* discretization interval */
 
