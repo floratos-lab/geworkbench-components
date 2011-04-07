@@ -391,11 +391,13 @@ public class KMeansViewer extends JPanel implements VisualPlugin {
 			JTable clusterDetailTab=null;
 			if(kmResult.getClusterBy()==INDEX_OF_GENE){
 				clusterDetailTab=new JTable(markersDetailTableModel);
+				clusterDetailTab.setAutoCreateRowSorter(true);
 				markersDetailTableModel.setValues(resultList.get(0));
 				markersDetailTableModel.fireTableDataChanged();
 			}
 			else{
 				clusterDetailTab=new JTable(arraysDetailTableModel);
+				clusterDetailTab.setAutoCreateRowSorter(true);
 				arraysDetailTableModel.setValues(resultList.get(0));
 				arraysDetailTableModel.fireTableDataChanged();
 			}

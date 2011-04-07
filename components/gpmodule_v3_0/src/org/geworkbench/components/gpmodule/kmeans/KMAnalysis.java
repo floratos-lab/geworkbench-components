@@ -16,6 +16,7 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.KMeansResult;
+import org.geworkbench.bison.datastructure.bioobjects.KMeansResultMarkers;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
@@ -271,17 +272,30 @@ public class KMAnalysis extends GPAnalysis{
 		}		
 		
 		String histHeader = null;
+		AlgorithmExecutionResults results=null;
 		String histMarkerString = GenerateMarkerString(data);		
-		
-		KMeansResult analysisResult = new KMeansResult(maSet,"K-Means Clustering",
-				data, graphResults, clusterBy, resultList);
-		AlgorithmExecutionResults results = new AlgorithmExecutionResults(true,
-				"K-Means Analysis", analysisResult);
-		
-		// add data set history.
-		histHeader = GenerateHistoryHeader();
-		String stemp=histHeader + histMarkerString;
-		ProjectPanel.addToHistory(analysisResult, stemp );
+		if(clusterBy!=0){
+			KMeansResult analysisResult = new KMeansResult(maSet,"K-Means Clustering",
+					data, graphResults, clusterBy, resultList);
+			results = new AlgorithmExecutionResults(true,
+					"K-Means Analysis", analysisResult);
+			
+			// add data set history.
+			histHeader = GenerateHistoryHeader();
+			String stemp=histHeader + histMarkerString;
+			ProjectPanel.addToHistory(analysisResult, stemp );
+		}
+		else{
+			KMeansResultMarkers analysisResult = new KMeansResultMarkers(maSet,"K-Means Clustering",
+					data, graphResults, clusterBy, resultList);
+			results = new AlgorithmExecutionResults(true,
+					"K-Means Analysis", analysisResult);
+			
+			// add data set history.
+			histHeader = GenerateHistoryHeader();
+			String stemp=histHeader + histMarkerString;
+			ProjectPanel.addToHistory(analysisResult, stemp );
+		}
 		
 		pbFCtest.dispose();
 		

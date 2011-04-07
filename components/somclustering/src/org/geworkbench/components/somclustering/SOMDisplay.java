@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
@@ -14,9 +13,7 @@ import java.beans.PropertyChangeListener;
 
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 
@@ -25,7 +22,6 @@ import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
-import org.geworkbench.bison.datastructure.bioobjects.KMeansResult;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
@@ -117,7 +113,6 @@ public class SOMDisplay implements VisualPlugin, MenuListener,
 	public void receive(ProjectEvent event, Object source) {
 		// Create and throw a HierClusterModelEvent event.
 		DSDataSet<?> dataSet = event.getDataSet();
-		boolean flag=true;
 		if ((dataSet != null) && (dataSet instanceof DSSOMClusterDataSet)) {
 			DSSOMClusterDataSet newClusterSet = (DSSOMClusterDataSet) dataSet;
 			if (newClusterSet != clusterSet) {
@@ -126,35 +121,10 @@ public class SOMDisplay implements VisualPlugin, MenuListener,
 				mASet = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) clusterSet.getDataSetView();
 				origX = originalClusters.length;
 				origY = originalClusters[0].length;
+			
+				reset();
 			}
 		}
-		
-		if ((dataSet != null) && (dataSet instanceof KMeansResult)) {
-			int i=((KMeansResult) dataSet).getClusterBy();			
-			if(i==1){				
-				flag=false;
-				SwingUtilities.invokeLater(new Runnable() {
-					public void run() {						
-						display.removeAll();
-						display.setLayout(new BorderLayout());
-						JTextField aText=new JTextField(" Please see results in K-Means Clustering Viewer(left). This viewer is for clustering by genes.");
-						aText.setFont(new Font("Serif", Font.BOLD, 14));
-						display.add(aText);
-						display.revalidate();
-						display.repaint();
-						currentPlots = plots;
-						isReset = true;
-					}
-				});
-				
-			}			
-		}
-		if ((dataSet != null) && (dataSet instanceof DSSOMClusterDataSet)) {
-			if (flag){				
-					reset();				
-			}
-		}
-		
 	}
 
 	@Publish
