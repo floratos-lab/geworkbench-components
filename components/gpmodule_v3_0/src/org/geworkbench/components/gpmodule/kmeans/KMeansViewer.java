@@ -401,7 +401,7 @@ public class KMeansViewer extends JPanel implements VisualPlugin {
 				arraysDetailTableModel.setValues(resultList.get(0));
 				arraysDetailTableModel.fireTableDataChanged();
 			}
-			clusterDetailTab.setPreferredScrollableViewportSize(new Dimension(700, 240));
+			clusterDetailTab.setPreferredScrollableViewportSize(new Dimension(700, 0));
 			clusterDetailTab.setFillsViewportHeight(true);
 			JScrollPane tablePane=new JScrollPane(clusterDetailTab);
 			
