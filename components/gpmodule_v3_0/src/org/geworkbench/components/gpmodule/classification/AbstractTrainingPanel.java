@@ -1,4 +1,4 @@
-package org.geworkbench.algorithms;
+package org.geworkbench.components.gpmodule.classification;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;

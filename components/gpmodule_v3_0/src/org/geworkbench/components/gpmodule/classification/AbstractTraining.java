@@ -1,4 +1,4 @@
-package org.geworkbench.algorithms;
+package org.geworkbench.components.gpmodule.classification;
 
 import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;

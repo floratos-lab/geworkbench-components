@@ -21,7 +21,6 @@ import org.genepattern.webservice.WebServiceException;
 import org.genepattern.util.GPpropertiesManager;
 import org.geworkbench.util.ClassifierException;
 import org.geworkbench.util.FilePathnameUtils;
-import org.geworkbench.algorithms.AbstractTraining;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;

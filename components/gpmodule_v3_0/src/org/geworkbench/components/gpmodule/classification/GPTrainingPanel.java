@@ -11,7 +11,6 @@
 */
 package org.geworkbench.components.gpmodule.classification;
 
-import org.geworkbench.algorithms.AbstractTrainingPanel;
 import org.geworkbench.components.gpmodule.GPConfigPanel;
 import org.geworkbench.components.gpmodule.GPHelpPanel;
 import org.geworkbench.bison.model.analysis.ParameterPanel;
