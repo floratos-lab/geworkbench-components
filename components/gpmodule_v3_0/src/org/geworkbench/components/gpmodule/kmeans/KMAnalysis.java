@@ -273,28 +273,21 @@ public class KMAnalysis extends GPAnalysis{
 		
 		String histHeader = null;
 		AlgorithmExecutionResults results=null;
-		String histMarkerString = GenerateMarkerString(data);		
-		if(clusterBy!=0){
+		String histMarkerString = GenerateMarkerString(data);
+		histHeader = GenerateHistoryHeader();
+		if(clusterBy!=INDEX_OF_GENE){
 			KMeansResult analysisResult = new KMeansResult(maSet,"K-Means Clustering",
 					data, graphResults, clusterBy, resultList);
 			results = new AlgorithmExecutionResults(true,
 					"K-Means Analysis", analysisResult);
-			
-			// add data set history.
-			histHeader = GenerateHistoryHeader();
-			String stemp=histHeader + histMarkerString;
-			ProjectPanel.addToHistory(analysisResult, stemp );
+			ProjectPanel.addToHistory(analysisResult, histHeader + histMarkerString );			
 		}
 		else{
 			KMeansResultMarkers analysisResult = new KMeansResultMarkers(maSet,"K-Means Clustering",
 					data, graphResults, clusterBy, resultList);
 			results = new AlgorithmExecutionResults(true,
-					"K-Means Analysis", analysisResult);
-			
-			// add data set history.
-			histHeader = GenerateHistoryHeader();
-			String stemp=histHeader + histMarkerString;
-			ProjectPanel.addToHistory(analysisResult, stemp );
+					"K-Means Analysis", analysisResult);			
+			ProjectPanel.addToHistory(analysisResult, histHeader + histMarkerString );
 		}
 		
 		pbFCtest.dispose();
