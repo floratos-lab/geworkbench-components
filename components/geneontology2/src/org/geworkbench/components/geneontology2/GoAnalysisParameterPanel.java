@@ -56,6 +56,12 @@ import org.geworkbench.util.BrowserLauncher;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
 
+/**
+ * 
+ * @author zji
+ * @version $Id$
+ *
+ */
 public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 	private static final long serialVersionUID = -57544738480207581L;
 	static Log log = LogFactory.getLog(GoAnalysisParameterPanel.class);
@@ -212,15 +218,6 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 			return null;
 
 		return listString.split(", ");
-//		switch (referenceListSource.getSelectedIndex()) {
-//		case 0: // from set
-//			return listString.split(", ");
-//		case 1: // from file - duplicate for now - in case this is changed to
-//				// file name instead
-//			return listString.split(", ");
-//		default:
-//			return null; // never-happen case
-//		}
 	}
 
 	/* this is called from getDataHistory */
@@ -716,7 +713,7 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 			parameters.put("changedList", "");
 		
 		if(parameters.get("ontologyFile")==null)
-			parameters.put("ontologyFile", "data/gene_ontology.1_2.obo");
+			parameters.put("ontologyFile", DEFAULT_OBO_FILE);
 		
 		if(parameters.get("loadedAnnotation")==null)
 			parameters.put("loadedAnnotation", true);
