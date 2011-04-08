@@ -21,12 +21,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.Vector;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
@@ -58,9 +56,6 @@ import org.geworkbench.util.sequences.GeneChromosomeMatcher;
 public class SequenceFetcher {
 	private static Log log = LogFactory.getLog(SequenceFetcher.class);
 
-	private final static String chiptyemapfilename = "chiptypeDatabaseMap.txt";
-	private static HashMap<String, String> chiptypeMap = new HashMap<String, String>();
-
 	private static final String UCSCDATABASEURL = "jdbc:mysql://genome-mysql.cse.ucsc.edu:3306/";
 	private static final String EBIURL = "http://www.ebi.ac.uk/ws/services/Dbfetch";
 	private static final int UPSTREAM = 2000;
@@ -69,8 +64,7 @@ public class SequenceFetcher {
 	private static String genomeAssembly = "";
 
 	private static CSSequenceSet<CSSequence> cachedSequences = null;
-	private static ArrayList<String> allDBs = new ArrayList<String>();
-	private static ArrayList<String> recentDBs = new ArrayList<String>();
+	private static SortedMap<String, String> recentDBs = new TreeMap<String, String>();
 
 	private static ArrayList<String> displayList = new ArrayList<String>();
 	private static String defaultChipChoice = "Select a genome";
@@ -163,29 +157,7 @@ public class SequenceFetcher {
 		return null;
 	}
 
-	/*
-	 * Get databases from the USCS MySQL server which have the highest version
-	 * number.
-	 * 
-	 * retrieves databases of the form: anoCar1, anoGam1, apiMel1, apiMel2,
-	 * bosTau2, bosTau3, bosTau4 and stores only the most recent version in the
-	 * variable recentDBs.
-	 */
 	static {
-		BufferedReader br = new BufferedReader(new InputStreamReader(
-				SequenceFetcher.class.getResourceAsStream(chiptyemapfilename)));
-		try {
-			String str = br.readLine();
-			while (str != null && str.contains(",")) {
-				String[] data = str.split(",");
-				chiptypeMap.put(data[0].trim(), data[1].trim());
-				str = br.readLine();
-			}
-			br.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 		} catch (ClassNotFoundException cnfe) {
@@ -194,53 +166,36 @@ public class SequenceFetcher {
 
 		Connection connection;
 		try {
-			connection = DriverManager.getConnection(UCSCDATABASEURL, "genome",
-					"");
+			connection = DriverManager.getConnection(UCSCDATABASEURL
+					+ "hgcentral", "genome", "");
 			Statement statement = connection.createStatement();
-			statement.execute("show databases");
+			statement.execute("SELECT * FROM defaultDb");
 			ResultSet resultSet = statement.getResultSet();
+			List<String> defaultDb = new ArrayList<String>();
 			while (resultSet.next()) {
-				allDBs.add(resultSet.getString(1));
+				defaultDb.add(resultSet.getString("name"));
 			}
-			Collections.sort(allDBs);
-		} catch (Exception e) {
-			log.error(e);
-		}
-
-		Pattern stringPattern = Pattern.compile("\\D+");
-		String mostRecentDBandVer = allDBs.get(0);
-		Matcher matcher = stringPattern.matcher(mostRecentDBandVer);
-		boolean foundDB = matcher.find();
-		String currentDB = "";
-		if (foundDB) {
-			currentDB = matcher.group();
-		}
-
-		String challengersDB = "";
-		for (String challenger : allDBs) {
-			matcher = stringPattern.matcher(challenger);
-			foundDB = matcher.find();
-			if (foundDB) {
-				challengersDB = matcher.group();
-			}
-
-			if (!challengersDB.equals(currentDB)) {
-				recentDBs.add(mostRecentDBandVer);
-
-				mostRecentDBandVer = challenger;
-				currentDB = challengersDB;
-				continue;
-			}
-
-			if (mostRecentDBandVer.length() == challenger.length()) {
-				if (mostRecentDBandVer.compareTo(challenger) < 0) {
-					mostRecentDBandVer = challenger;
+			statement.execute("SELECT * FROM dbDb");
+			resultSet = statement.getResultSet();
+			while (resultSet.next()) {
+				String name = resultSet.getString("name");
+				boolean included = false;
+				for(String 	dbName: defaultDb) {
+					if(name.equals(dbName)) {
+						included = true;
+						break; // found match
+					}
+				}
+				if(included) {
+					String s = resultSet.getString("description");
+					int index1 = s.indexOf("(")+1;
+					int index2 = s.indexOf(")");
+					String organism = resultSet.getString("organism");
+					recentDBs.put(name, organism+" - "+s.substring(index1, index2));
 				}
 			}
-
-			if (mostRecentDBandVer.length() < challenger.length()) {
-				mostRecentDBandVer = challenger;
-			}
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -311,42 +266,23 @@ public class SequenceFetcher {
 
 		displayList.clear();
 		displayList.add("Select a genome");
-		String db = "";
-		Iterator<String> recentDBsIterator = recentDBs.iterator();
-		while (recentDBsIterator.hasNext()) {
-			db = (String) recentDBsIterator.next();
-			// get display, such as "Human", from chiptypeDatabseMap.txt
 
-			String displayString = chiptypeMap.get(db);
-			String dbNoVersion = db.replaceAll("\\d+$", ""); // remove trailing
-																// digits
-			boolean foundOne = false;
-			if (displayString != null) {
-				displayString += " - (" + db + ")";
-				foundOne = true;
-			} else {
+		for (String dbName : recentDBs.keySet()) {
 
-				displayString = chiptypeMap.get(dbNoVersion);
-				if (displayString != null) {
-					displayString += " - (" + db + ")";
-					foundOne = true;
-				}
+			String displayString = recentDBs.get(dbName);
+
+			displayList.add(displayString);
+
+			if (annotationFileName.contains("HG_") && dbName.startsWith("hg")) {
+				defaultChipChoice = displayString;
+			} else if (annotationFileName.contains("Mouse")
+					&& dbName.startsWith("mm")) {
+				defaultChipChoice = displayString;
+			} else if (annotationFileName.contains("Rat")
+					&& dbName.startsWith("rn")) {
+				defaultChipChoice = displayString;
 			}
 
-			if (foundOne) {
-				displayList.add(displayString);
-
-				if (annotationFileName.contains("HG_")
-						&& dbNoVersion.equals("hg")) {
-					defaultChipChoice = displayString;
-				} else if (annotationFileName.contains("Mouse")
-						&& dbNoVersion.equals("mm")) {
-					defaultChipChoice = displayString;
-				} else if (annotationFileName.contains("Rat")
-						&& dbNoVersion.equals("rn")) {
-					defaultChipChoice = displayString;
-				}
-			}
 		}
 		showGenomeDialog();
 
@@ -354,8 +290,7 @@ public class SequenceFetcher {
 		if (selectedValue != null && !selectedValue.equals("Select a genome")) {
 			genomeAssembly = (String) selectedValue;
 			String choice = (String) selectedValue;
-			database = choice.substring(choice.indexOf("(") + 1,
-					choice.indexOf(")"));
+			database = choice.substring(choice.indexOf("/") + 1);
 		}
 
 		return database;
