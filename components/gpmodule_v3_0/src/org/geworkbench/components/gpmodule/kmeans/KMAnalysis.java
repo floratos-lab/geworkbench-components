@@ -277,7 +277,7 @@ public class KMAnalysis extends GPAnalysis{
 		histHeader = GenerateHistoryHeader();
 		if(clusterBy!=INDEX_OF_GENE){
 			KMeansResult analysisResult = new KMeansResult(maSet,"K-Means Clustering",
-					data, graphResults, clusterBy, resultList);
+					graphResults, clusterBy, resultList);
 			results = new AlgorithmExecutionResults(true,
 					"K-Means Analysis", analysisResult);
 			ProjectPanel.addToHistory(analysisResult, histHeader + histMarkerString );			
