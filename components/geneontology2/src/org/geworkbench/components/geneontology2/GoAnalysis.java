@@ -28,10 +28,12 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarr
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMicroarray;
+import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbench.util.ProgressBar;
@@ -45,6 +47,7 @@ import org.geworkbench.util.ProgressBar;
 public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 	/* necessary to implement ClusteringAnalysis for the AnalysisPanel to pick it up. No other effect. */
 	static Log log = LogFactory.getLog(GoAnalysis.class);
+	private DSPanel<DSGeneMarker> selectorPanel = null;
 
 	/**
 	 *
@@ -294,6 +297,16 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 		return histStr.toString();
 	}
 
+	@Subscribe
+	public void receive(GeneSelectorEvent e, Object source) {
+		if (e.getPanel() != null) {
+			this.selectorPanel = e.getPanel();
+			((GoAnalysisParameterPanel) aspp).setSelectorPanel(((GoAnalysisParameterPanel) aspp), this.selectorPanel);
+		} else
+			log.debug("GO Received Gene Selector Event: Selection panel sent was null");
+	}
+
+	
 	/* this is needed to catch the current dataset and consequently the loaded annotation */
 	@SuppressWarnings("unchecked")
 	@Subscribe

@@ -21,15 +21,18 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.swing.ButtonGroup;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
@@ -237,12 +240,12 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 		case 0: // from set
 			if (listString.length() == 0)
 				return null;
-			return listString.split(", ");
+			return listString.split(",| ");
 		case 1: // from file - duplicate for now - in case this is changed to
 				// file name instead
 			if (listString.length() == 0)
 				return null;
-			return listString.split(", ");
+			return listString.split(",| ");
 		case 2: // from result node of T-test and anova
 			if (tTestResult == null)
 				return null;
@@ -522,10 +525,29 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 		changedList.setEnabled(true);
 		changedListLoadButton.setEnabled(false);
 
-		referenceListSets.addActionListener(new GeneSetComboListener(
-				referenceList));
-		changedListSets.addActionListener(new GeneSetComboListener(
-				changedList));
+		referenceListSets.addActionListener(new ActionListener() {
+    		public void actionPerformed(ActionEvent actionEvent) {
+    			String selectedLabel = (String) referenceListSets.getSelectedItem();
+    			if (!StringUtils.isEmpty(selectedLabel))
+    				if (!chooseMarkersFromSet(selectedLabel, referenceList)) {
+    					referenceListSets.setSelectedIndex(0);
+    					referenceList.setText("");
+    				}
+    		}
+    	});
+				
+		changedListSets.addActionListener(new ActionListener() {
+    		public void actionPerformed(ActionEvent actionEvent) {
+    			String selectedLabel = (String) changedListSets.getSelectedItem();
+    			if (!StringUtils.isEmpty(selectedLabel))
+    				if (!chooseMarkersFromSet(selectedLabel, changedList)) {
+    					changedListSets.setSelectedIndex(0);
+    					changedList.setText("");
+    				}
+    		}
+    	});
+		
+		
 
 		// define the 'update/refreshing'behavior of GUI components - see the
 		// examples
@@ -570,7 +592,7 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 		return map;
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({ "unchecked"})
 	private static void searchTestResultNodes(ProjectTreeNode pnode,
 			Map<String, CSSignificanceResultSet<DSGeneMarker>> map,
 			Class<? extends CSSignificanceResultSet> clazz) {
@@ -601,36 +623,6 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 		}
 	}
 
-	/**
-	 * Get the gene names of a set.
-	 */
-	private Set<String> getGeneList(String setName) {
-		Set<String> set = new HashSet<String>();
-		if (dataset == null)
-			return set; // in case maSet is not properly set
-
-		DSAnnotationContextManager manager = CSAnnotationContextManager
-				.getInstance();
-		DSAnnotationContext<DSGeneMarker> markerSet = manager
-				.getCurrentContext(dataset.getMarkers());
-
-		if (setName == null || setName.trim().length() == 0) {
-			return set; // return empty list
-		} else {
-			for (DSGeneMarker marker : markerSet.getItemsWithLabel(setName)) {
-				// list.add(marker.getLabel());
-				String geneName = marker.getGeneName();
-				if (!geneName.equals("---")) {
-					set.add(marker.getGeneName()); // use case says "gene names
-													// instead of probeset
-													// names" p. 7
-				}
-			}
-		}
-
-		return set;
-	}
-	
 	/**
 	 * Get all genes from the marker selection panel.
 	 * @param setName
@@ -733,6 +725,7 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 	private void refreshMarkerSetList(JComboBox listSets) {
 		listSets.removeAllItems();
 		List<String> allMarkerSet = getMarkerSets();
+		listSets.addItem(" ");
 		for (String setName : allMarkerSet) {
 			listSets.addItem(setName);
 		}
@@ -779,40 +772,6 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 		return histStr.toString();
 	}
 
-	/**
-	 * Listener to update the marker list based on marker combo selection.
-	 * 
-	 */
-	private class GeneSetComboListener implements ActionListener {
-		private JTextField targetField = null;
-
-		GeneSetComboListener(JTextField targetField) {
-			super();
-			this.targetField = targetField;
-		}
-
-		public void actionPerformed(ActionEvent e) {
-			JComboBox cb = (JComboBox) e.getSource();
-			String setName = (String) cb.getSelectedItem();
-
-			JComboBox sourceComboBox = (JComboBox) (e.getSource());
-
-			if (setName == null || !sourceComboBox.isFocusOwner())
-				return; // so do not clear out existing marker list
-
-			Set<String> geneSet = GoAnalysisParameterPanel.this
-					.getGeneList(setName);
-			StringBuilder sb = new StringBuilder();
-			for (String gene : geneSet) {
-				if(sb.length()==0)
-					sb.append(gene);
-				else
-					sb.append(", ").append(gene);
-			}
-			targetField.setText(sb.toString());
-		}
-	}
-
 	private class LoadButtonListener implements ActionListener {
 		private JTextField referenceList = null;
 
@@ -856,4 +815,62 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 		}
 
 	}
+	
+	void setSelectorPanel(GoAnalysisParameterPanel aspp, DSPanel<DSGeneMarker> ap) {
+		aspp.selectorPanel = ap;
+		if(changedListSource.getSelectedIndex()==0) 	//from set
+			modifyListSets(aspp,changedListSets,changedList);
+		if(referenceListSource.getSelectedIndex()==1)	//from set
+			modifyListSets(aspp,referenceListSets, referenceList);
+		
+	}
+	
+	void modifyListSets(GoAnalysisParameterPanel aspp,JComboBox setListSets, JTextField setList){
+		String currentTargetSet = (String) setListSets.getSelectedItem();
+		DefaultComboBoxModel targetComboModel = (DefaultComboBoxModel) setListSets.getModel();
+		targetComboModel.removeAllElements();
+		targetComboModel.addElement(" ");		
+		setList.setText("");
+		for (DSPanel<DSGeneMarker> panel : selectorPanel.panels()) {
+			String label = panel.getLabel().trim();
+			targetComboModel.addElement(label);
+			if(currentTargetSet!=null){
+				if (StringUtils.equals(label, currentTargetSet.trim())){
+					targetComboModel.setSelectedItem(label);					
+				}				
+			}
+		}
+	}
+	
+@Override
+	public boolean chooseMarkersFromSet(String setLabel, JTextField toPopulate) {
+		DSPanel<DSGeneMarker> selectedSet = chooseMarkersSet(setLabel, selectorPanel);
+
+		if (selectedSet != null) {
+			if (selectedSet.size() > 0) {
+				StringBuilder sb = new StringBuilder();
+				for (DSGeneMarker m : selectedSet) {
+					String geneName=m.getGeneName().trim();
+					if(!geneName.equals("---")){
+						sb.append(m.getGeneName());
+						sb.append(",");
+					}
+				}
+				sb.trimToSize();
+				sb.deleteCharAt(sb.length() - 1); // getting rid of last comma
+				toPopulate.setText(sb.toString());
+				return true;
+			} else {				
+				JOptionPane.showMessageDialog(null, "Marker set, " + setLabel
+						+ ", is empty.", "Input Error",
+						JOptionPane.ERROR_MESSAGE);				
+				
+				return false;
+			}
+		}
+
+		return false;
+	}	
+	
+	
 }
