@@ -10,6 +10,10 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.awt.Panel;
 
@@ -37,6 +41,7 @@ import java.util.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geworkbench.engine.config.rules.GeawConfigObject;
 
 /**
  * @author: Marc-Danie Nazaire
@@ -79,7 +84,7 @@ public class PCAContent3D extends Panel
         {
             Thread.setDefaultUncaughtExceptionHandler(new CustomExceptionHandler());
             setLayout(new BorderLayout());
-            GraphicsConfiguration config = SimpleUniverse.getPreferredConfiguration();
+            GraphicsConfiguration config = getPreferredConfig(GeawConfigObject.getGuiWindow().getLocation());
             this.onScreenCanvas = new Canvas3D(config);
             this.universe = new SimpleUniverse(onScreenCanvas);
             universe.getViewingPlatform().setNominalViewingTransform();
@@ -876,5 +881,47 @@ public class PCAContent3D extends Panel
                         JOptionPane.ERROR_MESSAGE);
             }
         }
+    }
+
+	private static GraphicsDevice[] screens_;
+	private static GraphicsDevice defaultScreen_;
+	private static Rectangle[] screenRects_;
+	static {
+		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		screens_ = ge.getScreenDevices();
+		int ns = screens_.length;
+		screenRects_ = new Rectangle[ns];
+		for (int j = 0; j < ns; j++) {
+			GraphicsDevice screen = screens_[j];
+			Rectangle r = screen.getDefaultConfiguration().getBounds();
+			screenRects_[j] = r;
+		}
+
+		defaultScreen_ = ge.getDefaultScreenDevice();
+	}
+
+	private static GraphicsConfiguration getPreferredConfig(Point p) {
+		GraphicsDevice screen = getScreen(p);
+		if (screen == null)
+			screen = defaultScreen_;
+		return screen.getBestConfiguration(new GraphicsConfigTemplate3D());
+	}
+
+	/**
+	 * return the screen containing the point, null if none do
+	 */
+	private static GraphicsDevice getScreen(Point p) {
+		if (p == null)
+			return null;
+
+		GraphicsDevice screen = null;
+		int i, n = screenRects_.length;
+		for (i = 0; i < n; i++) {
+			if (screenRects_[i].contains(p)) {
+				screen = screens_[i];
+				break;
+			}
+		}
+		return screen;
     }
 }
