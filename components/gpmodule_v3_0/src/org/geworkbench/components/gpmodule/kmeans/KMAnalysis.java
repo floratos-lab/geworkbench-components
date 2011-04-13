@@ -61,16 +61,12 @@ public class KMAnalysis extends GPAnalysis{
 	private String clusterNum;
 	private int clusterBy;
 	
-	private Parameter[] parameters = new Parameter[6];
+	private Parameter[] parameters = new Parameter[6];	
 	
-	
-	public KMAnalysis() {
-		//localAnalysisType = AbstractAnalysis.KMEANS_ANALYSIS_TYPE;
+	public KMAnalysis() {		
 		setDefaultPanel(new KMeansPanel());        
 	}
 	
-	
-
 	public int getAnalysisType() {
 		return localAnalysisType;
 	}
@@ -98,11 +94,11 @@ public class KMAnalysis extends GPAnalysis{
 			clusterNum=((KMeansPanel) aspp).getNumClusters();
 			clusterBy=((KMeansPanel) aspp).getClusterBy();
 			if(Integer.parseInt(clusterNum)<2)
-				return new AlgorithmExecutionResults(false, "Number of clusters should not be less than 2.", null);
+				return new AlgorithmExecutionResults(false, "Number of clusters which is "+clusterNum+" should not be less than 2.", null);
 			if((view.items().size()<Integer.parseInt(clusterNum))&&clusterBy==INDEX_OF_ARRAY)
-				return new AlgorithmExecutionResults(false, "Number of clusters should be greater than the size of arrays", null);
+				return new AlgorithmExecutionResults(false, "Number of clusters which is "+clusterNum+" should be greater than the size of arrays", null);
 			if((view.markers().size()<Integer.parseInt(clusterNum))&&clusterBy==INDEX_OF_GENE)
-				return new AlgorithmExecutionResults(false, "Number of clusters should be greater than the size of markers", null);
+				return new AlgorithmExecutionResults(false, "Number of clusters which is "+clusterNum+" should be greater than the size of markers", null);
 		}
 		catch(NumberFormatException e){			
 			return new AlgorithmExecutionResults(false,
@@ -121,11 +117,8 @@ public class KMAnalysis extends GPAnalysis{
 		this.stopAlgorithm = false;	
 		
 		String gctFileName = createGCTFile("KMDataset", view.markers(),
-				view.items()).getAbsolutePath();
-		
-		
-		numGenes = data.markers().size();
-		
+				view.items()).getAbsolutePath();		
+		numGenes = data.markers().size();		
 		DSDataSet<? extends DSBioObject> set = data.getDataSet();
 
 		if (!(set instanceof DSMicroarraySet)) {
@@ -133,8 +126,7 @@ public class KMAnalysis extends GPAnalysis{
 			return null;
 		}
 
-		DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet<DSMicroarray>) set;			
-		
+		DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet<DSMicroarray>) set;		
 		DSAnnotationContextManager manager = CSAnnotationContextManager
 			.getInstance();
 		DSAnnotationContext<DSMicroarray> arraySet = manager
@@ -195,9 +187,7 @@ public class KMAnalysis extends GPAnalysis{
 											else
 												arrayMemberShip+=", "+arraySet.getLabel(cx);	
 										}
-									}
-										
-										
+									}										
 								}
 								anItemRow[1]=arrayMemberShip;
 							
@@ -227,8 +217,7 @@ public class KMAnalysis extends GPAnalysis{
 				resultList.add(aClusterItems);
 			}
 			in.close();
-			reader.close();
-			
+			reader.close();			
 		}
 		catch(Exception e){
 			return new AlgorithmExecutionResults(false, "No invalid output.", null);
@@ -240,17 +229,13 @@ public class KMAnalysis extends GPAnalysis{
 		if(Integer.parseInt(clusterNum)>(dim_x*dim_y)) dim_x++;
 		
 		SOMCluster[][] graphResults = new SOMCluster[dim_x][dim_y];		
-		
-		SOMCluster result_cluster = new DefaultSOMCluster();
-	
+		SOMCluster result_cluster = new DefaultSOMCluster();	
 		for (int i = 0; i < (dim_x*dim_y) && !stopAlgorithm; i++) {		
 				Cluster clusterRep = new DefaultSOMCluster();
 				result_cluster.addNode(clusterRep);		
 		}
-
 		SOMCluster[] nodeList = (SOMCluster[]) result_cluster
-				.getChildrenNodes();
-		
+				.getChildrenNodes();		
 		for (int x = 0; x < dim_x && !stopAlgorithm; x++) {
 			for (int y = 0; y < dim_y && !stopAlgorithm; y++) {
 				dimension = x * dim_y + y;
@@ -270,7 +255,6 @@ public class KMAnalysis extends GPAnalysis{
 				graphResults[x][y] = nodeList[dimension];
 			}
 		}		
-		
 		String histHeader = null;
 		AlgorithmExecutionResults results=null;
 		String histMarkerString = GenerateMarkerString(data);
@@ -288,12 +272,9 @@ public class KMAnalysis extends GPAnalysis{
 			results = new AlgorithmExecutionResults(true,
 					"K-Means Analysis", analysisResult);			
 			ProjectPanel.addToHistory(analysisResult, histHeader + histMarkerString );
-		}
-		
-		pbFCtest.dispose();
-		
-		return results;
-		
+		}		
+		pbFCtest.dispose();		
+		return results;		
 	} // end of method calculate
 
 	@Publish
@@ -303,25 +284,21 @@ public class KMAnalysis extends GPAnalysis{
 	}
 
 	protected String GenerateHistoryHeader() {
-
 		String histStr = "";
 		// Header
 		histStr += "K-Means Clustering Analysis with the following parameters:\n";
 		histStr += "----------------------------------------------------------\n";
-
 		histStr += "Input Parameters:" + "\n";			
 		histStr += "\t" + "Number of cluster: " + clusterNum + "\n";
 		String st= (clusterBy==INDEX_OF_GENE)? "Gene" :"Array";
 		histStr += "\t" + "Cluster by: "+ st + "\n";
-		histStr += "\t" + "Distance metric: "+ "Euclidean" + "\n";
-		
+		histStr += "\t" + "Distance metric: "+ "Euclidean" + "\n";		
 		return histStr;
 	}
 
 	String GenerateMarkerString(
 			DSMicroarraySetView<? extends DSGeneMarker, ? extends DSMicroarray> view) {
 		String histStr = null;
-
 		histStr = view.markers().size() + " markers analyzed:\n";
 		for (DSGeneMarker marker : view.markers()) {
 			histStr += "\t" + marker.getLabel() + "\n";
@@ -329,8 +306,7 @@ public class KMAnalysis extends GPAnalysis{
 		histStr+=view.items().size() +" microarray analyzed:\n";		
 		for (DSMicroarray microarray : view.items()){
 			histStr+="\t"+microarray.getLabel()+"\n";
-		}	
-		
+		}		
 		return histStr;
 	}	
 	
@@ -342,8 +318,7 @@ public class KMAnalysis extends GPAnalysis{
             String serverName = GPpropertiesManager.getProperty("gp.server");
             String userName = GPpropertiesManager.getProperty("gp.user.name");
             String   password="";
-            GPClient server = new GPClient(serverName, userName, password);
-            
+            GPClient server = new GPClient(serverName, userName, password);            
             JobResult analysisResult = server.runAnalysis(classifierName, parameters);
            
             //download model result file from server
@@ -381,10 +356,7 @@ public class KMAnalysis extends GPAnalysis{
             e.printStackTrace();
             throw new ClassifierException("Error creating " + classifierName + " model");
         }
-
         return modelFile;
-    }
-	
-    
+    }    
 
 }

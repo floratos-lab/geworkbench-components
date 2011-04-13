@@ -39,7 +39,7 @@ import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.events.SubpanelChangedEvent;
 
 /**
- * FoldChangeViewer of FoldChange analysis component
+ * KMeans Viewer of KMeans clustering analysis component
  * 
  * @author zm2165
  * @version $Id:$
@@ -65,13 +65,12 @@ public class KMeansViewer extends JPanel implements VisualPlugin {
 	private JLabel stdDeviationLabel=new JLabel();
 	private JButton jAddBttn=null;
 	
-	private JLabel clusterIdLabel=new JLabel("1");
+	private JLabel clusterIdLabel=new JLabel("1");	//default
 	private JLabel clusterSizeLabel=new JLabel();
 	
 	public KMeansViewer() {			
 
-		JSplitPane splitPane;
-		
+		JSplitPane splitPane;		
 		JPanel clusterSum=new JPanel();
 		detailedPane=new JPanel();
 		detailedPane.setLayout(new BorderLayout());
@@ -329,16 +328,10 @@ public class KMeansViewer extends JPanel implements VisualPlugin {
 			no1Pane.add(new JLabel("Showing results for cluster:"));
 			no1Pane.add(clusterIdLabel);
 			detailSum.add(no1Pane);
-			detailSum.add(new JLabel());			
+			detailSum.add(new JLabel());
 			
 			final DSItemList<DSGeneMarker> allMarkerList=maSet.getMarkers();//all markers
-			DSAnnotationContextManager manager = CSAnnotationContextManager
-			.getInstance();
-			DSAnnotationContext<DSMicroarray> arraySet = manager
-				.getCurrentContext(maSet);
 			
-			final DSItemList<DSMicroarray> allArrayList=arraySet.getItemList();//all arrays
-		
 			jAddBttn = new JButton();
 	        jAddBttn.setText("Add to Set");	        
 	        jAddBttn.addActionListener(new java.awt.event.ActionListener() {
@@ -367,7 +360,7 @@ public class KMeansViewer extends JPanel implements VisualPlugin {
 	            	
 	            	for(int i=0;i<clusterStrs.size();i++){
 	            		String[] ss=clusterStrs.get(i);
-	            		for(DSMicroarray d: allArrayList){
+	            		for(DSMicroarray d: maSet){
 	            			if(ss[0].equalsIgnoreCase(d.getLabel())){
 	            				panelToBeAdded.add(d, new Float(i));	
 	            			}

@@ -4,8 +4,8 @@
 
 	<component name="K-Means Clustering"
 		class="org.geworkbench.components.gpmodule.kmeans.KMAnalysis" version="1.0"
-		author="geWorkbench Development Team"
-		authorURL="http://wiki.c2b2.columbia.edu/califanolab/index.php/Califano_Info"
+		author="Broad Institute"
+		authorURL="http://www.broadinstitute.org/cancer/software/genepattern/index.html"
 		toolURL="http://www.broadinstitute.org/cancer/software/genepattern/modules/index2.html?http://www.broadinstitute.org/cgi-bin/cancer/software/genepattern/modules/gp_modules.cgi"
 		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Classification"
 		description="Provides an interface to the GenePattern v3

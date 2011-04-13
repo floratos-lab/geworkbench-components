@@ -69,7 +69,7 @@ public class KMeansPanel extends GPAnalysisPanel
 	
 	    builder.appendColumn(new ColumnSpec("25dlu"));
 	    builder.append("Number of clusters", numClusters); 
-	 // add the GenePattern logo
+	    // add the GenePattern logo
 	    builder.setColumn(7);
 	    builder.add(getGPLogo());
 	   
