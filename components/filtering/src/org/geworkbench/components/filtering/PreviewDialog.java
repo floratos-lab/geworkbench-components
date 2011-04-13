@@ -12,7 +12,8 @@ import java.text.NumberFormat;
 import java.util.List;
 
 import javax.swing.BorderFactory;
-import javax.swing.Box;
+import java.awt.BorderLayout;
+import java.awt.GridBagLayout;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -36,7 +37,7 @@ import org.geworkbench.engine.skin.Skin;
 public class PreviewDialog extends JDialog {
 	private static final long serialVersionUID = -1081378856178472680L;
 	
-	private JTextField markerToBeSearched = new JTextField(20);
+	private JTextField markerToBeSearched = new JTextField(20);	
 	private JTextField geneToBeSearched = new JTextField(20);
 	
 	private JTable markers = null;
@@ -76,13 +77,11 @@ public class PreviewDialog extends JDialog {
 		JScrollPane listScroller = new JScrollPane(markers);
 		listScroller.setPreferredSize(new Dimension(250, 80));
 		listScroller.setAlignmentX(Component.CENTER_ALIGNMENT);
-		JPanel listPane = new JPanel();
-		listPane.setLayout(new BoxLayout(listPane, BoxLayout.PAGE_AXIS));
+		JPanel listPane = new JPanel(new BorderLayout());	 
 		JLabel label = new JLabel("Markers to be filtered out");
 		label.setAlignmentX(Component.CENTER_ALIGNMENT);
-		listPane.add(label);
-		
-		JPanel searchMarker = new JPanel();
+		 
+		JPanel searchMarker = new JPanel(new GridBagLayout());
 		JButton searchMarkerButton= new JButton("Search Marker");
 		searchMarkerButton.addActionListener(new ActionListener() {
 
@@ -109,11 +108,12 @@ public class PreviewDialog extends JDialog {
 			}
 			
 		});
-		searchMarker.add(searchMarkerButton);
+		searchMarker.add(searchMarkerButton);		 
 		searchMarker.add(markerToBeSearched);
+		markerToBeSearched.setMinimumSize(markerToBeSearched.getPreferredSize());
 		searchMarker.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-		JPanel searchGene = new JPanel();
+		JPanel searchGene = new JPanel(new GridBagLayout());
 		JButton searchGeneButton= new JButton("Search Gene");
 		searchGeneButton.addActionListener(new ActionListener() {
 
@@ -142,6 +142,7 @@ public class PreviewDialog extends JDialog {
 		});
 		searchGene.add(searchGeneButton);
 		searchGene.add(geneToBeSearched);
+		geneToBeSearched.setMinimumSize(geneToBeSearched.getPreferredSize());		
 		searchGene.setAlignmentX(Component.CENTER_ALIGNMENT);
 		
 		JPanel buttonPanel = new JPanel();
@@ -168,18 +169,24 @@ public class PreviewDialog extends JDialog {
 		final NumberFormat mf = NumberFormat.getPercentInstance();
 		JLabel countLabel = new JLabel("Total number "+count+" ("+mf.format(percent)+")");
 		countLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-		listPane.add(countLabel);
-		listPane.add(searchMarker);
-		listPane.add(searchGene);
-
-		listPane.add(Box.createRigidArea(new Dimension(0,5)));
-		listPane.add(listScroller);
-		listPane.add(Box.createRigidArea(new Dimension(0,5)));
-		listPane.add(buttonPanel);
-		listPane.add(Box.createRigidArea(new Dimension(0,5)));
+        
+	 
+		JPanel searchPanel = new JPanel();
+		BoxLayout boxLayout = new BoxLayout(searchPanel, BoxLayout.PAGE_AXIS);
+		searchPanel.setLayout(boxLayout);
+		 
+		searchPanel.add(label);
+		searchPanel.add(countLabel);
+		searchPanel.add(searchMarker);
+		searchPanel.add(searchGene);
+	  
+		listPane.add(searchPanel, BorderLayout.NORTH);	 
+		listPane.add(listScroller, BorderLayout.CENTER);	 
+		listPane.add(buttonPanel, BorderLayout.SOUTH);	 
 		listPane.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
-
+		listPane.getPreferredSize();
+		listPane.setMinimumSize(listPane.getPreferredSize());
+		 
 		add(listPane);
 		pack();
 		
