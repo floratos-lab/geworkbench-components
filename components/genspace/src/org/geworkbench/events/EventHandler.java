@@ -24,7 +24,7 @@ package org.geworkbench.events;
  * this class.
  * 
  * @author keshav
- * @version $Id: EventHandler.java,v 1.3 2009-01-21 01:15:04 sheths Exp $
+ * @version $Id: EventHandler.java,v 1.1 2011/02/07 18:09:55 jsb2125 Exp $
  */
 public interface EventHandler {
 
