@@ -73,7 +73,7 @@ public class ObjectLogger {
 						curTransaction.setDate(new Date());
 						curTransaction.setClientID(transactionId);
 						curTransaction.setHostname(hostname);
-						curTransaction.setUser(LoginFactory.getUser());
+						curTransaction.setUser(GenSpaceServerFactory.getUser());
 					}
 					File f = new File(FilePathnameUtils.getUserSettingDirectoryPath()
 							+ "geworkbench_log.xml");
@@ -86,7 +86,7 @@ public class ObjectLogger {
 						Transaction done = null;
 						try
 						{
-							done= LoginFactory.getUsageOps().sendUsageLog(pending);
+							done= GenSpaceServerFactory.getUsageOps().sendUsageLog(pending);
 						}
 						catch(Exception ex)
 						{
@@ -115,7 +115,7 @@ public class ObjectLogger {
 					e.setParameters(params);
 					try
 					{
-						Transaction retTrans = LoginFactory.getUsageOps().sendUsageEvent(e); //try to send the log event
+						Transaction retTrans = GenSpaceServerFactory.getUsageOps().sendUsageEvent(e); //try to send the log event
 						if(retTrans != null)
 						{
 							RealTimeWorkFlowSuggestion.cwfUpdated(retTrans.getWorkflow());
@@ -140,7 +140,7 @@ public class ObjectLogger {
 
 						// fw.write("<measurement>");
 						fw.write("\t<metric name=\"analysis\">");
-						fw.write("\n\t\t<user name=\"" + LoginFactory.getUsername() + "\" genspace=\""
+						fw.write("\n\t\t<user name=\"" + GenSpaceServerFactory.getUsername() + "\" genspace=\""
 								+1+ "\"/>");
 												
 						fw.write("\n\t\t<host name=\""

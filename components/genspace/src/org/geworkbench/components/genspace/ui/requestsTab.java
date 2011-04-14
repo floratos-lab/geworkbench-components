@@ -3,7 +3,7 @@ package org.geworkbench.components.genspace.ui;
 import javax.swing.*;
 
 import org.geworkbench.components.genspace.GenSpace;
-import org.geworkbench.components.genspace.LoginFactory;
+import org.geworkbench.components.genspace.GenSpaceServerFactory;
 import org.geworkbench.components.genspace.entity.Network;
 import org.geworkbench.components.genspace.entity.User;
 import org.geworkbench.components.genspace.entity.UserNetwork;
@@ -38,7 +38,7 @@ public class requestsTab extends SocialTab {
 	
 	@Override
 	public void updateFormFields() {
-		if (LoginFactory.isLoggedIn()) {
+		if (GenSpaceServerFactory.isLoggedIn()) {
 
 			SwingWorker<List<UserNetwork>, Void> worker = new SwingWorker<List<UserNetwork>, Void>() {
 
@@ -46,10 +46,10 @@ public class requestsTab extends SocialTab {
 				protected List<UserNetwork> doInBackground()
 						throws Exception {
 					LinkedList<UserNetwork> ret = new LinkedList<UserNetwork>();
-					for (UserNetwork t : LoginFactory.getUser().getNetworks()) {
+					for (UserNetwork t : GenSpaceServerFactory.getUser().getNetworks()) {
 						Network nt = t.getNetwork();
-						if (nt.getOwner().equals(LoginFactory.getUser()))
-							ret.addAll(LoginFactory.getNetworkOps().getNetworkRequests(nt));
+						if (nt.getOwner().equals(GenSpaceServerFactory.getUser()))
+							ret.addAll(GenSpaceServerFactory.getNetworkOps().getNetworkRequests(nt));
 					}
 					return ret;
 				}
@@ -80,7 +80,7 @@ public class requestsTab extends SocialTab {
 				@Override
 				protected List<User> doInBackground()
 						throws Exception {
-					return LoginFactory.getFriendOps().getFriendRequests();
+					return GenSpaceServerFactory.getFriendOps().getFriendRequests();
 				}
 
 				@Override
@@ -147,8 +147,7 @@ public class requestsTab extends SocialTab {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (networksList.getSelectedValue() != null) {
-					System.out.println("Sending accept request");
-					LoginFactory.getNetworkOps().acceptNetworkRequest((UserNetwork) networksList.getSelectedValue());
+					GenSpaceServerFactory.getNetworkOps().acceptNetworkRequest((UserNetwork) networksList.getSelectedValue());
 					updateFormFields();
 				}
 			}
@@ -158,7 +157,7 @@ public class requestsTab extends SocialTab {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (networksList.getSelectedValue() != null) {
-					LoginFactory.getNetworkOps().rejectNetworkRequest((UserNetwork) networksList.getSelectedValue());
+					GenSpaceServerFactory.getNetworkOps().rejectNetworkRequest((UserNetwork) networksList.getSelectedValue());
 					updateFormFields();
 				}
 			}
@@ -167,7 +166,7 @@ public class requestsTab extends SocialTab {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				LoginFactory.getFriendOps().addFriend((User) friendsList.getSelectedValue());
+				GenSpaceServerFactory.getFriendOps().addFriend((User) friendsList.getSelectedValue());
 				updateFormFields();
 
 			}
@@ -176,7 +175,7 @@ public class requestsTab extends SocialTab {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				LoginFactory.getFriendOps().rejectFriend((User) friendsList.getSelectedValue());
+				GenSpaceServerFactory.getFriendOps().rejectFriend((User) friendsList.getSelectedValue());
 				updateFormFields();
 			}
 		});

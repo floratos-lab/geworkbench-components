@@ -26,10 +26,9 @@ import javax.swing.UIManager;
 import javax.swing.text.html.HTMLDocument;
 
 import org.geworkbench.components.genspace.GenSpace;
-import org.geworkbench.components.genspace.LoginFactory;
+import org.geworkbench.components.genspace.GenSpaceServerFactory;
 import org.geworkbench.components.genspace.entity.Tool;
 import org.geworkbench.components.genspace.entity.Workflow;
-import org.geworkbench.components.genspace.server.UsageInformationRemote;
 import org.geworkbench.engine.config.VisualPlugin;
 
 class ToolCellRenderer implements ListCellRenderer {
@@ -87,7 +86,7 @@ public class WorkflowStatistics extends JPanel implements VisualPlugin {
 
 			@Override
 			protected List<Tool> doInBackground() throws Exception {
-				return LoginFactory.getUsageOps().getAllTools();
+				return GenSpaceServerFactory.getUsageOps().getAllTools();
 			}
 
 		};
@@ -123,7 +122,7 @@ public class WorkflowStatistics extends JPanel implements VisualPlugin {
 
 			@Override
 			protected List<Tool> doInBackground() throws Exception {
-				return LoginFactory.getUsageOps().getToolsByPopularity();
+				return GenSpaceServerFactory.getUsageOps().getToolsByPopularity();
 			}
 
 		};
@@ -165,7 +164,7 @@ public class WorkflowStatistics extends JPanel implements VisualPlugin {
 			@Override
 			protected List<Workflow> doInBackground() throws Exception {
 
-				return LoginFactory.getUsageOps().getWorkflowsByPopularity();
+				return GenSpaceServerFactory.getUsageOps().getWorkflowsByPopularity();
 			}
 
 		};
@@ -201,7 +200,7 @@ public class WorkflowStatistics extends JPanel implements VisualPlugin {
 
 			@Override
 			protected List<Tool> doInBackground() throws Exception {
-				return LoginFactory.getUsageOps().getMostPopularWFHeads();
+				return GenSpaceServerFactory.getUsageOps().getMostPopularWFHeads();
 			}
 
 		};
@@ -247,14 +246,14 @@ public class WorkflowStatistics extends JPanel implements VisualPlugin {
 				ret += "Total usage rate at start of workflow: "
 						+ usageRateAsWFHead + " <br>";
 
-				Tool mostPopularNextTool = LoginFactory.getUsageOps().getMostPopularNextTool(tool);
+				Tool mostPopularNextTool = GenSpaceServerFactory.getUsageOps().getMostPopularNextTool(tool);
 				if(mostPopularNextTool == null)
 					ret += "No tools are used after this one"+ "<br>";
 				else
 					ret += "The most popular tool used next to this tool: "
 						+ mostPopularNextTool.getName() + "<br>";
 
-				Tool mostPopularPreviousTool = LoginFactory.getUsageOps().getMostPopularPreviousTool(tool);
+				Tool mostPopularPreviousTool = GenSpaceServerFactory.getUsageOps().getMostPopularPreviousTool(tool);
 				if(mostPopularPreviousTool == null)
 					ret += "No tools are used before this one"+ "<br>";
 				else
@@ -365,13 +364,5 @@ public class WorkflowStatistics extends JPanel implements VisualPlugin {
 	public Component getComponent() {
 		return this;
 	}
-	private static UsageInformationRemote facade;
-	public static UsageInformationRemote getFacade()
-	{
-		if(facade == null)
-			facade = (UsageInformationRemote) GenSpace.getRemote("ToolInformation");
-		return facade;
-	}
-
 
 }

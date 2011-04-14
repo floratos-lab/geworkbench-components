@@ -11,7 +11,7 @@ import org.geworkbench.engine.config.MenuListener;
  * @author sheths
  */
 public class GenSpaceMenu implements MenuListener {
-
+	public static ClassLoader loader;
 	@Override
 	public ActionListener getActionListener(String var) {
 		if (var.equalsIgnoreCase("Tools.genSpace")) {
@@ -25,4 +25,5 @@ public class GenSpaceMenu implements MenuListener {
 		}
 		return null;
 	}
+	
 }

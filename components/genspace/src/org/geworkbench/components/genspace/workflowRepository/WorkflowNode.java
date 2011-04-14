@@ -7,6 +7,10 @@ import org.geworkbench.components.genspace.entity.UserWorkflow;
 
 public class WorkflowNode extends DefaultMutableTreeNode {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5668768611145012428L;
 	public UserWorkflow userWorkflow;
 
 	public WorkflowNode(UserWorkflow uw) {

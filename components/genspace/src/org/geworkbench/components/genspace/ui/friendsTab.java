@@ -3,7 +3,7 @@ package org.geworkbench.components.genspace.ui;
 import javax.swing.*;
 
 import org.geworkbench.components.genspace.GenSpace;
-import org.geworkbench.components.genspace.LoginFactory;
+import org.geworkbench.components.genspace.GenSpaceServerFactory;
 import org.geworkbench.components.genspace.entity.Network;
 import org.geworkbench.components.genspace.entity.User;
 
@@ -73,7 +73,7 @@ public class friendsTab extends SocialTab {
 				if (u.getState() != null && !u.getState().equals(""))
 					byline += u.getState();
 				JLabel label2 = new JLabel(byline);
-				if (LoginFactory.isVisible(u))
+				if (GenSpaceServerFactory.isVisible(u))
 					pan.add(label2);
 				pan.add(new JSeparator(SwingConstants.HORIZONTAL));
 				if (isSelected)
@@ -120,17 +120,16 @@ public class friendsTab extends SocialTab {
 
 	@Override
 	public void updateFormFields() {
-		if (LoginFactory.isLoggedIn()) {
+		if (GenSpaceServerFactory.isLoggedIn()) {
 			SwingWorker<List<User>, Void> worker = new SwingWorker<List<User>, Void>() {
 
 				@Override
 				protected List<User> doInBackground()
 						throws Exception {
-					System.out.println("Requesting friends");
 					if (networkFilter == null)
-						return LoginFactory.getFriendOps().getFriendsProfiles();
+						return GenSpaceServerFactory.getFriendOps().getFriendsProfiles();
 					else
-						return LoginFactory.getNetworkOps().getProfilesByNetwork(networkFilter);
+						return GenSpaceServerFactory.getNetworkOps().getProfilesByNetwork(networkFilter);
 				}
 
 				@Override
@@ -138,13 +137,12 @@ public class friendsTab extends SocialTab {
 					List<User> lst = null;
 					try {
 						lst = get();
-						System.out.println("Got " + lst);
 					} catch (InterruptedException e) {
 						GenSpace.logger.error("Error",e);
 					} catch (ExecutionException e) {
 						GenSpace.logger.error("Error",e);
 					}
-					lst.remove(LoginFactory.getUser());
+					lst.remove(GenSpaceServerFactory.getUser());
 					Collections.sort(lst,new Comparator<User>() {
 
 						@Override

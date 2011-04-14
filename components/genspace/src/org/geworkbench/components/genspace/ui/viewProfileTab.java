@@ -12,7 +12,7 @@ import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
 import javax.swing.SwingWorker;
 
-import org.geworkbench.components.genspace.LoginFactory;
+import org.geworkbench.components.genspace.GenSpaceServerFactory;
 import org.geworkbench.components.genspace.entity.User;
 
 public class viewProfileTab extends SocialTab {
@@ -23,7 +23,7 @@ public class viewProfileTab extends SocialTab {
 		this.u = p;
 
 		
-		this.isFriend = LoginFactory.getUser().isFriendsWith(p) != null;
+		this.isFriend = GenSpaceServerFactory.getUser().isFriendsWith(p) != null;
 		
 		String desc = p.toHTML();
 		JLabel profile = new JLabel(desc);
@@ -52,7 +52,7 @@ public class viewProfileTab extends SocialTab {
 						@Override
 						protected Void doInBackground()
 							 {
-							LoginFactory.getFriendOps().removeFriend(u);
+							GenSpaceServerFactory.getFriendOps().removeFriend(u);
 							return null;
 							
 						}
@@ -81,7 +81,7 @@ public class viewProfileTab extends SocialTab {
 						@Override
 						protected Void doInBackground()
 								 {
-								LoginFactory.getFriendOps().addFriend(u);
+								GenSpaceServerFactory.getFriendOps().addFriend(u);
 								return null;
 						}
 

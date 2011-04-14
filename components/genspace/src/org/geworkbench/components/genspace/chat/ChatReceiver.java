@@ -10,7 +10,6 @@ import org.geworkbench.components.genspace.GenSpace;
 import org.geworkbench.components.genspace.RuntimeEnvironmentSettings;
 import org.geworkbench.components.genspace.ui.chat.ChatWindow;
 import org.geworkbench.components.genspace.ui.chat.RosterFrame;
-import org.geworkbench.components.genspace.ui.chat.ChatWindow.messageTypes;
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.ChatManager;
 import org.jivesoftware.smack.ChatManagerListener;

@@ -13,7 +13,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import org.geworkbench.components.genspace.LoginFactory;
+import org.geworkbench.components.genspace.GenSpaceServerFactory;
 import org.geworkbench.components.genspace.ObjectHandler;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.properties.PropertiesManager;
@@ -44,7 +44,7 @@ public class DataVisibility extends JPanel implements VisualPlugin,
 
 	private JButton save;
 
-	private String username = "";
+//	private String username = "";
 	int preference;
 
 	public DataVisibility() {
@@ -54,7 +54,7 @@ public class DataVisibility extends JPanel implements VisualPlugin,
 			String pref = properties.getProperty(DataVisibility.class,
 					PROPERTY_KEY, null);
 
-			username = LoginFactory.getUsername();
+//			username = GenSpaceServerFactory.getUsername();
 
 			if (pref == null) {
 				// if the preferences are not set, then show the pop up window
@@ -88,7 +88,7 @@ public class DataVisibility extends JPanel implements VisualPlugin,
 	}
 
 	private void initComponents() {
-		if(LoginFactory.isLoggedIn())
+		if(GenSpaceServerFactory.isLoggedIn())
 		{
 			this.setSize(500, 600);
 
@@ -104,7 +104,7 @@ public class DataVisibility extends JPanel implements VisualPlugin,
 			logPreferences.addItem("Log My Analysis Events");
 			logPreferences.addItem("Log My Analysis Events Anonymously");
 			logPreferences.addItem("Do Not Log My Analysis Events");
-			int preference = LoginFactory.getUser().getLogData();
+			int preference = GenSpaceServerFactory.getUser().getLogData();
 			logPreferences.setSelectedIndex(preference + 1);
 
 			try {
@@ -195,13 +195,13 @@ public class DataVisibility extends JPanel implements VisualPlugin,
 						// version of the security module
 						dataVisibilityOptions.setSelectedIndex(2);
 						
-						LoginFactory.getUser().setDataVisibility((short) (dataVisibilityOptions
+						GenSpaceServerFactory.getUser().setDataVisibility((short) (dataVisibilityOptions
 								.getSelectedIndex() - 1));
 
-						LoginFactory.getUser().setLogData((short) (logPreferences
+						GenSpaceServerFactory.getUser().setLogData((short) (logPreferences
 								.getSelectedIndex() - 1));
 
-						if (LoginFactory.userUpdate()) {
+						if (GenSpaceServerFactory.userUpdate()) {
 							String msg = "Data Visibility Saved";
 
 							JOptionPane.showMessageDialog(null, msg);

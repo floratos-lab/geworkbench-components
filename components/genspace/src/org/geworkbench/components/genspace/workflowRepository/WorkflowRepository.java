@@ -12,11 +12,10 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
-import java.util.Set;
+
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -25,6 +24,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
+
 import net.eleritec.docking.DockableAdapter;
 import net.eleritec.docking.DockingManager;
 import net.eleritec.docking.DockingPort;
@@ -34,9 +34,7 @@ import net.eleritec.docking.defaults.DefaultDockingPort;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.components.genspace.GenSpace;
-import org.geworkbench.components.genspace.LoginFactory;
-import org.geworkbench.components.genspace.WorkflowVisualization;
-import org.geworkbench.components.genspace.entity.User;
+import org.geworkbench.components.genspace.GenSpaceServerFactory;
 import org.geworkbench.components.genspace.ui.WorkflowVisualizationPanel;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.config.events.Event;
@@ -53,6 +51,11 @@ import org.geworkbench.engine.skin.Skin;
  */
 public class WorkflowRepository extends JPanel implements VisualPlugin,
 		 Runnable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4935248850479380240L;
 
 	private static JFrame frame;
 
@@ -87,11 +90,11 @@ public class WorkflowRepository extends JPanel implements VisualPlugin,
 	DockingNotifier eventSink = new DockingNotifier(this);
 	private static Map<Component, String> visualRegistry = new HashMap<Component, String>();
 	private HashMap<Component, Class<?>> mainComponentClass = new HashMap<Component, Class<?>>();
-	private Set<Class> acceptors;
-	private ArrayList<DockableImpl> visualDockables = new ArrayList<DockableImpl>();
-	private ArrayList<DockableImpl> detailsDockables = new ArrayList<DockableImpl>();
-	private ArrayList<DockableImpl> inboxDockables = new ArrayList<DockableImpl>();
-	private ArrayList<DockableImpl> projectDockables = new ArrayList<DockableImpl>();
+//	private Set<Class> acceptors;
+//	private ArrayList<DockableImpl> visualDockables = new ArrayList<DockableImpl>();
+//	private ArrayList<DockableImpl> detailsDockables = new ArrayList<DockableImpl>();
+//	private ArrayList<DockableImpl> inboxDockables = new ArrayList<DockableImpl>();
+//	private ArrayList<DockableImpl> projectDockables = new ArrayList<DockableImpl>();
 
 	public WorkflowRepository(JFrame jframe) {
 		log.debug("Workflow Repository started");
@@ -232,7 +235,7 @@ public class WorkflowRepository extends JPanel implements VisualPlugin,
 	}
 
 	public void addToContainer(String areaName, Component visualPlugin,
-			String pluginName, Class mainPluginClass) {
+			String pluginName, @SuppressWarnings("rawtypes") Class mainPluginClass) {
 		visualPlugin.setName(pluginName);
 		DockableImpl wrapper = new DockableImpl(visualPlugin, pluginName);
 		DockingManager.registerDockable(wrapper);
@@ -410,10 +413,10 @@ public class WorkflowRepository extends JPanel implements VisualPlugin,
 
 	private class ComponentProvider extends ComponentProviderAdapter {
 
-		private String area;
+//		private String area;
 
 		public ComponentProvider(String area) {
-			this.area = area;
+//			this.area = area;
 		}
 
 		// Add change listeners to appropriate areas so
@@ -453,7 +456,7 @@ public class WorkflowRepository extends JPanel implements VisualPlugin,
 			repositoryPanel.tree.recalculateAndReload();
 		if(inboxTable != null)
 		{
-			inboxTable.setData(LoginFactory.getUser());
+			inboxTable.setData(GenSpaceServerFactory.getUser());
 		}
 		// whatever was selected, shouldn't be anymore
 		clearWorkflowData();

@@ -41,7 +41,7 @@ import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
-import org.geworkbench.components.genspace.LoginFactory;
+import org.geworkbench.components.genspace.GenSpaceServerFactory;
 import org.geworkbench.components.genspace.chat.ChatReceiver;
 import org.geworkbench.components.genspace.ui.GenSpaceLogin;
 import org.jivesoftware.smack.Roster;
@@ -87,7 +87,7 @@ public class RosterFrame extends javax.swing.JFrame implements RosterListener {
 				children.put(g, new ArrayList<RosterEntry>());
 				for(RosterEntry e : g.getEntries())
 				{
-					if(! e.getUser().equalsIgnoreCase(LoginFactory.getUser().getUsername() + "@genspace"))
+					if(! e.getUser().equalsIgnoreCase(GenSpaceServerFactory.getUser().getUsername() + "@genspace"))
 						children.get(g).add(e);
 				}
 				if(children.get(g).size() == 0)
