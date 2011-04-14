@@ -23,7 +23,7 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingWorker;
 
 import org.geworkbench.components.genspace.GenSpace;
-import org.geworkbench.components.genspace.LoginFactory;
+import org.geworkbench.components.genspace.GenSpaceServerFactory;
 import org.geworkbench.components.genspace.entity.User;
 import org.geworkbench.components.genspace.ui.AutoCompleteCombo.Model;
 
@@ -134,12 +134,12 @@ public class SocialNetworksHome {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 
-				if (LoginFactory.isLoggedIn()) {
+				if (GenSpaceServerFactory.isLoggedIn()) {
 					SwingWorker<User, Void> worker = new SwingWorker<User, Void>() {
 
 						@Override
 						protected User doInBackground() throws Exception {
-							return LoginFactory.getUserOps().getProfile(friendsSearch.getText());
+							return GenSpaceServerFactory.getUserOps().getProfile(friendsSearch.getText());
 						}
 
 						@Override
@@ -220,23 +220,23 @@ public class SocialNetworksHome {
 	private boolean showingDecoy = true;
 
 	public void updateFormFields() {
-		if (LoginFactory.isLoggedIn() && showingDecoy) {
+		if (GenSpaceServerFactory.isLoggedIn() && showingDecoy) {
 			shownPanel.removeAll();
 			shownPanel.add(panel1);
 			showingDecoy = false;
-		} else if (!	LoginFactory.isLoggedIn() && !showingDecoy) {
+		} else if (!	GenSpaceServerFactory.isLoggedIn() && !showingDecoy) {
 			shownPanel.removeAll();
 			shownPanel.add(decoyPanel);
 			showingDecoy = true;
 		}
-		if (LoginFactory.isLoggedIn()) {
+		if (GenSpaceServerFactory.isLoggedIn()) {
 			current.updateFormFields();
 			SwingWorker<List<User>, Void> worker = new SwingWorker<List<User>, Void>() {
 
 				@Override
 				protected List<User> doInBackground()
 						throws Exception {
-					return LoginFactory.getFriendOps().getFriendRequests();
+					return GenSpaceServerFactory.getFriendOps().getFriendRequests();
 				}
 
 				@Override
@@ -269,7 +269,7 @@ public class SocialNetworksHome {
 				@Override
 				protected Integer doInBackground()
 						throws Exception {
-					return LoginFactory.getFriendOps().getFriendRequests().size() + LoginFactory.getNetworkOps().getNumberOfNetworkRequests();
+					return GenSpaceServerFactory.getFriendOps().getFriendRequests().size() + GenSpaceServerFactory.getNetworkOps().getNumberOfNetworkRequests();
 				}
 
 				@Override

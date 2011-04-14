@@ -13,7 +13,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.concurrent.ExecutionException;
 
@@ -29,10 +28,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
 import org.geworkbench.components.genspace.GenSpace;
-import org.geworkbench.components.genspace.LoginFactory;
-import org.geworkbench.components.genspace.RuntimeEnvironmentSettings;
+import org.geworkbench.components.genspace.GenSpaceServerFactory;
 import org.geworkbench.components.genspace.entity.IncomingWorkflow;
-import org.geworkbench.components.genspace.entity.User;
 import org.geworkbench.components.genspace.entity.UserWorkflow;
 import org.geworkbench.components.genspace.entity.Workflow;
 import org.geworkbench.engine.config.VisualPlugin;
@@ -44,7 +41,7 @@ ActionListener {
 	private static final long serialVersionUID = -220085507992207251L;
 	private WorkflowRepository workflowRepository;
 	private JTextArea textArea;
-	private Workflow workflow;
+//	private Workflow workflow;
 	private JButton sendButton = new JButton("Send");
 	private JButton importButton = new JButton("Import");
 	private JButton exportButton = new JButton("Export");
@@ -83,7 +80,7 @@ ActionListener {
 	}
 
 	public void setAndPrintWorkflow(Workflow workflow) {
-		this.workflow = workflow;
+//		this.workflow = workflow;
 		if (workflow != null)
 			textArea.setText(getWorkflowDetailsString(workflow));
 		else
@@ -91,7 +88,7 @@ ActionListener {
 	}
 
 	public void clearData() {
-		workflow = null;
+//		workflow = null;
 		textArea.setText("");
 	}
 
@@ -112,7 +109,7 @@ ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		final Object o = e.getSource();
 
-		String result = "";
+//		String result = "";
 			if (o.equals(sendButton)) {
 				send();
 			} else if (o.equals(refreshButton)) {
@@ -138,10 +135,10 @@ ActionListener {
 					UserWorkflow w = (UserWorkflow) input.readObject();
 					input.close();
 					w.setId(0);
-					w.setOwner(LoginFactory.getUser());
-					UserWorkflow ret = LoginFactory.getWorkflowOps()
+					w.setOwner(GenSpaceServerFactory.getUser());
+					UserWorkflow ret = GenSpaceServerFactory.getWorkflowOps()
 							.importWorkflow(w);
-					LoginFactory.updateCachedUser();
+					GenSpaceServerFactory.updateCachedUser();
 					return ret;
 				};
 
@@ -202,7 +199,7 @@ ActionListener {
 	private String refresh() {
 		// TODO: there should be a thread in background that calls this
 		// function periodically to refresh stuff automatically
-		LoginFactory.updateCachedUser();
+		GenSpaceServerFactory.updateCachedUser();
 		GenSpace.getInstance().getWorkflowRepository()
 		.updateUser();
 		return "User data has been refreshed successfully"; 
@@ -228,8 +225,8 @@ ActionListener {
 							newW.setCreatedAt(new Date());
 							newW.setName(wn.userWorkflow.getName());
 							newW.setWorkflow(wn.userWorkflow.getWorkflow());
-							newW.setSender(LoginFactory.getUser());
-							return LoginFactory.getWorkflowOps().sendWorkflow(newW,receiver);
+							newW.setSender(GenSpaceServerFactory.getUser());
+							return GenSpaceServerFactory.getWorkflowOps().sendWorkflow(newW,receiver);
 						};
 
 						protected void done() {

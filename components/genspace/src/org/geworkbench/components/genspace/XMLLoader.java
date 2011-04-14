@@ -296,14 +296,12 @@ public class XMLLoader {
 					// only care about xml files, of course
 					if (filename.contains(".xml"))
 					{
-						System.out.println("Reading " + filename);
 						loader.readAndLoad(filename);
 					}
 				}
 			}
 			else
 			{
-				System.out.println("Reading " + name);
 				loader.readAndLoad(name);
 			}
 		}

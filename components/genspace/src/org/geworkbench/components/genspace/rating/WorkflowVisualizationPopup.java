@@ -2,24 +2,22 @@ package org.geworkbench.components.genspace.rating;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 import java.util.Date;
 import java.util.concurrent.ExecutionException;
 
-import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingWorker;
 
+import org.geworkbench.components.genspace.BrowserLauncher;
 import org.geworkbench.components.genspace.GenSpace;
-import org.geworkbench.components.genspace.LoginFactory;
+import org.geworkbench.components.genspace.GenSpaceServerFactory;
 import org.geworkbench.components.genspace.RuntimeEnvironmentSettings;
 import org.geworkbench.components.genspace.entity.Tool;
 import org.geworkbench.components.genspace.entity.User;
 import org.geworkbench.components.genspace.entity.UserWorkflow;
 import org.geworkbench.components.genspace.entity.Workflow;
-import org.geworkbench.util.BrowserLauncher;
 
 public class WorkflowVisualizationPopup extends JPopupMenu implements
 		ActionListener {
@@ -82,7 +80,7 @@ public class WorkflowVisualizationPopup extends JPopupMenu implements
 
 					@Override
 					protected User doInBackground() throws Exception {
-						return LoginFactory.getUsageOps().getExpertUserFor(tn);
+						return GenSpaceServerFactory.getUsageOps().getExpertUserFor(tn);
 					}
 					@Override
 					protected void done() {
@@ -108,7 +106,6 @@ public class WorkflowVisualizationPopup extends JPopupMenu implements
 
 
 			if (tool.getId() > 0) {
-				System.out.println("Adding tool rating");
 				toolSRP = new StarRatingPanel();
 				toolSRP.setTitle("Rate " + tn);
 				toolSRP.loadRating(tn);
@@ -129,7 +126,6 @@ public class WorkflowVisualizationPopup extends JPopupMenu implements
 					viewWorkflowCommentsPage.setVisible(false);
 
 			if (workflow.getId() > 0) {
-				System.out.println("Add workflow rate");
 				workflowSRP = new StarRatingPanel();
 				workflowSRP.setTitle("Rate workflow until here");
 				workflowSRP.loadRating(workflow);
@@ -151,7 +147,7 @@ public class WorkflowVisualizationPopup extends JPopupMenu implements
 		else if (item == viewWorkflowCommentsPage && workflow.getId() > 0)
 			args = "workflow/index/" + workflow.getId();
 		else if (item == contactEU) {
-			if (LoginFactory.isLoggedIn()) {
+			if (GenSpaceServerFactory.isLoggedIn()) {
 				GenSpace.bringUpProfile(expert);
 			} else {
 				JOptionPane
@@ -165,12 +161,9 @@ public class WorkflowVisualizationPopup extends JPopupMenu implements
 		}
 
 		if (browser) {
-			try {
 				BrowserLauncher.openURL(RuntimeEnvironmentSettings.GS_WEB_ROOT
 						+ args);
-			} catch (IOException e) {
-				GenSpace.logger.error("Error",e);
-			}
+
 		}
 	}
 
@@ -178,19 +171,19 @@ public class WorkflowVisualizationPopup extends JPopupMenu implements
 		SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 			@Override
 			public Void doInBackground() {
-				if (LoginFactory.isLoggedIn()) {
+				if (GenSpaceServerFactory.isLoggedIn()) {
 					String name = JOptionPane.showInputDialog("Type a name for the workflow to be added:",
 							"");
 					if (name != null && name.trim().length() > 0) {
 						UserWorkflow uw = new UserWorkflow();
 						uw.setName(name);
 						uw.setWorkflow(workflow);
-						uw.setFolder(LoginFactory.getUser().getRootFolder());
-						uw.setOwner(LoginFactory.getUser());
+						uw.setFolder(GenSpaceServerFactory.getUser().getRootFolder());
+						uw.setOwner(GenSpaceServerFactory.getUser());
 						uw.setCreatedAt(new Date());
 						
-						LoginFactory.getWorkflowOps().addWorkflow(uw, LoginFactory.getUser().getRootFolder());
-						LoginFactory.updateCachedUser();
+						GenSpaceServerFactory.getWorkflowOps().addWorkflow(uw, GenSpaceServerFactory.getUser().getRootFolder());
+						GenSpaceServerFactory.updateCachedUser();
 						GenSpace.getInstance().getWorkflowRepository().updateUser();
 							JOptionPane
 							.showMessageDialog(null,

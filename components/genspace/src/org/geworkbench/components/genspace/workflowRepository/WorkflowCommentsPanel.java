@@ -26,7 +26,7 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumn;
 
 import org.geworkbench.components.genspace.GenSpace;
-import org.geworkbench.components.genspace.LoginFactory;
+import org.geworkbench.components.genspace.GenSpaceServerFactory;
 import org.geworkbench.components.genspace.entity.User;
 import org.geworkbench.components.genspace.entity.Workflow;
 import org.geworkbench.components.genspace.entity.WorkflowComment;
@@ -117,7 +117,7 @@ ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		final Object source = e.getSource();
-		User u = LoginFactory.getUser();
+		User u = GenSpaceServerFactory.getUser();
 		if (u != null) {
 			MyTableModel model = (MyTableModel) table.getModel();
 			if (source.equals(newButton)) {
@@ -137,15 +137,15 @@ ActionListener {
 
 	private void removeComment(final WorkflowComment wc,
 			final MyTableModel model) {
-		if (!wc.getCreator().equals(LoginFactory.getUser())) {
+		if (!wc.getCreator().equals(GenSpaceServerFactory.getUser())) {
 			JOptionPane.showMessageDialog(null, "You can only delete your own comments.");
 		}
 		
 		SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
 			protected Boolean doInBackground() throws Exception {
-				Boolean ret = LoginFactory.getWorkflowOps()
+				Boolean ret = GenSpaceServerFactory.getWorkflowOps()
 						.removeComment(wc);
-				LoginFactory.updateCachedUser();
+				GenSpaceServerFactory.updateCachedUser();
 				return ret;
 			};
 
@@ -176,11 +176,11 @@ ActionListener {
 					WorkflowComment wc = new WorkflowComment();
 					wc.setComment(comment);
 					wc.setCreatedAt(new Date());
-					wc.setCreator(LoginFactory.getUser());
+					wc.setCreator(GenSpaceServerFactory.getUser());
 					wc.setWorkflow(workflow);
-					WorkflowComment ret = LoginFactory.getWorkflowOps()
+					WorkflowComment ret = GenSpaceServerFactory.getWorkflowOps()
 							.addComment(wc);
-					LoginFactory.updateCachedUser();
+					GenSpaceServerFactory.updateCachedUser();
 					return ret;
 				};
 
@@ -222,6 +222,10 @@ private class ColumnListener implements ListSelectionListener {
 }
 
 class MyTableModel extends AbstractTableModel {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2623963206256666425L;
 	private String[] columnNames = { "User", "Date", "Comment" };
 	public List<WorkflowComment> data;
 

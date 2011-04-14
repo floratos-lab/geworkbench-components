@@ -15,7 +15,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingWorker;
 
-import org.geworkbench.components.genspace.LoginFactory;
+import org.geworkbench.components.genspace.GenSpaceServerFactory;
 import org.geworkbench.components.genspace.entity.User;
 import org.geworkbench.engine.config.VisualPlugin;
 
@@ -56,7 +56,7 @@ public class GenSpaceGeneralProfile extends JPanel implements VisualPlugin,
 
 	private void initComponents() {
 		// String username = LoginManager.loggedInUser;
-		User u = LoginFactory.getUser();
+		User u = GenSpaceServerFactory.getUser();
 		this.setLayout(new GridLayout(15, 2));
 
 		JLabel j2 = new JLabel("First Name");
@@ -120,16 +120,16 @@ public class GenSpaceGeneralProfile extends JPanel implements VisualPlugin,
 
 	private void applyProfileChanges() {
 
-		LoginFactory.getUser().setFirstName(fname.getText());
-		LoginFactory.getUser().setLastName(lname.getText());
-		LoginFactory.getUser().setLabAffiliation(labaff.getText());
-		LoginFactory.getUser().setEmail(email.getText());
-		LoginFactory.getUser().setPhone(phone.getText());
-		LoginFactory.getUser().setAddr1(addr1.getText());
-		LoginFactory.getUser().setAddr2(addr2.getText());
-		LoginFactory.getUser().setCity(city.getText());
-		LoginFactory.getUser().setState(state.getText());
-		LoginFactory.getUser().setZipcode(zipcode.getText());
+		GenSpaceServerFactory.getUser().setFirstName(fname.getText());
+		GenSpaceServerFactory.getUser().setLastName(lname.getText());
+		GenSpaceServerFactory.getUser().setLabAffiliation(labaff.getText());
+		GenSpaceServerFactory.getUser().setEmail(email.getText());
+		GenSpaceServerFactory.getUser().setPhone(phone.getText());
+		GenSpaceServerFactory.getUser().setAddr1(addr1.getText());
+		GenSpaceServerFactory.getUser().setAddr2(addr2.getText());
+		GenSpaceServerFactory.getUser().setCity(city.getText());
+		GenSpaceServerFactory.getUser().setState(state.getText());
+		GenSpaceServerFactory.getUser().setZipcode(zipcode.getText());
 	}
 
 	@Override
@@ -147,7 +147,7 @@ public class GenSpaceGeneralProfile extends JPanel implements VisualPlugin,
 						if (isValid(errMsg)) {
 							applyProfileChanges();							
 							// System.out.println("valid");
-							if (LoginFactory.userUpdate()) {
+							if (GenSpaceServerFactory.userUpdate()) {
 								String msg = "Information updated";
 
 								JOptionPane.showMessageDialog(null, msg);

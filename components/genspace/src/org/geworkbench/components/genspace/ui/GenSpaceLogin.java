@@ -19,7 +19,7 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 import org.geworkbench.components.genspace.GenSpace;
-import org.geworkbench.components.genspace.LoginFactory;
+import org.geworkbench.components.genspace.GenSpaceServerFactory;
 import org.geworkbench.components.genspace.chat.ChatReceiver;
 import org.geworkbench.components.genspace.entity.User;
 import org.geworkbench.engine.config.VisualPlugin;
@@ -143,7 +143,7 @@ public class GenSpaceLogin extends JPanel implements VisualPlugin,
 				int evt;
 				@Override
 				protected void done() {
-					if(LoginFactory.getUser() != null)
+					if(GenSpaceServerFactory.getUser() != null)
 					{
 						String msg = "User Logged in.";
 						GenSpace.getInstance().handleLogin();
@@ -153,7 +153,7 @@ public class GenSpaceLogin extends JPanel implements VisualPlugin,
 								new String(pf.getPassword()));
 						GenSpace.networksPanels.updateFormFields();
 						GenSpaceSecurityPanel p = new GenSpaceSecurityPanel(
-								LoginFactory.getUsername());
+								GenSpaceServerFactory.getUsername());
 						getThisPanel().removeAll();
 						getThisPanel().add(p);
 						// this.setSize(500, 500);
@@ -173,8 +173,9 @@ public class GenSpaceLogin extends JPanel implements VisualPlugin,
 						if (isValid(errMsg))
 						{
 
-							if (LoginFactory.userLogin(tf.getText(),new String(pf.getPassword()))) {
-								return LoginFactory.getUser();
+							if (GenSpaceServerFactory.userLogin(tf.getText(),new String(pf.getPassword()))) {
+								GenSpace.getInstance().getWorkflowRepository().updateUser();
+								return GenSpaceServerFactory.getUser();
 
 							} else {
 								GenSpace.getStatusBar().stop(evt);
@@ -207,7 +208,7 @@ public class GenSpaceLogin extends JPanel implements VisualPlugin,
 		} else if (e.getSource() == b3) {
 			callRegisterMember();
 
-			if (LoginFactory.getUser() != null) {
+			if (GenSpaceServerFactory.getUser() != null) {
 				l3.setText("Login Created");
 			} else {
 				l3.setText("Login Creation Failed");

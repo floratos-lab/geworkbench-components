@@ -1,7 +1,6 @@
 package org.geworkbench.components.genspace.ui;
 
 import java.awt.BorderLayout;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.swing.JLabel;

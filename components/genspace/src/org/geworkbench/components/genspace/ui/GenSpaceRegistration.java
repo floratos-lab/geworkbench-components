@@ -17,7 +17,7 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.SwingWorker;
 
-import org.geworkbench.components.genspace.LoginFactory;
+import org.geworkbench.components.genspace.GenSpaceServerFactory;
 import org.geworkbench.components.genspace.entity.User;
 import org.geworkbench.engine.config.VisualPlugin;
 
@@ -191,7 +191,7 @@ public class GenSpaceRegistration extends JPanel implements VisualPlugin,
 						StringBuffer errMsg = new StringBuffer();
 						if (isValid(errMsg)) {
 						
-							if(LoginFactory.userRegister(getNewUser()))
+							if(GenSpaceServerFactory.userRegister(getNewUser()))
 							{
 								String msg = "User Registered";
 

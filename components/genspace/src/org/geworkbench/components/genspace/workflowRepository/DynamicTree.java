@@ -8,7 +8,6 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.JButton;
@@ -16,7 +15,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
-import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
@@ -29,8 +27,7 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import org.geworkbench.components.genspace.GenSpace;
-import org.geworkbench.components.genspace.LoginFactory;
-import org.geworkbench.components.genspace.RuntimeEnvironmentSettings;
+import org.geworkbench.components.genspace.GenSpaceServerFactory;
 import org.geworkbench.components.genspace.entity.User;
 import org.geworkbench.components.genspace.entity.UserWorkflow;
 import org.geworkbench.components.genspace.entity.WorkflowFolder;
@@ -38,6 +35,10 @@ import org.geworkbench.components.genspace.entity.WorkflowFolder;
 public class DynamicTree extends JPanel implements ActionListener,
 		TreeSelectionListener {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8979289077340609132L;
 	protected DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode();
 	protected DefaultTreeModel treeModel;
 	protected JTree tree;
@@ -83,9 +84,9 @@ public class DynamicTree extends JPanel implements ActionListener,
 	}
 
 	public void recalculateTree() {
-		User u = LoginFactory.getUser();
+		User u = GenSpaceServerFactory.getUser();
 		if (u != null) {
-			WorkflowFolder root = LoginFactory.getUserOps().getRootFolder();
+			WorkflowFolder root = GenSpaceServerFactory.getUserOps().getRootFolder();
 			rootNode = new DefaultMutableTreeNode(root);
 			addUserWorkflowTree(root);
 			repaint();
@@ -103,20 +104,17 @@ public class DynamicTree extends JPanel implements ActionListener,
 		
 		ArrayList<WorkflowFolder> flders = new ArrayList<WorkflowFolder>();
 		flders.add(r);
-		System.out.println(r.getChildren());
 		for(WorkflowFolder f : r.getChildren())
 		{
 			flders.add(f);
 		}
 		for (WorkflowFolder f : flders) {
 			DefaultMutableTreeNode fnode;
-			System.out.println(f.getChildren());
 			if(f.getParent() != null)
 			{
 				fnode = new DefaultMutableTreeNode(f);
 				folders.put(f, fnode);
 				folders.get(f.getParent()).add(fnode);
-				System.out.println("Adding " + f.getName() + " to " + folders.get(f.getParent()).getUserObject());
 			}
 			else
 				fnode = rootNode;
@@ -208,9 +206,9 @@ public class DynamicTree extends JPanel implements ActionListener,
 	class MyTreeModelListener implements TreeModelListener {
 		@Override
 		public void treeNodesChanged(TreeModelEvent e) {
-			DefaultMutableTreeNode node;
-			node = (DefaultMutableTreeNode) (e.getTreePath()
-					.getLastPathComponent());
+//			DefaultMutableTreeNode node;
+//			node = (DefaultMutableTreeNode) (e.getTreePath()
+//					.getLastPathComponent());
 
 			/*
 			 * If the event lists children, then the changed node is the child
@@ -218,7 +216,7 @@ public class DynamicTree extends JPanel implements ActionListener,
 			 * the specified node are the same.
 			 */
 
-			int index = e.getChildIndices()[0];
+//			int index = e.getChildIndices()[0];
 //			node = (DefaultMutableTreeNode) (node.getChildAt(index));
 
 			// System.out.println("The user has finished editing the node.");
@@ -243,7 +241,7 @@ public class DynamicTree extends JPanel implements ActionListener,
 	public void actionPerformed(ActionEvent e) {
 		String command = e.getActionCommand();
 
-		if (LoginFactory.isLoggedIn()) {
+		if (GenSpaceServerFactory.isLoggedIn()) {
 
 			if (NEW_COMMAND.equals(command)) {
 				newCommand();
@@ -267,13 +265,9 @@ public class DynamicTree extends JPanel implements ActionListener,
 					final UserWorkflow uw = wf.userWorkflow;
 					SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
 						protected Boolean doInBackground() throws Exception {
-							boolean ret = LoginFactory.getWorkflowOps()
+							boolean ret = GenSpaceServerFactory.getWorkflowOps()
 									.deleteMyWorkflow(uw);
-							if(ret)
-								System.out.println("success");
-							else
-								System.out.println("ret false");
-							LoginFactory.userUpdate();
+							GenSpaceServerFactory.userUpdate();
 							GenSpace.getInstance().getWorkflowRepository().updateUser();
 
 							return ret;
@@ -304,9 +298,9 @@ public class DynamicTree extends JPanel implements ActionListener,
 						
 						SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
 							protected Boolean doInBackground() throws Exception {
-								boolean ret = LoginFactory.getWorkflowOps()
+								boolean ret = GenSpaceServerFactory.getWorkflowOps()
 										.deleteMyFolder(folder);
-								LoginFactory.updateCachedUser();
+								GenSpaceServerFactory.updateCachedUser();
 								return ret;
 							};
 
@@ -336,16 +330,16 @@ public class DynamicTree extends JPanel implements ActionListener,
 		final String folderName = JOptionPane
 				.showInputDialog("Select a folder name");
 		if (folderName != null && !folderName.trim().equals("")
-				&& !LoginFactory.getUser().containsFolderByName(folderName)) {
+				&& !GenSpaceServerFactory.getUser().containsFolderByName(folderName)) {
 			// send add_folder to the server
 			SwingWorker<WorkflowFolder, Void> worker = new SwingWorker<WorkflowFolder, Void>() {
 				protected WorkflowFolder doInBackground() {
 					WorkflowFolder folder = new WorkflowFolder();
 					folder.setName(folderName);
-					folder.setOwner(LoginFactory.getUser());
-					folder.setParent(LoginFactory.getUser().getRootFolder());
-					WorkflowFolder ret = LoginFactory.getWorkflowOps().addFolder(folder);
-					LoginFactory.updateCachedUser();
+					folder.setOwner(GenSpaceServerFactory.getUser());
+					folder.setParent(GenSpaceServerFactory.getUser().getRootFolder());
+					WorkflowFolder ret = GenSpaceServerFactory.getWorkflowOps().addFolder(folder);
+					GenSpaceServerFactory.updateCachedUser();
 					GenSpace.getInstance().getWorkflowRepository().updateUser();
 					return ret;
 				};
@@ -363,7 +357,7 @@ public class DynamicTree extends JPanel implements ActionListener,
 					}
 					if (result == null || result.equals("")) {
 //						LoginFactory.getUser().getFolders().add(result);
-						Collections.sort(LoginFactory.getUser().getFolders());
+						Collections.sort(GenSpaceServerFactory.getUser().getFolders());
 						recalculateAndReload();
 						// addObject(rootNode, folderName);
 					} else {

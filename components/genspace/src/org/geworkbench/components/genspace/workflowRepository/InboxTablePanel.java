@@ -59,8 +59,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 
 import org.geworkbench.components.genspace.GenSpace;
-import org.geworkbench.components.genspace.LoginFactory;
-import org.geworkbench.components.genspace.RuntimeEnvironmentSettings;
+import org.geworkbench.components.genspace.GenSpaceServerFactory;
 import org.geworkbench.components.genspace.entity.IncomingWorkflow;
 import org.geworkbench.components.genspace.entity.User;
 import org.geworkbench.components.genspace.entity.UserWorkflow;
@@ -68,6 +67,10 @@ import org.geworkbench.engine.config.VisualPlugin;
 
 public class InboxTablePanel extends JPanel implements ActionListener,
 VisualPlugin {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2445067698516787918L;
 	public JTable table;
 	public WorkflowRepository workflowRepository;
 	final public JButton addButton = new JButton("Add");
@@ -81,6 +84,8 @@ VisualPlugin {
 		workflowRepository = wr;
 
 		table = new JTable(new MyTableModel()) {
+
+			private static final long serialVersionUID = -5336081423299910192L;
 
 			@Override
 			public String getToolTipText(MouseEvent e) {
@@ -134,7 +139,7 @@ VisualPlugin {
 	@Override
 	public void actionPerformed(ActionEvent event) {
 		final Object source = event.getSource();
-		if (LoginFactory.isLoggedIn()) {
+		if (GenSpaceServerFactory.isLoggedIn()) {
 			int i = table.getSelectedRow();
 			if (i != -1) {
 				MyTableModel model = (MyTableModel) table
@@ -154,9 +159,9 @@ VisualPlugin {
 			final MyTableModel model) {
 		SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
 			protected Boolean doInBackground() throws Exception {
-				Boolean ret =  LoginFactory.getWorkflowOps()
+				Boolean ret =  GenSpaceServerFactory.getWorkflowOps()
 						.deleteFromInbox(wi);
-				LoginFactory.updateCachedUser();
+				GenSpaceServerFactory.updateCachedUser();
 				workflowRepository.updateUser();
 				return ret;
 			};
@@ -181,9 +186,9 @@ VisualPlugin {
 		
 		SwingWorker<UserWorkflow, Void> worker = new SwingWorker<UserWorkflow, Void>() {
 			protected UserWorkflow doInBackground() throws Exception {
-				UserWorkflow ret = LoginFactory.getWorkflowOps()
+				UserWorkflow ret = GenSpaceServerFactory.getWorkflowOps()
 						.addToRepository(wi);
-				LoginFactory.updateCachedUser();
+				GenSpaceServerFactory.updateCachedUser();
 				workflowRepository.updateUser();
 				return ret;
 			};
@@ -238,6 +243,10 @@ private class ColumnListener implements ListSelectionListener {
 }
 
 class MyTableModel extends AbstractTableModel {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1827659420978777265L;
 	private String[] columnNames = { "Name", "User", "Date" };
 	public List<IncomingWorkflow> data;
 
@@ -315,7 +324,7 @@ class MyTableModel extends AbstractTableModel {
 	 * would contain text ("true"/"false"), rather than a check box.
 	 */
 	@Override
-	public Class getColumnClass(int c) {
+	public Class<? extends Object> getColumnClass(int c) {
 		return getValueAt(0, c).getClass();
 	}
 
