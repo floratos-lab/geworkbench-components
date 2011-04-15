@@ -52,7 +52,7 @@ public class viewProfileTab extends SocialTab {
 						@Override
 						protected Void doInBackground()
 							 {
-							GenSpaceServerFactory.getFriendOps().removeFriend(u);
+							GenSpaceServerFactory.getFriendOps().removeFriend(u.getId());
 							return null;
 							
 						}
@@ -81,7 +81,7 @@ public class viewProfileTab extends SocialTab {
 						@Override
 						protected Void doInBackground()
 								 {
-								GenSpaceServerFactory.getFriendOps().addFriend(u);
+								GenSpaceServerFactory.getFriendOps().addFriend(u.getId());
 								return null;
 						}
 

@@ -96,7 +96,7 @@ public class StarRatingPanel extends JPanel implements MouseListener {
 			@Override
 			public WorkflowRating doInBackground() {
 
-				return GenSpaceServerFactory.getPrivUsageFacade().getMyRating(workflow);
+				return GenSpaceServerFactory.getPrivUsageFacade().getMyWorkflowRating(workflow.getId());
 			}
 			@Override
 			protected void done() {
@@ -139,7 +139,7 @@ public class StarRatingPanel extends JPanel implements MouseListener {
 			@Override
 			public ToolRating doInBackground() {
 
-				return GenSpaceServerFactory.getPrivUsageFacade().getMyRating(tool);
+				return GenSpaceServerFactory.getPrivUsageFacade().getMyToolRating(tool.getId());
 			}
 			@Override
 			protected void done() {

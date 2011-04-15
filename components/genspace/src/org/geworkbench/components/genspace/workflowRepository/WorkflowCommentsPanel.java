@@ -144,7 +144,7 @@ ActionListener {
 		SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
 			protected Boolean doInBackground() throws Exception {
 				Boolean ret = GenSpaceServerFactory.getWorkflowOps()
-						.removeComment(wc);
+						.removeComment(wc.getId());
 				GenSpaceServerFactory.updateCachedUser();
 				return ret;
 			};

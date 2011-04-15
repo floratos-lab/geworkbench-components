@@ -129,7 +129,7 @@ public class friendsTab extends SocialTab {
 					if (networkFilter == null)
 						return GenSpaceServerFactory.getFriendOps().getFriendsProfiles();
 					else
-						return GenSpaceServerFactory.getNetworkOps().getProfilesByNetwork(networkFilter);
+						return GenSpaceServerFactory.getNetworkOps().getProfilesByNetwork(networkFilter.getId());
 				}
 
 				@Override

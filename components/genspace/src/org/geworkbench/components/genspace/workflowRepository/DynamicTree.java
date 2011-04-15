@@ -266,7 +266,7 @@ public class DynamicTree extends JPanel implements ActionListener,
 					SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
 						protected Boolean doInBackground() throws Exception {
 							boolean ret = GenSpaceServerFactory.getWorkflowOps()
-									.deleteMyWorkflow(uw);
+									.deleteMyWorkflow(uw.getId());
 							GenSpaceServerFactory.userUpdate();
 							GenSpace.getInstance().getWorkflowRepository().updateUser();
 
@@ -299,7 +299,7 @@ public class DynamicTree extends JPanel implements ActionListener,
 						SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
 							protected Boolean doInBackground() throws Exception {
 								boolean ret = GenSpaceServerFactory.getWorkflowOps()
-										.deleteMyFolder(folder);
+										.deleteMyFolder(folder.getId());
 								GenSpaceServerFactory.updateCachedUser();
 								return ret;
 							};

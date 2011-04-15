@@ -80,7 +80,7 @@ public class WorkflowVisualizationPopup extends JPopupMenu implements
 
 					@Override
 					protected User doInBackground() throws Exception {
-						return GenSpaceServerFactory.getUsageOps().getExpertUserFor(tn);
+						return GenSpaceServerFactory.getUsageOps().getExpertUserFor(tn.getId());
 					}
 					@Override
 					protected void done() {
@@ -182,7 +182,7 @@ public class WorkflowVisualizationPopup extends JPopupMenu implements
 						uw.setOwner(GenSpaceServerFactory.getUser());
 						uw.setCreatedAt(new Date());
 						
-						GenSpaceServerFactory.getWorkflowOps().addWorkflow(uw, GenSpaceServerFactory.getUser().getRootFolder());
+						GenSpaceServerFactory.getWorkflowOps().addWorkflow(uw, GenSpaceServerFactory.getUser().getRootFolder().getId());
 						GenSpaceServerFactory.updateCachedUser();
 						GenSpace.getInstance().getWorkflowRepository().updateUser();
 							JOptionPane

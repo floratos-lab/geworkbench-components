@@ -141,6 +141,7 @@ public class WorkflowStatistics extends JPanel implements VisualPlugin {
 					String txt = "";
 					if(results != null)
 					for (Workflow s : results) {
+						s.loadToolsFromCache();
 						txt = txt + "<li>" + s.toString() + "</li>";
 						lim--;
 						i++;
@@ -152,18 +153,16 @@ public class WorkflowStatistics extends JPanel implements VisualPlugin {
 					popWFPanel.revalidate();
 					revalidate();
 					repaint();
-					if(instrument)
-						System.out.println("Popular workflows size: " + GenSpace.getObjectSize((Serializable) results));
 				} catch (InterruptedException e) {
-					GenSpace.logger.fatal(e);
+					GenSpace.logger.fatal("Error talking to server",e);
 				} catch (ExecutionException e) {
-					GenSpace.logger.fatal(e);				}
+					GenSpace.logger.fatal("Error talking to server",e);
+				}
 				super.done();
 			}
 
 			@Override
 			protected List<Workflow> doInBackground() throws Exception {
-
 				return GenSpaceServerFactory.getUsageOps().getWorkflowsByPopularity();
 			}
 
@@ -245,15 +244,14 @@ public class WorkflowStatistics extends JPanel implements VisualPlugin {
 				String usageRateAsWFHead = "" + tool.getWfCountHead();
 				ret += "Total usage rate at start of workflow: "
 						+ usageRateAsWFHead + " <br>";
-
-				Tool mostPopularNextTool = GenSpaceServerFactory.getUsageOps().getMostPopularNextTool(tool);
+				Tool mostPopularNextTool = GenSpaceServerFactory.getUsageOps().getMostPopularNextTool(tool.getId());
 				if(mostPopularNextTool == null)
 					ret += "No tools are used after this one"+ "<br>";
 				else
 					ret += "The most popular tool used next to this tool: "
 						+ mostPopularNextTool.getName() + "<br>";
 
-				Tool mostPopularPreviousTool = GenSpaceServerFactory.getUsageOps().getMostPopularPreviousTool(tool);
+				Tool mostPopularPreviousTool = GenSpaceServerFactory.getUsageOps().getMostPopularPreviousTool(tool.getId());
 				if(mostPopularPreviousTool == null)
 					ret += "No tools are used before this one"+ "<br>";
 				else

@@ -152,7 +152,7 @@ public class privacyTab extends SocialTab {
 					protected Void doInBackground() throws Exception {
 						for (Integer i : s.keySet()) {
 							GenSpaceServerFactory.getNetworkOps().updateNetworkVisibility(
-									((UserNetwork) model.get(i)),
+									((UserNetwork) model.get(i)).getId(),
 									s.get(i));
 						}
 						return null;
@@ -177,7 +177,7 @@ public class privacyTab extends SocialTab {
 					protected Void doInBackground() throws Exception {
 						for (Integer i : s2.keySet()) {
 							GenSpaceServerFactory.getFriendOps().updateFriendVisibility(
-									((Friend) model2.get(i)),
+									((Friend) model2.get(i)).getId(),
 									s2.get(i));
 						}
 						return null;
