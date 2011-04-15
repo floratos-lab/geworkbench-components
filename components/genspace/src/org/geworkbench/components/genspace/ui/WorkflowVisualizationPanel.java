@@ -82,6 +82,8 @@ public class WorkflowVisualizationPanel extends JPanel implements VisualPlugin {
 		render(w, null);
 	}
 	public void render(Workflow w, Tool selected) {
+		wkflwCache = new HashMap<Integer, Workflow>();
+		wkflwCache.put(w.getId(), w);
 		workflows.add(w);
 		initGraph();
 		renderSingleWorkflow(w, selected, null);
@@ -107,7 +109,7 @@ public class WorkflowVisualizationPanel extends JPanel implements VisualPlugin {
 			if(swimlanesBack.size() > 0)
 			for(mxICell i : swimlanes.values())
 			{
-				Workflow parentW = swimlanesBack.get(i).getParent();
+				Workflow parentW = wkflwCache.get(swimlanesBack.get(i).getCachedParentId());
 				int drawOffset = 0;
 				if(parentW != null)
 				{
@@ -175,15 +177,19 @@ public class WorkflowVisualizationPanel extends JPanel implements VisualPlugin {
 	}
 	private Object pool;
 	public void render(List<Workflow> ret, Tool selected) {
-
+		wkflwCache = new HashMap<Integer, Workflow>();
+		for(Workflow w : ret)
+		{
+			wkflwCache.put(w.getId(), w);
+		}
 		//Sort by # of children
 		Collections.sort(ret, new Comparator<Workflow>() {
 
 			@Override
 			public int compare(Workflow o1, Workflow o2) {
-				if(o1.getChildren().size() < o2.getChildren().size())
+				if(o1.getCachedChildrenCount() < o2.getCachedChildrenCount())
 					return -1;
-				else if(o1.getChildren().size() > o2.getChildren().size())
+				else if(o1.getCachedChildrenCount() > o2.getCachedChildrenCount())
 					return 1;
 				else
 					return 0;
@@ -195,6 +201,7 @@ public class WorkflowVisualizationPanel extends JPanel implements VisualPlugin {
 		layoutAndShowGraph();
 		
 	}
+	private HashMap<Integer,Workflow> wkflwCache;
 	private HashMap<Workflow, mxICell> wkflTails;
 	private HashMap<Workflow, mxICell> swimlanes;
 	private HashMap<mxICell,Workflow> swimlanesBack;
@@ -205,7 +212,7 @@ public class WorkflowVisualizationPanel extends JPanel implements VisualPlugin {
 		{
 			if(parent == null)
 			{
-				if(!ret.contains(w.getParent()))
+				if(!ret.contains(wkflwCache.get(w.getCachedParentId())))
 				{
 					if(w.getTools().size() > 0)
 					{
@@ -217,13 +224,13 @@ public class WorkflowVisualizationPanel extends JPanel implements VisualPlugin {
 					}
 				}
 			}
-			else if(parent.equals(w.getParent()))
+			else if(parent.getId() == w.getCachedParentId())
 			{
 				if(w.getTools().size() > 0)
 				{
 					Object lane = graph.insertVertex(pool, null, "", 0, 0, this.getWidth(), 10,"SWIMLANE");
 					swimlanes.put(w, (mxICell) lane);
-					renderSingleWorkflow(w,selected,lane,w.getParent().getTools().size(),wkflTails.get(w.getParent()));
+					renderSingleWorkflow(w,selected,lane,wkflwCache.get(w.getCachedParentId()).getCachedChildrenCount(),wkflTails.get(wkflwCache.get(w.getCachedParentId())));
 					renderAsSubs(ret, selected, true, w);
 				}
 			}
@@ -321,10 +328,11 @@ public class WorkflowVisualizationPanel extends JPanel implements VisualPlugin {
 		
 		
 		Hashtable<String, Object> style3 = new Hashtable<String, Object>();
-		style3.put(mxConstants.STYLE_FILLCOLOR, "#FAFAFA");
-		style3.put(mxConstants.STYLE_STROKECOLOR, "#CACACA");
-		style3.put(mxConstants.STYLE_STROKEWIDTH, .25);
+		style3.put(mxConstants.STYLE_FILLCOLOR, "#E8E8E8");
+		style3.put(mxConstants.STYLE_STROKECOLOR, "#000000");
+		style3.put(mxConstants.STYLE_STROKEWIDTH, .5);
 		style3.put(mxConstants.STYLE_VERTICAL_ALIGN, mxConstants.ALIGN_CENTER);
+		style3.put(mxConstants.STYLE_OPACITY, "0");
 		graph.getStylesheet().putCellStyle("SWIMLANE", style3);
 		
 		Hashtable<String, Object> style4 = new Hashtable<String, Object>();

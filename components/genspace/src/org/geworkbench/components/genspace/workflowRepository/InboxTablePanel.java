@@ -160,7 +160,7 @@ VisualPlugin {
 		SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
 			protected Boolean doInBackground() throws Exception {
 				Boolean ret =  GenSpaceServerFactory.getWorkflowOps()
-						.deleteFromInbox(wi);
+						.deleteFromInbox(wi.getId());
 				GenSpaceServerFactory.updateCachedUser();
 				workflowRepository.updateUser();
 				return ret;
@@ -187,7 +187,7 @@ VisualPlugin {
 		SwingWorker<UserWorkflow, Void> worker = new SwingWorker<UserWorkflow, Void>() {
 			protected UserWorkflow doInBackground() throws Exception {
 				UserWorkflow ret = GenSpaceServerFactory.getWorkflowOps()
-						.addToRepository(wi);
+						.addToRepository(wi.getId());
 				GenSpaceServerFactory.updateCachedUser();
 				workflowRepository.updateUser();
 				return ret;

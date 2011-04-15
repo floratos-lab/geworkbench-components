@@ -49,7 +49,7 @@ public class requestsTab extends SocialTab {
 					for (UserNetwork t : GenSpaceServerFactory.getUser().getNetworks()) {
 						Network nt = t.getNetwork();
 						if (nt.getOwner().equals(GenSpaceServerFactory.getUser()))
-							ret.addAll(GenSpaceServerFactory.getNetworkOps().getNetworkRequests(nt));
+							ret.addAll(GenSpaceServerFactory.getNetworkOps().getNetworkRequests(nt.getId()));
 					}
 					return ret;
 				}
@@ -147,7 +147,7 @@ public class requestsTab extends SocialTab {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (networksList.getSelectedValue() != null) {
-					GenSpaceServerFactory.getNetworkOps().acceptNetworkRequest((UserNetwork) networksList.getSelectedValue());
+					GenSpaceServerFactory.getNetworkOps().acceptNetworkRequest(((UserNetwork) networksList.getSelectedValue()).getId());
 					updateFormFields();
 				}
 			}
@@ -157,7 +157,7 @@ public class requestsTab extends SocialTab {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (networksList.getSelectedValue() != null) {
-					GenSpaceServerFactory.getNetworkOps().rejectNetworkRequest((UserNetwork) networksList.getSelectedValue());
+					GenSpaceServerFactory.getNetworkOps().rejectNetworkRequest(((UserNetwork) networksList.getSelectedValue()).getId());
 					updateFormFields();
 				}
 			}
@@ -166,7 +166,7 @@ public class requestsTab extends SocialTab {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				GenSpaceServerFactory.getFriendOps().addFriend((User) friendsList.getSelectedValue());
+				GenSpaceServerFactory.getFriendOps().addFriend(((User) friendsList.getSelectedValue()).getId());
 				updateFormFields();
 
 			}
@@ -175,7 +175,7 @@ public class requestsTab extends SocialTab {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				GenSpaceServerFactory.getFriendOps().rejectFriend((User) friendsList.getSelectedValue());
+				GenSpaceServerFactory.getFriendOps().rejectFriend(((User) friendsList.getSelectedValue()).getId());
 				updateFormFields();
 			}
 		});

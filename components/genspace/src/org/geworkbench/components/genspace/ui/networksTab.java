@@ -153,7 +153,7 @@ public class networksTab extends SocialTab {
 				UserNetwork selected = (UserNetwork) lstMyNetworks
 						.getSelectedValue();
 				if (selected != null)
-					GenSpaceServerFactory.getNetworkOps().leaveNetwork(selected);
+					GenSpaceServerFactory.getNetworkOps().leaveNetwork(selected.getId());
 				updateFormFields();
 			}
 		});

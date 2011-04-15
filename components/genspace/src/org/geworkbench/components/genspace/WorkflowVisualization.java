@@ -7,6 +7,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -57,8 +58,12 @@ public class WorkflowVisualization extends JPanel implements VisualPlugin,
 			@Override
 			protected void done() {
 				try {
+					RuntimeEnvironmentSettings.tools = new HashMap<Integer, Tool>();
 					for (Tool tool : get())
+					{
 						tools.addItem(tool);
+						RuntimeEnvironmentSettings.tools.put(tool.getId(), tool);
+					}
 				} catch (InterruptedException e) {
 				} catch (ExecutionException e) {
 				}
@@ -116,6 +121,8 @@ public class WorkflowVisualization extends JPanel implements VisualPlugin,
 							"There are no workflows matching that criteria");
 					label.setText("No Workflows found");
 				}
+				for(Workflow zz : ret)
+					zz.loadToolsFromCache();
 				String noun = "workflow";
 				if (ret.size() > 1)
 					noun = "workflows";
@@ -145,11 +152,11 @@ public class WorkflowVisualization extends JPanel implements VisualPlugin,
 					String action = actions.getSelectedItem().toString();
 					evt = GenSpace.getStatusBar().start("Retrieving workflow information");
 					if (action.equals("All workflows including")) {
-						return GenSpaceServerFactory.getUsageOps().getAllWorkflowsIncluding(tool);
+						return GenSpaceServerFactory.getUsageOps().getAllWorkflowsIncluding(tool.getId());
 					} else if(action.equals("Most common workflow starting with")){
-						return GenSpaceServerFactory.getUsageOps().getMostPopularWorkflowStartingWith(tool);
+						return GenSpaceServerFactory.getUsageOps().getMostPopularWorkflowStartingWith(tool.getId());
 					} else if(action.equals("Most common workflow including")){
-						return GenSpaceServerFactory.getUsageOps().getMostPopularWorkflowIncluding(tool);
+						return GenSpaceServerFactory.getUsageOps().getMostPopularWorkflowIncluding(tool.getId());
 					}
 					else
 					{
