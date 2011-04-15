@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Class-Path: Pack200Task.jar cindy.jar commons-logging.jar cos.jar daim
+ .jar jaimlib.jar jazzy-core.eng.jar jdic.jar jdic_misc.jar jdic_stub.
+ jar jml.jar joscar-client.jar joscar-common.jar joscar-protocol.jar j
+ socks-klea.jar msnm.jar smack.jar smackx.jar substance.jar ymsg_netwo
+ rk_v0_6.jar ymsg_support_v0_6.jar
+Created-By: 1.5.0_07 (Apple Computer, Inc.)
+Main-Class: com.itbs.aimcer.gui.Main
+

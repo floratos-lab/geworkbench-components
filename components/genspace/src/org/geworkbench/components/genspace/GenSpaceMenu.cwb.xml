@@ -6,6 +6,7 @@
 		author="Kaiser lab (C2B2)"
 		authorURL="http://www.psl.cs.columbia.edu/"
 		toolURL="http://www.psl.cs.columbia.edu/genspace/index.html"
+		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/GenSpace"
 		description="GenSpace is a social networking tool
  which allows patterns of use (putative workflows)
  of geWorkbench components to be inferred and queried.
