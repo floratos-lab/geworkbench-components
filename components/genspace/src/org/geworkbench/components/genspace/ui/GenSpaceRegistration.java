@@ -1,33 +1,20 @@
 package org.geworkbench.components.genspace.ui;
 
-import java.awt.Component;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
+import javax.swing.*;
+
+import org.geworkbench.components.genspace.bean.*;
+import org.geworkbench.engine.config.VisualPlugin;
+
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+//import org.geworkbench.engine.properties.PropertiesManager;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JTextField;
-import javax.swing.SwingWorker;
+import org.jdesktop.swingworker.*;
 
-import org.geworkbench.components.genspace.GenSpaceServerFactory;
-import org.geworkbench.components.genspace.entity.User;
-import org.geworkbench.engine.config.VisualPlugin;
-
-public class GenSpaceRegistration extends JPanel implements VisualPlugin,
-		ActionListener {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 6627550806528655509L;
-
+public class GenSpaceRegistration extends JPanel implements  VisualPlugin, ActionListener {
 	private JFrame jframe;
 
 	private JTextField userId;
@@ -44,15 +31,24 @@ public class GenSpaceRegistration extends JPanel implements VisualPlugin,
 	private JTextField state;
 	private JTextField zipcode;
 
-	// TODO: All validations. Field validations.
-	// Invoke call to LoginMgr to pass the bean
-	// Display message from the LoginMgr
+	//TODO: All validations. Field validations.
+	//Invoke call to LoginMgr to pass the bean
+	//Display message from the LoginMgr
 
 	JButton save, reset, b_login;
 
 	GenSpaceLogin login;
 
-	public GenSpaceRegistration() {
+	public GenSpaceRegistration()
+	{	
+		// read the preferences from the properties file
+		try 
+		{
+			// ideally this should also be in the properties file
+			String title = "Please enter your registration information below.";
+		} 
+		catch (Exception e) { }		
+
 		initComponents();
 	}
 
@@ -60,15 +56,14 @@ public class GenSpaceRegistration extends JPanel implements VisualPlugin,
 	 * This method fulfills the contract of the {@link VisualPlugin} interface.
 	 * It returns the GUI component for this visual plugin.
 	 */
-	@Override
 	public Component getComponent() {
 		// In this case, this object is also the GUI component.
 		return this;
 	}
 
-	private void initComponents() {
+	private void initComponents() {	
 		this.setSize(500, 500);
-		this.setLayout(new GridLayout(15, 2));
+		this.setLayout(new  GridLayout( 15, 2));
 		JLabel j1 = new JLabel("Enter sign in user id *");
 		userId = new JTextField("", 20);
 		add(j1);
@@ -97,12 +92,12 @@ public class GenSpaceRegistration extends JPanel implements VisualPlugin,
 		add(lname);
 
 		JLabel j4 = new JLabel("Lab Affiliation *");
-		labaff = new JTextField("", 20);
+		labaff= new JTextField("", 20);
 		add(j4);
 		add(labaff);
 
 		JLabel emailLabel = new JLabel("Email Address");
-		email = new JTextField("", 20);
+		email= new JTextField("", 20);
 		add(emailLabel);
 		add(email);
 
@@ -110,6 +105,7 @@ public class GenSpaceRegistration extends JPanel implements VisualPlugin,
 		phone = new JTextField("", 20);
 		add(phoneLabel);
 		add(phone);
+
 
 		JLabel j5 = new JLabel("Address 1");
 		addr1 = new JTextField("", 20);
@@ -136,13 +132,14 @@ public class GenSpaceRegistration extends JPanel implements VisualPlugin,
 		add(j8);
 		add(zipcode);
 
+		JPanel saveReset;
 
 		save = new JButton("Save");
 		save.addActionListener(this);
 		reset = new JButton("Reset");
 		reset.addActionListener(this);
 		b_login = new JButton("Login");
-		b_login.addActionListener(this);
+		b_login.addActionListener(this);		
 
 		add(save);
 		add(reset);
@@ -151,68 +148,82 @@ public class GenSpaceRegistration extends JPanel implements VisualPlugin,
 		save.setEnabled(true);
 	}
 
-	private User getNewUser() {
-		User u = new User();
+	private RegisterBean getBean() {
+		RegisterBean bean = new RegisterBean();
 
-		u.setUsername(userId.getText());
+		bean.setMessage("Register");	//This is set to Login for logging in. Appropriately set in Jpanel for registration/login
+
+		bean.setUName(userId.getText());
 
 		char[] pass = password.getPassword();
-		u.setPasswordClearText(new String(pass));
+		bean.setPassword(pass);
 
-		u.setFirstName(fname.getText());
-		u.setLastName(lname.getText());
+		bean.setFName(fname.getText());
+		bean.setLName(lname.getText());
 
-		u.setLabAffiliation(labaff.getText());
+		bean.setLabAffiliation(labaff.getText());
 
-		u.setEmail(email.getText());
+		bean.setEmail(email.getText());
 
-		u.setPhone(phone.getText());
+		bean.setPhoneNumber(phone.getText());
 
-		u.setAddr1(addr1.getText());
-		u.setAddr2(addr2.getText());
-		u.setCity(city.getText());
-		u.setState(state.getText());
-		u.setZipcode(zipcode.getText());
+		bean.setAddr1(addr1.getText());
+		bean.setAddr2(addr2.getText());
+		bean.setCity(city.getText());
+		bean.setState(state.getText());
+		bean.setZipcode(zipcode.getText());
 
-		return u;
+		return bean;
 	}
 
-	@Override
-	public void actionPerformed(ActionEvent e) {
+	public void actionPerformed(ActionEvent e) 
+	{
 		if (e.getSource() == save) {
 
-			SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-				@Override
+			org.jdesktop.swingworker.SwingWorker<Void, Void> worker = new org.jdesktop.swingworker.SwingWorker<Void, Void>() {
 				public Void doInBackground() {
 
 					save.setEnabled(false);
 
-					try {
+					try 
+					{
 						StringBuffer errMsg = new StringBuffer();
-						if (isValid(errMsg)) {
-						
-							if(GenSpaceServerFactory.userRegister(getNewUser()))
-							{
-								String msg = "User Registered";
+						if(isValid(errMsg))
+						{
+							LoginManager manager = new LoginManager(getBean());
+
+							boolean userDupCheck = manager.userDupCheck();
+
+							if (userDupCheck) {
+								boolean userRegister = manager.userRegister();
+
+								if (userRegister) {
+									String msg="User Registered with default preferences";
+
+									JOptionPane.showMessageDialog(null, msg);
+
+									callLogin();
+								} else {
+									String msg="User Registration failed. Cannot connect to server.";
+
+									JOptionPane.showMessageDialog(null, msg);
+								}
+							} else {
+								String msg="User ID is duplicated";
 
 								JOptionPane.showMessageDialog(null, msg);
 
-								callLogin();
+								userId.setText("");
 							}
-							else
-							{
-								JOptionPane.showMessageDialog(null,
-										errMsg.toString(), "Error Information",
-										JOptionPane.INFORMATION_MESSAGE);
-
-								getThisPanel().revalidate();
-							}
-							
-						} else {
-							
 						}
-					} catch (Exception ex) {
+						else {
+							JOptionPane.showMessageDialog(null, errMsg.toString(),
+									"Error Information", JOptionPane.INFORMATION_MESSAGE);
+
+							getThisPanel().revalidate();
+						}
 					}
+					catch (Exception ex) { }
 					save.setEnabled(true);
 
 					return null;
@@ -226,13 +237,14 @@ public class GenSpaceRegistration extends JPanel implements VisualPlugin,
 			callLogin();
 		}
 	}
-
+	
 	public JPanel getThisPanel() {
 		return this;
 	}
 
-	private boolean empty(String str) {
-		if ("".equalsIgnoreCase(str) || null == str)
+	private boolean empty(String str)
+	{
+		if("".equalsIgnoreCase(str) || null == str)
 			return true;
 		else
 			return false;
@@ -251,24 +263,30 @@ public class GenSpaceRegistration extends JPanel implements VisualPlugin,
 		String em = email.getText();
 
 		boolean valid = true;
-		if (empty(id)) {
+		if(empty(id))
+		{
 			msg.append("UserId cannot be empty\n");
 			valid = false;
 		}
-		if (empty(pw)) {
+		if(empty(pw))
+		{
 			msg.append("Password cannot be empty\n");
 			valid = false;
 		}
-		if (empty(confirm)) {
+		if(empty(confirm))
+		{
 			msg.append("Confirm password field cannot be empty\n");
 			valid = false;
 		}
-		if (empty(labaffStr)) {
+		if(empty(labaffStr))
+		{
 			msg.append("Lab affiliation cannot be empty\n");
 			valid = false;
 		}
-		if (!empty(pw) && !empty(confirm)) {
-			if (!pw.equals(confirm)) {
+		if(!empty(pw) && !empty(confirm))
+		{
+			if(!pw.equals(confirm))
+			{
 				msg.append("Password confirmation does not match password\n");
 				valid = false;
 
@@ -279,36 +297,43 @@ public class GenSpaceRegistration extends JPanel implements VisualPlugin,
 		Matcher matcher;
 
 		// user name special character validation
-		if (!empty(id)) {
+		if(!empty(id))
+		{
 			pattern = Pattern.compile("[^0-9a-zA-Z()-_]");
 
 			matcher = pattern.matcher(id);
 
-			if (matcher.find()) {
+			if(matcher.find()) 
+			{
 				msg.append("Invalid user name.\n");
 				valid = false;
 			}
 		}
 
 		// Phone number validation
-		if (!empty(pho)) {
+		if(!empty(pho))
+		{
 			pattern = Pattern.compile("[^0-9a-zA-Z()-]");
 
-			matcher = pattern.matcher(pho);
+			matcher = 
+				pattern.matcher(pho);
 
-			if (matcher.find()) {
+			if(matcher.find()) 
+			{
 				msg.append("Phone number contains invalid characters\n");
 				valid = false;
 			}
 		}
 
 		// email validation
-		if (!empty(em)) {
+		if(!empty(em))
+		{
 			pattern = Pattern.compile("[0-9a-zA-Z()-_.]+@[0-9a-zA-Z()-_.]+");
 
 			matcher = pattern.matcher(em);
 
-			if (!matcher.find()) {
+			if(!matcher.find()) 
+			{
 				msg.append("Invalid Email.\n");
 				valid = false;
 			}
@@ -328,23 +353,27 @@ public class GenSpaceRegistration extends JPanel implements VisualPlugin,
 		}
 	}
 
-	public void initFrame() {
+	public void initFrame()
+	{
 		jframe = new JFrame();
 		jframe.add(this);
 		jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		// jframe.setSize(400,400);
-	}
+		//jframe.setSize(400,400);
+	}    
 
-	public void showFrame() {
-		jframe.setVisible(true);
-	}
+	public void showFrame()
+	{
+		jframe.setVisible(true); 	
+	} 
 
-	public void hideFrame() {
-		jframe.setVisible(false);
-	}
+	public void hideFrame()
+	{
+		jframe.setVisible(false); 	
+	}     
 
-	public static void main(String args[]) throws Exception {
-		GenSpaceRegistration panel = new GenSpaceRegistration();
+	public static void main(String args[]) throws Exception
+	{
+		GenSpaceRegistration panel = new  GenSpaceRegistration();
 		panel.initFrame();
 		panel.showFrame();
 	}

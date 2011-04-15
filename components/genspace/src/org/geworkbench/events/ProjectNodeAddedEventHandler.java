@@ -33,9 +33,9 @@ public class ProjectNodeAddedEventHandler implements EventHandler {
 
 	private Log log = LogFactory.getLog(this.getClass());
 
-//	private Object event = null;
-//
-//	private Object source = null;
+	private Object event = null;
+
+	private Object source = null;
 
 	/**
 	 * 
@@ -44,9 +44,9 @@ public class ProjectNodeAddedEventHandler implements EventHandler {
 	 */
 	public ProjectNodeAddedEventHandler(Object event, Object source) {
 
-//		this.event = event;
-//
-//		this.source = source;
+		this.event = event;
+
+		this.source = source;
 	}
 
 	/*
@@ -54,7 +54,6 @@ public class ProjectNodeAddedEventHandler implements EventHandler {
 	 * 
 	 * @see org.geworkbench.events.EventHandler#log()
 	 */
-	@Override
 	public void log() {
 		log.warn("Logging information for " + this.getClass().getName());
 
