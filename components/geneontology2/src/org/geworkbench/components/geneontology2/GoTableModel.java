@@ -43,7 +43,6 @@ class GoTableModel extends AbstractTableModel {
 		return COLUMN_COUNT;
 	}
 	
-	private static GeneOntologyTree geneOntologyTree = GeneOntologyTree.getInstance();
 	private static void parseAndAdd(String goTermAnnotation, Map<Integer, TermPair> map, String namespace) {
 		if(goTermAnnotation.startsWith("---"))
 				return;
@@ -53,6 +52,7 @@ class GoTableModel extends AbstractTableModel {
 		
 		if(id==0) return;
 		
+		GeneOntologyTree geneOntologyTree = GeneOntologyTree.getInstanceUntilAvailable();
 		GOTerm term = geneOntologyTree.getTerm(id);
 		if(term==null) {
 			log.info("No GO term for ID "+id);
