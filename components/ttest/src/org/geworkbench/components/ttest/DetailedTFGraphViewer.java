@@ -121,10 +121,12 @@ public class DetailedTFGraphViewer extends JPanel {
 							Color save = g.getColor();
 							if (SR.getR() >= 0) {
 								g.setColor(Color.BLACK);
+								g.drawLine(center, 0, center, height * 1 / 3);
 							} else {
 								g.setColor(Color.ORANGE);
+								g.drawLine(center, height * 1 / 3, center, height * 2 / 3);
 							}
-							g.drawLine(center, 0, center, height * 2 / 3);
+							
 							g.setColor(save);
 						}
 					}
