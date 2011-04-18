@@ -144,7 +144,6 @@ public class CytoscapeWidget implements VisualPlugin {
 
 	static private Log log = LogFactory.getLog(CytoscapeWidget.class);
 	private AdjacencyMatrixDataSet adjSet = null;
-	private AdjacencyMatrix adjMatrix = null;
 	private Set<String> dataSetIDs = new HashSet<String>();
 	private volatile Set<Integer> cancelList = new HashSet<Integer>();
 	private DiscreteMapping nodeDm = null, edgeDm = null;
@@ -350,6 +349,7 @@ public class CytoscapeWidget implements VisualPlugin {
 		} catch (Exception ex) {
 			log.error(ex.getMessage());
 		}
+		AdjacencyMatrix adjMatrix = adjSet.getMatrix();
 		if (ae.getAdjacencyMatrix() == adjMatrix)
 			ProjectPanel.getInstance().removeAddedSubNode(adjSet);
 	}
@@ -369,7 +369,7 @@ public class CytoscapeWidget implements VisualPlugin {
 			if (dataSet instanceof AdjacencyMatrixDataSet) {
 
 				adjSet = (AdjacencyMatrixDataSet) dataSet;
-				adjMatrix = adjSet.getMatrix();
+				AdjacencyMatrix adjMatrix = adjSet.getMatrix();
 				adjMatrixId = adjMatrix.hashCode();
 				maSet = adjSet.getMatrix().getMicroarraySet();
 				getGeneIdToNameMap();
@@ -670,6 +670,7 @@ public class CytoscapeWidget implements VisualPlugin {
 	private void createSubNetwork(int node1,
 			HashMap<String, String> geneIdToNameMap, double threshold) {
 
+		AdjacencyMatrix adjMatrix = adjSet.getMatrix();
 		List<AdjacencyMatrix.Edge> edges = adjMatrix.getEdges(node1);
 
 		if (edges == null || edges.size() == 0)
@@ -701,6 +702,7 @@ public class CytoscapeWidget implements VisualPlugin {
 	private void createSubNetwork(String node1,
 			HashMap<String, String> geneIdToNameMap, double threshold) {
 
+		AdjacencyMatrix adjMatrix = adjSet.getMatrix();
 		List<AdjacencyMatrix.EdgeWithStringNode> edges = adjMatrix.getEdgesNotInMicroarray(node1);
 
 		if (edges == null || edges.size() == 0)
@@ -977,7 +979,8 @@ public class CytoscapeWidget implements VisualPlugin {
 	}
 
 	public AdjacencyMatrix getAdjMatrix() {
-		return this.adjMatrix;
+		AdjacencyMatrix adjMatrix = adjSet.getMatrix();
+		return adjMatrix;
 
 	}
 
@@ -993,6 +996,7 @@ public class CytoscapeWidget implements VisualPlugin {
 			Cytoscape.getCurrentNetwork().removeEdge(cx, true);
 		}
 
+		AdjacencyMatrix adjMatrix = adjSet.getMatrix();
 		interactionTypeSifMap = adjMatrix.getInteractionTypeSifMap();
 		int i = 0;
 		for (Integer node: adjMatrix.getNodes()) {
