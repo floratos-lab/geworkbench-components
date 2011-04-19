@@ -32,7 +32,9 @@ import org.geworkbench.util.Combinations;
 import org.geworkbench.util.ProgressBar;
 import org.geworkbench.util.QSort;
 
-import JSci.maths.statistics.TDistribution;
+import org.apache.commons.math.MathException;
+import org.apache.commons.math.distribution.TDistribution;
+import org.apache.commons.math.distribution.TDistributionImpl;
 
 /**
  * <p>geWorkbench</p>
@@ -389,20 +391,24 @@ public class TtestAnalysis extends AbstractAnalysis implements
 				pbTtest.dispose();
 				return null;
 			}
-			int dF = 0;
+			float dF = 0;
 			boolean dfCondition = true;
 			if(!isPermut) {
 				dF = getDF(sortedUniqueIDs[i]);
-				dfCondition = (Float.isNaN((new Integer(dF)).floatValue()))	|| (dF <= 0);
+				dfCondition = (Float.isNaN((new Float(dF)).floatValue()))	|| (dF <= 0);
 			}
 			if ( Float.isNaN(sortedTValues[i]) || dfCondition ) {
 				tValuesArray[sortedUniqueIDs[i]] = sortedTValues[i];
 				pValuesArray[sortedUniqueIDs[i]] = Float.NaN;
 			} else {
 				if(!isPermut) {
-					TDistribution tDist = new TDistribution(dF);
-					double cumulP = tDist.cumulative(sortedTValues[i]);
-					prob = 2 * (1 - cumulP);
+					TDistribution tDist = new TDistributionImpl(dF);
+					try{
+						double cumulP = tDist.cumulativeProbability(-sortedTValues[i]);
+						prob = 2 * cumulP;
+					}catch(MathException e){
+						e.printStackTrace();
+					}
 					if (prob > 1) {
 						prob = 1;
 					}
@@ -665,7 +671,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 		return sig;
 	}
 
-	private int getDF(int gene) {
+	private float getDF(int gene) {
 		getGroupValues(gene);
 		return TTestUtil.calculateDf(groupAValues, groupBValues, useWelchDf);
 	}
@@ -701,19 +707,20 @@ public class TtestAnalysis extends AbstractAnalysis implements
 		getGroupValues(gene);
 		float tValue = TTestUtil.calculateTValue(groupAValues, groupBValues);
 		currentT = tValue;
-		int df = TTestUtil.calculateDf(groupAValues, groupBValues, useWelchDf);
-		double prob;
+		float df = TTestUtil.calculateDf(groupAValues, groupBValues, useWelchDf);
+		double prob = 1;
 
 		if ((Float.isNaN(tValue))
-				|| (Float.isNaN((new Integer(df)).floatValue())) || (df <= 0)) {
+				|| (Float.isNaN((new Float(df)).floatValue())) || (df <= 0)) {
 			sig = false;
 			currentP = Float.NaN;
 		} else {
-			TDistribution tDist = new TDistribution(df);
-			double cumulP = tDist.cumulative(tValue);
-			prob = 2 * (1 - cumulP);
-			if (prob > 1) {
-				prob = 2 - prob;
+			TDistribution tDist = new TDistributionImpl(df);
+			try{
+				double cumulP = tDist.cumulativeProbability(-Math.abs(tValue));
+				prob = 2 * cumulP;
+			}catch(MathException e){
+				e.printStackTrace();
 			}
 			currentP = prob;
 
