@@ -614,7 +614,7 @@ public class TTestUtil {
 		return groupedValues;
 	}
 
-	static int calculateDf(float[] groupA, float[] groupB,
+	static float calculateDf(float[] groupA, float[] groupB,
 			boolean useWelchDf) {
 		int kA = 0;
 		int kB = 0;
@@ -643,7 +643,7 @@ public class TTestUtil {
 		float numerator = (float) (Math.pow(((varA / kA) + (varB / kB)), 2));
 		float denom = (float) ((Math.pow((varA / kA), 2) / (kA - 1)) + (Math
 				.pow((varB / kB), 2) / (kB - 1)));
-		int df = (int) Math.floor(numerator / denom);
+		float df = numerator / denom;
 
 		return df;
 	}
