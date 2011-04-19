@@ -130,6 +130,7 @@ public class ChatWindow extends javax.swing.JFrame {
 			// If this window has been hidden, unhide it
 			if (!this.isVisible())
 				this.setVisible(true);
+			
 			if(m.getProperty("specialType") == null)
 				processTextMessage(m);
 			else if (m.getProperty("specialType").equals(messageTypes.CHAT)) {
@@ -259,12 +260,14 @@ public class ChatWindow extends javax.swing.JFrame {
 	private void processWorkflowVisualizationMessage(Message m) {
 		JFrame fr = new JFrame();
 		WorkflowVisualizationPanel p = new WorkflowVisualizationPanel();
-		fr.add(p);
 		fr.setSize(600, 500);
+		fr.add(p);
 		p.setSize(600, 500);
-		p.render((Workflow) m.getProperty("workflow"));
-//		p.render(m.getBody(), "Workflow from " + m.getFrom());
 		fr.setVisible(true);
+
+		p.render((Workflow) m.getProperty("workflow"));
+		fr.setTitle("Workflow from " + m.getFrom());
+//		p.render(m.getBody(), "Workflow from " + m.getFrom());
 	}
 
 	/**
@@ -452,15 +455,15 @@ public class ChatWindow extends javax.swing.JFrame {
 	 * @param evt
 	 */
 	private void mnuSendWorkflowActionPerformed(java.awt.event.ActionEvent evt) {
+		if(RealTimeWorkFlowSuggestion.cwf == null)
+		{
+			return;
+		}
 		Message m = new Message(chat.getParticipant());
 		m.setProperty("specialType", messageTypes.WORKFLOW);
 
 		String wf = "";
-		for (WorkflowTool e : RealTimeWorkFlowSuggestion.cwf.getTools()) {
-			wf += e.getTool().getName() + ",";
-		}
-		wf = wf.substring(0, wf.length() - 1);
-		m.setBody(wf);
+		m.setBody("Workflow attached");
 		m.setProperty("workflow", RealTimeWorkFlowSuggestion.cwf);
 		try {
 			chat.sendMessage(m);
