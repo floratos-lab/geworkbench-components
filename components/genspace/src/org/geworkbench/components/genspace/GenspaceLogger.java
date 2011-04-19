@@ -19,10 +19,6 @@
 
 package org.geworkbench.components.genspace;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,15 +30,11 @@ import org.geworkbench.events.EventHandler;
  * Captures all events with an associated {@link EventHandler} defined.
  * 
  * @author keshav
- * @version $Id: GenspaceLogger.java,v 1.7 2009-01-21 01:15:04 sheths Exp $
+ * @version $Id: GenspaceLogger.java,v 1.1 2011/02/07 18:09:54 jsb2125 Exp $
  */
 public class GenspaceLogger {
 
 	private Log log = LogFactory.getLog(GenspaceLogger.class);
-
-	private List<Class> hier = null;
-
-	private boolean stop = false;
 
 	/**
 	 * Intercept all events.
@@ -56,6 +48,7 @@ public class GenspaceLogger {
 		if (event != null && event.getClass().equals(AnalysisInvokedEvent.class)) {
 			log.info("event: " + event.getClass().getSimpleName());
 
+			@SuppressWarnings("unused")
 			ObjectHandler logger = new ObjectHandler(event,source);
 		}
 	}
