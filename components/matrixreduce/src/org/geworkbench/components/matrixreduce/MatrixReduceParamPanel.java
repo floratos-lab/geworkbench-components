@@ -5,7 +5,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.text.DecimalFormat;
@@ -36,10 +35,12 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * @author John Watkinson
  * @author ch2514
- * @version $Id: MatrixReduceParamPanel.java,v 1.21 2009-09-08 20:46:52 chiangy Exp $
+ * @version $Id$
  * todo - make serializable work
  */
 public class MatrixReduceParamPanel extends AbstractSaveableParameterPanel{
+
+	private static final long serialVersionUID = -3860209874024354406L;
 
 	static final String FILE_SPECIFY = "Please specify file";
 
@@ -231,7 +232,6 @@ public class MatrixReduceParamPanel extends AbstractSaveableParameterPanel{
 
 		sequenceButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				File file = new File(sequenceFile);
 				JFileChooser chooser = new JFileChooser(seqDir);
 				int returnVal = chooser
 						.showOpenDialog(MatrixReduceParamPanel.this);
@@ -250,7 +250,6 @@ public class MatrixReduceParamPanel extends AbstractSaveableParameterPanel{
 
 		topoButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				File file = new File(topoFile);
 				JFileChooser chooser = new JFileChooser(topoDir);
 				int returnVal = chooser
 						.showOpenDialog(MatrixReduceParamPanel.this);
