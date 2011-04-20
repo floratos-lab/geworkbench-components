@@ -35,7 +35,7 @@ public class GenSpace {
 	private static GenSpace instance;
 	private WorkflowRepository workflowRepository;
 	public static Logger logger = Logger.getLogger(GenSpace.class);
-	public static boolean instrument = true;
+	public static boolean instrument = false;
 	
 	public static StatusBar getStatusBar()
 	{
