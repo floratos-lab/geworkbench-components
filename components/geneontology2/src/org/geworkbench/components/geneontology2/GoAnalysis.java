@@ -292,7 +292,7 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 		StringBuffer histStr = new StringBuffer();
 		histStr.append(aspp.getDataSetHistory() );
 
-		histStr.append( "\nGO Terms Analysis returned a results of "+resultSize+" rows." );
+		histStr.append( "\nGO Terms Analysis result returned with "+resultSize+" rows." );
 
 		return histStr.toString();
 	}
