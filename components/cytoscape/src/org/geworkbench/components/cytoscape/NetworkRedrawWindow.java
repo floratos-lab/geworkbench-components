@@ -4,15 +4,19 @@ import giny.model.Node;
 import giny.view.EdgeView;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
-import java.awt.Color;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.text.DecimalFormat;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -20,17 +24,13 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
-
 import javax.swing.event.ChangeEvent;
 
-import java.text.DecimalFormat;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.HashMap;
-
+import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
+import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
+import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.events.ProjectNodeAddedEvent;
-import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrix;
-import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixDataSet;
 
 import cytoscape.Cytoscape;
 import cytoscape.data.CyAttributes;
@@ -373,14 +373,15 @@ public class NetworkRedrawWindow {
 				    	    	interactionType = CytoscapeWidget.getInstance().interactionTypeSifMap.get(interactionType);
 				    	    }
 				    	    
-						
-						matrix.add(serial1, serial2, 0.8f, interactionType);
+			    	    DSItemList<DSGeneMarker> markers = origMatrix.getMicroarraySet().getMarkers();
+						DSGeneMarker marker1 = markers.get(serial1);
+						DSGeneMarker marker2 = markers.get(serial2);
+						matrix.add(new AdjacencyMatrix.Node(marker1), new AdjacencyMatrix.Node(marker2), 0.8f, interactionType);
 					}
 
 				}
 			}
-			if (matrix.getNodeNumber() == 0
-					&& matrix.getNodeNumberNotInMicroarray() == 0) {
+			if (matrix.getNodeNumber() == 0) {
 				JOptionPane.showMessageDialog(null,
 						"The sub-network you want to create is empty.",
 

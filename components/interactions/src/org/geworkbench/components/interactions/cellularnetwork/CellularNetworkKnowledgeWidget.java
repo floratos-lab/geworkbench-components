@@ -100,8 +100,9 @@ import org.geworkbench.util.ProgressBar;
 import org.geworkbench.util.network.CellularNetWorkElementInformation;
 import org.geworkbench.util.network.CellularNetworkPreference;
 import org.geworkbench.util.network.InteractionDetail;
-import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrix;
-import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixDataSet;
+import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
+import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType;
+import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -1487,6 +1488,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				String mid2 = interactionDetail.getdSGeneMarker2();
 				String mid1 = interactionDetail.getdSGeneMarker1();
 				int serial2 = -1;
+				AdjacencyMatrix.Node node2 = null;
 
 				if (interactionDetail.getDbSource2().equalsIgnoreCase(
 						Constants.ENTREZ_GENE)) {
@@ -1501,10 +1503,12 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 						continue;
 					}
 					int index = Collections.binarySearch(copy, marker, eidc);
-					if (index >= 0)
+					if (index >= 0) {
 						serial2 = copy.get(index).getSerial();
-					else
+						node2 = new AdjacencyMatrix.Node(copy.get(index));
+					} else {
 						isGene2InMicroarray = false;
+					}
 
 				} else {
 					Collection<Integer> markerIds = geneNameToMarkerIdMap
@@ -1514,6 +1518,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 							marker = (DSGeneMarker) dataset.getMarkers().get(
 									markerId);
+							node2 = new AdjacencyMatrix.Node(marker);
 							 
 							if (interactionDetail.getDbSource2()
 									.equalsIgnoreCase(Constants.UNIPORT)) {
@@ -1533,8 +1538,9 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 								serial2 = marker.getSerial();; 
 
 						}
-					} else
+					} else {
 						isGene2InMicroarray = false;
+					}
 				}
 
 				if (isGene2InMicroarray == false) {
@@ -1547,17 +1553,20 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 							&& !interactionDetail.getdSGeneName2().trim()
 									.equals("")
 							&& !interactionDetail.getdSGeneName2().trim()
-									.equals("null"))
+									.equals("null")) {
 						geneIdToNameMap.put(mid2,
 								interactionDetail.getdSGeneName2());
-					else
+						node2 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL, interactionDetail.getdSGeneName2());
+					} else {
 						geneIdToNameMap.put(mid2, "");
-
+						node2 = new AdjacencyMatrix.Node(NodeType.STRING, mid2);
+					}
 				}
 
 				mid1 = interactionDetail.getdSGeneMarker1();
 				DSGeneMarker marker1 = new CSGeneMarker();
 				int serial1 = -1;
+				AdjacencyMatrix.Node node1 = null;
 				if (interactionDetail.getDbSource1().equalsIgnoreCase(
 						Constants.ENTREZ_GENE)) {
 
@@ -1577,6 +1586,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 						isGene1InMicroarray = false;
 					} else {
 						serial1 = copy.get(index1).getSerial();
+						node1 = new AdjacencyMatrix.Node(copy.get(index1));
 					}
 				} else {
 					Collection<Integer> markerIds = geneNameToMarkerIdMap
@@ -1586,6 +1596,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 							marker = (DSGeneMarker) dataset.getMarkers().get(
 									markerId);
+							node1 = new AdjacencyMatrix.Node(marker);
 							if (interactionDetail.getDbSource1()
 									.equalsIgnoreCase(Constants.UNIPORT)) {
 								Set<String> SwissProtIds = AnnotationParser
@@ -1605,8 +1616,9 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 						if (serial1 == -1)
 							serial1 = marker.getSerial();; 
 						
-					} else
+					} else {
 						isGene1InMicroarray = false;
+					}
 				}
 				if (isGene1InMicroarray == false) {
 					log.info("Marker " + interactionDetail.getdSGeneMarker1()
@@ -1619,26 +1631,30 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 							&& !interactionDetail.getdSGeneName1().trim()
 									.equals("")
 							&& !interactionDetail.getdSGeneName1().trim()
-									.equals("null"))
+									.equals("null")) {
 						geneIdToNameMap.put(mid1,
 								interactionDetail.getdSGeneName1());
-					else
+						node1 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL, interactionDetail.getdSGeneName1());
+					} else {
 						geneIdToNameMap.put(mid1, "");
+						node1 = new AdjacencyMatrix.Node(NodeType.STRING, mid1); 
+					}
 				}
 				String shortNameType = CellularNetworkPreferencePanel.interactionTypeSifMap
 						.get(interactionDetail.getInteractionType());
 				if (isGene1InMicroarray == false
 						|| isGene2InMicroarray == false) {
+						
+					// this has no more effect - to be removed
 					if (serial1 != -1)
 						mid1 = String.valueOf(serial1);
 					if (serial2 != -1)
 						mid2 = String.valueOf(serial2);
 
-					matrix.add(mid1, mid2, isGene1InMicroarray,
-							isGene2InMicroarray, 0.8f, shortNameType);
+					matrix.add(node1, node2, 0.8f, shortNameType);
 
 				} else {
-					matrix.add(serial1, serial2, 0.8f, shortNameType);
+					matrix.add(node1, node2, 0.8f, shortNameType);
 				}
 				interactionNum++;
 				if (interactionNum > maxInteractionNum
