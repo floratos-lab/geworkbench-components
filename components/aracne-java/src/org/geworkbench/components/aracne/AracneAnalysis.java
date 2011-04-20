@@ -33,8 +33,9 @@ import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.ProjectNodeAddedEvent;
-import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrix;
-import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixDataSet;
+import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
+import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType;
+import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
 import org.ginkgo.labs.util.FileTools;
 
 import wb.data.Marker;
@@ -209,10 +210,10 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 			graph.addEdge(marker.getLabel(), marker.getLabel(), 0);
 		}
 		for (AdjacencyMatrix.Edge edge : matrix.getEdges()) {
-			DSGeneMarker gene1 = mSet.allMarkers().get(edge.node1);
-			if (gene1 != null) {
-				DSGeneMarker destGene = mSet.allMarkers().get(edge.node2);
-				if (destGene != null) {
+			if (edge.node1.type==NodeType.MARKER) {
+				DSGeneMarker gene1 = edge.node1.marker;
+				if (edge.node2.type==NodeType.MARKER) {
+					DSGeneMarker destGene = edge.node2.marker;
 					graph.addEdge(gene1.getLabel(), destGene.getLabel(),
 							edge.info.value);
 				} else {
@@ -269,16 +270,20 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 			DSMicroarraySet<DSMicroarray> mSet) {
 		AdjacencyMatrix matrix = new AdjacencyMatrix(null, mSet);
 
+		int nNode = 0, nEdge = 0;
 		for (String node : graph.getNodes()) {
 			DSGeneMarker marker = mSet.getMarkers().get(node);
-			matrix.addGeneRow(marker.getSerial());
+			matrix.addGeneRow(new AdjacencyMatrix.Node(marker));
+			nNode++;
 		}
 		for (GraphEdge graphEdge : graph.getEdges()) {
 			DSGeneMarker marker1 = mSet.getMarkers().get(graphEdge.getNode1());
 			DSGeneMarker marker2 = mSet.getMarkers().get(graphEdge.getNode2());
-			matrix.add(marker1.getSerial(), marker2.getSerial(), graphEdge
+			matrix.add(new AdjacencyMatrix.Node(marker1), new AdjacencyMatrix.Node(marker2), graphEdge
 					.getWeight(), null);
+			nEdge++;
 		}
+		log.debug(nNode+ " "+nEdge+" "+matrix.getNodeNumber()+" "+matrix.getEdges().size());
 		return matrix;
 	}
 
