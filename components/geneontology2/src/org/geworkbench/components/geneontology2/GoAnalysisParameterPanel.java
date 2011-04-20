@@ -764,7 +764,7 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 		StringBuilder histStr = new StringBuilder("");
 		histStr.append("GO Terms Analysis parameters:\n");
 		histStr.append("----------------------------------------\n");
-		histStr.append("Reference Gen List: ");
+		histStr.append("Reference Gene List: ");
 		histStr.append(getReferenceGeneListAsString());
 		histStr.append("\nChanged Gene List: ");
 		histStr.append(getChangedGeneListAsString());
