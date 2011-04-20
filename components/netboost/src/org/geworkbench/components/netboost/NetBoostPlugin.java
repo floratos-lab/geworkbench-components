@@ -47,7 +47,7 @@ import org.jfree.data.xy.XYSeriesCollection;
  * NetBoost Plugin
  * 
  * @author ch2514
- * @version $Id: NetBoostPlugin.java,v 1.12 2008-09-09 14:28:07 hungc Exp $
+ * @version $Id$
  */
 
 public class NetBoostPlugin extends JPanel {
@@ -169,6 +169,8 @@ public class NetBoostPlugin extends JPanel {
 		scoresTableTitle.setFont(new Font("Arial", Font.BOLD, 12));
 		scoresModel = new ScoresModel();
 		scoresTable = new JTable(scoresModel) {
+			private static final long serialVersionUID = 4337189570351940114L;
+
 			public Component prepareRenderer(
 					TableCellRenderer tableCellRenderer, int row, int col) {
 				Component component = super.prepareRenderer(tableCellRenderer,
@@ -436,6 +438,8 @@ public class NetBoostPlugin extends JPanel {
 	 * 
 	 */
 	private class ScoresModel extends AbstractTableModel {
+		private static final long serialVersionUID = -2400756771926663933L;
+
 		private String[] columnNames = { SCORES_TABLE_MODEL, SCORES_TABLE_DATA };
 
 		private String[] models = nbdata.getModels();
@@ -497,7 +501,7 @@ public class NetBoostPlugin extends JPanel {
 		 * 
 		 * @see javax.swing.table.AbstractTableModel#getColumnClass(int)
 		 */
-		public Class getColumnClass(int c) {
+		public Class<?> getColumnClass(int c) {
 			return getValueAt(0, c).getClass();
 		}
 
@@ -530,6 +534,8 @@ public class NetBoostPlugin extends JPanel {
 	 * 
 	 */
 	private class ConfusionModel extends AbstractTableModel {
+		private static final long serialVersionUID = 7897522587469769406L;
+
 		private String[] columnNames = new String[nbdata.getModels().length + 1];
 
 		private String[] rowNames = nbdata.getModels();
@@ -601,7 +607,7 @@ public class NetBoostPlugin extends JPanel {
 		 * 
 		 * @see javax.swing.table.AbstractTableModel#getColumnClass(int)
 		 */
-		public Class getColumnClass(int c) {
+		public Class<?> getColumnClass(int c) {
 			return getValueAt(0, c).getClass();
 		}
 
