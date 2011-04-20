@@ -186,7 +186,7 @@ public class ObjectLogger {
 
 						fw.close();
 					} catch (Exception e1) {
-						GenSpace.logger.error("Unable to write log file",e1);
+						GenSpace.logger.warn("Unable to write log file",e1);
 					}
 					
 					return null;

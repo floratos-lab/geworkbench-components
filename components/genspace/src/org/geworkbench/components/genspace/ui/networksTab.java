@@ -289,9 +289,9 @@ public class networksTab extends SocialTab {
 					try {
 						cachedMyNetworks = get();
 					} catch (InterruptedException e) {
-						GenSpace.logger.error("Error",e);
+						GenSpace.logger.warn("Error",e);
 					} catch (ExecutionException e) {
-						GenSpace.logger.error("Error",e);
+						GenSpace.logger.warn("Error",e);
 					}
 					DefaultListModel model = new DefaultListModel();
 					if(cachedMyNetworks != null)
@@ -316,9 +316,9 @@ public class networksTab extends SocialTab {
 					try {
 						cachedAllNetworks = get();
 					} catch (InterruptedException e) {
-						GenSpace.logger.error("Error",e);
+						GenSpace.logger.warn("Error",e);
 					} catch (ExecutionException e) {
-						GenSpace.logger.error("Error",e);
+						GenSpace.logger.warn("Error",e);
 					}
 					Model m = (Model) chooseNetwork.getModel();
 					m.data.clear();

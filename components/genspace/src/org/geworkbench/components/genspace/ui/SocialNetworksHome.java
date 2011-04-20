@@ -149,9 +149,9 @@ public class SocialNetworksHome implements UpdateablePanel {
 							try {
 								prof = get();
 							} catch (InterruptedException e) {
-								GenSpace.logger.error("Error",e);
+								GenSpace.logger.warn("Error",e);
 							} catch (ExecutionException e) {
-								GenSpace.logger.error("Error",e);
+								GenSpace.logger.warn("Error",e);
 							}
 							if (prof == null) {
 								JOptionPane
@@ -249,9 +249,9 @@ public class SocialNetworksHome implements UpdateablePanel {
 					try {
 						lst = get();
 					} catch (InterruptedException e) {
-						GenSpace.logger.error("Error",e);
+						GenSpace.logger.warn("Error",e);
 					} catch (ExecutionException e) {
-						GenSpace.logger.error("Error",e);
+						GenSpace.logger.warn("Error",e);
 					}
 //					friendsSearch.setText("");
 					Model m = (Model) friendsSearch.getModel();
@@ -280,9 +280,9 @@ public class SocialNetworksHome implements UpdateablePanel {
 					try {
 						res = get();
 					} catch (InterruptedException e) {
-						GenSpace.logger.error("Error",e);
+						GenSpace.logger.warn("Error",e);
 					} catch (ExecutionException e) {
-						GenSpace.logger.error("Error",e);
+						GenSpace.logger.warn("Error",e);
 					}
 					if(res != null)
 					a1FriendRequestLabel.setText("" + res + " Request"

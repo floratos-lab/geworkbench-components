@@ -141,9 +141,9 @@ public class friendsTab extends SocialTab {
 					try {
 						lst = get();
 					} catch (InterruptedException e) {
-						GenSpace.logger.error("Error",e);
+						GenSpace.logger.warn("Error",e);
 					} catch (ExecutionException e) {
-						GenSpace.logger.error("Error",e);
+						GenSpace.logger.warn("Error",e);
 					}
 					lst.remove(GenSpaceServerFactory.getUser());
 					Collections.sort(lst,new Comparator<User>() {

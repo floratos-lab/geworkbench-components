@@ -98,7 +98,7 @@ public class ChatReceiver implements MessageListener, ChatManagerListener {
 					connection.login(u, p);
 
 				} catch (XMPPException e) {
-					GenSpace.logger.error("Unable to connect to chat server",e);
+					GenSpace.logger.warn("Unable to connect to chat server",e);
 					return false;
 				}
 				return true;

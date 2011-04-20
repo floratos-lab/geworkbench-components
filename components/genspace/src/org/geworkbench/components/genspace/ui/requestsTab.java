@@ -61,9 +61,9 @@ public class requestsTab extends SocialTab {
 					try {
 						requests = get();
 					} catch (InterruptedException e) {
-						GenSpace.logger.error("Error talking to server",e);
+						GenSpace.logger.warn("Error talking to server",e);
 					} catch (ExecutionException e) {
-						GenSpace.logger.error("Error talking to server",e);
+						GenSpace.logger.warn("Error talking to server",e);
 					}
 					DefaultListModel model = new DefaultListModel();
 					if(requests != null)

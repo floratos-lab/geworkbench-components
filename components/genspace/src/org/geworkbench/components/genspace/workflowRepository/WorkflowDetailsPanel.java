@@ -153,9 +153,9 @@ ActionListener {
 						else
 							messageUser( "Operation cancelled: Make sure that the Workflow is not already present in your repository");
 					} catch (InterruptedException e) {
-						GenSpace.logger.error("Unable to talk to server", e);
+						GenSpace.logger.warn("Unable to talk to server", e);
 					} catch (ExecutionException e) {
-						GenSpace.logger.error("Unable to talk to server", e);
+						GenSpace.logger.warn("Unable to talk to server", e);
 					}
 				};
 			};
@@ -231,9 +231,9 @@ ActionListener {
 								else
 									messageUser( "Operation cancelled: Make sure that the Workflow is not already present in your repository");
 							} catch (InterruptedException e) {
-								GenSpace.logger.error("Unable to talk to server", e);
+								GenSpace.logger.warn("Unable to talk to server", e);
 							} catch (ExecutionException e) {
-								GenSpace.logger.error("Unable to talk to server", e);
+								GenSpace.logger.warn("Unable to talk to server", e);
 							}
 						};
 					};
