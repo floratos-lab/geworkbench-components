@@ -209,7 +209,7 @@ public class ChatWindow extends javax.swing.JFrame {
 					try {
 						chat.sendMessage(m);
 					} catch (XMPPException e1) {
-						GenSpace.logger.error("Error",e1);
+						GenSpace.logger.warn("Error",e1);
 					}
 
 
@@ -247,7 +247,7 @@ public class ChatWindow extends javax.swing.JFrame {
 			try {
 				chat.sendMessage(ret);
 			} catch (XMPPException e) {
-				GenSpace.logger.error("Error",e);
+				GenSpace.logger.warn("Error",e);
 			}
 		}
 	}
@@ -284,7 +284,7 @@ public class ChatWindow extends javax.swing.JFrame {
 				m.setProperty("specialType", messageTypes.CHAT);
 				chat.sendMessage(m);
 			} catch (XMPPException e) {
-				GenSpace.logger.error("Error",e);
+				GenSpace.logger.warn("Error",e);
 			}
 			if (!last.equals(lastChatter.ME)) {
 				chatText += "<br><font color=\"green\">You      "
@@ -353,7 +353,7 @@ public class ChatWindow extends javax.swing.JFrame {
 			try {
 				chat.sendMessage(m);
 			} catch (XMPPException e) {
-				GenSpace.logger.error("Error",e);
+				GenSpace.logger.warn("Error",e);
 			}
 			screenSendTimer.stop();
 			amSharing = false;
@@ -371,7 +371,7 @@ public class ChatWindow extends javax.swing.JFrame {
 				m.setProperty("specialType", messageTypes.SCREEN_REQUEST);
 				chat.sendMessage(m);
 			} catch (XMPPException e) {
-				GenSpace.logger.error("Error",e);
+				GenSpace.logger.warn("Error",e);
 			}
 		}
 
@@ -443,9 +443,9 @@ public class ChatWindow extends javax.swing.JFrame {
 			}
 
 		} catch (AWTException e) {
-			GenSpace.logger.error("Error",e);
+			GenSpace.logger.warn("Error",e);
 		} catch (JimiException e) {
-			GenSpace.logger.error("Error",e);
+			GenSpace.logger.warn("Error",e);
 		}
 	}
 

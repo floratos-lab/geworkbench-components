@@ -21,8 +21,11 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JTextPane;
 import javax.swing.ListCellRenderer;
+import javax.swing.LookAndFeel;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
+import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
 import javax.swing.text.html.HTMLDocument;
 
 import org.geworkbench.components.genspace.GenSpace;
@@ -270,7 +273,7 @@ public class WorkflowStatistics extends JPanel implements VisualPlugin {
 		$$$setupUI$$$();
 		popularTools.setOpaque(false);
 		popularFirstTools.setOpaque(false);
-		popWorkflows.setOpaque(false);
+
 		popularTools.setBackground(this.getBackground());
 		popularTools.setCellRenderer(new ToolCellRenderer());
 
@@ -280,18 +283,21 @@ public class WorkflowStatistics extends JPanel implements VisualPlugin {
 		popToolsPanel.setBorder(BorderFactory.createEtchedBorder());
 		popFirstToolsPan.setBorder(BorderFactory.createEtchedBorder());
 		popWFPanel.setBorder(BorderFactory.createEtchedBorder());
-		
+		popWFPanel.setOpaque(false);
 		popWorkflows.setDisabledTextColor(Color.black);
-		popWorkflows.setBackground(this.getBackground());
+		popWorkflows.setEnabled(false);
+		popWorkflows.setBackground(new Color(214,217,223));
 
 		 Font font = UIManager.getFont("Label.font");
 	        String bodyRule = "body { font-family: " + font.getFamily() + "; " +
-	                "font-size: " + font.getSize() + "pt; padding: 0; margin: 0;} ";
+	                "font-size: " + font.getSize() + "pt; padding: 0; margin: 0; background-color: #d6d9df } ";
 	        ((HTMLDocument)popWorkflows.getDocument()).getStyleSheet().addRule(bodyRule);
 	        String liRule = "ol { font-family: " + font.getFamily() + "; " +
             "font-size: " + font.getSize() + "pt; padding: 1em; margin: 20px;} ";
     ((HTMLDocument)popWorkflows.getDocument()).getStyleSheet().addRule(liRule);
 
+    	Style newStyle = ((HTMLDocument) popWorkflows.getDocument()).addStyle("BGStyle", null);
+    	StyleConstants.setBackground(newStyle, new Color(214,217,223));
 		statsPan.setBorder(BorderFactory.createEtchedBorder());
 		toolListing.addItemListener(new ItemListener() {
 			@Override
@@ -318,7 +324,7 @@ public class WorkflowStatistics extends JPanel implements VisualPlugin {
         popWorkflows = new JTextPane();
         popWorkflows.setContentType("text/html");
         popWorkflows.setEditable(false);
-        popWorkflows.setEnabled(false);
+//        popWorkflows.setEnabled(false);
         popWorkflows.setText("<html>\n  <head>\n    \n  </head>\n  <body>\n    <p style=\"margin-top: 0\">\n      Loading...\n    </p>\n  </body>\n</html>\n");
         popWFPanel.add(popWorkflows, new com.intellij.uiDesigner.core.GridConstraints(1, 0, 1, 2, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_BOTH, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, null, new Dimension(250, 200), null, 0, false));
         popToolsPanel = new JPanel();

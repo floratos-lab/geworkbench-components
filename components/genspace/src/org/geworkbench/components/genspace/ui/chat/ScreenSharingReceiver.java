@@ -61,7 +61,7 @@ public class ScreenSharingReceiver extends JPanel {
 				im = ImageIO.read(new ByteArrayInputStream((byte[]) m.get("img"
 						+ tileNum)));
 			} catch (IOException e) {
-				GenSpace.logger.error("Error",e);
+				GenSpace.logger.warn("Error",e);
 			}
 			WritableRaster update = im.getRaster();
 			/*

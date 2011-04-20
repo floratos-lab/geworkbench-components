@@ -156,9 +156,9 @@ ActionListener {
 						model.removeComment(wc);
 					}
 				} catch (InterruptedException e) {
-					GenSpace.logger.error("Unable to talk to server", e);
+					GenSpace.logger.warn("Unable to talk to server", e);
 				} catch (ExecutionException e) {
-					GenSpace.logger.error("Unable to talk to server", e);
+					GenSpace.logger.warn("Unable to talk to server", e);
 				}
 			};
 		};
@@ -192,9 +192,9 @@ ActionListener {
 							model.addComment(wc);
 						}
 					} catch (InterruptedException e) {
-						GenSpace.logger.error("Unable to talk to server", e);
+						GenSpace.logger.warn("Unable to talk to server", e);
 					} catch (ExecutionException e) {
-						GenSpace.logger.error("Unable to talk to server", e);
+						GenSpace.logger.warn("Unable to talk to server", e);
 					}
 				};
 			};

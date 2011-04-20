@@ -42,7 +42,7 @@ public class ScreenShareListener extends IoHandlerAdapter {
 		try {
 			boundAddress = InetAddress.getLocalHost();
 		} catch (UnknownHostException e1) {
-			GenSpace.logger.error("Unable to connect to screen share server",e1);
+			GenSpace.logger.warn("Unable to connect to screen share server",e1);
 		}
 
 		acceptor = new SocketAcceptor();
@@ -51,7 +51,7 @@ public class ScreenShareListener extends IoHandlerAdapter {
 		try {
 			acceptor.bind(new InetSocketAddress(0), this);
 		} catch (IOException e) {
-			GenSpace.logger.error("Unable to connect to screen share server",e);
+			GenSpace.logger.warn("Unable to connect to screen share server",e);
 		}
 		Set<SocketAddress> addresses = acceptor.getManagedServiceAddresses();
 		for (SocketAddress a : addresses) {

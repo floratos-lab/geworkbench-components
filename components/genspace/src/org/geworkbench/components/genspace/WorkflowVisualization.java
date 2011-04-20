@@ -55,8 +55,10 @@ public class WorkflowVisualization extends JPanel implements VisualPlugin,
 		tools.addItem("-- select tool --");
 		// the rest of the app
 		SwingWorker<List<Tool>, Void> worker = new SwingWorker<List<Tool>, Void>(){
+			int evt;
 			@Override
 			protected void done() {
+				GenSpace.getStatusBar().stop(evt);
 				try {
 					RuntimeEnvironmentSettings.tools = new HashMap<Integer, Tool>();
 					for (Tool tool : get())
@@ -69,6 +71,7 @@ public class WorkflowVisualization extends JPanel implements VisualPlugin,
 			}
 			@Override
 			protected List<Tool> doInBackground() throws Exception {
+				evt = GenSpace.getStatusBar().start("Loading tool list");
 				return GenSpaceServerFactory.getUsageOps().getAllTools();
 			}
 			
@@ -108,10 +111,10 @@ public class WorkflowVisualization extends JPanel implements VisualPlugin,
 					ret = get();
 				} catch (InterruptedException e) {
 					GenSpace.getStatusBar().stop(evt);
-					GenSpace.logger.error("Unable to talk to server: ", e);
+					GenSpace.logger.warn("Unable to talk to server: ", e);
 				} catch (ExecutionException e) {
 					GenSpace.getStatusBar().stop(evt);
-					GenSpace.logger.error("Unable to talk to server: ", e);
+					GenSpace.logger.warn("Unable to talk to server: ", e);
 				}
 				// make sure we got some results!
 				if (ret == null || ret.size() == 0) {
@@ -158,10 +161,8 @@ public class WorkflowVisualization extends JPanel implements VisualPlugin,
 					else
 					{
 						GenSpace.getStatusBar().stop(evt);
-						GenSpace.logger.error("Unknown action selected: " + action);
 					}
 				}
-				GenSpace.logger.error("Unknown tool selected: " + tools.getSelectedItem().toString());
 				return new ArrayList<Workflow>();
 			}
 		};

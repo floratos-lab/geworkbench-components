@@ -241,9 +241,9 @@ public class privacyTab extends SocialTab {
 					try {
 						cachedFriends = get();
 					} catch (InterruptedException e) {
-						GenSpace.logger.error("Error",e);
+						GenSpace.logger.warn("Error",e);
 					} catch (ExecutionException e) {
-						GenSpace.logger.error("Error",e);
+						GenSpace.logger.warn("Error",e);
 					}
 					DefaultListModel m = new DefaultListModel();
 					ArrayList<Integer> selected = new ArrayList<Integer>();
@@ -280,9 +280,9 @@ public class privacyTab extends SocialTab {
 					try {
 						cachedNetworks = get();
 					} catch (InterruptedException e) {
-						GenSpace.logger.error("Unable to talk to server", e);
+						GenSpace.logger.warn("Unable to talk to server", e);
 					} catch (ExecutionException e) {
-						GenSpace.logger.error("Unable to talk to server", e);
+						GenSpace.logger.warn("Unable to talk to server", e);
 					}
 					DefaultListModel model = new DefaultListModel();
 					ArrayList<Integer> selected = new ArrayList<Integer>();

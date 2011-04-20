@@ -283,9 +283,9 @@ public class DynamicTree extends JPanel implements ActionListener,
 											.clearWorkflowData();
 								}
 							} catch (InterruptedException e) {
-								GenSpace.logger.error("Unable to talk to server",e);
+								GenSpace.logger.warn("Unable to talk to server",e);
 							} catch (ExecutionException e) {
-								GenSpace.logger.error("Unable to talk to server",e);
+								GenSpace.logger.warn("Unable to talk to server",e);
 							}
 						};
 					};
@@ -312,9 +312,9 @@ public class DynamicTree extends JPanel implements ActionListener,
 										recalculateAndReload();
 									}
 								} catch (InterruptedException e) {
-									GenSpace.logger.error("Unable to talk to server",e);
+									GenSpace.logger.warn("Unable to talk to server",e);
 								} catch (ExecutionException e) {
-									GenSpace.logger.error("Unable to talk to server",e);
+									GenSpace.logger.warn("Unable to talk to server",e);
 								}
 							};
 						};
@@ -351,10 +351,10 @@ public class DynamicTree extends JPanel implements ActionListener,
 						result = get();
 					} catch (InterruptedException e) {
 						e.printStackTrace();
-						GenSpace.logger.error("Error talking to server", e);
+						GenSpace.logger.warn("Error talking to server", e);
 					} catch (ExecutionException e) {
 						e.printStackTrace();
-						GenSpace.logger.error("Error talking to server", e);
+						GenSpace.logger.warn("Error talking to server", e);
 					}
 					if (result == null || result.equals("")) {
 //						LoginFactory.getUser().getFolders().add(result);
