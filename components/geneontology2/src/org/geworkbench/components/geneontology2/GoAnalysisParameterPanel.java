@@ -592,7 +592,7 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 		return map;
 	}
 
-	@SuppressWarnings({ "unchecked"})
+	@SuppressWarnings({ "unchecked", "rawtypes"})
 	private static void searchTestResultNodes(ProjectTreeNode pnode,
 			Map<String, CSSignificanceResultSet<DSGeneMarker>> map,
 			Class<? extends CSSignificanceResultSet> clazz) {
