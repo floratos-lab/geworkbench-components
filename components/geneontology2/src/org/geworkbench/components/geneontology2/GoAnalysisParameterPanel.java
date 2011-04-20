@@ -43,6 +43,7 @@ import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.markers.goterms.GeneOntologyTree;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSAnovaResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSSignificanceResultSet;
@@ -51,6 +52,7 @@ import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.builtin.projects.DataSetNode;
 import org.geworkbench.builtin.projects.DataSetSubNode;
+import org.geworkbench.builtin.projects.OboSourcePreference;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.ProjectTreeNode;
 import org.geworkbench.events.listeners.ParameterActionListener;
@@ -69,8 +71,6 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 	private static final long serialVersionUID = -57544738480207581L;
 	static Log log = LogFactory.getLog(GoAnalysisParameterPanel.class);
 	
-	private static final String DEFAULT_OBO_FILE = "data/gene_ontology.1_2.obo";
-
 	private JTabbedPane jTabbedPane1 = null;
 	private JPanel selectionPanel = null;
 	private JPanel ontologizer20Panel = null;
@@ -282,7 +282,13 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 	}
 
 	public String getOntologyFile() {
-		return ontologyFileNameField.getText();
+		//return ontologyFileNameField.getText();
+		OboSourcePreference pref = OboSourcePreference.getInstance();
+		if(pref.getSourceType()==OboSourcePreference.Source.REMOTE) {
+			return GeneOntologyTree.OBO_FILENAME;
+		} else {
+			return pref.getSourceLocation();
+		}
 	}
 
 	public String getAssociationFile() {
@@ -345,9 +351,11 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 			geneOntologyRadioButton.setText("Gene Ontlogy");
 			geneOntologyRadioButton.setSelected(true);
 			geneOntologyRadioButton.setEnabled(false);
-			final String ontologyFileName = DEFAULT_OBO_FILE;
+
+			OboSourcePreference pref = OboSourcePreference.getInstance();
+
 			ontologyFileNameField = new JTextField(20);
-			ontologyFileNameField.setText(ontologyFileName);
+			ontologyFileNameField.setText(pref.getSourceLocation());
 			ontologyFileNameField.setEnabled(false); // this is always
 														// disabled even in the
 														// future version with
@@ -705,7 +713,7 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 			parameters.put("changedList", "");
 		
 		if(parameters.get("ontologyFile")==null)
-			parameters.put("ontologyFile", DEFAULT_OBO_FILE);
+			parameters.put("ontologyFile", OboSourcePreference.getInstance().getSourceLocation());
 		
 		if(parameters.get("loadedAnnotation")==null)
 			parameters.put("loadedAnnotation", true);
@@ -761,7 +769,7 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 		histStr.append("\nChanged Gene List: ");
 		histStr.append(getChangedGeneListAsString());
 		histStr.append("\nGene Ontology: ");
-		histStr.append(getOntologyFile());
+		histStr.append(OboSourcePreference.getInstance().getSourceLocation());
 		histStr.append("\nAnnotations: ");
 		histStr.append(getAssociationFile());
 		histStr.append("\nEnrichment Method: ");
