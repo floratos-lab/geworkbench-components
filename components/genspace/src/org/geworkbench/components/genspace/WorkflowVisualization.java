@@ -128,8 +128,6 @@ public class WorkflowVisualization extends JPanel implements VisualPlugin,
 				label.setText(ret.size() + " " + noun + " found");
 				GenSpace.getStatusBar().stop(evt);
 
-				if(GenSpace.instrument)
-					System.out.println("Received workflows, size serialized = " + GenSpace.getObjectSize((Serializable) ret));
 				add(vis, BorderLayout.CENTER);
 				revalidate();
 				repaint();
