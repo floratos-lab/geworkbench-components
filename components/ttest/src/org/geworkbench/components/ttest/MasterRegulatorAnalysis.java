@@ -3,6 +3,7 @@ package org.geworkbench.components.ttest;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 import org.apache.commons.logging.Log;
@@ -12,6 +13,8 @@ import org.geworkbench.bison.annotation.CSAnnotationContext;
 import org.geworkbench.bison.annotation.CSAnnotationContextManager;
 import org.geworkbench.bison.annotation.DSAnnotationContext;
 import org.geworkbench.bison.annotation.DSAnnotationContextManager;
+import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
+import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
@@ -33,8 +36,6 @@ import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.ProjectSelection;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.GeneSelectorEvent;
-import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrix;
-import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixDataSet;
 
 /**
  * @author yc2480
@@ -134,11 +135,9 @@ public class MasterRegulatorAnalysis extends AbstractAnalysis implements
 			ArrayList<DSGeneMarker> nA = new ArrayList<DSGeneMarker>();
 			//int geneid = tfA.getSerial();
 			AdjacencyMatrix adjMatrix = amSet.getMatrix();
-			int geneid = adjMatrix.getMappedId(tfA.getSerial());
-			if (adjMatrix.get(geneid)!=null){
-				for (Object key : adjMatrix.get(tfA.getSerial()).keySet()){//for each neighbor
-					Integer neighborId = (Integer)key;
-					DSGeneMarker neighbor = maSet.getMarkers().get(neighborId);
+			Set<DSGeneMarker> neighbors = adjMatrix.get(tfA);
+			if (neighbors!=null){
+				for (DSGeneMarker neighbor : neighbors){//for each neighbor
 					nA.add(neighbor);
 				}
 			}
