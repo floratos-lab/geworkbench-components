@@ -12,10 +12,13 @@ import java.awt.geom.Rectangle2D;
 
 /**
  * @author John Watkinson
+ * @version $Id$
  */
 public class SequenceGraph extends JPanel {
 
-    public static final Color COLOR_A = new Color(0x00CC00);
+	private static final long serialVersionUID = -4832182681725484385L;
+	
+	public static final Color COLOR_A = new Color(0x00CC00);
     public static final Color COLOR_C = new Color(0x0000CC);
     public static final Color COLOR_G = new Color(0xFFB300);
     public static final Color COLOR_T = new Color(0xCC0000);
@@ -31,7 +34,7 @@ public class SequenceGraph extends JPanel {
             };
 
     private static final Font DEFAULT_FONT = new Font("SansSerif", Font.PLAIN, 10);
-    private static final int MAX_FONT_SIZE = 8;
+
     private static final int HEIGHT = 39;
     private static final int ACTIVE_HEIGHT = 37;
     private static final int LABEL_WIDTH = 80;

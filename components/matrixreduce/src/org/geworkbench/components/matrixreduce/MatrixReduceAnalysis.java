@@ -34,6 +34,7 @@ import org.geworkbench.analysis.AbstractGridAnalysis;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
+import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
@@ -60,9 +61,12 @@ import com.larvalabs.chart.PSAMPlot;
  * @author John Watkinson
  * @author keshav
  * @author ch2514
+ * @version $Id$
  */
 public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis, Observer {
+	private static final long serialVersionUID = -4742601328385348469L;
+
 	Log log = LogFactory.getLog(this.getClass());
 
 	private static final String TEMP_DIR = FilePathnameUtils.getTemporaryFilesDirectoryPath();
@@ -189,7 +193,7 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 	}
 
 	@Override
-	public Class getBisonReturnType() {
+	public Class<?> getBisonReturnType() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -244,6 +248,7 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 		return psamddG;
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public AlgorithmExecutionResults execute(Object input) {
 		if (input == null) {
 			return new AlgorithmExecutionResults(false, "Invalid input.", null);
@@ -680,7 +685,7 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 	public void receive(ProjectNodePostCompletedEvent projectNodeCompleteEvent,
 			Object source) {
 		if(params.saveRunLog()){
-			DSDataSet data = projectNodeCompleteEvent.getAncillaryDataSet();
+			DSDataSet<? extends DSBioObject> data = projectNodeCompleteEvent.getAncillaryDataSet();
 			if ((data != null) && (data instanceof DSMatrixReduceSet)) {
 				String runlog = ((DSMatrixReduceSet) data).getRunLog();
 				if (!StringUtils.isEmpty(runlog)) {

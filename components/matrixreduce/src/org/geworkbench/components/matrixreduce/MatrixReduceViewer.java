@@ -68,6 +68,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * @author John Watkinson
  * @author ch2514
+ * @version $Id$
  */
 @AcceptTypes(DSMatrixReduceSet.class)
 public class MatrixReduceViewer implements VisualPlugin {
@@ -79,8 +80,6 @@ public class MatrixReduceViewer implements VisualPlugin {
 	public static final int IMAGE_HEIGHT = 100;
 
 	public static final int IMAGE_WIDTH = 200;
-
-	private static final int TAB_PSAM = 0;
 
 	private static final int TAB_SEQUENCE = 1;
 
@@ -136,6 +135,8 @@ public class MatrixReduceViewer implements VisualPlugin {
 	private JComboBox psamList;
 
 	private class ListModel extends AbstractListModel {
+		private static final long serialVersionUID = -2759392322276667038L;
+
 		public int getSize() {
 			if (selectedSequences == null) {
 				return 0;
@@ -161,6 +162,8 @@ public class MatrixReduceViewer implements VisualPlugin {
 
 	private class ConsensusModel extends AbstractListModel implements
 			ComboBoxModel {
+		private static final long serialVersionUID = -8877089706329828557L;
+		
 		String selection = null;
 
 		public int getSize() {
@@ -194,6 +197,8 @@ public class MatrixReduceViewer implements VisualPlugin {
 	}
 
 	private class TableModel extends AbstractTableModel {
+
+		private static final long serialVersionUID = 2209495803556269287L;
 
 		public String getColumnName(int column) {
 			switch (column) {
@@ -296,6 +301,8 @@ public class MatrixReduceViewer implements VisualPlugin {
 
 	private class ExpTableModel extends AbstractTableModel {
 
+		private static final long serialVersionUID = -4605355596639274671L;
+
 		public String getColumnName(int column) {
 			switch (column) {
 			case 0:
@@ -327,16 +334,16 @@ public class MatrixReduceViewer implements VisualPlugin {
 		}
 
 		public Object getValueAt(int rowIndex, int columnIndex) {
-			List l = exps.get(dataSet.get(currentPSAM).getID());
+			List<DSMatrixReduceExperiment> list = exps.get(dataSet.get(currentPSAM).getID());
 			switch (columnIndex) {
 			case 0:
-				return ((DSMatrixReduceExperiment) l.get(rowIndex)).getLabel();
+				return ((DSMatrixReduceExperiment) list.get(rowIndex)).getLabel();
 			case 1:
-				return ((DSMatrixReduceExperiment) l.get(rowIndex)).getCoeff();
+				return ((DSMatrixReduceExperiment) list.get(rowIndex)).getCoeff();
 			case 2:
-				return ((DSMatrixReduceExperiment) l.get(rowIndex)).getTValue();
+				return ((DSMatrixReduceExperiment) list.get(rowIndex)).getTValue();
 			default:
-				return ((DSMatrixReduceExperiment) l.get(rowIndex)).getPValue();
+				return ((DSMatrixReduceExperiment) list.get(rowIndex)).getPValue();
 			}
 		}
 
@@ -414,12 +421,16 @@ public class MatrixReduceViewer implements VisualPlugin {
 		model = new TableModel();
 		table = new JTable(model);
 		final JLabel imageLabel = new JLabel() {
+			private static final long serialVersionUID = -5166715135998198492L;
+
 			public Dimension getMinimumSize() {
 				return getPreferredSize();
 			}
 		};
 		table.setDefaultRenderer(ImageIcon.class,
 				new DefaultTableCellRenderer() {
+					private static final long serialVersionUID = -2814071994069770065L;
+
 					public Component getTableCellRendererComponent(
 							JTable table, Object value, boolean isSelected,
 							boolean hasFocus, int row, int column) {
@@ -440,6 +451,8 @@ public class MatrixReduceViewer implements VisualPlugin {
 
 		expModel = new ExpTableModel();
 		expsTable = new JTable(expModel) {
+			private static final long serialVersionUID = -6583506500821202846L;
+
 			public TableCellRenderer getCellRenderer(int row, int column) {
 				DefaultTableCellRenderer tcr = (DefaultTableCellRenderer) super
 						.getCellRenderer(row, column);
@@ -470,14 +483,11 @@ public class MatrixReduceViewer implements VisualPlugin {
 		sequenceList = new JList(sequenceModel);
 		sequenceList.getInsets().set(4, 4, 4, 4);
 		sequenceList.setCellRenderer(new DefaultListCellRenderer() {
+			private static final long serialVersionUID = -1762705277909440001L;
+
 			public Component getListCellRendererComponent(JList list,
 					Object value, int index, boolean isSelected,
 					boolean cellHasFocus) {
-				// JLabel label = (JLabel)
-				// super.getListCellRendererComponent(list, value, index,
-				// isSelected, cellHasFocus);
-				// label.setText(value.toString());
-				// return label;
 				return graphs.get((String) value);
 			}
 		});
@@ -729,9 +739,10 @@ public class MatrixReduceViewer implements VisualPlugin {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Subscribe
 	public void receive(ProjectEvent projectEvent, Object source) {
-		DSDataSet data = projectEvent.getDataSet();
+		DSDataSet<?> data = projectEvent.getDataSet();
 		if ((data != null) && (data instanceof DSMatrixReduceSet)) {
 			dataSet = ((DSMatrixReduceSet) data);
 			model.fireTableStructureChanged();
