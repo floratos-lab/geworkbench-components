@@ -20,11 +20,6 @@ import org.geworkbench.events.ImageSnapshotEvent;
 import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.NetBoostDataSet;
 
-//FIXME - keeping this around at the moment ... remove me
-//import java.util.HashMap;
-//import org.geworkbench.builtin.projects.ProjectPanel;
-//import org.geworkbench.builtin.projects.ProjectTreeNode;
-
 /**
  * NetBoost Component
  * 
@@ -34,6 +29,8 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.NetBoostDataSet;
  */
 @AcceptTypes(NetBoostDataSet.class)
 public class NetBoostVisualComponent extends JPanel implements VisualPlugin {
+	private static final long serialVersionUID = -5296022205397904065L;
+
 	// variables
 	private Log log = LogFactory.getLog(this.getClass());
 
@@ -70,7 +67,7 @@ public class NetBoostVisualComponent extends JPanel implements VisualPlugin {
 	@Subscribe
 	public void receive(ProjectEvent projectEvent, Object source) {
 		log.debug("NetBoost received project event.");
-		DSDataSet data = projectEvent.getDataSet();
+		DSDataSet<?> data = projectEvent.getDataSet();
 		if ((data != null) && (data instanceof NetBoostDataSet)) {
 			NetBoostDataSet nbdata = (NetBoostDataSet) data;
 			netboostPlugin = new NetBoostPlugin(nbdata, this);

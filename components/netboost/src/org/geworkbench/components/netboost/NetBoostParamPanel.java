@@ -31,7 +31,7 @@ import com.jgoodies.forms.layout.FormLayout;
  * 
  * @author ch2514
  * @author yc2480
- * @version $Id: NetBoostParamPanel.java,v 1.8 2009-06-19 19:23:26 jiz Exp $
+ * @version $Id$
  */
 public class NetBoostParamPanel extends AbstractSaveableParameterPanel {
 
@@ -69,7 +69,8 @@ public class NetBoostParamPanel extends AbstractSaveableParameterPanel {
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
 	 * Set inputed parameters to GUI.
 	 */
-    public void setParameters(Map<Serializable, Serializable> parameters){
+    @SuppressWarnings("unchecked")
+	public void setParameters(Map<Serializable, Serializable> parameters){
         Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
         for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set.iterator(); iterator.hasNext();) {
         	Map.Entry<Serializable, Serializable> parameter = iterator.next();
@@ -131,8 +132,8 @@ public class NetBoostParamPanel extends AbstractSaveableParameterPanel {
 	public NetBoostParamPanel() {
 		super();
 		try {
-			this.modelNames = NetBoostAnalysis.getModelNames();
-			this.modelDescs = NetBoostAnalysis.getModelDescriptions();
+			NetBoostParamPanel.modelNames = NetBoostAnalysis.getModelNames();
+			NetBoostParamPanel.modelDescs = NetBoostAnalysis.getModelDescriptions();
 			init();
 		} catch (Exception e) {
 			e.printStackTrace();
