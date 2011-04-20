@@ -9,6 +9,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.analysis.AbstractGridAnalysis;
+import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
+import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSExprMicroarraySet;
@@ -16,7 +18,6 @@ import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetV
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
@@ -27,8 +28,6 @@ import org.geworkbench.builtin.projects.ProjectSelection;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.ProjectNodeAddedEvent;
-import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrix;
-import org.geworkbench.util.pathwaydecoder.mutualinformation.AdjacencyMatrixDataSet;
 
 import edu.columbia.c2b2.evidenceinegration.Evidence;
 import edu.columbia.c2b2.evidenceinegration.EvidenceIntegration;
@@ -39,7 +38,9 @@ import edu.columbia.c2b2.evidenceinegration.EvidenceIntegration;
  */
 public class EvidenceIntegrationAnalysis extends AbstractGridAnalysis implements ClusteringAnalysis {
 
-    public static final String DB_URL = "jdbc:mysql://afdev.c2b2.columbia.edu:3306/evidence_integration";
+	private static final long serialVersionUID = 7288801656726834224L;
+	
+	public static final String DB_URL = "jdbc:mysql://afdev.c2b2.columbia.edu:3306/evidence_integration";
     public static final String DB_USERNAME = "evidence_integ";
     public static final String DB_PASSWORD = "S@cUrE_aR@a56";
     private final String analysisName = "EvidenceIntegration";
@@ -99,19 +100,12 @@ public class EvidenceIntegrationAnalysis extends AbstractGridAnalysis implements
         eiThread.setProgressWindow(progress);
         progress.setVisible(true);
 
-//        eiEngine.doIntegration(selectedEvidence, selectedGoldStandards);
-//        DSMicroarraySet<DSMicroarray> mSet = ((DSMicroarraySetView) input).getMicroarraySet();
-//        EvidenceIntegrationDataSet dataset = new EvidenceIntegrationDataSet(mSetView.getMicroarraySet(), "Evidence Integration Results", selectedEvidence, "Unknown");
-
         return new AlgorithmExecutionResults(true, "Evidence Integration In Progress", null);
     }
 
-    @Subscribe
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	@Subscribe
     public void receive(org.geworkbench.events.ProjectEvent projectEvent, Object source) {
-        //log.error("Got project event.");
-        if (projectEvent.getMessage().equals(org.geworkbench.events.ProjectEvent.CLEARED)) {
-//            setMArraySet(null);
-        }
 
         ProjectSelection selection = ((ProjectPanel) source).getSelection();
         DataSetNode dNode = selection.getSelectedDataSetNode();
@@ -145,11 +139,10 @@ public class EvidenceIntegrationAnalysis extends AbstractGridAnalysis implements
         Evidence evidence = new Evidence(adjMatrix.getLabel());
         AdjacencyMatrix matrix = adjMatrix.getMatrix();
 
-        DSItemList<DSGeneMarker> markers = mSet.markers();
 		for (AdjacencyMatrix.Edge edge : matrix.getEdges()) {
-			DSGeneMarker gene1 = markers.get(edge.node1);
+			DSGeneMarker gene1 = edge.node1.marker;
 			if (gene1 != null) {
-				DSGeneMarker destGene = markers.get(edge.node2);
+				DSGeneMarker destGene = edge.node2.marker;
 				if (destGene != null) {
 					log.debug("Adding evidence: " + gene1.getGeneId() + ", "
 							+ destGene.getGeneId() + ", " + edge.info.value);
@@ -192,7 +185,8 @@ public class EvidenceIntegrationAnalysis extends AbstractGridAnalysis implements
             this.selectedGoldStandards = selectedGoldStandards;
         }
 
-        public void run() {
+        @SuppressWarnings("unchecked")
+		public void run() {
             log.debug("Running Evidence Integration in worker thread.");
             eiEngine.doIntegration(selectedEvidence, selectedGoldStandards);
             log.debug("Done running Evidence Integration in worker thread.");
@@ -200,12 +194,8 @@ public class EvidenceIntegrationAnalysis extends AbstractGridAnalysis implements
 
             EvidenceIntegrationDataSet dataset = new EvidenceIntegrationDataSet(mSetView.getMicroarraySet(), "Evidence Integration Results", selectedEvidence, "Unknown", eiEngine.getGoldStandardSources());
 
-//            ProjectPanel.addToHistory(dataSet, "Generated with ARACNE run with paramters: " + p.getParamterDescription());
-
             publishProjectNodeAddedEvent(new ProjectNodeAddedEvent("Evidence Integration Results", null, dataset));
 
-//        publishAdjacencyMatrixEvent(new AdjacencyMatrixEvent(convert(weightedGraph, mSetView), "ARACNE Set",
-//                -1, 2, 0.5f, AdjacencyMatrixEvent.Action.RECEIVE));
         }
 
         public EIProgress getProgressWindow() {
@@ -223,7 +213,7 @@ public class EvidenceIntegrationAnalysis extends AbstractGridAnalysis implements
      * @see org.geworkbench.analysis.AbstractGridAnalysis#getBisonReturnType()
      */
 	@Override
-	public Class getBisonReturnType() {
+	public Class<?> getBisonReturnType() {
 		// TODO Auto-generated method stub
 		return null;
 	}
