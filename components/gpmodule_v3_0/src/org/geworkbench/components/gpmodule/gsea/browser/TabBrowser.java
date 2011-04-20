@@ -21,7 +21,6 @@ public class TabBrowser extends WebBrowser
     public TabBrowser(URL url, boolean IE)
     {
         super(url);
-        setURL(url, url.getQuery(), "user-agent:geWorkbench");
         useIE = IE;
     }
 
