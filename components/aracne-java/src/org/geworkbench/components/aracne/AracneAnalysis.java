@@ -183,7 +183,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 				return null;
 		}
 
-		AracneThread aracneThread = new AracneThread(mSetView, p, bs, pt);
+		AracneThread aracneThread = new AracneThread(mSetView, p, bs, pt, params.isPrune());
 
 		AracneProgress progress = new AracneProgress(aracneThread);
 		aracneThread.setProgressWindow(progress);
@@ -228,16 +228,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 		return graph;
 	}
 
-	/**
-	 *
-	 * FIXME: This convert() has bug in it !!!, Since Microarray.getValues() in
-	 * workbook.jar will return all the marker values, we should filter out
-	 * those inactive markers in DSMicroarraySetView before put into
-	 * MicroarraySet
-	 *
-	 * @param inSet
-	 * @return
-	 */
+	// a very old comment (revision 4310) saying this method has a bug is removed
 	private MicroarraySet convert(
 			DSMicroarraySetView<DSGeneMarker, DSMicroarray> inSet) {
 		MarkerSet markers = new MarkerSet();
@@ -267,23 +258,42 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 	 * @return
 	 */
 	private AdjacencyMatrix convert(WeightedGraph graph,
-			DSMicroarraySet<DSMicroarray> mSet) {
+			DSMicroarraySet<DSMicroarray> mSet, boolean prune) {
 		AdjacencyMatrix matrix = new AdjacencyMatrix(null, mSet);
 
 		int nNode = 0, nEdge = 0;
-		for (String node : graph.getNodes()) {
-			DSGeneMarker marker = mSet.getMarkers().get(node);
-			matrix.addGeneRow(new AdjacencyMatrix.Node(marker));
-			nNode++;
+		if (prune) {
+			for (String node : graph.getNodes()) {
+				DSGeneMarker marker = mSet.getMarkers().get(node);
+				matrix.addGeneRow(new AdjacencyMatrix.Node(marker));
+				nNode++;
+			}
+			for (GraphEdge graphEdge : graph.getEdges()) {
+				DSGeneMarker marker1 = mSet.getMarkers().get(
+						graphEdge.getNode1());
+				DSGeneMarker marker2 = mSet.getMarkers().get(
+						graphEdge.getNode2());
+				matrix.add(new AdjacencyMatrix.Node(marker1),
+						new AdjacencyMatrix.Node(marker2),
+						graphEdge.getWeight());
+				nEdge++;
+			}
+		} else {
+			for (String node : graph.getNodes()) {
+				matrix.addGeneRow(new AdjacencyMatrix.Node(NodeType.STRING, node));
+				nNode++;
+			}
+			for (GraphEdge graphEdge : graph.getEdges()) {
+				matrix.add(new AdjacencyMatrix.Node(NodeType.STRING, graphEdge.getNode1()),
+						new AdjacencyMatrix.Node(NodeType.STRING, graphEdge.getNode2()),
+						graphEdge.getWeight(), null);
+				nEdge++;
+			}
+			log.debug(nNode + " " + nEdge + " " + matrix.getNodeNumber() + " "
+					+ matrix.getEdges().size());
 		}
-		for (GraphEdge graphEdge : graph.getEdges()) {
-			DSGeneMarker marker1 = mSet.getMarkers().get(graphEdge.getNode1());
-			DSGeneMarker marker2 = mSet.getMarkers().get(graphEdge.getNode2());
-			matrix.add(new AdjacencyMatrix.Node(marker1), new AdjacencyMatrix.Node(marker2), graphEdge
-					.getWeight(), null);
-			nEdge++;
-		}
-		log.debug(nNode+ " "+nEdge+" "+matrix.getNodeNumber()+" "+matrix.getEdges().size());
+		log.debug(nNode + " " + nEdge + " " + matrix.getNodeNumber() + " "
+				+ matrix.getEdges().size());
 		return matrix;
 	}
 
@@ -309,15 +319,19 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 
 		private int bootstrapNumber;
 		private double pThreshold;
+		
+		private boolean prune;
 
 		public AracneThread(
 				DSMicroarraySetView<DSGeneMarker, DSMicroarray> mSet,
-				Parameter p, int bootstrapNumber, double pThreshold) {
+				Parameter p, int bootstrapNumber, double pThreshold, boolean prune) {
 			this.mSetView = mSet;
 			this.p = p;
 
 			this.bootstrapNumber = bootstrapNumber;
 			this.pThreshold = pThreshold;
+			
+			this.prune = prune;
 		}
 
 		public void run() {
@@ -341,7 +355,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 
 			if (weightedGraph.getEdges().size() > 0) {
 				AdjacencyMatrixDataSet dataSet = new AdjacencyMatrixDataSet(
-						convert(weightedGraph, mSetView.getMicroarraySet()),
+						convert(weightedGraph, mSetView.getMicroarraySet(), prune),
 						0, "Adjacency Matrix", "ARACNE Set", mSetView
 								.getMicroarraySet());
 				StringBuilder paramDescB = new StringBuilder(

@@ -20,6 +20,7 @@ import java.util.Vector;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
@@ -104,6 +105,8 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
     private JFormattedTextField bootstrapField = new JFormattedTextField("1");
     private JTextField pThresholdField = new JTextField("1.e-6");
 
+    private JCheckBox prune = new JCheckBox();
+    
     public AracneParamPanel() {
 		this.setLayout(new BorderLayout());
 
@@ -115,6 +118,8 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
         loadTargetsButton.setEnabled(false);
 
         pThresholdField.setEnabled(false);
+        
+        prune.setSelected(true);
 
         FormLayout layout = new FormLayout(
                 "right:max(40dlu;pref), 3dlu, 90dlu, 3dlu, 90dlu, 3dlu, 90dlu, 3dlu, 90dlu, 7dlu",
@@ -154,6 +159,9 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 
         builder.append("Bootstrap number", bootstrapField);
         builder.append("Consensus threshold", pThresholdField);
+
+        builder.nextRow();
+        builder.append("Choose edges with highest MI", prune);
         
         markerSetCombo.addActionListener(new ActionListener() {
     		public void actionPerformed(ActionEvent actionEvent) {
@@ -381,6 +389,7 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 	    modeCombo.addActionListener(parameterActionListener);
 	    bootstrapField.addActionListener(parameterActionListener);
 	    pThresholdField.addActionListener(parameterActionListener);
+	    prune.addActionListener(parameterActionListener);
     }
 
 	public void setKernelCombo() {
@@ -628,6 +637,9 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
     	return p;
     }
 
+    public boolean isPrune() { return prune.isSelected(); }
+    public void setPrune(boolean p) { prune.setSelected(p); }
+    
     public String getBootstrapField() {
     	return bootstrapField.getText();
     }
@@ -741,6 +753,9 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 			if (key.equals("ConsensusThreshold")){
 				setConsensusThresholdAsText((String)value);
 			}
+			if (key.equals("prune")){
+				setPrune((Boolean)value);
+			}
 
 		}
         /*  setHub method can reset or disable value of markerSetCombo, see wiki Parameter Panel for more details  */
@@ -778,6 +793,7 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 		parameters.put("Mode", this.getModeAsString());
 		parameters.put("BootstrapNumber", this.getBootstrapField());
 		parameters.put("ConsensusThreshold", this.getConsensusThresholdAsText());
+		parameters.put("prune", this.isPrune());
 
 		return parameters;
 	}
