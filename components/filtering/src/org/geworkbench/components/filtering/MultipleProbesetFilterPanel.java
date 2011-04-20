@@ -106,7 +106,7 @@ public class MultipleProbesetFilterPanel extends AbstractSaveableParameterPanel 
 		parameters = getParameters();
 		histStr += "Multiple Probeset Filter: \n";
 
-		histStr += "Filter Actiob: ";
+		histStr += "Filter Action: ";
 		histStr += parameters.get("filterActionSelection");
 		histStr += "\n";
 
