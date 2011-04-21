@@ -35,9 +35,9 @@ public class MultipleEntrezGeneIDFilter extends FilteringAnalysis {
 	List<Integer> multipleEntrezIDsList = new ArrayList<Integer>();
 
 	private Action filterAction;
-	private MultipleEntrezGeneIDFilterPanel multipleEntrezGeneIDFilterPanel=new MultipleEntrezGeneIDFilterPanel();
 
 	public MultipleEntrezGeneIDFilter() {
+		MultipleEntrezGeneIDFilterPanel multipleEntrezGeneIDFilterPanel=new MultipleEntrezGeneIDFilterPanel();
 		setDefaultPanel(multipleEntrezGeneIDFilterPanel);
 		filterAction = multipleEntrezGeneIDFilterPanel.getFilterAction();
 	}
@@ -178,7 +178,7 @@ public class MultipleEntrezGeneIDFilter extends FilteringAnalysis {
 																						org.geworkbench.events.SubpanelChangedEvent.NEW));
 	}
 	
-	@SuppressWarnings({ "unchecked" })
+	@SuppressWarnings("rawtypes")
 	@Publish
 	public org.geworkbench.events.SubpanelChangedEvent publishSubpanelChangedEvent(
 		   org.geworkbench.events.SubpanelChangedEvent event) {
@@ -187,7 +187,7 @@ public class MultipleEntrezGeneIDFilter extends FilteringAnalysis {
 
 	@Override
 	protected void getParametersFromPanel() {
-		multipleEntrezGeneIDFilterPanel = (MultipleEntrezGeneIDFilterPanel) aspp;
+		MultipleEntrezGeneIDFilterPanel multipleEntrezGeneIDFilterPanel = (MultipleEntrezGeneIDFilterPanel) aspp;
 		filterNoEntrezID = multipleEntrezGeneIDFilterPanel.isNoEntrezIDsStatusSelected();
 		filterMultipleEntrezIDs = multipleEntrezGeneIDFilterPanel.isMultipleEntrezIDsStatusSelected();
 
