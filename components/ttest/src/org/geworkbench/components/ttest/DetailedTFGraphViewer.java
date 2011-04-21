@@ -112,6 +112,8 @@ public class DetailedTFGraphViewer extends JPanel {
 			
 
 			// draw the lines for geneMarkers
+			
+			double maxAbsValue = Math.max(Math.abs(minTValue), Math.abs(maxTValue));
 			for (int i = 0; i < numMarkers; i++) {			 		 
 				DSItemList<DSGeneMarker> genesInRegulonList = mraResultSet.getGenesInRegulon(tfA);					 
 				if (genesInRegulonList == null) { // if user selected wrong
@@ -141,9 +143,9 @@ public class DetailedTFGraphViewer extends JPanel {
 							Color save = g.getColor();
 							int center = 0;
 							if (tValue >= 0)
-								center = (int) (width / 2 + width * Math.abs(tValue) / Math.max(Math.abs(minTValue), Math.abs(maxTValue)));	
+								center = (int) (width / 2 + width * Math.abs(tValue) / maxAbsValue);	
 							else
-								center = (int) (width / 2 - width * Math.abs(tValue) / Math.max(Math.abs(minTValue), Math.abs(maxTValue)));
+								center = (int) (width / 2 - width * Math.abs(tValue) / maxAbsValue);
 							
 							if (SR.getR() >= 0) {								 
 								g.setColor(Color.BLACK);
