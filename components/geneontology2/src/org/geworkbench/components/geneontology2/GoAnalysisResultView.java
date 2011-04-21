@@ -40,6 +40,7 @@ import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
+import javax.swing.SwingWorker;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.HyperlinkEvent;
@@ -64,6 +65,7 @@ import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.GoAnalysisResult;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.markers.goterms.GeneOntologyTree;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
@@ -722,6 +724,10 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		} else if (dataSet instanceof DSMicroarraySet) {
 			result = null;
 			this.dataSet = (DSMicroarraySet<CSMicroarray>)dataSet;
+			if(GeneOntologyTree.getInstance()==null) {
+				updateFromBackground();
+				return;
+			}
 			tableModel.populateFromDataSet( this.dataSet );
 			
 			treeModel.setResult(null);
@@ -733,6 +739,42 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		}
 	 }
 	
+	private void updateFromBackground() {
+		final long ONE_SECOND = 1000;
+		final long LIMIT = 200;
+		SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+
+			@Override
+			protected Void doInBackground() throws Exception {
+				long count = 0;
+				while (GeneOntologyTree.getInstance() == null && count < LIMIT) {
+					try {
+						Thread.sleep(ONE_SECOND);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					count++;
+				}
+				return null;
+			}
+
+			@Override
+			protected void done() {
+				// do similar thing to receive(ProjectEvent e, Object source)
+				// but only when GeneOntologyTree is available
+				tableModel.populateFromDataSet(dataSet);
+
+				treeModel.setResult(null);
+				allButton.setSelected(true);
+
+				changedGeneListButton.setEnabled(false);
+				referenceListButton.setEnabled(false);
+				repaint();
+			}
+		};
+		worker.execute();
+	}
+
 	private void populateGeneList(int goId) {
 		boolean includeDescendants = false;
 		if (termButton.isSelected()) {
