@@ -70,12 +70,23 @@ public class PreviewDialog extends JDialog {
 		int rowIndex = 0;
 		for(DSGeneMarker marker: list) {
 			markerTableModel.setValueAt(marker.getLabel(), rowIndex, 0);
-			markerTableModel.setValueAt(marker.getGeneName(), rowIndex, 1);
+			String[] ss=marker.getShortNames();
+			String s="";
+			if(ss.length>1){
+				for(int i=0;i<ss.length-1;i++){
+					s+=ss[i]+"///";
+				}
+				s+=ss[ss.length-1];
+			}
+			else{
+				s="---";
+			}
+			markerTableModel.setValueAt(s, rowIndex, 1);
 			rowIndex++;
 		}
 		
 		JScrollPane listScroller = new JScrollPane(markers);
-		listScroller.setPreferredSize(new Dimension(250, 80));
+		listScroller.setPreferredSize(new Dimension(250, 180));	
 		listScroller.setAlignmentX(Component.CENTER_ALIGNMENT);
 		JPanel listPane = new JPanel(new BorderLayout());	 
 		JLabel label = new JLabel("Markers to be filtered out");
