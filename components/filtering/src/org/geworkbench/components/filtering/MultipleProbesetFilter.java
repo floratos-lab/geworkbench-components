@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import javax.swing.JOptionPane;
+
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
@@ -47,6 +49,15 @@ public class MultipleProbesetFilter extends FilteringAnalysis {
 		maSet = (DSMicroarraySet<DSMicroarray>) input;
 		DSItemList<DSGeneMarker> dsItemList = maSet.getMarkers();
 
+		String annotation = AnnotationParser.getChipType(maSet);
+		if(annotation==null) {
+			JOptionPane.showMessageDialog(null,
+				    "Filtering aborted because no annotation is loaded.",
+				    "No annotation warning",
+				    JOptionPane.WARNING_MESSAGE);
+			return null;
+		}
+		 
 		Map<String, Integer> probesetIndexMap = new HashMap<String, Integer>();
 		Map<String, String> entrezProbesMap = new HashMap<String, String>(); // ~ delimited Probes per Entrez Gene
 		Map<String, String> entrezIDsWithMultipleProbes = new HashMap<String, String>();
@@ -58,7 +69,7 @@ public class MultipleProbesetFilter extends FilteringAnalysis {
 
 			String firstGeneID = AnnotationParser.getGeneIDs(probeSetID).toArray(new String[0])[0];
 
-			if (firstGeneID == null || firstGeneID.trim().equals("")) {
+			if (firstGeneID == null || firstGeneID.trim().equals("") || firstGeneID.trim().equals("---")) {
 				continue;
 			}
 
