@@ -69,13 +69,13 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 	TableViewer tv;
 	TableViewer tv2;
 	String[] columnNames = { "Master Regulator", "P-Value", "Genes in regulon",
-			"Genes in target list" };
-	String[] detailColumnNames = { "Genes in target list", "P-Value",
+			"Genes in intersection set" };
+	String[] detailColumnNames = { "Genes in target list", /*"P-Value",*/
 			"T-Test Value" };
 	DSMasterRagulatorResultSet<DSGeneMarker> MRAResultSet;
 	DetailedTFGraphViewer detailedTFGraphViewer;
 	boolean useSymbol = true;
-	private ValueModel pValueHolder = new ValueHolder("0.05");
+	private ValueModel pValueHolder = new ValueHolder("1.0");
 	private ValueModel tfAHolder = new ValueHolder(" ");
 	JRadioButton currentSelectedRadioButton = null;
 
@@ -90,7 +90,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		tv.setNumerical(2, true);
 		tv.setNumerical(3, true);
 		tv2.setNumerical(1, true);
-		tv2.setNumerical(2, true);
+		tv2.setNumerical(2, true); 
 
 		final JPanel viewPanel = new JPanel();
 		final JSplitPane jSplitPane2 = new JSplitPane();
@@ -323,7 +323,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		JLabel tfALabelField = BasicComponentFactory.createLabel(tfAHolder);
 		detailTFFormBuilder.append(tfALabelField);
 		// detailTFFormBuilder.nextColumn();
-		detailTFFormBuilder.append("P-val threshold:");
+		//detailTFFormBuilder.append("P-val threshold:");
 		// detailTFFormBuilder.nextColumn();
 
 		final JTextField pValueTextField = BasicComponentFactory
@@ -400,8 +400,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 			}
 		});
 
-
-		detailTFFormBuilder.add(pValueTextField);
+		//detailTFFormBuilder.add(pValueTextField);
 		// detailTFFormBuilder.nextRow();
 		detailTFFormBuilder.nextLine();
 		detailTFFormBuilder.add(tv2, new CellConstraints("1,2,7,1,f,f"));
@@ -488,6 +487,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		tv.setTableModel(data);
 		tv.updateUI();
 		tv2.setTableModel(new String[0][0]);
+ 
 		tv2.updateUI();
 		detailedTFGraphViewer.setTFA(null, null);
 		detailedTFGraphViewer.updateUI();
@@ -540,7 +540,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 			records = filterCounter;
 		} else
 			records = mraResultSet.getGenesInTargetList(tfA).size();
-		Object data[][] = new Object[records][3];
+		Object data[][] = new Object[records][2];
 		int cx = 0;
 		DSItemList<DSGeneMarker> genesInTargetList = mraResultSet
 				.getGenesInTargetList(tfA);
@@ -553,14 +553,14 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 					data[cx][0] = geneInTargetList.getShortName();
 				else
 					data[cx][0] = geneInTargetList.getLabel();
-				data[cx][1] = mraResultSet.getPValueOf(tfA, geneInTargetList);
-				data[cx][2] = mraResultSet.getSignificanceResultSet()
+				//data[cx][1] = mraResultSet.getPValueOf(tfA, geneInTargetList);
+				data[cx][1] = mraResultSet.getSignificanceResultSet()
 						.getTValue(geneInTargetList);
 				cx++;
 			}
 		}
 		// myTableModel.updateData(data);
-		tv.setTableModel(data);
+		tv.setTableModel(data);	 
 		tv.updateUI();
 		if (useSymbol)
 			tfAHolder.setValue(tfA.getShortName());

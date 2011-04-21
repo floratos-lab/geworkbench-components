@@ -145,8 +145,8 @@ public class MRATtestPanel extends TtestAnalysisPanel {
     }
 
     @Override
-    public double getAlpha() {
-    	return ((MasterRegulatorPanel)this.getParent().getParent()).getPValue();
+    public double getAlpha() {    	 
+        return 1;
     }
 
     @Override

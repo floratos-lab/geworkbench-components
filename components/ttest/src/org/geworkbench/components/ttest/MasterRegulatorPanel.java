@@ -47,9 +47,8 @@ import com.jgoodies.forms.layout.FormLayout;
  *  @version $Id$
  */
 public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
-	private static final long serialVersionUID = -6160058089960168299L;
-	
-	private static final float PValueThresholdDefault = 0.05f;
+	private static final long serialVersionUID = -6160058089960168299L;	
+ 
 	private static final String TFGeneListDefault = ("AFFX-HUMGAPDH/M33197_3_at, AFFX-HUMGAPDH/M33197_5_at, AFFX-HUMGAPDH/M33197_M_at, AFFX-HUMRGE/M10098_3_at, AFFX-HUMRGE/M10098_M_at");
 	static final String[] DEFAULT_SET = { " " };
 
@@ -57,19 +56,23 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 	private ArrayListModel<String> networkFromModel; //used for 0,0 drop down box
 	private ArrayListModel<String> adjModel; //used for 0,1 drop down box
 	private ArrayListModel<String> tfFromModel; //used for 1,0 drop down box
-	private ValueModel correctionHolder; //No correction, Standard Bonferroni, Adj Bonferroni
-	private JTextField pValueTextField = null;
+	private ArrayListModel<String> sigFromModel; //used for 1,0 drop down box
+	private ValueModel correctionHolder; //No correction, Standard Bonferroni, Adj Bonferroni 
 	private JTextField TFGeneListTextField = null; //Marker 1, Marker 2...
 	private JTextField networkTextField = null;
+	private JTextField sigGeneListTextField = null;
 	private HashMap<String,AdjacencyMatrixDataSet> adjMatrix=new HashMap<String,AdjacencyMatrixDataSet>();
 	private DSMicroarraySet<DSMicroarray> maSet=null;
 	private MRATtestPanel tTestPanel= new MRATtestPanel();
 	private JComboBox networkMatrix = createNetworkMatrixComboBox();
 	private JComboBox tfGroups = new JComboBox(new DefaultComboBoxModel(DEFAULT_SET));
+	private JComboBox sigGroups = new JComboBox(new DefaultComboBoxModel(DEFAULT_SET));;
 	private JButton loadNetworkButton=new JButton("Load");
 	private JButton loadTFButton=new JButton("Load");
+	private JButton loadSigButton=new JButton("Load");
 	private JComboBox networkFrom = null;
 	private JComboBox tfFrom = null;	
+	private JComboBox sigFrom = null;
 	
 	public MasterRegulatorPanel(){
 		networkTextField = new JTextField();
@@ -107,50 +110,28 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		if (TFGeneListTextField == null)
 			TFGeneListTextField = new JTextField();
 		TFGeneListTextField.setText(TFGeneListDefault);
-		builder.append(TFGeneListTextField);
-		//JButton loadTFButton=new JButton("Load");
-		loadTFButton.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent e) {
-				if (e.getActionCommand().equals("Load")) {
-	                StringBuilder geneListBuilder = new StringBuilder();
-	                try {
-	                	String hubMarkersFile="data/test.txt";
-	                    File hubFile = new File(hubMarkersFile);
-	                    JFileChooser chooser = new JFileChooser(hubFile.getParent());
-	                    chooser.showOpenDialog(MasterRegulatorPanel.this);
-	                    if (chooser.getSelectedFile()!=null){
-		                    hubMarkersFile = chooser.getSelectedFile().getPath();
-		                    BufferedReader reader = new BufferedReader(new FileReader(hubMarkersFile));
-		                    String hub = reader.readLine();
-		                    while (hub != null && !"".equals(hub)) {
-		                        geneListBuilder.append(hub + ", ");
-		                        hub = reader.readLine();
-		                    }
-		                    String geneString = geneListBuilder.toString();
-		                    geneString = geneString.substring(0, geneString.length() - 2);
-		                    TFGeneListTextField.setText(geneString);
-	                    }else{
-	                    	//user canceled
-	                    }
-	                } catch (IOException ioe) {
-	                    log.error(ioe);
-	                }
-
-			    }
-			}
-		});
+		builder.append(TFGeneListTextField);		 
+		loadTFButton.addActionListener(new LoadMarkerFileListener());
 		builder.append(loadTFButton);
 		builder.nextLine();
 		
-		builder.appendSeparator("Significance Threshold");
-		builder.append("T-test p-value (alpha)");
-		if (pValueTextField == null)
-			pValueTextField = new JTextField();
-		pValueTextField.setText(Float.toString(PValueThresholdDefault));
-		builder.append(pValueTextField);
-		builder.nextLine();
-
-//		builder.append("Multiple testing correction");
+		builder.append("Signature Markers");
+		sigFrom = createSigFromComboBox();
+		sigFrom.setSelectedIndex(1);
+		
+		//preselect "From File"	 
+		builder.append(sigFrom);
+		sigGroups.setEnabled(false);
+		builder.append(sigGroups);
+		
+		if (sigGeneListTextField == null)
+			sigGeneListTextField = new JTextField();
+		//sifGeneListTextField.setText(TFGeneListDefault);
+		builder.append(sigGeneListTextField);		 
+		loadSigButton.addActionListener(new LoadMarkerFileListener());
+		builder.append(loadSigButton);
+		builder.nextLine();	
+ 
 		ArrayList<String> correctionComboBoxStrings = new ArrayList<String>();
 		correctionComboBoxStrings.add("No correction");
 		correctionComboBoxStrings.add("Standard Bonferroni");
@@ -160,7 +141,7 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
         builder.nextLine();
         JTabbedPane jTabbedPane1 = new JTabbedPane();
         jTabbedPane1.add(builder.getPanel(),"Main");
-        jTabbedPane1.add(tTestPanel,"T-test");
+       // jTabbedPane1.add(tTestPanel,"T-test");
         //t-test panel
         this.add(jTabbedPane1,BorderLayout.CENTER);
         
@@ -175,8 +156,20 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
     		}
     	});
         
-        ParameterActionListener parameterActionListener = new ParameterActionListener(this);
-        pValueTextField.addActionListener(parameterActionListener);
+        sigGroups.addActionListener(new ActionListener() {
+    		public void actionPerformed(ActionEvent actionEvent) {
+    			String selectedLabel = (String) sigGroups.getSelectedItem();
+    			if (!StringUtils.isEmpty(selectedLabel))
+    				if (!chooseMarkersFromSet(selectedLabel, sigGeneListTextField)) {
+    					sigGroups.setSelectedIndex(0);
+    					sigGeneListTextField.setText("");
+    				}
+    		}
+    	});
+        
+        
+        
+        ParameterActionListener parameterActionListener = new ParameterActionListener(this);       
         TFGeneListTextField.addActionListener(parameterActionListener);
         tTestPanel.setParamActionListener(parameterActionListener);
         networkFrom.addActionListener(parameterActionListener);
@@ -209,6 +202,42 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		}
 	}
 
+	private class LoadMarkerFileListener implements java.awt.event.ActionListener {
+		 
+		public void actionPerformed(java.awt.event.ActionEvent e) {
+			if (e.getActionCommand().equals("Load")) {
+                StringBuilder geneListBuilder = new StringBuilder();
+                try {
+                	String hubMarkersFile="data/test.txt";
+                    File hubFile = new File(hubMarkersFile);
+                    JFileChooser chooser = new JFileChooser(hubFile.getParent());
+                    chooser.showOpenDialog(MasterRegulatorPanel.this);
+                    if (chooser.getSelectedFile()!=null){
+	                    hubMarkersFile = chooser.getSelectedFile().getPath();
+	                    BufferedReader reader = new BufferedReader(new FileReader(hubMarkersFile));
+	                    String hub = reader.readLine();
+	                    while (hub != null && !"".equals(hub)) {
+	                        geneListBuilder.append(hub + ", ");
+	                        hub = reader.readLine();
+	                    }
+	                    String geneString = geneListBuilder.toString();
+	                    geneString = geneString.substring(0, geneString.length() - 2);
+	                    if (e.getSource().equals(loadTFButton))
+	                       TFGeneListTextField.setText(geneString);
+	                    else  if (e.getSource().equals(loadSigButton))
+		                       sigGeneListTextField.setText(geneString);
+                    }else{
+                    	//user canceled
+                    }
+                } catch (IOException ioe) {
+                    log.error(ioe);
+                }
+
+		    }
+		}
+	}
+	
+	
 	private JComboBox createNetworkFromComboBox(){
 		networkFromModel = new ArrayListModel<String>();
 		networkFromModel.add("From Project");
@@ -261,6 +290,27 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
         		}
         }
     }
+	
+	private class SigFromListener implements PropertyChangeListener {
+        public void propertyChange(PropertyChangeEvent evt) {
+        	if (evt.getPropertyName()=="value")
+        		if (evt.getNewValue()=="From Sets"){
+        			sigGroups.setEnabled(true);
+        			loadSigButton.setEnabled(false);
+        			getGroups();
+        			//hide fileNameField
+        			//clear combo box 
+        			//load adj matrix into the list
+        		}else if (evt.getNewValue()=="From File"){
+        			sigGroups.setEnabled(false);
+        			loadSigButton.setEnabled(true);
+        			//active load button
+        			//show file name loaded
+        		}
+        }
+    }
+	
+	
 
 	private JComboBox createNetworkMatrixComboBox(){
 		adjModel = new ArrayListModel<String>();
@@ -279,6 +329,17 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		selectionInList.addPropertyChangeListener(tfFromListener);
 		return BasicComponentFactory.createComboBox(selectionInList);
 	}
+	
+	private JComboBox createSigFromComboBox(){
+		sigFromModel = new ArrayListModel<String>();
+		sigFromModel.add("From Sets");
+		sigFromModel.add("From File");
+		SigFromListener sigFromListener= new SigFromListener();
+		SelectionInList<String> selectionInList=new SelectionInList<String>((ListModel)tfFromModel);
+		selectionInList.addPropertyChangeListener(sigFromListener);
+		return BasicComponentFactory.createComboBox(selectionInList);
+	}
+	
 
 	private class AdjListener implements PropertyChangeListener {
 		HashMap<String, AdjacencyMatrixDataSet> adjMatrix;
@@ -304,18 +365,20 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 	public String getCorrection(){
 		return correctionHolder.getValue().toString();
 	}
-	public double getPValue(){
-		return Double.valueOf(pValueTextField.getText());
-	}
-	public void setPValue(double d){
-		pValueTextField.setText(Double.toString(d));
-	}
+	 
 	public String getTranscriptionFactor(){
 		return TFGeneListTextField.getText();
 	}
 	public void setTranscriptionFactor(String TFString){
 		TFGeneListTextField.setText(TFString);
 	}
+	public String getSigMarkers(){
+		return sigGeneListTextField.getText();
+	}
+	public void setSigMarkers(String sigString){
+		sigGeneListTextField.setText(sigString);
+	}
+	
 	public TtestAnalysisPanel getTTestPanel(){
 		return tTestPanel;
 	}
@@ -373,11 +436,11 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
     	if (parameters==null) return;	//FIXME: this is a quick patch for 0001691, should fix it correctly.
     	if (getStopNotifyAnalysisPanelTemporaryFlag()==true) return;
     	stopNotifyAnalysisPanelTemporary(true);
-    	tTestPanel.setParameters(parameters);
-    	double d = (Double)parameters.get("alpha");
-    	setPValue(d);
+    	tTestPanel.setParameters(parameters);    	 
     	String TF = (String)parameters.get("TF");
     	setTranscriptionFactor(TF);
+    	String sigMarkers = (String)parameters.get("sigMarkers");
+    	setSigMarkers(sigMarkers);
     	networkFrom.setSelectedIndex((Integer)parameters.get("networkFrom"));
     	networkTextField.setText((String)parameters.get("networkField"));
     	if (maSet!=null){
@@ -387,6 +450,7 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 			this.adjMatrix.put("adjMatrix", adjMatrix2);
     	}
     	tfFrom.setSelectedIndex((Integer)parameters.get("tfFrom"));
+    	sigFrom.setSelectedIndex((Integer)parameters.get("sigFrom"));
     	stopNotifyAnalysisPanelTemporary(false);
     }
     
@@ -396,12 +460,13 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
 	 */
     public Map<Serializable, Serializable> getParameters() {
-    	Map<Serializable, Serializable> answer = tTestPanel.getParameters();
-    	answer.put("alpha",getPValue());
+    	Map<Serializable, Serializable> answer = tTestPanel.getParameters();   
     	answer.put("TF",getTranscriptionFactor());
+    	answer.put("sigMarkers",getSigMarkers());
     	answer.put("networkFrom", networkFrom.getSelectedIndex());
     	answer.put("networkField", networkTextField.getText());
     	answer.put("tfFrom", tfFrom.getSelectedIndex());
+    	answer.put("sigFrom", sigFrom.getSelectedIndex());
     	return answer;
     }
 	@Override
@@ -423,6 +488,20 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 				targetComboModel.setSelectedItem(label);				
 			}
 		}
+		
+		String currentSigSet = (String) aspp.sigGroups.getSelectedItem();
+		DefaultComboBoxModel sigComboModel = (DefaultComboBoxModel) aspp.sigGroups.getModel();
+		sigComboModel.removeAllElements();
+		sigComboModel.addElement(" ");
+		sigGeneListTextField.setText("");
+		for (DSPanel<DSGeneMarker> panel : selectorPanel.panels()) {
+			String label = panel.getLabel().trim();
+			sigComboModel.addElement(label);
+			if (StringUtils.equals(label, currentSigSet.trim())){
+				sigComboModel.setSelectedItem(label);				
+			}
+		}
+		
 	}	
 	
 	
