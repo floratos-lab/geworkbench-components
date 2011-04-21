@@ -59,8 +59,6 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 
 	private MindyParamPanel paramPanel;
 
-	private DSDataSet data;
-
 	private MindyDataSet mindyDataSet;
 
 	private final String analysisName = "Mindy";
@@ -113,7 +111,7 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 			return new AlgorithmExecutionResults(false, "Invalid input.", null);
 		}
 		log.debug("input: " + input);
-		DSMicroarraySetView<DSGeneMarker, DSMicroarray> inputSetView = (DSMicroarraySetView) input;
+		DSMicroarraySetView<DSGeneMarker, DSMicroarray> inputSetView = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
 		DSPanel<DSMicroarray> arraySet = null;
 		if (inputSetView.useItemPanel())
 			arraySet = inputSetView.getItemPanel();
@@ -342,7 +340,7 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 
 	@Subscribe
 	public void receive(ProjectEvent e, Object source) {
-		data = e.getDataSet();
+		DSDataSet<?> data = e.getDataSet();
 		if ((data != null) && (data instanceof DSMicroarraySet)) {
 			((MindyParamPanel) aspp).setDataSet(data);
 		}
@@ -424,7 +422,7 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 		}
 
 
-		private MindyData createMindyData(MindyResults results, CSMicroarraySet arraySet, ArrayList<DSMicroarray> arrayForMindyRun, float setFraction, DSGeneMarker transFac){
+		private MindyData createMindyData(MindyResults results, CSMicroarraySet<DSMicroarray> arraySet, ArrayList<DSMicroarray> arrayForMindyRun, float setFraction, DSGeneMarker transFac){
 			MindyData mindyData = new MindyData(arraySet, arrayForMindyRun, setFraction, transFac);
 
 			processResults(mindyData, results, arraySet);
@@ -439,7 +437,7 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 		 * @param arraySet
 		 * @param mindyData
 		 */
-		private void processResults(MindyData mindyData, MindyResults results, CSMicroarraySet arraySet) {
+		private void processResults(MindyData mindyData, MindyResults results, CSMicroarraySet<DSMicroarray> arraySet) {
 			int numWithSymbols = 0;
 			List<MindyResultRow> dataRows = new ArrayList<MindyResultRow>();
 
@@ -492,16 +490,11 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 				mindyData.initFilteredModulatorInfoMap();
 			}
 
-//			mindyData.setData(dataRows);
-
-//			mindyData.calculateModulatorInfo(false);
-
 			if (numWithSymbols > 0)
 				mindyData.setAnnotated(true);
 		}
 
 
-		@SuppressWarnings("unchecked")
 		public void run() {
 			log.debug("Running MINDY algorithm...");
 			Mindy mindy = new Mindy();
@@ -531,8 +524,7 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 
 			progressBar.setMessage("Processing MINDY Results");
 
-//			MindyData loadedData = new MindyData(results, (CSMicroarraySet) mSet, arrayForMindyRun, setFraction, transFac);
-			MindyData loadedData = createMindyData(results, (CSMicroarraySet) mSet, arrayForMindyRun, setFraction, transFac);
+			MindyData loadedData = createMindyData(results, (CSMicroarraySet<DSMicroarray>) mSet, arrayForMindyRun, setFraction, transFac);
 
 			mindyDataSet = new MindyDataSet(mSet, "MINDY Results", loadedData,
 					candidateModFile);
@@ -564,6 +556,7 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 			progressBar.stop();
 		}
 
+		@SuppressWarnings("deprecation")
 		public void update(java.util.Observable ob, Object o) {
 			log.debug("initiated close");
 			log.warn("Cancelling Mindy Analysis.");
@@ -705,7 +698,7 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 			return new ParamValidationResults(false,
 					"Not enough markers in the microarrays. (Need at least 2)\n");
 		}
-		ArrayList<Marker> modulators = new ArrayList<Marker>();
+
 		ArrayList<String> modulatorGeneList = params.getModulatorGeneList();
 		if ((modulatorGeneList != null) && (modulatorGeneList.size() > 0)) {
 			for (String modGene : modulatorGeneList) {
@@ -722,7 +715,7 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 			return new ParamValidationResults(false,
 					"No modulator specified.\n");
 		}
-		ArrayList<Marker> targets = new ArrayList<Marker>();
+
 		ArrayList<String> targetGeneList = params.getTargetGeneList();
 		if ((targetGeneList != null) && (targetGeneList.size() > 0)) {
 			for (String modGene : targetGeneList) {
@@ -734,7 +727,7 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 				}
 			}
 		}
-		ArrayList<Marker> dpiAnnots = new ArrayList<Marker>();
+
 		ArrayList<String> dpiAnnotList = params.getDPIAnnotatedGeneList();
 		for (String modGene : dpiAnnotList) {
 			DSGeneMarker marker = mSet.getMarkers().get(modGene);

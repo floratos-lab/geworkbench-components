@@ -1144,7 +1144,7 @@ public class MindyPlugin extends JPanel {
 					}
 				}
 				mindyVisualComponent
-						.publishSubpanelChangedEvent(new SubpanelChangedEvent(
+						.publishSubpanelChangedEvent(new SubpanelChangedEvent<DSGeneMarker>(
 								DSGeneMarker.class, subpanel,
 								SubpanelChangedEvent.NEW));
 				return;
@@ -1153,12 +1153,12 @@ public class MindyPlugin extends JPanel {
 			// Checking to see if a subpanel already has the same label
 			if ((mindyVisualComponent.getSelectorPanel() != null)
 					&& (mindyVisualComponent.getSelectorPanel().panels() != null)) {
-				DSPanel selectorPanel = mindyVisualComponent.getSelectorPanel();
+				DSPanel<DSGeneMarker> selectorPanel = mindyVisualComponent.getSelectorPanel();
 				for (int i = 0; i < selectorPanel.panels().size(); i++) {
 					Object o = selectorPanel.panels().get(i);
 					if ((o instanceof DSPanel)
-							&& ((DSPanel) o).getLabel().equals(tmpLabel)) {
-						subpanel = ((DSPanel) o);
+							&& ((DSPanel<DSGeneMarker>) o).getLabel().equals(tmpLabel)) {
+						subpanel = ((DSPanel<DSGeneMarker>) o);
 						for (int j = 0; j < selections.size(); j++) {
 							Object oo = selections.get(j);
 							if (oo instanceof DSGeneMarker) {
@@ -1173,7 +1173,7 @@ public class MindyPlugin extends JPanel {
 							}
 						}
 						mindyVisualComponent
-								.publishSubpanelChangedEvent(new SubpanelChangedEvent(
+								.publishSubpanelChangedEvent(new SubpanelChangedEvent<DSGeneMarker>(
 										DSGeneMarker.class, subpanel,
 										SubpanelChangedEvent.SET_CONTENTS));
 						return;
@@ -1204,7 +1204,7 @@ public class MindyPlugin extends JPanel {
 							}
 						}
 						mindyVisualComponent
-								.publishSubpanelChangedEvent(new SubpanelChangedEvent(
+								.publishSubpanelChangedEvent(new SubpanelChangedEvent<DSGeneMarker>(
 										DSGeneMarker.class, subpanel,
 										SubpanelChangedEvent.SET_CONTENTS));
 						return;
@@ -1224,7 +1224,7 @@ public class MindyPlugin extends JPanel {
 					}
 				}
 				mindyVisualComponent
-						.publishSubpanelChangedEvent(new SubpanelChangedEvent(
+						.publishSubpanelChangedEvent(new SubpanelChangedEvent<DSGeneMarker>(
 								DSGeneMarker.class, subpanel,
 								SubpanelChangedEvent.NEW));
 			}
