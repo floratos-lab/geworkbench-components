@@ -65,19 +65,10 @@ public class MultipleEntrezGeneIDFilter extends FilteringAnalysis {
 	@SuppressWarnings("unchecked")
 	private List<Integer> remove(DSMicroarraySet<?> input) {
 		maSet = (DSMicroarraySet<DSMicroarray>) input;
-		DSItemList<DSGeneMarker> dsItemList = maSet.getMarkers();
-
-		createFilterLists(dsItemList);
+		DSItemList<DSGeneMarker> dsItemList = maSet.getMarkers();		
 		
 		List<Integer> removeList = new ArrayList<Integer>();
-
-		if (filterNoEntrezID) {
-			removeList.addAll(noEntrezIDList);
-		}
-
-		if (filterMultipleEntrezIDs) {
-			removeList.addAll(multipleEntrezIDsList);
-		}
+		removeList.addAll(createFilterLists(dsItemList));
 
 		return removeList;
 	}
