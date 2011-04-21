@@ -278,7 +278,13 @@ public class TableViewer extends JPanel {
 					myString = ((JLabel) (myObject)).getText();
 					otherString = ((JLabel) (otherObject)).getText();
 					return myString.compareTo(otherString);
-				} else
+				}else if (myObject instanceof JRadioButton)
+				{
+					myString = ((JRadioButton) (myObject)).getText();
+					otherString = ((JRadioButton) (otherObject)).getText();
+					return myString.compareTo(otherString);
+				}
+				else
 					return index - otherRow.index;
 			}
 		}
