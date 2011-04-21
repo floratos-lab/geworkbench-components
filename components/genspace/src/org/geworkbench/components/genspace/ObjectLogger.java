@@ -124,7 +124,6 @@ public class ObjectLogger {
 					}
 					catch(Exception ex)
 					{
-						ex.printStackTrace();
 						//be silent on errors... if we get them, we'll just log to the file instead
 					}
 					
