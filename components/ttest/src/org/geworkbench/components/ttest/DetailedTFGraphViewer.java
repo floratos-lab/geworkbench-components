@@ -125,6 +125,7 @@ public class DetailedTFGraphViewer extends JPanel {
 							.get(cx);
 					double tValue = mraResultSet.getSignificanceResultSet()
 					.getTValue(marker);	
+					
 					Integer rank = Gene2RankMap.get(marker);
 					if (rank != null && rank.intValue() == i) {
 						if (mraResultSet.getPValueOf(tfA, marker) <= pValue) {
@@ -138,12 +139,16 @@ public class DetailedTFGraphViewer extends JPanel {
 							arrayData[1] = arrayData2;
 							SR.addData(arrayData);
 							Color save = g.getColor();
-							if (SR.getR() >= 0) {
-								int center = (int) (width / 2 + width * Math.abs(tValue) / maxTValue);							 
+							int center = 0;
+							if (tValue >= 0)
+								center = (int) (width / 2 + width * Math.abs(tValue) / Math.max(Math.abs(minTValue), Math.abs(maxTValue)));	
+							else
+								center = (int) (width / 2 - width * Math.abs(tValue) / Math.max(Math.abs(minTValue), Math.abs(maxTValue)));
+							
+							if (SR.getR() >= 0) {								 
 								g.setColor(Color.BLACK);
 								g.drawLine(center, 0, center, height * 1 / 3);
-							} else {								
-								int center = (int) (width / 2 - width * Math.abs(tValue) / maxTValue);
+							} else {							 
 								g.setColor(Color.ORANGE);
 								g.drawLine(center, height * 1 / 3, center,
 										height * 2 / 3);
