@@ -372,9 +372,8 @@ class ModulatorTargetModel extends DefaultTableModel {
 		 *            column index
 		 * @return the class object representing the table column
 		 */
-		@SuppressWarnings("unchecked")
 		@Override
-		public Class getColumnClass(int columnIndex) {
+		public Class<?> getColumnClass(int columnIndex) {
 			if (columnIndex == 0 || columnIndex == 2) {
 				return Boolean.class;
 			} else if (columnIndex == columnNames.length - 1) {

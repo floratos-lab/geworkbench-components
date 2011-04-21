@@ -1,4 +1,4 @@
-package org.geworkbench.components.mindy;
+package org.geworkbench.components.mindy.test;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -26,7 +26,8 @@ public class MindyResultsParser {
 	 * @return - Data formatted for MINDY a la MindyData class.
 	 * @throws IOException
 	 */
-    public static MindyData parseResults(CSMicroarraySet maSet, File resultsFile) throws IOException {
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	public static MindyData parseResults(CSMicroarraySet maSet, File resultsFile) throws IOException {
         List<MindyResultRow> rows = new ArrayList<MindyResultRow>();
         BufferedReader in = new BufferedReader(new FileReader(resultsFile));
 
@@ -36,11 +37,11 @@ public class MindyResultsParser {
         String line = in.readLine();
         while (line != null) {
             String[] tokens = line.split("\t");
-            DSGeneMarker transFac = maSet.getMarkers().get(tokens[0]);
+
             DSGeneMarker hub = maSet.getMarkers().get(tokens[1]);
             DSGeneMarker target = maSet.getMarkers().get(tokens[2]);
             float score = Float.valueOf(tokens[3]);
-            float pvalue = Float.valueOf(tokens[4]);
+
             rows.add(new MindyResultRow(hub, target, score));
 
             line = in.readLine();

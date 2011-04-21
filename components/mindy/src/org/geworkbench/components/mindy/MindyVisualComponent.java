@@ -89,7 +89,6 @@ public class MindyVisualComponent implements VisualPlugin, java.util.Observer {
 	 * @param source -
 	 *            source of the ProjectEvent
 	 */
-	@SuppressWarnings("unchecked")
 	@Subscribe(Asynchronous.class)
 	public void receive(ProjectEvent projectEvent, Object source) {
 		/*  added to preconditions checks,
@@ -102,7 +101,7 @@ public class MindyVisualComponent implements VisualPlugin, java.util.Observer {
         	return;
         }
 
-		DSDataSet data = projectEvent.getDataSet();
+		DSDataSet<?> data = projectEvent.getDataSet();
 		if ( data == null || !(data instanceof MindyDataSet) ) 
 			return;
 		
@@ -171,14 +170,8 @@ public class MindyVisualComponent implements VisualPlugin, java.util.Observer {
 
 					// Register the mindy plugin with our hashtable for keeping
 					// track
-					if (mindyPlugin != null)
-						ht.put(node, mindyPlugin);
-					else {
-						log
-								.error("Failed to create MINDY plugin for project node: "
-										+ node);
-						return;
-					}
+					ht.put(node, mindyPlugin);
+					
 					if (stopDrawing) {
 						stopDrawing = false;
 						progressBar.stop();
@@ -245,10 +238,9 @@ public class MindyVisualComponent implements VisualPlugin, java.util.Observer {
 	 *            SubpanelChangedEvent
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	@Publish
-	public SubpanelChangedEvent publishSubpanelChangedEvent(
-			SubpanelChangedEvent e) {
+	public SubpanelChangedEvent<DSGeneMarker> publishSubpanelChangedEvent(
+			SubpanelChangedEvent<DSGeneMarker> e) {
 		return e;
 	}
 
