@@ -114,7 +114,6 @@ public class MarkerSelectionPanel extends JPanel implements Observer {
     	CyNetworkView view = Cytoscape.getCurrentNetworkView();
 
 		if (view != null && Cytoscape.getCurrentNetwork() != null) {		 
-			CyAttributes nodeAttrs = Cytoscape.getNodeAttributes();	 
 			CyAttributes edgeAttrs = Cytoscape.getEdgeAttributes();	 
 			Iterator<?> iter = view.getEdgeViewsIterator();
 		 		
@@ -126,11 +125,8 @@ public class MarkerSelectionPanel extends JPanel implements Observer {
                 String gene1 =  source.getIdentifier();
                 String gene2 =  target.getIdentifier();
               
-                Integer serial1 = null, serial2 = null;		    		 
 	    		String  interactionType = null;
 	    		
-	    		serial1 = nodeAttrs.getIntegerAttribute(gene1, "serial");
-	    		serial2 = nodeAttrs.getIntegerAttribute(gene2, "serial");
 	    		interactionType = edgeAttrs.getStringAttribute(edgeView.getEdge().getIdentifier(), "type");
 	    	    if (interactionType != null && !interactionType.trim().equals(""))
 	    	    {
@@ -138,8 +134,8 @@ public class MarkerSelectionPanel extends JPanel implements Observer {
 	    	    }
 	    	    
 	    	    DSItemList<DSGeneMarker> markers = origMatrix.getMicroarraySet().getMarkers();
-				DSGeneMarker marker1 = markers.get(serial1);
-				DSGeneMarker marker2 = markers.get(serial2);
+				DSGeneMarker marker1 = markers.get(gene1);
+				DSGeneMarker marker2 = markers.get(gene2);
 	    		if ( selectedGeneList.contains(gene1) && selectedGeneList.contains(gene2) )
 	    		{
 	    			matrix.add(new AdjacencyMatrix.Node(marker1), new AdjacencyMatrix.Node(marker2), 0.8f, interactionType);
