@@ -262,7 +262,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 		AdjacencyMatrix matrix = new AdjacencyMatrix(null, mSet);
 
 		int nNode = 0, nEdge = 0;
-		if (prune) {
+		if (!prune) {
 			for (String node : graph.getNodes()) {
 				DSGeneMarker marker = mSet.getMarkers().get(node);
 				matrix.addGeneRow(new AdjacencyMatrix.Node(marker));
@@ -275,23 +275,27 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 						graphEdge.getNode2());
 				matrix.add(new AdjacencyMatrix.Node(marker1),
 						new AdjacencyMatrix.Node(marker2),
-						graphEdge.getWeight());
+						graphEdge.getWeight(), null);
 				nEdge++;
 			}
 		} else {
 			for (String node : graph.getNodes()) {
-				matrix.addGeneRow(new AdjacencyMatrix.Node(NodeType.STRING, node));
+				DSGeneMarker marker = mSet.getMarkers().get(node);
+				matrix.addGeneRow(new AdjacencyMatrix.Node(NodeType.STRING, marker.getGeneName()));
 				nNode++;
 			}
 			for (GraphEdge graphEdge : graph.getEdges()) {
-				matrix.add(new AdjacencyMatrix.Node(NodeType.STRING, graphEdge.getNode1()),
-						new AdjacencyMatrix.Node(NodeType.STRING, graphEdge.getNode2()),
-						graphEdge.getWeight(), null);
+				DSGeneMarker marker1 = mSet.getMarkers().get(
+						graphEdge.getNode1());
+				DSGeneMarker marker2 = mSet.getMarkers().get(
+						graphEdge.getNode2());
+				matrix.add(new AdjacencyMatrix.Node(NodeType.STRING, marker1.getGeneName()),
+						new AdjacencyMatrix.Node(NodeType.STRING, marker2.getGeneName()),
+						graphEdge.getWeight());
 				nEdge++;
 			}
 		}
-		log.debug("node count "+nNode + "; edge count " + nEdge + ". before conversion, node count " + matrix.getNodeNumber() + "; edge count "
-				+ matrix.getEdges().size());
+		log.debug("node count "+nNode + "; edge count " + nEdge);
 		return matrix;
 	}
 
