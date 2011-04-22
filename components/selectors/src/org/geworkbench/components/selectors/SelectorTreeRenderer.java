@@ -1,22 +1,35 @@
 package org.geworkbench.components.selectors;
 
-import javax.swing.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Font;
+
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTree;
+import javax.swing.UIManager;
 import javax.swing.tree.DefaultTreeCellRenderer;
-import java.awt.*;
+
+import org.geworkbench.bison.datastructure.properties.DSSequential;
 
 /**
  * @author John Watkinson
+ * @version $Id$
  */
 public class SelectorTreeRenderer extends DefaultTreeCellRenderer {
 
-    protected JCheckBox checkBox;
+	private static final long serialVersionUID = -4624114008085733267L;
+	
+	protected JCheckBox checkBox;
     private JPanel component;
     protected JLabel cellLabel;
     private Color selectionForeground, selectionBackground, textForeground, textBackground;
     private int checkBoxWidth;
-    protected SelectorPanel selectorPanel;
+    protected SelectorPanel<? extends DSSequential> selectorPanel;
 
-    public SelectorTreeRenderer(SelectorPanel panel) {
+    public SelectorTreeRenderer(SelectorPanel<? extends DSSequential> panel) {
         selectorPanel = panel;
         checkBox = new JCheckBox();
         checkBox.setBackground(Color.WHITE);
@@ -26,12 +39,10 @@ public class SelectorTreeRenderer extends DefaultTreeCellRenderer {
         textBackground = UIManager.getColor("Tree.textBackground");
         checkBoxWidth = checkBox.getPreferredSize().width;
         component = new JPanel();
-        // component.setLayout(new BoxLayout(component, BoxLayout.X_AXIS));
         component.setLayout(new BorderLayout());
         component.setBackground(Color.WHITE);
         component.add(checkBox, BorderLayout.WEST);
         cellLabel = new JLabel("");
-        // cellLabel.setHorizontalAlignment(JLabel.LEFT);
         cellLabel.setOpaque(true);
         cellLabel.setIconTextGap(0);
         component.add(cellLabel, BorderLayout.CENTER);
