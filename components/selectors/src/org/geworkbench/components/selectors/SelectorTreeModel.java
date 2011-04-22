@@ -13,11 +13,12 @@ import java.util.List;
 
 /**
  * @author John Watkinson
+ * @version $Id$
  */
 public class SelectorTreeModel<T extends DSSequential> implements TreeModel {
 
     private DSAnnotationContext<T> context;
-    private List treeModelListeners = new ArrayList();
+    private List<TreeModelListener> treeModelListeners = new ArrayList<TreeModelListener>();
 
     public SelectorTreeModel(DSAnnotationContext<T> context) {
         this.context = context;
@@ -79,7 +80,8 @@ public class SelectorTreeModel<T extends DSSequential> implements TreeModel {
         }
     }
 
-    public int getIndexOfChild(Object parent, Object child) {
+    @SuppressWarnings("unchecked")
+	public int getIndexOfChild(Object parent, Object child) {
         if (parent == context) {
             return context.indexOfLabel((String) child);
         } else if (parent instanceof String) {
