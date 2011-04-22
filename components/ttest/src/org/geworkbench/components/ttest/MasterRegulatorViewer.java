@@ -70,7 +70,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 	TableViewer tv2;
 	String[] columnNames = { "Master Regulator", "P-Value", "Genes in regulon",
 			"Genes in intersection set" };
-	String[] detailColumnNames = { "Genes in target list", /*"P-Value",*/
+	String[] detailColumnNames = { "Genes in intersection set", /*"P-Value",*/
 			"T-Test Value" };
 	DSMasterRagulatorResultSet<DSGeneMarker> MRAResultSet;
 	DetailedTFGraphViewer detailedTFGraphViewer;
@@ -102,7 +102,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		viewPanel.add(topPanel);
 		detailedTFGraphViewer.setPreferredSize(new Dimension(0,90));
 		viewPanel.add(detailedTFGraphViewer);
-		jSplitPane2.setDividerLocation(600);
+		jSplitPane2.setDividerLocation(500);
 		jSplitPane2.setDividerSize(3);
 
 		FormLayout layout = new FormLayout("500dlu:grow, pref",
@@ -315,14 +315,15 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 
 		// build the top-right panel
 		FormLayout detailTFFormLayout = new FormLayout(
-				"80dlu, 6dlu, 120dlu, pref:grow, 60dlu, 6dlu, 60dlu",
+				//"80dlu, 6dlu, 120dlu, pref:grow, 60dlu, 6dlu, 60dlu",
+				"60dlu, 6dlu, 80dlu, pref:grow",
 				"20dlu, pref:grow");
 		DefaultFormBuilder detailTFFormBuilder = new DefaultFormBuilder(
 				detailTFFormLayout);
 		detailTFFormBuilder.append("Master Regulator:");
 		JLabel tfALabelField = BasicComponentFactory.createLabel(tfAHolder);
 		detailTFFormBuilder.append(tfALabelField);
-		// detailTFFormBuilder.nextColumn();
+		//detailTFFormBuilder.nextColumn();
 		//detailTFFormBuilder.append("P-val threshold:");
 		// detailTFFormBuilder.nextColumn();
 
@@ -403,7 +404,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		//detailTFFormBuilder.add(pValueTextField);
 		// detailTFFormBuilder.nextRow();
 		detailTFFormBuilder.nextLine();
-		detailTFFormBuilder.add(tv2, new CellConstraints("1,2,7,1,f,f"));
+		detailTFFormBuilder.add(tv2, new CellConstraints("1,2,4,1,f,f"));
 
 		jSplitPane2.setRightComponent(new JScrollPane(detailTFFormBuilder
 				.getPanel(), JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,

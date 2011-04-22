@@ -49,7 +49,9 @@ import com.jgoodies.forms.layout.FormLayout;
 public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 	private static final long serialVersionUID = -6160058089960168299L;	
  
-	private static final String TFGeneListDefault = ("AFFX-HUMGAPDH/M33197_3_at, AFFX-HUMGAPDH/M33197_5_at, AFFX-HUMGAPDH/M33197_M_at, AFFX-HUMRGE/M10098_3_at, AFFX-HUMRGE/M10098_M_at");
+    private static final float PValueThresholdDefault = 0.05f;
+	//private static final String TFGeneListDefault = ("AFFX-HUMGAPDH/M33197_3_at, AFFX-HUMGAPDH/M33197_5_at, AFFX-HUMGAPDH/M33197_M_at, AFFX-HUMRGE/M10098_3_at, AFFX-HUMRGE/M10098_M_at");
+	private static final String TFGeneListDefault = "";
 	static final String[] DEFAULT_SET = { " " };
 
 	private Log log = LogFactory.getLog(this.getClass());
@@ -58,6 +60,7 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 	private ArrayListModel<String> tfFromModel; //used for 1,0 drop down box
 	private ArrayListModel<String> sigFromModel; //used for 1,0 drop down box
 	private ValueModel correctionHolder; //No correction, Standard Bonferroni, Adj Bonferroni 
+	private JTextField pValueTextField = null;
 	private JTextField TFGeneListTextField = null; //Marker 1, Marker 2...
 	private JTextField networkTextField = null;
 	private JTextField sigGeneListTextField = null;
@@ -101,10 +104,11 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		
 		builder.append("Master Regulators");
 		tfFrom = createTFFromComboBox();
-		tfFrom.setSelectedIndex(1);			//preselect "From File"
+		tfFrom.setSelectedIndex(0);			//preselect "From File"
+		tfFrom.setEnabled(false);
 		//JComboBox tfGroups = createGroupsComboBox();
 		builder.append(tfFrom);
-		tfGroups.setEnabled(false);
+		//tfGroups.setEnabled(false);
 		builder.append(tfGroups);
 		
 		if (TFGeneListTextField == null)
@@ -117,11 +121,11 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		
 		builder.append("Signature Markers");
 		sigFrom = createSigFromComboBox();
-		sigFrom.setSelectedIndex(1);
-		
+		sigFrom.setSelectedIndex(0);
+		sigFrom.setEnabled(false);
 		//preselect "From File"	 
 		builder.append(sigFrom);
-		sigGroups.setEnabled(false);
+		//sigGroups.setEnabled(false);
 		builder.append(sigGroups);
 		
 		if (sigGeneListTextField == null)
@@ -131,6 +135,15 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		loadSigButton.addActionListener(new LoadMarkerFileListener());
 		builder.append(loadSigButton);
 		builder.nextLine();	
+ 
+        builder.appendSeparator("Fisher's Exact T-test Threshold");
+		builder.append("T-test p-value ");
+		if (pValueTextField == null)
+			pValueTextField = new JTextField();
+		pValueTextField.setText(Float.toString(PValueThresholdDefault));
+		builder.append(pValueTextField);
+		builder.nextLine();
+ 
  
 		ArrayList<String> correctionComboBoxStrings = new ArrayList<String>();
 		correctionComboBoxStrings.add("No correction");
@@ -153,6 +166,7 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
     					tfGroups.setSelectedIndex(0);
     					TFGeneListTextField.setText(TFGeneListDefault);
     				}
+    			    
     		}
     	});
         
@@ -171,9 +185,13 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
         
         ParameterActionListener parameterActionListener = new ParameterActionListener(this);       
         TFGeneListTextField.addActionListener(parameterActionListener);
+        sigGeneListTextField.addActionListener(parameterActionListener);
         tTestPanel.setParamActionListener(parameterActionListener);
         networkFrom.addActionListener(parameterActionListener);
         tfFrom.addActionListener(parameterActionListener);
+        sigFrom.addActionListener(parameterActionListener);
+	    pValueTextField.addActionListener(parameterActionListener);
+	
 	}
 	public class LoadNetworkButtonListener implements java.awt.event.ActionListener {
 		private HashMap<String, AdjacencyMatrixDataSet> adjMatrixHolder;
@@ -323,7 +341,7 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 	private JComboBox createTFFromComboBox(){
 		tfFromModel = new ArrayListModel<String>();
 		tfFromModel.add("From Sets");
-		tfFromModel.add("From File");
+		tfFromModel.add("From File");		 
 		TFFromListener tfFromListener= new TFFromListener();
 		SelectionInList<String> selectionInList=new SelectionInList<String>((ListModel)tfFromModel);
 		selectionInList.addPropertyChangeListener(tfFromListener);
@@ -364,6 +382,13 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 	}
 	public String getCorrection(){
 		return correctionHolder.getValue().toString();
+	}
+	 
+	public double getPValue(){
+		return Double.valueOf(pValueTextField.getText());
+	}
+	public void setPValue(double d){
+		pValueTextField.setText(Double.toString(d));
 	}
 	 
 	public String getTranscriptionFactor(){
@@ -451,6 +476,8 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
     	}
     	tfFrom.setSelectedIndex((Integer)parameters.get("tfFrom"));
     	sigFrom.setSelectedIndex((Integer)parameters.get("sigFrom"));
+    	double d = (Double)parameters.get("Fisher's Exact P Value");
+    	setPValue(d);
     	stopNotifyAnalysisPanelTemporary(false);
     }
     
@@ -467,6 +494,7 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
     	answer.put("networkField", networkTextField.getText());
     	answer.put("tfFrom", tfFrom.getSelectedIndex());
     	answer.put("sigFrom", sigFrom.getSelectedIndex());
+    	answer.put("Fisher's Exact P Value",getPValue());
     	return answer;
     }
 	@Override
@@ -479,8 +507,7 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		String currentTargetSet = (String) aspp.tfGroups.getSelectedItem();
 		DefaultComboBoxModel targetComboModel = (DefaultComboBoxModel) aspp.tfGroups.getModel();
 		targetComboModel.removeAllElements();
-		targetComboModel.addElement(" ");
-		TFGeneListTextField.setText(TFGeneListDefault);
+		targetComboModel.addElement(" ");	 
 		for (DSPanel<DSGeneMarker> panel : selectorPanel.panels()) {
 			String label = panel.getLabel().trim();
 			targetComboModel.addElement(label);
