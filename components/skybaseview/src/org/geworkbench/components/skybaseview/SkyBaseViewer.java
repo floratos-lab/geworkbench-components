@@ -14,7 +14,9 @@ import java.awt.Rectangle;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.URL;
@@ -25,6 +27,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Properties;
 import java.util.Vector;
 
 import javax.swing.BoxLayout;
@@ -194,6 +197,8 @@ public class SkyBaseViewer implements VisualPlugin {
 		} else {
 			try {
 				String indexurl = System.getProperty("indexServer.url");
+				Properties p = getProperties("analysis");
+				indexurl = p.getProperty("indexServerURL", indexurl);
 				int id = 0;
 				if (indexurl!=null && (id = indexurl.indexOf("/wsrf/")) > -1)
 					blastroot = indexurl.substring(0, id)+"/SkyBaseData/tmpblast/";
@@ -417,6 +422,22 @@ public class SkyBaseViewer implements VisualPlugin {
 		}
 	}
 
+	private Properties getProperties(String name) throws IOException {
+        File confFile = new File(FilePathnameUtils.getComponentConfigurationSettingsDir(name) + name + ".xml");
+        if (confFile.exists()) {
+            Properties props = new Properties();
+            FileInputStream in = new FileInputStream(confFile);
+            try {
+                props.loadFromXML(in);
+            } finally {
+                in.close();
+            }
+            return props;
+        } else {
+            return new Properties();
+        }
+    }
+	
 	public void add2prj_actionPerformed(java.awt.event.ActionEvent e) {
 		CSProteinStructure dsp = new CSProteinStructure(null, seqid);
 		dsp.setFile(new File(ofname));
