@@ -592,7 +592,7 @@ public class CytoscapeWidget implements VisualPlugin {
 
 				Cytoscape.getNodeAttributes().setAttribute(
 						cyNode.getIdentifier(), "geneName",
-						cyNode.getIdentifier());
+						marker1.getGeneName());
 
 				Cytoscape.getNodeAttributes().setAttribute(
 						cyNode.getIdentifier(), "markerName",
