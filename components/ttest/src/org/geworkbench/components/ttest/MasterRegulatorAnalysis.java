@@ -189,6 +189,9 @@ public class MasterRegulatorAnalysis extends AbstractAnalysis implements
 			int c=z-w;
 			int d=x-z-y+w;
 			double pValue = FishersExactTest.getPValue(a,b,c,d);
+			
+			if ( pValue > mraAnalysisPanel.getPValue())
+				continue;
 
 			DSItemList<DSGeneMarker> nAItemList = new CSItemList<DSGeneMarker>();
 			nAItemList.addAll(nA);
