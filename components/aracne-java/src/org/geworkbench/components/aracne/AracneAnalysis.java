@@ -289,10 +289,8 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 						graphEdge.getWeight(), null);
 				nEdge++;
 			}
-			log.debug(nNode + " " + nEdge + " " + matrix.getNodeNumber() + " "
-					+ matrix.getEdges().size());
 		}
-		log.debug(nNode + " " + nEdge + " " + matrix.getNodeNumber() + " "
+		log.debug("node count "+nNode + "; edge count " + nEdge + ". before conversion, node count " + matrix.getNodeNumber() + "; edge count "
 				+ matrix.getEdges().size());
 		return matrix;
 	}
