@@ -556,10 +556,12 @@ public class CytoscapeWidget implements VisualPlugin {
 
 		if (cp1 != null) {
 			cyNode = Cytoscape.getCyNode(cp1);
+		} else {
+			log.error("Unique ID is null. This should never happen.");
 		}
 
 		if (cyNode == null) { // new node
-			cyNode = Cytoscape.getCyNode(geneIdStr, true);
+			cyNode = Cytoscape.getCyNode(cp1, true);
 			log.debug("I create " + cyNode.getIdentifier());
 			if (cp1 == null) { // not in microarray dataset
 				String n1GeneName = geneIdToNameMap.get(geneIdStr);
