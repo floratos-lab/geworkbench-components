@@ -13,6 +13,7 @@
  mean value of that marker across all microarrays or with
  the mean measurement of all markers in the microarray
  where the missing value is observed."
+  				loadByDefault="true"
  	 >
 		<required-component class="org.geworkbench.components.normalization.NormalizationPanel" />
 		<license><![CDATA[

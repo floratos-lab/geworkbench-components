@@ -10,6 +10,7 @@
 				tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Filtering"
 				description="Filters out markers for which more than a user-specified number or percentage have values
 inside (or outside) a user-defined range."
+ 				loadByDefault="true"
  				category="filter"
 	 >
 		<required-component class="org.geworkbench.components.filtering.FilteringPanel" />

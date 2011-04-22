@@ -11,6 +11,7 @@
 				category="normalizer"
 				description="For each marker profile in a microarray dataset, subtracts the mean
  or median value and then divides by the standard deviation."
+  				loadByDefault="true"
 	 	 >
 		<required-component class="org.geworkbench.components.normalization.NormalizationPanel" />
 		<license><![CDATA[
