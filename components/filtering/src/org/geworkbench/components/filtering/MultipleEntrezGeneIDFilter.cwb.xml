@@ -10,6 +10,7 @@
 				tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Filtering"
 				category="filter"
 				description="Due to incomplete knowledge or error at the time of design, some Affymetrix probesets may have no Entrez Gene ID assigned, or they may have more than one such ID assigned."
+				loadByDefault="true"
 	 >
 		<required-component class="org.geworkbench.components.filtering.FilteringPanel" />
 	 
