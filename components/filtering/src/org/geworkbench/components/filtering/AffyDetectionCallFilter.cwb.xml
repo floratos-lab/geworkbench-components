@@ -12,6 +12,7 @@
 				description="Applicable to Affymetrix data only. Filters out markers for which more than a given 
 percentage or number of measurements have a detection status of any user-defined 
 combination of P, A or M (Present, Absent, Marginal)."
+ 				loadByDefault="true"
 	 >
 		<required-component class="org.geworkbench.components.filtering.FilteringPanel" />
 		<license><![CDATA[
