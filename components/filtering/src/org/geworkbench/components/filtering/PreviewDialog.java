@@ -79,7 +79,7 @@ public class PreviewDialog extends JDialog {
 				s+=ss[ss.length-1];
 			}
 			else{
-				s="---";
+				s=marker.getGeneName();
 			}
 			markerTableModel.setValueAt(s, rowIndex, 1);
 			rowIndex++;
