@@ -1,5 +1,6 @@
 package org.geworkbench.components.filtering;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
@@ -11,10 +12,14 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.border.Border;
+import javax.swing.border.TitledBorder;
 
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.events.listeners.ParameterActionListener;
@@ -47,8 +52,8 @@ public class MultipleEntrezGeneIDFilterPanel extends
 		//actionMap.put(NEW_MARKERS_EXCLUDING_MATCHING_FILTER_OPTION, Action.CREATE_FROM_EXCLUDING);
 	}
 
-	private static final String NO_ENTREZ_IDS = "No Entrez ID";
-	private static final String MULTIPLE_ENTREZ_IDS_OPTION = "Multiple Entrez IDs";
+	private static final String NO_ENTREZ_IDS = "No Entrez Gene ID";
+	private static final String MULTIPLE_ENTREZ_IDS_OPTION = "Multiple Entrez Gene IDs";
 	private static final String FILTER_ACTION_LABEL_SELECTION = "Filter Action Label";
 
 	private JComboBox filterActionSelectionComboBox = new JComboBox(actionMap.keySet().toArray());
@@ -59,7 +64,6 @@ public class MultipleEntrezGeneIDFilterPanel extends
 	private JCheckBox multipleEntrezIDsCheckBox = new JCheckBox(
 			MULTIPLE_ENTREZ_IDS_OPTION);
 	private boolean multipleEntrezIDsStatus;
-
 	public MultipleEntrezGeneIDFilterPanel() {
 
 		noEntrezIDsCheckBox.setSelected(false);
@@ -68,30 +72,34 @@ public class MultipleEntrezGeneIDFilterPanel extends
 		multipleEntrezIDsCheckBox.setSelected(false);
 		multipleEntrezIDsStatus = false;
 
-		JPanel container = new JPanel(new GridLayout(0, 1));
-		container.setPreferredSize(new Dimension(500, 140));
-
-		JLabel filterActionLabel = new JLabel("<html><p>Filter out markers with: </p><p></p></html>");
-		container.add(filterActionLabel);
-		container.add(noEntrezIDsCheckBox);
-		container.add(multipleEntrezIDsCheckBox);
+		
+		JPanel container1 = new JPanel();
+		container1.setLayout(new BoxLayout(container1, BoxLayout.Y_AXIS) );
+		Border border1 = BorderFactory.createEtchedBorder(Color.white,
+	            new Color(165, 163, 151));
+		container1.setBorder(new TitledBorder(border1, "Filter out markers with"));
+		
+		JPanel firstRow=new JPanel();
+		firstRow.setLayout(new FlowLayout(FlowLayout.LEADING) );
+		firstRow.add(new JLabel("  "));
+		firstRow.add(noEntrezIDsCheckBox);
+		JPanel secondRow=new JPanel();
+		secondRow.setLayout(new FlowLayout(FlowLayout.LEADING) );
+		secondRow.add(new JLabel("  "));
+		secondRow.add(multipleEntrezIDsCheckBox);
+		container1.add(firstRow);
+		container1.add(secondRow);
+		
 		noEntrezIDsCheckBox.addItemListener(this);
 		multipleEntrezIDsCheckBox.addItemListener(this);
-
-		container.setAlignmentX(LEFT_ALIGNMENT);
-
-		//JLabel filterOutMarkersLabel = new JLabel("<html><p> </p><p>Filter action: </p></html>");
-		//container.add(filterOutMarkersLabel);
-		//filterActionSelectionComboBox.setSelectedIndex(0);	//default is remove
-		//container.add(filterActionSelectionComboBox);
-
+		
 		ParameterActionListener parameterActionListener = new ParameterActionListener(this);
 		filterActionSelectionComboBox.addActionListener(parameterActionListener);
 		noEntrezIDsCheckBox.addActionListener(parameterActionListener);
 		multipleEntrezIDsCheckBox.addActionListener(parameterActionListener);
 
 		JPanel panel = new JPanel(new FlowLayout());
-		panel.add(container);
+		panel.add(container1);
 		panel.setAlignmentX(LEFT_ALIGNMENT);
 
 		this.add(panel);
