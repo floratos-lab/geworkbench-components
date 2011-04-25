@@ -98,7 +98,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		viewPanel.setLayout(new BoxLayout(viewPanel, BoxLayout.PAGE_AXIS));
 		JPanel topPanel = new JPanel();
 		topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.LINE_AXIS));
-		topPanel.add(jSplitPane2);
+		topPanel.add(jSplitPane2);	 
 		viewPanel.add(topPanel);
 		detailedTFGraphViewer.setPreferredSize(new Dimension(0,90));
 		viewPanel.add(detailedTFGraphViewer);
@@ -110,7 +110,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		DefaultFormBuilder builder = new DefaultFormBuilder(layout);
 
 		FormLayout headerLayout = new FormLayout(
-				"60dlu, 6dlu, 60dlu, 30dlu, 90dlu, 6dlu, 90dlu, 200dlu, 90dlu",
+				"60dlu, 6dlu, 60dlu, 30dlu, 90dlu, 6dlu, 80dlu, 20dlu, 80dlu",
 				"20dlu");
 		DefaultFormBuilder headerBuilder = new DefaultFormBuilder(headerLayout);
 		ActionListener actionListener = new ActionListener() {
@@ -310,9 +310,10 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		summaryTFFormBuilder.add(tv, new CellConstraints("1,1,1,2,f,f"));
 
 		jSplitPane2.setLeftComponent(new JScrollPane(summaryTFFormBuilder
-				.getPanel(), JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
-				JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS));
+				.getPanel(), JScrollPane.VERTICAL_SCROLLBAR_NEVER,
+				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED));
 
+		 
 		// build the top-right panel
 		FormLayout detailTFFormLayout = new FormLayout(
 				//"80dlu, 6dlu, 120dlu, pref:grow, 60dlu, 6dlu, 60dlu",
@@ -405,11 +406,11 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		// detailTFFormBuilder.nextRow();
 		detailTFFormBuilder.nextLine();
 		detailTFFormBuilder.add(tv2, new CellConstraints("1,2,4,1,f,f"));
-
+		 
 		jSplitPane2.setRightComponent(new JScrollPane(detailTFFormBuilder
-				.getPanel(), JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
-				JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS));
-
+				.getPanel(), JScrollPane.VERTICAL_SCROLLBAR_NEVER,
+				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED)); 
+		 
 		detailedTFGraphViewer.setPreferredSize(new Dimension(600, 100));
 		detailedTFGraphViewer.setMinimumSize(new Dimension(50, 50));
 		detailedTFGraphViewer.setBorder(BorderFactory
