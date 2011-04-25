@@ -136,8 +136,8 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		builder.append(loadSigButton);
 		builder.nextLine();	
  
-        builder.appendSeparator("Fisher's Exact T-test Threshold");
-		builder.append("T-test p-value ");
+        builder.appendSeparator("Fisher's Exact Test Threshold");
+		builder.append("P-value ");
 		if (pValueTextField == null)
 			pValueTextField = new JTextField();
 		pValueTextField.setText(Float.toString(PValueThresholdDefault));

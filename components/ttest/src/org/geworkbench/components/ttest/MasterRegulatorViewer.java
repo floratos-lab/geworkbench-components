@@ -68,10 +68,10 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 
 	TableViewer tv;
 	TableViewer tv2;
-	String[] columnNames = { "Master Regulator", "P-Value", "Genes in regulon",
+	String[] columnNames = { "Master Regulator", "FET P-Value", "Genes in regulon",
 			"Genes in intersection set" };
 	String[] detailColumnNames = { "Genes in intersection set", /*"P-Value",*/
-			"T-Test Value" };
+			"T-test t value" };
 	DSMasterRagulatorResultSet<DSGeneMarker> MRAResultSet;
 	DetailedTFGraphViewer detailedTFGraphViewer;
 	boolean useSymbol = true;
@@ -98,7 +98,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		viewPanel.setLayout(new BoxLayout(viewPanel, BoxLayout.PAGE_AXIS));
 		JPanel topPanel = new JPanel();
 		topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.LINE_AXIS));
-		topPanel.add(jSplitPane2);	 
+		topPanel.add(jSplitPane2);
 		viewPanel.add(topPanel);
 		detailedTFGraphViewer.setPreferredSize(new Dimension(0,90));
 		viewPanel.add(detailedTFGraphViewer);
@@ -170,22 +170,23 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 							str += tfA.getLabel() + ", " + tfA.getShortName()
 									+ "\n";
 							writer.write(str);
-							writer.newLine();
+//							writer.newLine();
 							for (DSGeneMarker marker : MRAResultSet
 									.getGenesInTargetList(tfA)) {
-								str = "";
-								str += marker.getLabel() + ", "
+								if (MRAResultSet.getPValueOf(tfA, marker) < (threshold + n)) {
+									str = "";
+									str += marker.getLabel() + ", "
 										+ marker.getShortName() + ", ";
-								str += new Float(MRAResultSet.getPValueOf(tfA,
+									str += new Float(MRAResultSet.getPValueOf(tfA,
 										marker)).toString()
 										+ ", ";
-								str += new Float(MRAResultSet.getTTestValueOf(
+									str += new Float(MRAResultSet.getTTestValueOf(
 										tfA, marker)).toString();
-								if (MRAResultSet.getPValueOf(tfA, marker) < (threshold + n)) {
 									writer.write(str);
 									writer.newLine();
 								}
 							}
+							writer.newLine();
 						}
 						writer.close();
 						JOptionPane.showMessageDialog(null, "File "
@@ -313,7 +314,6 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 				.getPanel(), JScrollPane.VERTICAL_SCROLLBAR_NEVER,
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED));
 
-		 
 		// build the top-right panel
 		FormLayout detailTFFormLayout = new FormLayout(
 				//"80dlu, 6dlu, 120dlu, pref:grow, 60dlu, 6dlu, 60dlu",
@@ -406,11 +406,11 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		// detailTFFormBuilder.nextRow();
 		detailTFFormBuilder.nextLine();
 		detailTFFormBuilder.add(tv2, new CellConstraints("1,2,4,1,f,f"));
-		 
+
 		jSplitPane2.setRightComponent(new JScrollPane(detailTFFormBuilder
 				.getPanel(), JScrollPane.VERTICAL_SCROLLBAR_NEVER,
-				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED)); 
-		 
+				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED));
+
 		detailedTFGraphViewer.setPreferredSize(new Dimension(600, 100));
 		detailedTFGraphViewer.setMinimumSize(new Dimension(50, 50));
 		detailedTFGraphViewer.setBorder(BorderFactory
