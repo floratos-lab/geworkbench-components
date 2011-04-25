@@ -381,7 +381,13 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 	
 	private void refreshGeneView () {
 		if(primaryView.getSelectedComponent()==tableTab) {
-			if(table.getSelectedRow()==-1)return;
+			if(table.getSelectedRow()==-1) {
+				geneListTableModel.setDataVector(null, geneListHeaders);
+				singleGeneTreeRoot.removeAllChildren();
+				singleGeneModel.reload();
+				geneDetails.setText("");
+				return;
+			}
 			
 			int index = table.convertRowIndexToModel( table.getSelectedRow() );
 			if(index>=0 && index<=tableModel.getRowCount()) { // in case the selection is not in the new range
