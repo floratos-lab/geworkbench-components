@@ -145,11 +145,11 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 			public void actionPerformed(ActionEvent e) {
 				double threshold = Double.valueOf(pValueHolder.getValue()
 						.toString());
-				int n = JOptionPane
+				/*int n = JOptionPane
 						.showConfirmDialog(
 								null,
 								"Would you like to use threshold when exporting genes?",
-								"Threshold?", JOptionPane.YES_NO_OPTION);
+								"Threshold?", JOptionPane.YES_NO_OPTION);*/
 				// PS: we don't need to check n, because "threshold+n" will work
 				// as checking.
 				try {
@@ -170,10 +170,9 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 							str += tfA.getLabel() + ", " + tfA.getShortName()
 									+ "\n";
 							writer.write(str);
-//							writer.newLine();
 							for (DSGeneMarker marker : MRAResultSet
 									.getGenesInTargetList(tfA)) {
-								if (MRAResultSet.getPValueOf(tfA, marker) < (threshold + n)) {
+								if (MRAResultSet.getPValueOf(tfA, marker) < threshold) {
 									str = "";
 									str += marker.getLabel() + ", "
 										+ marker.getShortName() + ", ";
@@ -227,7 +226,6 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 											+ detailedTFGraphViewer.tfA
 													.getShortName() + "\n";
 									writer.write(str);
-									writer.newLine();
 									for (DSGeneMarker marker : MRAResultSet
 											.getGenesInTargetList(detailedTFGraphViewer.tfA)) {
 										str = "";
