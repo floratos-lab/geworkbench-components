@@ -59,6 +59,7 @@ import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
+import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
@@ -78,6 +79,7 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.GeneOntologyUtil;
 import org.geworkbench.bison.datastructure.bioobjects.markers.goterms.GOTerm;
+import org.geworkbench.bison.datastructure.bioobjects.markers.goterms.GeneOntologyTree;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
@@ -131,7 +133,7 @@ import org.jfree.ui.RectangleInsets;
  */
 @AcceptTypes( { DSMicroarraySet.class })
 public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
-		implements VisualPlugin, Closable {
+		implements VisualPlugin, Closable, ActionListener {
 
 	private static final long serialVersionUID = 7095407341852521909L;
 
@@ -144,6 +146,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	private static final String[] firstFourColumnLabels = new String[] {
 			Constants.MARKERLABEL, Constants.GENELABEL,
 			Constants.GENETYPELABEL, Constants.GOTERMCOLUMN };
+
+	private static final int ONE_SECOND = 1000;
 
 	private static String[] columnLabels = new String[] {
 			Constants.MARKERLABEL, Constants.GENELABEL,
@@ -229,7 +233,15 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		detailTable.getTableHeader().setEnabled(true);
 		detailTable.setDefaultRenderer(String.class, new ColorRenderer());
 		detailTable.setDefaultRenderer(Integer.class, new IntegerRenderer());
+
+		GeneOntologyTree instance = GeneOntologyTree.getInstance();
+		if(instance==null) {
+			timer = new Timer(ONE_SECOND, this);
+			timer.start();
+		}
 	}
+	
+	private Timer timer;
 
 	public Component getComponent() {
 		return this;
@@ -2070,6 +2082,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 						}
 					}
 					case 2: {
+						GeneOntologyTree instance = GeneOntologyTree.getInstance();
+						if(instance==null) return "pending";
 
 						return GeneOntologyUtil.checkMarkerFunctions(value);
 					}
@@ -2763,4 +2777,17 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	}
 
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		if(e.getSource()!=timer) return;
+		
+		GeneOntologyTree instance = GeneOntologyTree.getInstance();
+		if (instance != null) {
+			activeMarkersTableModel.fireTableDataChanged();
+			previewTableModel.fireTableDataChanged();
+
+			timer.stop();
+			timer = null;
+		}
+	}
 }
