@@ -1327,7 +1327,7 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 		panelTree.setCellRenderer(treeRenderer);
 	}
 
-	private boolean resetContextMode = false;
+	protected boolean resetContextMode = false;
 
 	public void setItemList(DSItemList<T> itemList) {
 		resetContextMode = true;

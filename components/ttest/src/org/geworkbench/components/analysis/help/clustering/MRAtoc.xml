@@ -6,7 +6,7 @@
 
 		<tocitem target="Overview" text="Overview"/>
 		<tocitem target="Setting_up_an_MRA_run" text="Setting up an MRA run"/>
-		<tocitem target="Working_with_and_viewing_the_analysis_results" text="Working with and viewing the analysis results"/>
+		<tocitem target="Viewing_MRA_analysis_results" text="Viewing MRA analysis results"/>
 		<tocitem target="Dataset_History" text="Dataset History"/>
 		<tocitem target="Example_of_running_MRA" text="Example of running MRA"/>
 		<tocitem target="References" text="References"/>

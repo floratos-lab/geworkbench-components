@@ -29,8 +29,10 @@ import org.geworkbench.components.genspace.GenSpace;
 import org.geworkbench.components.genspace.GenSpaceServerFactory;
 import org.geworkbench.components.genspace.RuntimeEnvironmentSettings;
 import org.geworkbench.components.genspace.entity.User;
+import org.geworkbench.components.genspace.entity.UserWorkflow;
 import org.geworkbench.components.genspace.entity.Workflow;
 import org.geworkbench.components.genspace.entity.WorkflowComment;
+import org.geworkbench.components.genspace.entity.WorkflowFolder;
 import org.geworkbench.engine.config.VisualPlugin;
 
 public class WorkflowCommentsPanel extends JPanel implements VisualPlugin,
@@ -158,7 +160,8 @@ ActionListener {
 				} catch (InterruptedException e) {
 					GenSpace.logger.warn("Unable to talk to server", e);
 				} catch (ExecutionException e) {
-					GenSpace.logger.warn("Unable to talk to server", e);
+					GenSpaceServerFactory.handleExecutionException();
+					return;
 				}
 			};
 		};
@@ -182,19 +185,22 @@ ActionListener {
 					WorkflowComment ret =(WorkflowComment) RuntimeEnvironmentSettings.readObject( GenSpaceServerFactory.getWorkflowOps()
 							.addComment(RuntimeEnvironmentSettings.writeObject(wc)));
 					GenSpaceServerFactory.updateCachedUser();
+					if(GenSpaceServerFactory.isLoggedIn())
+					{
+						GenSpace.getInstance().getWorkflowRepository().repositoryPanel.tree.root = (WorkflowFolder) RuntimeEnvironmentSettings.readObject(GenSpaceServerFactory.getUserOps().getRootFolderBytes());
+						GenSpace.getInstance().getWorkflowRepository().repositoryPanel.tree.recalculateAndReload();
+					}
 					return ret;
 				};
 
 				protected void done() {
-					try {
-						WorkflowComment wc = get();
-						if (wc != null) {
-							model.addComment(wc);
+					for(UserWorkflow w : GenSpace.getInstance().getWorkflowRepository().repositoryPanel.tree.root.getWorkflows())
+					{
+						if(w.getWorkflow().getId() == workflow.getId())
+						{
+							GenSpace.getInstance().getWorkflowRepository().workflowCommentsPanel.setData(w.getWorkflow());
+							GenSpace.getInstance().getWorkflowRepository().workflowCommentsPanel.repaint();
 						}
-					} catch (InterruptedException e) {
-						GenSpace.logger.warn("Unable to talk to server", e);
-					} catch (ExecutionException e) {
-						GenSpace.logger.warn("Unable to talk to server", e);
 					}
 				};
 			};

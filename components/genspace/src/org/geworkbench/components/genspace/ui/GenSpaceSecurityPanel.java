@@ -10,6 +10,7 @@ import javax.swing.JTabbedPane;
 
 import org.geworkbench.components.genspace.GenSpace;
 import org.geworkbench.components.genspace.GenSpaceServerFactory;
+import org.geworkbench.components.genspace.RealTimeWorkFlowSuggestion;
 import org.geworkbench.components.genspace.ui.chat.ChatWindow;
 import org.geworkbench.engine.config.VisualPlugin;
 
@@ -64,7 +65,7 @@ public class GenSpaceSecurityPanel extends JPanel implements VisualPlugin,
 			GenSpaceServerFactory.logout();
 			GenSpaceLogin p = new GenSpaceLogin();
 			GenSpace.getInstance().getWorkflowRepository().updateFormFields();
-
+			RealTimeWorkFlowSuggestion.cwf = null;
 			GenSpace.networksPanels.updateFormFields();
 			this.removeAll();
 			this.add(p);

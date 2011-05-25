@@ -7,6 +7,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
+import org.geworkbench.components.genspace.GenSpace;
+
 public class StatusBar extends JPanel{
 	private static final long serialVersionUID = -567366608355501212L;
 	private HashMap<Integer,String> messages;
@@ -46,7 +48,8 @@ public class StatusBar extends JPanel{
 			progressBar.setIndeterminate(true);
 		}
 	}
-	public int start(String message)
+
+	public synchronized int start(String message)
 	{
 		evtCt++;
 		messages.put(evtCt,message);
@@ -54,9 +57,10 @@ public class StatusBar extends JPanel{
 		return evtCt;
 	}
 	
-	public void stop(int n)
+	public synchronized void stop(int n)
 	{
 		messages.remove(n);
 		updateLabel();
+//		GenSpace.logger.info("Called stop, messages = " + messages + "(have " + messages.size() + ")");
 	}
 }

@@ -30,6 +30,7 @@ import javax.swing.text.html.HTMLDocument;
 
 import org.geworkbench.components.genspace.GenSpace;
 import org.geworkbench.components.genspace.GenSpaceServerFactory;
+import org.geworkbench.components.genspace.RuntimeEnvironmentSettings;
 import org.geworkbench.components.genspace.entity.Tool;
 import org.geworkbench.components.genspace.entity.Workflow;
 import org.geworkbench.engine.config.VisualPlugin;
@@ -82,7 +83,8 @@ public class WorkflowStatistics extends JPanel implements VisualPlugin {
 				} catch (InterruptedException e) {
 					GenSpace.logger.debug("Error talking to server: ",e);
 				} catch (ExecutionException e) {
-					GenSpace.logger.debug("Error talking to server: ",e);
+					GenSpaceServerFactory.handleExecutionException();
+					return;
 				}
 				super.done();
 			}
@@ -118,7 +120,8 @@ public class WorkflowStatistics extends JPanel implements VisualPlugin {
 				} catch (InterruptedException e) {
 					GenSpace.logger.debug("Error talking to server: ",e);
 				} catch (ExecutionException e) {
-					GenSpace.logger.debug("Error talking to server: ",e);
+					GenSpaceServerFactory.handleExecutionException();
+					return;
 				}
 				super.done();
 			}
@@ -134,10 +137,11 @@ public class WorkflowStatistics extends JPanel implements VisualPlugin {
 
 	private void updatePopularWorkflows() {
 		SwingWorker<List<Workflow>, Void> worker = new SwingWorker<List<Workflow>, Void>() {
-
+			int evt;
 			@Override
 			protected void done() {
 				try {
+					GenSpace.getStatusBar().stop(evt);
 					List<Workflow> results = get();
 					int lim = 10;
 					int i = 1;
@@ -159,14 +163,16 @@ public class WorkflowStatistics extends JPanel implements VisualPlugin {
 				} catch (InterruptedException e) {
 					GenSpace.logger.debug("Error talking to server",e);
 				} catch (ExecutionException e) {
-					GenSpace.logger.debug("Error talking to server",e);
+					GenSpaceServerFactory.handleExecutionException();
+					return;
 				}
 				super.done();
 			}
 
 			@Override
 			protected List<Workflow> doInBackground() throws Exception {
-				return GenSpaceServerFactory.getUsageOps().getWorkflowsByPopularity();
+				evt = GenSpace.getStatusBar().start("Retrieving popular workflows");
+				return (List<Workflow>) RuntimeEnvironmentSettings.readObject(GenSpaceServerFactory.getUsageOps().getWorkflowsByPopularityBytes());
 			}
 
 		};
@@ -195,7 +201,8 @@ public class WorkflowStatistics extends JPanel implements VisualPlugin {
 				} catch (InterruptedException e) {
 					GenSpace.logger.debug("Error talking to server: ",e);
 				} catch (ExecutionException e) {
-					GenSpace.logger.debug("Error talking to server: ",e);
+					GenSpaceServerFactory.handleExecutionException();
+					return;
 				}
 				super.done();
 			}
@@ -232,7 +239,9 @@ public class WorkflowStatistics extends JPanel implements VisualPlugin {
 				} catch (InterruptedException e) {
 					GenSpace.logger.debug("Error talking to server: ",e);
 				} catch (ExecutionException e) {
-					GenSpace.logger.debug("Error talking to server: ",e);
+					GenSpaceServerFactory.clearCache();
+					updateItemStats();
+					return;
 				}
 
 				super.done();

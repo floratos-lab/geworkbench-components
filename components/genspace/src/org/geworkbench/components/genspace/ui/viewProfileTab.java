@@ -108,6 +108,6 @@ public class viewProfileTab extends SocialTab {
 	public String getName() {
 //		return p.profile.get("first_name") + " " + p.profile.get("last_name")
 //				+ "'s profile";
-		return "";
+		return u.getFullNameWUsername() +"'s genSpace profile";
 	}
 }

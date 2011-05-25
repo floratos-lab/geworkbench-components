@@ -47,7 +47,9 @@ import java.util.concurrent.ExecutionException;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -150,6 +152,12 @@ VisualPlugin {
 					removeFromInbox(wi, model);
 				}
 			}
+			else
+			{
+				JOptionPane.showMessageDialog(this, "Please select an incoming workflow from your inbox\n" +
+																			"before you attempt to add it to your repository or\n" +
+																			"remove it from your inbox","Error",JOptionPane.WARNING_MESSAGE);
+			}
 		}
 
 	}
@@ -172,7 +180,8 @@ VisualPlugin {
 				} catch (InterruptedException e) {
 					GenSpace.logger.warn("Unable to talk to server", e);
 				} catch (ExecutionException e) {
-					GenSpace.logger.warn("Unable to talk to server", e);
+					GenSpaceServerFactory.handleExecutionException();
+					return;
 				}
 			};
 		};
@@ -202,7 +211,8 @@ VisualPlugin {
 				} catch (InterruptedException e) {
 					GenSpace.logger.warn("Unable to talk to server", e);
 				} catch (ExecutionException e) {
-					GenSpace.logger.warn("Unable to talk to server", e);
+					GenSpaceServerFactory.handleExecutionException();
+					return;
 				}
 			};
 		};

@@ -16,6 +16,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
+import javax.media.j3d.RenderingError;
+import javax.media.j3d.RenderingErrorListener;
+import javax.media.j3d.VirtualUniverse;
 import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -107,6 +110,7 @@ public class PCA extends MicroarrayViewEventBase
     private JScrollPane mainScrollPane;
     private Map dataLabelGroups;
     private PCAContent3D pcaContent3D;
+    private RenderingErrorListener errorListener = null;
 
     // principal components currently plotted
     private int[] plottedComps;
@@ -712,6 +716,16 @@ public class PCA extends MicroarrayViewEventBase
                         "\nFor details about downloading and installing Java3D go to https://java3d.dev.java.net");
                 return;
             }
+
+    		if (errorListener == null){
+    		    errorListener = new RenderingErrorListener(){
+        			public void errorOccurred(RenderingError e){
+				    	JOptionPane.showMessageDialog(null, e.getErrorMessage()+"\nOpenGL 1.2 or better is required");
+        			}
+    		    };
+
+    		    VirtualUniverse.addRenderingErrorListener(errorListener);
+    		}
 
             int pc1 = pComp[0]+1;
             int pc2 = pComp[1]+1;

@@ -197,7 +197,7 @@ public class privacyTab extends SocialTab {
 				JLabel renderer = (JLabel) new DefaultListCellRenderer()
 						.getListCellRendererComponent(list, value, index,
 								isSelected, cellHasFocus);
-				renderer.setText(((User) value).getFullName());
+				renderer.setText(((User) value).getFullNameWUsername());
 				return renderer;
 			}
 		});
@@ -243,7 +243,9 @@ public class privacyTab extends SocialTab {
 					} catch (InterruptedException e) {
 						GenSpace.logger.warn("Error",e);
 					} catch (ExecutionException e) {
-						GenSpace.logger.warn("Error",e);
+						GenSpaceServerFactory.clearCache();
+						updateFormFields();
+						return;
 					}
 					DefaultListModel m = new DefaultListModel();
 					ArrayList<Integer> selected = new ArrayList<Integer>();
@@ -282,7 +284,9 @@ public class privacyTab extends SocialTab {
 					} catch (InterruptedException e) {
 						GenSpace.logger.warn("Unable to talk to server", e);
 					} catch (ExecutionException e) {
-						GenSpace.logger.warn("Unable to talk to server", e);
+						GenSpaceServerFactory.clearCache();
+						updateFormFields();
+						return;
 					}
 					DefaultListModel model = new DefaultListModel();
 					ArrayList<Integer> selected = new ArrayList<Integer>();

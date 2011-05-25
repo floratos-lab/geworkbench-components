@@ -8,6 +8,7 @@ import java.util.StringTokenizer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.lang.StringUtils;
 import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.bison.annotation.CSAnnotationContext;
 import org.geworkbench.bison.annotation.CSAnnotationContextManager;
@@ -254,7 +255,7 @@ public class MasterRegulatorAnalysis extends AbstractAnalysis implements
 		return results;
 	}
 
-	/*public ParamValidationResults validateParameters() {
+	public ParamValidationResults validateParameters() {
 		try {
 			if ((mraAnalysisPanel.getPValue() < 0)
 					|| (mraAnalysisPanel.getPValue() > 1)) {
@@ -268,7 +269,7 @@ public class MasterRegulatorAnalysis extends AbstractAnalysis implements
 		ParamValidationResults answer = new ParamValidationResults(true,
 				"validate");
 		return answer;
-	}*/
+	} 
 
 	private String generateHistoryString(
 			DSMicroarraySetView<DSGeneMarker, DSMicroarray> view) {
@@ -343,6 +344,8 @@ public class MasterRegulatorAnalysis extends AbstractAnalysis implements
         	return;
         }
         
+        
+        String currentTargetSet = this.mraAnalysisPanel.getSelectedAdjMatrix();
         this.mraAnalysisPanel.clearAdjMatrixCombobox();
         Enumeration children = dNode.children();
         while (children.hasMoreElements()) {
@@ -350,7 +353,10 @@ public class MasterRegulatorAnalysis extends AbstractAnalysis implements
             if (obj instanceof DataSetSubNode) {
                 DSAncillaryDataSet ads = ((DataSetSubNode) obj)._aDataSet;
                 if (ads instanceof AdjacencyMatrixDataSet) {
-                    this.mraAnalysisPanel.addAdjMatrixToCombobox((AdjacencyMatrixDataSet) ads);
+                    this.mraAnalysisPanel.addAdjMatrixToCombobox((AdjacencyMatrixDataSet) ads);                    
+                    if (currentTargetSet != null && StringUtils.equals(ads.getDataSetName(), currentTargetSet.trim())) {
+                    	mraAnalysisPanel.setSelectedAdjMatrix(ads.getDataSetName());
+        			}
                 }
             }
         }

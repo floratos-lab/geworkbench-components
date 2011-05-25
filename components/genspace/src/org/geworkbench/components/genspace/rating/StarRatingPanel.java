@@ -109,7 +109,8 @@ public class StarRatingPanel extends JPanel implements MouseListener {
 				} catch (InterruptedException e) {
 					GenSpace.logger.warn("Unable to talk to server",e);
 				} catch (ExecutionException e) {
-					GenSpace.logger.warn("Unable to talk to server",e);
+					GenSpaceServerFactory.handleExecutionException();
+					return;
 				}
 				if (rating == null)
 					setClickable(true);
@@ -135,7 +136,8 @@ public class StarRatingPanel extends JPanel implements MouseListener {
 				} catch (InterruptedException e) {
 					GenSpace.logger.warn("Unable to talk to server",e);
 				} catch (ExecutionException e) {
-					GenSpace.logger.warn("Unable to talk to server",e);
+					GenSpaceServerFactory.handleExecutionException();
+					return;
 				}
 				setRatingValue(rating.getOverallRating(),
 						rating.getNumRating());
@@ -173,7 +175,8 @@ public class StarRatingPanel extends JPanel implements MouseListener {
 				} catch (InterruptedException e) {
 					GenSpace.logger.warn("Unable to talk to server",e);
 				} catch (ExecutionException e) {
-					GenSpace.logger.warn("Unable to talk to server",e);
+					GenSpaceServerFactory.handleExecutionException();
+					return;
 				}
 				if (rating == null)
 					setClickable(true);
@@ -204,7 +207,8 @@ public class StarRatingPanel extends JPanel implements MouseListener {
 				} catch (InterruptedException e) {
 					GenSpace.logger.warn("Unable to talk to server",e);
 				} catch (ExecutionException e) {
-					GenSpace.logger.warn("Unable to talk to server",e);
+					GenSpaceServerFactory.handleExecutionException();
+					return;
 				}
 				setRatingValue(rating.getOverallRating(),
 						rating.getNumRating());
@@ -261,7 +265,8 @@ public class StarRatingPanel extends JPanel implements MouseListener {
 				} catch (InterruptedException e) {
 					GenSpace.logger.warn("Unable to talk to server",e);
 				} catch (ExecutionException e) {
-					GenSpace.logger.warn("Unable to talk to server",e);
+					GenSpaceServerFactory.handleExecutionException();
+					return;
 				}
 				if (result == null) {
 					JOptionPane
@@ -303,7 +308,8 @@ public class StarRatingPanel extends JPanel implements MouseListener {
 				} catch (InterruptedException e) {
 					GenSpace.logger.warn("Unable to talk to server",e);
 				} catch (ExecutionException e) {
-					GenSpace.logger.warn("Unable to talk to server",e);
+					GenSpaceServerFactory.handleExecutionException();
+					return;
 				}
 				if (result == null) {
 					JOptionPane

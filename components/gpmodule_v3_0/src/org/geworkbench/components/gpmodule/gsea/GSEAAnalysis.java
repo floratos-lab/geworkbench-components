@@ -21,6 +21,7 @@ import org.genepattern.webservice.Parameter;
 import org.geworkbench.bison.annotation.CSAnnotationContext;
 import org.geworkbench.bison.annotation.CSAnnotationContextManager;
 import org.geworkbench.bison.annotation.DSAnnotationContext;
+import org.geworkbench.bison.annotation.DSAnnotationContextManager;
 import org.geworkbench.bison.datastructure.biocollections.gsea.CSGSEAResultDataSet;
 import org.geworkbench.bison.datastructure.biocollections.gsea.DSGSEAResultDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
@@ -39,10 +40,13 @@ import org.geworkbench.util.ProgressBar;
 
 /**
  * User: nazaire
+ * @version $Id$
  */
 public class GSEAAnalysis extends GPAnalysis
 {
-    private static Log log = LogFactory.getLog(GSEAAnalysis.class);
+	private static final long serialVersionUID = -3885673433288068081L;
+
+	private static Log log = LogFactory.getLog(GSEAAnalysis.class);
 
 	private GSEAProgress progress = new GSEAProgress();
     private DSGSEAResultDataSet gsResultDataSet;
@@ -57,11 +61,79 @@ public class GSEAAnalysis extends GPAnalysis
         //ProjectPanel.setIconForType(DSGSEAResultDataSet.class, GP_ICON);
     }
 
+	// this code is based on the prototype of t-test component
+    /*
+	private static boolean noCaseControl(
+			final DSMicroarraySetView<DSGeneMarker, DSMicroarray> view) {
+		boolean allArrays = !view.useItemPanel();
+		DSAnnotationContextManager manager = CSAnnotationContextManager
+				.getInstance();
+		DSAnnotationContext<DSMicroarray> context = manager
+				.getCurrentContext(view.getDataSet());
+
+		int numExps = view.size();
+		int numberGroupA = 0;
+		int numberGroupB = 0;
+		for (int i = 0; i < numExps; i++) {
+			DSMicroarray ma = view.items().get(i);
+			String[] labels = context.getLabelsForItem(ma);
+			if ((labels.length == 0) && allArrays) {
+				numberGroupB++;
+			}
+			for (String label : labels) {
+				if (context.isLabelActive(label) || allArrays) {
+					String v = context.getClassForLabel(label);
+					if (v.equals(CSAnnotationContext.CLASS_CASE)) {
+						numberGroupA++;
+					} else if (v.equals(CSAnnotationContext.CLASS_CONTROL)) {
+						numberGroupB++;
+					}
+				}
+			}
+		}
+		return (numberGroupA == 0 && numberGroupB == 0);
+	}
+	*/
+
+	private static int numberOfActivatedGroups(
+			final DSMicroarraySetView<DSGeneMarker, DSMicroarray> view) {
+
+		DSAnnotationContextManager manager = CSAnnotationContextManager
+				.getInstance();
+		DSAnnotationContext<DSMicroarray> context = manager
+				.getCurrentContext(view.getDataSet());
+
+		int n = context.getNumberOfLabels();
+		int a = 0;
+		for (int i = 0; i < n; i++) {
+			String label = context.getLabel(i);
+			if (context.isLabelActive(label)) {
+				a++;
+			}
+		}
+		return a;
+	}
+
     public AlgorithmExecutionResults execute(Object input)
     {
 		assert (input instanceof DSMicroarraySetView);
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> view = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
 
+//		if(noCaseControl(view)) {
+//			return new AlgorithmExecutionResults(
+//					false,
+//					"Please activate at least one set of arrays for \"case\", and one set of arrays for \"control\".",
+//					null);
+//		}
+
+		int a = numberOfActivatedGroups(view);
+		if (a != 2) {
+			return new AlgorithmExecutionResults(
+					false,
+					"Please activate two sets of arrays to run this analysis.",
+					null);
+		}
+		
 		task = new Task(view);
 		progress.startProgress();
 		task.execute();

@@ -10,7 +10,7 @@ import java.util.Hashtable;
 
 import javax.swing.JPanel;
 
-import org.apache.commons.math.stat.regression.SimpleRegression;
+import org.apache.commons.math.stat.correlation.SpearmansCorrelation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory; 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
@@ -112,15 +112,15 @@ public class DetailedTFGraphViewer extends JPanel {
 			
 
 			// draw the lines for geneMarkers
-			
+
 			double maxAbsValue = Math.max(Math.abs(minTValue), Math.abs(maxTValue));
-			for (int i = 0; i < numMarkers; i++) {			 		 
+//			for (int i = 0; i < numMarkers; i++) {			 		 
 				DSItemList<DSGeneMarker> genesInRegulonList = mraResultSet.getGenesInRegulon(tfA);					 
 				if (genesInRegulonList == null) { // if user selected wrong
 													// TF, which doesn't have
 													// neighbors
 					System.out.println("Wrong TF");
-					continue;
+					return;//continue;
 				} 
 				for (int cx = 0; cx < genesInRegulonList.size(); cx++) {
 					DSGeneMarker marker = (DSGeneMarker) genesInRegulonList
@@ -128,44 +128,33 @@ public class DetailedTFGraphViewer extends JPanel {
 					double tValue = mraResultSet.getSignificanceResultSet()
 					.getTValue(marker);	
 					
-					Integer rank = Gene2RankMap.get(marker);
-					if (rank != null && rank.intValue() == i) {
+//					Integer rank = Gene2RankMap.get(marker);
+//					if (rank != null && rank.intValue() == i) {
 						if (mraResultSet.getPValueOf(tfA, marker) <= pValue) {
-							SimpleRegression SR = new SimpleRegression();
+							SpearmansCorrelation SC = new SpearmansCorrelation();
+							double spearCor = 0.0;
 							DSMicroarraySet<DSMicroarray> maSet = mraResultSet
 									.getMicroarraySet();
 							double[] arrayData1 = maSet.getRow(tfA);
 							double[] arrayData2 = maSet.getRow(marker);
-							double[][] arrayData = new double[2][arrayData1.length];
-							arrayData[0] = arrayData1;
-							arrayData[1] = arrayData2;
-							SR.addData(arrayData);
-							Color save = g.getColor();
+
+							spearCor = SC.correlation(arrayData1, arrayData2);
+//							Color save = g.getColor();
 							int center = 0;
-							if (tValue >= 0)
-								center = (int) (width / 2 + width * Math.abs(tValue) / maxAbsValue);	
-							else
-								center = (int) (width / 2 - width * Math.abs(tValue) / maxAbsValue);
-							
-							if (SR.getR() >= 0) {								 
-								g.setColor(Color.BLACK);
+							center = (int) ((width / 2) * (1 + tValue / maxAbsValue));
+							if (spearCor >= 0) {							
+								g.setColor(Color.RED);
 								g.drawLine(center, 0, center, height * 1 / 3);
 							} else {							 
-								g.setColor(Color.ORANGE);
+								g.setColor(Color.BLUE);
 								g.drawLine(center, height * 1 / 3, center,
 										height * 2 / 3);
 							}
-
-							g.setColor(save);
+//							g.setColor(save);
 						}
-					}
+//					}
 				} 
-			
-		 
-				
-			 
-				
-			} 
+//			} 
 		}
 	}
 

@@ -12,7 +12,6 @@
 				visualizer="true"
 	 >
 		<required-component class="org.geworkbench.components.gpmodule.classification.svm.SVMTraining" />
-        <required-component class="org.geworkbench.components.gpmodule.classification.cart.CARTTraining" />
 
         <license><![CDATA[
 			<html><head><meta http-equiv=Content-Type content="text/html; charset=windows-1252"></head>

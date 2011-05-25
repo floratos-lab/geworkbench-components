@@ -7,8 +7,8 @@
 	<classpathentry kind="lib" path="lib/commons-cli.jar"/>
 	<classpathentry kind="lib" path="lib/commons-math-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/workbook-0.91.jar"/>
-	<classpathentry kind="lib" path="lib/mindy-0.2a.jar"/>
 	<classpathentry kind="lib" path="lib/aracne1.jar"/>
+	<classpathentry kind="lib" path="lib/MINDY-0.3.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/geworkbench-core"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>

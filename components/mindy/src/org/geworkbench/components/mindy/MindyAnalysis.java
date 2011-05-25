@@ -49,7 +49,7 @@ import edu.columbia.c2b2.mindy.MindyResults;
  * @author ch2514
  * @author zji
  * @author oshteynb
- * @version $id$
+ * @version $Id$
  */
 @SuppressWarnings("serial")
 public class MindyAnalysis extends AbstractGridAnalysis implements
@@ -246,12 +246,29 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 		}
 
 		boolean fullSetMI = false;
+		/* Following code was removed in revision 6475. Per Ken's request, it was put here as a reminder. */
+		/*
+		if (params.getUnconditional().trim().equals(MindyParamPanel.MI)) {
+			fullSetMI = true;
+		}
+		float fullSetThreshold = params.getUnconditionalValue();
+		if ((!fullSetMI)
+				&& (params.getUnconditionalCorrection()
+						.equals(MindyParamPanel.BONFERRONI))) {
+			fullSetThreshold = fullSetThreshold / numMarkers;
+		}
+		 */
 		float fullSetThreshold = 0;
 		boolean subsetMI = false;
 		if (params.getConditional().trim().equals(MindyParamPanel.MI)) {
 			subsetMI = true;
 		}
 		float subsetThreshold = params.getConditionalValue();
+		if ((!subsetMI)
+				&& (params.getConditionalCorrection()
+						.equals(MindyParamPanel.BONFERRONI))) {
+			subsetThreshold = subsetThreshold / numMarkers;
+		}
 
 		paramDescB.append("Conditional:\t");
 		paramDescB.append(params.getConditional());

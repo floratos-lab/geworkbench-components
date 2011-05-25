@@ -734,10 +734,10 @@ public class SequenceRetriever implements VisualPlugin {
 								.getGeneChromosomeMatchers(geneName, database);
 					} catch (SQLException sqle) {
 						JOptionPane.showMessageDialog(null,
-								"Remote server may be unavailable",
-								"Error during sequence query",
+								"SQL Exception:\n"+sqle.getMessage(),
+								"SQL exception during sequence query",
 								JOptionPane.ERROR_MESSAGE);
-						log.error(sqle, sqle);
+						log.warn(sqle);
 						serverWorking = false;
 					}
 					if (geneChromosomeMatchers == null)

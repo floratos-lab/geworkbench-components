@@ -1,9 +1,11 @@
 package org.geworkbench.components.genspace.ui;
 
+import javax.ejb.EJBException;
 import javax.swing.*;
 
 import org.geworkbench.components.genspace.GenSpace;
 import org.geworkbench.components.genspace.GenSpaceServerFactory;
+import org.geworkbench.components.genspace.RuntimeEnvironmentSettings;
 import org.geworkbench.components.genspace.entity.Network;
 import org.geworkbench.components.genspace.entity.User;
 
@@ -12,8 +14,10 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.logging.LogManager;
 
 /**
  * Created by IntelliJ IDEA. User: jon Date: Aug 28, 2010 Time: 12:20:54 PM To
@@ -48,7 +52,7 @@ public class friendsTab extends SocialTab {
 				User u = (User) value;
 				pan.setLayout(new BoxLayout(pan, BoxLayout.Y_AXIS));
 
-				JLabel label = new JLabel(u.getFullName());
+				JLabel label = new JLabel(u.getFullNameWUsername());
 				Font f = new Font(label.getFont().getName(), Font.BOLD, 18);
 				label.setFont(f);
 				label.setForeground(new Color(-16777012));
@@ -120,22 +124,31 @@ public class friendsTab extends SocialTab {
 	}
 
 	@Override
-	public void updateFormFields() {
+	public synchronized void updateFormFields() {
 		if (GenSpaceServerFactory.isLoggedIn()) {
 			SwingWorker<List<User>, Void> worker = new SwingWorker<List<User>, Void>() {
 				int evt;
 				@Override
-				protected List<User> doInBackground()
-						throws Exception {
+				protected List<User> doInBackground() {
+
 					evt = GenSpace.getStatusBar().start("Loading profiles");
-					if (networkFilter == null)
-						return GenSpaceServerFactory.getFriendOps().getFriendsProfiles();
-					else
-						return GenSpaceServerFactory.getNetworkOps().getProfilesByNetwork(networkFilter.getId());
+					try{
+						if (networkFilter == null)
+							return (List<User>) RuntimeEnvironmentSettings.readObject(GenSpaceServerFactory.getFriendOps().getFriendsBytes());
+						else
+							return GenSpaceServerFactory.getNetworkOps().getProfilesByNetwork(networkFilter.getId());
+					}
+					catch(EJBException e)
+					{
+						GenSpace.getStatusBar().stop(evt);
+						return null;
+//						throw e;
+					}
 				}
 
 				@Override
 				protected void done() {
+					GenSpace.logger.info("Done retrieving profiles, calling get");
 					GenSpace.getStatusBar().stop(evt);
 					List<User> lst = null;
 					try {
@@ -143,8 +156,13 @@ public class friendsTab extends SocialTab {
 					} catch (InterruptedException e) {
 						GenSpace.logger.warn("Error",e);
 					} catch (ExecutionException e) {
-						GenSpace.logger.warn("Error",e);
+						GenSpaceServerFactory.clearCache();
+						updateFormFields();
+						return;
 					}
+					GenSpace.logger.info("Done retrieving profiles, also called get!");
+					if(lst == null)
+						return;
 					lst.remove(GenSpaceServerFactory.getUser());
 					Collections.sort(lst,new Comparator<User>() {
 
@@ -159,6 +177,7 @@ public class friendsTab extends SocialTab {
 							model.addElement(t);
 						}
 					myFriendsList.setModel(model);
+					GenSpace.logger.info("All done with refresh");
 				}
 
 			};

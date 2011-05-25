@@ -43,11 +43,11 @@ ActionListener {
 	private WorkflowRepository workflowRepository;
 	private JTextArea textArea;
 //	private Workflow workflow;
-	private JButton sendButton = new JButton("Send");
+	private JButton sendButton = new JButton("Send Selected Workflow");
 	private JButton importButton = new JButton("Import");
 	private JButton exportButton = new JButton("Export");
 	private JButton publishButton = new JButton("Publish");
-	private JButton refreshButton = new JButton("Refresh");
+	private JButton refreshButton = new JButton("Refresh Screen");
 	private final JFileChooser fc = new JFileChooser();
 
 	public WorkflowDetailsPanel(WorkflowRepository workflowRepository) {
@@ -57,14 +57,14 @@ ActionListener {
 		buttonPanel.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
 		sendButton.addActionListener(this);
 		buttonPanel.add(sendButton);
-		importButton.addActionListener(this);
-		buttonPanel.add(importButton);
-		exportButton.addActionListener(this);
-		buttonPanel.add(exportButton);
-		publishButton.addActionListener(this);
-		buttonPanel.add(publishButton);
+//		importButton.addActionListener(this);
+//		buttonPanel.add(importButton);
+//		exportButton.addActionListener(this);
+//		buttonPanel.add(exportButton);
+//		publishButton.addActionListener(this);
+//		buttonPanel.add(publishButton);
 		refreshButton.addActionListener(this);
-		buttonPanel.add(refreshButton);
+//		buttonPanel.add(refreshButton);
 		add(buttonPanel, BorderLayout.NORTH);
 		textArea = new JTextArea();
 		textArea.setEditable(false);
@@ -98,7 +98,7 @@ ActionListener {
 		result += "Creator: " + ( w.getCreator() == null ? "system" : w.getCreator().getUsername()) + "\n";
 		if(w.getCreatedAt() != null)
 			result += "Creation date: " + w.getCreatedAt().toString()	 + "\n";
-		result += "Average rating; " + w.getAvgRating() + "\n";
+		result += "Average rating: " + w.getAvgRating() + "\n";
 		result += "Usage count: " + w.getUsageCount() + "\n";
 		result += "Comments count: " + w.getComments().size() + "\n";
 		result += "Ratings count: " + w.getRatings().size() + "\n";
@@ -155,7 +155,8 @@ ActionListener {
 					} catch (InterruptedException e) {
 						GenSpace.logger.warn("Unable to talk to server", e);
 					} catch (ExecutionException e) {
-						GenSpace.logger.warn("Unable to talk to server", e);
+						GenSpaceServerFactory.handleExecutionException();
+						return;
 					}
 				};
 			};
@@ -233,7 +234,8 @@ ActionListener {
 							} catch (InterruptedException e) {
 								GenSpace.logger.warn("Unable to talk to server", e);
 							} catch (ExecutionException e) {
-								GenSpace.logger.warn("Unable to talk to server", e);
+								GenSpaceServerFactory.handleExecutionException();
+								return;
 							}
 						};
 					};

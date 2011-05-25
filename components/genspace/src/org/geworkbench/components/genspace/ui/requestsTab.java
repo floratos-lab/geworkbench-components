@@ -63,7 +63,9 @@ public class requestsTab extends SocialTab {
 					} catch (InterruptedException e) {
 						GenSpace.logger.warn("Error talking to server",e);
 					} catch (ExecutionException e) {
-						GenSpace.logger.warn("Error talking to server",e);
+						GenSpaceServerFactory.clearCache();
+						updateFormFields();
+						return;
 					}
 					DefaultListModel model = new DefaultListModel();
 					if(requests != null)
@@ -93,7 +95,9 @@ public class requestsTab extends SocialTab {
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					} catch (ExecutionException e) {
-						e.printStackTrace();
+						GenSpaceServerFactory.clearCache();
+						updateFormFields();
+						return;
 					}
 					DefaultListModel model = new DefaultListModel();
 						for (User t : requests) {
@@ -119,7 +123,7 @@ public class requestsTab extends SocialTab {
 				JLabel ret = (JLabel) new DefaultListCellRenderer()
 						.getListCellRendererComponent(list, value, index,
 								isSelected, cellHasFocus);
-				ret.setText(n.getFullName());
+				ret.setText(n.getFullNameWUsername());
 				
 				if (isSelected)
 					ret.setBackground(new Color(205, 220, 243));
@@ -137,7 +141,7 @@ public class requestsTab extends SocialTab {
 						.getListCellRendererComponent(list, value, index,
 								isSelected, cellHasFocus);
 				UserNetwork n = (UserNetwork) value;
-				ret.setText(n.getNetwork().getName() + ": " + n.getUser().getFullName());
+				ret.setText(n.getNetwork().getName() + ": " + n.getUser().getFullNameWUsername());
 
 				if (isSelected)
 					ret.setBackground(new Color(205, 220, 243));
@@ -168,17 +172,22 @@ public class requestsTab extends SocialTab {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				GenSpaceServerFactory.getFriendOps().addFriend(((User) friendsList.getSelectedValue()).getId());
-				updateFormFields();
-
+				if(friendsList.getSelectedValue() != null)
+				{
+					GenSpaceServerFactory.getFriendOps().addFriend(((User) friendsList.getSelectedValue()).getId());
+					updateFormFields();
+				}
 			}
 		});
 		rejectFriendButton.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				GenSpaceServerFactory.getFriendOps().rejectFriend(((User) friendsList.getSelectedValue()).getId());
-				updateFormFields();
+				if(friendsList.getSelectedValue() != null)
+				{
+					GenSpaceServerFactory.getFriendOps().rejectFriend(((User) friendsList.getSelectedValue()).getId());
+					updateFormFields();
+				}
 			}
 		});
 

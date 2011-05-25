@@ -3,8 +3,13 @@
 		<tocitem text="Cellular Network Knowledge Base">
 		
 		<tocitem target="Overview" text="Overview"/>
+		<tocitem target="Requirements" text="Requirements"/>
 		<tocitem target="The_CNKB_graphical_interface" text="The CNKB graphical interface"/>
 		<tocitem target="Working_with_the_CNKB_graphical_interface" text="Working with the CNKB graphical interface"/>
+				<tocitem target="Activated_Marker_List" text="    Activated Marker List"/>
+				<tocitem target="Selected_Marker_List" text="    Selected Marker List"/>
+				<tocitem target="Preferences" text="    Preferences"/>
+				<tocitem target="Throttle_Graph" text="    Throttle Graph"/>
 		<tocitem target="Example_-_Creating_an_interaction_network_and_viewing_it_in_Cytoscape" text="Creating an interaction network and viewing it in Cytoscape"/>
 		<tocitem target="Appendix_-_Data_Sources" text="Appendix - Data Sources"/>
 		<tocitem target="References" text="References"/>

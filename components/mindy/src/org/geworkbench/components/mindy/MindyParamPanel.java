@@ -34,6 +34,7 @@ import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.util.ValidationUtils;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
@@ -738,6 +739,31 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public ParamValidationResults validateParameters() {
+		String conditionalValue = conditional.getText();
+		try {
+			double v = Double.parseDouble(conditionalValue);
+			String conditionl = getConditional();
+			if (conditionl.equals(MI)) {
+				if (v < 0.) {
+					return new ParamValidationResults(false, MI
+							+ " should be greater than or equal to 0.");
+				}
+			} else if (conditionl.equals(P_VALUE)) {
+				if (v > 1. || v < 0.) {
+					return new ParamValidationResults(false, P_VALUE
+							+ " should be between 0 and 1.");
+				}
+			}
+		} catch (NumberFormatException e) {
+			return new ParamValidationResults(false, getConditional()
+					+ " not a number.");
+		}
+
+		return new ParamValidationResults(true, "Mindy Parameter validated");
 	}
 
 }

@@ -6,6 +6,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -14,8 +15,10 @@ import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.geworkbench.components.genspace.entity.User;
+import org.geworkbench.components.genspace.entity.Workflow;
 import org.geworkbench.components.genspace.ui.SocialNetworksHome;
 import org.geworkbench.components.genspace.ui.StatusBar;
 import org.geworkbench.components.genspace.ui.UpdateablePanel;
@@ -37,6 +40,11 @@ public class GenSpace {
 	public static Logger logger = Logger.getLogger(GenSpace.class);
 	public static boolean instrument = false;
 	
+//	static
+//	{
+//		logger.setLevel(Level.INFO);
+//	}
+//	
 	public static StatusBar getStatusBar()
 	{
 		return getInstance().statusBar;
@@ -58,8 +66,22 @@ public class GenSpace {
 	
 	
 	public static void main(String[] args) {
-		@SuppressWarnings("unused")
+//		@SuppressWarnings("unused")
 		GenSpace g = new GenSpace();
+//		List<Workflow> ret = GenSpaceServerFactory.getUsageOps().getAllWorkflowsIncluding(25);
+//		for(Workflow w : ret)
+//		{
+//			for(int i : w.getToolIds())
+//			{
+//				System.out.print(i + " ");
+//			}
+//			System.out.println("");
+//			System.out.println(w.getCachedChildrenCount());
+//			System.out.println(w.getCachedParentId());
+//		}
+//		System.out.println(ret.size());
+//		System.out.println("Done");
+//		System.exit(0);
 	}
 
 	public static SocialNetworksHome networksPanels = new SocialNetworksHome();
