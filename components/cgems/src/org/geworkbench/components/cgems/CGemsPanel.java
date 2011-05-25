@@ -59,7 +59,7 @@ import org.jfree.ui.SortableTableModel;
 /**
  * 
  * @author keshav
- * @version $Id: CGemsPanel.java,v 1.14 2007-01-26 20:46:34 keshav Exp $
+ * @version $Id$
  */
 @AcceptTypes( { DSMicroarraySet.class })
 public class CGemsPanel implements VisualPlugin {
@@ -91,6 +91,8 @@ public class CGemsPanel implements VisualPlugin {
 	 * 
 	 */
 	private class TableModel extends SortableTableModel {
+
+		private static final long serialVersionUID = 5161675173055622999L;
 
 		private SnpAssociationFindingData[] snpAssociationFindingData;
 
@@ -255,11 +257,13 @@ public class CGemsPanel implements VisualPlugin {
 		 * 
 		 * @see org.jfree.ui.SortableTableModel#sortByColumn(int, boolean)
 		 */
+		@SuppressWarnings("rawtypes")
 		public void sortByColumn(final int column, final boolean ascending) {
 			resetIndices();
 			final Comparable[][] columns = { markerData, geneData,
 					snpAssociationFindingData, rankData, pvalData, analysisData };
 			Comparator<Integer> comparator = new Comparator<Integer>() {
+				@SuppressWarnings("unchecked")
 				public int compare(Integer i, Integer j) {
 					if (ascending) {
 						return columns[column][i].compareTo(columns[column][j]);
@@ -290,29 +294,23 @@ public class CGemsPanel implements VisualPlugin {
 			switch (columnIndex) {
 
 			case COL_FINDING:
-				SnpAssociationFindingData snpFinding = snpAssociationFindingData[indices[rowIndex]];
 				String url = removeHtml((String) getValueAt(rowIndex,
 						columnIndex));
 				launchInBrowser(url);
 				break;
 			case COL_ANALYSIS:
-				AnalysisData analysis = analysisData[indices[rowIndex]];
 				// activateAnalysis(analysis);TODO add for analysis
 				break;
 			case COL_GENE:
-				GeneData gene = geneData[indices[rowIndex]];
 				// activateGene(gene);TODO add for gene
 				break;
 			case COL_MARKER:
-				MarkerData marker = markerData[indices[rowIndex]];
 				// activateMarker(marker);TODO add for marker
 				break;
 			case COL_RANK:
-				RankData rank = rankData[indices[rowIndex]];
 				// activateMarker(marker);TODO add for marker
 				break;
 			case COL_PVAL:
-				PValData pval = pvalData[indices[rowIndex]];
 				// activateMarker(marker);TODO add for marker
 				break;
 			}
@@ -324,16 +322,13 @@ public class CGemsPanel implements VisualPlugin {
 	 * @author keshav
 	 * 
 	 */
-	private static class SnpAssociationFindingData implements Comparable {
+	private static class SnpAssociationFindingData implements Comparable<Object> {
 
 		public String name;
-
-		public SNPAnnotation snpAnnotation;
 
 		public SnpAssociationFindingData(String name,
 				SNPAnnotation snpAnnotation) {
 			this.name = name;
-			this.snpAnnotation = snpAnnotation;
 		}
 
 		public int compareTo(Object o) {
@@ -349,16 +344,13 @@ public class CGemsPanel implements VisualPlugin {
 	 * @author keshav
 	 * 
 	 */
-	private static class AnalysisData implements Comparable {
+	private static class AnalysisData implements Comparable<Object> {
 
 		public String name;
-
-		public SNPAssociationAnalysis snpAssociationAnalysis;
 
 		public AnalysisData(String name,
 				SNPAssociationAnalysis snpAssociationAnalysis) {
 			this.name = name;
-			this.snpAssociationAnalysis = snpAssociationAnalysis;
 		}
 
 		public int compareTo(Object o) {
@@ -374,7 +366,7 @@ public class CGemsPanel implements VisualPlugin {
 	 * @author keshav
 	 * 
 	 */
-	private static class GeneData implements Comparable {
+	private static class GeneData implements Comparable<Object> {
 
 		public String name;
 
@@ -395,7 +387,7 @@ public class CGemsPanel implements VisualPlugin {
 	 * @author keshav
 	 * 
 	 */
-	private static class MarkerData implements Comparable {
+	private static class MarkerData implements Comparable<Object> {
 
 		public String name;
 
@@ -416,7 +408,7 @@ public class CGemsPanel implements VisualPlugin {
 	 * @author keshav
 	 * 
 	 */
-	private static class RankData implements Comparable {
+	private static class RankData implements Comparable<Object> {
 
 		public Integer rank;
 
@@ -437,7 +429,7 @@ public class CGemsPanel implements VisualPlugin {
 	 * @author keshav
 	 * 
 	 */
-	private static class PValData implements Comparable {
+	private static class PValData implements Comparable<Object> {
 
 		public Float pval;
 
@@ -575,6 +567,7 @@ public class CGemsPanel implements VisualPlugin {
 		}
 		try {
 			Runnable query = new Runnable() {
+				@SuppressWarnings("unchecked")
 				public void run() {
 					ProgressBar pb = ProgressBar
 							.create(ProgressBar.INDETERMINATE_TYPE);
@@ -616,7 +609,7 @@ public class CGemsPanel implements VisualPlugin {
 							snpAnnotation
 									.setGeneBiomarkerCollection(geneBiomarkerCollection);
 
-							List resultList = null;
+							List<?> resultList = null;
 							try {
 								resultList = appService.search(
 										SNPAssociationFinding.class,
@@ -632,7 +625,7 @@ public class CGemsPanel implements VisualPlugin {
 
 							/* extract the results from the resultList */
 							if (resultList != null) {
-								for (Iterator resultsIterator = resultList
+								for (Iterator<?> resultsIterator = resultList
 										.iterator(); resultsIterator.hasNext();) {
 									SNPAssociationFinding returnedObj = (SNPAssociationFinding) resultsIterator
 											.next();
@@ -764,26 +757,6 @@ public class CGemsPanel implements VisualPlugin {
 
 	/**
 	 * 
-	 * @param geneBiomarkerCollection
-	 * @return String
-	 */
-	public static String pipeGeneBiomarkers(Collection geneBiomarkerCollection) {
-		String geneList = "";
-		if (geneBiomarkerCollection != null) {
-			for (Object object : geneBiomarkerCollection) {
-				GeneBiomarker geneBiomarker = (GeneBiomarker) object;
-				geneList = geneList + geneBiomarker.getHugoGeneSymbol() + "|";
-			}
-			// remove Last |
-			if (geneList.endsWith("|")) {
-				geneList = geneList.substring(0, geneList.lastIndexOf("|"));
-			}
-		}
-		return geneList;
-	}
-
-	/**
-	 * 
 	 * @param e
 	 */
 	private void clearButton_actionPerformed(ActionEvent e) {
@@ -816,12 +789,6 @@ public class CGemsPanel implements VisualPlugin {
 	}
 
 	@Publish
-	public org.geworkbench.events.SubpanelChangedEvent publishSubpanelChangedEvent(
-			org.geworkbench.events.SubpanelChangedEvent event) {
-		return event;
-	}
-
-	@Publish
 	public AnnotationsEvent publishAnnotationsEvent(AnnotationsEvent ae) {
 		return ae;
 	}
@@ -847,7 +814,7 @@ public class CGemsPanel implements VisualPlugin {
 
 	private ApplicationService appService = null;
 
-	private DSMicroarraySet maSet = null;
+	private DSMicroarraySet<DSMicroarray> maSet = null;
 
 	JButton clearButton = new JButton();
 
@@ -878,11 +845,12 @@ public class CGemsPanel implements VisualPlugin {
 	 * @param e
 	 * @param source
 	 */
+	@SuppressWarnings("unchecked")
 	@Subscribe
 	public void receive(ProjectEvent e, Object source) {
-		DSDataSet data = e.getDataSet();
+		DSDataSet<?> data = e.getDataSet();
 		if (data != null && data instanceof DSMicroarraySet) {
-			maSet = (DSMicroarraySet) data;
+			maSet = (DSMicroarraySet<DSMicroarray>) data;
 		}
 	}
 }
