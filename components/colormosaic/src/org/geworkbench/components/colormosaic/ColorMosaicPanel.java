@@ -143,6 +143,7 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
     
     private static final int GENE_HEIGHT = 10;
     private static final int GENE_WIDTH = 20;
+	private static final double displayXFactor = 2/3.0;
     
     private enum searchBy {ARRAYNAME, ACCESSION, LABEL};
 
@@ -663,14 +664,20 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
 			
 			List<DSGeneMarker> markers = markerSet;
 			DSPanel<DSGeneMarker> mp = colorMosaicImage.getPanel();
-			if (mp!=null && mp.size()>0) markers = mp;
+			if (mp!=null && mp.size()>0 && !jAllMarkers.isSelected()) markers = mp;
 
 			int markerNo = markers.size();
 			if (colorMosaicImage.significanceResultSet != null)
 				markerNo = colorMosaicImage.markerList.size();
 			found = false;
-			int xstart = 0;
-			if (chipNo > colorMosaicImage.maxDisplayArray)  xstart = colorMosaicImage.getVWidth();
+			int xstart = colorMosaicImage.getVWidth();
+			if (xstart < 0) xstart = 0;
+			if (xstart > 0){
+				int cstartmax = chipNo - (int)(colorMosaicImage.maxDisplayArray * displayXFactor);
+				if (cstartmax < 0) cstartmax = 0;
+				int xstartmax = cstartmax * colorMosaicImage.geneWidth;
+				if (xstart > xstartmax) xstart = xstartmax;	
+			}
 			for (int idx = Math.abs(offset); idx <= markerNo; idx++) {
 				int i = 0;
 				if (offset < 0)  i = (index + markerNo - idx) % markerNo;

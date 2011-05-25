@@ -8,6 +8,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,10 +32,12 @@ import org.geworkbench.bison.annotation.DSAnnotationContextManager;
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
+import org.geworkbench.bison.datastructure.bioobjects.markers.CSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSSignificanceResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSTTestResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
@@ -377,7 +381,18 @@ public class ExpandMenuListener implements NodeContextMenuListener,
 		}
 	}
 
+	private Comparator<DSGeneMarker> geneSymbolComparator = new Comparator<DSGeneMarker>() {
+		@Override
+		public int compare(DSGeneMarker m1, DSGeneMarker m2) {
+			return m1.getGeneName().compareTo( m2.getGeneName() );
+		}
+	};
+
 	private DSPanel<DSGeneMarker> nodesToMarkers(Set<Node> nodes) {
+		DSItemList<DSGeneMarker> sortedList = new CSItemList<DSGeneMarker>();
+		sortedList.addAll(maSet.getMarkers());
+		Collections.sort(sortedList, geneSymbolComparator);
+		
 		DSPanel<DSGeneMarker> selectedMarkers = new CSPanel<DSGeneMarker>(
 				"Selected Genes", "Cytoscape");
 		for (Node node : nodes) {
@@ -394,7 +409,25 @@ public class ExpandMenuListener implements NodeContextMenuListener,
 									.get(markerId));
 						}
 					}
-
+				} else { // node of the type of gene symbol
+					if(id.trim().equals("---"))continue;
+					
+					int index = Collections.binarySearch(sortedList,
+							new CSGeneMarker(id), geneSymbolComparator);
+					if (index >= 0) {
+						for (int j = index; j < sortedList.size(); j++) {
+							DSGeneMarker marker = sortedList.get(j);
+							if (!marker.getGeneName().equals(id))
+								break;
+							selectedMarkers.add(marker);
+						}
+						for (int j = index - 1; j >= 0; j--) {
+							DSGeneMarker marker = sortedList.get(j);
+							if (!marker.getGeneName().equals(id))
+								break;
+							selectedMarkers.add(marker);
+						}
+					}
 				}
 				if (geneIdToMarkerIdMap.size() == 0)
 
