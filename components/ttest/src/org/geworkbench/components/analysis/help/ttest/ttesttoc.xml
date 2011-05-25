@@ -4,9 +4,13 @@
 
 	<tocitem text="T-Test">
 
-		<tocitem target="T Test" text="T Test"/>
-		<tocitem target="Volcano.Plot" text="Volcano Plot"/>
-
+		<tocitem target="Overview" text="Overview"/>
+		<tocitem target="t-Test_Parameters" text="t-Test Parameters"/>
+		<tocitem target="Example" text="Example"/>
+		<tocitem target="t-Test_Results" text="t-Test Results"/>
+		<tocitem target="Volcano_Plot_Visualizer" text="    Volcano Plot Visualizer"/>
+		<tocitem target="Color_Mosaic_Visualizer" text="    Color Mosaic Visualizer"/>
+		<tocitem target="Overview" text="Overview"/>
 
 	</tocitem>
 

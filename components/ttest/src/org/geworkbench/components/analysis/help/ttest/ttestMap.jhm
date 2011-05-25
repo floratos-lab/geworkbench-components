@@ -6,10 +6,12 @@
 
 <map version="1.0">
 
-	<mapID target="T Test" url="ttest.htm"/>	
-	<mapID target="Volcano.Plot" url="volcano.HTML"/>
-
-	
+	<mapID target="Overview" url="ttest.htm#Overview"/>	
+	<mapID target="t-Test_Parameters" url="ttest.htm#t-Test_Parameters"/>	
+	<mapID target="Example" url="ttest.htm#Example"/>	
+	<mapID target="t-Test_Results" url="ttest.htm#t-Test_Results"/>	
+	<mapID target="Volcano_Plot_Visualizer" url="ttest.htm#Volcano_Plot_Visualizer"/>	
+	<mapID target="Color_Mosaic_Visualizer" url="ttest.htm#Color_Mosaic_Visualizer"/>	
 
 		
 ttest

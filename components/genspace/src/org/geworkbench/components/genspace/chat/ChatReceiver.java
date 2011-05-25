@@ -32,17 +32,7 @@ public class ChatReceiver implements MessageListener, ChatManagerListener {
 	public HashMap<String, ChatWindow> chats = new HashMap<String, ChatWindow>();
 	public static ChatManager manager;
 	public static XMPPConnection connection;
-	public static void main(String[] args) {
-//		XMPPConnection.DEBUG_ENABLED = true;
 
-		ChatReceiver rec = new ChatReceiver();
-		rec.login("jontest", "test123");
-		Scanner s = new Scanner(System.in);
-		while(s.hasNextLine())
-		{
-				break;
-		}
-	}
 	public ChatReceiver() {
 	}
 

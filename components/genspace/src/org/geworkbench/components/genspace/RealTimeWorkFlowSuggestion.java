@@ -26,6 +26,7 @@ import javax.swing.border.MatteBorder;
 import org.geworkbench.components.genspace.entity.Tool;
 import org.geworkbench.components.genspace.entity.Workflow;
 import org.geworkbench.components.genspace.rating.WorkflowVisualizationPopup;
+import org.geworkbench.components.genspace.ui.WorkflowVisualizationPanel;
 import org.geworkbench.engine.config.VisualPlugin;
 
 public class RealTimeWorkFlowSuggestion extends JPanel implements VisualPlugin,
@@ -43,8 +44,9 @@ public class RealTimeWorkFlowSuggestion extends JPanel implements VisualPlugin,
 	public static ArrayList<Workflow> usedWorkFlowToday = new ArrayList<Workflow>();
 //	private static String currentTid = null;
 
+	private static WorkflowVisualizationPanel workflowVisualizationPanel = new WorkflowVisualizationPanel();
 	private static JPanel workflowViewerPanel = new JPanel();
-	private static JPanel workflowNodePanel = new JPanel(new FlowLayout());
+//	private static JPanel workflowNodePanel = new JPanel(new FlowLayout());
 	private static JPanel workflowInfoPanel = new JPanel(new BorderLayout());
 
 	private static WorkflowVisualizationPopup popup = new WorkflowVisualizationPopup();
@@ -116,17 +118,19 @@ public class RealTimeWorkFlowSuggestion extends JPanel implements VisualPlugin,
 		// the viewer panel
 		workflowViewerPanel.setLayout(new BorderLayout());
 		workflowViewerPanel.setBorder(new MatteBorder(10, 10, 10, 10,
-				new Color(35, 35, 142)));
-		workflowViewerPanel.setBackground(new Color(35, 35, 142));
+				new Color(215,217,223)));
+		workflowViewerPanel.setBackground(new Color(215, 217, 223));
 
 		// setup viewer status
-		viewerStatus.setForeground(Color.WHITE);
+//		viewerStatus.setForeground(Color.WHITE);
 		viewerStatus.setText("No analysis has occured yet.");
 		workflowViewerPanel.add(viewerStatus, BorderLayout.NORTH);
-		workflowNodePanel.setBackground(new Color(35, 35, 142));
-		workflowNodePanel.setBorder(new MatteBorder(10, 10, 10, 10, new Color(
-				35, 35, 142)));
-		workflowViewerPanel.add(workflowNodePanel, BorderLayout.CENTER);
+//		workflowNodePanel.setBackground(new Color(35, 35, 142));
+//		workflowNodePanel.setBorder(new MatteBorder(10, 10, 10, 10, new Color(
+//				35, 35, 142)));
+		workflowVisualizationPanel.setSize(workflowViewerPanel.getSize());
+		workflowViewerPanel.add(workflowVisualizationPanel, BorderLayout.CENTER);
+		workflowVisualizationPanel.setSize(workflowViewerPanel.getSize());
 
 		// the info panel
 		workflowInfoPanel.add(new JScrollPane(infoArea));
@@ -137,12 +141,12 @@ public class RealTimeWorkFlowSuggestion extends JPanel implements VisualPlugin,
 		// add both panels
 		this.setLayout(new BorderLayout());
 		JSplitPane splitter = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-		splitter.setDividerLocation(100);
+		splitter.setDividerLocation(150);
 		splitter.setResizeWeight(0.5);
 
-		JScrollPane scroller = new JScrollPane(workflowViewerPanel);
-		scroller.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
-		splitter.add(scroller);
+//		JScrollPane scroller = new JScrollPane(workflowViewerPanel);
+//		scroller.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+		splitter.add(workflowViewerPanel);
 
 		splitter.add(workflowInfoPanel);
 		add(splitter, BorderLayout.CENTER);
@@ -161,7 +165,7 @@ public class RealTimeWorkFlowSuggestion extends JPanel implements VisualPlugin,
 
 		}
 		if (usedWorkFlowToday.size() == 0) {
-			finishedWF = "No finished work flows!";
+			finishedWF = "No finished workflows!";
 		}
 
 		List<Workflow> suggestions = getRealTimeWorkFlowSuggestion(cwf);
@@ -229,7 +233,7 @@ public class RealTimeWorkFlowSuggestion extends JPanel implements VisualPlugin,
 
 		Workflow last = cwf;
 		RealTimeWorkFlowSuggestion.cwf = newCWF;
-		viewerStatus.setText("You most reecently used " + cwf.getTools().get(cwf.getTools().size() -1 ).getTool());
+		viewerStatus.setText("You recently used " + cwf.getTools().get(cwf.getTools().size() -1 ).getTool());
 		displayCWF();
 		
 		if(emptyPanel)
@@ -237,54 +241,13 @@ public class RealTimeWorkFlowSuggestion extends JPanel implements VisualPlugin,
 			
 			emptyPanel = false;
 		}
-		else if(last.equals(newCWF))
-		{
-			workflowNodePanel.add(new JLabel(arrow));
-		}
 		else //this is a different workflow
 		{
 			usedWorkFlowToday.add(last);
-			workflowNodePanel.removeAll();
 		}
 		displayCWF();
 		
-		WorkflowViewerPanelNode newNode = new WorkflowViewerPanelNode(
-			newCWF.getLastTool(), newCWF.getTools().size() - 1,newCWF);
-
-				newNode.addMouseListener(new MouseListener() {
-
-					// @Override
-					@Override
-					public void mouseClicked(MouseEvent event) {
-
-
-						WorkflowViewerPanelNode node = (WorkflowViewerPanelNode) event
-								.getSource();
-
-
-						popup.initialize(node.getTool(), node.getWorkflow());
-						popup.show(node, event.getX(), event.getY());
-
-					}
-
-					@Override
-					public void mouseEntered(MouseEvent e) {
-					}
-
-					@Override
-					public void mouseExited(MouseEvent e) {
-					}
-
-					@Override
-					public void mousePressed(MouseEvent e) {
-					}
-
-					@Override
-					public void mouseReleased(MouseEvent e) {
-					}
-
-				});
-				workflowNodePanel.add(newNode);
+		workflowVisualizationPanel.render(newCWF);
 	}
 
 	private static List<Workflow> getRealTimeWorkFlowSuggestion(Workflow cwf) {

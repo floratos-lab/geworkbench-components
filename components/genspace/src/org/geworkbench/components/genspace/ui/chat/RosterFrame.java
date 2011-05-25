@@ -229,6 +229,13 @@ public class RosterFrame extends javax.swing.JFrame implements RosterListener {
 		}
 	}
 
+	public void setAvailable()
+	{
+		Presence pr = new Presence(Presence.Type.available);
+		pr.setStatus("On genSpace...");
+		ChatReceiver.connection.sendPacket(pr);
+		cmbStatus.setSelectedIndex(0);
+	}
 	/** Creates new form RosterFrame */
 	public RosterFrame() {
 		initComponents();
@@ -236,7 +243,7 @@ public class RosterFrame extends javax.swing.JFrame implements RosterListener {
 
 			@Override
 			public void windowOpened(WindowEvent e) {
-
+				setAvailable();
 			}
 
 			@Override
@@ -253,8 +260,10 @@ public class RosterFrame extends javax.swing.JFrame implements RosterListener {
 
 			@Override
 			public void windowClosing(WindowEvent e) {
-				GenSpaceLogin.chatHandler.logout();
-
+				Presence pr = new Presence(Presence.Type.unavailable);
+				pr.setStatus("genSpace hidden");
+				ChatReceiver.connection.sendPacket(pr);
+				cmbStatus.setSelectedIndex(2);
 			}
 
 			@Override
@@ -449,7 +458,7 @@ public class RosterFrame extends javax.swing.JFrame implements RosterListener {
 						l.setBackground(new Color(232,242,254));
 						l.setOpaque(true);
 					}
-					l.setText(entry.getName());
+					l.setText((entry.getName().length() > 1 ? entry.getName() : entry.getUser().replace("@genspace", "")));
 				}
 				else if(o instanceof RosterGroup)
 				{

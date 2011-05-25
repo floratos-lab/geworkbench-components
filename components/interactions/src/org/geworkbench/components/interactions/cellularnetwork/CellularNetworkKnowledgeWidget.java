@@ -178,6 +178,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	private JFreeChart chart;
 
 	private ChartPanel graph;
+	
+	private JPanel chartPanel;
 
 	private LengendCheckBox[] lengendCheckBoxList;
 	private JButton[] jButtonList;
@@ -1016,7 +1018,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		upPanel.add(topPane, JSplitPane.TOP);
 		upPanel.add(jPanel1, JSplitPane.BOTTOM);
 		upPanel.setOneTouchExpandable(true);
-		JPanel chartPanel = new JPanel();
+		chartPanel = new JPanel();
 
 		chartPanel.setLayout(new BorderLayout());
 
@@ -2137,7 +2139,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		@Override
 		public Object getValueAt(int row, int col) {
 
-			if (hits.size() == 0)
+			if (hits==null || hits.size() == 0)
 				return null;
 			CellularNetWorkElementInformation hit = hits.get(row);
 			/* display data depending on which column is chosen */
@@ -2677,11 +2679,11 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	@Publish
 	public ImageSnapshotEvent createImageSnapshot() {
-		Dimension panelSize = graph.getSize();
+		Dimension panelSize = chartPanel.getSize();
 		BufferedImage image = new BufferedImage(panelSize.width,
 				panelSize.height, BufferedImage.TYPE_INT_RGB);
 		Graphics g = image.getGraphics();
-		graph.paint(g);
+		chartPanel.paint(g);
 		ImageIcon icon = new ImageIcon(image, "CNKB Throttle Graph");
 		org.geworkbench.events.ImageSnapshotEvent event = new org.geworkbench.events.ImageSnapshotEvent(
 				"CNKB Throttle Graph Snapshot", icon,

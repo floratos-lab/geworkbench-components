@@ -15,10 +15,16 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.Semaphore;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 
+import org.geworkbench.components.genspace.GenSpace;
 import org.geworkbench.components.genspace.entity.Tool;
 import org.geworkbench.components.genspace.entity.Workflow;
 import org.geworkbench.components.genspace.entity.WorkflowTool;
@@ -50,11 +56,12 @@ public class WorkflowVisualizationPanel extends JPanel implements VisualPlugin {
 	private myGraph graph;
 	private mxGraphComponent graphComponent;
 	private JScrollPane scroller = new JScrollPane();;
-
+	private Timer redrawTimer;
+	private boolean redrawing = false;
 	public WorkflowVisualizationPanel()
 	{
 		setOpaque(false);
-		
+		redrawTimer = new Timer();
 		add(scroller, BorderLayout.CENTER);
 		this.addComponentListener(new ComponentListener() {
 			
@@ -64,7 +71,26 @@ public class WorkflowVisualizationPanel extends JPanel implements VisualPlugin {
 			
 			@Override
 			public void componentResized(ComponentEvent e) {
-				refreshLayout();
+				if(graphComponent != null)
+					graphComponent.setPreferredSize(getSize());
+				if(!redrawing)
+				{
+					redrawing = true;
+					SwingWorker<Void,Void> wrkr = new SwingWorker<Void, Void>()
+					{
+						int evt;
+						protected void done() {
+							GenSpace.getStatusBar().stop(evt);
+						};
+						protected Void doInBackground() throws Exception {
+							evt = GenSpace.getStatusBar().start("Resizing graph");
+							refreshLayout();
+							redrawing = false;
+							return null;
+						};
+					};
+					wrkr.execute();
+				}			
 			}
 			
 			@Override
@@ -77,7 +103,9 @@ public class WorkflowVisualizationPanel extends JPanel implements VisualPlugin {
 		});
 	}
 	public void clearData() {
-		this.remove(scroller);
+		graph = null;
+		this.removeAll();
+		this.repaint();
 	}
 	public void render(Workflow w)
 	{

@@ -219,11 +219,11 @@ public class XMLLoader {
 		}
 
 		// get the transaction id
-		String transaction_id = user + host;
+		String transaction_id = "";
 		NodeList nl6 = empEl.getElementsByTagName("transaction");
 		if(nl6 != null && nl6.getLength() > 0) {
 			Element e = (Element)nl6.item(0);
-			transaction_id += e.getAttribute("id");
+			transaction_id = e.getAttribute("id");
 		}
 
 		AnalysisEvent event = new AnalysisEvent();

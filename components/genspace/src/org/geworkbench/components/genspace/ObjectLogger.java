@@ -49,6 +49,7 @@ public class ObjectLogger {
 					} catch (InterruptedException e) {
 
 					} catch (ExecutionException e) {
+						GenSpaceServerFactory.clearCache();
 					}
 					
 					if(ret != null)
@@ -60,18 +61,19 @@ public class ObjectLogger {
 				}
 				@Override
 				protected Transaction doInBackground(){
-					if(curTransaction == null || !curTransaction.getClientID().equals(transactionId))
+					String hostname = "";
+					try {
+						hostname = InetAddress.getLocalHost().getHostName();
+					} catch (UnknownHostException e1) {
+						e1.printStackTrace();
+					}
+					if(curTransaction == null || !curTransaction.getClientID().equals(GenSpaceServerFactory.getUsername() + hostname + transactionId))
 					{
-						String hostname = "";
-						try {
-							hostname = InetAddress.getLocalHost().getHostName();
-						} catch (UnknownHostException e1) {
-							e1.printStackTrace();
-						}
+						
 						curTransaction = new Transaction();
 						curTransaction.setDataSetName(dataSetName);
 						curTransaction.setDate(new Date());
-						curTransaction.setClientID(transactionId);
+						curTransaction.setClientID(GenSpaceServerFactory.getUsername() + hostname + transactionId);
 						curTransaction.setHostname(hostname);
 						curTransaction.setUser(GenSpaceServerFactory.getUser());
 					}
@@ -147,13 +149,13 @@ public class ObjectLogger {
 								+ InetAddress.getLocalHost().getHostName() + "\"/>");
 						fw.write("\n\t\t<analysis name=\"" + analysisName + "\"/>");
 						fw.write("\n\t\t<dataset name=\"" + fileExtension + "\"/>");
-						fw.write("\n\t\t<transaction id=\"" + transactionId + "\"/>");
+						fw.write("\n\t\t<transaction id=\"" + GenSpaceServerFactory.getUsername() + hostname +  transactionId + "\"/>");
 						fw.write("\n\t\t<time>");
 
 						Calendar c = Calendar.getInstance();
 
 						fw.write("\n\t\t\t<year>" + c.get(Calendar.YEAR) + "</year>");
-						fw.write("\n\t\t\t<month>" + (c.get(Calendar.MONTH) + 1)
+						fw.write("\n\t\t\t<month>" + (c.get(Calendar.MONTH) )
 								+ "</month>");
 						fw.write("\n\t\t\t<day>" + c.get(Calendar.DATE) + "</day>");
 						fw.write("\n\t\t\t<hour>" + c.get(Calendar.HOUR_OF_DAY) + "</hour>");

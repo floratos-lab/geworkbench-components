@@ -39,6 +39,9 @@ import org.geworkbench.components.genspace.GenSpace;
 import org.geworkbench.components.genspace.GenSpaceServerFactory;
 import org.geworkbench.components.genspace.RuntimeEnvironmentSettings;
 import org.geworkbench.components.genspace.entity.IncomingWorkflow;
+import org.geworkbench.components.genspace.entity.UserWorkflow;
+import org.geworkbench.components.genspace.entity.Workflow;
+import org.geworkbench.components.genspace.entity.WorkflowFolder;
 import org.geworkbench.components.genspace.ui.UpdateablePanel;
 import org.geworkbench.components.genspace.ui.WorkflowVisualizationPanel;
 import org.geworkbench.engine.config.VisualPlugin;
@@ -129,7 +132,6 @@ public class WorkflowRepository extends JPanel implements VisualPlugin,
 		jSplitPane1.setContinuousLayout(true);
 		jSplitPane1.setBackground(Color.black);
 		jSplitPane1.setDividerSize(8);
-		jSplitPane1.setOneTouchExpandable(true);
 		jSplitPane1.setResizeWeight(0);
 		jSplitPane2.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		jSplitPane2.setDoubleBuffered(true);
@@ -492,11 +494,27 @@ public class WorkflowRepository extends JPanel implements VisualPlugin,
 	 */
 	@SuppressWarnings("unchecked")
 	public void updateFormFieldsBG() {
+		Workflow selected = workflowCommentsPanel.workflow;
+		if(GenSpaceServerFactory.isLoggedIn())
+		{
+			repositoryPanel.tree.root = (WorkflowFolder) RuntimeEnvironmentSettings.readObject(GenSpaceServerFactory.getUserOps().getRootFolderBytes());
+		}
 		if(repositoryPanel != null && repositoryPanel.tree != null)
 			repositoryPanel.tree.recalculateAndReload();
-		if(inboxTable != null)
+		if(inboxTable != null && GenSpaceServerFactory.isLoggedIn())
 		{
 			inboxTable.setData((List<IncomingWorkflow>) RuntimeEnvironmentSettings.readObject(GenSpaceServerFactory.getWorkflowOps().getIncomingWorkflowsBytes()));
+		}
+		if(workflowCommentsPanel != null && workflowCommentsPanel.workflow != null)
+		{
+			for(UserWorkflow w : repositoryPanel.tree.root.getWorkflows())
+			{
+				if(w.getWorkflow().getId() == selected.getId())
+				{
+					workflowCommentsPanel.setData(w.getWorkflow());
+					workflowCommentsPanel.repaint();
+				}
+			}
 		}
 		// whatever was selected, shouldn't be anymore
 		clearWorkflowData();

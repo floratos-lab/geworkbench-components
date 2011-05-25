@@ -83,16 +83,20 @@ public class DynamicTree extends JPanel implements ActionListener,
 		JScrollPane scrollPane = new JScrollPane(tree);
 		add(scrollPane);
 	}
-
+	public WorkflowFolder root;
 	public void recalculateTree() {
 		if (GenSpaceServerFactory.isLoggedIn()) {
-			WorkflowFolder root = (WorkflowFolder) RuntimeEnvironmentSettings.readObject(GenSpaceServerFactory.getUserOps().getRootFolderBytes());
+			
 			for(UserWorkflow uw : root.getWorkflows())
 				uw.getWorkflow().loadToolsFromCache();
 
 			rootNode = new DefaultMutableTreeNode(root);
 			addUserWorkflowTree(root);
 			repaint();
+		}
+		else
+		{
+			rootNode = new DefaultMutableTreeNode(new String ());
 		}
 	}
 
@@ -285,7 +289,8 @@ public class DynamicTree extends JPanel implements ActionListener,
 							} catch (InterruptedException e) {
 								GenSpace.logger.warn("Unable to talk to server",e);
 							} catch (ExecutionException e) {
-								GenSpace.logger.warn("Unable to talk to server",e);
+								GenSpaceServerFactory.handleExecutionException();
+								return;
 							}
 						};
 					};
@@ -314,7 +319,8 @@ public class DynamicTree extends JPanel implements ActionListener,
 								} catch (InterruptedException e) {
 									GenSpace.logger.warn("Unable to talk to server",e);
 								} catch (ExecutionException e) {
-									GenSpace.logger.warn("Unable to talk to server",e);
+									GenSpaceServerFactory.handleExecutionException();
+									return;
 								}
 							};
 						};
@@ -323,6 +329,8 @@ public class DynamicTree extends JPanel implements ActionListener,
 					}
 				}
 			}
+			else
+				JOptionPane.showMessageDialog(this, "Please select a workflow to delete from your repository","Error",JOptionPane.WARNING_MESSAGE);
 		}
 	
 
@@ -353,8 +361,8 @@ public class DynamicTree extends JPanel implements ActionListener,
 						e.printStackTrace();
 						GenSpace.logger.warn("Error talking to server", e);
 					} catch (ExecutionException e) {
-						e.printStackTrace();
-						GenSpace.logger.warn("Error talking to server", e);
+						GenSpaceServerFactory.handleExecutionException();
+						return;
 					}
 					if (result == null || result.equals("")) {
 //						LoginFactory.getUser().getFolders().add(result);

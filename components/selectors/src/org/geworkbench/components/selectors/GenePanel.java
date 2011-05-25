@@ -24,7 +24,9 @@ import javax.swing.JPanel;
 import javax.swing.JTree; 
 import javax.swing.tree.TreePath;
 
+import org.geworkbench.bison.annotation.CSAnnotationContextManager;
 import org.geworkbench.bison.annotation.DSAnnotationContext;
+import org.geworkbench.bison.annotation.DSAnnotationContextManager;
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
@@ -271,6 +273,7 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	private void createNewSubset() {
 		String label = JOptionPane.showInputDialog("Set Label:",
 				"");
@@ -511,6 +514,7 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 	 * 
 	 * @param fe
 	 */
+	@SuppressWarnings("unchecked")
 	@Subscribe
 	public void receive(org.geworkbench.events.FilteringEvent fe, Object source) {
 		if (fe == null) {
@@ -623,6 +627,7 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 		return panel;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Subscribe
 	public void receive(
 			org.geworkbench.events.ProjectNodePostCompletedEvent pnce,
@@ -703,5 +708,90 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
     	super.receive(spe, source);
     	tagEventEnabled = true;
     }
+	
+	@SuppressWarnings("unchecked")
+	protected void createNewContext() {		 
+		String name = JOptionPane.showInputDialog("New group name:");
+		if( name==null || name.length()==0 )
+			return;
+
+		DSAnnotationContextManager manager = CSAnnotationContextManager
+				.getInstance();
+		if (manager.hasContext(maSet.getMarkers(), name)) {
+			JOptionPane.showMessageDialog(mainPanel, "Group already exists.");
+		} else {
+			context = manager.createContext(maSet.getMarkers(), name);
+			initializeContext(context);
+			contextSelector.addItem(context);
+			contextSelector.setSelectedItem(context);
+			manager.setCurrentContext(maSet.getMarkers(), context);
+			// Refresh list
+			listModel.refresh();
+			// Refresh tree
+			treeModel.setContext(context);
+			treeModel.fireTreeStructureChanged();
+			throwLabelEvent();
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	protected void deleteContext() {
+
+		DSAnnotationContextManager manager = CSAnnotationContextManager
+				.getInstance();
+
+		String contextName = context.getName();
+
+		if (contextName.equalsIgnoreCase("Default")){
+			JOptionPane.showMessageDialog(mainPanel, "You cannot delete the Default group.");
+			return;
+		}
+		
+		int confirm = JOptionPane.showConfirmDialog(getComponent(),
+				"Delete Group: " + contextName + " ?");
+
+		if (confirm != JOptionPane.YES_OPTION) {
+			return;
+		}
+		
+		if (!manager.hasContext(maSet.getMarkers(), contextName)) {
+			JOptionPane.showMessageDialog(mainPanel, "Group does not exists.");
+		}else {
+			contextSelector.setSelectedItem(context);
+			manager.removeContext(maSet.getMarkers(), contextName);
+			contextSelector.removeItem(context);            
+			context = manager.getContext(maSet.getMarkers(), 0);
+			contextSelector.setSelectedItem(context);
+			
+			manager.setCurrentContext(maSet.getMarkers(), context);
+			// Refresh list
+			listModel.refresh();
+			// Refresh tree
+			treeModel.setContext(context);
+			treeModel.fireTreeStructureChanged();
+			throwLabelEvent();
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	 protected void switchContext(DSAnnotationContext newContext) {
+		if (!resetContextMode && (newContext != null)) {
+			context = newContext;
+			contextSelector.setSelectedItem(context);
+			DSAnnotationContextManager manager = CSAnnotationContextManager
+					.getInstance();		 
+			manager.setCurrentContext(maSet.getMarkers(), context);
+			// Refresh list
+			listModel.refresh();
+			// Refresh tree
+			treeModel.setContext(context);
+			treeModel.fireTreeStructureChanged();
+			throwLabelEvent();
+		}
+	}
+
+	
+	
+	
 
 }
