@@ -56,8 +56,13 @@ public class DiscoveryServiceUtil {
 			allServices = client.discoverServicesBySearchString(search);
 		}
 
-		if (log.isInfoEnabled())
-			displayMetadata(allServices);
+		if (log.isInfoEnabled()){
+			try{
+				displayMetadata(allServices);
+			}catch(Exception e){
+				log.info("Unable to get metadata for services");
+			}
+		}
 
 		return allServices;
 	}

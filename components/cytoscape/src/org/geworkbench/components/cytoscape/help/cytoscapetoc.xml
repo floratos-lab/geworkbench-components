@@ -5,6 +5,18 @@
 	<tocitem text="Cytoscape">
 
 		 <tocitem target="overview" text="Overview" />
+		 <tocitem target="Layout" text="Layout of the Cytoscape component" />
+		 <tocitem target="Selecting_Nodes_and_Edges" text="Selecting Nodes and Edges" />
+		 <tocitem target="Options_for_selected_nodes" text="Options for selected nodes" />
+		 <tocitem target="Projecting" text="Projecting marker sets onto Cytoscape" />
+		 <tocitem target="Altering" text="Altering the view in Cytoscape" />
+		 <tocitem target="Network" text="Network commands" />
+		 <tocitem target="Interaction_type" text="Edges colored by interaction type" />
+		 <tocitem target="VizMapper" text="Cytoscape VizMapper tab - set shapes and color" />
+		 <tocitem target="Visual_style" text="Apply Visual Style" />
+		 <tocitem target="Network_Display_Options" text="Network display options" />
+		 <tocitem target="References" text="References" />
+		 
       
 
 

@@ -3,7 +3,7 @@
 <toc version="1.0">
 	<tocitem text="Pattern Discovery">
 		 
-	<tocitem target="overview" text="Overview"/>
+	<tocitem target="Overview" text="Overview"/>
 	<tocitem target="Component_layout" text="Component_layout"/>
 	<tocitem target="Top-level_run_controls" text="Top-level run controls"/>
 	<tocitem target="Setting_parameters" text="Setting parameters"/>
