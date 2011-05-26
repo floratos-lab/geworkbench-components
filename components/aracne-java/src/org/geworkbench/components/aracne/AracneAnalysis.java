@@ -133,7 +133,10 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 		if (params.isThresholdMI()) {
 			p.setThreshold(params.getThreshold());
 		} else {
-			p.setPvalue(params.getThreshold());
+	    	if (!params.noCorrection() && mSetView != null && mSetView.markers().size() > 0)
+	    		p.setPvalue(params.getThreshold() / mSetView.markers().size());
+	    	else
+	    		p.setPvalue(params.getThreshold());
 		}
 		if (params.isKernelWidthSpecified()) {
 			p.setSigma(params.getKernelWidth());
@@ -575,6 +578,10 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 		bisonParameters.put("isMI", paramPanel.isThresholdMI());
 
 		float threshold = paramPanel.getThreshold();
+		if (!paramPanel.isThresholdMI() && !paramPanel.noCorrection() && mSetView!=null && mSetView.markers().size() > 0){
+    		threshold = threshold / mSetView.markers().size();
+    		paramPanel.pval = threshold;
+		}
 		bisonParameters.put("threshold", threshold);
 
 		int bootstrapNumber = paramPanel.getBootstrapNumber();
@@ -666,6 +673,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 			DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView,
 			DSDataSet<?> refMASet) {
 		AracneParamPanel params = (AracneParamPanel) aspp;
+		mSetView = maSetView;
 		if (params.isHubListSpecified()) {
 			ArrayList<String> hubGeneList = params.getHubGeneList();
 			for (String modGene : hubGeneList) {
