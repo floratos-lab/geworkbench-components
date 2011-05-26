@@ -62,6 +62,8 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
     private static final String FROM_FILE = "From File";
     private static final String THRESHOLD_MI = "Mutual Info.";
     private static final String THRESHOLD_PVALUE = "P-Value";
+    private static final String CORRECTION_NO = "No Correction";
+    private static final String CORRECTION_BON = "Bonferroni Correction";
     private static final String KERNEL_INFERRED = "Inferred";
     private static final String KERNEL_SPECIFY = "Specify";
     private static final String DPI_NONE = "Do Not Apply";
@@ -85,6 +87,7 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
     private JComboBox modeCombo = new JComboBox(new String[]{COMPLETE,PREPROCESSING, DISCOVERY});
 
     private JComboBox thresholdCombo = new JComboBox(new String[]{THRESHOLD_MI, THRESHOLD_PVALUE});
+    private JComboBox correctionCombo = new JComboBox(new String[]{CORRECTION_NO, CORRECTION_BON});
     private JComboBox kernelCombo = new JComboBox(new String[]{KERNEL_INFERRED, KERNEL_SPECIFY});
     private JComboBox dpiCombo = new JComboBox(new String[]{DPI_NONE, DPI_APPLY});
     private JButton loadMarkersButton = new JButton("Load Markers");
@@ -144,8 +147,16 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
         builder.append("Kernel Width", kernelCombo, kernelWidth);
         builder.nextRow();
 
-        builder.append("Threshold Type", thresholdCombo, threshold);
+        builder.append("Threshold Type", thresholdCombo, threshold, correctionCombo);
         thresholdCombo.setSelectedIndex(1);	//default is p-value
+        correctionCombo.setSelectedIndex(0);	//default is no correction
+        thresholdCombo.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				if (thresholdCombo.getSelectedItem()==THRESHOLD_PVALUE)
+					correctionCombo.setEnabled(true);
+				else correctionCombo.setEnabled(false);
+			}        	
+        });
         builder.nextRow();
 
         builder.append("DPI Tolerance", dpiCombo, dpiTolerance);
@@ -378,6 +389,7 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 	    hubMarkerList.addActionListener(parameterActionListener);
 	    thresholdCombo.addActionListener(parameterActionListener);
 	    threshold.addActionListener(parameterActionListener);
+	    correctionCombo.addActionListener(parameterActionListener);
 	    kernelCombo.addActionListener(parameterActionListener);
 	    kernelWidth.addActionListener(parameterActionListener);
 	    dpiCombo.addActionListener(parameterActionListener);
@@ -450,6 +462,18 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
     		thresholdCombo.setSelectedItem(THRESHOLD_MI);
     	}else{
     		thresholdCombo.setSelectedItem(THRESHOLD_PVALUE);
+    	}
+    }
+    
+    public boolean noCorrection() {
+        return correctionCombo.getSelectedItem().equals(CORRECTION_NO);
+    }
+    
+    public void setCorrection(boolean c) {
+    	if (c){
+    		correctionCombo.setSelectedItem(CORRECTION_NO);
+    	}else{
+    		correctionCombo.setSelectedItem(CORRECTION_BON);
     	}
     }
 
@@ -670,7 +694,10 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
         if (params.isThresholdMI()) {
             p.setThreshold(params.getThreshold());
         } else {
-            p.setPvalue(params.getThreshold());
+    		if (!noCorrection() &&  pval >= 0)
+    			p.setPvalue(pval);
+    		else
+    			p.setPvalue(params.getThreshold());
         }
         if (params.isKernelWidthSpecified()) {
             p.setSigma(params.getKernelWidth());
@@ -682,7 +709,7 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
         return p.getParamterDescription();
 
 	}
-
+	protected float pval = -1;
 	/*
 	 * (non-Javadoc)
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
@@ -707,6 +734,9 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 			}
 			if (key.equals("isThresholdMI")){
 				setIsThresholdMI((Boolean)value);
+			}
+			if (key.equals("noCorrection")){
+				setCorrection((Boolean)value);
 			}
 			if (key.equals("Threshold")){
 				setThreshold((Float)value);
@@ -783,8 +813,14 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 		parameters.put("HubGeneList", this.getHubGeneString());
 		parameters.put("isThresholdMI", this.isThresholdMI());
 		parameters.put("Threshold", this.getThreshold());
-		parameters.put("isKernelWidthSpecified", this.isKernelWidthSpecified());
-		parameters.put("KernelWidth", this.getKernelWidth());
+		if (!this.isThresholdMI())
+			parameters.put("noCorrection", this.noCorrection());
+
+		if (this.getAlgorithmAsString().equals(FIXED_BANDWIDTH)){
+			parameters.put("isKernelWidthSpecified", this.isKernelWidthSpecified());
+			if (this.isKernelWidthSpecified())
+				parameters.put("KernelWidth", this.getKernelWidth());
+		}
 		parameters.put("isDPIToleranceSpecified", this.isDPIToleranceSpecified());		
 		parameters.put("DPITolerance", this.getDPITolerance());
 		
