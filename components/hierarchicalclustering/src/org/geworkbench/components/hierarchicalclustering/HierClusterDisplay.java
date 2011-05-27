@@ -149,7 +149,7 @@ public class HierClusterDisplay extends JPanel {
 		super.paintComponent(g);
 
 		if (microarraySet == null) {
-			log.warn("unexpected null microarraySet");
+			log.info("null microarraySet");
 			return;
 		}
 		markerPositions.clear();
