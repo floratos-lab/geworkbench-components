@@ -67,7 +67,11 @@ public class MultipleProbesetFilter extends FilteringAnalysis {
 			String probeSetID = dsGeneMarker.getLabel();
 			probesetIndexMap.put(probeSetID, i);
 
-			String firstGeneID = AnnotationParser.getGeneIDs(probeSetID).toArray(new String[0])[0];
+			Set<String> set = AnnotationParser.getGeneIDs(probeSetID);
+			if(set.size()==0)
+				continue;
+			
+			String firstGeneID = set.toArray(new String[0])[0];
 
 			if (firstGeneID == null || firstGeneID.trim().equals("") || firstGeneID.trim().equals("---")) {
 				continue;
