@@ -795,7 +795,12 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		if (result == null && !GoAnalysisResult.isAnnotationParsed()) {
 			String annotationFileName = dataSet.getAnnotationFileName();
 			if(annotationFileName!=null)
-				GoAnalysisResult.parseAnnotation(annotationFileName);
+				try {
+					GoAnalysisResult.parseAnnotation(annotationFileName);
+				} catch (IOException e) {
+					e.printStackTrace();
+					return;
+				}
 		}
 		Set<Integer> processedTerms = new TreeSet<Integer>();
 		Set<String> genes = genesFomrTermAndDescendants(processedTerms, goId, includeDescendants);
