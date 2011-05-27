@@ -170,7 +170,13 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 					"GO Terms Analysis is cancelled", null);
 		}
 
-		GoAnalysisResult.parseAnnotation(associationFileName);
+		try {
+			GoAnalysisResult.parseAnnotation(associationFileName);
+		} catch (IOException e1) {
+			progressBar.dispose();
+			return new AlgorithmExecutionResults(false,
+					"IOException: "+e1.getMessage(), null);
+		}
 		if (this.stopAlgorithm) {
 			progressBar.dispose();
 			return new AlgorithmExecutionResults(false,
