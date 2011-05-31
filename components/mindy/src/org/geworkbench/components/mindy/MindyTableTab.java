@@ -18,6 +18,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
+import javax.swing.JToolBar;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SpinnerNumberModel;
@@ -47,9 +48,11 @@ public class MindyTableTab extends JSplitPane {
 
 	private JScrollPane scrollPane;
 
-	private JCheckBox selectAllModsCheckBoxTarget;
+	private JButton selectAllModsButton = new JButton("Select");;
+	private JButton clearAllModsButton = new JButton("Clear");;
 
-	private JCheckBox selectAllTargetsCheckBoxTarget;
+	private JButton selectAllTargetsButton = new JButton("Select");;
+	private JButton clearAllTargetsButton = new JButton("Clear");;
 
 	private JCheckBox selectionEnabledCheckBoxTarget;
 
@@ -120,8 +123,20 @@ public class MindyTableTab extends JSplitPane {
 		taskContainer.add(scoreCheck);
 		taskContainer.add(lmp);
 		taskContainer.add(selectionEnabledCheckBoxTarget);
-		taskContainer.add(selectAllModsCheckBoxTarget);
-		taskContainer.add(selectAllTargetsCheckBoxTarget);
+		JToolBar tbmods = new JToolBar();
+		tbmods.setBorderPainted(false);
+		tbmods.setFloatable(false);
+		tbmods.add(new JLabel("All Modulators"));
+		tbmods.add(selectAllModsButton);
+		tbmods.add(clearAllModsButton);
+		taskContainer.add(tbmods);
+		JToolBar tbtarget = new JToolBar();
+		tbtarget.setBorderPainted(false);
+		tbtarget.setFloatable(false);
+		tbtarget.add(new JLabel("All Targets      "));
+		tbtarget.add(selectAllTargetsButton);
+		tbtarget.add(clearAllTargetsButton);
+		taskContainer.add(tbtarget);
 		taskContainer.add(addToSetButtonTarget);
 		taskContainer.add(targetAllMarkersCheckBox);
 		JPanel p = new JPanel(new BorderLayout());
@@ -292,29 +307,52 @@ public class MindyTableTab extends JSplitPane {
 			}
 		});
 
-		selectAllModsCheckBoxTarget = new JCheckBox("Select All Modulators");
-		selectAllModsCheckBoxTarget.addActionListener(
+		selectAllModsButton = new JButton("Select");
+		selectAllModsButton.addActionListener(
 				new ActionListener() {
 					public void actionPerformed(ActionEvent actionEvent) {
 						AggregateTableModel model = (AggregateTableModel) targetTable
 								.getModel();
-						model
-								.selectAllModulators(selectAllModsCheckBoxTarget
-										.isSelected());
+						model.selectAllModulators(true);
 						selectionEnabledCheckBoxTarget.setText(
 								MindyPlugin.ENABLE_SELECTION + " "
 										+ model.getNumberOfMarkersSelected());
 					}
 				});
 
-		selectAllTargetsCheckBoxTarget = new JCheckBox("Select All Targets");
-		selectAllTargetsCheckBoxTarget.addActionListener(
+		clearAllModsButton = new JButton("Clear");
+		clearAllModsButton.addActionListener(
 				new ActionListener() {
 					public void actionPerformed(ActionEvent actionEvent) {
 						AggregateTableModel model = (AggregateTableModel) targetTable
 								.getModel();
-						model.selectAllTargets(selectAllTargetsCheckBoxTarget
-								.isSelected());
+						model.selectAllModulators(false);
+						selectionEnabledCheckBoxTarget.setText(
+								MindyPlugin.ENABLE_SELECTION + " "
+										+ model.getNumberOfMarkersSelected());
+					}
+				});
+
+		selectAllTargetsButton = new JButton("Select");
+		selectAllTargetsButton.addActionListener(
+				new ActionListener() {
+					public void actionPerformed(ActionEvent actionEvent) {
+						AggregateTableModel model = (AggregateTableModel) targetTable
+								.getModel();
+						model.selectAllTargets(true);
+						selectionEnabledCheckBoxTarget.setText(
+								MindyPlugin.ENABLE_SELECTION + " "
+										+ model.getNumberOfMarkersSelected());
+					}
+				});
+
+		clearAllTargetsButton = new JButton("Clear");
+		clearAllTargetsButton.addActionListener(
+				new ActionListener() {
+					public void actionPerformed(ActionEvent actionEvent) {
+						AggregateTableModel model = (AggregateTableModel) targetTable
+								.getModel();
+						model.selectAllTargets(false);
 						selectionEnabledCheckBoxTarget.setText(
 								MindyPlugin.ENABLE_SELECTION + " "
 										+ model.getNumberOfMarkersSelected());
@@ -336,10 +374,6 @@ public class MindyTableTab extends JSplitPane {
 						setTargetTableViewOptions();
 						setTargetCheckboxesVisibility(selected);
 						if (!selected) {
-							selectAllModsCheckBoxTarget
-									.setSelected(false);
-							selectAllTargetsCheckBoxTarget
-									.setSelected(false);
 							aggregateModel
 									.fireTableStructureChanged();
 							aggregateModel
@@ -360,8 +394,6 @@ public class MindyTableTab extends JSplitPane {
 		targetAllMarkersCheckBox.addActionListener(
 				new ActionListener() {
 					public void actionPerformed(ActionEvent actionEvent) {
-						selectAllTargetsCheckBoxTarget
-								.setSelected(false);
 						selectionEnabledCheckBoxTarget
 								.setText(
 										MindyPlugin.ENABLE_SELECTION
@@ -383,8 +415,8 @@ public class MindyTableTab extends JSplitPane {
 				});
 
 		selectionEnabledCheckBoxTarget.setSelected(true);
-		selectAllModsCheckBoxTarget.setEnabled(true);
-		selectAllTargetsCheckBoxTarget.setEnabled(true);
+		selectAllModsButton.setEnabled(true);
+		selectAllTargetsButton.setEnabled(true);
 		addToSetButtonTarget.setEnabled(true);
 	}
 
@@ -393,7 +425,6 @@ public class MindyTableTab extends JSplitPane {
 	}
 
 	private void clearAllTargetTableModulatorSelections() {
-		selectAllModsCheckBoxTarget.setSelected(false);
 		selectionEnabledCheckBoxTarget.setText(MindyPlugin.ENABLE_SELECTION + " "
 				+ aggregateModel.getNumberOfMarkersSelected());
 	}
@@ -410,8 +441,8 @@ public class MindyTableTab extends JSplitPane {
 	}
 
 	private void setTargetControlVisibility(boolean show) {
-		selectAllModsCheckBoxTarget.setEnabled(show);
-		selectAllTargetsCheckBoxTarget.setEnabled(show);
+		selectAllModsButton.setEnabled(show);
+		selectAllTargetsButton.setEnabled(show);
 		addToSetButtonTarget.setEnabled(show);
 	}
 
@@ -439,15 +470,6 @@ public class MindyTableTab extends JSplitPane {
 
 	JCheckBox[] getHeaderCheckBoxes() {
 		return headerCheckBoxes;
-	}
-
-	JCheckBox getSelectAllModsCheckBoxTarget() {
-		return selectAllModsCheckBoxTarget;
-	}
-
-	// TODO to be refactored: only used by AggregateTableModel
-	JCheckBox getSelectAllTargetsCheckBoxTarget() {
-		return selectAllTargetsCheckBoxTarget;
 	}
 
 	JCheckBox getSelectionEnabledCheckBoxTarget() {

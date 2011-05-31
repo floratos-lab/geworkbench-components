@@ -116,11 +116,6 @@ class ColumnHeaderListener extends MouseAdapter {
 					mindyTableTab.getSelectionEnabledCheckBoxTarget().setText(MindyPlugin.ENABLE_SELECTION
 							+ " " + atm.getNumberOfMarkersSelected());
 
-					if (atm.getCheckedModulators().size() == atm
-							.getEnabledModulatorsSize())
-						mindyTableTab.getSelectAllModsCheckBoxTarget().setSelected(true);
-					else
-						mindyTableTab.getSelectAllModsCheckBoxTarget().setSelected(false);
 					atm.fireTableStructureChanged();
 					mindyTableTab
 							.setTargetCheckboxesVisibility(mindyTableTab.getSelectionEnabledCheckBoxTarget()
