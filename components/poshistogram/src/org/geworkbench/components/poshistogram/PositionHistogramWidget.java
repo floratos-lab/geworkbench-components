@@ -13,6 +13,7 @@ import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
@@ -132,7 +133,17 @@ public final class PositionHistogramWidget extends JPanel {
 
     private void plotAction(ActionEvent e) {
         int maxLen = getMaxLength();
-        int step = Integer.parseInt(jStepBox.getText());
+        int step = 0;
+		try {
+			step = Integer.parseInt(jStepBox.getText());
+		} catch (NumberFormatException nfe) {
+			JOptionPane.showMessageDialog(null, "Step should be a positive integer");
+			return;
+		}
+		if (step <= 0) {
+			JOptionPane.showMessageDialog(null, "Step should be a positive integer");
+			return;
+		}	
         int wind = 1;
         int maxBin = maxLen / step + 1;
 
