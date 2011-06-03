@@ -173,15 +173,6 @@ class AggregateTableModel extends DefaultTableModel {
 		}
 
 		/**
-		 * Get the list of selected targets.
-		 *
-		 * @return list of selected targets
-		 */
-		private List<DSGeneMarker> getCheckedTargets() {
-			return this.selectedTargets;
-		}
-
-		/**
 		 * Get the list of selected modulators.
 		 *
 		 * @return list of selected modulators
@@ -335,12 +326,6 @@ class AggregateTableModel extends DefaultTableModel {
 						+ " targets.");
 			}
 
-			if (limitList == null) {
-				this.checkSelectedMarkers(true);
-			} else {
-				this.checkSelectedMarkers(false);
-			}
-
 			redrawTable();
 		}
 
@@ -351,7 +336,6 @@ class AggregateTableModel extends DefaultTableModel {
 		 */
 		void showLimitedMarkers() {
 			redrawTable();
-			this.checkSelectedMarkers(false);
 		}
 
 		// called from "All Markers" checkbox
@@ -360,42 +344,6 @@ class AggregateTableModel extends DefaultTableModel {
 		 */
 		void showAllMarkers() {
 			redrawTable();
-			this.checkSelectedMarkers(true);
-		}
-
-		private void checkSelectedMarkers(boolean showAll) {
-			if (!showAll) {
-				if ((this.selectedModulators != null)
-						&& (this.enabledModulators != null)
-						&& (this.selectedModulators.size() > 0)
-						&& (this.enabledModulators.size() > 0)
-						&& (this.enabledModulators.size() <= this.selectedModulators
-								.size())) {
-					// need to match items in lim and selected
-					boolean allMods = true;
-					for (DSGeneMarker m : this.enabledModulators) {
-						if (!this.selectedModulators.contains(m)) {
-							allMods = false;
-							break;
-						}
-					}
-				}
-				if ((this.selectedTargets != null)
-						&& (this.limitedTargets != null)
-						&& (this.selectedTargets.size() > 0)
-						&& (this.limitedTargets.size() > 0)
-						&& (this.limitedTargets.size() <= this.selectedTargets
-								.size())) {
-					// need to match items in lim and selected
-					boolean allTargets = true;
-					for (DSGeneMarker t : this.limitedTargets) {
-						if (!this.selectedTargets.contains(t)) {
-							allTargets = false;
-							break;
-						}
-					}
-				}
-			}
 		}
 
 		private void redrawTable() {
