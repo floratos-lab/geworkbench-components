@@ -75,7 +75,7 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 				.create(ProgressBar.INDETERMINATE_TYPE);
 		progressBar.addObserver(this);
 		progressBar.setTitle("GO Terms Analysis");
-		progressBar.setMessage("GO Terms Analysis is ongoing. Please wait.");
+		progressBar.setMessage("GO Terms Analysis is under way. Please wait.");
 
 		String associationFileName = parameterPanel.getAssociationFile();
 
@@ -167,7 +167,7 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 		if (this.stopAlgorithm) {
 			progressBar.dispose();
 			return new AlgorithmExecutionResults(false,
-					"GO Terms Analysis is cancelled", null);
+					"GO Terms Analysis cancelled", null);
 		}
 
 		try {
@@ -180,7 +180,7 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 		if (this.stopAlgorithm) {
 			progressBar.dispose();
 			return new AlgorithmExecutionResults(false,
-					"GO Terms Analysis is cancelled", null);
+					"GO Terms Analysis cancelled", null);
 		}
 
 		/*
@@ -216,7 +216,7 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 		if (this.stopAlgorithm) {
 			progressBar.dispose();
 			return new AlgorithmExecutionResults(false,
-					"GO Terms Analysis is cancelled", null);
+					"GO Terms Analysis cancelled", null);
 		}
 
 		EnrichedGOTermsResult studySetResult = null;
@@ -226,7 +226,7 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 			if (this.stopAlgorithm) {
 				progressBar.dispose();
 				return new AlgorithmExecutionResults(false,
-						"GO Terms Analysis is cancelled", null);
+						"GO Terms Analysis cancelled", null);
 			}
 
 			// this is not needed except for understanding the result structure
@@ -245,7 +245,7 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 		progressBar.dispose();
 		if (this.stopAlgorithm) {
 			return new AlgorithmExecutionResults(false,
-					"GO Term Analysis is cancelled.", analysisResult);
+					"GO Term Analysis cancelled.", analysisResult);
 		} else {
 			/* after the analysis, delete the temporary file */
 			if (!studySet.delete()) {
