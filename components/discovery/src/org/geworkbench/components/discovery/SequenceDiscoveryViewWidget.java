@@ -273,8 +273,9 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		DiscoverySession discoverySession = appComponent.getSession();
 		// we cannot run this algorithm with no discoverySession
 		if ( discoverySession == null ) {
-			log.error("Warning: registerSession failed" + "[subId=" + currentStubId
+			log.debug("Warning: registerSession failed" + "[subId=" + currentStubId
 					+ " session=" + discoverySession + "]");
+			return;
 		}
 		
 		firePropertyChange(TABLE_EVENT, null, null);
