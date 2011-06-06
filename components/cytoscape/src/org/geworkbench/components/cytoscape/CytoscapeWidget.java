@@ -485,7 +485,9 @@ public class CytoscapeWidget implements VisualPlugin {
 			String geneId2, String type) {
 		if (type != null) {
 
-			String typeName = interactionTypeSifMap.get(type);
+			String  typeName = interactionTypeSifMap.get(type);
+			if (typeName == null || typeName.trim().equals(""))
+				typeName = type;
 			CyEdge e = Cytoscape.getCyEdge(n1.getIdentifier(), n1.getIdentifier() + " (" + type
 					+ ") " + n1.getIdentifier(), n2.getIdentifier(), type);
 			// Aracne result will not have an type, so we should
