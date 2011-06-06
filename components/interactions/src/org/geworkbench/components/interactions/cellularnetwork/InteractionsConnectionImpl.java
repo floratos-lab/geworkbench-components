@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.util.ResultSetlUtil;
+import org.geworkbench.util.UnAuthenticatedException;
 import org.geworkbench.util.network.InteractionDetail;
 
 public class InteractionsConnectionImpl {
