@@ -1119,24 +1119,20 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
             // sort first by fold changes
             Collections.sort(sortedMarkers, new FoldChangesComparator(sigSet));        
             
-            // break down the list of markers into positive, zero, and negative fold changes
+            // break down the list of markers into positive and negative fold changes
             ArrayList<DSGeneMarker> positiveFolds = new ArrayList<DSGeneMarker>();   
-            ArrayList<DSGeneMarker> zeroFolds = new ArrayList<DSGeneMarker>();
             ArrayList<DSGeneMarker> negativeFolds = new ArrayList<DSGeneMarker>();
             for(DSGeneMarker m: sortedMarkers){
-            	if(sigSet.getFoldChange(m) > 0) positiveFolds.add(m);
-            	if(sigSet.getFoldChange(m) == 0) zeroFolds.add(m);
+            	if(sigSet.getFoldChange(m) >= 0) positiveFolds.add(m);
 				if(sigSet.getFoldChange(m) < 0) negativeFolds.add(m);
             }
             
-            // sort by t-value all 3 folds lists
+            // sort each list by t-value
             Collections.sort(positiveFolds, new TValueComparator(sigSet));
-            Collections.sort(zeroFolds, new TValueComparator(sigSet));
             Collections.sort(negativeFolds, new TValueComparator(sigSet));
             
-            // recombine 3 lists
+            // recombine lists
             sortedMarkers = positiveFolds;
-            for(DSGeneMarker m: zeroFolds) positiveFolds.add(m);
             for(DSGeneMarker m: negativeFolds) positiveFolds.add(m);   
     	}
     }
