@@ -185,7 +185,6 @@ public class EvidenceIntegrationAnalysis extends AbstractGridAnalysis implements
             this.selectedGoldStandards = selectedGoldStandards;
         }
 
-        @SuppressWarnings("unchecked")
 		public void run() {
             log.debug("Running Evidence Integration in worker thread.");
             eiEngine.doIntegration(selectedEvidence, selectedGoldStandards);

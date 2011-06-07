@@ -16,11 +16,13 @@ import javax.swing.JProgressBar;
  */
 public class EIProgress extends JDialog {
 
-    private Thread aracneThread;
+	private static final long serialVersionUID = -513714556767655965L;
+	
+	private Thread eiThread;
     private JButton cancelButton = new JButton("Cancel");
 
     public EIProgress(Thread thread) throws HeadlessException {
-        aracneThread = thread;
+    	eiThread = thread;
         setLayout(new BorderLayout());
         setModal(true);
         setTitle("Evidence Integration Running");
@@ -32,20 +34,22 @@ public class EIProgress extends JDialog {
         add(cancelButton, BorderLayout.EAST);
 
         cancelButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent actionEvent) {
-                aracneThread.stop();
+            @SuppressWarnings("deprecation")
+			public void actionPerformed(ActionEvent actionEvent) {
+            	eiThread.stop();
                 setVisible(false);
             }
         });
 
         addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent windowEvent) {
+            @SuppressWarnings("deprecation")
+			public void windowClosing(WindowEvent windowEvent) {
                 // Abort execution if progres window closed
-                aracneThread.stop();
+            	eiThread.stop();
             }
         });
 
-        aracneThread.start();
+        eiThread.start();
     }
 
 }

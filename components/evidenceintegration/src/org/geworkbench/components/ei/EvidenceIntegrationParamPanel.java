@@ -2,9 +2,7 @@ package org.geworkbench.components.ei;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Frame;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -49,7 +47,9 @@ import edu.columbia.c2b2.evidenceinegration.Evidence;
  */
 public class EvidenceIntegrationParamPanel extends AbstractSaveableParameterPanel {
 
-    static Log log = LogFactory.getLog(EvidenceIntegrationParamPanel.class);
+	private static final long serialVersionUID = 2596959937445171756L;
+
+	static Log log = LogFactory.getLog(EvidenceIntegrationParamPanel.class);
 
     private ArrayList<Evidence> evidenceSet;
     private EvidenceTableModel evidenceTableModel;
@@ -61,42 +61,33 @@ public class EvidenceIntegrationParamPanel extends AbstractSaveableParameterPane
     private ArrayList<Evidence> loadedPriors;
     private PriorTableModel loadedModel;
     private JXTable loadedTable;
-    private HashMap<Integer, String> goldStandardSources;
+
     private ArrayList<JCheckBox> arrayList = new ArrayList<JCheckBox>();
     private ArrayList<Integer> evidenceCandidates = new ArrayList<Integer>();
 
     public EvidenceIntegrationParamPanel(HashMap<Integer, String> goldStandardSources) {
-        this.goldStandardSources = goldStandardSources;
+
         this.setLayout(new BorderLayout());
         this.setPreferredSize(new Dimension(0, 100));
 
 
         final JPanel mainDialogPanel = new JPanel();
-        JCheckBox[] jCheckBoxes = new JCheckBox[10];
-        GridLayout gridLayout1 = new GridLayout();
-        GridBagLayout gridBagLayout1 = new GridBagLayout();
-        //final JPanel jCenterPanel = new JPanel();
+
         final JToolBar jCenterPanel = new JToolBar(JToolBar.VERTICAL);
         final JPanel jSouthPanel = new JPanel();
-        GridLayout gridLayout2 = new GridLayout();
+
         JButton removeButton = new JButton();
         JButton cancelButton = new JButton("Cancel");
-        BorderLayout borderLayout1 = new BorderLayout();
+
         Frame frame = JOptionPane.getFrameForComponent(this);
 
         final JDialog dialog = new JDialog(frame, "Please select which envidence to remove.", false);
-        JDialog goDialog = new JDialog();
+
         removeButton.setText("Remove");
         removeButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 if (arrayList != null && arrayList.size() > 0) {
-                    for (JCheckBox jCheckBox : arrayList) {
-                        if (jCheckBox.isSelected()) {
-                            for (Evidence evidence : evidenceSet) {
 
-                            }
-                        }
-                    }
                     int size = arrayList.size() - 1;
                     for (int i = size; i >= 0; i--) {
                         Evidence evidence = evidenceSet.get(i);
@@ -196,7 +187,7 @@ public class EvidenceIntegrationParamPanel extends AbstractSaveableParameterPane
                     dialog.pack();
                     dialog.setLocationRelativeTo(evidenceTable);
                     dialog.setVisible(true);
-                    int[] seleInts = evidenceTable.getSelectedRows();
+
                     evidenceTableModel.fireTableDataChanged();
                 }
             });

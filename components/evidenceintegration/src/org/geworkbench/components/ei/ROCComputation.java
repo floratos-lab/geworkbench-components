@@ -1,13 +1,9 @@
 package org.geworkbench.components.ei;
 
-import edu.columbia.c2b2.evidenceinegration.Evidence;
-import edu.columbia.c2b2.evidenceinegration.Edge;
-
-import java.util.HashMap;
-import java.util.ArrayList;
-
-import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.data.xy.XYSeries;
+
+import edu.columbia.c2b2.evidenceinegration.Edge;
+import edu.columbia.c2b2.evidenceinegration.Evidence;
 
 /**
  * Created by IntelliJ IDEA.
@@ -17,26 +13,12 @@ import org.jfree.data.xy.XYSeries;
  * To change this template use File | Settings | File Templates.
  */
 public class ROCComputation {
-    private HashMap hashMap;
-    private ArrayList<Evidence> arrayList;
-    private float threshold;
-
-    public ROCComputation(HashMap _HashMap, ArrayList<Evidence> arrays) {
-        hashMap = _HashMap;
-        arrayList = arrays;
-
-    }
-
-    public ROCComputation() {
-
-    }
-
 
     public XYSeries getXYSeries(double miniumIncreaseForThreshold, Evidence evidence, int currentGoldStandNumber) {
         XYSeries series = new XYSeries("" + evidence.getName());
         if (evidence != null && currentGoldStandNumber >= 0) {
             int totalBinNumber = (int) (1 / miniumIncreaseForThreshold) + 1;
-            int totalEdgeNumber = evidence.getEdges().size();
+
             int[] pp = new int[totalBinNumber];
             int[] np = new int[totalBinNumber];
             int totalPP = 0;

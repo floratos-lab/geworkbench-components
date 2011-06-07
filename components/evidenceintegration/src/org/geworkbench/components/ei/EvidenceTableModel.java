@@ -13,7 +13,9 @@ import edu.columbia.c2b2.evidenceinegration.Evidence;
  */
 public class EvidenceTableModel extends DefaultTableModel {
 
-    static Log log = LogFactory.getLog(EvidenceTableModel.class);
+	private static final long serialVersionUID = -4326917002220116210L;
+
+	static Log log = LogFactory.getLog(EvidenceTableModel.class);
 
     List<Evidence> evidenceSet;
     String[] headers = new String[]{"", "Name", "Bins"};
