@@ -9,15 +9,22 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 import javax.swing.SwingUtilities;
 
+import ontologizer.ByteString;
 import ontologizer.OntologizerCore;
+import ontologizer.association.AssociationContainer;
+import ontologizer.association.Gene2Associations;
 import ontologizer.calculation.AbstractGOTermProperties;
 import ontologizer.calculation.EnrichedGOTermsResult;
 import ontologizer.go.OBOParserException;
 import ontologizer.go.Term;
+import ontologizer.go.TermID;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -170,13 +177,6 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 					"GO Terms Analysis cancelled", null);
 		}
 
-		try {
-			GoAnalysisResult.parseAnnotation(associationFileName);
-		} catch (IOException e1) {
-			progressBar.dispose();
-			return new AlgorithmExecutionResults(false,
-					"IOException: "+e1.getMessage(), null);
-		}
 		if (this.stopAlgorithm) {
 			progressBar.dispose();
 			return new AlgorithmExecutionResults(false,
@@ -241,6 +241,26 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 					}
 			}
 		}
+		
+		HashMap<Integer, Set<String>> term2Gene = new HashMap<Integer, Set<String> >();
+		AssociationContainer container = ontologizerCore.getGoAssociations();
+		for(ByteString gene : container.getAllAnnotatedGenes()) {
+			String geneString = gene.toString();
+			Gene2Associations associations = container.get(gene);
+			for(TermID termId : associations.getAssociations()) {
+				Integer id = termId.id;
+				Set<String> set = term2Gene.get(id);
+				if(set==null) {
+					set = new HashSet<String>();
+					term2Gene.put(id, set);
+				}
+				if(!set.contains(geneString)) {
+					set.add(gene.toString());
+				}
+			}
+		}
+
+		analysisResult.setTerm2Gene(term2Gene);
 
 		progressBar.dispose();
 		if (this.stopAlgorithm) {
