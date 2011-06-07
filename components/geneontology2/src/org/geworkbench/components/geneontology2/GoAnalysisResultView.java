@@ -65,8 +65,8 @@ import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.GoAnalysisResult;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationManager;
 import org.geworkbench.bison.datastructure.bioobjects.markers.goterms.GeneOntologyTree;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
@@ -568,9 +568,17 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		
 	}
 
+	private Set<String> getAnnotatedGenes(int goTermId) {
+		if(result!=null) {
+			return result.getAnnotatedGenes(goTermId);
+		} else {
+			return AnnotationManager.getAnnotatedGenes(dataSet, goTermId);
+		}
+	}
+	
 	private void showTermDetail(int goId) {
 		geneDetails.setContentType("text/plain");
-		if(GoAnalysisResult.getAnnotatedGenes(goId)==null) {
+		if(getAnnotatedGenes(goId)==null) {
 			geneDetails.setText("No gene annotated to GO ID "+goId);
 			return;
 		}
@@ -579,9 +587,9 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 	
 		// here are the genes annotated to this term only, not to descendants.
 		int i=0;
-		for(String gene: GoAnalysisResult.getAnnotatedGenes(goId)) {
+		for(String gene: getAnnotatedGenes(goId)) {
 			sb.append(gene).append("\n   Gene title: ").append(
-					GoAnalysisResult.getGeneDetail(gene))
+					AnnotationManager.getGeneDetail(dataSet, gene))
 					.append("\n\n");
 			i++;
 		}
@@ -591,7 +599,7 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 	}
 	
 	protected void showGeneDetail(String geneSymbol) {
-		int geneId = GoAnalysisResult.getEntrezId(geneSymbol);
+		int geneId = AnnotationManager.getEntrezId(dataSet, geneSymbol);
 		geneDetails.setContentType("text/html");
 		geneDetails.setText("Details of Gene " + geneSymbol
 				+ "<p>Entrez ID: "+geneId+" <a href=http://www.ncbi.nlm.nih.gov/gene/" + geneId
@@ -709,13 +717,13 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 	}
 	
 	// this is only used in the case of expression data set instead of ontology analysis result
-	private DSMicroarraySet<CSMicroarray> dataSet = null;
+	private DSMicroarraySet<DSMicroarray> dataSet = null;
 	
 	// listen to the even that the user switches between data/result nodes, or new result node is created
 	@SuppressWarnings("unchecked")
 	@Subscribe
 	public void receive(ProjectEvent e, Object source) {
-		DSDataSet<CSMicroarray> dataSet = e.getDataSet();
+		DSDataSet<?> dataSet = e.getDataSet();
 		if (dataSet instanceof GoAnalysisResult) {
 			result = (GoAnalysisResult)dataSet;
 			dataSet = null; // not used in case of ontology analysis result
@@ -729,7 +737,7 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 			repaint();
 		} else if (dataSet instanceof DSMicroarraySet) {
 			result = null;
-			this.dataSet = (DSMicroarraySet<CSMicroarray>)dataSet;
+			this.dataSet = (DSMicroarraySet<DSMicroarray>)dataSet;
 			if(GeneOntologyTree.getInstance()==null) {
 				updateFromBackground();
 				return;
@@ -790,18 +798,7 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		} else {
 			log.error("'Show genes for' not set");
 		}
-		// if it is not result, we may need to force parsing the annotation
-		// TODO parsing annotation is a duplicate effort
-		if (result == null && !GoAnalysisResult.isAnnotationParsed()) {
-			String annotationFileName = dataSet.getAnnotationFileName();
-			if(annotationFileName!=null)
-				try {
-					GoAnalysisResult.parseAnnotation(annotationFileName);
-				} catch (IOException e) {
-					e.printStackTrace();
-					return;
-				}
-		}
+
 		Set<Integer> processedTerms = new TreeSet<Integer>();
 		Set<String> genes = genesFomrTermAndDescendants(processedTerms, goId, includeDescendants);
 		
@@ -822,16 +819,16 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		for(String gene: genes) {
 			dataVector[i][0] = gene;
 			dataVector[i][1] = "";
-			dataVector[i][2] = GoAnalysisResult.getGeneDetail(gene);
+			dataVector[i][2] = AnnotationManager.getGeneDetail(dataSet, gene);
 			i++;
 		}
 
 		geneListTableModel.setDataVector(dataVector, geneListHeaders);
 	}
 	
-	private static Set<String> genesFomrTermAndDescendants(Set<Integer> processedTerms, int goId, boolean includeDescendants) {
+	private Set<String> genesFomrTermAndDescendants(Set<Integer> processedTerms, int goId, boolean includeDescendants) {
 		Set<String> genes = new HashSet<String>();
-		Set<String> annotatedGenes = GoAnalysisResult.getAnnotatedGenes(goId);
+		Set<String> annotatedGenes = getAnnotatedGenes(goId);
 		if(annotatedGenes!=null)
 			genes.addAll(annotatedGenes);
 		
