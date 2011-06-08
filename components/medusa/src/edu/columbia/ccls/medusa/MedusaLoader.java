@@ -1,11 +1,24 @@
 package edu.columbia.ccls.medusa;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import cern.colt.bitvector.QuickBitMatrix;
 import cern.colt.list.DoubleArrayList;
 import cern.colt.list.IntArrayList;
 import cern.colt.map.OpenDoubleIntHashMap;
 import cern.colt.matrix.DoubleFactory2D;
-import cern.colt.matrix.DoubleMatrix1D;
 import cern.colt.matrix.DoubleMatrix2D;
 import cern.colt.matrix.impl.Matrix2;
 import cern.jet.math.Functions;
@@ -15,35 +28,21 @@ import edu.columbia.ccls.medusa.io.MedusaReader;
 import edu.columbia.ccls.medusa.io.MedusaWriter;
 import edu.columbia.ccls.medusa.io.RuleParser;
 import edu.columbia.ccls.medusa.sequence.FeatureReader;
-import edu.columbia.ccls.medusa.sequence.FeatureScannable;
 import edu.columbia.ccls.medusa.sequence.FileFeatureReader;
 import edu.columbia.ccls.medusa.sequence.IterativeMotifBuilder;
 import edu.columbia.ccls.medusa.sequence.PositionalMotifBuilder;
-import edu.columbia.ccls.medusa.sequence.SequenceScanFeatureReader;
 import edu.columbia.ccls.medusa.sequence.WindowMotifBuilder;
 import edu.columbia.ccls.medusa.sequence.pssm.PssmFunctions;
 import edu.columbia.ccls.medusa.sequence.pssm.ScorePssm;
 import edu.columbia.ccls.utilities.ArrayUtils;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
+/* this class is decompiled from Perseus.jar
+	to intentionally shadow the original one that has a bug. see line 54-55.
+ */
 public class MedusaLoader
 {
   protected static final Log log;
-  private static final boolean trace;
-  private static final boolean debug;
-  private static final boolean info;
+
   protected static HashMap<String, String> hshArgs;
   protected static final String slash;
   protected static DoubleFactory2D matrixFactory;
@@ -65,7 +64,7 @@ public class MedusaLoader
     }
     else
     {
-      hshArgs = new HashMap();
+      hshArgs = new HashMap<String, String>();
       for (int j = 0; j < paramArrayOfString.length; ++j)
       {
         String[] localObject = paramArrayOfString[j].split("=");
@@ -89,7 +88,7 @@ public class MedusaLoader
       ((Medusa)localObject).initRootScore();
       log.info("Root score is: " + ((Medusa)localObject).getRootScore());
       log.info("Beginning MEDUSA run of " + localMedusaConfiguration.getMaxIter() + " iterations.");
-      ArrayList localArrayList = ((Medusa)localObject).findRules();
+      ArrayList<Rule> localArrayList = ((Medusa)localObject).findRules();
       long l2 = System.currentTimeMillis() - l1;
       if (localMedusaConfiguration.isVerbose())
         System.out.println("Total execution time " + l2 + " ms, " + (l2 / 1000L) + " seconds.");
@@ -117,9 +116,9 @@ public class MedusaLoader
     {
       String str2 = paramMedusaConfiguration.getDataPath() + File.separator + "fasta." + i + ".clean.txt";
       String str3 = paramMedusaConfiguration.getDataPath() + File.separator + "genes." + i + ".txt";
-      List localList = localMedusaReader.createCleanFile(str1, str2, 0, null);
+      List<String> localList = localMedusaReader.createCleanFile(str1, str2, 0, null);
       FileWriter localFileWriter = new FileWriter(new File(str3));
-      Iterator localIterator = localList.iterator();
+      Iterator<String> localIterator = localList.iterator();
       while (localIterator.hasNext())
       {
         String str4 = (String)localIterator.next();
@@ -174,7 +173,7 @@ public class MedusaLoader
     File localFile1 = new File(paramMedusaConfiguration.getOutputPath());
     Object localObject1;
     Object localObject2;
-    String str2;
+
     File localFile2;
     if (!(paramMedusaConfiguration.resumeRun()))
     {
@@ -307,9 +306,9 @@ public class MedusaLoader
     IntArrayList localIntArrayList1 = new IntArrayList();
     IntArrayList localIntArrayList2 = new IntArrayList();
     DoubleArrayList localDoubleArrayList = new DoubleArrayList();
-    Functions localFunctions = Functions.functions;
-    HashMap localHashMap1 = new HashMap();
-    HashMap localHashMap2 = new HashMap();
+
+    HashMap<Double, Integer> localHashMap1 = new HashMap<Double, Integer>();
+    HashMap<Double, Integer> localHashMap2 = new HashMap<Double, Integer>();
     if (localMedusaConfiguration.getFewestTrim() != 0.0D)
     {
       double d1 = Math.ceil(localMedusaConfiguration.getFewestTrim() / 100.0D * j);
@@ -519,9 +518,7 @@ public class MedusaLoader
   static
   {
     log = LogFactory.getLog(MedusaLoader.class);
-    trace = log.isTraceEnabled();
-    debug = log.isDebugEnabled();
-    info = log.isInfoEnabled();
+
     slash = File.separator;
     matrixFactory = DoubleFactory2D.dense;
   }

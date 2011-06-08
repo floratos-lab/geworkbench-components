@@ -7,10 +7,7 @@ import java.util.Random;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.medusa.MedusaCommand;
-import org.w3c.dom.Document;
 
 import edu.columbia.ccls.medusa.io.RuleParser;
 import edu.columbia.ccls.medusa.io.SerializedRule;
@@ -23,7 +20,6 @@ import edu.columbia.ccls.medusa.io.SerializedRule;
  * @version $Id: MedusaUtilTest.java,v 1.9 2007-07-10 17:25:22 keshav Exp $
  */
 public class MedusaUtilTest extends TestCase {
-	private Log log = LogFactory.getLog(this.getClass());
 
 	RuleParser parser = null;
 
@@ -32,8 +28,6 @@ public class MedusaUtilTest extends TestCase {
 	String rulesFile = "rule_0.xml";
 
 	String sequencePath = "data/test/dataset/output/run1";
-
-	private Document doc = null;
 
 	@Override
 	protected void setUp() throws Exception {

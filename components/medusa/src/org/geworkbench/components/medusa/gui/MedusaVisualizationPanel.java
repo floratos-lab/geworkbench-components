@@ -396,7 +396,6 @@ public class MedusaVisualizationPanel extends JPanel {
 			 *
 			 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 			 */
-			@SuppressWarnings("unchecked")
 			public void actionPerformed(ActionEvent e) {
 				// add all values in selected selectedMarkerMap
 				Collection<DSGeneMarker> selectedMarkers = dirtySelectedMarkerMap
@@ -404,7 +403,7 @@ public class MedusaVisualizationPanel extends JPanel {
 				DSPanel<DSGeneMarker> panel = new CSPanel<DSGeneMarker>();
 				panel.addAll(selectedMarkers);
 				visualComponent
-						.publishSubpanelChangedEvent(new SubpanelChangedEvent(
+						.publishSubpanelChangedEvent(new SubpanelChangedEvent<DSGeneMarker>(
 								DSGeneMarker.class, panel,
 								org.geworkbench.events.SubpanelChangedEvent.NEW));
 

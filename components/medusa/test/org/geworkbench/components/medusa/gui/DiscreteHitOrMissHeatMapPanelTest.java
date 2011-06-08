@@ -53,7 +53,7 @@ public class DiscreteHitOrMissHeatMapPanelTest extends TestCase {
 			names.add("gene_label_" + i);
 		}
 
-		rulesFiles = new ArrayList();
+		rulesFiles = new ArrayList<String>();
 		String rulesFile0 = "rule_0.xml";
 		rulesFiles.add(rulesFile0);
 		String rulesFile1 = "rule_1.xml";

@@ -14,7 +14,6 @@ import javax.swing.JRadioButton;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JViewport;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.table.TableColumn;
 

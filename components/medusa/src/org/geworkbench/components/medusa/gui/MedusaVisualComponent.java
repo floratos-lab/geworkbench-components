@@ -28,6 +28,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.medusa.MedusaDataSet;
+import org.geworkbench.bison.datastructure.properties.DSNamed;
 import org.geworkbench.builtin.projects.Icons;
 import org.geworkbench.components.medusa.MedusaUtil;
 import org.geworkbench.engine.config.VisualPlugin;
@@ -209,10 +210,9 @@ public class MedusaVisualComponent implements VisualPlugin {
 	 * @param event
 	 * @return SubpanelChangedEvent
 	 */
-	@SuppressWarnings("unchecked")
 	@Publish
-	public SubpanelChangedEvent publishSubpanelChangedEvent(
-			org.geworkbench.events.SubpanelChangedEvent event) {
+	public SubpanelChangedEvent<? extends DSNamed> publishSubpanelChangedEvent(
+			org.geworkbench.events.SubpanelChangedEvent<? extends DSNamed> event) {
 		return event;
 	}
 

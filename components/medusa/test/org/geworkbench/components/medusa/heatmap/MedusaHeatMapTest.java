@@ -3,7 +3,6 @@ import javax.swing.JDialog;
 
 import junit.framework.TestCase;
 
-import org.geworkbench.bison.datastructure.biocollections.medusa.MedusaData;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
@@ -23,16 +22,14 @@ import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
  */
 public class MedusaHeatMapTest extends TestCase {
 
-	private MedusaData medusaData = null;
-
 	private int numElements = 2;
 
 	float data[][] = new float[numElements][numElements];
 
 	@Override
 	protected void setUp() {
-		DSMicroarraySetView view = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>();
-		DSMicroarraySet microarraySet = new CSMicroarraySet<DSMicroarray>();
+		DSMicroarraySetView<DSGeneMarker, DSMicroarray> view = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>();
+		DSMicroarraySet<DSMicroarray> microarraySet = new CSMicroarraySet<DSMicroarray>();
 		microarraySet.setLabel(this.getClass().getName());
 
 		// DSItemList markers = view.markers();
@@ -49,7 +46,7 @@ public class MedusaHeatMapTest extends TestCase {
 			microarraySet.add(microarray);
 		}
 
-		DSPanel markerPanel = view.getMarkerPanel();
+		DSPanel<DSGeneMarker> markerPanel = view.getMarkerPanel();
 		for (int i = 0; i < numElements; i++) {
 			DSGeneMarker geneMarker = new CSGeneMarker();
 			geneMarker.setGeneId(i);
