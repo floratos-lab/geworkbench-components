@@ -52,8 +52,8 @@ public class MedusaPluginTest extends TestCase {
 	protected void setUp() {
 
 		/* set up the microarray set (and view) */
-		DSMicroarraySetView view = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>();
-		DSMicroarraySet microarraySet = new CSMicroarraySet<DSMicroarray>();
+		DSMicroarraySetView<DSGeneMarker, DSMicroarray> view = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>();
+		DSMicroarraySet<DSMicroarray> microarraySet = new CSMicroarraySet<DSMicroarray>();
 		microarraySet.setLabel(this.getClass().getName());
 
 		// DSItemList markers = view.markers();
@@ -71,7 +71,7 @@ public class MedusaPluginTest extends TestCase {
 		}
 
 		targets = new ArrayList<DSGeneMarker>();
-		DSPanel markerPanel = view.getMarkerPanel();
+		DSPanel<DSGeneMarker> markerPanel = view.getMarkerPanel();
 		for (int i = 0; i < numElements; i++) {
 			DSGeneMarker geneMarker = new CSGeneMarker();
 			geneMarker.setGeneId(i);

@@ -3,24 +3,33 @@ package org.geworkbench.components.medusa.gui;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.event.*;
-import java.awt.font.FontRenderContext;
-import java.awt.font.TextLayout;
-import java.awt.geom.AffineTransform;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.io.File;
 
-import javax.swing.*;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
-import javax.swing.table.AbstractTableModel;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -51,10 +60,6 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel implements
 
     private Log log = LogFactory.getLog(this.getClass());
 
-    private String sequencePath = null;
-
-    private String rulePath = null;
-
     private List<String> ruleFiles = null;
 
     private List<String> targetNames = null;
@@ -65,12 +70,12 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel implements
 
     private JTabbedPane parentPanel = null;
 
-    public ArrayList rectRule = new ArrayList();
+    public ArrayList<RectangleRule> rectRule = new ArrayList<RectangleRule>();
     private static final int COLUMN_WIDTH = 80;
     private static final double thresholdDistance = 1.0;
     JPanel pssmPanel;
-    List TFInfoBeanArr = new ArrayList();
-    List matchedTFInfoBeanArr = new ArrayList();
+    List<TranscriptionFactorInfoBean> TFInfoBeanArr = new ArrayList<TranscriptionFactorInfoBean>();
+    List<TranscriptionFactorInfoBean> matchedTFInfoBeanArr = new ArrayList<TranscriptionFactorInfoBean>();
     JScrollPane TFScrollPane = new JScrollPane();
 
     /**
@@ -85,11 +90,7 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel implements
 
         log.debug("Constructing " + this.getClass().getSimpleName());
 
-        this.rulePath = rulePath;
-
         this.ruleFiles = ruleFiles;
-
-        this.sequencePath = sequencePath;
 
         this.targetNames = targetNames;
 
@@ -106,7 +107,6 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel implements
       *
       * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
       */
-    @SuppressWarnings("unchecked")
     public void paintComponent(Graphics g) {
 
         clear(g);
@@ -144,43 +144,6 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel implements
     }
 
     /**
-     * @param label
-     *            The String to draw.
-     * @param g2d
-     * @param row
-     *            The row from where to draw the text.
-     * @param lcol
-     *            The (incremental) column where the text should be drawn.
-     */
-    @SuppressWarnings("unchecked")
-    private void drawColumnNames(SerializedRule srule, Graphics2D g2d, int row,
-                                 int lcol) {
-
-        String sequence = MedusaUtil.generateConsensusSequence(srule.getPssm());
-
-        // TODO move method into a "gui util" class
-        AffineTransform fontAT = new AffineTransform();
-
-        /* slant text backwards */
-        // fontAT.shear(0.2, 0.0);
-        /* counter-clockwise 90 degrees */
-        fontAT.setToRotation(Math.PI * 3.0f / 2.0f);
-        Font font = new Font("Helvetica", Font.ITALIC, 12);
-        Font theDerivedFont = font.deriveFont(fontAT);
-
-        FontRenderContext frc = g2d.getFontRenderContext();
-        TextLayout tstring = new TextLayout(sequence, theDerivedFont, frc);
-
-        tstring.draw(g2d, lcol, row);
-        Rectangle2D stringBound = tstring.getOutline(fontAT).getBounds2D();
-
-        Rectangle2D.Double rect = new Rectangle2D.Double(lcol
-                - stringBound.getHeight(), row - stringBound.getWidth(),
-                stringBound.getHeight(), stringBound.getWidth());
-        rectRule.add(new RectangleRule(rect, srule));
-    }
-
-    /**
      *
      * @param g
      */
@@ -200,7 +163,7 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel implements
         // Graphics g = getGraphics();
         // ToDO: implement this.. highlist the rect area where the mouse is
         boolean check = false;
-        for (Iterator itr = rectRule.iterator(); itr.hasNext();) {
+        for (Iterator<RectangleRule> itr = rectRule.iterator(); itr.hasNext();) {
             // getPreferredSize();
             RectangleRule rectangleRule = (RectangleRule) itr.next();
             if (rectangleRule.rect.contains(e.getX(), e.getY())) {
@@ -230,7 +193,7 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel implements
 
     public void mouseClicked(MouseEvent e) {
         // TODO: implement this... open new PSSM Tab
-        for (Iterator itr = rectRule.iterator(); itr.hasNext();) {
+        for (Iterator<RectangleRule> itr = rectRule.iterator(); itr.hasNext();) {
             // getPreferredSize();
             RectangleRule rectangleRule = (RectangleRule) itr.next();
             if (rectangleRule.rect.contains(e.getX(), e.getY())) {
@@ -244,8 +207,8 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel implements
     private void addTab(final SerializedRule rule) {
         pssmPanel = new JPanel();
         JScrollPane mainScrollPane = new JScrollPane();
-        TFInfoBeanArr = new ArrayList();
-        matchedTFInfoBeanArr = new ArrayList();
+        TFInfoBeanArr = new ArrayList<TranscriptionFactorInfoBean>();
+        matchedTFInfoBeanArr = new ArrayList<TranscriptionFactorInfoBean>();
 
         /*
 		 * mainScrollPane
@@ -339,7 +302,7 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel implements
                 if(returnVal == JFileChooser.APPROVE_OPTION) {
                     File chosenFile = chooser.getSelectedFile();
                     if(buttons.get(0).isSelected()){
-                        List loadedBeans = MedusaUtil.readPssmFromJasperFile(chosenFile.getAbsolutePath());
+                        List<TranscriptionFactorInfoBean> loadedBeans = MedusaUtil.readPssmFromJasperFile(chosenFile.getAbsolutePath());
                         if(loadedBeans == null){
                             JOptionPane.showMessageDialog(null, "File could not be loaded.", "I/O Error", JOptionPane.ERROR_MESSAGE);
                             return;
@@ -351,7 +314,7 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel implements
                         TFInfoBeanArr.addAll(loadedBeans);
                     }
                     else{
-                        List loadedBeans = MedusaUtil.readPssmFromFile(chosenFile.getAbsolutePath());
+                        List<TranscriptionFactorInfoBean> loadedBeans = MedusaUtil.readPssmFromFile(chosenFile.getAbsolutePath());
                         if(loadedBeans == null){
                             JOptionPane.showMessageDialog(null, "File could not be loaded.", "I/O Error", JOptionPane.ERROR_MESSAGE);
                             return;
@@ -376,7 +339,7 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel implements
                 double[] backgroundPercents = {0.25, 0.25,0.25,0.25};
                 JensenShannonDivergence jd = new JensenShannonDivergence(backgroundPercents, 17);
                 boolean foundMatchedPSSM = false;
-                for(Iterator itr=TFInfoBeanArr.iterator();itr.hasNext();){
+                for(Iterator<TranscriptionFactorInfoBean> itr=TFInfoBeanArr.iterator();itr.hasNext();){
                     TranscriptionFactorInfoBean nextBean = (TranscriptionFactorInfoBean)itr.next();
                     double[] distance = jd.getDistance(rule.getPssm(), nextBean.getPssm());
                     nextBean.setDistance(distance[0]);
@@ -389,7 +352,9 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel implements
                     JOptionPane.showMessageDialog(null, "No PSSM satisfied the maximum threshold criteria", "zero search results", JOptionPane.INFORMATION_MESSAGE);
                 }
                 TableModel dataModel = new AbstractTableModel(){
-                    public int getColumnCount() { return 3; }
+					private static final long serialVersionUID = 8525384753045171433L;
+					
+					public int getColumnCount() { return 3; }
                     public int getRowCount() { return matchedTFInfoBeanArr.size();}
                     public Object getValueAt(int row, int col) {
                         TranscriptionFactorInfoBean infoBean = (TranscriptionFactorInfoBean)matchedTFInfoBeanArr.get(row);
@@ -472,7 +437,7 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel implements
         // Do Nothing
     }
 
-    public ArrayList getRectRule() {
+    public ArrayList<RectangleRule> getRectRule() {
         return rectRule;
     }
 

@@ -2,7 +2,6 @@ package org.geworkbench.components.medusa;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import junit.framework.TestCase;
 
@@ -61,16 +60,12 @@ public class MedusaAnalysisTest extends TestCase {
 
 	float data[][] = new float[numElements][numElements];
 
-	DSMicroarraySetView view = null;
+	DSMicroarraySetView<DSGeneMarker, DSMicroarray> view = null;
 
 	@Override
 	protected void setUp() {
 		panel = new MedusaParamPanel();
 		analysis = new MedusaAnalysis();
-
-		Random r = new Random();
-
-		// discreteUtil = new DiscretizationUtil();
 
 		for (int i = 0; i < numElements; i++) {
 			for (int j = 0; j < numElements; j++) {
@@ -81,7 +76,7 @@ public class MedusaAnalysisTest extends TestCase {
 		}
 
 		view = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>();
-		DSMicroarraySet microarraySet = new CSMicroarraySet<DSMicroarray>();
+		DSMicroarraySet<DSMicroarray> microarraySet = new CSMicroarraySet<DSMicroarray>();
 		microarraySet.setLabel(this.getClass().getName());
 
 		// DSItemList markers = view.markers();
@@ -98,7 +93,7 @@ public class MedusaAnalysisTest extends TestCase {
 			microarraySet.add(microarray);
 		}
 
-		DSPanel markerPanel = view.getMarkerPanel();
+		DSPanel<DSGeneMarker> markerPanel = view.getMarkerPanel();
 		for (int i = 0; i < numElements; i++) {
 			DSGeneMarker geneMarker = new CSGeneMarker();
 			geneMarker.setGeneId(i);

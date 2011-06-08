@@ -25,6 +25,7 @@ import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.medusa.MedusaCommand;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.components.medusa.gui.TranscriptionFactorInfoBean;
 import org.geworkbench.util.FilePathnameUtils;
@@ -64,7 +65,7 @@ public class MedusaUtil {
 	 * @return boolean
 	 */
 	public static boolean writeMedusaLabelsFile(
-			DSMicroarraySetView microarraySetView, String filename,
+			DSMicroarraySetView<DSGeneMarker, DSMicroarray> microarraySetView, String filename,
 			List<DSGeneMarker> regulators, List<DSGeneMarker> targets) {
 
 		BufferedWriter out = null;
@@ -279,19 +280,6 @@ public class MedusaUtil {
 	}
 
 	/**
-	 * Print the data from the PSSM matrix.
-	 * 
-	 * @param data
-	 */
-	private void printData(double[][] data) {
-		for (int i = 0; i < data.length; i++) {
-			for (int j = 0; j < data[i].length; j++) {
-				log.info("[" + i + "][" + j + "] = " + data[i][j]);
-			}
-		}
-	}
-
-	/**
 	 * Returns the sequences used in the medusa run.
 	 * 
 	 * @param sequencePath
@@ -460,13 +448,13 @@ public class MedusaUtil {
 		File runDir = new File("temp/medusa/dataset/output/run1/");
 
 		if (runDir.exists()) {
-			Collection dirFiles = FileTools.listDirectoryFiles(runDir);
+			Collection<File> dirFiles = FileTools.listDirectoryFiles(runDir);
 			FileTools.deleteFiles(dirFiles);
 
 			// delete rules files
 			try {
 			File rulesDir = new File("temp/medusa/dataset/output/run1/rules/");
-			Collection rulesFiles = FileTools.listDirectoryFiles(rulesDir);
+			Collection<File> rulesFiles = FileTools.listDirectoryFiles(rulesDir);
 			FileTools.deleteFiles(rulesFiles);
 			}catch(IllegalArgumentException iAE){
 			}
@@ -474,7 +462,7 @@ public class MedusaUtil {
 			try{
 			File dataDir = new File(
 					"temp/medusa/dataset/output/run1/state/data/");
-			Collection dataFiles = FileTools.listDirectoryFiles(dataDir);
+			Collection<File> dataFiles = FileTools.listDirectoryFiles(dataDir);
 			FileTools.deleteFiles(dataFiles);
 			FileTools.deleteDir(dataDir);
 			}catch(IllegalArgumentException iAE){
@@ -484,7 +472,7 @@ public class MedusaUtil {
 			try{
 			File featuresDir = new File(
 					"temp/medusa/dataset/output/run1/state/features/");
-			Collection featuresFiles = FileTools
+			Collection<File> featuresFiles = FileTools
 					.listDirectoryFiles(featuresDir);
 			FileTools.deleteFiles(featuresFiles);
 			FileTools.deleteDir(featuresDir);
@@ -568,8 +556,8 @@ public class MedusaUtil {
 	 * @param filePath
 	 * @return
 	 */
-	public static List readPssmFromFile(String filePath) {
-		ArrayList TFInfoBeanArr = new ArrayList();
+	public static List<TranscriptionFactorInfoBean> readPssmFromFile(String filePath) {
+		ArrayList<TranscriptionFactorInfoBean> TFInfoBeanArr = new ArrayList<TranscriptionFactorInfoBean>();
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(new File(
 					filePath)));
@@ -636,10 +624,10 @@ public class MedusaUtil {
 	 * @param file
 	 * @return
 	 */
-	public static boolean writeMatchedPssmsToFile(List TFInfoBeanList, File file) {
+	public static boolean writeMatchedPssmsToFile(List<TranscriptionFactorInfoBean> TFInfoBeanList, File file) {
 		try {
 			BufferedWriter out = new BufferedWriter(new FileWriter(file));
-			for (Iterator itr = TFInfoBeanList.iterator(); itr.hasNext();) {
+			for (Iterator<TranscriptionFactorInfoBean> itr = TFInfoBeanList.iterator(); itr.hasNext();) {
 				TranscriptionFactorInfoBean nextBean = (TranscriptionFactorInfoBean) itr
 						.next();
 				out.write(">" + nextBean.getName());
@@ -672,8 +660,8 @@ public class MedusaUtil {
 	 * @param filePath
 	 * @return {@link List}
 	 */
-	public static List readPssmFromJasperFile(String filePath) {
-		ArrayList TFInfoBeanArr = new ArrayList();
+	public static List<TranscriptionFactorInfoBean> readPssmFromJasperFile(String filePath) {
+		ArrayList<TranscriptionFactorInfoBean> TFInfoBeanArr = new ArrayList<TranscriptionFactorInfoBean>();
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(new File(
 					filePath)));
@@ -681,10 +669,10 @@ public class MedusaUtil {
 			StringTokenizer strTok = null;
 			double nextPssm[][];
 			int i = 0;
-			ArrayList A = new ArrayList(), C = new ArrayList(), G = new ArrayList(), T = new ArrayList();
+			ArrayList<Double> A = new ArrayList<Double>(), C = new ArrayList<Double>(), G = new ArrayList<Double>(), T = new ArrayList<Double>();
 			String prevTF = "", nextTF;
 			String nextNuc = "";
-			int nextPos = -1;
+
 			double nextVal = 0.0;
 			while ((nextLine = br.readLine()) != null) {
 				strTok = new StringTokenizer(nextLine, "\t");
@@ -693,7 +681,7 @@ public class MedusaUtil {
 				i++;
 				nextTF = strTok.nextToken();
 				nextNuc = strTok.nextToken();
-				nextPos = Integer.parseInt(strTok.nextToken());
+				Integer.parseInt(strTok.nextToken()); // ignore the result
 				nextVal = Double.parseDouble(strTok.nextToken());
 
 				if (i == 1 || !nextTF.equals(prevTF)) {
@@ -706,34 +694,34 @@ public class MedusaUtil {
 
 						nextPssm[0] = new double[A.size()];
 						int j = 0;
-						for (Iterator itr = A.iterator(); itr.hasNext();) {
+						for (Iterator<Double> itr = A.iterator(); itr.hasNext();) {
 							Double val = (Double) itr.next();
 							nextPssm[0][j++] = val.doubleValue();
 						}
 						nextPssm[1] = new double[C.size()];
 						j = 0;
-						for (Iterator itr = C.iterator(); itr.hasNext();) {
+						for (Iterator<Double> itr = C.iterator(); itr.hasNext();) {
 							Double val = (Double) itr.next();
 							nextPssm[1][j++] = val.doubleValue();
 						}
 						nextPssm[2] = new double[G.size()];
 						j = 0;
-						for (Iterator itr = G.iterator(); itr.hasNext();) {
+						for (Iterator<Double> itr = G.iterator(); itr.hasNext();) {
 							Double val = (Double) itr.next();
 							nextPssm[2][j++] = val.doubleValue();
 						}
 						nextPssm[3] = new double[T.size()];
 						j = 0;
-						for (Iterator itr = T.iterator(); itr.hasNext();) {
+						for (Iterator<Double> itr = T.iterator(); itr.hasNext();) {
 							Double val = (Double) itr.next();
 							nextPssm[3][j++] = val.doubleValue();
 						}
 						nextBean.setPssm(nextPssm);
 						TFInfoBeanArr.add(nextBean);
-						A = new ArrayList();
-						C = new ArrayList();
-						G = new ArrayList();
-						T = new ArrayList();
+						A = new ArrayList<Double>();
+						C = new ArrayList<Double>();
+						G = new ArrayList<Double>();
+						T = new ArrayList<Double>();
 					}
 				}
 				if (nextNuc.equals("A"))
@@ -755,25 +743,25 @@ public class MedusaUtil {
 
 				nextPssm[0] = new double[A.size()];
 				int j = 0;
-				for (Iterator itr = A.iterator(); itr.hasNext();) {
+				for (Iterator<Double> itr = A.iterator(); itr.hasNext();) {
 					Double val = (Double) itr.next();
 					nextPssm[0][j++] = val.doubleValue();
 				}
 				nextPssm[1] = new double[C.size()];
 				j = 0;
-				for (Iterator itr = C.iterator(); itr.hasNext();) {
+				for (Iterator<Double> itr = C.iterator(); itr.hasNext();) {
 					Double val = (Double) itr.next();
 					nextPssm[1][j++] = val.doubleValue();
 				}
 				nextPssm[2] = new double[G.size()];
 				j = 0;
-				for (Iterator itr = G.iterator(); itr.hasNext();) {
+				for (Iterator<Double> itr = G.iterator(); itr.hasNext();) {
 					Double val = (Double) itr.next();
 					nextPssm[2][j++] = val.doubleValue();
 				}
 				nextPssm[3] = new double[T.size()];
 				j = 0;
-				for (Iterator itr = T.iterator(); itr.hasNext();) {
+				for (Iterator<Double> itr = T.iterator(); itr.hasNext();) {
 					Double val = (Double) itr.next();
 					nextPssm[3][j++] = val.doubleValue();
 				}
