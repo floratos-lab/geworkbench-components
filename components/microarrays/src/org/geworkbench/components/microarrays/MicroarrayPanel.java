@@ -289,8 +289,6 @@ public class MicroarrayPanel extends MicroarrayVisualizer implements
 		if ((mArrayId >= 0) && !forcedSliderChange) {
 			if (selectMicroarray(mArrayId)) {
 				DSMicroarray array = dataSetView.items().get(mArrayId);
-				publishPhenotypeSelectedEvent(new org.geworkbench.events.PhenotypeSelectedEvent(
-						array));
 				jMALabel.setText(array.getLabel());
 			}
 		}
