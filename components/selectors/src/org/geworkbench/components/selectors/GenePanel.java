@@ -1,27 +1,26 @@
 package org.geworkbench.components.selectors;
 
-import java.awt.Component;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener; 
+import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.FileInputStream; 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet; 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.JButton; 
-import javax.swing.JFileChooser; 
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JTree; 
 import javax.swing.tree.TreePath;
 
 import org.geworkbench.bison.annotation.CSAnnotationContextManager;
@@ -31,8 +30,10 @@ import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
+import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
 import org.geworkbench.bison.datastructure.complex.panels.CSAnnotPanel;
 import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
@@ -42,7 +43,6 @@ import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.engine.management.Overflow;
 import org.geworkbench.engine.management.Publish;
-import org.geworkbench.engine.management.Script;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.GeneTaggedEvent;
@@ -51,7 +51,6 @@ import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbench.util.Util;
 
-import com.Ostermiller.util.CSVPrinter;
 import com.Ostermiller.util.ExcelCSVParser;
 
 /**
@@ -199,7 +198,7 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 		lowerPanel.add(loadPanel);
 
 		taggedSelection = "Selection"; // default initial tagged selection
-		setTreeRenderer(new CustomizedRenderer());
+		setTreeRenderer(new SelectorTreeRenderer(this));
 	}
 
 	private void sortByGene(){
@@ -278,7 +277,6 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
 	private void createNewSubset() {
 		String label = JOptionPane.showInputDialog("Set Label:",
 				"");
@@ -286,7 +284,7 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 			return;
 		} else {
 			if (context.indexOfLabel(label) == -1) {
-				addPanel(new CSPanel(label));
+				addPanel(new CSPanel<DSGeneMarker>(label));
 			} else {
 				JOptionPane.showMessageDialog(null,
 					    "Label already in use.",
@@ -460,8 +458,9 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 		return panel;
 	}
 
-	private DSMicroarraySet maSet = null;
-	@SuppressWarnings("unchecked")
+	private DSMicroarraySet<DSMicroarray> maSet = null;
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	protected boolean dataSetChanged(DSDataSet dataSet) {
 
 		if (dataSet instanceof DSMicroarraySet) {
@@ -494,20 +493,19 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 	 * A new method to update the selected Panel marker numbers after the
 	 * filtering.
 	 */
-	@SuppressWarnings("unchecked")
 	private void updateSelectedPanel() {
 		int childTotalNumber = context.getNumberOfLabels();
 		for (int i = 0; i < childTotalNumber; i++) {
 			String label = context.getLabel(i);
-			DSPanel panel = context.getItemsWithLabel(label);
-			DSPanel removedPanel = new CSPanel();
+			DSPanel<DSGeneMarker> panel = context.getItemsWithLabel(label);
+			DSPanel<DSGeneMarker> removedPanel = new CSPanel<DSGeneMarker>();
 			if (panel != null && panel.size() > 0) {
-				for (Object o : panel) {
+				for (DSGeneMarker o : panel) {
 					if (!itemList.contains(o)) {
 						removedPanel.add(o);
 					}
 				}
-				for (Object o : removedPanel) {
+				for (DSGeneMarker o : removedPanel) {
 					panel.remove(o);
 				}
 			}
@@ -521,14 +519,9 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 	 * 
 	 * @param fe
 	 */
-	@SuppressWarnings("unchecked")
 	@Subscribe
 	public void receive(org.geworkbench.events.FilteringEvent fe, Object source) {
-		if (fe == null) {
-			return;
-		}
-		DSMicroarraySet sourceMA = fe.getOriginalMASet();
-		if (sourceMA == null) {
+		if (fe == null || fe.getOriginalMASet() == null) {
 			return;
 		}
 
@@ -547,9 +540,8 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 	}
 
 	@Publish
-	@SuppressWarnings("unchecked")
-	public SubpanelChangedEvent publishSubpanelChangedEvent(
-			SubpanelChangedEvent event) {
+	public SubpanelChangedEvent<DSGeneMarker> publishSubpanelChangedEvent(
+			SubpanelChangedEvent<DSGeneMarker> event) {
 		return event;
 	}
 
@@ -567,86 +559,19 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 		publishGeneSelectorEvent(new GeneSelectorEvent(item));
 	}
 
-	@Script
-	@SuppressWarnings("unchecked")
-	public void setDataSet(DSDataSet dataSet) {
-		processDataSet(dataSet);
-	}
-
-	@Script
-	@SuppressWarnings("unchecked")
-	public DSPanel createPanels(String label, int[] positions) {
-		// Ensure loaded file has unique name
-		Set<String> nameSet = new HashSet<String>();
-		int n = context.getNumberOfLabels();
-		for (int i = 0; i < n; i++) {
-			nameSet.add(context.getLabel(i));
-		}
-		label = Util.getUniqueName(label, nameSet);
-		DSPanel<DSGeneMarker> panel = new CSPanel<DSGeneMarker>(label);
-		for (int position : positions) {
-			DSGeneMarker marker = itemList.get(position);
-			if (marker != null) {
-				panel.add(marker);
-			}
-		}
-
-		addPanel(panel); // redundancy between broadcast and script
-		panel.setActive(true);
-		publishGeneSelectorEvent(new GeneSelectorEvent(panel));
-		return panel;
-	}
-
-	@Script
-	@SuppressWarnings("unchecked")
-	public DSPanel createPanel(String label, int position) {
-		// Ensure loaded file has unique name
-		Set<String> nameSet = new HashSet<String>();
-		int n = context.getNumberOfLabels();
-		for (int i = 0; i < n; i++) {
-			nameSet.add(context.getLabel(i));
-		}
-		label = Util.getUniqueName(label, nameSet);
-		DSPanel<DSGeneMarker> panel = new CSPanel<DSGeneMarker>(label);
-		DSGeneMarker marker = itemList.get(position);
-		if (marker != null) {
-			panel.add(marker);
-		}
-		try {
-			addPanel(panel); // redundancy between broadcast and script
-
-		} catch (IndexOutOfBoundsException e) {
-
-		}
-		panel.setActive(true);
-		publishGeneSelectorEvent(new GeneSelectorEvent(panel));
-		return panel;
-	}
-
-	@Script
-	@SuppressWarnings("unchecked")
-	public DSPanel getPanel(String dir) {
-		DSPanel<DSGeneMarker> panel = deserializePanel(new File(dir));
-		panel.setActive(true);
-		addPanel(panel); // redundancy between broadcast and script
-		publishGeneSelectorEvent(new GeneSelectorEvent(panel));
-
-		return panel;
-	}
-
 	@SuppressWarnings("unchecked")
 	@Subscribe
 	public void receive(
 			org.geworkbench.events.ProjectNodePostCompletedEvent pnce,
 			Object source) {
-		DSAncillaryDataSet result = pnce.getAncillaryDataSet();
+		DSAncillaryDataSet<? extends DSBioObject> result = pnce.getAncillaryDataSet();
 
-		if ((result != null) && (result instanceof DSSignificanceResultSet)) {
+		if ( result instanceof DSSignificanceResultSet ) {
 			// if it's a significance result set, we put all markers to a newly
 			// created Annotated Panel.
 			DSAnnotatedPanel<DSGeneMarker, Float> panelSignificant = new CSAnnotPanel<DSGeneMarker, Float>(
 					"Significant Genes");
-			DSSignificanceResultSet temp = (DSSignificanceResultSet<DSGeneMarker>) result;
+			DSSignificanceResultSet<DSGeneMarker> temp = (DSSignificanceResultSet<DSGeneMarker>) result;
 			DSPanel<DSGeneMarker> temp2 = temp.getSignificantMarkers();
 			for (DSGeneMarker named : temp2) {
 				panelSignificant.add(named);
@@ -661,11 +586,11 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 			 */
 
 			// 1. save current context
-			DSAnnotationContext currentContext = context;
+			DSAnnotationContext<DSGeneMarker> currentContext = context;
 			// 2. change to the one need modify
 			dataSetChanged(pnce.getAncillaryDataSet().getParentDataSet());
 
-			publishSubpanelChangedEvent(new SubpanelChangedEvent(
+			publishSubpanelChangedEvent(new SubpanelChangedEvent<DSGeneMarker>(
 					DSGeneMarker.class, panelSignificant,
 					SubpanelChangedEvent.NEW));
 			/*
@@ -673,7 +598,7 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 			 * case, we want it to be received in our parent - selectorPanel) so
 			 * we still need to call the receive() manually
 			 */
-			this.receive(new SubpanelChangedEvent(DSGeneMarker.class,
+			this.receive(new SubpanelChangedEvent<DSGeneMarker>(DSGeneMarker.class,
 					panelSignificant, SubpanelChangedEvent.NEW), this);
 
 			// 3. change it back
@@ -682,25 +607,7 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 		}
 	}
 
-	private class CustomizedRenderer extends SelectorTreeRenderer {
-		private static final long serialVersionUID = -1175125397626147482L;
-
-		public CustomizedRenderer() {
-            super(GenePanel.this);
-        }
-
-        @Override
-        public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-            Component comp = super.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
-//            if (value instanceof String) {
-//            	if(value.equals(taggedSelection))
-//            		cellLabel.setForeground(Color.BLUE);
-//            }
-            return comp;
-        }
-    }
-
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "rawtypes" })
 	@Override
 	@Subscribe(Overflow.class)
 	public void receive(org.geworkbench.events.SubpanelChangedEvent spe,
@@ -716,7 +623,6 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
     	tagEventEnabled = true;
     }
 	
-	@SuppressWarnings("unchecked")
 	protected void createNewContext() {		 
 		String name = JOptionPane.showInputDialog("New group name:");
 		if( name==null || name.length()==0 )
@@ -741,7 +647,6 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	protected void deleteContext() {
 
 		DSAnnotationContextManager manager = CSAnnotationContextManager
@@ -780,7 +685,7 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	 protected void switchContext(DSAnnotationContext newContext) {
 		if (!resetContextMode && (newContext != null)) {
 			context = newContext;
@@ -796,9 +701,5 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 			throwLabelEvent();
 		}
 	}
-
-	
-	
-	
 
 }
