@@ -131,13 +131,14 @@ public class ArraysSelectionPanel extends JPanel   {
 		double[] values = null;
 		String nodeId = node.getIdentifier();
 		String markerLabel = attrs.getStringAttribute(nodeId, "markerName");
+		String nodeLabel = attrs.getStringAttribute(nodeId, "displayedName");
 		List<Integer> markerIds = null;
-		if (markerLabel != null && markerLabel.equals(nodeId)) {
+		if (markerLabel != null && markerLabel.equals(nodeLabel)) {
 			markerIds = new ArrayList<Integer>(1);
 			markerIds.add(maSet.getMarkers().get(markerLabel).getSerial());
 		} else {
 			markerIds = CytoscapeWidget.getInstance().geneNameToMarkerIdMap
-					.get(nodeId);
+					.get(nodeLabel);
 		}
 
 		if (markerIds == null || markerIds.size() == 0)
