@@ -607,10 +607,9 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 		}
 	}
 
-	@SuppressWarnings({ "rawtypes" })
 	@Override
 	@Subscribe(Overflow.class)
-	public void receive(org.geworkbench.events.SubpanelChangedEvent spe,
+	public void receive(org.geworkbench.events.SubpanelChangedEvent<DSGeneMarker> spe,
 			Object source) {
     	// the proxy produced by cglib is something like this
     	//org.geworkbench.components.cytoscape.CytoscapeWidget$$EnhancerByCGLIB$$8bb8f936
