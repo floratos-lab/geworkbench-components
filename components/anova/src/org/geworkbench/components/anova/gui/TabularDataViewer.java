@@ -2,6 +2,7 @@ package org.geworkbench.components.anova.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.BufferedWriter;
@@ -9,6 +10,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
@@ -54,14 +57,18 @@ public class TabularDataViewer extends JPanel implements VisualPlugin {
 
 	public TabularDataViewer() {
 		this.setLayout(new BorderLayout());
-		// add a space on top and add a button "Display Preference" on the
-		// right.
-		JPanel panelDispPref = new JPanel();
-		panelDispPref.setLayout(new BorderLayout());
-		add(panelDispPref, java.awt.BorderLayout.NORTH);
+
+		// add two buttons "Display Preference" and "Export" on the top
+		JPanel topPanel = new JPanel();
+		topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.X_AXIS));
+		add(topPanel, java.awt.BorderLayout.NORTH);
 		JButton PrefButton = new JButton("Display Preference");
-		panelDispPref.setLayout(new BorderLayout());
-		panelDispPref.add(PrefButton, java.awt.BorderLayout.EAST);
+		JButton exportButton = new JButton("Export");
+		topPanel.add(Box.createHorizontalGlue());
+		topPanel.add(PrefButton);
+		topPanel.add(Box.createRigidArea(new Dimension(35,0)));
+		topPanel.add(exportButton);
+		topPanel.add(Box.createHorizontalGlue());
 
 		PrefButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -76,22 +83,14 @@ public class TabularDataViewer extends JPanel implements VisualPlugin {
 			}
 		});
 
-		TV = new TableViewer();
-		add(TV);
-
-		// export panel
-		JPanel panelExport = new JPanel();
-		panelExport.setLayout(new BorderLayout());
-		add(panelExport, java.awt.BorderLayout.SOUTH);
-		JButton exportButton = new JButton("Export");
-		panelExport.setLayout(new BorderLayout());
-		panelExport.add(exportButton, java.awt.BorderLayout.EAST);
-
 		exportButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent e) {
 				export();
 			}
 		});
+
+		TV = new TableViewer();
+		add(TV);
 	}
 
 	/**
@@ -319,6 +318,7 @@ public class TabularDataViewer extends JPanel implements VisualPlugin {
 			setTitle("Display Preference");
 			add(builder.getPanel());
 			pack();
+			setLocationRelativeTo(null);
 			setVisible(true);
 		}
 	}
