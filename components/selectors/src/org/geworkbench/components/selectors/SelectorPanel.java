@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -48,13 +49,12 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.tree.TreePath;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.annotation.CSAnnotationContext;
 import org.geworkbench.bison.annotation.CSAnnotationContextManager;
 import org.geworkbench.bison.annotation.DSAnnotationContext;
 import org.geworkbench.bison.annotation.DSAnnotationContextManager;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
@@ -63,11 +63,9 @@ import org.geworkbench.bison.datastructure.properties.DSSequential;
 import org.geworkbench.engine.config.MenuListener;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.Overflow;
-import org.geworkbench.engine.management.Script;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.events.SubpanelChangedEvent;
-import org.geworkbench.util.JAutoList;
 import org.geworkbench.util.visualproperties.PanelVisualProperties;
 import org.geworkbench.util.visualproperties.PanelVisualPropertiesManager;
 import org.geworkbench.util.visualproperties.VisualPropertiesDialog;
@@ -85,16 +83,15 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 	protected DSAnnotationContext<T> context;
 	protected SelectorTreeModel<T> treeModel;
 	protected DSItemList<T> itemList;
-	//protected HashSet currentSelectedIndecies = new HashSet<Integer>();
-	// protected DSPanel<T> itemPanel;
+
 	protected FilterListModel listModel;
-	// protected PanelsEnabledTreeModel treeModel;
-	// protected CSPanel<T> emptyPanel;
+
 	protected CSAnnotationContext<T> emptyContext;
 	protected CSItemList<T> emptyList;
+
 	// Components
 	protected JPanel mainPanel;
-	protected JAutoList itemAutoList;
+	protected ItemList itemAutoList;
 	protected JTree panelTree;
 	// Menu items
 	protected JPopupMenu itemListPopup = new JPopupMenu();
@@ -112,7 +109,7 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 	protected JPopupMenu rootPopup = new JPopupMenu();
 	protected JPopupMenu itemPopup = new JPopupMenu();
 	protected JMenuItem removeFromPanelItem = new JMenuItem("Remove from Set");
-	// protected JPopupMenu combinePopup = new JPopupMenu();
+
 	protected JMenuItem combineMenuItem = new JMenu("Combine");
 	protected JMenuItem unionPanelItem = new JMenuItem("Union");
 	protected JMenuItem intersectionPanelItem = new JMenuItem("Intersection");
@@ -204,18 +201,14 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 		treePopup.add(combineMenuItem);
 		treePopup.add(printPanelItem);
 
-		// Removing the "Export" popup item, until we decide what the export
-		// functionlity is, if anything (since there is also a "Save" option.
-		// treePopup.add(exportPanelItem);
-
 		treePopup.add(visualPropertiesItem);
 
 		savePanelItem.add(saveMergeSets);
 		savePanelItem.add(saveMultiSets);
 
-		// todo - move to a new gui setup
+		// TODO - move to a new gui setup
 		itemPopup.add(removeFromPanelItem);
-		// combinePopup.add(combineMenuItem);
+
 		// Add behaviors
 		menuListeners = new HashMap<String, ActionListener>();
 		panelTree.addMouseListener(new MouseAdapter() {
@@ -289,8 +282,9 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 			}
 		});
 		contextSelector.addActionListener(new ActionListener() {
+			@SuppressWarnings("unchecked")
 			public void actionPerformed(ActionEvent e) {
-				DSAnnotationContext newContext = (DSAnnotationContext) contextSelector
+				DSAnnotationContext<T> newContext = (DSAnnotationContext<T>) contextSelector
 						.getSelectedItem();
 				switchContext(newContext);
 			}
@@ -395,8 +389,6 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 		});
 	}
 
-	private Log log = LogFactory.getLog(this.getClass());
-
 	protected void panelTreeClicked(final MouseEvent e) {
 		TreePath path = panelTree.getPathForLocation(e.getX(), e.getY());
 		if (path != null) {
@@ -451,7 +443,7 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 	}
 
 	protected void findUnion() {
-		HashMap unionOfItems = new HashMap();
+		HashMap<String, T> unionOfItems = new HashMap<String, T>();
 		String[] selectedLabels = getSelectedTreesFromTree();
 		if (selectedLabels.length > 1) {
 			String label = JOptionPane.showInputDialog("Set Label:", "");
@@ -460,7 +452,7 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 			} else {
 				for (int i = 0; i < selectedLabels.length; i++) {
 					String nextLabel = selectedLabels[i];
-					CSPanel csPanel = (CSPanel) context
+					CSPanel<T> csPanel = (CSPanel<T>) context
 							.getItemsWithLabel(nextLabel);
 					for (int j = 0; j < csPanel.size(); j++) {
 						T nextItem = panelType.cast(csPanel.get(j));
@@ -478,8 +470,8 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 	}
 
 	protected void findIntersection() {
-		HashMap intersectOfItems = new HashMap();
-		HashMap tempIntersectOfItems = new HashMap();
+		HashMap<String, T> intersectOfItems = new HashMap<String, T>();
+		HashMap<String, T> tempIntersectOfItems = new HashMap<String, T>();
 
 		String[] selectedLabels = getSelectedTreesFromTree();
 		if (selectedLabels.length > 1) {
@@ -493,17 +485,17 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 					count++;
 					if (count == 1) { // add everything from the first set
 						// into temp intersect hashmap
-						CSPanel csPanel = (CSPanel) context
+						CSPanel<T> csPanel = (CSPanel<T>) context
 								.getItemsWithLabel(nextLabel);
 						for (int j = 0; j < csPanel.size(); j++) {
 							T nextItem = panelType.cast(csPanel.get(j));
 							intersectOfItems.put(nextItem.getLabel(), nextItem);
 						}
 					} else {
-						tempIntersectOfItems = new HashMap();
+						tempIntersectOfItems = new HashMap<String, T>();
 						tempIntersectOfItems.putAll(intersectOfItems);
-						intersectOfItems = new HashMap();
-						CSPanel csPanel = (CSPanel) context
+						intersectOfItems = new HashMap<String, T>();
+						CSPanel<T> csPanel = (CSPanel<T>) context
 								.getItemsWithLabel(nextLabel);
 						for (int j = 0; j < csPanel.size(); j++) {
 							T nextItem = panelType.cast(csPanel.get(j));
@@ -525,9 +517,9 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 	}
 
 	protected void findXor() {
-		HashMap allItems = new HashMap();
-		HashMap countOfItems = new HashMap();
-		HashMap xorOfItems = new HashMap();
+		HashMap<String, T> allItems = new HashMap<String, T>();
+		HashMap<String, Integer> countOfItems = new HashMap<String, Integer>();
+		HashMap<String, T> xorOfItems = new HashMap<String, T>();
 		String[] selectedLabels = getSelectedTreesFromTree();
 
 		if (selectedLabels.length > 1) {
@@ -537,7 +529,7 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 			} else {
 				for (int i = 0; i < selectedLabels.length; i++) {
 					String nextLabel = selectedLabels[i];
-					CSPanel csPanel = (CSPanel) context
+					CSPanel<T> csPanel = (CSPanel<T>) context
 							.getItemsWithLabel(nextLabel);
 					for (int j = 0; j < csPanel.size(); j++) {
 						T nextItem = panelType.cast(csPanel.get(j));
@@ -553,9 +545,9 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 						}
 					}
 				}
-				Set entrySet1 = countOfItems.entrySet();
-				for (Iterator itr = entrySet1.iterator(); itr.hasNext();) {
-					Map.Entry me = (Map.Entry) itr.next();
+				Set<Entry<String, Integer>> entrySet1 = countOfItems.entrySet();
+				for (Iterator<Entry<String, Integer>> itr = entrySet1.iterator(); itr.hasNext();) {
+					Map.Entry<String, Integer> me = itr.next();
 					String nextKey = (String) me.getKey();
 					Integer nextValue = (Integer) me.getValue();
 					if (nextValue.intValue() == 1)
@@ -571,19 +563,7 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 		}
 	}
 
-	private ArrayList findActiveLabels() {
-		ArrayList selectedLabels = new ArrayList();
-		int numberOfLabels = context.getNumberOfLabels();
-		for (int i = 0; i < numberOfLabels; i++) {
-			String nextLabel = context.getLabel(i);
-			if (context.isLabelActive(nextLabel)) {
-				selectedLabels.add(nextLabel);
-			}
-		}
-		return selectedLabels;
-	}
-
-	private void addCombinedPanel(HashMap combinedItems, String label,
+	private void addCombinedPanel(HashMap<String, T> combinedItems, String label,
 			String combineSet) {
 		if (combinedItems.size() == 0) {
 			JOptionPane.showMessageDialog(null, "The size of the " + combineSet
@@ -593,10 +573,10 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 		if (context.indexOfLabel(label) == -1) {
 			addPanel(new CSPanel<T>(label));
 		}
-		Map sortedMap = new TreeMap(combinedItems);
-		Set entrySet = sortedMap.entrySet();
-		for (Iterator itr = entrySet.iterator(); itr.hasNext();) {
-			Map.Entry me = (Map.Entry) itr.next();
+		Map<String, T> sortedMap = new TreeMap<String, T>(combinedItems);
+		Set<Entry<String, T>> entrySet = sortedMap.entrySet();
+		for (Iterator<Entry<String, T>> itr = entrySet.iterator(); itr.hasNext();) {
+			Map.Entry<String, T> me = itr.next();
 			T item = (T) me.getValue();
 			context.labelItem(item, label);
 		}
@@ -783,8 +763,8 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 				} else {
 					context.addLabel(newLabel);
 
-					HashMap copyOfItems = new HashMap();
-					CSPanel csPanelSource = (CSPanel) context
+					HashMap<String, T> copyOfItems = new HashMap<String, T>();
+					CSPanel<T> csPanelSource = (CSPanel<T>) context
 										.getItemsWithLabel(oldLabel);
 
 					for (int j = 0; j < csPanelSource.size(); j++) {
@@ -852,7 +832,7 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 		DSAnnotationContextManager contextManager = CSAnnotationContextManager
 				.getInstance();
 		String label = getLabelForPath(path);
-		DSPanel panel = contextManager.getCurrentContext(itemList)
+		DSPanel<T> panel = contextManager.getCurrentContext(itemList)
 				.getItemsWithLabel(label);
 		if (panel != null) {			 
 			VisualPropertiesDialog dialog = new VisualPropertiesDialog(null,
@@ -875,8 +855,7 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 		}
 	}
 	
-	
-	protected int getPanelIndex(DSPanel panel)
+	protected int getPanelIndex(DSPanel<T> panel)
 	{
 		int index = 0;
 		String label = panel.getLabel();
@@ -896,10 +875,10 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 		return index;
 	}
 	
-
 	/**
 	 * Convenience method to get all the selected items in the item list.
 	 */
+	@SuppressWarnings("unchecked")
 	private T[] getSelectedItemsFromList() {
 		int[] indices = itemAutoList.getList().getSelectedIndices();
 		int n = indices.length;
@@ -927,23 +906,6 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 			}
 		}
 		return list.toArray(new String[] {});
-	}
-
-	/**
-	 * Convenience method to get all the selected panels in the panel tree.
-	 */
-	private T[] getSelectedItemsFromTree() {
-		TreePath[] paths = panelTree.getSelectionPaths();
-		int n = paths.length;
-		ArrayList<T> list = new ArrayList<T>();
-		for (int i = 0; i < n; i++) {
-			TreePath path = paths[i];
-			Object obj = path.getLastPathComponent();
-			if (panelType.isAssignableFrom(obj.getClass())) {
-				list.add(panelType.cast(obj));
-			}
-		}
-		return list.toArray((T[]) Array.newInstance(panelType, 0));
 	}
 
 	/**
@@ -977,7 +939,7 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 		// throwLabelEvent();
 	}
 
-	protected abstract boolean dataSetChanged(DSDataSet dataSet);
+	protected abstract boolean dataSetChanged(DSDataSet<? extends DSBioObject> dataSet);
 
 	protected abstract void throwLabelEvent();
 
@@ -993,7 +955,7 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 		if (projectEvent.getMessage().equals(ProjectEvent.CLEARED)) {
 			dataSetCleared();
 		}
-		DSDataSet dataSet = projectEvent.getDataSet();
+		DSDataSet<?> dataSet = projectEvent.getDataSet();
 		boolean processed = processDataSet(dataSet);
 		if (!processed) {
 			dataSet = projectEvent.getParent();
@@ -1004,15 +966,13 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 		} else {
 			itemAutoList.getList().clearSelection();
 		}
-		//if (((ItemList)itemAutoList).getFilterString().length()>0)
-		//	((ItemList)itemAutoList).clearFilterString();
 	}
 
 	/**
 	 * Called when a component wishes to add, change or remove a panel.
 	 */
 	@Subscribe(Overflow.class)
-	public void receive(org.geworkbench.events.SubpanelChangedEvent spe,
+	public void receive(org.geworkbench.events.SubpanelChangedEvent<T> spe,
 			Object source) {
 		if (panelType.isAssignableFrom(spe.getType())) {
 			DSPanel<T> receivedPanel = spe.getPanel();
@@ -1066,23 +1026,13 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 		}
 	}
 
-	protected boolean processDataSet(DSDataSet dataSet) {
+	protected boolean processDataSet(DSDataSet<? extends DSBioObject> dataSet) {
 		if (dataSet != null) {
 			return dataSetChanged(dataSet);
 		} else {
 			dataSetCleared();
 			return false;
 		}
-	}
-
-	@Script
-	public void setDataSet(DSDataSet dataSet) {
-		processDataSet(dataSet);
-	}
-
-	@Script
-	public void createPanel(int a, int b, boolean c) {
-		// todo implement
 	}
 
 	protected abstract void publishSingleSelectionEvent(T item);
@@ -1199,9 +1149,10 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 		public void refreshItem(int index) {
 			fireContentsChanged(this, index, index);
 		}
+		
 		private void refilter() {
 			filterItems.clear();
-			searchText = ((ItemList)itemAutoList).getFilterString();
+			searchText = itemAutoList.getFilterString();
 
 			for (int i = 0; i < itemList.size(); i++){
 				if (itemList.get(i).toString().toLowerCase().indexOf(searchText, 0) != -1){
@@ -1284,9 +1235,12 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 	        };
 	        filterField = new JTextField();
 			filterField.getDocument().addDocumentListener(new DocumentListener(){
-		        public void changedUpdate (DocumentEvent e) {((FilterListModel)getModel()).refilter();}
-		        public void insertUpdate (DocumentEvent e) {((FilterListModel)getModel()).refilter();}
-		        public void removeUpdate (DocumentEvent e) {((FilterListModel)getModel()).refilter();}
+		        @SuppressWarnings("unchecked")
+				public void changedUpdate (DocumentEvent e) {((FilterListModel)getModel()).refilter();}
+		        @SuppressWarnings("unchecked")
+				public void insertUpdate (DocumentEvent e) {((FilterListModel)getModel()).refilter();}
+		        @SuppressWarnings("unchecked")
+				public void removeUpdate (DocumentEvent e) {((FilterListModel)getModel()).refilter();}
 			});
 			topPanel.removeAll();
 			topPanel.add(new JLabel(SEARCH_LABEL_TEXT));
@@ -1302,6 +1256,9 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 	}
 
 	protected class ListCellRenderer extends DefaultListCellRenderer {
+
+		private static final long serialVersionUID = -6661833903314561013L;
+
 		@Override
 		public Component getListCellRendererComponent(JList list, Object value,
 				int index, boolean isSelected, boolean cellHasFocus) {
@@ -1340,7 +1297,7 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 			contextSelector.removeAllItems();
 			int n = manager.getNumberOfContexts(itemList);
 			for (int i = 0; i < n; i++) {
-				DSAnnotationContext aContext = manager.getContext(itemList, i);
+				DSAnnotationContext<T> aContext = manager.getContext(itemList, i);
 				contextSelector.addItem(aContext);
 				if (aContext == context) {
 					contextSelector.setSelectedIndex(i);
@@ -1424,7 +1381,7 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 		}
 	}
 
-	protected void switchContext(DSAnnotationContext newContext) {
+	protected void switchContext(DSAnnotationContext<T> newContext) {
 		if (!resetContextMode && (newContext != null)) {
 			context = newContext;
 			contextSelector.setSelectedItem(context);
@@ -1440,7 +1397,7 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 		}
 	}
 
-	protected void initializeContext(DSAnnotationContext context) {
+	protected void initializeContext(DSAnnotationContext<?> context) {
 		context.addLabel(SELECTION_LABEL);
 	}
 
