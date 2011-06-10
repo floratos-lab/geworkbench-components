@@ -1,36 +1,39 @@
 package org.geworkbench.components.selectors;
 
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JMenu;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JRadioButtonMenuItem;
+import javax.swing.JTree;
+import javax.swing.SwingConstants;
+import javax.swing.tree.TreePath;
+
 import org.geworkbench.bison.annotation.DSAnnotationContext;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
-import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.engine.management.Publish;
-import org.geworkbench.engine.management.Script;
 import org.geworkbench.engine.management.Subscribe;
-import org.geworkbench.events.MarkerSelectedEvent;
-import org.geworkbench.events.PhenotypeSelectorEvent;
 import org.geworkbench.events.PhenotypeSelectedEvent;
+import org.geworkbench.events.PhenotypeSelectorEvent;
 import org.geworkbench.events.SingleMicroarrayEvent;
-import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.util.FilePathnameUtils;
-import org.geworkbench.util.Util;
- 
-
-import javax.swing.*;
-import javax.swing.tree.TreePath;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.util.Set;
-import java.util.HashSet;
 
 /**
  * @author John Watkinson
- * @version $Id: PhenotypePanel.java,v 1.10 2008-03-20 16:41:31 my2248 Exp $
+ * @version $Id$
  */
 public class PhenotypePanel extends SelectorPanel<DSMicroarray> {
 
@@ -72,7 +75,9 @@ public class PhenotypePanel extends SelectorPanel<DSMicroarray> {
 
     private static class PhenotypeCellRenderer extends SelectorTreeRenderer {
 
-        public PhenotypeCellRenderer(final PhenotypePanel panel) {
+		private static final long serialVersionUID = 5317111542943009611L;
+
+		public PhenotypeCellRenderer(final PhenotypePanel panel) {
             super(panel);
         }
 
@@ -83,10 +88,9 @@ public class PhenotypePanel extends SelectorPanel<DSMicroarray> {
                 String label = (String) value;
                 String clazz = selectorPanel.getContext().getClassForLabel(label);
                 int index = getIndexForClass(clazz);
-                // checkBox.setBackground(CLASS_COLORS[index]);
                 cellLabel.setIcon(CLASS_ICONS[index]);
             } else if (value instanceof DSMicroarray) {
-                // Todo - somehow show class of individual items
+                // TODO - somehow show class of individual items
 //                String clazz = selectorPanel.getContext().getClassForItem((DSMicroarray) value);
 //                int index = getIndexForClass(clazz);
 //                comp.setBackground(CLASS_COLORS[index]);
@@ -170,7 +174,8 @@ public class PhenotypePanel extends SelectorPanel<DSMicroarray> {
         super.showTreePopup(e);
     }
 
-    protected void initializeContext(DSAnnotationContext context) {
+    @SuppressWarnings("rawtypes")
+	protected void initializeContext(DSAnnotationContext context) {
         super.initializeContext(context);
         for (int i = 0; i < CLASSES.length; i++) {
             context.addClass(CLASSES[i]);
@@ -178,7 +183,8 @@ public class PhenotypePanel extends SelectorPanel<DSMicroarray> {
         context.setDefaultClass(DEFAULT_CLASS);
     }
 
-    protected boolean dataSetChanged(DSDataSet dataSet) {
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	protected boolean dataSetChanged(DSDataSet dataSet) {
         if (dataSet instanceof DSMicroarraySet) {
             set = (DSMicroarraySet<DSMicroarray>) dataSet;
             setItemList(set);
@@ -189,74 +195,8 @@ public class PhenotypePanel extends SelectorPanel<DSMicroarray> {
         }
     }
 
-    @Script
-     public void addToPanel(DSPanel panel, int position){
-         DSMicroarray marker = itemList.get(position);
-        if (marker != null) {
-            panel.add(marker);
-        }
-          addPanel(panel);
-    }
-
-    @Script
-     public void removeFromPanel(DSPanel panel, int position){
-         DSMicroarray marker = itemList.get(position);
-        if (marker != null) {
-            panel.remove(marker);
-        }
-        addPanel(panel);
-    }
-
-    @Script
-    public DSPanel createPanel(String label, int position) {
-        // Ensure loaded file has unique name
-        Set<String> nameSet = new HashSet<String>();
-        int n = context.getNumberOfLabels();
-        for (int i = 0; i < n; i++) {
-            nameSet.add(context.getLabel(i));
-        }
-        label = Util.getUniqueName(label, nameSet);
-        DSPanel<DSMicroarray> panel = new CSPanel<DSMicroarray>(label);
-        DSMicroarray marker = itemList.get(position);
-        if (marker != null) {
-            panel.add(marker);
-        }
-
-        addPanel(panel); //redundancy between broadcast and script
-        panel.setActive(true);
-        System.out.println("at create label " + label);
-        //assignClassToLabel(label, label.substring(0, 4));
-        try{
-            Thread.sleep(2000);
-        }                      catch(Exception e){
-            e.printStackTrace();
-        }
-        //  publishGeneSelectorEvent(new GeneSelectorEvent(panel));
-        return panel;
-    }
-
-
-    @Script
-    public boolean assignClassToLabel(String label, String classname) {
-        for (String classLabel : CLASSES) {
-            if (classLabel.startsWith(classname)) {
-                try{
-                context.assignClassToLabel(label, classLabel);
-                // Notify model
-                treeModel.fireLabelChanged(label);
-                throwLabelEvent();
-                }catch (NullPointerException nuE){
-                   // nuE.printStackTrace();
-                }
-                return true;
-            }
-        }
-        System.out.println("No matched label found, the non-matched label is " + label + " " + classname);
-        return false;
-    }
-
     protected void throwLabelEvent() {
-        PhenotypeSelectorEvent event = new PhenotypeSelectorEvent(context.getLabelTree(), set);
+        PhenotypeSelectorEvent<DSMicroarray> event = new PhenotypeSelectorEvent<DSMicroarray>(context.getLabelTree(), set);
         publishPhenotypeSelectorEvent(event);
     }
 
@@ -266,31 +206,24 @@ public class PhenotypePanel extends SelectorPanel<DSMicroarray> {
     }
 
     @Publish
-    public PhenotypeSelectorEvent publishPhenotypeSelectorEvent(PhenotypeSelectorEvent event) {
+    public PhenotypeSelectorEvent<DSMicroarray> publishPhenotypeSelectorEvent(PhenotypeSelectorEvent<DSMicroarray> event) {
         return event;
     }
     
     /**
      * Called when a single marker is selected by a component.
      */
-    @Subscribe
-    public void receive(PhenotypeSelectedEvent event, Object source) {
-        
-    	int i = source.toString().indexOf("MicroarrayPanel");
-    	if ( i < 0)
-    	{
-    		JList list = itemAutoList.getList();
-    	   if (list != null)
-           {
-    	      int index = itemList.indexOf(event.getObject());
-              list.setSelectedIndex(index);
-              if ( index != -1)
-              list.scrollRectToVisible(list.getCellBounds(index, index));
-    
-           }  
-        }
-    }
+	@Subscribe
+	public void receive(PhenotypeSelectedEvent event, Object source) {
+		JList list = itemAutoList.getList();
+		if (list != null) {
+			int index = itemList.indexOf(event.getObject());
+			list.setSelectedIndex(index);
+			if (index != -1)
+				list.scrollRectToVisible(list.getCellBounds(index, index));
 
+		}
+	}
 
     @Publish
     public SingleMicroarrayEvent publishSingleMicroarrayEvent(SingleMicroarrayEvent event) {
