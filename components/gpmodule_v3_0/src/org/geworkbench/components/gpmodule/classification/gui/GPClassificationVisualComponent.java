@@ -20,11 +20,10 @@ import java.util.TreeMap;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.algorithm.classification.CSVisualClassifier;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.components.gpmodule.classification.VisualGPClassifier;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
@@ -33,13 +32,13 @@ import org.geworkbench.engine.management.Subscribe;
 
 /**
  *@author Marc-Danie Nazaire
+ *@version $Id$
  */
 
 @AcceptTypes( {CSVisualClassifier.class})
 public class GPClassificationVisualComponent implements VisualPlugin
 {
-    private Log log = LogFactory.getLog(this.getClass());
-    public static SortedMap microarraySets = new TreeMap();
+    public static SortedMap<String, DSMicroarraySet<DSMicroarray>> microarraySets = new TreeMap<String, DSMicroarraySet<DSMicroarray>>();
 
     protected JPanel component;
     protected GPClassificationVisualizationPanel gpClassVisPanel;
@@ -54,21 +53,22 @@ public class GPClassificationVisualComponent implements VisualPlugin
         return component;
     }
 
-    @Subscribe
+    @SuppressWarnings("unchecked")
+	@Subscribe
     public void receive(org.geworkbench.events.ProjectNodeAddedEvent e, Object source)
     {
-        DSDataSet dataSet = e.getDataSet();
+        DSDataSet<?> dataSet = e.getDataSet();
 
         if (dataSet instanceof DSMicroarraySet)
         {
-            microarraySets.put(dataSet.getDataSetName(), dataSet);
+            microarraySets.put(dataSet.getDataSetName(), (DSMicroarraySet<DSMicroarray>)dataSet);
 		}
     }
 
     @Subscribe
     public void receive(org.geworkbench.events.ProjectNodeRemovedEvent e, Object source)
     {
-        DSDataSet dataSet = e.getDataSet();
+        DSDataSet<?> dataSet = e.getDataSet();
 
         if (dataSet instanceof DSMicroarraySet)
         {
@@ -76,19 +76,21 @@ public class GPClassificationVisualComponent implements VisualPlugin
 		}
 	}
 
-    @Subscribe
+    @SuppressWarnings("unchecked")
+	@Subscribe
     public void receive(org.geworkbench.events.ProjectNodeRenamedEvent e, Object source)
     {
-        DSDataSet dataSet = e.getDataSet();
+        DSDataSet<?> dataSet = e.getDataSet();
 
         if (dataSet instanceof DSMicroarraySet)
         {
             String oldName = e.getOldName();
-            Iterator it = microarraySets.keySet().iterator();
+            Iterator<String> it = microarraySets.keySet().iterator();
             while(it.hasNext())
             {
-                String key = (String)it.next();
-                DSMicroarraySet microarraySet = (DSMicroarraySet)microarraySets.get(key);
+                String key = it.next();
+                @SuppressWarnings("rawtypes")
+				DSMicroarraySet microarraySet = (DSMicroarraySet)microarraySets.get(key);
 
                 if(oldName.equals(microarraySet.getDataSetName()))
                 {
@@ -97,14 +99,15 @@ public class GPClassificationVisualComponent implements VisualPlugin
                 }
             }
 
-            microarraySets.put(dataSet.getDataSetName(),dataSet);
+            microarraySets.put(dataSet.getDataSetName(), (DSMicroarraySet<DSMicroarray>)dataSet);
 		}
 	}
 
-    @Subscribe
+    @SuppressWarnings("unchecked")
+	@Subscribe
     public void receive(org.geworkbench.events.ProjectEvent e, Object source)
     {
-        DSDataSet dataSet = e.getDataSet();
+        DSDataSet<?> dataSet = e.getDataSet();
         if(dataSet != null && dataSet instanceof VisualGPClassifier)
         {
             component.removeAll();
@@ -122,12 +125,12 @@ public class GPClassificationVisualComponent implements VisualPlugin
 
         if (dataSet instanceof DSMicroarraySet)
         {
-            microarraySets.put(dataSet.getDataSetName(),dataSet);
+            microarraySets.put(dataSet.getDataSetName(), (DSMicroarraySet<DSMicroarray>)dataSet);
 		}
     }
 
     @Publish
-    public org.geworkbench.events.SubpanelChangedEvent publishSubpanelChangedEvent(org.geworkbench.events.SubpanelChangedEvent event)
+    public org.geworkbench.events.SubpanelChangedEvent<DSMicroarray> publishSubpanelChangedEvent(org.geworkbench.events.SubpanelChangedEvent<DSMicroarray> event)
     {
         return event;
     }

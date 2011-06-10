@@ -11,43 +11,86 @@
 */
 package org.geworkbench.components.gpmodule.classification.gui;
 
-import org.geworkbench.components.gpmodule.classification.VisualGPClassifier;
-import org.geworkbench.components.gpmodule.classification.PredictionResult;
-import org.geworkbench.components.gpmodule.classification.svm.gui.GPTreeModel;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
-import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
-import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.Vector;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JFormattedTextField;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JSlider;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JToolBar;
+import javax.swing.JTree;
+import javax.swing.UIManager;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.text.Position;
+import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
+
+import org.genepattern.filter.IndexFilter;
+import org.geworkbench.bison.annotation.CSAnnotationContext;
 import org.geworkbench.bison.annotation.CSAnnotationContextManager;
 import org.geworkbench.bison.annotation.DSAnnotationContext;
-import org.geworkbench.bison.annotation.CSAnnotationContext;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
+import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.components.gpmodule.classification.PredictionResult;
+import org.geworkbench.components.gpmodule.classification.VisualGPClassifier;
+import org.geworkbench.components.gpmodule.classification.svm.gui.GPTreeModel;
 import org.geworkbench.util.ProgressBar;
-
 import org.jdesktop.swingx.JXTable;
-
-import org.jdesktop.swingx.decorator.*;
+import org.jdesktop.swingx.decorator.Filter;
+import org.jdesktop.swingx.decorator.FilterPipeline;
+import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.jdesktop.swingx.decorator.SortOrder;
-import org.jfree.chart.*;
-import org.jfree.chart.event.*;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.event.ChartProgressEvent;
+import org.jfree.chart.event.ChartProgressListener;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.xy.XYDataset;
-import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.data.xy.XYSeries;
-import org.genepattern.filter.IndexFilter;
-
-import javax.swing.*;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.ChangeEvent;
-import javax.swing.text.Position;
-import javax.swing.tree.*;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.DefaultTableCellRenderer;
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-import java.util.List;
-import java.text.DecimalFormat;
+import org.jfree.data.xy.XYSeriesCollection;
 
 /**
  * @author Marc-Danie Nazaire
@@ -55,7 +98,9 @@ import java.text.DecimalFormat;
  */
 public class GPClassificationVisualizationPanel extends JPanel implements ItemListener
 {
-    private GPClassificationVisualComponent gpCVisComp;
+	private static final long serialVersionUID = 1450204284902216376L;
+	
+	private GPClassificationVisualComponent gpCVisComp;
     private VisualGPClassifier visualGPClassifier;
     private JTabbedPane tabPane;
     private JPanel trainResultPanel;
@@ -69,7 +114,7 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
     private ChartPanel chartPanel;
     private JFreeChart curveChart;
     private JSplitPane testMainPanel;
-    private static Map <String, List> testLabels = new HashMap();
+    private static Map <String, List<String>> testLabels = new HashMap<String, List<String>>();
     private GPTreeModel treeModel;
     private JXTable trainResultsTable;
     private JXTable testResultsTable;
@@ -77,7 +122,7 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
     private JRadioButton caseRadioButton;
     private JRadioButton controlRadioButton;
     private JFormattedTextField confidenceThreshold = new JFormattedTextField(new DecimalFormat("#.#######"));
-    private SortedMap confidenceMap;
+    private SortedMap<Double, Double> confidenceMap;
     private JCheckBox applyFilter = new JCheckBox("Apply filter");
     private JSlider confSlider;
 
@@ -121,17 +166,6 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
         testDataPanel.setLayout(new BoxLayout(testDataPanel, BoxLayout.PAGE_AXIS));
         testDataPanel.setBorder(BorderFactory.createEmptyBorder(7, 6, 12, 6));
         buildTestDataPanel();
-        /*testDataPanel.addComponentListener(new ComponentListener()
-        {
-            public void componentShown(ComponentEvent event){}
-            public void componentHidden(ComponentEvent event){}
-            public void componentMoved(ComponentEvent event){}
-            public void componentResized(ComponentEvent event)
-            {
-                System.out.println("resized testdatapanel");
-            }
-        }); */
-
 
         createMaSetToolBar = new JToolBar();
         createMaSetToolBar.setLayout(new BoxLayout(createMaSetToolBar, BoxLayout.LINE_AXIS));
@@ -225,7 +259,8 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
 
         for(int i =0 ; i < predResult.getNumRows(); i++)
         {
-            Vector rowVector = new Vector();
+        	// this vector contains String and ImageIcon
+            Vector<Object> rowVector = new Vector<Object>();
             rowVector.add(predResult.getValueAt(i, sampleIndx));
             rowVector.add(predResult.getValueAt(i, tClassIndx));
             rowVector.add(predResult.getValueAt(i, pClassIndx));
@@ -235,8 +270,9 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
             {
                 rowVector.add(correct_image);
             }
-            else
+            else {
                 rowVector.add(incorrect_image);
+            }
 
             tableModel.addRow(rowVector);
         }
@@ -270,7 +306,7 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
 
         for(int i =0 ; i < predResult.getNumRows(); i++)
         {
-            Vector rowVector = new Vector();
+            Vector<String> rowVector = new Vector<String>();
             rowVector.add(predResult.getValueAt(i, sampleIndx));
             rowVector.add(predResult.getValueAt(i, pClassIndx));
             rowVector.add(predResult.getValueAt(i, confIndx));
@@ -350,7 +386,8 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
                     testClass = caseRadioButton.getText();
                     predictedResultPanel = new CSPanel<DSMicroarray>("Predicted Cases");
 
-                    CSMicroarraySet dataset = (CSMicroarraySet) visualGPClassifier.getParentDataSet();
+                    @SuppressWarnings({ "rawtypes" })
+					CSMicroarraySet dataset = (CSMicroarraySet) visualGPClassifier.getParentDataSet();
                     for(int i = 0; i < testResultsTable.getRowCount(); i++)
                     {
                         if(!((String)testResultsTable.getModel().getValueAt(i, 1)).equalsIgnoreCase("Case"))
@@ -371,7 +408,8 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
                     testClass = controlRadioButton.getText();
                     predictedResultPanel = new CSPanel<DSMicroarray>("Predicted Controls");
 
-                    CSMicroarraySet dataset = (CSMicroarraySet) visualGPClassifier.getParentDataSet();
+                    @SuppressWarnings("rawtypes")
+					CSMicroarraySet dataset = (CSMicroarraySet) visualGPClassifier.getParentDataSet();
                     for(int i = 0; i < testResultsTable.getRowCount(); i++)
                     {
                         if(!((String)testResultsTable.getModel().getValueAt(i, 1)).equalsIgnoreCase("Control"))
@@ -393,7 +431,7 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
                     JOptionPane.showMessageDialog(null, "No microarrays predicted as " + testClass + " ");
                 }
                 else
-                    gpCVisComp.publishSubpanelChangedEvent(new org.geworkbench.events.SubpanelChangedEvent(DSMicroarray.class, predictedResultPanel, org.geworkbench.events.SubpanelChangedEvent.NEW));
+                    gpCVisComp.publishSubpanelChangedEvent(new org.geworkbench.events.SubpanelChangedEvent<DSMicroarray>(DSMicroarray.class, predictedResultPanel, org.geworkbench.events.SubpanelChangedEvent.NEW));
             }
         });
 
@@ -421,17 +459,17 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
 
                 JComboBox comboBox = (JComboBox)event.getSource();
                 String microarraySetName = (String)comboBox.getSelectedItem();
-                DSMicroarraySet microarraySet = (DSMicroarraySet)GPClassificationVisualComponent.microarraySets.get(microarraySetName);
+                DSMicroarraySet<DSMicroarray> microarraySet = GPClassificationVisualComponent.microarraySets.get(microarraySetName);
 
                 maSetComboBox.removeAllItems();
 
                 CSAnnotationContextManager manager = CSAnnotationContextManager.getInstance();
 
                 int numContexts = manager.getNumberOfContexts(microarraySet);
-                DSAnnotationContext currentContext = manager.getCurrentContext(microarraySet);
+                DSAnnotationContext<DSMicroarray> currentContext = manager.getCurrentContext(microarraySet);
                 for(int i = 0; i < numContexts; i++)
                 {
-                    DSAnnotationContext aContext = manager.getContext(microarraySet, i);
+                    DSAnnotationContext<DSMicroarray> aContext = manager.getContext(microarraySet, i);
                     maSetComboBox.addItem(aContext.getName());
 
                     if(currentContext.getName().equals(aContext.getName()))
@@ -443,18 +481,6 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
                 maSetNodeComboBox.setMaximumSize(maSetNodeComboBox.getPreferredSize());                
             }
         });
-
-        /*maSetNodeComboBox.addComponentListener(new ComponentListener()
-        {
-            public void componentShown(ComponentEvent event){}
-            public void componentHidden(ComponentEvent event){}
-            public void componentMoved(ComponentEvent event){}
-            public void componentResized(ComponentEvent event)
-            {
-                System.out.println("resized");
-                //maSetNodeComboBox.setSize(maSetNodeComboBox.getPreferredSize());                
-            }
-        });  */
 
         testDataPanel.add(maSetNodeComboBox);
         testDataPanel.add(Box.createRigidArea(new Dimension(0, 8)));
@@ -479,10 +505,10 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
                 String contextName = (String)comboBox.getSelectedItem();
 
                 String microarraySetName = (String)maSetNodeComboBox.getSelectedItem();
-                DSMicroarraySet microarraySet = (DSMicroarraySet)GPClassificationVisualComponent.microarraySets.get(microarraySetName);
+                DSMicroarraySet<?> microarraySet = GPClassificationVisualComponent.microarraySets.get(microarraySetName);
                 CSAnnotationContextManager manager = CSAnnotationContextManager.getInstance();
 
-                DSAnnotationContext context = manager.getContext(microarraySet, contextName);
+                DSAnnotationContext<?> context = manager.getContext(microarraySet, contextName);
 
                 List<String> labelItems = testLabels.get(context.getName());
                 if(labelItems == null || labelItems.isEmpty())
@@ -516,7 +542,9 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
 
         maSetGroupTree = new JTree(treeModel)
         {
-            public void setSelectionPath(TreePath path)
+			private static final long serialVersionUID = 3725880146399512736L;
+
+			public void setSelectionPath(TreePath path)
             {
                 if(this.isPathSelected(path))
                     super.removeSelectionPath(path);
@@ -541,9 +569,6 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
         jPanel.setAlignmentX(JComboBox.LEFT_ALIGNMENT);
         jPanel.add(scrollPane);
         jPanel.setLayout(new BoxLayout(jPanel, BoxLayout.PAGE_AXIS));
-        //jPanel.setMinimumSize(new Dimension(jPanel.getMinimumSize().width, 150));
-        //jPanel.setPreferredSize(new Dimension(jPanel.getPreferredSize().width, 150));
-        //jPanel.setMaximumSize(new Dimension(jPanel.getMaximumSize().width, 150));
 
         JButton testButton = new JButton("Test");
         testButton.setMinimumSize(new Dimension(78, 35));
@@ -556,31 +581,32 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
             {
                 Thread t = new Thread()
                 {
-                    public void run()
+                    @SuppressWarnings({ "rawtypes", "unchecked" })
+					public void run()
                     {
-                        DSMicroarraySet maSet = (DSMicroarraySet)GPClassificationVisualComponent.microarraySets.get(maSetNodeComboBox.getSelectedItem());
+                        DSMicroarraySet<DSMicroarray> maSet = GPClassificationVisualComponent.microarraySets.get(maSetNodeComboBox.getSelectedItem());
                         CSAnnotationContextManager manager = CSAnnotationContextManager.getInstance();
 
                         String context = (String)maSetComboBox.getSelectedItem();
-                        DSAnnotationContext selectedContext = manager.getContext(maSet, context);
+                        DSAnnotationContext<DSMicroarray> selectedContext = manager.getContext(maSet, context);
 
                         testLabels.clear();
                         TreePath[] labels = maSetGroupTree.getSelectionPaths();
-                        ArrayList labelNames = new ArrayList();
-                        DSPanel panel = new CSPanel();
+                        ArrayList<String> labelNames = new ArrayList<String>();
+                        DSPanel<DSMicroarray> panel = new CSPanel<DSMicroarray>();
                         for(int i = 0; i < labels.length; i++)
                         {
                             String label = (String)labels[i].getPath()[1];
-                            DSPanel selectedPanel = selectedContext.getItemsWithLabel(label);
+                            DSPanel<DSMicroarray> selectedPanel = selectedContext.getItemsWithLabel(label);
                             panel.addAll(selectedPanel);
-                            labelNames.add(labels[i].getLastPathComponent());
+                            labelNames.add((String)labels[i].getLastPathComponent());
                         }
 
                         //save labels that belong in context that are used to test the classifier
                         testLabels.put(context, labelNames);
 
                         manager.setCurrentContext(maSet, selectedContext);
-                        visualGPClassifier.setParent(maSet);
+                        visualGPClassifier.setParent((DSDataSet)maSet);
 
                         ProgressBar progressBar;
                         progressBar = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
@@ -626,11 +652,11 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
         jPanel.add(testButton);
         testDataPanel.add(jPanel);
 
-        Iterator it = GPClassificationVisualComponent.microarraySets.keySet().iterator();
+        Iterator<String> it = GPClassificationVisualComponent.microarraySets.keySet().iterator();
         while(it.hasNext())
         {
-            String key = (String)it.next();
-            DSMicroarraySet microarraySet = (DSMicroarraySet)GPClassificationVisualComponent.microarraySets.get(key);
+            String key = it.next();
+            DSMicroarraySet<?> microarraySet = GPClassificationVisualComponent.microarraySets.get(key);
             maSetNodeComboBox.addItem(microarraySet.getDataSetName());
 
             if(microarraySet.getDataSetName().equals(visualGPClassifier.getParentDataSet().getDataSetName()))
@@ -716,11 +742,11 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
                 double sliderValue = (0.01 * slider.getValue()) - 0.01;
 
                 double confidence = 0;
-                Set unclassified = confidenceMap.keySet();
-                Iterator unclIt = unclassified.iterator();
+                Set<Double> unclassified = confidenceMap.keySet();
+                Iterator<Double> unclIt = unclassified.iterator();
                 while(unclIt.hasNext())
                 {
-                    double value = (Double)unclIt.next();
+                    double value = unclIt.next();
                     if(value > sliderValue)
                     {
                         break;
@@ -834,18 +860,13 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
             return;
 
         currentTable.setFilters(null);
-        ArrayList list = new ArrayList();
-        boolean lessThan = false;
+        ArrayList<Integer> list = new ArrayList<Integer>();
         for(int r = 0; r < currentTable.getRowCount(); r++)
         {
             String confidence = (String)currentTable.getModel().getValueAt(r, confidenceIndex);
             if(Double.valueOf(confidence).doubleValue() >= ((Double)confidenceThreshold.getValue()).doubleValue())
             {
                 list.add(r);
-            }
-            else
-            {
-                lessThan = true;
             }
         }        
 
@@ -880,7 +901,7 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
 
     public XYDataset getPlotData()
     {
-        confidenceMap = new TreeMap();
+        confidenceMap = new TreeMap<Double, Double>();
         XYSeriesCollection xySeriesCol = new XYSeriesCollection();
 
         XYSeries accuracySeries = new XYSeries("Accuracy");
@@ -968,7 +989,9 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
 
     private class MSetGroupTreeRenderer extends DefaultTreeCellRenderer
     {
-        protected JCheckBox checkBox;
+		private static final long serialVersionUID = -2375695504163370140L;
+		
+		protected JCheckBox checkBox;
         private JPanel component;
         protected JLabel cellLabel;
         private Color selectedBgColor;
@@ -1024,7 +1047,9 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
 
     public static class IconRenderer extends DefaultTableCellRenderer
     {
-        public IconRenderer()
+		private static final long serialVersionUID = 8712382539413893926L;
+
+		public IconRenderer()
         {
             super ();
             setHorizontalAlignment(JLabel.CENTER);
@@ -1062,21 +1087,6 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
         public int getIconHeight()
         {
             return height;
-        }
-
-        public void setIconWidth(int width)
-        {
-            this.width = width;
-        }
-
-        public void setIconHeight(int height)
-        {
-            this.height = height;
-        }
-
-        public Color getColor()
-        {
-            return color;
         }
     }
 }
