@@ -277,6 +277,8 @@ public class CytoscapeWidget implements VisualPlugin {
 					+ new Exception().getStackTrace()[0].getMethodName());
 			return;
 		}
+		
+		attrs = Cytoscape.getNodeAttributes();
 
 		if (e.getType() == GeneTaggedEvent.USE_VISUAL_PROPERTY) {
 			PanelVisualPropertiesManager propertiesManager = PanelVisualPropertiesManager
@@ -289,7 +291,7 @@ public class CytoscapeWidget implements VisualPlugin {
 			}
 
 			color = properties.getColor();
-			attrs = Cytoscape.getNodeAttributes();
+			
 		}
 
 		List<String> selected = new ArrayList<String>();
@@ -316,12 +318,12 @@ public class CytoscapeWidget implements VisualPlugin {
 			NodeView nodeView = (NodeView) iter.next();
 			nodeView.unselect();
 			nodeView.setSelectedPaint(defaultNodeSelectionColor);
-			String nodeLabel = nodeView.getLabel().getText().trim()
-					.toUpperCase();
-			log.debug("Check if " + selected + " contains " + nodeLabel);
-			if (selected.contains(nodeLabel)) {
+			String id = nodeView.getNode().getIdentifier();
+			String displayedName = attrs.getStringAttribute(id, "displayedName");
+			log.debug("Check if " + selected + " contains " + displayedName);
+			if (selected.contains(displayedName)) {
 				if (e.getType() == GeneTaggedEvent.USE_VISUAL_PROPERTY) {
-					attrs.setAttribute(nodeView.getNode().getIdentifier(),
+					attrs.setAttribute(id,
 							NODE_FILL_COLOR, ObjectToString
 									.getStringValue(color));
 
