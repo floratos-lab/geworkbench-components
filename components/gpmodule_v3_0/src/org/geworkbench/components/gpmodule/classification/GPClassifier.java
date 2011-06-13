@@ -10,38 +10,49 @@
   use, misuse, or functionality.
 */
 package org.geworkbench.components.gpmodule.classification;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.swing.JOptionPane;
+
+import org.genepattern.client.GPClient;
+import org.genepattern.io.cls.ClsWriter;
+import org.genepattern.io.gct.GctWriter;
+import org.genepattern.matrix.AbstractDataset;
+import org.genepattern.matrix.ClassVector;
+import org.genepattern.matrix.Dataset;
+import org.genepattern.matrix.DefaultClassVector;
+import org.genepattern.util.GPpropertiesManager;
+import org.genepattern.webservice.AnalysisWebServiceProxy;
+import org.genepattern.webservice.JobResult;
+import org.genepattern.webservice.Parameter;
+import org.geworkbench.bison.algorithm.classification.CSVisualClassifier;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
-import org.geworkbench.bison.algorithm.classification.CSVisualClassifier;
+import org.geworkbench.components.gpmodule.GPDataset;
 import org.geworkbench.util.ClassifierException;
 import org.geworkbench.util.FilePathnameUtils;
-import org.geworkbench.components.gpmodule.GPDataset;
-import org.genepattern.io.gct.GctWriter;
-import org.genepattern.io.cls.ClsWriter;
-import org.genepattern.util.GPpropertiesManager;
-import org.genepattern.client.GPClient;
-import org.genepattern.webservice.JobResult;
-import org.genepattern.webservice.Parameter;
-import org.genepattern.webservice.AnalysisWebServiceProxy;
-import org.genepattern.matrix.*;
-
-import javax.swing.*;
-import java.io.*;
-import java.util.List;
-import java.util.Arrays;
 
 /**
  * @author Marc-Danie Nazaire
+ * @version $Id$
  */
 public abstract class GPClassifier extends CSVisualClassifier
 {
-    protected PredictionModel predModel;
+	private static final long serialVersionUID = -7154110880713522340L;
+	
+	protected PredictionModel predModel;
     protected GPDataset dataset;
     private String password;
     protected String moduleName;
 
-    protected GPClassifier(String moduleName, DSDataSet parent, String label, String[] classifications, PredictionModel model, GPDataset dataset,
+    protected GPClassifier(String moduleName, DSDataSet<?> parent, String label, String[] classifications, PredictionModel model, GPDataset dataset,
                            DSPanel<DSMicroarray> casePanel, DSPanel<DSMicroarray> controlPanel)
     {
         super(parent, label, classifications, model.getModelFileContent(), Arrays.asList(dataset.getRowNames()), casePanel, controlPanel);
@@ -57,12 +68,12 @@ public abstract class GPClassifier extends CSVisualClassifier
         this.password = password;
     }
 
-    protected File createTestGCTFile(String fileName, final List trainingSet)
+    protected File createTestGCTFile(String fileName, final List<float[]> trainingSet)
     {
         return createTestGCTFile(fileName, trainingSet, null);
     }
 
-    protected File createTestGCTFile(String fileName, final List trainingSet, final List arrayNames)
+    protected File createTestGCTFile(String fileName, final List<float[]> trainingSet, final List<String> arrayNames)
     {
         File gctTestFile = null;
 
@@ -83,11 +94,6 @@ public abstract class GPClassifier extends CSVisualClassifier
                 return dataset.getRowCount();
             }
 
-            public String getRowDescription(int row)
-            {
-                return "";
-            }
-
             public int getColumnCount()
             {
                 return trainingSet.size();
@@ -103,10 +109,6 @@ public abstract class GPClassifier extends CSVisualClassifier
                 return ("Column " + column);
             }
 
-            public String getColumnDescription(int column)
-            {
-                return "";
-            }
         };
 
         try

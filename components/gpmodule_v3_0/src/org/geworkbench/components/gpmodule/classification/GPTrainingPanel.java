@@ -11,21 +11,29 @@
 */
 package org.geworkbench.components.gpmodule.classification;
 
+import java.awt.BorderLayout;
+
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
+
+import org.geworkbench.bison.model.analysis.ParameterPanel;
 import org.geworkbench.components.gpmodule.GPConfigPanel;
 import org.geworkbench.components.gpmodule.GPHelpPanel;
-import org.geworkbench.bison.model.analysis.ParameterPanel;
-import javax.swing.*;
-import java.awt.*;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
 
 /**
  * @author: Marc-Danie Nazaire
+ * @version $Id$
  */
 public abstract class GPTrainingPanel extends AbstractTrainingPanel
 {
-    private JTabbedPane gpTabbedPane;
+	private static final long serialVersionUID = -7779793692399022977L;
+	
+	private JTabbedPane gpTabbedPane;
     private GPConfigPanel gpConfigPanel;
     private GPHelpPanel gpHelpPanel;
     protected ParameterPanel parameterPanel;

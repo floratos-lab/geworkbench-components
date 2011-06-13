@@ -11,43 +11,50 @@
 */
 package org.geworkbench.components.gpmodule.classification;
 
-import org.genepattern.matrix.*;
-import org.genepattern.io.IOUtil;
-import org.genepattern.client.GPClient;
-import org.genepattern.webservice.JobResult;
-import org.genepattern.webservice.Parameter;
-import org.genepattern.webservice.AnalysisWebServiceProxy;
-import org.genepattern.webservice.WebServiceException;
-import org.genepattern.util.GPpropertiesManager;
-import org.geworkbench.util.ClassifierException;
-import org.geworkbench.util.FilePathnameUtils;
-import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
-import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.algorithm.classification.CSClassifier;
-import org.geworkbench.components.gpmodule.GPDataset;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import java.io.*;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Set;
-import java.util.HashSet;
+import org.genepattern.client.GPClient;
+import org.genepattern.io.IOUtil;
+import org.genepattern.matrix.ClassVector;
+import org.genepattern.matrix.DefaultClassVector;
+import org.genepattern.util.GPpropertiesManager;
+import org.genepattern.webservice.AnalysisWebServiceProxy;
+import org.genepattern.webservice.JobResult;
+import org.genepattern.webservice.Parameter;
+import org.genepattern.webservice.WebServiceException;
+import org.geworkbench.bison.algorithm.classification.CSClassifier;
+import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
+import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.components.gpmodule.GPDataset;
+import org.geworkbench.util.ClassifierException;
+import org.geworkbench.util.FilePathnameUtils;
 
 /**
  * @author Marc-Danie Nazaire
+ * @version $Id$
  */
 public abstract class GPTraining extends AbstractTraining
 {
-    static Log log = LogFactory.getLog(GPTraining.class);
+	private static final long serialVersionUID = -4115702476557037773L;
+
+	static Log log = LogFactory.getLog(GPTraining.class);
 
     protected static int modelCount = 0;
 
     public List<String> getArrayNames(DSPanel<DSMicroarray> panel)
     {
-        List arrayNames = new ArrayList();
+        List<String> arrayNames = new ArrayList<String>();
         for(DSMicroarray microarray: panel)
         {
             arrayNames.add(microarray.getLabel());
@@ -59,19 +66,19 @@ public abstract class GPTraining extends AbstractTraining
     public GPDataset createGCTDataset(List<float[]> caseData, List<float[]> controlData,
                                             List<String> caseArrayNames, List<String> controlArrayNames)
     {
-        DSItemList markers = panel.getActiveMarkers();
+        DSItemList<?> markers = panel.getActiveMarkers();
 
-        Set featureNames = new HashSet();
+        Set<String> featureNames = new HashSet<String>();
         for(int i =0; i < markers.size();i++)
         {
             featureNames.add(((DSGeneMarker)markers.get(i)).getLabel());
         }
 
-        List<float[]> trainingSet = new ArrayList();
+        List<float[]> trainingSet = new ArrayList<float[]>();
         trainingSet.addAll(controlData);
         trainingSet.addAll(caseData);
 
-        List arrayNames = new ArrayList();
+        List<String> arrayNames = new ArrayList<String>();
         arrayNames.addAll(controlArrayNames);
         arrayNames.addAll(caseArrayNames);
 
@@ -215,7 +222,7 @@ public abstract class GPTraining extends AbstractTraining
         return model;
     }
 
-    protected void validateFeatureFile(String filename, List featureNames)throws ClassifierException
+    protected void validateFeatureFile(String filename, List<String> featureNames)throws ClassifierException
     {   try
         {
             BufferedReader bufReader = new BufferedReader(new FileReader(filename));

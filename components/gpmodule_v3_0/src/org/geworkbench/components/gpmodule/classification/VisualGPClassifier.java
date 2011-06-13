@@ -22,13 +22,16 @@ import java.util.ArrayList;
 
 /**
  * @author Marc-Danie Nazaire
+ * @version $Id$
  */
 public abstract class VisualGPClassifier extends GPClassifier
 {
-    private PredictionResult trainPredResult;
+	private static final long serialVersionUID = 6489090053268987991L;
+	
+	private PredictionResult trainPredResult;
     private PredictionResult testPredResult;
 
-    public VisualGPClassifier(String moduleName, DSDataSet parent, String label, String[] classifications,
+    public VisualGPClassifier(String moduleName, DSDataSet<?> parent, String label, String[] classifications,
                               GPDataset dataset, PredictionModel model, DSPanel<DSMicroarray> casePanel,
                               DSPanel<DSMicroarray> controlPanel)
     {
@@ -37,7 +40,7 @@ public abstract class VisualGPClassifier extends GPClassifier
 
     public int classify(float[] data)
     {
-        List dataset = new ArrayList();
+        List<float[]> dataset = new ArrayList<float[]>();
         dataset.add(data);
 
         PredictionResult predResult = runPredictor(moduleName, buildParametersList(dataset, null, null));
@@ -52,14 +55,14 @@ public abstract class VisualGPClassifier extends GPClassifier
 
     public PredictionResult classify(DSPanel<DSMicroarray> panel, String[] classLabels)
     {
-        List arrayNames = new ArrayList();
+        List<String> arrayNames = new ArrayList<String>();
 
         for(DSMicroarray microarray: panel)
         {
             arrayNames.add(microarray.getLabel());
         }
 
-        List dataset = new ArrayList();
+        List<float[]> dataset = new ArrayList<float[]>();
         for (DSMicroarray microarray : panel)
         {
             dataset.add(microarray.getRawMarkerData());
@@ -70,7 +73,7 @@ public abstract class VisualGPClassifier extends GPClassifier
         return predResult;
     }
 
-    public abstract Parameter[] buildParametersList(List data, List arrayNames, String[] classLabels);
+    public abstract Parameter[] buildParametersList(List<float[]> data, List<String> arrayNames, String[] classLabels);
 
     public void setTrainPredResult(PredictionResult result)
     {
