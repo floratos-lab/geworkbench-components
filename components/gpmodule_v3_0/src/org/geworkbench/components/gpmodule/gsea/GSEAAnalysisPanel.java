@@ -1,36 +1,53 @@
 package org.geworkbench.components.gpmodule.gsea;
 
-import org.geworkbench.components.gpmodule.GPAnalysisPanel;
-import org.geworkbench.components.gpmodule.GPConfigPanel;
-import org.geworkbench.components.gpmodule.listener.ServerConnectionListener;
-import org.geworkbench.components.gpmodule.event.ServerConnectionEvent;
-import org.geworkbench.bison.model.analysis.ParameterPanel;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.io.File;
+import java.io.Serializable;
+import java.text.NumberFormat;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
+import javax.naming.OperationNotSupportedException;
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
+import javax.swing.JFormattedTextField;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.genepattern.webservice.TaskInfo;
 import org.genepattern.webservice.ParameterInfo;
+import org.genepattern.webservice.TaskInfo;
+import org.geworkbench.bison.model.analysis.ParameterPanel;
+import org.geworkbench.components.gpmodule.GPAnalysisPanel;
+import org.geworkbench.components.gpmodule.GPConfigPanel;
+import org.geworkbench.components.gpmodule.event.ServerConnectionEvent;
+import org.geworkbench.components.gpmodule.listener.ServerConnectionListener;
 
-import javax.swing.*;
-import javax.naming.OperationNotSupportedException;
-import java.io.Serializable;
-import java.io.File;
-import java.util.*;
-import java.text.NumberFormat;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import java.awt.event.ItemListener;
-import java.awt.event.ItemEvent;
-import java.awt.*;
-
-import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.FormLayout;
 
 /**
- * User: nazaire
+ * @author nazaire
+ * @version $Id$
  */
 public class GSEAAnalysisPanel extends GPAnalysisPanel
 {
-    private Log log = LogFactory.getLog(this.getClass());
+	private static final long serialVersionUID = -5884172586530856038L;
+	
+	private Log log = LogFactory.getLog(this.getClass());
     private JComboBox gsDatabase;
     private JComboBox chipPlatform;
     private JFormattedTextField numPerm;
@@ -463,7 +480,7 @@ public class GSEAAnalysisPanel extends GPAnalysisPanel
             Map<String, String> choices = chipPInfo.getChoices();
             Set<String> keys = choices.keySet();
 
-            SortedSet sortedKeys = new TreeSet();
+            SortedSet<String> sortedKeys = new TreeSet<String>();
             sortedKeys.addAll(keys);
             Iterator<String> it = sortedKeys.iterator();
             if(sortedKeys.size() > 0)
@@ -496,9 +513,9 @@ public class GSEAAnalysisPanel extends GPAnalysisPanel
             Map<String, String> choices = gsDatabaseInfo.getChoices();
             Set<String> keys = choices.keySet();
 
-            SortedSet sortedKeys = new TreeSet();
+            SortedSet<String> sortedKeys = new TreeSet<String>();
             sortedKeys.addAll(keys);
-            Iterator<String> it = sortedKeys.iterator();            if(keys.size() > 0)
+            Iterator<String> it = sortedKeys.iterator();
 
             if(sortedKeys.size() > 0)
                 gsDatabase.removeAllItems();

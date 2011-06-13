@@ -39,7 +39,7 @@ import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.util.ProgressBar;
 
 /**
- * User: nazaire
+ * @author nazaire
  * @version $Id$
  */
 public class GSEAAnalysis extends GPAnalysis
@@ -114,7 +114,8 @@ public class GSEAAnalysis extends GPAnalysis
 		return a;
 	}
 
-    public AlgorithmExecutionResults execute(Object input)
+    @SuppressWarnings("unchecked")
+	public AlgorithmExecutionResults execute(Object input)
     {
 		assert (input instanceof DSMicroarraySetView);
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> view = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
@@ -191,9 +192,9 @@ public class GSEAAnalysis extends GPAnalysis
 		}
 	}
 
-	public List runAnalysis(String analysisName, Parameter[] parameters,
+	public List<String> runAnalysis(String analysisName, Parameter[] parameters,
 			String password) {
-		List result = null;
+		List<String> result = null;
 		try {
 			result = super.runAnalysis(analysisName, parameters, password);
 			if (gsResultDataSet == null)
@@ -220,19 +221,19 @@ public class GSEAAnalysis extends GPAnalysis
                       {
                           String history = generateHistoryString(view);
 
-                          DSMicroarraySet maSet = view.getMicroarraySet();
+                          DSMicroarraySet<DSMicroarray> maSet = view.getMicroarraySet();
 
                           DSAnnotationContext<DSMicroarray> context = CSAnnotationContextManager.getInstance().getCurrentContext(maSet);
 
-                          DSPanel arraysByClass = new CSPanel();
-                          Collection labels = new ArrayList();
+                          DSPanel<DSMicroarray> arraysByClass = new CSPanel<DSMicroarray>();
+                          Collection<String> labels = new ArrayList<String>();
                           for(int l = 0; l < context.getNumberOfLabels(); l++)
                           {
                               String label = context.getLabel(l);
                               if(context.isLabelActive(label))
                               {
-                                  DSPanel dsPanel = context.getItemsWithLabel(label);
-                                  Collection currentList = new ArrayList(arraysByClass);
+                                  DSPanel<DSMicroarray> dsPanel = context.getItemsWithLabel(label);
+                                  Collection<DSMicroarray> currentList = new ArrayList<DSMicroarray>(arraysByClass);
                                   currentList.retainAll(dsPanel);
                                   if(currentList.size() != 0)
                                   {
@@ -255,7 +256,7 @@ public class GSEAAnalysis extends GPAnalysis
                           gctFile.deleteOnExit();
                           gctFileName = gctFile.getAbsolutePath();
 
-                          List parameters = new ArrayList();
+                          List<Parameter> parameters = new ArrayList<Parameter>();
 
                           parameters.add(new Parameter("expression.dataset", gctFileName));
 
@@ -284,7 +285,7 @@ public class GSEAAnalysis extends GPAnalysis
                               {
                                     int htmlCount = 0;
                                     ZipFile zipFile = new ZipFile(file);
-                                    Enumeration en = zipFile.getEntries();
+                                    Enumeration<?> en = zipFile.getEntries();
                                     while(en.hasMoreElements())
                                     {
                                         ZipEntry entry = (ZipEntry)en.nextElement();
@@ -347,9 +348,9 @@ public class GSEAAnalysis extends GPAnalysis
                                       view.getMicroarraySet().getMarkers());
 
                       DSPanel<DSGeneMarker> mp = context.getActiveItems();
-                      DSItemList panels = mp.panels();
+                      DSItemList<DSPanel<DSGeneMarker>> panels = mp.panels();
 
-                      if (!((DSPanel) panels.get(CSAnnotationContext.SELECTION))
+                      if (! panels.get(CSAnnotationContext.SELECTION)
                               .isActive()) {
                           panels.remove(panels.get(CSAnnotationContext.SELECTION));
                       }
@@ -357,7 +358,7 @@ public class GSEAAnalysis extends GPAnalysis
                       history += "\n" + panels.size() + " marker sets activated: \n";
 
                       for (int i = 0; i < panels.size(); i++) {
-                          DSPanel<DSGeneMarker> panel = (DSPanel) panels.get(i);
+                          DSPanel<DSGeneMarker> panel = panels.get(i);
                           history += "\t Set " + panel.getLabel() + " (" + panel.size()
                                   + " markers):" + "\n";
 
@@ -375,13 +376,13 @@ public class GSEAAnalysis extends GPAnalysis
                   if (view.useItemPanel() && !(view.getItemPanel().size() == 0)) {
                       CSAnnotationContextManager manager = CSAnnotationContextManager
                               .getInstance();
-                      CSAnnotationContext<DSMicroarray> context = (CSAnnotationContext) manager
+                      CSAnnotationContext<DSMicroarray> context = (CSAnnotationContext<DSMicroarray>) manager
                               .getCurrentContext(view.getMicroarraySet());
 
                       DSPanel<DSMicroarray> ap = context.getActiveItems();
-                      DSItemList panels = ap.panels();
+                      DSItemList<DSPanel<DSMicroarray>> panels = ap.panels();
 
-                      if (!((DSPanel) panels.get(CSAnnotationContext.SELECTION))
+                      if (! panels.get(CSAnnotationContext.SELECTION)
                               .isActive()) {
                           panels.remove(panels.get(CSAnnotationContext.SELECTION));
                       }
@@ -389,7 +390,7 @@ public class GSEAAnalysis extends GPAnalysis
                       history += "\n" + panels.size() + " array sets activated: \n";
 
                       for (int i = 0; i < panels.size(); i++) {
-                          DSPanel<DSMicroarray> panel = (DSPanel) panels.get(i);
+                          DSPanel<DSMicroarray> panel = panels.get(i);
 
                           history += "\t Set " + panel.getLabel() + " (" + panel.size()
                                   + " arrays):" + "\n";
