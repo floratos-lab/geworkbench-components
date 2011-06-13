@@ -545,14 +545,20 @@ public class CytoscapeWidget implements VisualPlugin {
 		if(node.type==NodeType.MARKER) {
 			marker1 = node.marker;
 			geneIdStr = node.marker.getGeneName();
-			cp1 = node.marker.getLabel();
+			//cp1 = node.marker.getLabel();
+			cp1 = geneIdStr;
 			if (geneIdStr==null ) geneIdStr = "";
 			String geneName = geneIdStr.trim();
 			if (geneName.equals("") || geneName.equals("---"))
 				displayedName = marker1.getLabel();
 			else
 				displayedName = geneName;
-		} else if(node.type==NodeType.GENE_SYMBOL || node.type==NodeType.STRING) {
+		} else if(node.type==NodeType.GENE_SYMBOL) {
+			geneIdStr = node.stringId;
+			cp1 = geneIdStr;
+			displayedName = geneIdStr;
+			marker1 = maSet.getMarkers().get(geneIdStr);
+		} else if(node.type==NodeType.STRING) {
 			geneIdStr = node.stringId;
 			cp1 = geneIdStr;
 			displayedName = geneIdStr;
@@ -601,6 +607,11 @@ public class CytoscapeWidget implements VisualPlugin {
 		}
 
 		try {
+			
+			
+			Cytoscape.getNodeAttributes().setAttribute(
+					cyNode.getIdentifier(), "nodeType", node.type.name());
+
 
 			if (marker1 != null) {
 				Cytoscape.getNodeAttributes().setAttribute(
@@ -635,7 +646,7 @@ public class CytoscapeWidget implements VisualPlugin {
 
 			List<String> spIDs = new Vector<String>();
 
-			if (node.type==NodeType.MARKER) {
+			if (marker1 != null) {
 				try {
 					HashSet<String> selectedMarkerIDs = new HashSet<String>();
 					selectedMarkerIDs.add(marker1.getLabel());
@@ -668,12 +679,7 @@ public class CytoscapeWidget implements VisualPlugin {
 			}
 			Cytoscape.getNodeAttributes().setListAttribute(
 					cyNode.getIdentifier(), "swissprotIDs", spIDs);
-			Cytoscape.getNodeAttributes().setAttribute(cyNode.getIdentifier(),
-					"FromActionsCount", 0);
-			Cytoscape.getNodeAttributes().setAttribute(cyNode.getIdentifier(),
-					"ToActionsCount", 0);
-			Cytoscape.getNodeAttributes().setAttribute(cyNode.getIdentifier(),
-					"ActionsCount", 0);
+			 
 		} catch (Exception e) {
 			// we only try to add what we can add, if there's no
 			// data, we add nothing
@@ -683,7 +689,7 @@ public class CytoscapeWidget implements VisualPlugin {
 			log.debug("I add " + cyNode.getIdentifier());
 		}
 
-		if (node.type!=NodeType.MARKER) {
+		if (marker1 == null) {
 			Cytoscape.getNodeAttributes().setAttribute(cyNode.getIdentifier(),
 					"geneType", "null");
 		}
