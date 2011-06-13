@@ -11,18 +11,25 @@
 */
 package org.geworkbench.components.gpmodule;
 
-import org.geworkbench.bison.model.analysis.ParameterPanel;
-import org.geworkbench.analysis.AbstractSaveableParameterPanel;
-import org.genepattern.webservice.TaskInfo;
+import java.awt.BorderLayout;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JTabbedPane;
+
+import org.genepattern.webservice.TaskInfo;
+import org.geworkbench.analysis.AbstractSaveableParameterPanel;
+import org.geworkbench.bison.model.analysis.ParameterPanel;
 
 /**
  * @author: Marc-Danie Nazaire
+ * @version $Id$
  */
 public abstract class GPAnalysisPanel extends AbstractSaveableParameterPanel {
-    private JTabbedPane gpTabbedPane;
+
+	private static final long serialVersionUID = 8988606419954213367L;
+	
+	private JTabbedPane gpTabbedPane;
     private GPConfigPanel gpConfigPanel;
     private GPHelpPanel gpHelpPanel;
     protected ParameterPanel parameterPanel;

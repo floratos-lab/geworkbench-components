@@ -42,10 +42,13 @@ import org.geworkbench.components.gpmodule.listener.ServerConnectionListener;
 
 /**
  * @author: Marc-Danie Nazaire 
+ * @version $Id$
  */
 public class GPConfigPanel extends JPanel
 {
-    private boolean highlightPassword = false;
+	private static final long serialVersionUID = -218725992804879126L;
+	
+	private boolean highlightPassword = false;
 
     private static class InvalidInputException extends Exception {
 		private static final long serialVersionUID = -667139707540590720L;
@@ -171,26 +174,7 @@ public class GPConfigPanel extends JPanel
         });
 
         final MyCellRenderer myCellRenderer = new MyCellRenderer();
-        serverSettingsTable = new JTable()
-        {
-            public boolean get1ScrollableTracksViewportHeight()
-            {
-                Component parent = getParent();
-                if(parent instanceof JViewport)
-                    return parent.getHeight() > getPreferredSize().height;
-
-                return false;
-            }
-
-            public boolean get1ScrollableTracksViewportWidth()
-            {
-                Component parent = getParent();
-                if(parent instanceof JViewport)
-                    return parent.getWidth() > getPreferredSize().width;
-
-                return false;
-            }                                 
-        };
+        serverSettingsTable = new JTable();
         serverSettingsTable.setDefaultRenderer(Object.class, myCellRenderer);
 
         rebuildTable();
@@ -308,7 +292,9 @@ public class GPConfigPanel extends JPanel
         String[] columnNames = {"Name", "Value", "Description"};
         DefaultTableModel model = new DefaultTableModel()
         {
-            public boolean isCellEditable(int r, int c)
+			private static final long serialVersionUID = 2626845886563790888L;
+
+			public boolean isCellEditable(int r, int c)
             {
                 return false;
             }
@@ -316,28 +302,28 @@ public class GPConfigPanel extends JPanel
 
         model.setColumnIdentifiers(columnNames);
 
-        Vector protocolRow = new Vector();
+        Vector<Object> protocolRow = new Vector<Object>();
         protocolRow.add("Protocol");
         protocolRow.add(protocol.getValue());
         protocolRow.add("Whether to connect using http or https protocol");
 
-        Vector hostRow = new Vector();
+        Vector<Object> hostRow = new Vector<Object>();
         hostRow.add("Host");
         hostRow.add(host.getValue());
         hostRow.add("The name or ip address of the server");
 
-        Vector portRow = new Vector();
+        Vector<Object> portRow = new Vector<Object>();
         portRow.add("Port");
         portRow.add(port.getValue());
 
         portRow.add("The port specified for the server");
 
-        Vector userNameRow = new Vector();
+        Vector<Object> userNameRow = new Vector<Object>();
         userNameRow.add("Username");
         userNameRow.add(username.getValue());
         userNameRow.add("The login username");
 
-        Vector passwordRow = new Vector();
+        Vector<String> passwordRow = new Vector<String>();
         passwordRow.add("Password");
 
         char[] pw = password.getPassword();
@@ -614,20 +600,14 @@ public class GPConfigPanel extends JPanel
 
     private class MyCellRenderer extends JLabel implements TableCellRenderer
     {
-	    public MyCellRenderer()
+		private static final long serialVersionUID = 8598006263754034044L;
+
+		public MyCellRenderer()
         {
            setFont(new Font("TestFont", Font.PLAIN, 13));
            setHorizontalTextPosition(JLabel.CENTER);
         }
 
-        public Color get1Background()
-        {
-            if(getParent()!= null)
-                return getParent().getBackground();
-
-            return  super.getBackground();
-        }
-        
         public Component getTableCellRendererComponent(JTable table, Object
 	           value, boolean isSelected, boolean hasFocus, int row, int column)
         {

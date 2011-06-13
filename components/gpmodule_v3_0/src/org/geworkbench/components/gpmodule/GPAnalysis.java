@@ -1,42 +1,64 @@
 package org.geworkbench.components.gpmodule;
 
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Insets;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextPane;
+import javax.swing.text.StyledEditorKit;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.genepattern.client.GPClient;
+import org.genepattern.gui.UIUtil;
+import org.genepattern.io.cls.ClsWriter;
+import org.genepattern.io.gct.GctWriter;
+import org.genepattern.matrix.AbstractDataset;
+import org.genepattern.matrix.ClassVector;
+import org.genepattern.matrix.Dataset;
+import org.genepattern.util.GPpropertiesManager;
+import org.genepattern.webservice.AdminProxy;
+import org.genepattern.webservice.AnalysisWebServiceProxy;
+import org.genepattern.webservice.JobResult;
+import org.genepattern.webservice.Parameter;
+import org.genepattern.webservice.WebServiceException;
 import org.geworkbench.analysis.AbstractAnalysis;
-import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
-//import org.geworkbench.builtin.projects.Icons;
+import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.components.gpmodule.gsea.GSEAAnalysisPanel;
 import org.geworkbench.util.FilePathnameUtils;
-import org.genepattern.matrix.Dataset;
-import org.genepattern.matrix.AbstractDataset;
-import org.genepattern.matrix.ClassVector;
-import org.genepattern.io.gct.GctWriter;
-import org.genepattern.io.cls.ClsWriter;
-import org.genepattern.util.GPpropertiesManager;
-import org.genepattern.client.GPClient;
-import org.genepattern.webservice.*;
-import org.genepattern.gui.UIUtil;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import javax.swing.*;
-import javax.swing.text.StyledEditorKit;
-import java.io.*;
-import java.util.List;
-import java.util.ArrayList;
-import java.awt.*;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowAdapter;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeEvent;
 
 /**
  * @author: Marc-Danie Nazaire
+ * @version $Id$
  */
 public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringAnalysis
 {
-    static Log log = LogFactory.getLog(GPAnalysis.class);
+	private static final long serialVersionUID = -6732924818185459971L;
+
+	static Log log = LogFactory.getLog(GPAnalysis.class);
 
     protected GPAnalysisPanel panel;
     //public static ImageIcon GP_ICON = new ImageIcon(GPAnalysis.class.getResource("images/gp-result-logo.gif"));
@@ -62,11 +84,6 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
                 return markers.size();
             }
 
-            public String getRowDescription(int row)
-            {
-                return "";
-            }
-
             public int getColumnCount()
             {
                 return arrays.size();
@@ -77,10 +94,6 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
                 return arrays.get(column).getLabel();
             }
 
-            public String getColumnDescription(int column)
-            {
-                return "";
-            }
         };
 
         GctWriter writer = new GctWriter();
@@ -190,9 +203,10 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
             out.write(buffer, 0, read);
         }
     }
-    public List runAnalysis(String analysisName, Parameter[] parameters, String password) throws Exception
+    
+    public List<String> runAnalysis(String analysisName, Parameter[] parameters, String password) throws Exception
     {
-        List resultFiles = new ArrayList();
+        List<String> resultFiles = new ArrayList<String>();
         String serverName = GPpropertiesManager.getProperty("gp.server");
         String userName = GPpropertiesManager.getProperty("gp.user.name");
 
@@ -365,7 +379,7 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
 
                 try
                 {
-                    textPane.setPage(helpFile.toURL());
+                    textPane.setPage(helpFile.toURI().toURL());
                     textPane.setEditable(false);
                 }
                 catch(Exception e)

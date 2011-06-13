@@ -1,20 +1,33 @@
 package org.geworkbench.components.gpmodule;
 
-import org.genepattern.util.BrowserLauncher;
-
-import javax.swing.*;
-import javax.swing.text.StyledEditorKit;
-import java.awt.*;
-import java.awt.event.ActionListener;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTextPane;
+import javax.swing.JViewport;
+import javax.swing.text.StyledEditorKit;
+
+import org.genepattern.util.BrowserLauncher;
 
 /**
  * @author: Marc-Danie Nazaire
+ * @version $Id$
  */
 public class GPHelpPanel extends JSplitPane
 {
-    private JScrollPane paramDescPanel;
+	private static final long serialVersionUID = 3781167718944638823L;
+	
+	private JScrollPane paramDescPanel;
     private JScrollPane classDescPanel;
     private File paramDescFile;
     private File classDescFile;
@@ -139,7 +152,7 @@ public class GPHelpPanel extends JSplitPane
         paramDescTextPane.setEditorKit(new StyledEditorKit());
         try
         {
-            paramDescTextPane.setPage(paramDescFile.toURL());
+            paramDescTextPane.setPage(paramDescFile.toURI().toURL());
             paramDescTextPane.setEditable(false);
         }
         catch(Exception e)
@@ -166,7 +179,7 @@ public class GPHelpPanel extends JSplitPane
         paramDescTextPane.setEditorKit(new StyledEditorKit());
         try
         {
-            paramDescTextPane.setPage(classDescFile.toURL());
+            paramDescTextPane.setPage(classDescFile.toURI().toURL());
             paramDescTextPane.setEditable(false);
         }
         catch(Exception e)
