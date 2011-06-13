@@ -30,6 +30,7 @@ import javax.swing.ListSelectionModel;
 
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
+import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
@@ -105,16 +106,24 @@ public class MarkerSelectionPanel extends JPanel implements Observer {
 		AdjacencyMatrix matrix = new AdjacencyMatrix(null, origMatrix.getMicroarraySet(), origMatrix.getInteractionTypeSifMap());
 	   
 	    DSPanel<DSGeneMarker> selectedObject = (DSPanel<DSGeneMarker>)list.getSelectedValue();
-        List<String> selectedGeneList = new ArrayList<String>();
+       
+	    List<String> selectedGeneNameList = new ArrayList<String>();
         for (int i = 0; i < selectedObject.size(); i++) {
         	DSGeneMarker marker =   selectedObject.get(i);					 
-        	selectedGeneList.add(marker.getLabel());
+        	selectedGeneNameList.add(marker.getGeneName());
+		}
+        
+        List<String> selectedGeneLabelList = new ArrayList<String>();
+        for (int i = 0; i < selectedObject.size(); i++) {
+        	DSGeneMarker marker =   selectedObject.get(i);					 
+        	selectedGeneLabelList.add(marker.getLabel());
 		}
         
     	CyNetworkView view = Cytoscape.getCurrentNetworkView();
 
 		if (view != null && Cytoscape.getCurrentNetwork() != null) {		 
 			CyAttributes edgeAttrs = Cytoscape.getEdgeAttributes();	 
+			CyAttributes nodeAttrs = Cytoscape.getNodeAttributes();	
 			Iterator<?> iter = view.getEdgeViewsIterator();
 		 		
 			while (iter.hasNext()) {
@@ -134,19 +143,41 @@ public class MarkerSelectionPanel extends JPanel implements Observer {
 	    	    }
 	    	    
 	    	    DSItemList<DSGeneMarker> markers = origMatrix.getMicroarraySet().getMarkers();
-				DSGeneMarker marker1 = markers.get(gene1);
-				DSGeneMarker marker2 = markers.get(gene2);
-	    		if ( selectedGeneList.contains(gene1) && selectedGeneList.contains(gene2) )
+				 
+				
+				String nodeType1 = nodeAttrs.getStringAttribute(gene1, "nodeType");
+				String nodeType2 = nodeAttrs.getStringAttribute(gene1, "nodeType");
+				AdjacencyMatrix.Node node1 = null, node2 = null;
+				if (nodeType1.equals(NodeType.GENE_SYMBOL.name()))
+					node1 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL, gene1);
+				else if (nodeType1.equals(NodeType.MARKER.name()) )
+					node1 = new AdjacencyMatrix.Node(markers.get(gene1));
+				else if (nodeType1.equals(NodeType.STRING.name()))
+					node1 = new AdjacencyMatrix.Node(NodeType.STRING, gene1);
+				else  
+					node1 = new AdjacencyMatrix.Node(NodeType.OTHER, gene1);
+				
+						
+				if (nodeType2.equals(NodeType.GENE_SYMBOL.name()))
+					node2 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL, gene2);
+				else if (nodeType2.equals(NodeType.MARKER.name()) )
+					node2 = new AdjacencyMatrix.Node(markers.get(gene2));
+				else if (nodeType2.equals(NodeType.STRING.name()))
+					node2 = new AdjacencyMatrix.Node(NodeType.STRING, gene2);
+				else  
+					node2 = new AdjacencyMatrix.Node(NodeType.OTHER, gene2);
+				
+	    		if ( (selectedGeneNameList.contains(gene1) || selectedGeneLabelList.contains(gene1)) && (selectedGeneNameList.contains(gene2) || selectedGeneLabelList.contains(gene2)) )
 	    		{
-	    			matrix.add(new AdjacencyMatrix.Node(marker1), new AdjacencyMatrix.Node(marker2), 0.8f, interactionType);
+	    			matrix.add(node1, node2, 0.8f, interactionType);
 	    		}
-	    		else if ( selectedGeneList.contains(gene1))
+	    		else if ( selectedGeneNameList.contains(gene1) || selectedGeneLabelList.contains(gene1))
 	    		{
-	    			matrix.addGeneRow(new AdjacencyMatrix.Node(marker1));
+	    			matrix.addGeneRow(node1);
 	    		}
-	    		else if ( selectedGeneList.contains(gene2))
+	    		else if ( selectedGeneNameList.contains(gene2) || selectedGeneLabelList.contains(gene2))
 	    		{
-	    			matrix.addGeneRow(new AdjacencyMatrix.Node(marker2));
+	    			matrix.addGeneRow(node2);
 	    		}
                 
 			}
