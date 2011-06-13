@@ -29,15 +29,16 @@ import com.jgoodies.forms.layout.RowSpec;
 
 /**
  * @author Marc-Danie Nazaire
+ * @version $Id$
  */
 public class CARTTrainingPanel extends GPTrainingPanel
 {
-    private CARTTraining cartTraining;
+	private static final long serialVersionUID = 818238491957253088L;
 
     public CARTTrainingPanel(CARTTraining cartTraining)
     {
         super(cartTraining.getLabel());
-        this.cartTraining = cartTraining;
+        // TODO cartTraining is ignored
     }
 
     protected void initUI(){}

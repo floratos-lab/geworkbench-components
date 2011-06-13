@@ -11,37 +11,44 @@
 */
 package org.geworkbench.components.gpmodule.classification.cart;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.swing.JOptionPane;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.components.gpmodule.classification.*;
-import org.geworkbench.components.gpmodule.GPDataset;
-import org.geworkbench.util.TrainingTask;
-import org.geworkbench.util.TrainingProgressListener;
-import org.geworkbench.util.ClassifierException;
-import org.geworkbench.util.ProgressBar;
+import org.genepattern.matrix.ClassVector;
+import org.genepattern.webservice.Parameter;
 import org.geworkbench.bison.algorithm.classification.CSClassifier;
 import org.geworkbench.bison.annotation.CSAnnotationContext;
 import org.geworkbench.bison.annotation.CSAnnotationContextManager;
 import org.geworkbench.bison.annotation.DSAnnotationContext;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
+import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.components.gpmodule.GPDataset;
+import org.geworkbench.components.gpmodule.classification.GPClassificationUtils;
+import org.geworkbench.components.gpmodule.classification.GPTraining;
+import org.geworkbench.components.gpmodule.classification.GPTrainingPanel;
+import org.geworkbench.components.gpmodule.classification.PredictionModel;
+import org.geworkbench.components.gpmodule.classification.PredictionResult;
 import org.geworkbench.events.ProjectNodeAddedEvent;
-import org.genepattern.webservice.Parameter;
-import org.genepattern.matrix.ClassVector;
-
-import javax.swing.*;
-import java.util.List;
-import java.util.Arrays;
-import java.io.File;
-import java.io.IOException;
+import org.geworkbench.util.ClassifierException;
+import org.geworkbench.util.ProgressBar;
+import org.geworkbench.util.TrainingProgressListener;
+import org.geworkbench.util.TrainingTask;
 
 /**
  * @author Marc-Danie Nazaire
  */
 public class CARTTraining extends GPTraining implements TrainingTask
 {
-    static Log log = LogFactory.getLog(CARTTraining.class);
+	private static final long serialVersionUID = -5272258841692641867L;
+
+	static Log log = LogFactory.getLog(CARTTraining.class);
 
     TrainingProgressListener trainingProgressListener = null;
 
@@ -129,7 +136,7 @@ public class CARTTraining extends GPTraining implements TrainingTask
 
         progressBar.start();
 
-        DSPanel<DSMicroarray> trainPanel = new CSPanel();
+        DSPanel<DSMicroarray> trainPanel = new CSPanel<DSMicroarray>();
         trainPanel.addAll(controlPanel);
         trainPanel.addAll(casePanel);
         CARTClassifier svmClassifier = ((CARTClassifier)classifier);
