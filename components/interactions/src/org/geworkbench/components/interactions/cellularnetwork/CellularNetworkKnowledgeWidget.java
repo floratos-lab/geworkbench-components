@@ -1443,7 +1443,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	private void createNetworks(ProgressBar createNetworkPb,
 			CreateNetworkHandler handler) {// GEN-FIRST:event_loadfromDBHandler
 
-		HashMap<String, String> geneIdToNameMap = new HashMap<String, String>();
+		//HashMap<String, String> geneIdToNameMap = new HashMap<String, String>();
 		DSItemList<DSGeneMarker> markers = dataset.getMarkers();
 		DSItemList<DSGeneMarker> copy = new CSItemList<DSGeneMarker>();
 		copy.addAll(markers);
@@ -1522,7 +1522,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 					int index = Collections.binarySearch(copy, marker, eidc);
 					if (index >= 0) {
 						serial2 = copy.get(index).getSerial();
-						node2 = new AdjacencyMatrix.Node(copy.get(index));
+						//node2 = new AdjacencyMatrix.Node(copy.get(index));
+						node2 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL, copy.get(index).getGeneName());
 					} else {
 						isGene2InMicroarray = false;
 					}
@@ -1535,7 +1536,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 							marker = (DSGeneMarker) dataset.getMarkers().get(
 									markerId);
-							node2 = new AdjacencyMatrix.Node(marker);
+							//node2 = new AdjacencyMatrix.Node(marker);
+							node2 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL, marker.getGeneName());
 							 
 							if (interactionDetail.getDbSource2()
 									.equalsIgnoreCase(Constants.UNIPORT)) {
@@ -1570,12 +1572,9 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 							&& !interactionDetail.getdSGeneName2().trim()
 									.equals("")
 							&& !interactionDetail.getdSGeneName2().trim()
-									.equals("null")) {
-						geneIdToNameMap.put(mid2,
-								interactionDetail.getdSGeneName2());
-						node2 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL, interactionDetail.getdSGeneName2());
-					} else {
-						geneIdToNameMap.put(mid2, "");
+									.equals("null")) {					 
+						node2 = new AdjacencyMatrix.Node(NodeType.STRING, interactionDetail.getdSGeneName2());
+					} else {					 
 						node2 = new AdjacencyMatrix.Node(NodeType.STRING, mid2);
 					}
 				}
@@ -1603,7 +1602,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 						isGene1InMicroarray = false;
 					} else {
 						serial1 = copy.get(index1).getSerial();
-						node1 = new AdjacencyMatrix.Node(copy.get(index1));
+						//node1 = new AdjacencyMatrix.Node(copy.get(index1));
+						node1 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL, copy.get(index1).getGeneName());
 					}
 				} else {
 					Collection<Integer> markerIds = geneNameToMarkerIdMap
@@ -1613,7 +1613,9 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 							marker = (DSGeneMarker) dataset.getMarkers().get(
 									markerId);
-							node1 = new AdjacencyMatrix.Node(marker);
+							//node1 = new AdjacencyMatrix.Node(marker);
+							node1 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL, marker.getGeneName());
+							
 							if (interactionDetail.getDbSource1()
 									.equalsIgnoreCase(Constants.UNIPORT)) {
 								Set<String> SwissProtIds = AnnotationParser
@@ -1649,11 +1651,9 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 									.equals("")
 							&& !interactionDetail.getdSGeneName1().trim()
 									.equals("null")) {
-						geneIdToNameMap.put(mid1,
-								interactionDetail.getdSGeneName1());
-						node1 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL, interactionDetail.getdSGeneName1());
-					} else {
-						geneIdToNameMap.put(mid1, "");
+					 
+						node1 = new AdjacencyMatrix.Node(NodeType.STRING, interactionDetail.getdSGeneName1());
+					} else {						 
 						node1 = new AdjacencyMatrix.Node(NodeType.STRING, mid1); 
 					}
 				}
@@ -1704,9 +1704,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 			adjacencyMatrixdataSet = new AdjacencyMatrixDataSet(matrix,
 					0.5f, "Adjacency Matrix", dataset.getLabel(), dataset);
-			adjacencyMatrixdataSet.clearName("GENEMAP");
-			adjacencyMatrixdataSet.addNameValuePair("GENEMAP", geneIdToNameMap);
-
+		 
 			String history = "Cellular Network Parameters: \n"
 					+ "      URL Used:     "
 					+ ResultSetlUtil.INTERACTIONS_SERVLET_URL + "\n"
