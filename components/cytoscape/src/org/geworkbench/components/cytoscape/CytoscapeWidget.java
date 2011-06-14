@@ -545,8 +545,7 @@ public class CytoscapeWidget implements VisualPlugin {
 		if(node.type==NodeType.MARKER) {
 			marker1 = node.marker;
 			geneIdStr = node.marker.getGeneName();
-			//cp1 = node.marker.getLabel();
-			cp1 = geneIdStr;
+			cp1 = node.marker.getLabel();			 
 			if (geneIdStr==null ) geneIdStr = "";
 			String geneName = geneIdStr.trim();
 			if (geneName.equals("") || geneName.equals("---"))
