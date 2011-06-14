@@ -238,7 +238,7 @@ public class SequenceFetcher {
 				for (int count = 1; count < result.length; count++) {
 					seqStr.append( result[count] );
 				}
-				CSSequence sequence = new CSSequence(affyid + "_" + swissprot, seqStr.toString());
+				CSSequence sequence = new CSSequence(affyid + "_" + swissprot.trim(), seqStr.toString());
 				sequenceSet.addASequence(sequence);
 			}
 		} catch (ServiceException e) {
