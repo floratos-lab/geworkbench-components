@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
@@ -13,8 +14,8 @@
  interactions maintained by the Califano lab at Columbia. For a
  given query set of genes, details are displayed in tabular
  form and interactions can be visualized as a network graph in Cytoscape."
-		visualizer="true">
-		<required-component
+		category="visualizer">
+		<related-component
 			class="org.geworkbench.components.cytoscape.CytoscapeWidget" />
 		<license><![CDATA[
 			<html><head><meta http-equiv=Content-Type content="text/html; charset=windows-1252"></head>
