@@ -11,36 +11,41 @@
 */
 package org.geworkbench.components.gpmodule.classification.knn;
 
-import org.geworkbench.components.gpmodule.classification.GPTraining;
-import org.geworkbench.components.gpmodule.classification.PredictionModel;
-import org.geworkbench.components.gpmodule.classification.GPClassificationUtils;
-import org.geworkbench.components.gpmodule.GPDataset;
-import org.geworkbench.bison.algorithm.classification.CSClassifier;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
-import org.geworkbench.bison.annotation.DSAnnotationContext;
-import org.geworkbench.bison.annotation.CSAnnotationContextManager;
-import org.geworkbench.bison.annotation.CSAnnotationContext;
-import org.geworkbench.util.ClassifierException;
-import org.geworkbench.util.TrainingTask;
-import org.geworkbench.util.TrainingProgressListener;
-import org.genepattern.matrix.ClassVector;
-import org.genepattern.webservice.Parameter;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import javax.swing.*;
-import java.util.List;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.io.*;
+import java.util.List;
+
+import javax.swing.JOptionPane;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.genepattern.matrix.ClassVector;
+import org.genepattern.webservice.Parameter;
+import org.geworkbench.bison.algorithm.classification.CSClassifier;
+import org.geworkbench.bison.annotation.CSAnnotationContext;
+import org.geworkbench.bison.annotation.CSAnnotationContextManager;
+import org.geworkbench.bison.annotation.DSAnnotationContext;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.components.gpmodule.GPDataset;
+import org.geworkbench.components.gpmodule.classification.GPClassificationUtils;
+import org.geworkbench.components.gpmodule.classification.GPTraining;
+import org.geworkbench.components.gpmodule.classification.PredictionModel;
+import org.geworkbench.util.ClassifierException;
+import org.geworkbench.util.TrainingProgressListener;
+import org.geworkbench.util.TrainingTask;
 
 /**
  * @author Marc-Danie Nazaire
+ * @version $Id$
  */
 public class KNNTraining extends GPTraining implements TrainingTask
 {
-    static Log log = LogFactory.getLog(KNNTraining.class);
+	private static final long serialVersionUID = 7983960185175470769L;
+
+	static Log log = LogFactory.getLog(KNNTraining.class);
 
     TrainingProgressListener trainingProgressListener = null;
     private boolean cancelled = false;
@@ -123,7 +128,7 @@ public class KNNTraining extends GPTraining implements TrainingTask
             int numNeighbors = knnPanel.getNumNeighbors();
             int weightType = getWeightType(knnPanel.getWeightType());
 
-            List parameters = new ArrayList();
+            List<Parameter> parameters = new ArrayList<Parameter>();
             parameters.add(new Parameter("train.filename", trainingDataFile.getAbsolutePath()));
             parameters.add(new Parameter("train.class.filename", clsData.getAbsolutePath()));
             parameters.add(new Parameter("model.file", ++modelCount + trainingDataFile.getName()));
@@ -150,7 +155,7 @@ public class KNNTraining extends GPTraining implements TrainingTask
                     parameters.add(new Parameter("min.std", knnPanel.getMinStdDev()));
             }
                        
-            ArrayList knnParams = new ArrayList();
+            ArrayList<Parameter> knnParams = new ArrayList<Parameter>();
             knnParams.add(new Parameter("num.neighbors", numNeighbors));
             knnParams.add(new Parameter("weighting.type", weightType));
             knnParams.add(new Parameter("distance.measure", getDistance(knnPanel.getDistanceMeasure())));

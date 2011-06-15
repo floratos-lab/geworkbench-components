@@ -29,16 +29,16 @@ import com.jgoodies.forms.layout.RowSpec;
 
 /**
  * @author Marc-Danie Nazaire
- * @version $Id: SVMTrainingPanel.java,v 1.7 2009-06-19 19:18:48 jiz Exp $
+ * @version $Id$
  */
 public class SVMTrainingPanel extends GPTrainingPanel
 {
-    private SVMTraining svmTraining;
+	private static final long serialVersionUID = -3408392778147871533L;
 
     public SVMTrainingPanel(SVMTraining svmTraining)
     {
         super(svmTraining.getLabel());
-        this.svmTraining = svmTraining;
+        // svmTraining is ignored
     }
 
     protected void initUI(){}

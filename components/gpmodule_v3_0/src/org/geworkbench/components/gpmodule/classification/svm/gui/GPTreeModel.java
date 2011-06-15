@@ -11,30 +11,32 @@
 */
 package org.geworkbench.components.gpmodule.classification.svm.gui;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.event.TreeModelEvent;
+import javax.swing.event.TreeModelListener;
+import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreePath;
+
 import org.geworkbench.bison.annotation.DSAnnotationContext;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 
-import javax.swing.tree.TreeModel;
-import javax.swing.tree.TreePath;
-import javax.swing.event.TreeModelEvent;
-import javax.swing.event.TreeModelListener;
-import java.util.List;
-import java.util.ArrayList;
-
 /**
  *@author Marc-Danie Nazaire
+ *@version $Id$
  */
 public class GPTreeModel implements TreeModel
 {
-    private DSAnnotationContext context;
-    private List treeModelListeners = new ArrayList();
+    private DSAnnotationContext<?> context;
+    private List<TreeModelListener> treeModelListeners = new ArrayList<TreeModelListener>();
 
     public GPTreeModel()
     {
         context = null;
     }
 
-    public GPTreeModel(DSAnnotationContext context)
+    public GPTreeModel(DSAnnotationContext<?> context)
     {
         this.context = context;
     }
@@ -44,12 +46,12 @@ public class GPTreeModel implements TreeModel
         return context;
     }
 
-    public DSAnnotationContext getContext()
+    public DSAnnotationContext<?> getContext()
     {
         return context;
     }
 
-    public void setContext(DSAnnotationContext context)
+    public void setContext(DSAnnotationContext<?> context)
     {
         this.context = context;
     }
@@ -66,7 +68,7 @@ public class GPTreeModel implements TreeModel
         else if (parent instanceof String)
         {
             String label = (String) parent;
-            DSPanel panel = context.getItemsWithLabel(label);
+            DSPanel<?> panel = context.getItemsWithLabel(label);
             return panel.get(index);
         }
         else
@@ -88,7 +90,7 @@ public class GPTreeModel implements TreeModel
         {
             String label = (String) parent;
             Object item = child;
-            DSPanel panel = context.getItemsWithLabel(label);
+            DSPanel<?> panel = context.getItemsWithLabel(label);
             return panel.indexOf(item);
         }
         else
@@ -109,7 +111,7 @@ public class GPTreeModel implements TreeModel
         else if (parent instanceof String)
         {
             String label = (String) parent;
-            DSPanel panel = context.getItemsWithLabel(label);
+            DSPanel<?> panel = context.getItemsWithLabel(label);
             return panel.size();
         }
         else
@@ -130,7 +132,7 @@ public class GPTreeModel implements TreeModel
         else if (node instanceof String)
         {
             String label = (String) node;
-            DSPanel panel = context.getItemsWithLabel(label);
+            DSPanel<?> panel = context.getItemsWithLabel(label);
             return (panel.size() == 0);
         }
         else

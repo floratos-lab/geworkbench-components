@@ -5,11 +5,15 @@ import java.awt.*;
 
 /**
  * Created by IntelliJ IDEA.
- * User: nazaire
  * Date: Jul 15, 2009
+ * 
+ * @author nazaire
+ * @version $Id$
  */
 public class MyStatusBar extends Box {
-    public JLabel lblStatus, lblDesc;
+	private static final long serialVersionUID = -2216363396570112558L;
+	
+	public JLabel lblStatus, lblDesc;
 
     public MyStatusBar() {
         super(BoxLayout.X_AXIS);

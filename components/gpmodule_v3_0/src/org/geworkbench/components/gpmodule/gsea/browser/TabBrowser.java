@@ -1,19 +1,24 @@
 package org.geworkbench.components.gpmodule.gsea.browser;
 
-import org.jdesktop.jdic.browser.WebBrowser;
+import java.awt.BorderLayout;
+import java.net.URL;
+
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import javax.swing.*;
-import java.net.URL;
-import java.awt.*;
+import org.jdesktop.jdic.browser.WebBrowser;
 
 /**
- * User: nazaire
+ * @author nazaire
+ * @version $Id$
  */
 public class TabBrowser extends WebBrowser
 {
-    Log log = LogFactory.getLog(TabBrowser.class);
+	private static final long serialVersionUID = 6230750346483930171L;
+
+	Log log = LogFactory.getLog(TabBrowser.class);
 
     public static GSEABrowser gb;
     private boolean useIE = true;

@@ -18,7 +18,13 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -31,9 +37,9 @@ import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
 import org.geworkbench.bison.algorithm.classification.CSClassifier;
-import org.geworkbench.bison.model.analysis.ParamValidationResults;
-import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
+import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.builtin.projects.LoadDataDialog;
 import org.geworkbench.components.gpmodule.classification.GPTrainingPanel;
 import org.geworkbench.events.listeners.ParameterActionListener;
@@ -48,7 +54,10 @@ import com.jgoodies.forms.layout.FormLayout;
  * FIXME: saving parameter set to file not working yet. Only save in memory works.                            
  */
 public class WVTrainingPanel extends GPTrainingPanel {
-    private static final int DEFAULT_NUM_FEATURES = 10;
+
+	private static final long serialVersionUID = -8154071395478765299L;
+
+	private static final int DEFAULT_NUM_FEATURES = 10;
 
     private String featureFile = "";
     private javax.swing.JTextField featureFileTextBox;
@@ -262,21 +271,21 @@ public class WVTrainingPanel extends GPTrainingPanel {
 
         setTrainingTask(this.wvTraining);
 
-        List<String> caseArrayNames = new ArrayList();
+        List<String> caseArrayNames = new ArrayList<String>();
         for(int i = 0; i < trainingCaseData.size(); i++)
         {
             caseArrayNames.add("Case_" + i);
         }
 
-        List<String> controlArrayNames = new ArrayList();
+        List<String> controlArrayNames = new ArrayList<String>();
         for(int i = 0; i < trainingControlData.size(); i++)
         {
             controlArrayNames.add("Control_" + i);
         }
 
-        DSItemList markers = getActiveMarkers();
+        DSItemList<DSGeneMarker> markers = getActiveMarkers();
 
-        List featureNames = new ArrayList();
+        List<String> featureNames = new ArrayList<String>();
         for(int i =0; i < markers.size();i++)
         {
             featureNames.add(((DSGeneMarker)markers.get(i)).getLabel());
@@ -287,7 +296,7 @@ public class WVTrainingPanel extends GPTrainingPanel {
 
     public ParamValidationResults validateParameters()
     {
-        Set uniqueMarkers = new HashSet(getActiveMarkers());
+        Set<DSGeneMarker> uniqueMarkers = new HashSet<DSGeneMarker>(getActiveMarkers());
         int numFeatures = uniqueMarkers.size();
         if(!useFeatureFileMethod() && getNumFeatures() <= 0)
             return new ParamValidationResults(false, "num features must be greater than 0");

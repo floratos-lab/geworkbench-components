@@ -1,18 +1,31 @@
 package org.geworkbench.components.gpmodule.gsea.browser;
 
-import javax.swing.*;
-import javax.swing.plaf.metal.MetalTabbedPaneUI;
-import javax.swing.plaf.basic.BasicTabbedPaneUI;
-import javax.swing.event.EventListenerList;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.event.InputEvent;
+import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.awt.event.MouseEvent;
-import java.awt.*;
 import java.util.EventListener;
+
+import javax.swing.Icon;
+import javax.swing.JComponent;
+import javax.swing.JTabbedPane;
+import javax.swing.JViewport;
+import javax.swing.SwingUtilities;
+import javax.swing.event.EventListenerList;
+import javax.swing.plaf.basic.BasicTabbedPaneUI;
+import javax.swing.plaf.metal.MetalTabbedPaneUI;
 
 /**
  * Created by IntelliJ IDEA.
- * User: nazaire
+ * @author nazaire
+ * @version $Id$
+ * 
  * A JTabbedPane which has a close ('X') icon on each tab.
  *
  * To add a tab, use the method addTab(String, Component)
@@ -24,7 +37,9 @@ import java.util.EventListener;
 public class CloseableTabbedPane extends JTabbedPane implements MouseListener,
         MouseMotionListener {
 
-  /**
+	private static final long serialVersionUID = 2069704098217679838L;
+
+/**
    * The <code>EventListenerList</code>.
    */
   private EventListenerList listenerList = null;
@@ -216,15 +231,15 @@ public class CloseableTabbedPane extends JTabbedPane implements MouseListener,
       Rectangle drawRect = new Rectangle(
         rect.x - pos.x, rect.y - pos.y, rect.width, rect.height);
 
-      if (e.getID() == e.MOUSE_PRESSED) {
-        icon.mousepressed = e.getModifiers() == e.BUTTON1_MASK;
+      if (e.getID() == MouseEvent.MOUSE_PRESSED) {
+        icon.mousepressed = e.getModifiers() == InputEvent.BUTTON1_MASK;
         repaint(drawRect);
-      } else if (e.getID() == e.MOUSE_MOVED || e.getID() == e.MOUSE_DRAGGED ||
-                 e.getID() == e.MOUSE_CLICKED) {
+      } else if (e.getID() == MouseEvent.MOUSE_MOVED || e.getID() == MouseEvent.MOUSE_DRAGGED ||
+                 e.getID() == MouseEvent.MOUSE_CLICKED) {
         pos.x += e.getX();
         pos.y += e.getY();
         if (rect.contains(pos)) {
-          if (e.getID() == e.MOUSE_CLICKED) {
+          if (e.getID() == MouseEvent.MOUSE_CLICKED) {
             int selIndex = getSelectedIndex();
             if (fireCloseTab(selIndex)) {
               if (selIndex > 0) {
@@ -252,7 +267,7 @@ public class CloseableTabbedPane extends JTabbedPane implements MouseListener,
             }
           } else {
             icon.mouseover = true;
-            icon.mousepressed = e.getModifiers() == e.BUTTON1_MASK;
+            icon.mousepressed = e.getModifiers() == InputEvent.BUTTON1_MASK;
           }
         } else {
           icon.mouseover = false;

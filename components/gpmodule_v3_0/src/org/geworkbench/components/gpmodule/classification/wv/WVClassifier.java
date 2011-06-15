@@ -11,25 +11,28 @@
 */
 package org.geworkbench.components.gpmodule.classification.wv;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.genepattern.webservice.Parameter;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
-import org.geworkbench.components.gpmodule.classification.PredictionModel;
-import org.geworkbench.components.gpmodule.classification.GPClassifier;
-import org.geworkbench.components.gpmodule.classification.PredictionResult;
 import org.geworkbench.components.gpmodule.GPDataset;
-import org.genepattern.webservice.Parameter;
-
-import java.io.*;
-import java.util.List;
-import java.util.ArrayList;
+import org.geworkbench.components.gpmodule.classification.GPClassifier;
+import org.geworkbench.components.gpmodule.classification.PredictionModel;
+import org.geworkbench.components.gpmodule.classification.PredictionResult;
 
 /**
  * @author Marc-Danie Nazaire
+ * @version $Id$
  */
 public class WVClassifier extends GPClassifier {
 
-    public WVClassifier(DSDataSet parent, String label, String[] classifications, PredictionModel model,
+	private static final long serialVersionUID = -7077765354251813932L;
+
+	public WVClassifier(DSDataSet<?> parent, String label, String[] classifications, PredictionModel model,
                         GPDataset dataset, DSPanel<DSMicroarray> casePanel,
                         DSPanel<DSMicroarray> controlPanel)
     {
@@ -38,13 +41,13 @@ public class WVClassifier extends GPClassifier {
 
     public int classify(float[] data)
     {
-        List dataset = new ArrayList();
+        List<float[]> dataset = new ArrayList<float[]>();
         dataset.add(data);
 
         File testData = createTestGCTFile("WVTest_Data", dataset);
         File testCLSData = createTestCLSFile("WVTest_Cls", dataset.size());
 
-        List parameters = new ArrayList();
+        List<Parameter> parameters = new ArrayList<Parameter>();
         parameters.add(new Parameter("saved.model.filename", predModel.getPredModelFile().getAbsolutePath()));
         parameters.add(new Parameter("test.filename", testData.getAbsolutePath()));
         parameters.add(new Parameter("test.class.filename", testCLSData.getAbsolutePath()));

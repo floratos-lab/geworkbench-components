@@ -11,35 +11,38 @@
 */
 package org.geworkbench.components.gpmodule.classification.svm;
 
-import org.geworkbench.components.gpmodule.classification.PredictionModel;
-import org.geworkbench.components.gpmodule.classification.VisualGPClassifier;
-import org.geworkbench.components.gpmodule.GPDataset;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.genepattern.webservice.Parameter;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
-import org.genepattern.webservice.Parameter;
-
-import java.util.List;
-import java.util.ArrayList;
-import java.io.File;
+import org.geworkbench.components.gpmodule.GPDataset;
+import org.geworkbench.components.gpmodule.classification.PredictionModel;
+import org.geworkbench.components.gpmodule.classification.VisualGPClassifier;
 
 /**
  * @author Marc-Danie Nazaire
+ * @version $Id$
  */
 public class SVMClassifier extends VisualGPClassifier
 {
-    public SVMClassifier(DSDataSet parent, String label, String[] classifications, PredictionModel model,
+	private static final long serialVersionUID = 8241480979307707499L;
+
+	public SVMClassifier(DSDataSet<?> parent, String label, String[] classifications, PredictionModel model,
                          GPDataset dataset, DSPanel<DSMicroarray> casePanel, DSPanel<DSMicroarray> controlPanel)
     {
         super("SVM", parent, label, classifications, dataset, model, casePanel, controlPanel);
     }
 
-    public Parameter[] buildParametersList(List data, List arrayNames, String[] classLabels)
+    public Parameter[] buildParametersList(List<float[]> data, List<String> arrayNames, String[] classLabels)
     {
         File testData = createTestGCTFile("SVMTest_Data", data, arrayNames);
         File testCLSData = createTestCLSFile("SVMTest_Cls", data.size(), classLabels);
 
-        List parameters = new ArrayList();
+        List<Parameter> parameters = new ArrayList<Parameter>();
 
         parameters.add(new Parameter("saved.model.filename", predModel.getPredModelFile().getAbsolutePath()));
         parameters.add(new Parameter("test.data.filename", testData.getAbsolutePath()));
