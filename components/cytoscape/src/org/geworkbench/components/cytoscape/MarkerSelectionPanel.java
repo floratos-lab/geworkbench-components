@@ -49,7 +49,7 @@ import cytoscape.view.CyNetworkView;
 
 @SuppressWarnings("unchecked")
 public class MarkerSelectionPanel extends JPanel implements Observer {
- 
+
 	private static final long serialVersionUID = -4774315363368554985L;
 
 	final private JDialog parent;
@@ -100,120 +100,125 @@ public class MarkerSelectionPanel extends JPanel implements Observer {
 	}
 
 	private void continueButtonActionPerformed() {
-	 
-		AdjacencyMatrixDataSet adjacencyMatrixdataSet = null;
-		AdjacencyMatrix origMatrix = CytoscapeWidget.getInstance().getAdjMatrix();	 
-		AdjacencyMatrix matrix = new AdjacencyMatrix(null, origMatrix.getMicroarraySet(), origMatrix.getInteractionTypeSifMap());
-	   
-	    DSPanel<DSGeneMarker> selectedObject = (DSPanel<DSGeneMarker>)list.getSelectedValue();
-       
-	    List<String> selectedGeneNameList = new ArrayList<String>();
-        for (int i = 0; i < selectedObject.size(); i++) {
-        	DSGeneMarker marker =   selectedObject.get(i);					 
-        	selectedGeneNameList.add(marker.getGeneName());
-		}
-        
-        List<String> selectedGeneLabelList = new ArrayList<String>();
-        for (int i = 0; i < selectedObject.size(); i++) {
-        	DSGeneMarker marker =   selectedObject.get(i);					 
-        	selectedGeneLabelList.add(marker.getLabel());
-		}
-        
-    	CyNetworkView view = Cytoscape.getCurrentNetworkView();
 
-		if (view != null && Cytoscape.getCurrentNetwork() != null) {		 
-			CyAttributes edgeAttrs = Cytoscape.getEdgeAttributes();	 
-			CyAttributes nodeAttrs = Cytoscape.getNodeAttributes();	
+		AdjacencyMatrixDataSet adjacencyMatrixdataSet = null;
+		AdjacencyMatrix origMatrix = CytoscapeWidget.getInstance()
+				.getAdjMatrix();
+		AdjacencyMatrix matrix = new AdjacencyMatrix(null, origMatrix
+				.getMicroarraySet(), origMatrix.getInteractionTypeSifMap());
+
+		DSPanel<DSGeneMarker> selectedObject = (DSPanel<DSGeneMarker>) list
+				.getSelectedValue();
+
+		List<String> selectedGeneNameList = new ArrayList<String>();
+		for (int i = 0; i < selectedObject.size(); i++) {
+			DSGeneMarker marker = selectedObject.get(i);
+			selectedGeneNameList.add(marker.getGeneName());
+		}
+
+		List<String> selectedGeneLabelList = new ArrayList<String>();
+		for (int i = 0; i < selectedObject.size(); i++) {
+			DSGeneMarker marker = selectedObject.get(i);
+			selectedGeneLabelList.add(marker.getLabel());
+		}
+
+		CyNetworkView view = Cytoscape.getCurrentNetworkView();
+
+		if (view != null && Cytoscape.getCurrentNetwork() != null) {
+			CyAttributes edgeAttrs = Cytoscape.getEdgeAttributes();
+			CyAttributes nodeAttrs = Cytoscape.getNodeAttributes();
 			Iterator<?> iter = view.getEdgeViewsIterator();
-		 		
+
 			while (iter.hasNext()) {
-				 
+
 				EdgeView edgeView = (EdgeView) iter.next();
 				Node source = edgeView.getEdge().getSource();
 				Node target = edgeView.getEdge().getTarget();
-                String gene1 =  source.getIdentifier();
-                String gene2 =  target.getIdentifier();
-              
-	    		String  interactionType = null;
-	    		
-	    		interactionType = edgeAttrs.getStringAttribute(edgeView.getEdge().getIdentifier(), "type");
-	    	    if (interactionType != null && !interactionType.trim().equals(""))
-	    	    {
-	    	    	interactionType = CytoscapeWidget.getInstance().interactionTypeSifMap.get(interactionType);
-	    	    }
-	    	    
-	    	    DSItemList<DSGeneMarker> markers = origMatrix.getMicroarraySet().getMarkers();
-				 
-				
-				String nodeType1 = nodeAttrs.getStringAttribute(gene1, "nodeType");
-				String nodeType2 = nodeAttrs.getStringAttribute(gene1, "nodeType");
+				String gene1 = source.getIdentifier();
+				String gene2 = target.getIdentifier();
+
+				String interactionType = null;
+
+				interactionType = edgeAttrs.getStringAttribute(edgeView
+						.getEdge().getIdentifier(), "type");
+
+				if (interactionType != null
+						&& !interactionType.trim().equals("")) {
+
+					String type = CytoscapeWidget.getInstance().interactionTypeSifMap
+							.get(interactionType);
+					if (type != null && !type.trim().equals(""))
+						interactionType = CytoscapeWidget.getInstance().interactionTypeSifMap
+								.get(interactionType);
+
+				}
+
+				DSItemList<DSGeneMarker> markers = origMatrix
+						.getMicroarraySet().getMarkers();
+
+				String nodeType1 = nodeAttrs.getStringAttribute(gene1,
+						"nodeType");
+				String nodeType2 = nodeAttrs.getStringAttribute(gene1,
+						"nodeType");
 				AdjacencyMatrix.Node node1 = null, node2 = null;
 				if (nodeType1.equals(NodeType.GENE_SYMBOL.name()))
-					node1 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL, gene1);
-				else if (nodeType1.equals(NodeType.MARKER.name()) )
+					node1 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL,
+							gene1);
+				else if (nodeType1.equals(NodeType.MARKER.name()))
 					node1 = new AdjacencyMatrix.Node(markers.get(gene1));
 				else if (nodeType1.equals(NodeType.STRING.name()))
 					node1 = new AdjacencyMatrix.Node(NodeType.STRING, gene1);
-				else  
+				else
 					node1 = new AdjacencyMatrix.Node(NodeType.OTHER, gene1);
-				
-						
+
 				if (nodeType2.equals(NodeType.GENE_SYMBOL.name()))
-					node2 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL, gene2);
-				else if (nodeType2.equals(NodeType.MARKER.name()) )
+					node2 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL,
+							gene2);
+				else if (nodeType2.equals(NodeType.MARKER.name()))
 					node2 = new AdjacencyMatrix.Node(markers.get(gene2));
 				else if (nodeType2.equals(NodeType.STRING.name()))
 					node2 = new AdjacencyMatrix.Node(NodeType.STRING, gene2);
-				else  
+				else
 					node2 = new AdjacencyMatrix.Node(NodeType.OTHER, gene2);
-				
-	    		if ( (selectedGeneNameList.contains(gene1) || selectedGeneLabelList.contains(gene1)) && (selectedGeneNameList.contains(gene2) || selectedGeneLabelList.contains(gene2)) )
-	    		{
-	    			matrix.add(node1, node2, 0.8f, interactionType);
-	    		}
-	    		else if ( selectedGeneNameList.contains(gene1) || selectedGeneLabelList.contains(gene1))
-	    		{
-	    			matrix.addGeneRow(node1);
-	    		}
-	    		else if ( selectedGeneNameList.contains(gene2) || selectedGeneLabelList.contains(gene2))
-	    		{
-	    			matrix.addGeneRow(node2);
-	    		}
-                
-			}
-			
-		 }
-        
-        
-         if (matrix.getNodeNumber() == 0)
-         {
-        	 JOptionPane
-				.showMessageDialog(
-						null,
-						"There is zero interaction based on your marker set selection.",
-						"Information", JOptionPane.INFORMATION_MESSAGE);
-        
-              return;
-         }
-	 
-	   
-         
-        adjacencyMatrixdataSet = new AdjacencyMatrixDataSet(matrix, 0.5f,
-					"Adjacency Matrix", CytoscapeWidget.getInstance().maSet
-							.getLabel(), CytoscapeWidget.getInstance().maSet);
-			 
-		    
-		
-	    parent.dispose();
-	
-		CytoscapeWidget.getInstance().publishProjectNodeAddedEvent(new ProjectNodeAddedEvent(
-					"Adjacency Matrix Added", null, adjacencyMatrixdataSet));
 
-	
-		
+				if ((selectedGeneNameList.contains(gene1) || selectedGeneLabelList
+						.contains(gene1))
+						&& (selectedGeneNameList.contains(gene2) || selectedGeneLabelList
+								.contains(gene2))) {
+					matrix.add(node1, node2, 0.8f, interactionType);
+				} else if (selectedGeneNameList.contains(gene1)
+						|| selectedGeneLabelList.contains(gene1)) {
+					matrix.addGeneRow(node1);
+				} else if (selectedGeneNameList.contains(gene2)
+						|| selectedGeneLabelList.contains(gene2)) {
+					matrix.addGeneRow(node2);
+				}
+
+			}
+
+		}
+
+		if (matrix.getNodeNumber() == 0) {
+			JOptionPane
+					.showMessageDialog(
+							null,
+							"There is zero interaction based on your marker set selection.",
+							"Information", JOptionPane.INFORMATION_MESSAGE);
+
+			return;
+		}
+
+		adjacencyMatrixdataSet = new AdjacencyMatrixDataSet(matrix, 0.5f,
+				"Adjacency Matrix", CytoscapeWidget.getInstance().maSet
+						.getLabel(), CytoscapeWidget.getInstance().maSet);
+
+		parent.dispose();
+
+		CytoscapeWidget.getInstance().publishProjectNodeAddedEvent(
+				new ProjectNodeAddedEvent("Adjacency Matrix Added", null,
+						adjacencyMatrixdataSet));
 
 	}
-
 
 	public void update(Observable o, Object arg) {
 		// cancelAction = true;
@@ -222,7 +227,7 @@ public class MarkerSelectionPanel extends JPanel implements Observer {
 	}
 
 	ListModel listModel = new AbstractListModel() {
-	 
+
 		private static final long serialVersionUID = 7949364305898483395L;
 
 		public Object getElementAt(int index) {
