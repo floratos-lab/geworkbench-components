@@ -40,8 +40,12 @@ import org.geworkbench.util.ProgressBar;
 
 /**
  * @author: Marc-Danie Nazaire
+ * @version $Id$
  */
 public class PCAAnalysis extends GPAnalysis {
+
+	private static final long serialVersionUID = -2283932375588941811L;
+
 	private static Log log = LogFactory.getLog(PCAAnalysis.class);
 
 	private PCAProgress progress = new PCAProgress();
@@ -57,6 +61,7 @@ public class PCAAnalysis extends GPAnalysis {
 		setDefaultPanel(panel);
 	}
 
+	@SuppressWarnings("unchecked")
 	public AlgorithmExecutionResults execute(Object input) {
 		assert (input instanceof DSMicroarraySetView);
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> view = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
@@ -117,9 +122,9 @@ public class PCAAnalysis extends GPAnalysis {
 		}
 	}
 
-	public List runAnalysis(String analysisName, Parameter[] parameters,
+	public List<String> runAnalysis(String analysisName, Parameter[] parameters,
 			String password) {
-		List result = null;
+		List<String> result = null;
 		try {
 			result = super.runAnalysis(analysisName, parameters, password);
 			if (result == null)
@@ -158,11 +163,11 @@ public class PCAAnalysis extends GPAnalysis {
 			// Modification for doing PCA analysis using the standard instead of
 			// the shortcut method
 			if (((PCAAnalysisPanel) panel).getVariables().equals("genes")) {
-				List parameters = new ArrayList();
+				List<Parameter> parameters = new ArrayList<Parameter>();
 
 				parameters.add(new Parameter("input.filename", gctFileName));
 
-				List results = runAnalysis("TransposeDataset",
+				List<String> results = runAnalysis("TransposeDataset",
 						(Parameter[]) parameters.toArray(new Parameter[0]),
 						panel.getPassword());
 				progress.setProgress(30);
@@ -178,7 +183,7 @@ public class PCAAnalysis extends GPAnalysis {
 			}
 
 			progress.setProgress(40);
-			List parameters = new ArrayList();
+			List<Parameter> parameters = new ArrayList<Parameter>();
 
 			parameters.add(new Parameter("input.filename", gctFileName));
 
@@ -186,7 +191,7 @@ public class PCAAnalysis extends GPAnalysis {
 
 			progress.setProgress(50);
 
-			List results = runAnalysis("PCA", (Parameter[]) parameters
+			List<String> results = runAnalysis("PCA", (Parameter[]) parameters
 					.toArray(new Parameter[0]), panel.getPassword());
 
 			progress.setProgress(60);
@@ -196,7 +201,7 @@ public class PCAAnalysis extends GPAnalysis {
 			}
 
 			progress.setProgress(70);
-			Iterator it = results.iterator();
+			Iterator<String> it = results.iterator();
 			while (it.hasNext()) {
 				String file = (String) it.next();
 				if (!file.contains(".odf")) {
@@ -262,9 +267,9 @@ public class PCAAnalysis extends GPAnalysis {
 							view.getMicroarraySet().getMarkers());
 
 			DSPanel<DSGeneMarker> mp = context.getActiveItems();
-			DSItemList panels = mp.panels();
+			DSItemList<DSPanel<DSGeneMarker>> panels = mp.panels();
 
-			if (!((DSPanel) panels.get(CSAnnotationContext.SELECTION))
+			if (!(panels.get(CSAnnotationContext.SELECTION))
 					.isActive()) {
 				panels.remove(panels.get(CSAnnotationContext.SELECTION));
 			}
@@ -272,7 +277,7 @@ public class PCAAnalysis extends GPAnalysis {
 			history += "\n" + panels.size() + " marker sets activated: \n";
 
 			for (int i = 0; i < panels.size(); i++) {
-				DSPanel<DSGeneMarker> panel = (DSPanel) panels.get(i);
+				DSPanel<DSGeneMarker> panel = panels.get(i);
 				history += "\t Set " + panel.getLabel() + " (" + panel.size()
 						+ " markers):" + "\n";
 
@@ -290,13 +295,13 @@ public class PCAAnalysis extends GPAnalysis {
 		if (view.useItemPanel() && !(view.getItemPanel().size() == 0)) {
 			CSAnnotationContextManager manager = CSAnnotationContextManager
 					.getInstance();
-			CSAnnotationContext<DSMicroarray> context = (CSAnnotationContext) manager
+			CSAnnotationContext<DSMicroarray> context = (CSAnnotationContext<DSMicroarray>) manager
 					.getCurrentContext(view.getMicroarraySet());
 
 			DSPanel<DSMicroarray> ap = context.getActiveItems();
-			DSItemList panels = ap.panels();
+			DSItemList<DSPanel<DSMicroarray>> panels = ap.panels();
 
-			if (!((DSPanel) panels.get(CSAnnotationContext.SELECTION))
+			if (!(panels.get(CSAnnotationContext.SELECTION))
 					.isActive()) {
 				panels.remove(panels.get(CSAnnotationContext.SELECTION));
 			}
@@ -304,7 +309,7 @@ public class PCAAnalysis extends GPAnalysis {
 			history += "\n" + panels.size() + " array sets activated: \n";
 
 			for (int i = 0; i < panels.size(); i++) {
-				DSPanel<DSMicroarray> panel = (DSPanel) panels.get(i);
+				DSPanel<DSMicroarray> panel = panels.get(i);
 
 				history += "\t Set " + panel.getLabel() + " (" + panel.size()
 						+ " arrays):" + "\n";

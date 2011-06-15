@@ -11,21 +11,23 @@
 */
 package org.geworkbench.components.gpmodule.pca;
 
-import org.tigr.util.FloatMatrix;
-import org.tigr.microarray.mev.cluster.gui.impl.pca.ValuesViewer;
-import org.genepattern.io.odf.OdfParser;
-import org.genepattern.io.odf.OdfHandler;
-
-import javax.swing.*;
-import javax.swing.text.PlainDocument;
 import java.io.FileInputStream;
-import java.util.List;
-import java.util.HashMap;
-import java.util.ArrayList;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import javax.swing.JTextArea;
+import javax.swing.text.PlainDocument;
+
+import org.genepattern.io.odf.OdfHandler;
+import org.genepattern.io.odf.OdfParser;
+import org.tigr.microarray.mev.cluster.gui.impl.pca.ValuesViewer;
+import org.tigr.util.FloatMatrix;
 
 /**
  * @author: Marc-Danie Nazaire
+ * @version $Id$
  */
 public class PCAData
 {
@@ -33,12 +35,12 @@ public class PCAData
     private FloatMatrix T_matrix;
     private FloatMatrix U_matrix;
     private int numPCs;
-    private HashMap eigenValues;
-    private HashMap percentVar;
-    private HashMap eigenVectors;
+    private HashMap<Integer, Double> eigenValues;
+    private HashMap<Integer, String> percentVar;
+    private HashMap<Integer, List<String>> eigenVectors;
     private String variables;
 
-    public PCAData(List files, String variables)
+    public PCAData(List<String> files, String variables)
     {
         try
         {
@@ -72,8 +74,8 @@ public class PCAData
     private void extractPCAValuesViewerResults() throws Exception
     {
         ValuesViewer valuesViewerPanel = new ValuesViewer(S_matrix);
-        eigenValues = new HashMap();
-        percentVar = new HashMap();
+        eigenValues = new HashMap<Integer, Double>();
+        percentVar = new HashMap<Integer, String>();
 
         JTextArea content = (JTextArea)valuesViewerPanel.getContentComponent();
         String textData = content.getText();
@@ -106,11 +108,11 @@ public class PCAData
         DecimalFormat decimalFormat = new DecimalFormat();
         decimalFormat.setMaximumFractionDigits(2);
         decimalFormat.setMinimumFractionDigits(2);
-        eigenVectors = new HashMap();
+        eigenVectors = new HashMap<Integer, List<String>>();
 
         for(int c = 0; c < T_matrix.getColumnDimension(); c++)
         {
-            List eigenVector = new ArrayList();
+            List<String> eigenVector = new ArrayList<String>();
             for(int r = 0; r < T_matrix.getRowDimension(); r++)
             {
                 eigenVector.add(decimalFormat.format(T_matrix.get(r, c)));
@@ -138,21 +140,6 @@ public class PCAData
             {
                 throw e;
             }
-        }
-
-        public int getColumnCount()
-        {
-            return handler.numColumns;
-        }
-
-        public int getRowCount()
-        {
-            return handler.numRows;
-        }
-
-        public float getValueAt(int row, int col)
-        {
-            return Float.valueOf(handler.data[row][col]).floatValue();
         }
 
         public float[][] getData()
@@ -199,17 +186,17 @@ public class PCAData
         return numPCs;
     }
 
-    public HashMap getEigenValues()
+    public HashMap<Integer, Double> getEigenValues()
     {
         return eigenValues;
     }
 
-    public HashMap getPercentVars()
+    public HashMap<Integer, String> getPercentVars()
     {
         return percentVar;
     }
 
-    public HashMap getEigenVectors()
+    public HashMap<Integer, List<String>> getEigenVectors()
     {
         return eigenVectors;
     }

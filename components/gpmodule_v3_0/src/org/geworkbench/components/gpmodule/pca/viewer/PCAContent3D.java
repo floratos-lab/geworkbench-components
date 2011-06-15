@@ -12,43 +12,70 @@ import java.awt.FontMetrics;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.Panel;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.awt.Panel;
+import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import javax.media.j3d.*;
-
+import javax.media.j3d.AmbientLight;
+import javax.media.j3d.Appearance;
+import javax.media.j3d.Background;
+import javax.media.j3d.BoundingSphere;
+import javax.media.j3d.Bounds;
+import javax.media.j3d.BranchGroup;
+import javax.media.j3d.Canvas3D;
+import javax.media.j3d.ColoringAttributes;
+import javax.media.j3d.Font3D;
+import javax.media.j3d.FontExtrusion;
+import javax.media.j3d.GraphicsConfigTemplate3D;
+import javax.media.j3d.ImageComponent;
+import javax.media.j3d.ImageComponent2D;
+import javax.media.j3d.Light;
+import javax.media.j3d.LineAttributes;
+import javax.media.j3d.Material;
+import javax.media.j3d.Node;
+import javax.media.j3d.PointLight;
+import javax.media.j3d.Screen3D;
+import javax.media.j3d.Shape3D;
+import javax.media.j3d.Switch;
+import javax.media.j3d.Text3D;
+import javax.media.j3d.Transform3D;
+import javax.media.j3d.TransformGroup;
+import javax.swing.JOptionPane;
 import javax.vecmath.Color3f;
 import javax.vecmath.Point3d;
 import javax.vecmath.Point3f;
 import javax.vecmath.Vector3d;
-import javax.swing.*;
-
-import com.sun.j3d.utils.geometry.Cone;
-import com.sun.j3d.utils.geometry.Cylinder;
-import com.sun.j3d.utils.geometry.Sphere;
-import com.sun.j3d.utils.picking.behaviors.PickRotateBehavior;
-import com.sun.j3d.utils.picking.behaviors.PickTranslateBehavior;
-import com.sun.j3d.utils.picking.behaviors.PickZoomBehavior;
-import com.sun.j3d.utils.universe.SimpleUniverse;
-import com.sun.j3d.utils.picking.behaviors.*;
-import com.sun.j3d.utils.picking.PickCanvas;
-import com.sun.j3d.utils.picking.PickResult;
-
-
-import java.util.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.engine.config.rules.GeawConfigObject;
 
+import com.sun.j3d.utils.geometry.Cone;
+import com.sun.j3d.utils.geometry.Cylinder;
+import com.sun.j3d.utils.geometry.Sphere;
+import com.sun.j3d.utils.picking.PickResult;
+import com.sun.j3d.utils.picking.behaviors.PickMouseBehavior;
+import com.sun.j3d.utils.picking.behaviors.PickRotateBehavior;
+import com.sun.j3d.utils.picking.behaviors.PickTranslateBehavior;
+import com.sun.j3d.utils.picking.behaviors.PickZoomBehavior;
+import com.sun.j3d.utils.universe.SimpleUniverse;
+
 /**
  * @author: Marc-Danie Nazaire
+ * @version $Id$
  */
 public class PCAContent3D extends Panel
 {
-     private static Log log = LogFactory.getLog(PCAContent3D.class);
+	private static final long serialVersionUID = 7815606303671210069L;
+	
+	private static Log log = LogFactory.getLog(PCAContent3D.class);
     private SimpleUniverse universe;
     private Canvas3D onScreenCanvas;
     private Canvas3D offScreenCanvas;
@@ -61,19 +88,19 @@ public class PCAContent3D extends Panel
     private float pointSize = 1.0f;
     private Color3f blackColor = new Color3f(0f, 0f, 0f);
     private Color3f whiteColor = new Color3f(1f, 1f, 1f);
-    private List xyzPoints;
+    private List<XYZData> xyzPoints;
     private String xAxisLabel = "X";
     private String yAxisLabel = "Y";
     private String zAxisLabel = "Z";
-    private Map clusterAppearanceMap = new HashMap();
-    private Map clusterColors;
-    private Map pointTextMap = new HashMap();
+    private Map<String, Appearance> clusterAppearanceMap = new HashMap<String, Appearance>();
+    private Map<String, Color> clusterColors;
+    private Map<String, Text3D> pointTextMap = new HashMap<String, Text3D>();
     private String selectedPoint;
 
     // controls which points are visible and not visible in plot
     private Switch sphereSwitch;
 
-    ArrayList spheresList = new ArrayList();
+    ArrayList<Sphere> spheresList = new ArrayList<Sphere>();
 
     /**
      * Constructs a PCAContent3D object
@@ -108,7 +135,7 @@ public class PCAContent3D extends Panel
         }
     }
 
-    public void setData(List xyzPoints)
+    public void setData(List<XYZData> xyzPoints)
     {
         this.xyzPoints = xyzPoints;
         initScales(xyzPoints);
@@ -177,7 +204,7 @@ public class PCAContent3D extends Panel
         * Sets scales according to U-matrix values.
         * @param xyzPoint a list of XYZData objects (3D coordinates)
         */
-    private void initScales(List xyzPoint)
+    private void initScales(List<XYZData> xyzPoint)
     {
        float maxX = 0f;
        float maxY = 0f;
@@ -439,9 +466,11 @@ public class PCAContent3D extends Panel
     }
 
 
-    public void setClusterColors(HashMap clusterColors)
+	// FIXME: this could be a bug: the invoker, PCA, could put Map<String, PanelVisualProperties> here
+    @SuppressWarnings("unchecked")
+	public void setClusterColors(HashMap<?, ?> clusterColors)
     {
-        this.clusterColors = clusterColors;
+        this.clusterColors = (Map<String, Color>) clusterColors;
     }
 
     /**
@@ -449,7 +478,7 @@ public class PCAContent3D extends Panel
      */
     private Switch createSpheres()
     {
-        spheresList = new ArrayList();
+        spheresList = new ArrayList<Sphere>();
         sphereSwitch = new Switch(Switch.CHILD_MASK);
         sphereSwitch.setCapability(Switch.ALLOW_CHILDREN_READ);
         sphereSwitch.setCapability(Switch.ALLOW_CHILDREN_WRITE);
@@ -739,7 +768,6 @@ public class PCAContent3D extends Panel
 
     private class PCABehavior extends PickMouseBehavior
 	{
-  		private int pickMode = PickCanvas.GEOMETRY_INTERSECT_INFO;
   		private Sphere lastSelectedShape = null;
   		private Appearance lastSelectedShapeAppearance = null;
         private Text3D lastShowedText = null;
@@ -758,26 +786,7 @@ public class PCAContent3D extends Panel
     	    this.setSchedulingBounds(bounds);
          }
 
-  	/**
-   	 * Sets the pickMode component of this PickTranslateBehavior to the value of
-   	 * the passed pickMode.
-   	 * @param pickMode the pickMode to be copied.
-   	 **/
-
-  	public void setPickMode(int pickMode)
-  	{
-    	this.pickMode = pickMode;
-  	}
-
- 	/**
-   	 * Return the pickMode component of this PickTranslaeBehavior.
-   	 **/
-
-  	public int getPickMode()
-  	{
-    	return pickMode;
-  	}
-
+  	@SuppressWarnings("rawtypes")
 	public void processStimulus (Enumeration criteria)
 	{
     	super.processStimulus(criteria);

@@ -1,6 +1,12 @@
 package org.geworkbench.components.gpmodule.pca;
 
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.ScrollPane;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -86,6 +92,7 @@ import org.tigr.util.FloatMatrix;
 
 /**
  * @author: Marc-Danie Nazaire
+ * @version $Id$
  */
 
 @AcceptTypes({CSPCADataSet.class})
@@ -105,10 +112,10 @@ public class PCA extends MicroarrayViewEventBase
     private JButton imageSnapshotButton;
 
     private CSPCADataSet pcaDataSet;
-    private DSDataSet dataSet;
+    private CSExprMicroarraySet dataSet;
 
     private JScrollPane mainScrollPane;
-    private Map dataLabelGroups;
+    private Map<String, Set<String>> dataLabelGroups;
     private PCAContent3D pcaContent3D;
     private RenderingErrorListener errorListener = null;
 
@@ -203,7 +210,9 @@ public class PCA extends MicroarrayViewEventBase
 
         compResultsTable = new JTable()
         {
-            public boolean getScrollableTracksViewportHeight()
+			private static final long serialVersionUID = 1924953061319615092L;
+
+			public boolean getScrollableTracksViewportHeight()
             {
                 Component parent = getParent();
                 if(parent instanceof JViewport)
@@ -314,7 +323,9 @@ public class PCA extends MicroarrayViewEventBase
 
         projResultsTable = new JTable()
         {
-            public boolean getScrollableTracksViewportHeight()
+			private static final long serialVersionUID = -9127250606276011834L;
+
+			public boolean getScrollableTracksViewportHeight()
             {
                 Component parent = getParent();
                 if(parent instanceof JViewport)
@@ -426,7 +437,8 @@ public class PCA extends MicroarrayViewEventBase
 
             if(p != null)
             {
-                Map vuMap = javax.media.j3d.VirtualUniverse.getProperties();
+                @SuppressWarnings("unchecked")
+				Map<String, String> vuMap = javax.media.j3d.VirtualUniverse.getProperties();
                 System.out.println("Vendor: " + vuMap.get("j3d.vendor"));
                 System.out.println("Vendor version: " + vuMap.get("j3d.version"));
                 System.out.println("Renderer: " + vuMap.get("j3d.renderer"));
@@ -453,7 +465,10 @@ public class PCA extends MicroarrayViewEventBase
     {
         String[] columnNames = {"ID", "Eigenvalue", "Variance"};
         TableModel tableModel = new DefaultTableModel(columnNames, pcaDataSet.getNumPCs()){
-            public boolean isCellEditable(int rowIndex, int columnIndex)
+
+        	private static final long serialVersionUID = 4021265202483880605L;
+
+			public boolean isCellEditable(int rowIndex, int columnIndex)
             {
                 return false;
             }
@@ -462,10 +477,10 @@ public class PCA extends MicroarrayViewEventBase
         for(int i=1; i <= pcaDataSet.getNumPCs(); i++)
         {
             tableModel.setValueAt(i, i-1, 0);
-            Map eigenValues = pcaDataSet.getEigenValues();
+            Map<Integer, Double> eigenValues = pcaDataSet.getEigenValues();
             tableModel.setValueAt(eigenValues.get(Integer.valueOf(i)), i-1, 1);
 
-            Map percentVars = pcaDataSet.getPercentVars();
+            Map<Integer, String> percentVars = pcaDataSet.getPercentVars();
             tableModel.setValueAt(percentVars.get(Integer.valueOf(i)), i-1, 2);
         }
        
@@ -482,7 +497,8 @@ public class PCA extends MicroarrayViewEventBase
         projPanel.setLeftComponent(projPane);
     }
 
-    private void buildEigenVectorsTable(int[] pComp)
+    @SuppressWarnings("unchecked")
+	private void buildEigenVectorsTable(int[] pComp)
     {
         if(pComp == null || pComp.length == 0)
         {
@@ -492,7 +508,9 @@ public class PCA extends MicroarrayViewEventBase
 
         JTable eigenVectorsTable = new JTable()
         {
-            public boolean getScrollableTracksViewportHeight()
+			private static final long serialVersionUID = 3692664148295500817L;
+
+			public boolean getScrollableTracksViewportHeight()
             {
                 Component parent = getParent();
                 if(parent instanceof JViewport)
@@ -513,26 +531,28 @@ public class PCA extends MicroarrayViewEventBase
 
         DefaultTableModel tableModel = new DefaultTableModel()
         {
-            public boolean isCellEditable(int rowIndex, int columnIndex)
+			private static final long serialVersionUID = -6053029709630367294L;
+
+			public boolean isCellEditable(int rowIndex, int columnIndex)
             {
                 return false;
             }
         };
         
-        Map map = pcaDataSet.getEigenVectors();
-        tableModel.setColumnCount(((List)map.values().iterator().next()).size()+1);
+        Map<Integer, List<String>> map = pcaDataSet.getEigenVectors();
+        tableModel.setColumnCount((map.values().iterator().next()).size()+1);
         for(int i = 0; i < pComp.length; i++)
         {
             int pc = pComp[i]+1;
-            List eigenVector = new ArrayList();
+            List<String> eigenVector = new ArrayList<String>();
             eigenVector.add(0, "Prin. Comp. " + pc);
-            eigenVector.addAll((List)map.get(new Integer(pc)));
+            eigenVector.addAll(map.get(new Integer(pc)));
 
-            tableModel.addRow(new Vector(eigenVector));
+            tableModel.addRow(new Vector<String>(eigenVector));
         }
 
-        Vector columnNames = new Vector();
-        columnNames.addAll((Vector)tableModel.getDataVector().get(0));
+        Vector<String> columnNames = new Vector<String>();
+        columnNames.addAll((Vector<String>)tableModel.getDataVector().get(0));
         Collections.fill(columnNames, " ");
 
         tableModel.setColumnIdentifiers(columnNames);
@@ -547,11 +567,12 @@ public class PCA extends MicroarrayViewEventBase
         scrollPane.setViewportView(eigenVectorsTable);
     }
 
-    private HashMap createClusterColorMap(boolean useMarkers, boolean includeShapes)
+    private HashMap<String, Object> createClusterColorMap(boolean useMarkers, boolean includeShapes)
     {
-        HashMap colorMap = new HashMap();
+    	// map value can be PanelVisualProperties or Color
+        HashMap<String, Object> colorMap = new HashMap<String, Object>();
 
-        DSItemList panels;
+        DSItemList<?> panels;
         if(!useMarkers && activatedArrays != null)
         {
             panels = activatedArrays.panels();
@@ -569,7 +590,7 @@ public class PCA extends MicroarrayViewEventBase
 
         for(int i = 0; i < panels.size(); i++)
         {
-            DSPanel dp = (DSPanel)panels.get(i);
+            DSPanel<?> dp = (DSPanel<?>)panels.get(i);
             if(dp.size() == 0 || !dp.isActive())
             {
                 continue;
@@ -597,11 +618,11 @@ public class PCA extends MicroarrayViewEventBase
     {
         XYSeriesCollection xySeriesCollection = new XYSeriesCollection();
 
-        Map map = pcaDataSet.getEigenVectors();
+        Map<Integer, List<String>> map = pcaDataSet.getEigenVectors();
         for(int i = 0; i < pComp.length; i++)
         {
             int pc = pComp[i]+1;
-            List eigenVector = new ArrayList((List)map.get(new Integer(pc)));
+            List<String> eigenVector = new ArrayList<String>(map.get(new Integer(pc)));
 
             XYSeries xySeries = new XYSeries("Prin. Comp. " + pc);
             for(int n = 0; n < eigenVector.size(); n++)
@@ -627,9 +648,9 @@ public class PCA extends MicroarrayViewEventBase
     private void buildProjectionPlot(int[] pComp)
     {
         CSExprMicroarraySet maSet = (CSExprMicroarraySet)dataSet;
-        List dataLabelList = new ArrayList();
+        List<String> dataLabelList = new ArrayList<String>();
         FloatMatrix u_Matrix = null;
-        HashMap dataLabelGps = new HashMap();
+        HashMap<String, Set<String>> dataLabelGps = new HashMap<String, Set<String>>();
 
         if(pcaDataSet.getVariables().equals("genes"))
         {
@@ -646,7 +667,7 @@ public class PCA extends MicroarrayViewEventBase
             }
         }
 
-        ArrayList group1List = new ArrayList(dataLabelList);
+        ArrayList<String> group1List = new ArrayList<String>(dataLabelList);
         if(pcaDataSet.getVariables().equals("experiments") && !chkAllMarkers.isSelected()
                 && activatedMarkers != null && activatedMarkers.size() > 0 )
         {
@@ -664,9 +685,9 @@ public class PCA extends MicroarrayViewEventBase
                         if(!context.isLabelActive(label[k]))
                             continue;
 
-                        Set set = (Set)dataLabelGps.get(label[k]);
+                        Set<String> set = dataLabelGps.get(label[k]);
                         if(set == null)
-                        set = new LinkedHashSet();
+                        set = new LinkedHashSet<String>();
 
                         set.add(marker.getLabel());
                         group1List.remove(marker.getLabel());
@@ -688,9 +709,9 @@ public class PCA extends MicroarrayViewEventBase
 
                 if(label != null && label.length > 0)
                 {
-                    Set set = (Set)dataLabelGps.get(label[0]);
+                    Set<String> set = dataLabelGps.get(label[0]);
                     if(set == null)
-                        set = new LinkedHashSet();
+                        set = new LinkedHashSet<String>();
                     set.add(array.getLabel());
                     group1List.remove(array.getLabel());
 
@@ -700,11 +721,11 @@ public class PCA extends MicroarrayViewEventBase
         }
 
         if(group1List.size() != 0)
-            dataLabelGps.put("group 1", new LinkedHashSet(group1List));
+            dataLabelGps.put("group 1", new LinkedHashSet<String>(group1List));
 
 
         u_Matrix = new FloatMatrix(pcaDataSet.getUMatrix());
-        dataLabelGroups = new HashMap(dataLabelGps);
+        dataLabelGroups = new HashMap<String, Set<String>>(dataLabelGps);
 
         // build 3D projection plot
         if(pComp.length == 3)
@@ -730,16 +751,16 @@ public class PCA extends MicroarrayViewEventBase
             int pc1 = pComp[0]+1;
             int pc2 = pComp[1]+1;
             int pc3 = pComp[2]+1;
-            List data = new ArrayList();
+            List<PCAContent3D.XYZData> data = new ArrayList<PCAContent3D.XYZData>();
 
-            Set dataGroups = dataLabelGroups.keySet();
-            Iterator it = dataGroups.iterator();
+            Set<String> dataGroups = dataLabelGroups.keySet();
+            Iterator<String> it = dataGroups.iterator();
             while(it.hasNext())
             {
                 String group = (String)it.next();
 
-                Set labels = (Set)dataLabelGroups.get(group);
-                Iterator labelsIt = labels.iterator();
+                Set<String> labels = dataLabelGroups.get(group);
+                Iterator<String> labelsIt = labels.iterator();
 
                 while(labelsIt.hasNext())
                 {
@@ -764,7 +785,7 @@ public class PCA extends MicroarrayViewEventBase
                 pcaContent3D = new PCAContent3D();
             }
 
-            HashMap clusterColors = createClusterColorMap(pcaDataSet.getVariables().equals("experiments"), false);
+            HashMap<String, Object> clusterColors = createClusterColorMap(pcaDataSet.getVariables().equals("experiments"), false);
             pcaContent3D.setData(data);
             pcaContent3D.setClusterColors(clusterColors);
             pcaContent3D.setPointSize((float)1.4);
@@ -796,8 +817,8 @@ public class PCA extends MicroarrayViewEventBase
             XYSeriesCollection xySeriesCollection = new XYSeriesCollection();
             graph.getXYPlot().setDataset(xySeriesCollection);
 
-            Set dataGroups = dataLabelGroups.keySet();
-            Iterator it = dataGroups.iterator();
+            Set<String> dataGroups = dataLabelGroups.keySet();
+            Iterator<String> it = dataGroups.iterator();
             int series = 0;
             while(it.hasNext())
             {
@@ -813,14 +834,14 @@ public class PCA extends MicroarrayViewEventBase
                     continue;   
                 }
 
-                HashMap clusterColors = createClusterColorMap(pcaDataSet.getVariables().equals("experiments"), true);
+                HashMap<String, Object> clusterColors = createClusterColorMap(pcaDataSet.getVariables().equals("experiments"), true);
                 PanelVisualProperties visualProperties = (PanelVisualProperties)clusterColors.get(group);
                 graph.getXYPlot().getRenderer().setSeriesPaint(series, visualProperties.getColor());
                 graph.getXYPlot().getRenderer().setSeriesShape(series,  visualProperties.getShape());
                 series++;
 
-                Set labels = (Set)dataLabelGroups.get(group);
-                Iterator labelsIt = labels.iterator();
+                Set<String> labels = dataLabelGroups.get(group);
+                Iterator<String> labelsIt = labels.iterator();
 
                 while(labelsIt.hasNext())
                 {
@@ -848,21 +869,23 @@ public class PCA extends MicroarrayViewEventBase
             graph.getXYPlot().setDomainGridlinesVisible(false);
             graph.getXYPlot().getRenderer().setToolTipGenerator( new StandardXYToolTipGenerator()
             {
-                public String generateToolTip(XYDataset data, int series, int item)
+				private static final long serialVersionUID = -542247088075401407L;
+
+				public String generateToolTip(XYDataset data, int series, int item)
                 {
                     XYSeries xySeries = ((XYSeriesCollection)data).getSeries(series);
                     String key = (String)xySeries.getKey();
 
                     if(key.equals(""))
                         key = "group 1";
-                    Set labels = (Set)dataLabelGroups.get(key);
+                    Set<String> labels = dataLabelGroups.get(key);
 
                     if(labels == null)
                     {
                         return "";    
                     }
 
-                    Iterator it = labels.iterator();
+                    Iterator<String> it = labels.iterator();
                     int i = 0;
                     while(i < item)
                     {
@@ -882,7 +905,9 @@ public class PCA extends MicroarrayViewEventBase
 
             ChartPanel panel = new ChartPanel(graph)
             {
-                public void restoreAutoBounds()
+				private static final long serialVersionUID = 6678141586529831486L;
+
+				public void restoreAutoBounds()
                 {
                     super.restoreAutoBounds();
                     set2DPlotBounds(getChart(), true, true);
@@ -952,7 +977,9 @@ public class PCA extends MicroarrayViewEventBase
         if(e.getDataSet() != null && e.getDataSet() instanceof CSPCADataSet)
         {
             pcaDataSet = ((CSPCADataSet)e.getDataSet());
-            dataSet = pcaDataSet.getParentDataSet();
+            DSDataSet<?> parentDataSet = pcaDataSet.getParentDataSet();
+            if(parentDataSet instanceof CSExprMicroarraySet)
+            	dataSet = (CSExprMicroarraySet)parentDataSet;
 
             reset();
             buildResultsTable();
@@ -968,13 +995,12 @@ public class PCA extends MicroarrayViewEventBase
      *            GeneSelectorEvent
     */
     @Subscribe
-     @SuppressWarnings("unchecked")
      public void receive(GeneSelectorEvent e, Object source)
     {
         log.debug("Source object " + source);
 
         markers = e.getPanel();
-        activatedMarkers = new CSPanel();
+        activatedMarkers = new CSPanel<DSGeneMarker>();
         if (markers != null && markers.size() > 0)
         {
             for (int j = 0; j < markers.panels().size(); j++)
@@ -1001,7 +1027,7 @@ public class PCA extends MicroarrayViewEventBase
      *            PhenotypeSelectorEvent
     */
     @Subscribe
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public void receive(PhenotypeSelectorEvent e, Object source)
     {
          log.debug("Source object " + source);
@@ -1148,9 +1174,9 @@ public class PCA extends MicroarrayViewEventBase
 
                 if(key.equals(""))
                     key = "group 1";
-                Set labels = (Set)dataLabelGroups.get(key);
+                Set<String> labels = dataLabelGroups.get(key);
 
-                Iterator it = labels.iterator();
+                Iterator<String> it = labels.iterator();
                 int i = 0;
                 while(i < item)
                 {
