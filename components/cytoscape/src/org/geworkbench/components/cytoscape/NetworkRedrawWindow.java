@@ -339,9 +339,7 @@ public class NetworkRedrawWindow {
 					0.5f, "Adjacency Matrix",
 					CytoscapeWidget.getInstance().maSet.getLabel(),
 					CytoscapeWidget.getInstance().maSet);
-
-			adjacencyMatrixdataSet.addNameValuePair("GENEMAP", CytoscapeWidget
-					.getInstance().getGeneIdToNameMap());
+ 
 		} else {
 			CyNetworkView view = Cytoscape.getCurrentNetworkView();
 			if (view != null && Cytoscape.getCurrentNetwork() != null) {
@@ -366,8 +364,12 @@ public class NetworkRedrawWindow {
 
 						if (interactionType != null
 								&& !interactionType.trim().equals("")) {
-							interactionType = CytoscapeWidget.getInstance().interactionTypeSifMap
+							String type = CytoscapeWidget.getInstance().interactionTypeSifMap
 									.get(interactionType);
+							if (type != null && !type.trim().equals(""))
+								interactionType = CytoscapeWidget.getInstance().interactionTypeSifMap
+										.get(interactionType);
+
 						}
 
 						DSItemList<DSGeneMarker> markers = origMatrix
@@ -384,9 +386,11 @@ public class NetworkRedrawWindow {
 						else if (nodeType1.equals(NodeType.MARKER.name()))
 							node1 = new AdjacencyMatrix.Node(markers.get(gene1));
 						else if (nodeType1.equals(NodeType.STRING.name()))
-							node1 = new AdjacencyMatrix.Node(NodeType.STRING, gene1);
-						else  
-							node1 = new AdjacencyMatrix.Node(NodeType.OTHER, gene1);
+							node1 = new AdjacencyMatrix.Node(NodeType.STRING,
+									gene1);
+						else
+							node1 = new AdjacencyMatrix.Node(NodeType.OTHER,
+									gene1);
 
 						if (nodeType2.equals(NodeType.GENE_SYMBOL.name()))
 							node2 = new AdjacencyMatrix.Node(
@@ -394,9 +398,11 @@ public class NetworkRedrawWindow {
 						else if (nodeType2.equals(NodeType.MARKER.name()))
 							node2 = new AdjacencyMatrix.Node(markers.get(gene2));
 						else if (nodeType2.equals(NodeType.STRING.name()))
-							node2 = new AdjacencyMatrix.Node(NodeType.STRING, gene2);
-						else  
-							node2 = new AdjacencyMatrix.Node(NodeType.OTHER, gene2);
+							node2 = new AdjacencyMatrix.Node(NodeType.STRING,
+									gene2);
+						else
+							node2 = new AdjacencyMatrix.Node(NodeType.OTHER,
+									gene2);
 
 						matrix.add(node1, node2, 0.8f, interactionType);
 					}

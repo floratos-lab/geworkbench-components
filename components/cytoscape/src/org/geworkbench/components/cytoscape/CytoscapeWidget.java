@@ -38,6 +38,7 @@ import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet; 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.markers.CSGeneMarker;
@@ -169,13 +170,11 @@ public class CytoscapeWidget implements VisualPlugin {
 	boolean publishEnabled = true;
 
 	Map<String, List<Integer>> geneIdToMarkerIdMap = new HashMap<String, List<Integer>>();
-	Map<String, List<Integer>> geneNameToMarkerIdMap = new HashMap<String, List<Integer>>();
 
-    Map<String, String> interactionTypeSifMap = null;
-	
+	Map<String, String> interactionTypeSifMap = null;
+
 	private static CytoscapeWidget INSTANCE = null;
 
-	
 	/*
 	 * make sure the CytoscapeWidget() constructor only be called one time.
 	 */
@@ -190,13 +189,12 @@ public class CytoscapeWidget implements VisualPlugin {
 			}
 	}
 
-	public CytoscapeWidget() throws Exception{
+	public CytoscapeWidget() throws Exception {
 		// singleton: this constructor should never be called the second time.
 		if (INSTANCE != null)
 			throw new Exception(
 					"Second instance of CytoscapeWidget cannot be created.");
 
-		
 		UIManager.put(Options.USE_SYSTEM_FONTS_APP_KEY, Boolean.TRUE);
 		Options.setDefaultIconSize(new Dimension(18, 18));
 
@@ -256,8 +254,7 @@ public class CytoscapeWidget implements VisualPlugin {
 			ProjectNodeAddedEvent pe) {
 		return pe;
 	}
-	
-	
+
 	public static final String GENE_SEPARATOR = " /// ";
 
 	/**
@@ -277,9 +274,7 @@ public class CytoscapeWidget implements VisualPlugin {
 					+ new Exception().getStackTrace()[0].getMethodName());
 			return;
 		}
-		
-		attrs = Cytoscape.getNodeAttributes();
-
+       attrs = Cytoscape.getNodeAttributes();
 		if (e.getType() == GeneTaggedEvent.USE_VISUAL_PROPERTY) {
 			PanelVisualPropertiesManager propertiesManager = PanelVisualPropertiesManager
 					.getInstance();
@@ -291,7 +286,7 @@ public class CytoscapeWidget implements VisualPlugin {
 			}
 
 			color = properties.getColor();
-			
+			 
 		}
 
 		List<String> selected = new ArrayList<String>();
@@ -380,13 +375,11 @@ public class CytoscapeWidget implements VisualPlugin {
 				AdjacencyMatrix adjMatrix = adjSet.getMatrix();
 				adjMatrixId = adjMatrix.hashCode();
 				maSet = adjSet.getMatrix().getMicroarraySet();
-				getGeneIdToNameMap();
 
 				if (maSet != null) {
 					geneIdToMarkerIdMap = AnnotationParser
 							.getGeneIdToMarkerIDMapping(maSet);
-					geneNameToMarkerIdMap = AnnotationParser
-							.getGeneNameToMarkerIDMapping(maSet);
+
 				}
 				boolean found = false;
 				String foundID = null;
@@ -469,12 +462,14 @@ public class CytoscapeWidget implements VisualPlugin {
 
 	// this static method is copied from cutenetManager so we don't depend on
 	// that class any more
-	static private Set<String> getSwissProtIDsForMarkers(Set<String> markerIDs) {
+	static private Set<String> getSwissProtIDsForMarkers(
+			Vector<DSGeneMarker> markerSet) {
 		HashSet<String> results = new HashSet<String>();
-		if (markerIDs != null) {
-			for (String id : markerIDs) {
+		if (markerSet != null) {
+			for (DSGeneMarker marker : markerSet) {
 				try {
-					results.addAll(AnnotationParser.getSwissProtIDs(id));
+					results.addAll(AnnotationParser.getSwissProtIDs(marker
+							.getLabel()));
 				} catch (Exception e) {
 					continue;
 				}
@@ -487,18 +482,21 @@ public class CytoscapeWidget implements VisualPlugin {
 			String geneId2, String type) {
 		if (type != null) {
 
-			String  typeName = interactionTypeSifMap.get(type);
+			String typeName = interactionTypeSifMap.get(type);
 			if (typeName == null || typeName.trim().equals(""))
 				typeName = type;
-			CyEdge e = Cytoscape.getCyEdge(n1.getIdentifier(), n1.getIdentifier() + " (" + type
-					+ ") " + n1.getIdentifier(), n2.getIdentifier(), type);
+			CyEdge e = Cytoscape.getCyEdge(n1.getIdentifier(), n1
+					.getIdentifier()
+					+ " (" + type + ") " + n1.getIdentifier(), n2
+					.getIdentifier(), type);
 			// Aracne result will not have an type, so we should
 			// not need to check it here.
 			if (!cytoNetwork.edgeExists(n2, n1))
 				cytoNetwork.addEdge(e);
 
-			e.setIdentifier(n1.getIdentifier() + " (" + type + ") " + n2.getIdentifier());
-					 
+			e.setIdentifier(n1.getIdentifier() + " (" + type + ") "
+					+ n2.getIdentifier());
+
 			try {
 				Cytoscape.getEdgeAttributes().setAttribute(e.getIdentifier(),
 						"type", typeName);
@@ -511,15 +509,16 @@ public class CytoscapeWidget implements VisualPlugin {
 				ex.printStackTrace();
 			}
 		} else {
-			CyEdge e = Cytoscape.getCyEdge(n1.getIdentifier(), n1.getIdentifier() + " () "
-					+ n2.getIdentifier(), n2.getIdentifier(), "");
+			CyEdge e = Cytoscape.getCyEdge(n1.getIdentifier(), n1
+					.getIdentifier()
+					+ " () " + n2.getIdentifier(), n2.getIdentifier(), "");
 			// For Aracne edges, if a reverse edge exist, we skip it.
 			if (!cytoNetwork.edgeExists(n2, n1)) {
-				// Aracne result will not have an type, 
+				// Aracne result will not have an type,
 				// so we should check it here.
 				cytoNetwork.addEdge(e);
 			}
-			e.setIdentifier(n1.getIdentifier() + " () " + n2.getIdentifier());  
+			e.setIdentifier(n1.getIdentifier() + " () " + n2.getIdentifier());
 
 		}
 
@@ -528,138 +527,86 @@ public class CytoscapeWidget implements VisualPlugin {
 	private Comparator<DSGeneMarker> geneSymbolComparator = new Comparator<DSGeneMarker>() {
 		@Override
 		public int compare(DSGeneMarker m1, DSGeneMarker m2) {
-			return m1.getGeneName().compareTo( m2.getGeneName() );
+			return m1.getGeneName().compareTo(m2.getGeneName());
 		}
 	};
-	
-	private CyNode createNode(AdjacencyMatrix.Node node,
-			HashMap<String, String> geneIdToNameMap) {
 
-		String geneIdStr = null;
+	@SuppressWarnings("unchecked")
+	private CyNode createNode(AdjacencyMatrix.Node node) {
+
 		// cp1 will be the unique ID; displayName will be what it is called
-		String cp1 = null;
+		String nodeId = null;
 		String displayedName = null;
-		
-		DSGeneMarker marker1 = null;
 
-		if(node.type==NodeType.MARKER) {
-			marker1 = node.marker;
-			geneIdStr = node.marker.getGeneName();
-			cp1 = node.marker.getLabel();			 
-			if (geneIdStr==null ) geneIdStr = "";
-			String geneName = geneIdStr.trim();
+		DSGeneMarker marker = null;
+
+		if (node.type == NodeType.MARKER) {
+			marker = node.marker;
+			String geneName = node.marker.getGeneName().trim();
+			nodeId = node.marker.getLabel();
 			if (geneName.equals("") || geneName.equals("---"))
-				displayedName = marker1.getLabel();
+				displayedName = marker.getLabel();
 			else
 				displayedName = geneName;
-		} else if(node.type==NodeType.GENE_SYMBOL) {
-			geneIdStr = node.stringId;
-			cp1 = geneIdStr;
-			displayedName = geneIdStr;
-			marker1 = maSet.getMarkers().get(geneIdStr);
-		} else if(node.type==NodeType.STRING) {
-			geneIdStr = node.stringId;
-			cp1 = geneIdStr;
-			displayedName = geneIdStr;
-		} else if(node.type==NodeType.PROBESET_ID) {
-			geneIdStr = node.stringId;
-			cp1 = geneIdStr;
-			displayedName = geneIdStr;
-		} else if(node.type==NodeType.OTHER) {
-			geneIdStr = "Unknown Type ("+node.stringId+", "+node.intId+")";
-			cp1 = geneIdStr;
-			displayedName = geneIdStr;
+		} else if (node.type == NodeType.GENE_SYMBOL) {
+			String geneName = node.stringId;
+			marker = maSet.getMarkers().get(geneName);
+			nodeId = geneName;
+			displayedName = geneName;
+		} else if (node.type == NodeType.STRING) {
+			nodeId = node.stringId;
+			displayedName = node.stringId;
+		} else if (node.type == NodeType.PROBESET_ID) {
+			nodeId = node.stringId;
+			displayedName = node.stringId;
+		} else if (node.type == NodeType.OTHER) {
+			String str = "Unknown Type (" + node.stringId + ", " + node.intId
+					+ ")";
+			nodeId = str;
+			displayedName = str;
 		}
-		
-		
-		boolean n1new = true;
-		CyNode cyNode = Cytoscape.getCyNode(geneIdStr);
 
-		if (cp1 != null) {
-			cyNode = Cytoscape.getCyNode(cp1);
+		boolean n1new = true;
+		CyNode cyNode = null;
+
+		if (nodeId != null && !nodeId.trim().equals("")) {
+			cyNode = Cytoscape.getCyNode(nodeId);
 		} else {
+			nodeId = "unknown";
 			log.error("Unique ID is null. This should never happen.");
 		}
 
 		if (cyNode == null) { // new node
-			cyNode = Cytoscape.getCyNode(cp1, true);
+			cyNode = Cytoscape.getCyNode(nodeId, true);
 			log.debug("I create " + cyNode.getIdentifier());
-			if (cp1 == null) { // not in microarray dataset
-				String n1GeneName = geneIdToNameMap.get(geneIdStr);
-				if (n1GeneName != null && !n1GeneName.trim().equals("")) {
-					cyNode.setIdentifier(n1GeneName);
-					displayedName = n1GeneName;
-				} else {
-					cyNode.setIdentifier(geneIdStr);
-					displayedName = geneIdStr;
-				}
-			} else { // in microarray dataset
-				cyNode.setIdentifier(cp1);
-				log.debug("I name it " + node.stringId + cyNode.getIdentifier());
-			}
 
-			Cytoscape.getNodeAttributes().setAttribute(
-					cyNode.getIdentifier(), "displayedName", displayedName);
+			cyNode.setIdentifier(nodeId);
+			log.debug("I name it " + node.stringId + cyNode.getIdentifier());
+
+			Cytoscape.getNodeAttributes().setAttribute(cyNode.getIdentifier(),
+					"displayedName", displayedName);
 
 		} else { // existing node
 			n1new = false;
 		}
 
 		try {
-			
-			
-			Cytoscape.getNodeAttributes().setAttribute(
-					cyNode.getIdentifier(), "nodeType", node.type.name());
 
-
-			if (marker1 != null) {
-				Cytoscape.getNodeAttributes().setAttribute(
-						cyNode.getIdentifier(), "geneID", marker1.getGeneId());
-
-				Cytoscape.getNodeAttributes().setAttribute(
-						cyNode.getIdentifier(), "geneName",
-						marker1.getGeneName());
-
-				Cytoscape.getNodeAttributes().setAttribute(
-						cyNode.getIdentifier(), "markerName",
-						marker1.getLabel());
-				
-				Cytoscape.getNodeAttributes().setAttribute(
-						cyNode.getIdentifier(), "serial",
-						marker1.getSerial());
-				
-			} else {
-				try {
-
-					Cytoscape.getNodeAttributes().setAttribute(
-							cyNode.getIdentifier(), "geneName",
-							cyNode.getIdentifier());
-					Cytoscape.getNodeAttributes().setAttribute(
-							cyNode.getIdentifier(), "geneID",
-							new Integer(geneIdStr));
-
-				} catch (NumberFormatException ne) {
-					// if geneIdStr is not an integer, just ignore it.
-				}
-			}
+			Cytoscape.getNodeAttributes().setAttribute(cyNode.getIdentifier(),
+					"nodeType", node.type.name());
 
 			List<String> spIDs = new Vector<String>();
 
-			if (marker1 != null) {
-				try {
-					HashSet<String> selectedMarkerIDs = new HashSet<String>();
-					selectedMarkerIDs.add(marker1.getLabel());
-					Set<String> swissProtIDs = getSwissProtIDsForMarkers(selectedMarkerIDs);
-					spIDs.addAll(swissProtIDs);
-				} catch (NullPointerException npe) {
-					log
-							.error("unexpected null pointer in createNode of CytoscapeWidget");
-				}
-			}
+			if (marker != null) {
 
-			if (marker1 != null) {
-				String geneType = GeneOntologyUtil
-						.checkMarkerFunctions(marker1);
+				Cytoscape.getNodeAttributes().setAttribute(
+						cyNode.getIdentifier(), "geneID", marker.getGeneId());
+
+				Cytoscape.getNodeAttributes().setAttribute(
+						cyNode.getIdentifier(), "geneName",
+						marker.getGeneName());
+
+				String geneType = GeneOntologyUtil.checkMarkerFunctions(marker);
 
 				if (geneType == null || geneType.trim().equals(""))
 					geneType = "non K/P/TF, in microarray set";
@@ -671,14 +618,29 @@ public class CytoscapeWidget implements VisualPlugin {
 					nodeDm.fireStateChanged();
 				}
 
+				try {
+					Vector<DSGeneMarker> markerSet = new Vector<DSGeneMarker>();
+					if (node.type == NodeType.MARKER)
+						markerSet.add(marker);
+					else if (node.type == NodeType.GENE_SYMBOL) {
+						markerSet = ((CSMicroarraySet<DSMicroarray>) maSet)
+								.getMarkers().getMatchingMarkers(marker);
+					}
+					Set<String> swissProtIDs = getSwissProtIDsForMarkers(markerSet);
+					spIDs.addAll(swissProtIDs);
+				} catch (NullPointerException npe) {
+					log
+							.error("unexpected null pointer in createNode of CytoscapeWidget");
+				}
+
 			} else {
-				// Cytoscape.getNodeAttributes().setAttribute(n1.getIdentifier(),
-				// "markerName", "not in our marker list");
-				// System.out.println(geneIdStr + " is not in our marker list");
+				Cytoscape.getNodeAttributes().setAttribute(
+						cyNode.getIdentifier(), "geneType", "null");
 			}
+
 			Cytoscape.getNodeAttributes().setListAttribute(
 					cyNode.getIdentifier(), "swissprotIDs", spIDs);
-			 
+
 		} catch (Exception e) {
 			// we only try to add what we can add, if there's no
 			// data, we add nothing
@@ -688,32 +650,25 @@ public class CytoscapeWidget implements VisualPlugin {
 			log.debug("I add " + cyNode.getIdentifier());
 		}
 
-		if (marker1 == null) {
-			Cytoscape.getNodeAttributes().setAttribute(cyNode.getIdentifier(),
-					"geneType", "null");
-		}
-
 		return cyNode;
 	}
 
 	/*
 	 * replace
 	 * 
-	private void createSubNetwork(int node1,
-			HashMap<String, String> geneIdToNameMap, double threshold) {
-			
-	private void createSubNetwork(String node1,
-			HashMap<String, String> geneIdToNameMap, double threshold) {
+	 * private void createSubNetwork(int node1, HashMap<String, String>
+	 * geneIdToNameMap, double threshold) {
+	 * 
+	 * private void createSubNetwork(String node1, HashMap<String, String>
+	 * geneIdToNameMap, double threshold) {
 	 */
-	private void createSubNetwork(AdjacencyMatrix.Node node1,
-			HashMap<String, String> geneIdToNameMap, double threshold) {
+	private void createSubNetwork(AdjacencyMatrix.Node node1, double threshold) {
 
 		AdjacencyMatrix adjMatrix = adjSet.getMatrix();
 		List<AdjacencyMatrix.Edge> edges = adjMatrix.getEdges(node1);
 
-		if (edges == null || edges.size() == 0)
-		{
-			CyNode n = createNode(node1, geneIdToNameMap);
+		if (edges == null || edges.size() == 0) {
+			CyNode n = createNode(node1);
 			cytoNetwork.addNode(n);
 			return;
 		}
@@ -728,11 +683,11 @@ public class CytoscapeWidget implements VisualPlugin {
 				continue;
 
 			// process the two nodes
-			CyNode n1 = createNode(node1, geneIdToNameMap);
-			CyNode n2 = createNode(edge.node2, geneIdToNameMap);
+			CyNode n1 = createNode(node1);
+			CyNode n2 = createNode(edge.node2);
 
-			createEdge(n1, n2, String.valueOf(node1), String.valueOf(edge.node2),
-					type);
+			createEdge(n1, n2, String.valueOf(node1), String
+					.valueOf(edge.node2), type);
 
 		} // end of the loop for edges
 	}
@@ -745,7 +700,7 @@ public class CytoscapeWidget implements VisualPlugin {
 			java.util.List<?> edges = Cytoscape.getCurrentNetworkView()
 					.getSelectedEdges();
 			CytoscapeDesktop test = Cytoscape.getDesktop();
-		 
+
 			if (edges.size() > 0) {
 				test.getCytoPanel(SwingConstants.SOUTH).setSelectedIndex(1);
 			} else {
@@ -781,8 +736,9 @@ public class CytoscapeWidget implements VisualPlugin {
 						}
 
 					} else { // node of the type of gene symbol
-						if(id.trim().equals("---"))continue;
-						
+						if (id.trim().equals("---"))
+							continue;
+
 						int index = Collections.binarySearch(sortedList,
 								new CSGeneMarker(id), geneSymbolComparator);
 						if (index >= 0) {
@@ -802,7 +758,7 @@ public class CytoscapeWidget implements VisualPlugin {
 					}
 					if (geneIdToMarkerIdMap.size() == 0)
 						// probably user doesn't load annotation file, so
-						// swissprotIdToMarkerIdMap contains nothing
+						// geneIdToMarkerIdMap contains nothing
 						selectedMarkers.add(maSet.getMarkers().get(id));
 
 				}
@@ -888,8 +844,8 @@ public class CytoscapeWidget implements VisualPlugin {
 			vs.getNodeAppearanceCalculator().setCalculator((nc));
 			vs.getEdgeAppearanceCalculator().setCalculator(ec);
 
-		}		
-		
+		}
+
 	}
 
 	private void receiveMatrix(int adjMatrixId) {
@@ -927,8 +883,7 @@ public class CytoscapeWidget implements VisualPlugin {
 		}
 
 		// 2) DRAW NETWORK event
-		drawCompleteNetwork(adjMatrixId, getGeneIdToNameMap(), adjSet
-				.getThreshold());
+		drawCompleteNetwork(adjMatrixId, adjSet.getThreshold());
 		if (cancelList.contains(adjMatrixId)) {
 			log.info("got cancel action");
 			return;
@@ -968,13 +923,17 @@ public class CytoscapeWidget implements VisualPlugin {
 		if (maSet != null) {
 			view = Cytoscape.createNetworkView(cytoNetwork, maSet.getLabel());
 
-			NodeAppearanceCalculator nac = visualStyle.getNodeAppearanceCalculator();
-			ObjectMapping oMapping = nac.getCalculator(VisualPropertyType.NODE_LABEL).getMapping(0);
-			if(oMapping instanceof PassThroughMapping) {
-				PassThroughMapping m = (PassThroughMapping)oMapping;
-				m.setControllingAttributeName("displayedName", Cytoscape.getCurrentNetwork(), false);
+			NodeAppearanceCalculator nac = visualStyle
+					.getNodeAppearanceCalculator();
+			ObjectMapping oMapping = nac.getCalculator(
+					VisualPropertyType.NODE_LABEL).getMapping(0);
+			if (oMapping instanceof PassThroughMapping) {
+				PassThroughMapping m = (PassThroughMapping) oMapping;
+				m.setControllingAttributeName("displayedName", Cytoscape
+						.getCurrentNetwork(), false);
 			} else {
-				log.error("Wrong type of ObjectMapping: "+oMapping.getClass().getName());
+				log.error("Wrong type of ObjectMapping: "
+						+ oMapping.getClass().getName());
 			}
 			view.applyVizmapper(visualStyle);
 
@@ -994,23 +953,6 @@ public class CytoscapeWidget implements VisualPlugin {
 
 	}
 
-	@SuppressWarnings("unchecked")
-	// only because adjSet.getValuesForName("GENEMAP");
-	public HashMap<String, String> getGeneIdToNameMap() {
-		HashMap<String, String> map = new HashMap<String, String>();
-
-		Object[] list = null;
-		if (adjSet != null) {
-			list = adjSet.getValuesForName("GENEMAP");
-			if (list != null && list.length > 0 && list[0] != null) {
-				map = (HashMap<String, String>) list[0];
-			}
-
-		}
-		return map;
-
-	}
-
 	public AdjacencyMatrix getAdjMatrix() {
 		AdjacencyMatrix adjMatrix = adjSet.getMatrix();
 		return adjMatrix;
@@ -1022,8 +964,7 @@ public class CytoscapeWidget implements VisualPlugin {
 
 	}
 
-	void drawCompleteNetwork(int adjMatrixId,
-			HashMap<String, String> geneIdToNameMap, double threshold) {
+	void drawCompleteNetwork(int adjMatrixId, double threshold) {
 
 		for (int cx = 0; cx < Cytoscape.getCurrentNetwork().getEdgeCount(); cx++) {
 			Cytoscape.getCurrentNetwork().removeEdge(cx, true);
@@ -1031,14 +972,16 @@ public class CytoscapeWidget implements VisualPlugin {
 
 		AdjacencyMatrix adjMatrix = adjSet.getMatrix();
 		interactionTypeSifMap = adjMatrix.getInteractionTypeSifMap();
+		if (interactionTypeSifMap == null)
+			interactionTypeSifMap = new HashMap<String, String>();
 		int i = 0;
-		for (AdjacencyMatrix.Node node: adjMatrix.getNodes()) {
+		for (AdjacencyMatrix.Node node : adjMatrix.getNodes()) {
 			if (cancelList.contains(adjMatrixId)) {
 				log.info("got cancel action");
 				return;
 			}
 			i++;
-			createSubNetwork(node, geneIdToNameMap, threshold);
+			createSubNetwork(node, threshold);
 			log.debug("iteration: " + i);
 		}
 
@@ -1075,12 +1018,12 @@ public class CytoscapeWidget implements VisualPlugin {
 				.getNodeViewsIterator();
 
 		while (iter.hasNext()) {
-			NodeView nodeView = (NodeView) iter.next();		 
+			NodeView nodeView = (NodeView) iter.next();
 			nodeView.setSelectedPaint(c);
 		}
 
 	}
-	
+
 	/*
 	 * This function restore the original status for current selected network.
 	 */
@@ -1099,17 +1042,13 @@ public class CytoscapeWidget implements VisualPlugin {
 					attrs.deleteAttribute(id, CytoscapeWidget.NODE_FILL_COLOR);
 
 			}
-			
-			
+
 			Iterator<?> edgeIter = view.getEdgeViewsIterator();
-			while (edgeIter.hasNext()) 				
-			{	
+			while (edgeIter.hasNext()) {
 				EdgeView edgeView = (EdgeView) edgeIter.next();
-			    view.showGraphObject(edgeView);
+				view.showGraphObject(edgeView);
 			}
-			
-		 
-         
+
 			Cytoscape.getCurrentNetworkView().redrawGraph(false, true);
 		}
 	}
