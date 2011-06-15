@@ -56,7 +56,6 @@ import org.geworkbench.bison.annotation.DSAnnotationContext;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.CSTTestResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
@@ -355,9 +354,11 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
 		exportButton.setMargin(new Insets(2, 3, 2, 3));
         exportButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                if (significance != null && significance instanceof CSTTestResultSet) {
-                ((CSTTestResultSet<DSGeneMarker>)significance).saveDataToCSVFile();                     
-                }
+                if (significance != null) {
+                	significance.saveDataToCSVFile();
+				}else
+        			JOptionPane.showMessageDialog(null, "No significance data to export. Please do this after you got significance data.",
+        					"Operation failed", JOptionPane.ERROR_MESSAGE);
             }
         });
         exportButton.setEnabled(false);
@@ -477,9 +478,9 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
     	jExportItem.setText("Export significance value");
     	ActionListener listenerExportItem = new java.awt.event.ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-                if (significance != null && significance instanceof CSTTestResultSet) {
-                    ((CSTTestResultSet<DSGeneMarker>)significance).saveDataToCSVFile();                     
-                }else
+                if (significance != null) {
+                	significance.saveDataToCSVFile();
+				}else
         			JOptionPane.showMessageDialog(null, "No significance data to export. Please do this after you got significance data.",
         					"Operation failed", JOptionPane.ERROR_MESSAGE);
 			}
