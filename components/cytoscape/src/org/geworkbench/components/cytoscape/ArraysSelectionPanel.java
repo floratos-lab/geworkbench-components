@@ -5,26 +5,28 @@ package org.geworkbench.components.cytoscape;
  * @version $Id$ 
  */
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Iterator;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Vector;
+import giny.model.Node;
+import giny.view.EdgeView;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
+import java.util.Vector;
 
 import javax.swing.AbstractListModel;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListModel;
-import javax.swing.JDialog;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingWorker;
 
@@ -34,26 +36,18 @@ import org.apache.commons.math.stat.StatUtils;
 import org.geworkbench.bison.annotation.CSAnnotationContextManager;
 import org.geworkbench.bison.annotation.DSAnnotationContext;
 import org.geworkbench.bison.annotation.DSAnnotationContextManager;
-import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
-
 import org.geworkbench.util.ProgressBar;
 
 import cytoscape.Cytoscape;
 import cytoscape.data.CyAttributes;
 import cytoscape.view.CyNetworkView;
-
-import giny.view.EdgeView;
-
-import giny.model.Node;
  
 
 @SuppressWarnings("unchecked")
