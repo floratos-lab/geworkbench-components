@@ -93,11 +93,6 @@ public class TtestAnalysis extends AbstractAnalysis implements
 		setDefaultPanel(new TtestAnalysisPanel());
 	}
 
-	/* This constructor is necessary for MasterRegulatorAnalysis. */
-	public TtestAnalysis(TtestAnalysisPanel panel) {
-		setDefaultPanel(panel);
-	}
-
 	private void reset() {
 		if (tValuesVector != null)
 		   tValuesVector.clear();
@@ -117,14 +112,10 @@ public class TtestAnalysis extends AbstractAnalysis implements
 		return AbstractAnalysis.TTEST_TYPE;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public AlgorithmExecutionResults execute(Object input) {
-		return calculate(input, false);
-	}
 
-	@SuppressWarnings("unchecked")
-	AlgorithmExecutionResults calculate(Object input,
-			boolean calledFromOtherComponent) {
 		reset();
 		if (input == null || !(input instanceof DSMicroarraySetView)) {
 			return new AlgorithmExecutionResults(false, "Invalid input.", null);
@@ -334,21 +325,18 @@ public class TtestAnalysis extends AbstractAnalysis implements
 				sigSet.addSigGenToPanel(item);
 			}
 	
-			if (!calledFromOtherComponent) {
-				publishSubpanelChangedEvent(new SubpanelChangedEvent<DSGeneMarker>(
+			publishSubpanelChangedEvent(new SubpanelChangedEvent<DSGeneMarker>(
 						DSGeneMarker.class, panelSignificant,
 						SubpanelChangedEvent.NEW));
-			}
 		}
 
 		sigSet.sortMarkersBySignificance();
 		setFoldChnage(maSet, sigSet);
 		
 		// add data set history.
-		if (!calledFromOtherComponent) {
-			ProjectPanel.addToHistory(sigSet, GenerateHistoryHeader() + groupAndChipsString
+		ProjectPanel.addToHistory(sigSet, GenerateHistoryHeader() + groupAndChipsString
 				+ histMarkerString);
-		}
+
 		pbTtest.dispose();
 		if (this.stopAlgorithm) {
 			return null;
