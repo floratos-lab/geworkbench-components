@@ -237,13 +237,13 @@ public class MarkUsBrowser implements VisualPlugin {
 				    jp.add((java.awt.Component)webBrowser, BorderLayout.CENTER);
 
 				    JButton jStopButton = new JButton("Stop",
-						new ImageIcon("classes/images/Stop.png"));
+						new ImageIcon(MarkUsBrowser.class.getResource("/images/Stop.png")));
 				    JButton jRefreshButton = new JButton("Refresh",
-						new ImageIcon("classes/images/Reload.png"));
+						new ImageIcon(MarkUsBrowser.class.getResource("/images/Reload.png")));
 				    JButton jForwardButton = new JButton("Forward",
-						new ImageIcon("classes/images/Forward.png"));
+						new ImageIcon(MarkUsBrowser.class.getResource("/images/Forward.png")));
 				    JButton jBackButton = new JButton("Back",
-						new ImageIcon("classes/images/Back.png"));
+						new ImageIcon(MarkUsBrowser.class.getResource("/images/Back.png")));
 				    jBackButton.setHorizontalTextPosition(SwingConstants.TRAILING);
 				    jBackButton.setEnabled(true);
 				    jBackButton.setMaximumSize(new Dimension(75, 27));

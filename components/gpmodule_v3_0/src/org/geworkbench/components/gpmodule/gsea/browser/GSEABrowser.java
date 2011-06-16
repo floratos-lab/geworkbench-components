@@ -144,13 +144,13 @@ public class GSEABrowser implements VisualPlugin
                     jp.add((java.awt.Component)webBrowser, BorderLayout.CENTER);
 
                     JButton jStopButton = new JButton("Stop",
-						new ImageIcon("src/images/Stop.png"));
+						new ImageIcon(GSEABrowser.class.getResource("/images/Stop.png")));
 				    JButton jRefreshButton = new JButton("Refresh",
-						new ImageIcon("src/images/Reload.png"));
+						new ImageIcon(GSEABrowser.class.getResource("/images/Reload.png")));
 				    JButton jForwardButton = new JButton("Forward",
-						new ImageIcon("src/images/Forward.png"));
+						new ImageIcon(GSEABrowser.class.getResource("/images/Forward.png")));
 				    JButton jBackButton = new JButton("Back",
-						new ImageIcon("src/images/Back.png"));
+						new ImageIcon(GSEABrowser.class.getResource("/images/Back.png")));
 				    jBackButton.setHorizontalTextPosition(SwingConstants.TRAILING);
 				    jBackButton.setEnabled(true);
 				    jBackButton.setMaximumSize(new Dimension(75, 27));
