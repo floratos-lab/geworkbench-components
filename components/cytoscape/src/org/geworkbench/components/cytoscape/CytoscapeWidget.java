@@ -6,6 +6,8 @@ import giny.view.GraphViewChangeEvent;
 import giny.view.GraphViewChangeListener;
 import giny.view.NodeView;
 
+import java.awt.BorderLayout;
+import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
@@ -26,9 +28,12 @@ import java.util.Set;
 import java.util.Vector;
 
 import javax.swing.Box;
+import javax.swing.JButton;
 import javax.swing.JInternalFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 
@@ -110,6 +115,8 @@ import ding.view.DNodeView;
 public class CytoscapeWidget implements VisualPlugin {
 
 	public final static String NODE_FILL_COLOR = "node.fillColor";
+	private static final String CYTOSCAPE_CARD = "cytoscape card";
+	private static final String SAFE_CARD = "safe card";
 
 	private class GenewaysNetworkListener implements PropertyChangeListener {
 		public void propertyChange(PropertyChangeEvent evnt) {
@@ -205,6 +212,8 @@ public class CytoscapeWidget implements VisualPlugin {
 
 	}
 
+	JPanel masterPanel = new JPanel(new CardLayout());
+	JPanel safePanel = new JPanel();
 	/**
 	 * <code>VisualPlugin</code> method
 	 * 
@@ -238,9 +247,12 @@ public class CytoscapeWidget implements VisualPlugin {
 			contentPane.add(box);
 
 			uiSetup = true;
+			
+			masterPanel.add(contentPane, CYTOSCAPE_CARD);
+			masterPanel.add(safePanel, SAFE_CARD);
 		}
 
-		return contentPane;
+		return masterPanel;
 	}
 
 	@Publish
@@ -256,6 +268,7 @@ public class CytoscapeWidget implements VisualPlugin {
 	}
 
 	public static final String GENE_SEPARATOR = " /// ";
+	private static final int SAFE_NODE_NUMBER = 1000;
 
 	/**
 	 * Update selection in visualization when the gene selection is changed
@@ -372,6 +385,23 @@ public class CytoscapeWidget implements VisualPlugin {
 			if (dataSet instanceof AdjacencyMatrixDataSet) {
 
 				adjSet = (AdjacencyMatrixDataSet) dataSet;
+
+				int nodeNumber = adjSet.getMatrix().getNodeNumber();
+
+				CardLayout cl = (CardLayout) (masterPanel.getLayout());
+				if (nodeNumber > SAFE_NODE_NUMBER) {
+					StringBuffer sb = new StringBuffer(
+							"This network's node number is too large for cytoscape to handle safely.\n");
+					sb.append("node number " + nodeNumber+ "\n");
+					sb.append("edge number "
+							+ adjSet.getMatrix().getEdges().size());
+					safePanelContent.setText(sb.toString());
+					cl.show(masterPanel, SAFE_CARD);
+					return;
+				} else {
+					cl.show(masterPanel, CYTOSCAPE_CARD);
+				}
+
 				AdjacencyMatrix adjMatrix = adjSet.getMatrix();
 				adjMatrixId = adjMatrix.hashCode();
 				maSet = adjSet.getMatrix().getMicroarraySet();
@@ -846,7 +876,15 @@ public class CytoscapeWidget implements VisualPlugin {
 
 		}
 
+		safePanel.setLayout(new BorderLayout());
+		safePanel.add(safePanelContent, BorderLayout.CENTER);
+		JPanel p = new JPanel();
+		p.add(new JButton("Save as a file"));
+		safePanel.add(p, BorderLayout.SOUTH);
+
 	}
+	
+	private JTextField safePanelContent = new JTextField(); 
 
 	private void receiveMatrix(int adjMatrixId) {
 		// 1) RECEIVE event
