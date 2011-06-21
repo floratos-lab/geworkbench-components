@@ -199,6 +199,8 @@ public class MarkUsAnalysis extends AbstractGridAnalysis implements ProteinStruc
 		// string
 		bisonParameters.put("chain", paramPanel.getChain());
 		bisonParameters.put("key", paramPanel.getkeyValue());
+		bisonParameters.put("email", paramPanel.getEmail());
+		bisonParameters.put("title", paramPanel.getTitle());
 
 		// delphi
 		bisonParameters.put("grid_size", paramPanel.getgridsizeValue()); // int
@@ -387,9 +389,9 @@ public class MarkUsAnalysis extends AbstractGridAnalysis implements ProteinStruc
 				.append(
 						" C1=PFAM C1T=Pfam C2=BLAST C2T=e@1.0e-3%20identity%200.8 C2E=0.001 C2I=3 C2P=80 C2MSA=Muscle")
 				.append(" chain_ids=").append(chain).append(" chains=").append(
-						chain).append(" email=").append("a@b").append(
+						chain).append(" email=").append(mcp.getEmail()).append(
 						" infile=").append(pdbfilename).append(
-						" submit=Mark%20Us").append(" title=").append("testGW")
+						" submit=Mark%20Us").append(" title=").append(mcp.getTitle())
 				.append(" tmpfile=").append(tmpfile)
 				.append("\r\n--AaB03x--\r\n");
 		String cfgstr = cfgcommand.toString();
