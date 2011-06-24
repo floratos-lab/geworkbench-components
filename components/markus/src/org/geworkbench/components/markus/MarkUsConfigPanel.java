@@ -6,6 +6,8 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
 import java.util.HashMap;
@@ -145,13 +147,15 @@ public class MarkUsConfigPanel extends AbstractSaveableParameterPanel {
 		return cbkey.isSelected();
 	}
 
-	public String getEmail() {
+	public String getEmail(boolean isGrid) {
 		String e = email.getText();
+		if (isGrid) return escapeCgi(e);
 		return escapeHtml(e);
 	}
 	
-	public String getTitle() {
+	public String getTitle(boolean isGrid) {
 		String t = title.getText();
+		if (isGrid) return escapeCgi(t);
 		return escapeHtml(t);
 	}
 
@@ -529,6 +533,9 @@ public class MarkUsConfigPanel extends AbstractSaveableParameterPanel {
 		// structure analysis
 		dali.setSelected(false);
 		delphi.setSelected(true);
+		cbkey.setSelected(false);
+		email.setText("");
+		title.setText("");
 
 		// delphi
 		int gridsizeValue = 145;
@@ -597,7 +604,10 @@ public class MarkUsConfigPanel extends AbstractSaveableParameterPanel {
 		parameters.put("consurf", (Boolean) getconsurfValue());
 		parameters.put("consurf3", (Boolean) getconsurf3Value());
 		parameters.put("consurf4", (Boolean) getconsurf4Value());
-		parameters.put("Chain", (String) getChain());
+		parameters.put("cbxChain", (String) getChain());
+		parameters.put("cbkey", (Boolean) getkeyValue());
+		parameters.put("email", (String) email.getText());
+		parameters.put("title", (String) title.getText());
 		parameters.put("gridsize", (Integer) getgridsizeValue());
 		parameters.put("boxfill", (Integer) getboxfillValue());
 		parameters.put("steps", (Integer) getstepsValue());
@@ -916,4 +926,18 @@ public class MarkUsConfigPanel extends AbstractSaveableParameterPanel {
 		aBuilder.append("&#" + number + ";");
 	}
 
+	/**
+     * Escape control characters so that they will not be executed by cgi script. 
+	 * @param aText
+	 * @return escaped string
+	 */
+    public static String escapeCgi(String aText) {
+    	String res = "";
+    	try {
+			res = URLEncoder.encode(aText, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		return res;
+    }
 }
