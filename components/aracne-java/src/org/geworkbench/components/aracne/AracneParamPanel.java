@@ -56,6 +56,7 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 	static Log log = LogFactory.getLog(AracneParamPanel.class);
 
     private static final String DEFAULT_HUB = "31564_at";
+    
 
     private static final String HUB_ALL = "All vs. All";
     private static final String FROM_SETS = "From Sets";
