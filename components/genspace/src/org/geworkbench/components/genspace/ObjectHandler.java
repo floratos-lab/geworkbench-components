@@ -1,12 +1,11 @@
 package org.geworkbench.components.genspace;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-
-import javax.swing.SwingWorker;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -63,7 +62,7 @@ public class ObjectHandler {
 				if(analysis.getParameterPanel() != null)
 					parameters = analysis.getParameters();
 				else
-					parameters = new HashMap();
+					parameters = new HashMap<Serializable, Serializable>();
 
 				if (logStatus == 0) {
 					log.debug("genspace - Logging");

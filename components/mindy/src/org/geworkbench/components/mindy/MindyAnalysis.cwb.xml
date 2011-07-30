@@ -6,7 +6,7 @@
 		author="Califano lab (C2B2)"
 		authorURL="http://wiki.c2b2.columbia.edu/califanolab/index.php/Califano_Info"
 		toolURL="http://www.ncbi.nlm.nih.gov/pubmed/19741643"
-		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_MINDy"
+		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/MINDy"
 		description="The MINDy algorithm uses gene expression data
  to determine whether one or more putative modulator genes influence
  the regulatory activity of a transcription factor gene over

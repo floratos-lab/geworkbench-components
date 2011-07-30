@@ -14,7 +14,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
@@ -37,11 +36,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.components.genspace.GenSpace;
 import org.geworkbench.components.genspace.GenSpaceServerFactory;
-import org.geworkbench.components.genspace.RuntimeEnvironmentSettings;
-import org.geworkbench.components.genspace.entity.IncomingWorkflow;
-import org.geworkbench.components.genspace.entity.UserWorkflow;
-import org.geworkbench.components.genspace.entity.Workflow;
-import org.geworkbench.components.genspace.entity.WorkflowFolder;
+import org.geworkbench.components.genspace.server.stubs.UserWorkflow;
+import org.geworkbench.components.genspace.server.stubs.Workflow;
 import org.geworkbench.components.genspace.ui.UpdateablePanel;
 import org.geworkbench.components.genspace.ui.WorkflowVisualizationPanel;
 import org.geworkbench.engine.config.VisualPlugin;
@@ -487,23 +483,30 @@ public class WorkflowRepository extends JPanel implements VisualPlugin,
 			workflowDetailsPanel.clearData();
 		if(graphPanel != null)
 			graphPanel.clearData();
+//		if(inboxTable != null)
+//			inboxTable.clearData();
 	}
 
 	/**
 	 * Must be called from a worker thread
 	 */
-	@SuppressWarnings("unchecked")
 	public void updateFormFieldsBG() {
 		Workflow selected = workflowCommentsPanel.workflow;
 		if(GenSpaceServerFactory.isLoggedIn())
 		{
-			repositoryPanel.tree.root = (WorkflowFolder) RuntimeEnvironmentSettings.readObject(GenSpaceServerFactory.getUserOps().getRootFolderBytes());
+			try {
+				repositoryPanel.tree.root = GenSpaceServerFactory.getUserOps().getRootFolder();
+			} catch (Exception e) {
+			}
 		}
 		if(repositoryPanel != null && repositoryPanel.tree != null)
 			repositoryPanel.tree.recalculateAndReload();
 		if(inboxTable != null && GenSpaceServerFactory.isLoggedIn())
 		{
-			inboxTable.setData((List<IncomingWorkflow>) RuntimeEnvironmentSettings.readObject(GenSpaceServerFactory.getWorkflowOps().getIncomingWorkflowsBytes()));
+			try {
+				inboxTable.setData((GenSpaceServerFactory.getWorkflowOps().getIncomingWorkflows()));
+			} catch (Exception e) {
+			}
 		}
 		if(workflowCommentsPanel != null && workflowCommentsPanel.workflow != null)
 		{

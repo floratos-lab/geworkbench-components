@@ -131,10 +131,9 @@ public class ArraysSelectionPanel extends JPanel   {
 		String nodeId = node.getIdentifier();
 		 
 		String nodeDisplayedName = attrs.getStringAttribute(nodeId, "displayedName");
+	     
+		Vector<DSGeneMarker> markerSet = null;	 
 	    
-		Vector<DSGeneMarker> markerSet = null;
-		 
-	 
 		markerSet = ((CSMicroarraySet<DSMicroarray>)maSet).getMarkers().getMatchingMarkers(nodeDisplayedName);
 		 
 	    if (markerSet == null || markerSet.size() == 0)

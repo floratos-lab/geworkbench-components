@@ -133,7 +133,7 @@ public class LoginPanel extends JPanel implements Serializable, org.geworkbench.
         jLabel2.setText("Port:");
         portName.setText("");
         userName.setScrollOffset(0);
-        password.setToolTipText("");
+
         password.setText("");
         
         this.setLayout(new GridBagLayout());

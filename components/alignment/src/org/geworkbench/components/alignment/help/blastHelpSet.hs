@@ -10,7 +10,7 @@
 
 	<!-- title -->
 
-	<title>Sequence Alignment Algorithms (BLAST and Others)</title>
+	<title>BLAST</title>
 
 	<!-- maps -->
 

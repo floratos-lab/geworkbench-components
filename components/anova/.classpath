@@ -11,6 +11,5 @@
 	<classpathentry kind="lib" path="lib/mev-util.jar"/>
 	<classpathentry kind="lib" path="lib/mev-gui-impl.jar"/>
 	<classpathentry kind="lib" path="lib/mev-gui-support.jar"/>
-	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>

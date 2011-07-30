@@ -6,17 +6,20 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.SwingWorker;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
 
-import org.geworkbench.components.genspace.entity.AnalysisEvent;
-import org.geworkbench.components.genspace.entity.AnalysisEventParameter;
-import org.geworkbench.components.genspace.entity.Transaction;
+import org.geworkbench.components.genspace.server.stubs.AnalysisEvent;
+import org.geworkbench.components.genspace.server.stubs.AnalysisEventParameter;
+import org.geworkbench.components.genspace.server.stubs.Transaction;
+import org.geworkbench.components.genspace.server.stubs.WorkflowTool;
 import org.geworkbench.util.FilePathnameUtils;
 
 /**
@@ -37,8 +40,6 @@ public class ObjectLogger {
 	public void log(final String analysisName,final String dataSetName,
 			final String transactionId,
 			@SuppressWarnings("rawtypes") final Map parameters) {
-
-		
 			SwingWorker<Transaction, Void > worker = new SwingWorker<Transaction, Void>()
 			{
 				@Override
@@ -65,14 +66,18 @@ public class ObjectLogger {
 					try {
 						hostname = InetAddress.getLocalHost().getHostName();
 					} catch (UnknownHostException e1) {
-						e1.printStackTrace();
+//						e1.printStackTrace();
 					}
 					if(curTransaction == null || !curTransaction.getClientID().equals(GenSpaceServerFactory.getUsername() + hostname + transactionId))
 					{
 						
 						curTransaction = new Transaction();
 						curTransaction.setDataSetName(dataSetName);
-						curTransaction.setDate(new Date());
+						try {
+							curTransaction.setDate(DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar()));
+						} catch (DatatypeConfigurationException e1) {
+							e1.printStackTrace();
+						} //TODO verify
 						curTransaction.setClientID(GenSpaceServerFactory.getUsername() + hostname + transactionId);
 						curTransaction.setHostname(hostname);
 						curTransaction.setUser(GenSpaceServerFactory.getUser());
@@ -88,14 +93,19 @@ public class ObjectLogger {
 						Transaction done = null;
 						try
 						{
-							done= (Transaction) RuntimeEnvironmentSettings.readObject(GenSpaceServerFactory.getUsageOps().sendMultipeEvents(RuntimeEnvironmentSettings.writeObject(pending)));
+							done= (Transaction) (GenSpaceServerFactory.getUsageOps().sendUsageLog((pending)));
 						}
 						catch(Exception ex)
 						{
+//							ex.printStackTrace();
 							//be silent
 						}
 						if(done != null)
 						{
+							for(WorkflowTool t : done.getWorkflow().getTools())
+							{
+								t.setTool(RuntimeEnvironmentSettings.tools.get(t.getTool().getId()));
+							}
 							f.delete();
 							RealTimeWorkFlowSuggestion.cwfUpdated(done.getWorkflow());
 							curTransaction = done;
@@ -103,23 +113,36 @@ public class ObjectLogger {
 					}
 					AnalysisEvent e = new AnalysisEvent();
 					e.setToolname(analysisName);
-					e.setCreatedAt(new Date());
+					try {
+						e.setCreatedAt(DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar()));
+					} catch (DatatypeConfigurationException e2) {
+						e2.printStackTrace();
+					} //TODO verify
 					e.setTransaction(curTransaction);
 					HashSet<AnalysisEventParameter> params = new HashSet<AnalysisEventParameter>();
 					for(Object key : parameters.keySet())
 					{
 						AnalysisEventParameter p = new AnalysisEventParameter();
-						p.setEvent(e);
 						p.setParameterKey(key.toString());
 						p.setParameterValue(parameters.get(key).toString());
 						params.add(p);
 					}
-					e.setParameters(params);
+					e.getParameters().addAll(params);
 					try
 					{
-						Transaction retTrans = (Transaction) RuntimeEnvironmentSettings.readObject(GenSpaceServerFactory.getUsageOps().sendUsageSingleEvent(RuntimeEnvironmentSettings.writeObject(e))); //try to send the log event
+						Transaction retTrans = (GenSpaceServerFactory.getUsageOps().sendUsageEvent((e))); //try to send the log event
+						GenSpaceServerFactory.clearCache();
 						if(retTrans != null)
 						{
+							for(WorkflowTool t : retTrans.getWorkflow().getTools())
+							{
+								int id = t.getTool().getId();
+								t.getTool().getRatings().clear();
+								t.getTool().setRef(null);
+								t.getTool().getComments().clear();
+								t.setTool(null);
+								t.setTool(RuntimeEnvironmentSettings.tools.get(id));
+							}
 							RealTimeWorkFlowSuggestion.cwfUpdated(retTrans.getWorkflow());
 							return retTrans;
 						}

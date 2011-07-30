@@ -1082,6 +1082,8 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 					.getMessage(), "Invalid Input Data",
 					JOptionPane.ERROR_MESSAGE);
 			return;
+		} else if(validResult.getMessage()!=null && validResult.getMessage().equals("QUIT")) {
+			return;
 		}
 
 		if (selectedGridAnalysis.isAuthorizationRequired()) {
@@ -1179,6 +1181,8 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 							"Invalid Input Data", JOptionPane.ERROR_MESSAGE);
 					results = null;
 					analyze.setEnabled(true);
+					return;
+				} else if(validResult.getMessage().equals("QUIT")) {
 					return;
 				}
 			}

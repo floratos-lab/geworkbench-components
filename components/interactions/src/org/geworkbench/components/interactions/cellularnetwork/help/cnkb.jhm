@@ -11,6 +11,6 @@
 		<mapID target="Preferences" url="CNKB.htm#Preferences"/>
 		<mapID target="Throttle_Graph" url="CNKB.htm#Throttle_Graph"/>
 	<mapID target="Example_-_Creating_an_interaction_network_and_viewing_it_in_Cytoscape" url="CNKB.htm#Example_-_Creating_an_interaction_network_and_viewing_it_in_Cytoscape"/>
-	<mapID target="Appendix_-_Data_Sources" url="CNKB.htm#Appendix_-_Data_Sources"/>
+	<mapID target="Data_Sources" url="CNKB.htm#Data_Sources"/>
 	<mapID target="References" url="CNKB.htm#References"/>
 </map>

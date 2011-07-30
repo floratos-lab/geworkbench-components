@@ -28,6 +28,7 @@ import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
+import javax.swing.ListSelectionModel;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
@@ -62,6 +63,7 @@ public class TableViewer extends JPanel {
 		model = new DefaultViewerTableModel(headerNames, data);
 
 		table = new JTable(model);
+		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.getTableHeader().addMouseListener(new TableHeaderMouseListener());
 		// table.getColumnModel().getColumn(0).setCellRenderer(new
 		// CellRenderer());

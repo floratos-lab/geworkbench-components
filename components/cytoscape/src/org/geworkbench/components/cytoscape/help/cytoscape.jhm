@@ -7,16 +7,17 @@
 <map version="1.0">
 
 		 <mapID target="overview" url="Cytoscape.htm#Overview"/>
-		 <mapID target="Layout" url="Cytoscape.htm#Layout" />
+		 <mapID target="Text_Viewer_for_Large_Networks" url="Cytoscape.htm#Text_Viewer_for_Large_Networks"/>
+		 <mapID target="Gene_Level_Summarization_of_Networks" url="Cytoscape.htm#Gene_Level_Summarization_of_Networks"/>
+		 <mapID target="Layout_of_the_Cytoscape_component" url="Cytoscape.htm#Layout_of_the_Cytoscape_component" />
 		 <mapID target="Selecting_Nodes_and_Edges" url="Cytoscape.htm#Selecting_Nodes_and_Edges" />
 		 <mapID target="Options_for_selected_nodes" url="Cytoscape.htm#Options_for_selected_nodes" />
-		 <mapID target="Projecting" url="Cytoscape.htm#Projecting" />
-		 <mapID target="Altering" url="Cytoscape.htm#Altering" />
-		 <mapID target="Network" url="Cytoscape.htm#Network" />
-		 <mapID target="Interaction_type" url="Cytoscape.htm#Interaction_type" />
-		 <mapID target="VizMapper" url="Cytoscape.htm#VizMapper" />
-		 <mapID target="Visual_style" url="Cytoscape.htm#Visual_style" />
-		 <mapID target="Network_Display_Options" url="Cytoscape.htm#Network_Display_Options" />
+		 <mapID target="Projecting_marker_sets_onto_Cytoscape" url="Cytoscape.htm#Projecting_marker_sets_onto_Cytoscape" />
+		 <mapID target="Altering_the_view_in_Cytoscape" url="Cytoscape.htm#Altering_the_view_in_Cytoscape" />
+		 <mapID target="Network_commands" url="Cytoscape.htm#Network_commands" />
+		 <mapID target="Edges_colored_by_interaction_type" url="Cytoscape.htm#Edges_colored_by_interaction_type" />
+		 <mapID target="geWorkbench_Network_Operations" url="Cytoscape.htm#geWorkbench_Network_Operations"/>
+		 <mapID target="Cytoscape_VizMapper_tab_-_set_shapes_and_color" url="Cytoscape.htm#Cytoscape_VizMapper_tab_-_set_shapes_and_color" />
 		 <mapID target="References" url="Cytoscape.htm#References" />
 	
 </map>

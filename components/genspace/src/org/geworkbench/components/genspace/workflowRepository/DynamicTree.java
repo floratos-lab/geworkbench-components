@@ -6,7 +6,6 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 
@@ -28,10 +27,9 @@ import javax.swing.tree.TreeSelectionModel;
 
 import org.geworkbench.components.genspace.GenSpace;
 import org.geworkbench.components.genspace.GenSpaceServerFactory;
-import org.geworkbench.components.genspace.RuntimeEnvironmentSettings;
-import org.geworkbench.components.genspace.entity.User;
-import org.geworkbench.components.genspace.entity.UserWorkflow;
-import org.geworkbench.components.genspace.entity.WorkflowFolder;
+import org.geworkbench.components.genspace.server.stubs.UserWorkflow;
+import org.geworkbench.components.genspace.server.stubs.WorkflowFolder;
+import org.geworkbench.components.genspace.server.wrapper.WorkflowWrapper;
 
 public class DynamicTree extends JPanel implements ActionListener,
 		TreeSelectionListener {
@@ -88,9 +86,10 @@ public class DynamicTree extends JPanel implements ActionListener,
 		if (GenSpaceServerFactory.isLoggedIn()) {
 			
 			for(UserWorkflow uw : root.getWorkflows())
-				uw.getWorkflow().loadToolsFromCache();
-
-			rootNode = new DefaultMutableTreeNode(root);
+			{
+				new WorkflowWrapper(uw.getWorkflow()).loadToolsFromCache();
+			}
+			rootNode = new DefaultMutableTreeNode("Workflows");
 			addUserWorkflowTree(root);
 			repaint();
 		}
@@ -119,7 +118,7 @@ public class DynamicTree extends JPanel implements ActionListener,
 			DefaultMutableTreeNode fnode;
 			if(f.getParent() != null)
 			{
-				fnode = new DefaultMutableTreeNode(f);
+				fnode = new DefaultMutableTreeNode("Workflows");
 				folders.put(f, fnode);
 				folders.get(f.getParent()).add(fnode);
 			}
@@ -289,7 +288,7 @@ public class DynamicTree extends JPanel implements ActionListener,
 							} catch (InterruptedException e) {
 								GenSpace.logger.warn("Unable to talk to server",e);
 							} catch (ExecutionException e) {
-								GenSpaceServerFactory.handleExecutionException();
+								GenSpaceServerFactory.handleExecutionException(e);
 								return;
 							}
 						};
@@ -319,7 +318,7 @@ public class DynamicTree extends JPanel implements ActionListener,
 								} catch (InterruptedException e) {
 									GenSpace.logger.warn("Unable to talk to server",e);
 								} catch (ExecutionException e) {
-									GenSpaceServerFactory.handleExecutionException();
+									GenSpaceServerFactory.handleExecutionException(e);
 									return;
 								}
 							};
@@ -337,45 +336,50 @@ public class DynamicTree extends JPanel implements ActionListener,
 	private void newCommand() {
 		// Adds a folder as a child of the root folder
 		// Add button clicked
-		final String folderName = JOptionPane
-				.showInputDialog("Select a folder name");
-		if (folderName != null && !folderName.trim().equals("")
-				&& !GenSpaceServerFactory.getUser().containsFolderByName(folderName)) {
-			// send add_folder to the server
-			SwingWorker<WorkflowFolder, Void> worker = new SwingWorker<WorkflowFolder, Void>() {
-				protected WorkflowFolder doInBackground() {
-					WorkflowFolder folder = new WorkflowFolder();
-					folder.setName(folderName);
-					folder.setOwner(GenSpaceServerFactory.getUser());
-					folder.setParent(GenSpaceServerFactory.getUser().getRootFolder());
-					WorkflowFolder ret = GenSpaceServerFactory.getWorkflowOps().addFolder(folder);
-					GenSpace.getInstance().getWorkflowRepository().updateFormFieldsBG();
-					return ret;
-				};
-
-				protected void done() {
-					WorkflowFolder result = null;
-					try {
-						result = get();
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-						GenSpace.logger.warn("Error talking to server", e);
-					} catch (ExecutionException e) {
-						GenSpaceServerFactory.handleExecutionException();
-						return;
-					}
-					if (result == null || result.equals("")) {
-//						LoginFactory.getUser().getFolders().add(result);
-						Collections.sort(GenSpaceServerFactory.getUser().getFolders());
-						recalculateAndReload();
-						// addObject(rootNode, folderName);
-					} else {
-						JOptionPane.showMessageDialog(null, "Success");
-					}
-				};
-			};
-			worker.execute();
-		}
+//		final String folderName = JOptionPane
+//				.showInputDialog("Select a folder name");
+//		if (folderName != null && !folderName.trim().equals("")
+//				&& !GenSpaceServerFactory.getWrappedUser().containsFolderByName(folderName)) {
+//			// send add_folder to the server
+//			SwingWorker<WorkflowFolder, Void> worker = new SwingWorker<WorkflowFolder, Void>() {
+//				protected WorkflowFolder doInBackground() {
+//					WorkflowFolder folder = new WorkflowFolder();
+//					folder.setName(folderName);
+//					folder.setOwner(GenSpaceServerFactory.getUser());
+//					folder.setParent(GenSpaceServerFactory.getUser().getRootFolder());
+//					WorkflowFolder ret;
+//					try {
+//						ret = GenSpaceServerFactory.getWorkflowOps().addFolder(folder);
+//					} catch (RemoteException e) {
+//						ret = null;
+//					}
+//					GenSpace.getInstance().getWorkflowRepository().updateFormFieldsBG();
+//					return ret;
+//				};
+//
+//				protected void done() {
+//					WorkflowFolder result = null;
+//					try {
+//						result = get();
+//					} catch (InterruptedException e) {
+//						e.printStackTrace();
+//						GenSpace.logger.warn("Error talking to server", e);
+//					} catch (ExecutionException e) {
+//						GenSpaceServerFactory.handleExecutionException(e);
+//						return;
+//					}
+//					if (result == null || result.equals("")) {
+////						LoginFactory.getUser().getFolders().add(result);
+//						Collections.sort(GenSpaceServerFactory.getWrappedUser().getFolders());
+//						recalculateAndReload();
+//						// addObject(rootNode, folderName);
+//					} else {
+//						JOptionPane.showMessageDialog(null, "Success");
+//					}
+//				};
+//			};
+//			worker.execute();
+//		}
 
 	}
 
@@ -392,7 +396,7 @@ public class DynamicTree extends JPanel implements ActionListener,
 			if (node instanceof WorkflowNode) {
 				WorkflowNode wf = (WorkflowNode) node;
 				repositoryPanel.workflowRepository.graphPanel
-						.render(wf.userWorkflow.getWorkflow());
+						.render(new WorkflowWrapper(wf.userWorkflow.getWorkflow()));
 				repositoryPanel.workflowRepository.workflowDetailsPanel
 						.setAndPrintWorkflow(wf.userWorkflow.getWorkflow());
 				repositoryPanel.workflowRepository.workflowCommentsPanel

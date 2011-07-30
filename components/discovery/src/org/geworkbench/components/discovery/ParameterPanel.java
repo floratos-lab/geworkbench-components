@@ -12,7 +12,6 @@ import java.util.regex.Pattern;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
 import javax.swing.InputVerifier;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -20,7 +19,6 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.border.Border;
@@ -49,9 +47,9 @@ import polgara.soapPD_wsdl.Parameters;
 public class ParameterPanel extends JPanel {
 	private static final long serialVersionUID = 1979480021078904298L;
 	private static Log log = LogFactory.getLog(ParameterPanel.class);
-			
-	static final String SUPPORT_OCCURANCES = "# Support Occurances";
-	static final String SUPPORT_SEQUENCES = "# Support Sequences";
+	
+	static final String SUPPORT_OCCURRENCES = "Support # Occurrences";
+	static final String SUPPORT_SEQUENCES = "Support # Sequences";
 	static final String SUPPORT_PERCENT_1_100 = "Support Percent %(1-100)";
 	
 	private JTabbedPane jTabbedPane1 = new JTabbedPane();
@@ -73,24 +71,16 @@ public class ParameterPanel extends JPanel {
 	private JComboBox jMatrixBox = new JComboBox();
 	private JTextField jSimThresholdBox = new JTextField();
 
-	// Groups Panel
-	private JComboBox jGroupsBox = new JComboBox();
-	private JTextField jGroupSizeBox = new JTextField();
-
 	// Limits Panel
 	private JPanel limitPanel = new JPanel();
 	private JTextField jMaxPatternNoBox = new JTextField();
 	private JTextField jMaxRunTimeBox = new JTextField();
 
 	private JTextField jDecreaseSupportBox = new JTextField();
-	private JComboBox jDecreaseDensitySupportBox = new JComboBox();
 
 	private JTextField jEntThreshBox = new JTextField();
 	private JTextField jConsRegionExtBox = new JTextField();
 	private JTextField jSlidingWindowBox = new JTextField();
-	private ButtonGroup buttonGroup1 = new ButtonGroup();
-	private JRadioButton jSequenceRadioButton = new JRadioButton();
-	private JRadioButton jOccurenceRadioButton = new JRadioButton();
 
 	private JTextField jMinSupportExhaustive = new JTextField();
 
@@ -114,7 +104,7 @@ public class ParameterPanel extends JPanel {
 
 		jMinSupportMenu.addItem(SUPPORT_PERCENT_1_100);
 		jMinSupportMenu.addItem(SUPPORT_SEQUENCES);
-		jMinSupportMenu.addItem(SUPPORT_OCCURANCES);
+		jMinSupportMenu.addItem(SUPPORT_OCCURRENCES);
 		jMinSupportMenu.setSelectedIndex(0);
 		jMinSupportMenu.addActionListener(new ActionListener() {
 
@@ -123,7 +113,8 @@ public class ParameterPanel extends JPanel {
 				jSupportMenu_actionPerformed();
 			}
 		});
-		jMinSupportMenu.setMaximumSize(new Dimension(200, 30));
+		Dimension size2 = new Dimension(200, 30);
+		jMinSupportMenu.setMaximumSize(size2);
 		
 		final Dimension size1 = new Dimension(150, 30);
 		jMinSupportBox.setMaximumSize(size1);
@@ -140,14 +131,8 @@ public class ParameterPanel extends JPanel {
 		jEntThreshBox.setSelectionStart(0);
 		jEntThreshBox.setText("16");
 
-		jSequenceRadioButton.setEnabled(false);
-		jSequenceRadioButton.setDoubleBuffered(false);
-		jSequenceRadioButton.setText("sequence");
-		jOccurenceRadioButton.setEnabled(false);
-		jOccurenceRadioButton.setText("occurence");
-
 		jMinSupportExhaustive.setMaximumSize(size1);
-		jMinSupportExhaustive.setText("10%");
+		jMinSupportExhaustive.setText("10");
 
 		// add a verifier
 		jMinTokensBox.setInputVerifier(new RegularExpressionVerifier(
@@ -188,22 +173,7 @@ public class ParameterPanel extends JPanel {
 		// add a verifier
 		jSimThresholdBox.setInputVerifier(new RegularExpressionVerifier(
 				"(\\d){1,9}"));
-		// Groups Panel
-		jGroupsBox.addItem("Normal");
-		jGroupsBox.addItem("Occurs in Group");
-		jGroupsBox.addItem("Support in Group");
-		jGroupsBox.setEnabled(false);
-		jGroupsBox.setMinimumSize(new Dimension(6, 21));
-		jGroupsBox.setSelectedIndex(0);
-		jGroupsBox.setSelectedItem("Normal");
 
-		jGroupSizeBox.setEnabled(false);
-		jGroupSizeBox.setMinimumSize(new Dimension(4, 21));
-		jGroupSizeBox.setText("1");
-
-		// input verifier
-		jGroupSizeBox.setInputVerifier(new RegularExpressionVerifier(
-				"(\\d){1,9}"));
 		// Limits Panel
 		jMaxPatternNoBox.setMaximumSize(size1);
 		jMaxPatternNoBox.setText("100000");
@@ -217,14 +187,6 @@ public class ParameterPanel extends JPanel {
 				"(\\d){1,9}"));
 
 		// Exhaustive Panel
-		jDecreaseDensitySupportBox.addItem("0");
-		jDecreaseDensitySupportBox.addItem("1");
-		jDecreaseDensitySupportBox.addItem("2");
-		jDecreaseDensitySupportBox.setEnabled(false);
-		jDecreaseDensitySupportBox.setMaximumSize(size1);
-		jDecreaseDensitySupportBox.setSelectedIndex(0);
-		jDecreaseDensitySupportBox.setSelectedItem("0");
-
 		jDecreaseSupportBox.setMaximumSize(size1);
 		jDecreaseSupportBox.setText("5");
 		jSlidingWindowBox.setEnabled(true);
@@ -242,8 +204,6 @@ public class ParameterPanel extends JPanel {
 				"(\\d){1,9}"));
 		jUseHMMBox.setEnabled(false);
 		jUseHMMBox.setText("Use ProfileHMM");
-		buttonGroup1.add(jOccurenceRadioButton);
-		buttonGroup1.add(jSequenceRadioButton);
 
 		// input verifier
 		jDecreaseSupportBox.setInputVerifier(new RegularExpressionVerifier(
@@ -265,17 +225,23 @@ public class ParameterPanel extends JPanel {
 		JPanel basic2 = new JPanel();
 		basic2.setLayout(new BoxLayout(basic2, BoxLayout.LINE_AXIS));
 		basic2.setAlignmentX(Component.LEFT_ALIGNMENT);
-		basic2.add(new JLabel("Min Tokens:"));
+		JLabel label1 = new JLabel("Min. Tokens:");
+		label1.setMaximumSize(size2);
+		basic2.add(label1);
 		basic2.add(jMinTokensBox);
 		JPanel basic3 = new JPanel();
 		basic3.setLayout(new BoxLayout(basic3, BoxLayout.LINE_AXIS));
 		basic3.setAlignmentX(Component.LEFT_ALIGNMENT);
-		basic3.add(new JLabel("Density Window:"));
+		JLabel label2 = new JLabel("Density Window:");
+		label2.setMaximumSize(size2);
+		basic3.add(label2);
 		basic3.add(jWindowBox);
 		JPanel basic4 = new JPanel();
 		basic4.setLayout(new BoxLayout(basic4, BoxLayout.LINE_AXIS));
 		basic4.setAlignmentX(Component.LEFT_ALIGNMENT);
-		basic4.add(new JLabel("Density Tokens:"));
+		JLabel label3 = new JLabel("Density Window Min. Tokens:");
+		label3.setMaximumSize(size2);
+		basic4.add(label3);
 		basic4.add(jMinWTokensBox);
 		JPanel basicPanel = new JPanel();
 		basicPanel.setLayout(new BoxLayout(basicPanel, BoxLayout.PAGE_AXIS));
@@ -322,42 +288,48 @@ public class ParameterPanel extends JPanel {
 		limitPanel.add(limitTopPanel);
 		limitPanel.add(limitBottomPanel);
 
-		JPanel supportPercentagePanel = new JPanel();
-		supportPercentagePanel.setLayout(new BoxLayout(supportPercentagePanel, BoxLayout.LINE_AXIS));
-		supportPercentagePanel.setBorder(emptyBorder);
-		supportPercentagePanel.add(new JLabel("Dec. support (%):"));
-		supportPercentagePanel.add(jDecreaseSupportBox);
-		supportPercentagePanel.add(Box.createRigidArea(new Dimension(5,0)));
-		supportPercentagePanel.add(new JLabel("Min. Support:"));
-		supportPercentagePanel.add(jMinSupportExhaustive);
+		JPanel exhaustive1 = new JPanel();
+		exhaustive1.setLayout(new BoxLayout(exhaustive1, BoxLayout.LINE_AXIS));
+		exhaustive1.setBorder(emptyBorder);
+		JLabel label4 = new JLabel("Decrease Support (%):");
+		label4.setMaximumSize(size1);
+		exhaustive1.add(label4);
+		exhaustive1.add(jDecreaseSupportBox);
 
-		JPanel densityPanel = new JPanel();
-		densityPanel.setLayout(new BoxLayout(densityPanel, BoxLayout.LINE_AXIS));
-		densityPanel.setBorder(emptyBorder);
-		densityPanel.add(new JLabel("Dec. density support:"));
-		densityPanel.add(jDecreaseDensitySupportBox);
-		densityPanel.add(Box.createRigidArea(new Dimension(5,0)));
-		densityPanel.add(new JLabel("Min. Pattern Number:"));
-		densityPanel.add(minPatternNumberField);
+		JPanel exhaustive2 = new JPanel();
+		exhaustive2.setLayout(new BoxLayout(exhaustive2, BoxLayout.LINE_AXIS));
+		exhaustive2.setBorder(emptyBorder);
+		JLabel label5 = new JLabel("Minimum Support (%):");
+		label5.setMaximumSize(size1);
+		exhaustive2.add(label5);
+		exhaustive2.add(jMinSupportExhaustive);
+
+		JPanel exhaustive3 = new JPanel();
+		exhaustive3.setLayout(new BoxLayout(exhaustive3, BoxLayout.LINE_AXIS));
+		exhaustive3.setBorder(emptyBorder);
+		JLabel label6 = new JLabel("Minimum Pattern Number:");
+		label6.setMaximumSize(size1);
+		exhaustive3.add(label6);
+		exhaustive3.add(minPatternNumberField);
 		
 		JPanel exhaustivePanel = new JPanel();
 		exhaustivePanel.setLayout(new BoxLayout(exhaustivePanel, BoxLayout.PAGE_AXIS));
 		exhaustivePanel.setBorder(emptyBorder);
-		supportPercentagePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-		densityPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-		exhaustivePanel.add(supportPercentagePanel); // support
-		exhaustivePanel.add(densityPanel); // density
-		JPanel exhaustiveOccurencePanel = new JPanel();
-		exhaustiveOccurencePanel.setLayout(new BoxLayout(exhaustiveOccurencePanel, BoxLayout.LINE_AXIS));
-		exhaustiveOccurencePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-		exhaustiveOccurencePanel.add(new JLabel("By occurence:"));
-		exhaustiveOccurencePanel.add(jOccurenceRadioButton);
+		exhaustive1.setAlignmentX(Component.LEFT_ALIGNMENT);
+		exhaustive2.setAlignmentX(Component.LEFT_ALIGNMENT);
+		exhaustive3.setAlignmentX(Component.LEFT_ALIGNMENT);
+		exhaustivePanel.add(exhaustive1);
+		exhaustivePanel.add(exhaustive2);
+		exhaustivePanel.add(exhaustive3);
+		JPanel exhaustiveOccurrencePanel = new JPanel();
+		exhaustiveOccurrencePanel.setLayout(new BoxLayout(exhaustiveOccurrencePanel, BoxLayout.LINE_AXIS));
+		exhaustiveOccurrencePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
 		JPanel exhaustiveSequencePanel = new JPanel();
 		exhaustiveSequencePanel.setLayout(new BoxLayout(exhaustiveSequencePanel, BoxLayout.LINE_AXIS));
 		exhaustiveSequencePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-		exhaustiveSequencePanel.add(new JLabel("By sequence:"));
-		exhaustiveSequencePanel.add(jSequenceRadioButton);
-		exhaustivePanel.add(exhaustiveOccurencePanel);
+
+		exhaustivePanel.add(exhaustiveOccurrencePanel);
 		exhaustivePanel.add(exhaustiveSequencePanel);
 
 		jTabbedPane1.add(basicPanel, "Basic");
@@ -431,17 +403,6 @@ public class ParameterPanel extends JPanel {
 		return Integer.parseInt(jSlidingWindowBox.getText());
 	}
 
-	// Parsing the GROUPING panel
-	public int getGroupingType() {
-		return (Math.max(0, jGroupsBox.getSelectedIndex()));
-		// parms.setGroupingType(groupType);
-	}
-
-	public int getGroupingN() {
-		return (Integer.parseInt(jGroupSizeBox.getText()));
-		// parms.setGroupingType(groupType);
-	}
-
 	// Parsing the LIMITS panel
 	public int getMaxPatternNo() {
 		return (Integer.parseInt(jMaxPatternNoBox.getText()));
@@ -482,15 +443,6 @@ public class ParameterPanel extends JPanel {
 		return jUseHMMBox.isSelected();
 	}
 
-	// parsing ExhaustivePanel
-	public boolean getByOccurence() {
-		return jOccurenceRadioButton.isSelected();
-	}
-
-	public boolean getBySequence() {
-		return jSequenceRadioButton.isSelected();
-	}
-
 	public void setParameters(Parameters parms) {
 		final DecimalFormat format = new DecimalFormat("####.##");
 
@@ -519,16 +471,6 @@ public class ParameterPanel extends JPanel {
 
 		jMinPatternNoBox.setText(Integer.toString(parms.getMinPatternNo()));
 
-		// Parsing the GROUPING panel
-		int groupType = Math.max(0, parms.getGroupingType());
-		jGroupsBox.setSelectedIndex(groupType);
-		if (groupType == 0) {
-			jGroupSizeBox.setEnabled(false);
-		} else {
-			jGroupSizeBox.setEnabled(true);
-			jGroupSizeBox.setText(Integer.toString(parms.getGroupingN()));
-		}
-
 		// Parsing the LIMITS panel
 		jMaxPatternNoBox.setText(Integer.toString(parms.getMaxPatternNo()));
 		jMaxRunTimeBox.setText(Integer.toString(parms.getMaxRunTime()));
@@ -541,12 +483,6 @@ public class ParameterPanel extends JPanel {
 
 	public String getMinSupportExhaustive() {
 		return jMinSupportExhaustive.getText().trim();
-	}
-
-	public String getDensityConstraint() {
-		String decConstraint = (String) jDecreaseDensitySupportBox
-				.getSelectedItem();
-		return decConstraint;
 	}
 
 	private void jSupportMenu_actionPerformed() {

@@ -358,7 +358,7 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 					password, sName);
 
 		} catch (SessionCreationException exp) {
-			exp.printStackTrace();
+			//exp.printStackTrace();
 			showInfoMessage("DiscoverySession was not created. "
 					+ exp.getMessage(), "DiscoverySession Error");
 			return null;

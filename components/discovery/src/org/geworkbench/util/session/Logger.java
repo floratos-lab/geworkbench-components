@@ -34,7 +34,6 @@ public class Logger {
             try {
                 login(userName, password);
             } catch (RemoteException exp) {
-                exp.printStackTrace();
                  throw new LoggerException("Could not connect to the server.");
             }
     }

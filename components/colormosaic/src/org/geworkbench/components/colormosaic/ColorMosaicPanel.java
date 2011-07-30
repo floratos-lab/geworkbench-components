@@ -92,7 +92,7 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
     private JToolBar jToolBar1 = new JToolBar();
     private JButton printBtn = new JButton();
     private JButton copyBtn = new JButton();
-    private JToggleButton jToggleButton1 = new JToggleButton("Abs");
+
     private JScrollPane jScrollPane = new JScrollPane();
     private ColorMosaicImage colorMosaicImage = new ColorMosaicImage();
     private JPanel jPanel1 = new JPanel();
@@ -115,7 +115,7 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
     private JToggleButton jTogglePrintDescription = new JToggleButton("Label", true);
     private JToggleButton jTogglePrintRatio = new JToggleButton("Ratio", true);
     private JToggleButton jTogglePrintAccession = new JToggleButton("Accession", false);
-    private JToggleButton jToggleButton2 = new JToggleButton("Pat");
+
     private JToggleButton jHideMaskedBtn = new JToggleButton("Display");
     private JToggleButton jToggleArraynames = new JToggleButton("Array Names", false);
     private JToggleButton jToggleSortButton = new JToggleButton("Sort");
@@ -188,16 +188,6 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         copyBtn.setPreferredSize(new Dimension(26, 26));
         copyBtn.setIcon(new ImageIcon(ColorMosaicPanel.class.getResource("copy.gif")));
 
-        jToggleButton1.setToolTipText("");
-        jToggleButton1.setHorizontalTextPosition(SwingConstants.CENTER);
-        jToggleButton1.setMargin(new Insets(2, 3, 2, 3));
-
-        jToggleButton1.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                jToggleButton1_actionPerformed(e);
-            }
-        });
-        
 		jToolTipToggleButton.setMargin(new Insets(2, 3, 2, 3));
         jToolTipToggleButton.setToolTipText("Toggle signal");
         jToolTipToggleButton.setActionCommand("TOOL_TIP_TOGGLE");
@@ -273,19 +263,8 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
             }
         });
 
-        jToggleButton2.setMargin(new Insets(2, 3, 2, 3));
-        jToggleButton2.setHorizontalTextPosition(SwingConstants.CENTER);
-        jToggleButton2.setToolTipText("");
-
-        jToggleButton2.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-            	colorMosaicImage.toggleShowPattern(jToggleButton2.isSelected());
-            }
-        });
-
         jHideMaskedBtn.setMargin(new Insets(2, 3, 2, 3));
         jHideMaskedBtn.setHorizontalTextPosition(SwingConstants.CENTER);
-        jHideMaskedBtn.setToolTipText("");
 
         jHideMaskedBtn.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -534,11 +513,6 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         } else {
             colorMosaicImage.setIntensity(v);
         }
-    }
-
-    private void jToggleButton1_actionPerformed(ActionEvent e) {
-        colorMosaicImage.setAbsDisplay(jToggleButton1.isSelected());
-        mainPanel.repaint();
     }
 
     private void jTogglePrintAccession_actionPerformed(ActionEvent e) {
@@ -988,7 +962,6 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
                 mainPanel.repaint();
             }
         } else {
-            jToggleButton2.setSelected(false);
             jHideMaskedBtn.setSelected(false);
             resetColorMosaicImage(GENE_HEIGHT, GENE_WIDTH, jTogglePrintRatio.isSelected(),
                     jTogglePrintAccession.isSelected(), jTogglePrintDescription.isSelected());

@@ -7,8 +7,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
-import org.geworkbench.components.genspace.GenSpace;
-
 public class StatusBar extends JPanel{
 	private static final long serialVersionUID = -567366608355501212L;
 	private HashMap<Integer,String> messages;

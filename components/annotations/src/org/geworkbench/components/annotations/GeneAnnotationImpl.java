@@ -426,7 +426,7 @@ public class GeneAnnotationImpl implements GeneAnnotation {
         		} catch (Exception e) {
         			log.error(e,e);
         			JOptionPane.showMessageDialog(null, 
-        					"geWorkbench cannot retrieve data from the caBIO server for disease/agent associations.\nIt could be connection error. Please check your internet connection or try again later.",
+        					"geWorkbench cannot retrieve disease/agent associations from the caBIO server.\nThere may be a connection error. Please check your network connection or try again later.",
         					"Data processing/connection error", JOptionPane.ERROR_MESSAGE);
         			return null;
         		}
@@ -592,7 +592,7 @@ public class GeneAnnotationImpl implements GeneAnnotation {
         			results2 = appService.search(GeneFunctionAssociation.class, gene);
         		} catch (Exception e) {
         			JOptionPane.showMessageDialog(null, 
-        					"geWorkbench cannot retrieve data from the caBIO server for disease/agent associations.\nIt could be connection error. Please check your internet connection or try again later.",
+        					"geWorkbench cannot retrieve disease/agent associations from the caBIO server.\nThere may be a connection error. Please check your network connection or try again later.",
         					"Data processing/connection error", JOptionPane.ERROR_MESSAGE);
         			return null;
         		}

@@ -13,7 +13,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.BorderFactory;
@@ -26,13 +26,14 @@ import javax.swing.JTextArea;
 import javax.swing.SwingWorker;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
+import javax.xml.datatype.DatatypeFactory;
 
 import org.geworkbench.components.genspace.GenSpace;
 import org.geworkbench.components.genspace.GenSpaceServerFactory;
-import org.geworkbench.components.genspace.RuntimeEnvironmentSettings;
-import org.geworkbench.components.genspace.entity.IncomingWorkflow;
-import org.geworkbench.components.genspace.entity.UserWorkflow;
-import org.geworkbench.components.genspace.entity.Workflow;
+import org.geworkbench.components.genspace.server.stubs.IncomingWorkflow;
+import org.geworkbench.components.genspace.server.stubs.UserWorkflow;
+import org.geworkbench.components.genspace.server.stubs.Workflow;
+import org.geworkbench.components.genspace.server.wrapper.WorkflowWrapper;
 import org.geworkbench.engine.config.VisualPlugin;
 
 public class WorkflowDetailsPanel extends JPanel implements VisualPlugin,
@@ -46,7 +47,6 @@ ActionListener {
 	private JButton sendButton = new JButton("Send Selected Workflow");
 	private JButton importButton = new JButton("Import");
 	private JButton exportButton = new JButton("Export");
-	private JButton publishButton = new JButton("Publish");
 	private JButton refreshButton = new JButton("Refresh Screen");
 	private final JFileChooser fc = new JFileChooser();
 
@@ -94,15 +94,16 @@ ActionListener {
 	}
 
 	public String getWorkflowDetailsString(Workflow w) {
+		WorkflowWrapper wr = new WorkflowWrapper(w);
 		String result = "ID: " + w.getId() + "\n";
-		result += "Creator: " + ( w.getCreator() == null ? "system" : w.getCreator().getUsername()) + "\n";
+		result += "Creator: " + ( w.getCreator() == null ? "system" : wr.getCreator().getUsername()) + "\n";
 		if(w.getCreatedAt() != null)
-			result += "Creation date: " + w.getCreatedAt().toString()	 + "\n";
-		result += "Average rating: " + w.getAvgRating() + "\n";
-		result += "Usage count: " + w.getUsageCount() + "\n";
-		result += "Comments count: " + w.getComments().size() + "\n";
-		result += "Ratings count: " + w.getRatings().size() + "\n";
-		result += "Tools list: " + w.toString() + "\n";
+			result += "Creation date: " + wr.getCreatedAt().toString()	 + "\n";
+		result += "Average rating: " + wr.getAvgRating() + "\n";
+		result += "Usage count: " + wr.getUsageCount() + "\n";
+		result += "Comments count: " + wr.getNumComments() + "\n";
+		result += "Ratings count: " + wr.getNumRating()+ "\n";
+		result += "Tools list: " + wr.toString() + "\n";
 		return result;
 	}
 
@@ -155,7 +156,7 @@ ActionListener {
 					} catch (InterruptedException e) {
 						GenSpace.logger.warn("Unable to talk to server", e);
 					} catch (ExecutionException e) {
-						GenSpaceServerFactory.handleExecutionException();
+						GenSpaceServerFactory.handleExecutionException(e);
 						return;
 					}
 				};
@@ -216,11 +217,11 @@ ActionListener {
 					SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
 						protected Boolean doInBackground() throws Exception {
 							IncomingWorkflow newW = new IncomingWorkflow();
-							newW.setCreatedAt(new Date());
+							newW.setCreatedAt(DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar()));
 							newW.setName(wn.userWorkflow.getName());
 							newW.setWorkflow(wn.userWorkflow.getWorkflow());
 							newW.setSender(GenSpaceServerFactory.getUser());
-							return GenSpaceServerFactory.getWorkflowOps().sendWorkflowBytes(RuntimeEnvironmentSettings.writeObject(newW),receiver);
+							return GenSpaceServerFactory.getWorkflowOps().sendWorkflow(newW,receiver);
 						};
 
 						protected void done() {
@@ -234,7 +235,7 @@ ActionListener {
 							} catch (InterruptedException e) {
 								GenSpace.logger.warn("Unable to talk to server", e);
 							} catch (ExecutionException e) {
-								GenSpaceServerFactory.handleExecutionException();
+								GenSpaceServerFactory.handleExecutionException(e);
 								return;
 							}
 						};

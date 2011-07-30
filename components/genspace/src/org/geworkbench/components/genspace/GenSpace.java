@@ -6,24 +6,24 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.SwingWorker;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.geworkbench.components.genspace.entity.User;
-import org.geworkbench.components.genspace.entity.Workflow;
 import org.geworkbench.components.genspace.ui.SocialNetworksHome;
 import org.geworkbench.components.genspace.ui.StatusBar;
 import org.geworkbench.components.genspace.ui.UpdateablePanel;
 import org.geworkbench.components.genspace.ui.WorkflowStatistics;
+import org.geworkbench.components.genspace.ui.WorkflowVisualization;
 import org.geworkbench.components.genspace.workflowRepository.WorkflowRepository;
+
+
 
 /**
  * This is the main class for genspace. This is a visual plugin and will be a
@@ -64,39 +64,37 @@ public class GenSpace {
 	}
 
 	
-	
+	static java.util.logging.Logger glassfishLogger;
+	static java.util.logging.Logger glassfishLogger2;
+	static java.util.logging.Logger glassfishLogger3;
 	public static void main(String[] args) {
-//		@SuppressWarnings("unused")
-		GenSpace g = new GenSpace();
-//		List<Workflow> ret = GenSpaceServerFactory.getUsageOps().getAllWorkflowsIncluding(25);
-//		for(Workflow w : ret)
-//		{
-//			for(int i : w.getToolIds())
-//			{
-//				System.out.print(i + " ");
-//			}
-//			System.out.println("");
-//			System.out.println(w.getCachedChildrenCount());
-//			System.out.println(w.getCachedParentId());
-//		}
-//		System.out.println(ret.size());
-//		System.out.println("Done");
-//		System.exit(0);
+		
+		new GenSpace();
 	}
 
 	public static SocialNetworksHome networksPanels = new SocialNetworksHome();
 
 	public GenSpace() {
-		
-
 		instance = this;
-		initComponents();
-//		System.out.println(LoginFactory.getUsageOps().getMostPopularWFHeads());
-	}
-	public static void bringUpProfile(User u)
+		SwingWorker<Void, Void> wk = new SwingWorker<Void, Void>()
+				{
+				protected Void doInBackground() throws Exception {
+					GenSpaceServerFactory.init();
+					return null;
+				};
+				protected void done() {
+					initComponents();
+
+				};
+				};
+wk.execute();
+		
+		
+		}
+	public static void bringUpProfile(Object o)
 	{
 		getInstance().jtp.setSelectedComponent(networksPanels.$$$getRootComponent$$$());
-		networksPanels.bringUpProfile(u);
+//		networksPanels.bringUpProfile(u); //TODO
 	}
 	public static GenSpace getInstance() {
 		return instance;

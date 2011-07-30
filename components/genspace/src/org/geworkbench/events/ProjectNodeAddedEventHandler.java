@@ -33,20 +33,12 @@ public class ProjectNodeAddedEventHandler implements EventHandler {
 
 	private Log log = LogFactory.getLog(this.getClass());
 
-	private Object event = null;
-
-	private Object source = null;
-
 	/**
 	 * 
 	 * @param event
 	 * @param source
 	 */
 	public ProjectNodeAddedEventHandler(Object event, Object source) {
-
-		this.event = event;
-
-		this.source = source;
 	}
 
 	/*

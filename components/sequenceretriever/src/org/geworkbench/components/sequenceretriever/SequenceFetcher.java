@@ -340,9 +340,11 @@ public class SequenceFetcher {
 					+ "?autoReconnect=true";
 			Connection con = DriverManager.getConnection(url, "genome", "");
 			stmt = con.createStatement();
+//			boolean success = stmt
+//					.execute("select known.chrom, known.strand, known.txStart, known.txEnd, kg.refseq from knownGene as known, kgXref as kg  where kg.refseq = '"
+//							+ geneName + "' and kg.kgID = known.name ");
 			boolean success = stmt
-					.execute("select known.chrom, known.strand, known.txStart, known.txEnd, kg.refseq from knownGene as known, kgXref as kg  where kg.refseq = '"
-							+ geneName + "' and kg.kgID = known.name ");
+					.execute("select refGene.chrom, refGene.strand, refGene.txStart, refGene.txEnd from refGene where refGene.name = '" + geneName + "' ");
 			if (success) {
 				ResultSet rs = stmt.getResultSet();
 				while (rs.next()) {
@@ -390,13 +392,14 @@ public class SequenceFetcher {
 			return null;
 		}
 
-		int upStartPoint = geneChromosomeMatcher.getStartPoint();
-		int downStartPoint = geneChromosomeMatcher.getEndPoint();
-		int startPoint = upStartPoint - upstreamRegion;
-		int endPoint = upStartPoint + downstreamRegion - 1;
+		int posStartPoint = geneChromosomeMatcher.getStartPoint();
+		int negStartPoint = geneChromosomeMatcher.getEndPoint();
+		posStartPoint++; //convert to genome browser coordindates - in UCSC database tables, txStart is zero-based.
+		int startPoint = posStartPoint - upstreamRegion;
+		int endPoint = posStartPoint + downstreamRegion - 1;
 		if (!geneChromosomeMatcher.isPositiveStrandDirection()) {
-			startPoint = downStartPoint - downstreamRegion + 1;
-			endPoint = downStartPoint + upstreamRegion;
+			startPoint = negStartPoint - downstreamRegion + 1;
+			endPoint = negStartPoint + upstreamRegion;
 		}
 
 		int maxSize = 1000000;

@@ -2,22 +2,24 @@ package org.geworkbench.components.genspace.rating;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingWorker;
+import javax.xml.datatype.DatatypeFactory;
 
 import org.geworkbench.components.genspace.BrowserLauncher;
 import org.geworkbench.components.genspace.GenSpace;
 import org.geworkbench.components.genspace.GenSpaceServerFactory;
 import org.geworkbench.components.genspace.RuntimeEnvironmentSettings;
-import org.geworkbench.components.genspace.entity.Tool;
-import org.geworkbench.components.genspace.entity.User;
-import org.geworkbench.components.genspace.entity.UserWorkflow;
-import org.geworkbench.components.genspace.entity.Workflow;
+import org.geworkbench.components.genspace.server.stubs.Tool;
+import org.geworkbench.components.genspace.server.stubs.User;
+import org.geworkbench.components.genspace.server.stubs.UserWorkflow;
+import org.geworkbench.components.genspace.server.stubs.Workflow;
+import org.geworkbench.components.genspace.server.wrapper.UserWrapper;
 
 public class WorkflowVisualizationPopup extends JPopupMenu implements
 		ActionListener {
@@ -92,7 +94,7 @@ public class WorkflowVisualizationPopup extends JPopupMenu implements
 						}
 						if(expert != null)
 						contactEU.setText("Contact Expert User - ("
-								+ expert.getFullName() + ")");
+								+ (new UserWrapper(expert)).getFullName() + ")");
 					}
 					
 				};
@@ -106,7 +108,7 @@ public class WorkflowVisualizationPopup extends JPopupMenu implements
 
 			if (tool.getId() > 0 && GenSpaceServerFactory.isLoggedIn()) {
 				toolSRP = new StarRatingPanel();
-				toolSRP.setTitle("Rate " + tn);
+				toolSRP.setTitle("Rate " + tn.getName());
 				toolSRP.loadRating(tn);
 				add(toolSRP);
 			}
@@ -176,10 +178,16 @@ public class WorkflowVisualizationPopup extends JPopupMenu implements
 						UserWorkflow uw = new UserWorkflow();
 						uw.setName(name);
 						uw.setWorkflow(workflow);
-						uw.setFolder(GenSpaceServerFactory.getUser().getRootFolder());
+						uw.setFolder(GenSpaceServerFactory.getUserOps().getRootFolder());
 						uw.setOwner(GenSpaceServerFactory.getUser());
-						uw.setCreatedAt(new Date());
-						GenSpaceServerFactory.getWorkflowOps().addWorkflow(RuntimeEnvironmentSettings.writeObject(uw), GenSpaceServerFactory.getUser().getRootFolder().getId());
+						
+						try {
+							uw.setCreatedAt(DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar()));
+							GenSpaceServerFactory.getWorkflowOps().addWorkflow(uw, uw.getFolder().getId());
+						} catch (Exception e) {
+							GenSpaceServerFactory.handleExecutionException(e);
+							return null;
+						}
 						GenSpace.getInstance().getWorkflowRepository().updateFormFieldsBG();
 							JOptionPane
 							.showMessageDialog(null,

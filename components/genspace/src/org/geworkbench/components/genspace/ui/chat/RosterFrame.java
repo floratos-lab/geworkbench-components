@@ -29,8 +29,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
-import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
@@ -44,7 +45,6 @@ import javax.swing.tree.TreePath;
 
 import org.geworkbench.components.genspace.GenSpaceServerFactory;
 import org.geworkbench.components.genspace.chat.ChatReceiver;
-import org.geworkbench.components.genspace.ui.GenSpaceLogin;
 import org.jivesoftware.smack.Roster;
 import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.RosterGroup;
@@ -58,18 +58,22 @@ import org.jivesoftware.smack.packet.Presence.Mode;
  * @author jsb2125
  */
 public class RosterFrame extends javax.swing.JFrame implements RosterListener {
-
-
+	public static Set<String> removedCache = new HashSet<String>();
+	public void refresh()
+	{
+		((RosterModel) rosterTree.getModel()).clear();
+		ChatReceiver.connection.getRoster().reload();
+		roster.reload();
+	}
 	private static final long serialVersionUID = 7609367478611608296L;
 	private class RosterModel implements TreeModel{
-		private static final long serialVersionUID = 4493935174712537878L;
 		private Roster roster;
 		private ArrayList<RosterGroup> rootGroups;
 		private HashMap<RosterGroup, ArrayList<RosterEntry>> children;
 		public RosterModel() {
 			clear();
 		}
-
+	
 		public void clear() {
 			roster = null;
 			rootGroups = null;
@@ -88,7 +92,7 @@ public class RosterFrame extends javax.swing.JFrame implements RosterListener {
 				children.put(g, new ArrayList<RosterEntry>());
 				for(RosterEntry e : g.getEntries())
 				{
-					if(! e.getUser().equalsIgnoreCase(GenSpaceServerFactory.getUser().getUsername() + "@genspace"))
+					if(! e.getUser().equalsIgnoreCase(GenSpaceServerFactory.getUser().getUsername() + "@genspace") && !(removedCache.contains(e.getUser()) && g.getName().equals("Friends")))
 						children.get(g).add(e);
 				}
 				if(children.get(g).size() == 0)
@@ -96,14 +100,15 @@ public class RosterFrame extends javax.swing.JFrame implements RosterListener {
 					children.remove(g);
 					rootGroups.remove(g);
 				}
-				Collections.sort(children.get(g),new Comparator<RosterEntry>() {
-
-					@Override
-					public int compare(RosterEntry o1, RosterEntry o2) {
-						return o1.getName().compareTo(o2.getName());
-					}
-					
-				});
+				if(g != null && children != null && children.get(g) != null)
+					Collections.sort(children.get(g),new Comparator<RosterEntry>() {
+	
+						@Override
+						public int compare(RosterEntry o1, RosterEntry o2) {
+							return o1.getName().compareTo(o2.getName());
+						}
+						
+					});
 			}
 			
 			Collections.sort(rootGroups, new Comparator<RosterGroup>() {
@@ -140,9 +145,12 @@ public class RosterFrame extends javax.swing.JFrame implements RosterListener {
 
 		@Override
 		public int getChildCount(Object parent) {
+
 			if(parent instanceof RosterGroup)
 			{
 				RosterGroup g = (RosterGroup) parent;
+				if(children == null || children.get(g) == null)
+					return 0;
 				return children.get(g).size();	
 			}
 			else if(parent instanceof Roster)
@@ -193,16 +201,19 @@ public class RosterFrame extends javax.swing.JFrame implements RosterListener {
 	@Override
 	public void entriesAdded(Collection<String> r) {
 		this.setRoster(ChatReceiver.connection.getRoster());
+		rosterTree.repaint();
 	}
 
 	@Override
 	public void entriesDeleted(Collection<String> r) {
 		this.setRoster(ChatReceiver.connection.getRoster());
+		rosterTree.repaint();
 	}
 
 	@Override
 	public void entriesUpdated(Collection<String> r) {
 		this.setRoster(ChatReceiver.connection.getRoster());
+		rosterTree.repaint();
 	}
 
 	@Override
@@ -220,13 +231,15 @@ public class RosterFrame extends javax.swing.JFrame implements RosterListener {
 	public void setRoster(Roster newr) {
 		roster = newr;
 		roster.addRosterListener(this);
+
 		RosterModel model = new RosterModel();
 		model.setData(roster);
 		rosterTree.setModel(model);
-		for(int i =0;i<=roster.getEntryCount()+1;i++)
+		for(int i =0;i<=rosterTree.getRowCount();i++)
 		{
 			rosterTree.expandRow(i);
 		}
+		repaint();
 	}
 
 	public void setAvailable()

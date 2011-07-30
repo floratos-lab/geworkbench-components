@@ -61,7 +61,7 @@ public class InteractionsConnectionImpl {
 			// String aSQL = "SELECT * FROM pairwise_interaction where ms_id1="
 			// + id1.toString() + " or ms_id2=" + id1.toString();
 			rs = ResultSetlUtil.executeQuery(methodAndParams,
-					ResultSetlUtil.INTERACTIONS_SERVLET_URL);
+					ResultSetlUtil.getUrl());
 
 			while (rs.next()) {
 				try {
@@ -147,7 +147,7 @@ public class InteractionsConnectionImpl {
 					+ Constants.DEL + context + Constants.DEL + version;
 
 			rs = ResultSetlUtil.executeQuery(methodAndParams,
-					ResultSetlUtil.INTERACTIONS_SERVLET_URL);
+					ResultSetlUtil.getUrl());
 			String previousInteractionId = null;
 			boolean firstHit = true;
 			while (rs.next()) {
@@ -244,7 +244,7 @@ public class InteractionsConnectionImpl {
 					+ version;
 
 			rs = ResultSetlUtil.executeQuery(methodAndParams,
-					ResultSetlUtil.INTERACTIONS_SERVLET_URL);
+					ResultSetlUtil.getUrl());
 
 			String previousInteractionId = null;
 			List<InteractionParticipant> participantList = new ArrayList<InteractionParticipant>();
@@ -332,7 +332,7 @@ public class InteractionsConnectionImpl {
 					+ context + Constants.DEL + version + Constants.DEL
 					+ interactionType + Constants.DEL + presentBy;
 			rs = ResultSetlUtil.executeQuery(methodAndParams,
-					ResultSetlUtil.INTERACTIONS_SERVLET_URL);
+					ResultSetlUtil.getUrl());
 
 			String sifLine = null;
 			while (rs.next()) {
@@ -390,7 +390,7 @@ public class InteractionsConnectionImpl {
 					+ context + Constants.DEL + version + Constants.DEL
 					+ interactionType + Constants.DEL + presentBy;
 			rs = ResultSetlUtil.executeQuery(methodAndParams,
-					ResultSetlUtil.INTERACTIONS_SERVLET_URL);
+					ResultSetlUtil.getUrl());
 
 			String adjLine = null;
 			while (rs.next()) {
@@ -446,7 +446,7 @@ public class InteractionsConnectionImpl {
 
 			String methodAndParams = "getInteractionTypes";
 			rs = ResultSetlUtil.executeQuery(methodAndParams,
-					ResultSetlUtil.INTERACTIONS_SERVLET_URL);
+					ResultSetlUtil.getUrl());
 
 			while (rs.next()) {
 
@@ -495,7 +495,7 @@ public class InteractionsConnectionImpl {
 
 			String methodAndParams = "getInteractionTypes";
 			rs = ResultSetlUtil.executeQuery(methodAndParams,
-					ResultSetlUtil.INTERACTIONS_SERVLET_URL);
+					ResultSetlUtil.getUrl());
 
 			while (rs.next()) {
 
@@ -544,7 +544,7 @@ public class InteractionsConnectionImpl {
 			String methodAndParams = "getInteractionTypesByInteractomeVersion"
 					+ Constants.DEL + context + Constants.DEL + version;
 			rs = ResultSetlUtil.executeQuery(methodAndParams,
-					ResultSetlUtil.INTERACTIONS_SERVLET_URL);
+					ResultSetlUtil.getUrl());
 
 			while (rs.next()) {
 
@@ -585,7 +585,7 @@ public class InteractionsConnectionImpl {
 		try {
 
 			ResultSetlUtil.executeQuery(methodAndParams,
-					ResultSetlUtil.INTERACTIONS_SERVLET_URL);
+					ResultSetlUtil.getUrl());
 
 		} catch (Exception se) {
 			if (logger.isErrorEnabled()) {
@@ -606,7 +606,7 @@ public class InteractionsConnectionImpl {
 
 			String methodAndParams = "getDatasetNames";
 			rs = ResultSetlUtil.executeQuery(methodAndParams,
-					ResultSetlUtil.INTERACTIONS_SERVLET_URL);
+					ResultSetlUtil.getUrl());
 
 			while (rs.next()) {
 
@@ -652,7 +652,7 @@ public class InteractionsConnectionImpl {
 			String methodAndParams = "getInteractomeDescription"
 					+ Constants.DEL + interactomeName;
 			rs = ResultSetlUtil.executeQuery(methodAndParams,
-					ResultSetlUtil.INTERACTIONS_SERVLET_URL);
+					ResultSetlUtil.getUrl());
 			while (rs.next()) {
 				interactomeDesc = rs.getString("description").trim();
 				break;
@@ -695,7 +695,7 @@ public class InteractionsConnectionImpl {
 
 			String methodAndParams = "getInteractomeNames";
 			rs = ResultSetlUtil.executeQuery(methodAndParams,
-					ResultSetlUtil.INTERACTIONS_SERVLET_URL);
+					ResultSetlUtil.getUrl());
 
 			while (rs.next()) {
 
@@ -742,7 +742,7 @@ public class InteractionsConnectionImpl {
 
 			String methodAndParams = "getDatasetNames";
 			rs = ResultSetlUtil.executeQuery(methodAndParams,
-					ResultSetlUtil.INTERACTIONS_SERVLET_URL);
+					ResultSetlUtil.getUrl());
 
 			while (rs.next()) {
 
@@ -793,7 +793,7 @@ public class InteractionsConnectionImpl {
 			String methodAndParams = "getVersionDescriptor" + Constants.DEL
 					+ interactomeName;
 			rs = ResultSetlUtil.executeQuery(methodAndParams,
-					ResultSetlUtil.INTERACTIONS_SERVLET_URL);
+					ResultSetlUtil.getUrl());
 			while (rs.next()) {
 				version = rs.getString("version").trim();
 				if (version.equalsIgnoreCase("DEL"))

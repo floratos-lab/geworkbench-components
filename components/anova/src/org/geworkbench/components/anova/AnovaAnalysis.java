@@ -659,28 +659,28 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 					"A minimum of 3 array groups must be activated.");
 		}
 		/* check for log normalization */
-		if (!isLogNormalized(maSetView.getMicroarraySet())) {
-			Object[] options = { "Proceed", "Cancel" };
-			int n = JOptionPane
-					.showOptionDialog(
-							/*
-							 * this make it shown in the center of our software
-							 */
-							anovaAnalysisPanel.getTopLevelAncestor(),
-							"The input dataset should be log-transformed (to approximate a standard distribution); \n\nClick Proceed to override and continue the analysis with the input dataset selected.",
-							"Log Transformation", JOptionPane.YES_NO_OPTION,
-							JOptionPane.QUESTION_MESSAGE,
-							/* do not use a custom Icon */
-							null,
-							/* the titles of buttons */
-							options,
-							/* default button title */
-							options[0]);
-			if (n == 1) { /* n==1 means canceled */
-				return new ParamValidationResults(false,
-						"Analysis canceled by user.");
-			}
-		}
+//		if (!isLogNormalized(maSetView.getMicroarraySet())) {
+//			Object[] options = { "Proceed", "Cancel" };
+//			int n = JOptionPane
+//					.showOptionDialog(
+//							/*
+//							 * this make it shown in the center of our software
+//							 */
+//							anovaAnalysisPanel.getTopLevelAncestor(),
+//							"The input dataset should be log-transformed (to approximate a standard distribution); \n\nClick Proceed to override and continue the analysis with the input dataset selected.",
+//							"Log Transformation", JOptionPane.YES_NO_OPTION,
+//							JOptionPane.QUESTION_MESSAGE,
+//							/* do not use a custom Icon */
+//							null,
+//							/* the titles of buttons */
+//							options,
+//							/* default button title */
+//							options[0]);
+//			if (n == 1) { /* n==1 means canceled */
+//				return new ParamValidationResults(false,
+//						"Analysis canceled by user.");
+//			}
+//		}
 		return new ParamValidationResults(true, "No Error");
 	}
 

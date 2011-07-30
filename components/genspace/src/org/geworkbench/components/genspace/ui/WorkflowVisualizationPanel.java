@@ -16,19 +16,17 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.Semaphore;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
 import org.geworkbench.components.genspace.GenSpace;
-import org.geworkbench.components.genspace.entity.Tool;
-import org.geworkbench.components.genspace.entity.Workflow;
-import org.geworkbench.components.genspace.entity.WorkflowTool;
 import org.geworkbench.components.genspace.rating.WorkflowVisualizationPopup;
+import org.geworkbench.components.genspace.server.stubs.Tool;
+import org.geworkbench.components.genspace.server.stubs.Workflow;
+import org.geworkbench.components.genspace.server.stubs.WorkflowTool;
+import org.geworkbench.components.genspace.server.wrapper.WorkflowWrapper;
 import org.geworkbench.components.genspace.ui.graph.myGraph;
 import org.geworkbench.components.genspace.ui.graph.myStackLayout;
 import org.geworkbench.engine.config.VisualPlugin;
@@ -50,18 +48,16 @@ public class WorkflowVisualizationPanel extends JPanel implements VisualPlugin {
 	 * 
 	 */
 	private static final long serialVersionUID = -3300246926475166675L;
-	private ArrayList<Workflow> workflows = new ArrayList<Workflow>();
 	private WorkflowVisualizationPopup popup = new WorkflowVisualizationPopup();
 	
 	private myGraph graph;
 	private mxGraphComponent graphComponent;
 	private JScrollPane scroller = new JScrollPane();;
-	private Timer redrawTimer;
 	private boolean redrawing = false;
 	public WorkflowVisualizationPanel()
 	{
 		setOpaque(false);
-		redrawTimer = new Timer();
+		new Timer();
 		add(scroller, BorderLayout.CENTER);
 		this.addComponentListener(new ComponentListener() {
 			
@@ -107,14 +103,13 @@ public class WorkflowVisualizationPanel extends JPanel implements VisualPlugin {
 		this.removeAll();
 		this.repaint();
 	}
-	public void render(Workflow w)
+	public void render(WorkflowWrapper w)
 	{
 		render(w, null);
 	}
-	public void render(Workflow w, Tool selected) {
-		wkflwCache = new HashMap<Integer, Workflow>();
+	public void render(WorkflowWrapper w, Tool selected) {
+		wkflwCache = new HashMap<Integer, WorkflowWrapper>();
 		wkflwCache.put(w.getId(), w);
-		workflows.add(w);
 		initGraph();
 		renderSingleWorkflow(w, selected, null);
 		layoutAndShowGraph();	
@@ -139,7 +134,7 @@ public class WorkflowVisualizationPanel extends JPanel implements VisualPlugin {
 			if(swimlanesBack.size() > 0)
 			for(mxICell i : swimlanes.values())
 			{
-				Workflow parentW = wkflwCache.get(swimlanesBack.get(i).getCachedParentId());
+				WorkflowWrapper parentW = wkflwCache.get(swimlanesBack.get(i).getCachedParentId());
 				int drawOffset = 0;
 				if(parentW != null)
 				{
@@ -189,10 +184,10 @@ public class WorkflowVisualizationPanel extends JPanel implements VisualPlugin {
 							mxCell mx = (mxCell) cell;
 							cell = mx.getValue();
 						}
-						if(cell.getClass().equals(WorkflowTool.class))
+						if(cell.getClass().equals(WorkflowToolHolder.class))
 						{
-							WorkflowTool selected = (WorkflowTool) cell;
-							popup.initialize(selected.getTool(), selected.getWorkflow());
+							WorkflowToolHolder selected = (WorkflowToolHolder) cell;
+							popup.initialize(selected.getTool(), (Workflow) selected.getWorkflow());
 							popup.show(WorkflowVisualizationPanel.this, (int) e.getX(),
 									(int) e.getY());
 						}
@@ -206,17 +201,17 @@ public class WorkflowVisualizationPanel extends JPanel implements VisualPlugin {
 		return this;
 	}
 	private Object pool;
-	public void render(List<Workflow> ret, Tool selected) {
-		wkflwCache = new HashMap<Integer, Workflow>();
-		for(Workflow w : ret)
+	public void render(List<WorkflowWrapper> ret, Tool selected) {
+		wkflwCache = new HashMap<Integer, WorkflowWrapper>();
+		for(WorkflowWrapper w : ret)
 		{
 			wkflwCache.put(w.getId(), w);
 		}
 		//Sort by # of children
-		Collections.sort(ret, new Comparator<Workflow>() {
+		Collections.sort(ret, new Comparator<WorkflowWrapper>() {
 
 			@Override
-			public int compare(Workflow o1, Workflow o2) {
+			public int compare(WorkflowWrapper o1, WorkflowWrapper o2) {
 				if(o1.getCachedChildrenCount() < o2.getCachedChildrenCount())
 					return -1;
 				else if(o1.getCachedChildrenCount() > o2.getCachedChildrenCount())
@@ -231,14 +226,14 @@ public class WorkflowVisualizationPanel extends JPanel implements VisualPlugin {
 		layoutAndShowGraph();
 		
 	}
-	private HashMap<Integer,Workflow> wkflwCache;
-	private HashMap<Workflow, mxICell> wkflTails;
-	private HashMap<Workflow, mxICell> swimlanes;
-	private HashMap<mxICell,Workflow> swimlanesBack;
-	private void renderAsSubs(List<Workflow> ret, Tool selected,boolean collapseLevel, Workflow parent) {
+	private HashMap<Integer,WorkflowWrapper> wkflwCache;
+	private HashMap<WorkflowWrapper, mxICell> wkflTails;
+	private HashMap<WorkflowWrapper, mxICell> swimlanes;
+	private HashMap<mxICell,WorkflowWrapper> swimlanesBack;
+	private void renderAsSubs(List<WorkflowWrapper> ret, Tool selected,boolean collapseLevel, WorkflowWrapper parent) {
 		if(ret.size() == 0)
 			return;
-		for(Workflow w: ret)
+		for(WorkflowWrapper w: ret)
 		{
 			if(parent == null)
 			{
@@ -267,7 +262,7 @@ public class WorkflowVisualizationPanel extends JPanel implements VisualPlugin {
 		}
 	}
 
-	private void renderSingleWorkflow(Workflow w, Tool selected, Object parent,
+	private void renderSingleWorkflow(WorkflowWrapper w, Tool selected, Object parent,
 			int toolOffset, mxICell drawFrom) {
 		Font f = new Font("Helvetica",Font.PLAIN,11);
 
@@ -300,8 +295,10 @@ public class WorkflowVisualizationPanel extends JPanel implements VisualPlugin {
 				styl = "WORKFLOW;fillColor=#e8f2dd";
 			else
 				styl = "WORKFLOW";
+			
 			Rectangle2D r = f.getStringBounds(to.getTool().getName(), ((Graphics2D) this.getGraphics()).getFontRenderContext());
-			Object v1 = graph.insertVertex(parent, null, to, 10, 10, r.getWidth()+10, r.getHeight()+10,styl);
+			Object v1 = graph.insertVertex(parent, null, new WorkflowToolHolder(to), 10, 10, r.getWidth()+10, r.getHeight()+10,styl);
+			
 			if(lastCell != null)
 				graph.insertEdge(parent, null, "", lastCell, v1,"editable=0");
 			else if(drawFrom != null)
@@ -334,7 +331,7 @@ public class WorkflowVisualizationPanel extends JPanel implements VisualPlugin {
 
 		
 	}
-	private void renderSingleWorkflow(Workflow w, Tool selected,Object parent) {
+	private void renderSingleWorkflow(WorkflowWrapper w, Tool selected,Object parent) {
 		renderSingleWorkflow(w, selected, parent,0,null);	
 	}
 	private void initGraph() {
@@ -384,10 +381,52 @@ public class WorkflowVisualizationPanel extends JPanel implements VisualPlugin {
 		graph.setConnectableEdges(false);
 		graph.setEnabled(false);
 		
-		wkflTails = new HashMap<Workflow, mxICell>();
-		swimlanes = new HashMap<Workflow, mxICell>();
-		swimlanesBack = new HashMap<mxICell, Workflow>();
+		wkflTails = new HashMap<WorkflowWrapper, mxICell>();
+		swimlanes = new HashMap<WorkflowWrapper, mxICell>();
+		swimlanesBack = new HashMap<mxICell, WorkflowWrapper>();
 	}
 	
 
+}
+
+class WorkflowToolHolder extends WorkflowTool
+{
+	WorkflowTool delegate;
+	public boolean equals(Object obj) {
+		return delegate.equals(obj);
+	}
+	public int getId() {
+		return delegate.getId();
+	}
+	public int getOrder() {
+		return delegate.getOrder();
+	}
+	public Tool getTool() {
+		return delegate.getTool();
+	}
+	public Object getWorkflow() {
+		return delegate.getWorkflow();
+	}
+	public int hashCode() {
+		return delegate.hashCode();
+	}
+	public void setId(int value) {
+		delegate.setId(value);
+	}
+	public void setOrder(int value) {
+		delegate.setOrder(value);
+	}
+	public void setTool(Tool value) {
+		delegate.setTool(value);
+	}
+	public void setWorkflow(Object value) {
+		delegate.setWorkflow(value);
+	}
+	public String toString() {
+		return delegate.getTool().getName();
+	}
+	public WorkflowToolHolder(WorkflowTool tool)
+	{
+		delegate = tool;
+	}
 }

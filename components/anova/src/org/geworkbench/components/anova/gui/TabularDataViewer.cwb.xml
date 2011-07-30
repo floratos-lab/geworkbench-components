@@ -8,7 +8,7 @@
 				author="geWorkbench Development Team"
 				authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 				toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
-				tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_ANOVA"
+				tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/ANOVA"
 				description="Displays the results of ANOVA analysis of gene expression
  data in tabular format.  For each gene and each group of arrays, shows
  the mean, standard deviation, F-statistic, and the p-value (probablility

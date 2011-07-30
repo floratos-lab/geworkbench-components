@@ -1,23 +1,33 @@
 package org.geworkbench.components.genspace.ui;
 
-import javax.ejb.EJBException;
-import javax.swing.*;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Insets;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+
+import javax.swing.BoxLayout;
+import javax.swing.DefaultListModel;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JSeparator;
+import javax.swing.ListCellRenderer;
+import javax.swing.SwingConstants;
+import javax.swing.SwingWorker;
 
 import org.geworkbench.components.genspace.GenSpace;
 import org.geworkbench.components.genspace.GenSpaceServerFactory;
-import org.geworkbench.components.genspace.RuntimeEnvironmentSettings;
-import org.geworkbench.components.genspace.entity.Network;
-import org.geworkbench.components.genspace.entity.User;
-
-import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.logging.LogManager;
+import org.geworkbench.components.genspace.server.stubs.Network;
+import org.geworkbench.components.genspace.server.stubs.User;
+import org.geworkbench.components.genspace.server.wrapper.UserWrapper;
 
 /**
  * Created by IntelliJ IDEA. User: jon Date: Aug 28, 2010 Time: 12:20:54 PM To
@@ -49,7 +59,7 @@ public class friendsTab extends SocialTab {
 					boolean cellHasFocus) {
 				JPanel pan = new JPanel(); 
 				
-				User u = (User) value;
+				UserWrapper u = (UserWrapper) value;
 				pan.setLayout(new BoxLayout(pan, BoxLayout.Y_AXIS));
 
 				JLabel label = new JLabel(u.getFullNameWUsername());
@@ -78,7 +88,7 @@ public class friendsTab extends SocialTab {
 				if (u.getState() != null && !u.getState().equals(""))
 					byline += u.getState();
 				JLabel label2 = new JLabel(byline);
-				if (GenSpaceServerFactory.isVisible(u))
+				if (GenSpaceServerFactory.isVisible(u.getDelegate()))
 					pan.add(label2);
 				pan.add(new JSeparator(SwingConstants.HORIZONTAL));
 				if (isSelected)
@@ -108,7 +118,7 @@ public class friendsTab extends SocialTab {
 			public void mouseClicked(MouseEvent e) {
 				if (e.getClickCount() == 2) {
 					viewProfileTab viewProfileTab = new viewProfileTab(
-							(User) myFriendsList.getSelectedValue());
+							(UserWrapper) myFriendsList.getSelectedValue());
 					parentFrame.setContent(viewProfileTab);
 				}
 			}
@@ -134,11 +144,11 @@ public class friendsTab extends SocialTab {
 					evt = GenSpace.getStatusBar().start("Loading profiles");
 					try{
 						if (networkFilter == null)
-							return (List<User>) RuntimeEnvironmentSettings.readObject(GenSpaceServerFactory.getFriendOps().getFriendsBytes());
+							return GenSpaceServerFactory.getFriendOps().getFriends();
 						else
 							return GenSpaceServerFactory.getNetworkOps().getProfilesByNetwork(networkFilter.getId());
 					}
-					catch(EJBException e)
+					catch(Exception e)
 					{
 						GenSpace.getStatusBar().stop(evt);
 						return null;
@@ -150,9 +160,9 @@ public class friendsTab extends SocialTab {
 				protected void done() {
 					GenSpace.logger.info("Done retrieving profiles, calling get");
 					GenSpace.getStatusBar().stop(evt);
-					List<User> lst = null;
+					List<User> lsta = null;
 					try {
-						lst = get();
+						lsta = get();
 					} catch (InterruptedException e) {
 						GenSpace.logger.warn("Error",e);
 					} catch (ExecutionException e) {
@@ -161,19 +171,24 @@ public class friendsTab extends SocialTab {
 						return;
 					}
 					GenSpace.logger.info("Done retrieving profiles, also called get!");
-					if(lst == null)
+					if(lsta == null)
 						return;
-					lst.remove(GenSpaceServerFactory.getUser());
-					Collections.sort(lst,new Comparator<User>() {
+					List<UserWrapper> lst = new ArrayList<UserWrapper>(lsta.size());
+					for(User u : lsta)
+					{
+						lst.add(new UserWrapper(u));
+					}
+					lst.remove(new UserWrapper(GenSpaceServerFactory.getUser()));
+					Collections.sort(lst,new Comparator<UserWrapper>() {
 
 						@Override
-						public int compare(User o1, User o2) {
+						public int compare(UserWrapper o1, UserWrapper o2) {
 							return o1.compareTo(o2);
 						}
 					});
 					DefaultListModel model = new DefaultListModel();
 					if(lst != null)
-						for (User t : lst) {
+						for (UserWrapper t : lst) {
 							model.addElement(t);
 						}
 					myFriendsList.setModel(model);

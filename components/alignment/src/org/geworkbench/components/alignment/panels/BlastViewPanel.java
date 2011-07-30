@@ -544,7 +544,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 					resetToWhite("No hits found");
 					displaySummaryLabel(" " + summaryStr + " Sequence "
 							+ ((CSSequence) sequenceDB.get(index)).getLabel()
-							+ " has 0 hit.");
+							+ " has 0 hits.");
 
 				}
 			} else if (blastDataSet != null && blastDataSet.size()>0
@@ -676,5 +676,17 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 			displayResults("<h4>No alignment hit is selected.");
 		}
 	}
-
+	public void setSummaryPanelOff(){
+		resetButton.setEnabled(false);
+		allButton.setEnabled(false);
+		AddSequenceToProjectButton.setEnabled(false);
+		addAlignedButton.setEnabled(false);
+	}
+	public void setSummaryPanelOn(){		
+		resetButton.setEnabled(true);
+		allButton.setEnabled(true);
+		AddSequenceToProjectButton.setEnabled(true);
+		addAlignedButton.setEnabled(true);
+	}	
+	
 }

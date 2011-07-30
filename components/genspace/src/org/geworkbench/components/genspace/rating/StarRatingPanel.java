@@ -16,10 +16,12 @@ import javax.swing.border.MatteBorder;
 import org.geworkbench.components.genspace.GenSpace;
 import org.geworkbench.components.genspace.GenSpaceServerFactory;
 import org.geworkbench.components.genspace.RuntimeEnvironmentSettings;
-import org.geworkbench.components.genspace.entity.Tool;
-import org.geworkbench.components.genspace.entity.ToolRating;
-import org.geworkbench.components.genspace.entity.Workflow;
-import org.geworkbench.components.genspace.entity.WorkflowRating;
+import org.geworkbench.components.genspace.server.stubs.Tool;
+import org.geworkbench.components.genspace.server.stubs.ToolRating;
+import org.geworkbench.components.genspace.server.stubs.Workflow;
+import org.geworkbench.components.genspace.server.stubs.WorkflowRating;
+import org.geworkbench.components.genspace.server.wrapper.ToolWrapper;
+import org.geworkbench.components.genspace.server.wrapper.WorkflowWrapper;
 
 public class StarRatingPanel extends JPanel implements MouseListener {
 
@@ -98,7 +100,12 @@ public class StarRatingPanel extends JPanel implements MouseListener {
 			@Override
 			public WorkflowRating doInBackground() {
 				evt = GenSpace.getStatusBar().start("Loading rating");
-				return GenSpaceServerFactory.getPrivUsageFacade().getMyWorkflowRating(workflow.getId());
+				try {
+					return GenSpaceServerFactory.getPrivUsageFacade().getMyWorkflowRating(workflow.getId());
+				} catch (Exception e) {
+					GenSpace.getStatusBar().stop(evt);
+					return null;
+				}
 			}
 			@Override
 			protected void done() {
@@ -109,7 +116,7 @@ public class StarRatingPanel extends JPanel implements MouseListener {
 				} catch (InterruptedException e) {
 					GenSpace.logger.warn("Unable to talk to server",e);
 				} catch (ExecutionException e) {
-					GenSpaceServerFactory.handleExecutionException();
+					GenSpaceServerFactory.handleExecutionException(e);
 					return;
 				}
 				if (rating == null)
@@ -125,7 +132,12 @@ public class StarRatingPanel extends JPanel implements MouseListener {
 		SwingWorker<Workflow, Void> worker2 = new SwingWorker<Workflow, Void>() {
 			@Override
 			public Workflow doInBackground() {
-				return GenSpaceServerFactory.getPrivUsageFacade().getWorkflow(workflow.getId());
+				try {
+					return GenSpaceServerFactory.getPrivUsageFacade().getWorkflow(workflow.getId());
+				} catch (Exception e) {
+					GenSpaceServerFactory.handleExecutionException(e);
+					return null;
+				}
 			}
 			@Override
 			protected void done() {
@@ -136,11 +148,14 @@ public class StarRatingPanel extends JPanel implements MouseListener {
 				} catch (InterruptedException e) {
 					GenSpace.logger.warn("Unable to talk to server",e);
 				} catch (ExecutionException e) {
-					GenSpaceServerFactory.handleExecutionException();
 					return;
 				}
-				setRatingValue(rating.getOverallRating(),
-						rating.getNumRating());
+				if(rating != null)
+				{
+					WorkflowWrapper rat = new WorkflowWrapper(rating);
+					setRatingValue(rat.getOverallRating(),
+						rat.getNumRating());
+				}
 				super.done();
 			}
 		};
@@ -163,7 +178,12 @@ public class StarRatingPanel extends JPanel implements MouseListener {
 			public ToolRating doInBackground() {
 				evt = GenSpace.getStatusBar().start("Loading rating");
 
-				return GenSpaceServerFactory.getPrivUsageFacade().getMyToolRating(tool.getId());
+				try {
+					return GenSpaceServerFactory.getPrivUsageFacade().getMyToolRating(tool.getId());
+				} catch (Exception e) {
+					GenSpace.getStatusBar().stop(evt);
+					return null;
+				}
 			}
 			@Override
 			protected void done() {
@@ -175,7 +195,7 @@ public class StarRatingPanel extends JPanel implements MouseListener {
 				} catch (InterruptedException e) {
 					GenSpace.logger.warn("Unable to talk to server",e);
 				} catch (ExecutionException e) {
-					GenSpaceServerFactory.handleExecutionException();
+					GenSpaceServerFactory.handleExecutionException(e);
 					return;
 				}
 				if (rating == null)
@@ -195,7 +215,12 @@ public class StarRatingPanel extends JPanel implements MouseListener {
 			public Tool doInBackground() {
 				evt = GenSpace.getStatusBar().start("Loading rating");
 
-				return GenSpaceServerFactory.getPrivUsageFacade().getTool(tool.getId());
+				try {
+					return GenSpaceServerFactory.getPrivUsageFacade().getTool(tool.getId());
+				} catch (Exception e) {
+					GenSpace.getStatusBar().stop(evt);
+					return null;
+				}
 			}
 			@Override
 			protected void done() {
@@ -207,11 +232,15 @@ public class StarRatingPanel extends JPanel implements MouseListener {
 				} catch (InterruptedException e) {
 					GenSpace.logger.warn("Unable to talk to server",e);
 				} catch (ExecutionException e) {
-					GenSpaceServerFactory.handleExecutionException();
+					GenSpaceServerFactory.handleExecutionException(e);
 					return;
 				}
-				setRatingValue(rating.getOverallRating(),
-						rating.getNumRating());
+				if(rating != null)
+				{
+					ToolWrapper wrap = new ToolWrapper(rating);
+					setRatingValue(wrap.getOverallRating(),
+						wrap.getNumRating());
+				}
 				super.done();
 			}
 		};
@@ -254,7 +283,12 @@ public class StarRatingPanel extends JPanel implements MouseListener {
 			@Override
 			public Workflow doInBackground() {
 				evt = GenSpace.getStatusBar().start("Saving rating");
-				return GenSpaceServerFactory.getPrivUsageFacade().saveWorkflowRating(workflow.getId(),rating);
+				try {
+					return GenSpaceServerFactory.getPrivUsageFacade().saveWorkflowRating(workflow.getId(),rating);
+				} catch (Exception e) {
+					GenSpace.getStatusBar().stop(evt);
+					return null;
+				}
 			}
 			@Override
 			protected void done() {
@@ -265,7 +299,7 @@ public class StarRatingPanel extends JPanel implements MouseListener {
 				} catch (InterruptedException e) {
 					GenSpace.logger.warn("Unable to talk to server",e);
 				} catch (ExecutionException e) {
-					GenSpaceServerFactory.handleExecutionException();
+					GenSpaceServerFactory.handleExecutionException(e);
 					return;
 				}
 				if (result == null) {
@@ -276,8 +310,9 @@ public class StarRatingPanel extends JPanel implements MouseListener {
 					workflow.setSumRating(result.getSumRating());
 					workflow.setNumRating(result.getNumRating());
 					setStarValue(rating);
-					setRatingValue(result.getOverallRating(),
-							result.getNumRating());
+					WorkflowWrapper wrap = new WorkflowWrapper(result);
+					setRatingValue(wrap.getOverallRating(),
+							wrap.getNumRating());
 
 					// user can no longer rate now
 					clickable = false;
@@ -297,7 +332,12 @@ public class StarRatingPanel extends JPanel implements MouseListener {
 			public Tool doInBackground() {
 				evt = GenSpace.getStatusBar().start("Saving rating");
 
-				return GenSpaceServerFactory.getPrivUsageFacade().saveToolRating(tool.getId(), rating);
+				try {
+					return GenSpaceServerFactory.getPrivUsageFacade().saveToolRating(tool.getId(), rating);
+				} catch (Exception e) {
+					GenSpace.getStatusBar().stop(evt);
+					return null;
+				}
 			}
 			@Override
 			protected void done() {
@@ -308,7 +348,7 @@ public class StarRatingPanel extends JPanel implements MouseListener {
 				} catch (InterruptedException e) {
 					GenSpace.logger.warn("Unable to talk to server",e);
 				} catch (ExecutionException e) {
-					GenSpaceServerFactory.handleExecutionException();
+					GenSpaceServerFactory.handleExecutionException(e);
 					return;
 				}
 				if (result == null) {
@@ -318,8 +358,9 @@ public class StarRatingPanel extends JPanel implements MouseListener {
 				} else {
 					RuntimeEnvironmentSettings.tools.put(result.getId(), result);
 					setStarValue(rating);
-					setRatingValue(result.getOverallRating(),
-							result.getNumRating());
+					ToolWrapper wrap = new ToolWrapper(result);
+					setRatingValue(wrap.getOverallRating(),
+							wrap.getNumRating());
 					// user can no longer rate now
 					clickable = false;
 					setTitle("Thanks!");

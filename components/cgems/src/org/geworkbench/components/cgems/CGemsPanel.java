@@ -478,7 +478,6 @@ public class CGemsPanel implements VisualPlugin {
 
 		});
 		clearButton.setForeground(Color.black);
-		clearButton.setToolTipText("");
 		clearButton.setFocusPainted(true);
 		clearButton.setText("Clear");
 		clearButton.addActionListener(new ActionListener() {

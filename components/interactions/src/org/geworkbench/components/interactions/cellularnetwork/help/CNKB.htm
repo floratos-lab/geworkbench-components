@@ -1,8 +1,19 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html dir="ltr" lang="en"><head>
-<title>Cellular Networks KnowledgeBase</title>
+<title>Cellular Networks KnowledgeBase - Workbench</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="generator" content="MediaWiki 1.16.0">
+<meta name="robots" content="noindex,follow">
+<link rel="alternate" type="application/x-wiki" title="Edit" href="http://wiki.c2b2.columbia.edu/workbench/index.php?title=Cellular_Networks_KnowledgeBase&amp;action=edit">
+<link rel="edit" title="Edit" href="http://wiki.c2b2.columbia.edu/workbench/index.php?title=Cellular_Networks_KnowledgeBase&amp;action=edit">
+<link rel="shortcut icon" href="http://wiki.c2b2.columbia.edu/workbench/skins/common/images/favicon.ico">
+<link rel="search" type="application/opensearchdescription+xml" href="http://wiki.c2b2.columbia.edu/workbench/opensearch_desc.php" title="Workbench (en)">
+<link rel="alternate" type="application/atom+xml" title="Workbench Atom feed" href="http://wiki.c2b2.columbia.edu/workbench/index.php?title=Special:RecentChanges&amp;feed=atom">
+<link rel="stylesheet" href="CNKB_files/commonPrint.css" media="">
+<link rel="stylesheet" href="CNKB_files/index_004.css">
+<link rel="stylesheet" href="CNKB_files/index_002.css" media="">
+<link rel="stylesheet" href="CNKB_files/index_003.css">
+<link rel="stylesheet" href="CNKB_files/index.css">
 
 
 </head>
@@ -12,19 +23,15 @@
 	<a id="top"></a>
 	
 	<h1 id="firstHeading" class="firstHeading">Cellular Networks KnowledgeBase</h1>
-	
+	<div id="bodyContent">
 		<!-- start content -->
-<p><br> 
-</p><p><br>
+<p><br>
 </p>
-<a name="Overview"></a>
-<h1> <span class="mw-headline" id="Overview">Overview</span></h1>
+<a name="Overview"></a><h1> <span class="mw-headline" id="Overview">Overview</span></h1>
 <p>This material describes the graphical interface and functionality of 
 the CNKB component released with geWorkbench 2.1.0.  Significant 
 enhancements have been made with each recent release.
-</p>
-
-<p>The Cellular Network Knowledge Base (CNKB) is a repository of 
+</p><p>The Cellular Network Knowledge Base (CNKB) is a repository of 
 molecular interactions, including ones both computationally and 
 experimentally derived.  Sources for interactions include both publicly 
 available databases such as BioGRID and HPRD, as well as 
@@ -47,17 +54,18 @@ biological process.
 </p><p>The CNKB component allows the user to select a group of markers 
 of interest, specify the interaction types  (e.g. Protein-Protein, 
 Protein-DNA etc.), and choose a particular interaction data source.  
-After a query of the Knowledge Base, results are displayed  both in the 
-CNKB component and as interaction graphs in the Cytoscape component.
+After a query of the Knowledge Base, results are displayed in the CNKB 
+Throttle Graph in tabular form.  After filtering in the throttle graph 
+based on edge confidence values, a network can be created and placed as a
+ new data node in the Project Folders component.  This node can be 
+visualized in the Cytoscape network viewer.
 </p>
-<a name="Requirements"></a>
-<h1> <span class="mw-headline" id="Requirements">Requirements</span></h1>
+<a name="Requirements"></a><h1> <span class="mw-headline" id="Requirements">Requirements</span></h1>
 <p>Both queries against the CNKB database, and display of gene 
 annotation information require that an annotation file be associated 
 with the microarray dataset at the time that it is loaded.  See <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Local_Data_Files" title="Local Data Files"> Local Data Files</a> and <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/File_Formats#Annotation_Files" title="File Formats"> File Formats</a> for further information.
 </p>
-<a name="The_CNKB_graphical_interface"></a>
-<h1> <span class="mw-headline" id="The_CNKB_graphical_interface">The CNKB graphical interface</span></h1>
+<a name="The_CNKB_graphical_interface"></a><h1> <span class="mw-headline" id="The_CNKB_graphical_interface">The CNKB graphical interface</span></h1>
 <p><img alt="CNKB with markers.png" src="CNKB_files/CNKB_with_markers.png" height="573" width="766">
 </p><p><br>
 The graphical user interface (GUI) of the CNKB component has three areas
@@ -84,24 +92,22 @@ Network" button.  The network will be placed as an adjacency matrix in
 the Project Folders component and will be automatically displayed in the
  Cytoscape component.
 </p>
-<a name="Working_with_the_CNKB_graphical_interface"></a>
-<h1> <span class="mw-headline" id="Working_with_the_CNKB_graphical_interface">Working with the CNKB graphical interface</span></h1>
+<a name="Working_with_the_CNKB_graphical_interface"></a><h1> <span class="mw-headline" id="Working_with_the_CNKB_graphical_interface">Working with the CNKB graphical interface</span></h1>
 <p>The figures in this section correspond to the  <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_Cellular_Networks_KnowledgeBase#Example_-_Creating_an_interaction_network_and_viewing_it_in_Cytoscape" title="Tutorial - Cellular Networks KnowledgeBase" class="mw-redirect"> example</a> in the final section of this tutorial.
 </p>
-<a name="Activated_Marker_List"></a>
-<h2> <span class="mw-headline" id="Activated_Marker_List">Activated Marker List</span></h2>
+<a name="Activated_Marker_List"></a><h2> <span class="mw-headline" id="Activated_Marker_List">Activated Marker List</span></h2>
 <p><img alt="CNKB add selected markers.png" src="CNKB_files/CNKB_add_selected_markers.png" height="439" width="574">
 </p><p><br>
 The "Activated Marker List" contains the markers that belong to 
 activated marker sets from the Markers component. It contains 3 columns:
 </p>
-<h3> <span class="mw-headline" id="Marker">Marker</span></h3>
+<a name="Marker"></a><h3> <span class="mw-headline" id="Marker">Marker</span></h3>
 <p>The marker (probeset) name (comes from the microarray set node selected in the Project Folders area).
 </p>
-<h3> <span class="mw-headline" id="Gene">Gene</span></h3>
+<a name="Gene"></a><h3> <span class="mw-headline" id="Gene">Gene</span></h3>
 <p>The gene name corresponding to the marker, if loaded from an annotation file.
 </p>
-<h3> <span class="mw-headline" id="Type">Type</span></h3>
+<a name="Type"></a><h3> <span class="mw-headline" id="Type">Type</span></h3>
 <p>A gene type designation, derived from the gene's GO annotation: 
 </p>
 <ul><li> <b>TF</b> - Transcription Factor,
@@ -109,7 +115,7 @@ activated marker sets from the Markers component. It contains 3 columns:
 </li><li> <b>P</b> - Phosphatase, and
 </li><li> (no entry) - type is unknown.
 </li></ul>
-<h4> <span class="mw-headline" id="Selecting_Markers_for_Query">Selecting Markers for Query</span></h4>
+<a name="Selecting_Markers_for_Query"></a><h4> <span class="mw-headline" id="Selecting_Markers_for_Query">Selecting Markers for Query</span></h4>
 <p>Individual markers in the Activated Marker List can be moved to the Selected Markers List by double-clicking on them.
 </p><p>Right-clicking on the list of markers brings up a menu with two choices:
 </p>
@@ -121,12 +127,10 @@ first be highlighted in the usual way by left-clicking on them while
 holding down the Shift or Control keys.  Then, right-click on the list 
 to get the "Add selected markers to the selected markers list" choice.
 </p>
-<a name="Selected_Marker_List"></a>
-<h2> <span class="mw-headline" id="Selected_Marker_List">Selected Marker List</span></h2>
-<h3> <span class="mw-headline" id="Main">Main</span></h3>
+<a name="Selected_Marker_List"></a><h2> <span class="mw-headline" id="Selected_Marker_List">Selected Marker List</span></h2>
+<a name="Main"></a><h3> <span class="mw-headline" id="Main">Main</span></h3>
 <p><img alt="CNKB markers transfered.png" src="CNKB_files/CNKB_markers_transfered.png" height="535" width="766">
-</p>
-<p><br>
+</p><p><br>
 Markers which have been moved from the Activated Markers List to the 
 Selected Markers List can be used to query the CNKB database. Until a 
 query is run, the list items are shown in red italics.
@@ -136,27 +140,29 @@ on their entries or through a right-click menu.  The right-click menu
 (shown below) gives the choice of moving only highlighted, or all 
 markers back to the Activated Markers list.
 </p><p><br>
-  <img alt="CNKB Selected Marker List Right click.png" src="CNKB_files/CNKB_Selected_Marker_List_Right_click.png" height="165" width="456">
-</p>
-<p><br>
+<img alt="CNKB Selected Marker List Right click.png" src="CNKB_files/CNKB_Selected_Marker_List_Right_click.png" height="165" width="456">
+</p><p><br>
 After a query has been run against the CNKB database, the marker entries are shown in regular font, blue letters.
 </p><p><br>
-  <img alt="CNKB Selected Markers after query.png" src="CNKB_files/CNKB_Selected_Markers_after_query.png" height="227" width="834">
-</p>
-<p><br>
+<img alt="CNKB Selected Markers after query.png" src="CNKB_files/CNKB_Selected_Markers_after_query.png" height="227" width="834">
+</p><p><br>
 </p><p><br>
 The Selected Marker List table contains the following columns:
 </p><p><br>
 </p>
-<h4> <span class="mw-headline" id="Marker_2">Marker</span></h4>
+<a name="Marker_2"></a><h4> <span class="mw-headline" id="Marker_2">Marker</span></h4>
 <p>The marker (probeset) name.
 </p>
-<h4> <span class="mw-headline" id="Gene_2">Gene</span></h4>
+<a name="Gene_2"></a><h4> <span class="mw-headline" id="Gene_2">Gene</span></h4>
 <p>The gene name corresponding to the marker, if loaded from an annotation file (same as in the "Activated Marker List").
 </p><p>Right-clicking on a gene name will provide link-outs to Gene Cards and Entrez Gene.
 </p><p><img alt="CNKB Gene List Right click.png" src="CNKB_files/CNKB_Gene_List_Right_click.png" height="157" width="540">
+</p><p><br>
+Hovering the pointer over the Gene entry will display the full gene name for that gene symbol.
+</p><p><br>
+<img alt="CNKB SelectedMarkerList GeneHover.png" src="CNKB_files/CNKB_SelectedMarkerList_GeneHover.png" height="170" width="633">
 </p>
-<h4> <span class="mw-headline" id="Gene_Type">Gene Type</span></h4>
+<a name="Gene_Type"></a><h4> <span class="mw-headline" id="Gene_Type">Gene Type</span></h4>
 <p>A gene type designation, derived from the gene's GO annotation.  The list of type codes is the same as that under <b>Type</b> under "Activated Marker List":
 </p>
 <ul><li> <b>TF</b> - Transcription Factor,
@@ -164,7 +170,7 @@ The Selected Marker List table contains the following columns:
 </li><li> <b>P</b> - Phosphatase, and
 </li><li> (no entry) - type is unknown.
 </li></ul>
-<h4> <span class="mw-headline" id="GO_Annotation">GO Annotation</span></h4>
+<a name="GO_Annotation"></a><h4> <span class="mw-headline" id="GO_Annotation">GO Annotation</span></h4>
 <p>The Gene Ontology (GO) annotation of the gene.  Term are annotated to
  specific markers in the microarray annotation file, and the term 
 descriptions originate in the gene ontology file. 
@@ -175,63 +181,86 @@ Component, Function and Process.
 column will display a short summary of the Gene Ontology terms 
 associated with that entry.
 </p><p><img alt="CNKB GO Hover Text v2.2.png" src="CNKB_files/CNKB_GO_Hover_Text_v2.png" height="181" width="856">
-</p>
-<p><br>
+</p><p><br>
 More extensive GO annotations can be viewed for desired genes in the 
 Selected Marker list by right-clicking on its entry.  A pop-up menu will
  offer a choice of the three categories of GO annotation: Component, 
 Function and Process.  Expanding one of these terms will show the 
 available annotations for that gene.
 </p><p><br>
-  <img alt="CNKB GO Right Click.png" src="CNKB_files/CNKB_GO_Right_Click.png" height="195" width="721">
-</p>
-<p>In turn, clicking on one of the terms will bring up a new window 
+<img alt="CNKB GO Right Click.png" src="CNKB_files/CNKB_GO_Right_Click.png" height="195" width="721">
+</p><p>In turn, clicking on one of the terms will bring up a new window 
 showing the term's position in the Gene Ontology hierarchy, represented 
 in tree form.
 </p><p><img alt="CNKB Gene Ontology Tree.png" src="CNKB_files/CNKB_Gene_Ontology_Tree.png" height="312" width="428">
 </p>
-<h4> <span class="mw-headline" id="Interaction_Type_Result_columns">Interaction Type Result columns</span></h4>
+<a name="Interaction_Type_Result_columns"></a><h4> <span class="mw-headline" id="Interaction_Type_Result_columns">Interaction Type Result columns</span></h4>
 <p>A separate column will appear in the Selected Markers display for 
 each interaction type, e.g. "Protein-DNA" selected in the Preferences 
 tab.  The numbers in the columns indicate, for each marker, the number 
 of interactions returned by the query.
 </p><p>The number of interactions can be adjusted by changing the acceptance threshold using the throttle graph slider control.
+</p><p><br>
 </p>
-<a name="Preferences"></a>
-<h2> <span class="mw-headline" id="Preferences">Preferences</span></h2>
+<a name="Controls"></a><h2> <span class="mw-headline" id="Controls">Controls</span></h2>
+<a name="Refresh"></a><h3> <span class="mw-headline" id="Refresh">Refresh</span></h3>
+<p>Perform the query against the CNKB database using the selected 
+markers and the interactome and interaction types set in the Preferences
+ tab.
+</p>
+<a name="Create_Network"></a><h3> <span class="mw-headline" id="Create_Network">Create Network</span></h3>
+<p>Create a network based on the query results, and as filtered by the 
+throttle graph setting.   The new network is placed in the Project 
+Folders component in the form of an adjacency matrix.  The network will 
+be displayed in the Cytoscape component if it is loaded.
+</p>
+<ul><li> <b>Note on network size</b> - If the network created is larger 
+than it may be possible to display in Cytoscape, Cytoscape will offer 
+the user the option to use a non-graphic display instead.
+</li></ul>
+<p>Networks created in the CNKB are represented in the adjacency matrix 
+at the gene level, using the identifiers used in the original 
+interactome, e.g. Enterz IDs.
+</p>
+<a name="Cancel"></a><h3> <span class="mw-headline" id="Cancel">Cancel</span></h3>
+<p>Cancel the current query.
+</p>
+<a name="Throttle_Graph_Snapshot"></a><h3> <span class="mw-headline" id="Throttle_Graph_Snapshot">Throttle Graph Snapshot</span></h3>
+<p>Place an image of the current throttle graph display in the Project Folders component, with name "CNKB Throttle Graph".
+</p>
+<a name="Preferences"></a><h2> <span class="mw-headline" id="Preferences">Preferences</span></h2>
 <p><img alt="CNKB Preferences v2.2.png" src="CNKB_files/CNKB_Preferences_v2.png" height="800" width="895">
+</p><p><br>
 </p>
-<p><br>
-</p>
-<h4> <span class="mw-headline" id="Interactions_Database">Interactions Database</span></h4>
+<a name="Interactions_Database"></a><h4> <span class="mw-headline" id="Interactions_Database">Interactions Database</span></h4>
 <p>The preferences panel shows a description (if available) of the 
 chosen interactome, and in a separate pane a description (if available) 
 of the interactome version.
 </p><p><br>
 </p>
-<h4> <span class="mw-headline" id="Select_CNKB_instance">Select CNKB instance</span></h4>
+<a name="Select_CNKB_instance"></a><h4> <span class="mw-headline" id="Select_CNKB_instance">Select CNKB instance</span></h4>
 <p><b>Change</b> - This button allows the address at which to connect to the CNKB servlet to be changed.  This should not normally be necessary.
 </p><p><br>
 </p>
-<h4> <span class="mw-headline" id="Select_Interactome">Select Interactome</span></h4>
+<a name="Select_Interactome"></a><h4> <span class="mw-headline" id="Select_Interactome">Select Interactome</span></h4>
 <p>A list of all interactomes available in the CNKB is presented.  The 
 number of interactions present in each is shown in parantheses after the
  name.  See also the <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/CNKB_Data" title="CNKB Data"> CNKB data sources</a> page.
 </p>
-<h4> <span class="mw-headline" id="Interactome_Description">Interactome Description</span></h4>
+<a name="Interactome_Description"></a><h4> <span class="mw-headline" id="Interactome_Description">Interactome Description</span></h4>
 <p>When an interatome is highlighted, its description, if available, will be presented in this window.
 </p>
-<h4> <span class="mw-headline" id="Select_Version">Select Version</span></h4>
+<a name="Select_Version"></a><h4> <span class="mw-headline" id="Select_Version">Select Version</span></h4>
 <p>An interactome may have multiple versions or releases.  Each 
 available version of the selected interactome will be presented here.
 </p><p>Some versions of an interactome may not yet be public.  If so, 
 the version number will appear in red, indicating that it is password 
 protected.
 </p>
-<h4> <span class="mw-headline" id="Version_Description">Version Description</span></h4>
+<a name="Version_Description"></a><h4> <span class="mw-headline" id="Version_Description">Version Description</span></h4>
 <p>If available, a description of the selected version is displayed here.
 </p>
-<h4> <span class="mw-headline" id="Column_Display_Preferences">Column Display Preferences</span></h4>
+<a name="Column_Display_Preferences"></a><h4> <span class="mw-headline" id="Column_Display_Preferences">Column Display Preferences</span></h4>
 <p>These selections control which data columns will be displayed in the main "Selected Markers" pane.
 </p>
 <ul><li> <b>Marker</b>
@@ -253,13 +282,12 @@ right and left triple arrows "&lt;&lt;&lt;", "&gt;&gt;&gt;" located
 between them.
 </p><p><img alt="CNKB Preferences Column Display v2.2.png" src="CNKB_files/CNKB_Preferences_Column_Display_v2.png" height="172" width="782">
 </p>
-<h4> <span class="mw-headline" id="Network_Generation_Preferences">Network Generation Preferences</span></h4>
+<a name="Network_Generation_Preferences"></a><h4> <span class="mw-headline" id="Network_Generation_Preferences">Network Generation Preferences</span></h4>
 <p>This section controls how the interactions returned by the database 
 query will be used in creating a network.  It allows control of display 
 to be separated from that of the query.
 </p><p><img alt="CNKB Preferences Network Generation v2.2.png" src="CNKB_files/CNKB_Preferences_Network_Generation_v2.png" height="398" width="812">
-</p>
-<p><br>
+</p><p><br>
 </p>
 <ul><li> <b>Restrict to genes present in microarray set</b> - queries to
  the CNKB database may return interaction partners that are not members 
@@ -276,34 +304,40 @@ generating the network graph.
 graph.
 </li></ul>
 </li></ul>
-<h3> <span class="mw-headline" id="Export_Interactome">Export Interactome</span></h3>
+<a name="Export_Interactome"></a><h3> <span class="mw-headline" id="Export_Interactome">Export Interactome</span></h3>
 <p>The chosen interactions can be exported to a file on disk.
 </p><p><br>
-  <img alt="CNKB Preferences Export Interactome v2.2.png" src="CNKB_files/CNKB_Preferences_Export_Interactome_v2.png" height="178" width="415">
-</p>
-<p><br>
-</p>
-<h4> <span class="mw-headline" id="File_Format">File Format</span></h4>
-<p>The interactions can be exported in either of two formats, SIF or ADJ.
+<img alt="CNKB Preferences Export Interactome v2.2.png" src="CNKB_files/CNKB_Preferences_Export_Interactome_v2.png" height="178" width="415">
+</p><p><br>
+The interactions can be exported in either of two formats, SIF or ADJ.
 </p><p><br>
 </p>
-<h4> <span class="mw-headline" id="SIF_format">SIF format</span></h4>
-<p>For each pairwise interaction,
-</p><p>Interactor1 type interactor2
+<a name="SIF_format"></a><h4> <span class="mw-headline" id="SIF_format">SIF format</span></h4>
+<p>The Simple Interaction Format (SIF) was developed for Cytoscape.
+</p><p>For a full definition see the <a href="http://www.cytoscape.org/" class="external text" rel="nofollow">Cytoscape</a> manual, for example <a href="http://cytoscape.org/manual/Cytoscape2_8Manual.html#SIF%20Format" class="external text" rel="nofollow">Ctyoscape manual v2.8</a>
+</p><p>Each line contains interactions of a particular type for the first node with one or more target nodes:
+</p><p>node1 interaction-type-code node2 node3 node4 etc.
+</p><p>Some interaction-type-codes used in the CNKB are
 </p>
-<h4> <span class="mw-headline" id="ADJ_format">ADJ format</span></h4>
-<p>For each of the interactions in which interactor1 takes part,
-</p><p>Interactor1 interactor2 value2 interactor3 value3 interactor4 value4 etc....
+<ul><li> pp protein-protein
+</li><li> pd protein-DNA
+</li><li> tm modulator-TF
+</li></ul>
+<a name="ADJ_format"></a><h4> <span class="mw-headline" id="ADJ_format">ADJ format</span></h4>
+<p>For each of the interactions in which node1 takes part,
 </p>
-<h3> <span class="mw-headline" id="Node_Identifier">Node Identifier</span></h3>
+<ul><li> node1 node2 value2 node3 value3 node4 value4 etc....
+</li></ul>
+<p>where <i>valueN</i> can be for example the mutual information, a confidence value etc.
+</p>
+<a name="Node_Identifier"></a><h3> <span class="mw-headline" id="Node_Identifier">Node Identifier</span></h3>
 <ul><li> <b>Gene Name</b> - If available, the standard gene name associated with the gene id.
 </li><li> <b>Gene ID</b> - the specific gene id that was used to 
 represent the interactor in the original data.  Depending on the type of
  interaction, the identifiers used may be the EntrezID, a miRBase or 
 others.
 </li></ul>
-<a name="Throttle_Graph"></a>
-<h2> <span class="mw-headline" id="Throttle_Graph">Throttle Graph</span></h2>
+<a name="Throttle_Graph"></a><h2> <span class="mw-headline" id="Throttle_Graph">Throttle Graph</span></h2>
 <p>This interactive graph allows users to "throttle" (for the genes in 
 the Selected Markers table) which interactions to work with, using as a 
 criterion the interactions’ likelihood indicator.  As the required 
@@ -314,21 +348,18 @@ interactions meeting this criterion decreases, as displayed in the query
 The graph shows the result of querying on three interaction types.  A fourth line depicts the sum of those three.
 </p><p>Check-boxes allow individual interactions types to be turn on or off in the display.
 </p><p><br>
-  <img alt="CNKB Result Display 3types v2.2.png" src="CNKB_files/CNKB_Result_Display_3types_v2.png" height="590" width="851">
-</p>
-<p><br>
+<img alt="CNKB Result Display 3types v2.2.png" src="CNKB_files/CNKB_Result_Display_3types_v2.png" height="605" width="881">
+</p><p><br>
 Below, the likelihood cutoff is set to a value of 0.75.
 </p><p><br>
-  <img alt="CNKB Result Display 3types threshold2.2 v2.2.png" src="CNKB_files/CNKB_Result_Display_3types_threshold2.png" height="591" width="855">
-</p>
-<p><br>
+<img alt="CNKB Result Display 3types threshold0.75 v2.2.png" src="CNKB_files/CNKB_Result_Display_3types_threshold0.png" height="608" width="879">
+</p><p><br>
 </p>
 <ul><li> <b>Right-click menu</b> - Right-clicking on the Throttle Graph will bring up a menu which allows the graph to be customized.
 </li></ul>
 <p><br>
-  <img alt="CNKB throttle graph RC.png" src="CNKB_files/CNKB_throttle_graph_RC.png" height="389" width="637">
-</p>
-<p><br>
+<img alt="CNKB throttle graph RC.png" src="CNKB_files/CNKB_throttle_graph_RC.png" height="389" width="637">
+</p><p><br>
 </p>
 <ul><li> <b>Properties</b> - Make changes to the plot labels and style.
 </li><li> <b>Save as</b> - 
@@ -342,7 +373,7 @@ Below, the likelihood cutoff is set to a value of 0.75.
 <ul><li> right- or left-click in the graph and draw a selection box around the area you wish to zoom in on.
 </li><li> To zoom back out, right- or left-click in the graph and move the mouse to the left.
 </li></ul>
-<a name="Example_-_Creating_an_interaction_network_and_viewing_it_in_Cytoscape"></a>
+<a name="Example_-_Creating_an_interaction_network_and_viewing_it_in_Cytoscape">
 <h1> <span class="mw-headline" id="Example_-_Creating_an_interaction_network_and_viewing_it_in_Cytoscape">Example - Creating an interaction network and viewing it in Cytoscape</span></h1>
 <p>Once the desired set of markers is present and its interaction data 
 has been retrieved from the database, an adjacency matrix can be 
@@ -361,7 +392,7 @@ in the <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_Cyt
 </p><p>This example will briefly recapitulate the steps used in creating the figures shown in the above sections.
 </p><p><br>
 </p>
-<h2> <span class="mw-headline" id="Prerequisites">Prerequisites</span></h2>
+<a name="Prerequisites"></a><h2> <span class="mw-headline" id="Prerequisites">Prerequisites</span></h2>
 <ul><li> <b>Data File:</b> This example uses the Bcell-100.exp dataset 
 available in the data/public_data directory of geWorkbench, and further 
 described on the <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Download" title="Download" class="mw-redirect">Download</a>
@@ -377,21 +408,23 @@ and Gene Ontology information with the Affymetrix probeset IDs (see the
 geWorkbench FAQ for details on obtaining these files).
 </li></ul>
 <ul><li> <b>Marker List:</b> The list of markers used in this example is available in the file <a href="http://wiki.c2b2.columbia.edu/workbench/images/f/fa/GBM_MR_Markers.csv" class="internal" title="GBM MR Markers.csv"> GBM_MR_Markers</a>.
+  These represent a set of genes that were found to be master regulators
+ of glioblastoma in brain.  Here, we will investigate what kinds of 
+interactions these genes have in B-cell lines.
 </li></ul>
-<h2> <span class="mw-headline" id="Loading_the_example_data">Loading the example data</span></h2>
+<a name="Loading_the_example_data"></a><h2> <span class="mw-headline" id="Loading_the_example_data">Loading the example data</span></h2>
 <ol><li> Load the Bcell-100.exp dataset into geWorkbench as type "Affymetrix File Matrix".  (See <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_Local_Data_Files" title="Tutorial - Local Data Files" class="mw-redirect"> Local Data Files</a>).
 </li><li> When prompted, load the annotation file.
 </li><li> Create and activate a set of markers in the Markers component.  For this example, save the file <a href="http://wiki.c2b2.columbia.edu/workbench/images/f/fa/GBM_MR_Markers.csv" class="internal" title="GBM MR Markers.csv"> GBM_MR_Markers</a> to disk and then load it directly into the Markers component by pushing its "<b>Load Set</b>" button and browsing to the file located in the geWorkbench directory data/public_data.
 </li></ol>
 <p><br>
-  <img alt="CNKB marker setup.png" src="CNKB_files/CNKB_marker_setup.png" height="518" width="231">
-</p>
-<p><br>
+<img alt="CNKB marker setup.png" src="CNKB_files/CNKB_marker_setup.png" height="518" width="231">
+</p><p><br>
 When the set is activated by checking the box to the left of its name, 
 the transcription factor markers will appear in the "Activated Markers" 
 list in the CNKB component.
 </p>
-<h2> <span class="mw-headline" id="Setting_up_the_query_in_the_CNKB_component">Setting up the query in the CNKB component</span></h2>
+<a name="Setting_up_the_query_in_the_CNKB_component"></a><h2> <span class="mw-headline" id="Setting_up_the_query_in_the_CNKB_component">Setting up the query in the CNKB component</span></h2>
 <p>(The steps shown below are also depicted in the screenshots for the individual control descriptions above).
 </p><p>1.  In the "Activated Markers List", select (highlight) one 
 marker for each gene. Choosing more than one marker per gene will just 
@@ -401,9 +434,9 @@ Markers List".  They will appear in the list in the "Main" tab of the
 Selected Markers list.
 </p><p>2. In the "Preferences" tab under Selected Markers choose the desired data source, version and interaction types.  
 </p>
-<ul><li> Select HGi_TCGA. 
-</li><li> Chose version 1.0 in the pulldown to the right.
-</li><li> Select all three interaction types.
+<ul><li> Select BCi. 
+</li><li> Choose version 1.0 in the pulldown to the right.
+</li><li> Select all three interaction types - modulator-TF, protein-DNA, protein-protein.
 </li></ul>
 <p>3.  Return to the "Main' tab and hit the "<b>Refresh</b>" button. This will perform the query against the Cellular Networks Knowledge Base database. 
 </p><p>4. Adjust the Throttle Graph to set a minimum likelihood 
@@ -416,23 +449,26 @@ Note how the number of reported interactions decreases as the threshold is incre
 </p><p><br>
 The edges are colored by the interaction type, e.g. Protein-DNA etc.
 </p><p><br>
-  <img alt="CNKB Result Cytoscape 3types v2.2.png" src="CNKB_files/CNKB_Result_Cytoscape_3types_v2.png" height="849" width="751">
-</p>
-<p><br>
+<img alt="CNKB Result Cytoscape 3types v2.2.png" src="CNKB_files/CNKB_Result_Cytoscape_3types_v2.png" height="849" width="751">
+</p><p><br>
 After enlarging the image, three node shapes can be seen, as well as the edges colored by the interaction types.
 </p><p><br>
-  <img alt="CNKB Cytoscape Results type shapes v2.2.png" src="CNKB_files/CNKB_Cytoscape_Results_type_shapes_v2.png" height="663" width="1192">
-</p>
-<p><br>
+<img alt="CNKB Cytoscape Results type shapes v2.2.png" src="CNKB_files/CNKB_Cytoscape_Results_type_shapes_v2.png" height="663" width="1192">
+</p><p><br>
 </p><p><br>
 7.  See the <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Cytoscape_Network_Viewer" title="Cytoscape Network Viewer">Cytoscape_Network_Viewer</a> section for complete details on the many options available for working with this network.
 </p>
-<a name="Appendix_-_Data_Sources"></a>
-<h1> <span class="mw-headline" id="Appendix_-_Data_Sources">Appendix - Data Sources</span></h1>
+<a name="Technical_Note"></a><h1> <span class="mw-headline" id="Technical_Note">Technical Note</span></h1>
+<p>For some ids used in the CNKB database, there may a matching marker 
+which however does not have a gene symbol.  In the Affymetrix annotation
+ file, these are indicated with a gene symbol of "---".  These results 
+are included in the CNKB results table.
+</p><p>
+</p>
+<a name="Data_Sources"></a><h1> <span class="mw-headline" id="Data_Sources">Data Sources</span></h1>
 <p>Please see the <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/CNKB_Data" title="CNKB Data"> CNKB data </a> page for a list of currently available data sources and types of interactions.
 </p>
-<a name="References"></a>
-<h1> <span class="mw-headline" id="References">References</span></h1>
+<a name="References"></a><h1> <span class="mw-headline" id="References">References</span></h1>
 <ul><li> Mani KM, Lefebvre C, Wang K, Lim WK, Basso K, Dalla-Favera R, 
 Califano A., " A systems biology approach to prediction of oncogenes and
  molecular perturbation targets in B-cell lymphomas", Molecular Systems 
@@ -441,11 +477,25 @@ Biology 4:169, 2008.  <a href="http://www.ncbi.nlm.nih.gov/pubmed/18277385" clas
 
 <!-- 
 NewPP limit report
-Preprocessor node count: 151/1000000
-Post-expand include size: 0/2097152 bytes
+Preprocessor node count: 170/1000000
+Post-expand include size: 1889/2097152 bytes
 Template argument size: 0/2097152 bytes
 Expensive parser function count: 0/100
 -->
 
+<!-- Saved in parser cache with key workbench:pcache:idhash:1743-0!1!0!!en!2!printable=1 and timestamp 20110728225733 -->
+<div class="printfooter">
+Retrieved from "<a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Cellular_Networks_KnowledgeBase">http://wiki.c2b2.columbia.edu/workbench/index.php/Cellular_Networks_KnowledgeBase</a>"</div>
+		<div id="catlinks" class="catlinks catlinks-allhidden"></div>		<!-- end content -->
+				<div class="visualClear"></div>
+	</div>
+</div></div>
+<div class="visualClear"></div>
+<div id="footer">
+This page was last modified on 21 July 2011, at 17:38.
 
+</div>
+</div>
+
+<!-- Served in 0.396 secs. -->
 </body></html>

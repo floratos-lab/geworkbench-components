@@ -6,10 +6,7 @@ import giny.view.NodeView;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.ArrayList; 
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,13 +28,11 @@ import org.geworkbench.bison.annotation.DSAnnotationContext;
 import org.geworkbench.bison.annotation.DSAnnotationContextManager;
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
-import org.geworkbench.bison.datastructure.bioobjects.markers.CSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.DSBioObject; 
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSSignificanceResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSTTestResultSet;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray; 
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
@@ -47,8 +42,7 @@ import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.ProjectTreeNode;
 import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.util.Util;
-
-import cytoscape.CyNode;
+ 
 import cytoscape.Cytoscape;
 import ding.view.DNodeView;
 import ding.view.NodeContextMenuListener;
@@ -56,13 +50,11 @@ import ding.view.NodeContextMenuListener;
 public class ExpandMenuListener implements NodeContextMenuListener,
 		MouseListener {
 	final static Log log = LogFactory.getLog(ExpandMenuListener.class);
-
-	final private Map<String, List<Integer>> geneIdToMarkerIdMap;
+ 
 	final private DSMicroarraySet<? extends DSMicroarray> maSet;
 
 	public ExpandMenuListener(final CytoscapeWidget cytoscapeWidget) {
-
-		geneIdToMarkerIdMap = cytoscapeWidget.geneIdToMarkerIdMap;
+	 
 		maSet = cytoscapeWidget.maSet;
 
 	}
@@ -189,7 +181,7 @@ public class ExpandMenuListener implements NodeContextMenuListener,
 				}
 
 				log.debug("neighborsOfAllNodes:#" + neighborsOfAllNodes.size());
-				IntersectionMarkers.addAll(nodesToMarkers(neighborsOfAllNodes));
+				IntersectionMarkers.addAll(CytoscapeWidget.getInstance().nodesToMarkers(neighborsOfAllNodes));
 				IntersectionMarkers.setActive(true);
 				/*
 				 * skip if GeneTaggedEvent is being processed, to avoid event
@@ -251,7 +243,7 @@ public class ExpandMenuListener implements NodeContextMenuListener,
 							.getNode());
 				}
 				log.debug("neighborsOfAllNodes:#" + neighborsOfAllNodes.size());
-				UnionMarkers.addAll(nodesToMarkers(neighborsOfAllNodes));
+				UnionMarkers.addAll(CytoscapeWidget.getInstance().nodesToMarkers(neighborsOfAllNodes));
 				UnionMarkers.setActive(true);
 				/*
 				 * Skip if GeneTaggedEvent is being processed, to avoid event
@@ -379,65 +371,8 @@ public class ExpandMenuListener implements NodeContextMenuListener,
 		public void actionPerformed(ActionEvent actionEvent) {
 			CytoscapeWidget.getInstance().resetNetwork();
 		}
-	}
-
-	private Comparator<DSGeneMarker> geneSymbolComparator = new Comparator<DSGeneMarker>() {
-		@Override
-		public int compare(DSGeneMarker m1, DSGeneMarker m2) {
-			return m1.getGeneName().compareTo( m2.getGeneName() );
-		}
-	};
-
-	private DSPanel<DSGeneMarker> nodesToMarkers(Set<Node> nodes) {
-		DSItemList<DSGeneMarker> sortedList = new CSItemList<DSGeneMarker>();
-		sortedList.addAll(maSet.getMarkers());
-		Collections.sort(sortedList, geneSymbolComparator);
-		
-		DSPanel<DSGeneMarker> selectedMarkers = new CSPanel<DSGeneMarker>(
-				"Selected Genes", "Cytoscape");
-		for (Node node : nodes) {
-			if (node instanceof CyNode) {
-				String id = node.getIdentifier();
-				Integer geneId = Cytoscape.getNodeAttributes()
-						.getIntegerAttribute(id, "geneID");
-				if (geneId != null) {
-					Collection<Integer> markerIds = geneIdToMarkerIdMap
-							.get(geneId.toString());
-					if (markerIds != null) {
-						for (Integer markerId : markerIds) {
-							selectedMarkers.add(maSet.getMarkers()
-									.get(markerId));
-						}
-					}
-				} else { // node of the type of gene symbol
-					if(id.trim().equals("---"))continue;
-					
-					int index = Collections.binarySearch(sortedList,
-							new CSGeneMarker(id), geneSymbolComparator);
-					if (index >= 0) {
-						for (int j = index; j < sortedList.size(); j++) {
-							DSGeneMarker marker = sortedList.get(j);
-							if (!marker.getGeneName().equals(id))
-								break;
-							selectedMarkers.add(marker);
-						}
-						for (int j = index - 1; j >= 0; j--) {
-							DSGeneMarker marker = sortedList.get(j);
-							if (!marker.getGeneName().equals(id))
-								break;
-							selectedMarkers.add(marker);
-						}
-					}
-				}
-				if (geneIdToMarkerIdMap.size() == 0)
-
-					selectedMarkers.add(maSet.getMarkers().get(id));
-
-			}
-		}
-		return selectedMarkers;
-	}
-
+	}	 
+ 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private static void searchTestResultNodes(ProjectTreeNode pnode,
 			Map<String, CSSignificanceResultSet<DSGeneMarker>> map,

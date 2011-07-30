@@ -143,7 +143,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	private Log log = LogFactory.getLog(CellularNetworkKnowledgeWidget.class);
 
 	private int timeout = 0;
-	private int maxInteractionNum = 2000;
+	 
 	private int interaction_flag = 1;
 
 	private static final String[] firstFourColumnLabels = new String[] {
@@ -1573,7 +1573,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 									.equals("")
 							&& !interactionDetail.getdSGeneName2().trim()
 									.equals("null")) {					 
-						node2 = new AdjacencyMatrix.Node(NodeType.STRING, interactionDetail.getdSGeneName2());
+						node2 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL, interactionDetail.getdSGeneName2());
 					} else {					 
 						node2 = new AdjacencyMatrix.Node(NodeType.STRING, mid2);
 					}
@@ -1652,7 +1652,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 							&& !interactionDetail.getdSGeneName1().trim()
 									.equals("null")) {
 					 
-						node1 = new AdjacencyMatrix.Node(NodeType.STRING, interactionDetail.getdSGeneName1());
+						node1 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL, interactionDetail.getdSGeneName1());
 					} else {						 
 						node1 = new AdjacencyMatrix.Node(NodeType.STRING, mid1); 
 					}
@@ -1673,25 +1673,11 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				} else {
 					matrix.add(node1, node2, 0.8f, shortNameType);
 				}
-				interactionNum++;
-				if (interactionNum > maxInteractionNum
-						&& createNetwork == false) {
-					String theMessage = "Too many interactions in the selected marker list. It will take long time and maybe run out of memory.\nDo you want to cancel the process? Please click \"YES\" to terminate this process.";
-					int result = JOptionPane.showConfirmDialog(
-							(Component) null, theMessage, "alert",
-							JOptionPane.YES_NO_OPTION);
-					if (result == JOptionPane.NO_OPTION)
-						createNetwork = true;
-					else {
-						createNetwork = false;
-						needBreak = true;
-						break;
-					}
-				}
+				interactionNum++;			 
 			}
 		} // end for loop
 
-		if (interactionNum <= maxInteractionNum && interactionNum > 0) {
+		if (interactionNum > 0) {
 			createNetwork = true;
 		} else if (interactionNum == 0) {
 			JOptionPane.showMessageDialog(null,
@@ -1707,7 +1693,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		 
 			String history = "Cellular Network Parameters: \n"
 					+ "      URL Used:     "
-					+ ResultSetlUtil.INTERACTIONS_SERVLET_URL + "\n"
+					+ ResultSetlUtil.getUrl() + "\n"
 					+ "      Selected Interactome:     "
 					+ jPreferencePanel.getSelectedContext() + "\n"
 					+ "      Selected Version:     "
@@ -1947,8 +1933,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			timeout = new Integer(
 					iteractionsProp
 							.getProperty(Constants.INTERACTIONS_SERVLET_CONNECTION_TIMEOUT));
-			maxInteractionNum = new Integer(iteractionsProp
-					.getProperty(Constants.MAX_INTERACTIONS_NUMBER));
+		 
 			interaction_flag = new Integer(iteractionsProp
 					.getProperty(Constants.INTERACTIONS_FLAG));
 

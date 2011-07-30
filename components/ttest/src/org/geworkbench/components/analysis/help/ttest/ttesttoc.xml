@@ -10,8 +10,6 @@
 		<tocitem target="t-Test_Results" text="t-Test Results"/>
 		<tocitem target="Volcano_Plot_Visualizer" text="    Volcano Plot Visualizer"/>
 		<tocitem target="Color_Mosaic_Visualizer" text="    Color Mosaic Visualizer"/>
-		<tocitem target="Overview" text="Overview"/>
-
 	</tocitem>
 
 </toc>

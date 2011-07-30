@@ -22,9 +22,9 @@ import javax.swing.SwingWorker;
 
 import org.geworkbench.components.genspace.GenSpace;
 import org.geworkbench.components.genspace.GenSpaceServerFactory;
-import org.geworkbench.components.genspace.entity.Friend;
-import org.geworkbench.components.genspace.entity.User;
-import org.geworkbench.components.genspace.entity.UserNetwork;
+import org.geworkbench.components.genspace.server.stubs.User;
+import org.geworkbench.components.genspace.server.stubs.UserNetwork;
+import org.geworkbench.components.genspace.server.wrapper.UserWrapper;
 
 /**
  * Created by IntelliJ IDEA. User: jon Date: Aug 28, 2010 Time: 12:53:24 PM To
@@ -33,7 +33,7 @@ import org.geworkbench.components.genspace.entity.UserNetwork;
 public class privacyTab extends SocialTab {
 	private JList listNetworks;
 	private JList listFriends;
-	private List<User> cachedFriends;
+	private List<UserWrapper> cachedFriends;
 	private List<UserNetwork> cachedNetworks;
 	
 	private JButton saveButton;
@@ -165,10 +165,10 @@ public class privacyTab extends SocialTab {
 				final DefaultListModel model2 = (DefaultListModel) listFriends
 						.getModel();
 				final HashMap<Integer, Boolean> s2 = new HashMap<Integer, Boolean>();
-				for (Integer i : listNetworks.getSelectedIndices()) {
+				for (Integer i : listFriends.getSelectedIndices()) {
 					s2.put(i, true);
 				}
-				for (int i = 0; i < model.getSize(); i++) {
+				for (int i = 0; i < model2.getSize(); i++) {
 					if (!s2.containsKey(i))
 						s2.put(i, false);
 				}
@@ -197,7 +197,7 @@ public class privacyTab extends SocialTab {
 				JLabel renderer = (JLabel) new DefaultListCellRenderer()
 						.getListCellRendererComponent(list, value, index,
 								isSelected, cellHasFocus);
-				renderer.setText(((User) value).getFullNameWUsername());
+				renderer.setText(((UserWrapper) value).getFullNameWUsername());
 				return renderer;
 			}
 		});
@@ -233,13 +233,17 @@ public class privacyTab extends SocialTab {
 				@Override
 				protected List<User> doInBackground()
 						throws Exception {
-					return GenSpaceServerFactory.getFriendOps().getFriends();
+					return (GenSpaceServerFactory.getFriendOps().getFriends());
 				}
 
 				@Override
 				protected void done() {
 					try {
-						cachedFriends = get();
+						cachedFriends = new ArrayList<UserWrapper>();
+						for(User u : get())
+						{
+							cachedFriends.add(new UserWrapper(u));
+						}
 					} catch (InterruptedException e) {
 						GenSpace.logger.warn("Error",e);
 					} catch (ExecutionException e) {
@@ -250,7 +254,7 @@ public class privacyTab extends SocialTab {
 					DefaultListModel m = new DefaultListModel();
 					ArrayList<Integer> selected = new ArrayList<Integer>();
 					int i = 0;
-					for (User t : cachedFriends) {
+					for (UserWrapper t : cachedFriends) {
 						m.addElement(t);
 						if (t.isVisible()) {
 							selected.add(i);
@@ -274,7 +278,7 @@ public class privacyTab extends SocialTab {
 				@Override
 				protected List<UserNetwork> doInBackground()
 						throws Exception {
-					return GenSpaceServerFactory.getNetworkOps().getMyNetworks();
+					return (GenSpaceServerFactory.getNetworkOps().getMyNetworks());
 				}
 
 				@Override

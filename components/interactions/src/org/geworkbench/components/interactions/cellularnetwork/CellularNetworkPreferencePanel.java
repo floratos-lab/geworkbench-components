@@ -875,7 +875,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 	private void changeButtonHandler(ActionEvent e) {
 		log.debug("changing url");
 
-		String host = ResultSetlUtil.INTERACTIONS_SERVLET_URL;
+		String host = ResultSetlUtil.getUrl();
 
 		changeServicesDialog = new JDialog();
 
@@ -1044,7 +1044,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 			if (allInteractionTypes.size() == 0)
 				return;
 			pm.setProperty(this.getClass(), "url",
-					ResultSetlUtil.INTERACTIONS_SERVLET_URL);
+					ResultSetlUtil.getUrl());
 
 			if (contextJList.getSelectedValue() != null)
 				pm.setProperty(this.getClass(), Constants.SELECTCONTEXT,
@@ -1339,7 +1339,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 		builder.append(changeButton);
 		// builder.append(urlLabel);
 		serviceLabel = new JLabel("Url: "
-				+ ResultSetlUtil.INTERACTIONS_SERVLET_URL);
+				+ ResultSetlUtil.getUrl());
 		builder.append(serviceLabel);
 		builder.nextLine();
 
