@@ -16,7 +16,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingWorker;
 
 import org.geworkbench.components.genspace.GenSpaceServerFactory;
-import org.geworkbench.components.genspace.entity.User;
+import org.geworkbench.components.genspace.server.stubs.User;
 import org.geworkbench.engine.config.VisualPlugin;
 
 public class GenSpaceGeneralProfile extends JPanel implements VisualPlugin,

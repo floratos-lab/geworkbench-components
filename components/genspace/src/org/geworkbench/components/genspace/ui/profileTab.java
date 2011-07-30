@@ -4,7 +4,7 @@ import javax.swing.*;
 
 import org.geworkbench.components.genspace.GenSpace;
 import org.geworkbench.components.genspace.GenSpaceServerFactory;
-import org.geworkbench.components.genspace.entity.User;
+import org.geworkbench.components.genspace.server.stubs.User;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;

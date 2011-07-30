@@ -888,12 +888,6 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 	}
 
 	/* used only in ColorMosaicPanel */
-	void toggleShowPattern(boolean state) {
-		showPattern = state;
-		repaint();
-	}
-
-	/* used only in ColorMosaicPanel */
 	void setAutoWidth(double inches, int res) {
 		if (res != oldRes) {
 			resolution = res;

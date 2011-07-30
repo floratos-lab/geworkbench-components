@@ -13,6 +13,7 @@ package org.geworkbench.components.gpmodule.pca;
 
 import java.awt.BorderLayout;
 import java.io.Serializable;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -91,14 +92,14 @@ public class PCAAnalysisPanel extends GPAnalysisPanel
     	variables.setSelectedItem(s);
     }
 
-    protected String getParamDescriptionFile()
+    protected URL getParamDescriptionFile()
     {
-        return PCAAnalysisPanel.class.getResource("paramDesc.html").getPath();
+        return PCAAnalysisPanel.class.getResource("paramDesc.html");
     }
 
-    protected String getDescriptionFile()
+    protected URL getDescriptionFile()
     {
-        return PCAAnalysisPanel.class.getResource("help.html").getPath();
+        return PCAAnalysisPanel.class.getResource("help.html");
     }
     
 	/*

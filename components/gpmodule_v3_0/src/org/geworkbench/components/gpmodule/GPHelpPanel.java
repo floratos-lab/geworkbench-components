@@ -4,7 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
+import java.net.URL;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -29,15 +29,15 @@ public class GPHelpPanel extends JSplitPane
 	
 	private JScrollPane paramDescPanel;
     private JScrollPane classDescPanel;
-    private File paramDescFile;
-    private File classDescFile;
+    private URL paramDescFile;
+    private URL classDescFile;
 
-    public GPHelpPanel(String label, String paramDescFile, String classDescFile)
+    public GPHelpPanel(String label, URL paramDescFile, URL classDescFile)
     {
         if(paramDescFile != null)
-            this.paramDescFile = new File(paramDescFile);
+            this.paramDescFile = paramDescFile;
         if(classDescFile != null)
-            this.classDescFile = new File(classDescFile);
+            this.classDescFile = classDescFile;
 
         init(label);
     }
@@ -152,7 +152,7 @@ public class GPHelpPanel extends JSplitPane
         paramDescTextPane.setEditorKit(new StyledEditorKit());
         try
         {
-            paramDescTextPane.setPage(paramDescFile.toURI().toURL());
+            paramDescTextPane.setPage(paramDescFile);
             paramDescTextPane.setEditable(false);
         }
         catch(Exception e)
@@ -179,7 +179,7 @@ public class GPHelpPanel extends JSplitPane
         paramDescTextPane.setEditorKit(new StyledEditorKit());
         try
         {
-            paramDescTextPane.setPage(classDescFile.toURI().toURL());
+            paramDescTextPane.setPage(classDescFile);
             paramDescTextPane.setEditable(false);
         }
         catch(Exception e)

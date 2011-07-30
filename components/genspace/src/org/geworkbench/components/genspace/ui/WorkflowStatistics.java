@@ -21,7 +21,6 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JTextPane;
 import javax.swing.ListCellRenderer;
-import javax.swing.LookAndFeel;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.text.Style;
@@ -30,9 +29,9 @@ import javax.swing.text.html.HTMLDocument;
 
 import org.geworkbench.components.genspace.GenSpace;
 import org.geworkbench.components.genspace.GenSpaceServerFactory;
-import org.geworkbench.components.genspace.RuntimeEnvironmentSettings;
-import org.geworkbench.components.genspace.entity.Tool;
-import org.geworkbench.components.genspace.entity.Workflow;
+import org.geworkbench.components.genspace.server.stubs.Tool;
+import org.geworkbench.components.genspace.server.stubs.Workflow;
+import org.geworkbench.components.genspace.server.wrapper.WorkflowWrapper;
 import org.geworkbench.engine.config.VisualPlugin;
 
 class ToolCellRenderer implements ListCellRenderer {
@@ -78,20 +77,27 @@ public class WorkflowStatistics extends JPanel implements VisualPlugin {
 						m.addElement(s);
 					}
 					toolListing.setModel(m);
+					
 					if(instrument)
 						System.out.println("Entire tool list size: " + GenSpace.getObjectSize((Serializable) results));
 				} catch (InterruptedException e) {
 					GenSpace.logger.debug("Error talking to server: ",e);
 				} catch (ExecutionException e) {
-					GenSpaceServerFactory.handleExecutionException();
+					GenSpaceServerFactory.handleExecutionException(e);
 					return;
 				}
 				super.done();
 			}
 
 			@Override
-			protected List<Tool> doInBackground() throws Exception {
-				return GenSpaceServerFactory.getUsageOps().getAllTools();
+			protected List<Tool> doInBackground() {
+				try {
+					return (GenSpaceServerFactory.getUsageOps().getAllTools());
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					return null;
+				}
 			}
 
 		};
@@ -120,7 +126,7 @@ public class WorkflowStatistics extends JPanel implements VisualPlugin {
 				} catch (InterruptedException e) {
 					GenSpace.logger.debug("Error talking to server: ",e);
 				} catch (ExecutionException e) {
-					GenSpaceServerFactory.handleExecutionException();
+					GenSpaceServerFactory.handleExecutionException(e);
 					return;
 				}
 				super.done();
@@ -128,7 +134,7 @@ public class WorkflowStatistics extends JPanel implements VisualPlugin {
 
 			@Override
 			protected List<Tool> doInBackground() throws Exception {
-				return GenSpaceServerFactory.getUsageOps().getToolsByPopularity();
+				return (GenSpaceServerFactory.getUsageOps().getToolsByPopularity());
 			}
 
 		};
@@ -148,8 +154,9 @@ public class WorkflowStatistics extends JPanel implements VisualPlugin {
 					String txt = "";
 					if(results != null)
 					for (Workflow s : results) {
-						s.loadToolsFromCache();
-						txt = txt + "<li>" + s.toString() + "</li>";
+						WorkflowWrapper w = new WorkflowWrapper(s);
+						w.loadToolsFromCache();
+						txt = txt + "<li>" + w.toString() + "</li>";
 						lim--;
 						i++;
 						if (lim <= 0)
@@ -163,7 +170,7 @@ public class WorkflowStatistics extends JPanel implements VisualPlugin {
 				} catch (InterruptedException e) {
 					GenSpace.logger.debug("Error talking to server",e);
 				} catch (ExecutionException e) {
-					GenSpaceServerFactory.handleExecutionException();
+					GenSpaceServerFactory.handleExecutionException(e);
 					return;
 				}
 				super.done();
@@ -172,7 +179,7 @@ public class WorkflowStatistics extends JPanel implements VisualPlugin {
 			@Override
 			protected List<Workflow> doInBackground() throws Exception {
 				evt = GenSpace.getStatusBar().start("Retrieving popular workflows");
-				return (List<Workflow>) RuntimeEnvironmentSettings.readObject(GenSpaceServerFactory.getUsageOps().getWorkflowsByPopularityBytes());
+				return GenSpaceServerFactory.getUsageOps().getWorkflowsByPopularity();
 			}
 
 		};
@@ -201,7 +208,7 @@ public class WorkflowStatistics extends JPanel implements VisualPlugin {
 				} catch (InterruptedException e) {
 					GenSpace.logger.debug("Error talking to server: ",e);
 				} catch (ExecutionException e) {
-					GenSpaceServerFactory.handleExecutionException();
+					GenSpaceServerFactory.handleExecutionException(e);
 					return;
 				}
 				super.done();
@@ -209,7 +216,7 @@ public class WorkflowStatistics extends JPanel implements VisualPlugin {
 
 			@Override
 			protected List<Tool> doInBackground() throws Exception {
-				return GenSpaceServerFactory.getUsageOps().getMostPopularWFHeads();
+				return (GenSpaceServerFactory.getUsageOps().getMostPopularWFHeads());
 			}
 
 		};
@@ -221,6 +228,7 @@ public class WorkflowStatistics extends JPanel implements VisualPlugin {
 		updatePopularTools();
 		updatePopularWFHeads();
 		updatePopularWorkflows();
+		GenSpaceServerFactory.clearCache();
 	}
 
 	private void updateItemStats() {
@@ -237,8 +245,9 @@ public class WorkflowStatistics extends JPanel implements VisualPlugin {
 					String r = get();
 					toolStats.setText("<html>" + r + "</html>");
 				} catch (InterruptedException e) {
-					GenSpace.logger.debug("Error talking to server: ",e);
+					GenSpaceServerFactory.handleException(e);
 				} catch (ExecutionException e) {
+					GenSpaceServerFactory.handleException(e);
 					GenSpaceServerFactory.clearCache();
 					updateItemStats();
 					return;

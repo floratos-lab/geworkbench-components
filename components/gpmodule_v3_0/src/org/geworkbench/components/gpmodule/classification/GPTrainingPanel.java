@@ -12,6 +12,7 @@
 package org.geworkbench.components.gpmodule.classification;
 
 import java.awt.BorderLayout;
+import java.net.URL;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -49,8 +50,8 @@ public abstract class GPTrainingPanel extends AbstractTrainingPanel
     }
 
     protected abstract JPanel getParameterPanel();
-    protected abstract String getSummaryFile();
-    protected abstract String getParamDescriptFile();
+    protected abstract URL getSummaryFile();
+    protected abstract URL getParamDescriptFile();
 
 
     protected void init()

@@ -50,8 +50,8 @@ public class MarkUsAnalysis extends AbstractGridAnalysis implements ProteinStruc
 	private final String analysisName = "MarkUs";
 	
     private MarkUsConfigPanel mcp;
-	String strurl = "http://luna.bioc.columbia.edu/honiglab/mark-us/cgi-bin/submit.pl";
-	String req = "--AaB03x\r\n"
+	private static final String strurl = "http://bhapp.c2b2.columbia.edu/MarkUs/cgi-bin/submit.pl";
+	private String req = "--AaB03x\r\n"
 			+ "content-disposition: form-data; name=\"submit\"\r\n\r\nUpload\r\n--AaB03x\r\n"
 			+ "content-disposition: form-data; name=\"infile\"; filename=\"PDB\"\r\nContent-Type: text/plain\r\n\r\n";
 	private boolean STOPSIG = false;
@@ -145,7 +145,7 @@ public class MarkUsAnalysis extends AbstractGridAnalysis implements ProteinStruc
 			return new AlgorithmExecutionResults(false, "MarkUs analysis cancelled", null);
 
 		// start waiting for this job's results
-		String url = "http://luna.bioc.columbia.edu/honiglab/mark-us/cgi-bin/browse.pl?pdb_id="
+		String url = "http://bhapp.c2b2.columbia.edu/MarkUs/cgi-bin/browse.pl?pdb_id="
 				+ results;
 		UrlStatus urlstat = checkUrlStatus(url);
 		log.info("URL status: " + urlstat + " " + url);

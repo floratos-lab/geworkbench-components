@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -23,7 +22,7 @@ public class FindJar {
 	private static HashSet<String> genspaceComponentJarsConflicting = new HashSet<String>();
 	private static void traverseFoldersClassesAndCheck(File folder)
 			throws FileNotFoundException, IOException {
-		HashMap<String,String> conflicts = new HashMap<String,String>();
+
 		if (folder.exists()) {
 			File[] libFiles = folder.listFiles();
 			for (int i = 0; i < libFiles.length; i++) {
@@ -75,11 +74,48 @@ public class FindJar {
 	}
 	public static HashMap<String, String> classesToJar = new HashMap<String, String>();
 	public static HashMap<String, HashSet<String>> conflictsMap = new HashMap<String, HashSet<String>>();
-	public static void main(String[] args) throws FileNotFoundException,
-			IOException {
+	public static void main(String[] args) throws Exception {
+		String s = "SAAJ";
+		findJar("lib/",s);
+System.out.println("genspace now:");
 		
+		findJar("components/genspace/lib/",s);
 		
-		
+	}
+	public static void findJar(String f, String s) throws Exception
+	{
+		File folder = new File(f);
+		File[] libFiles = folder.listFiles();
+		for (int i = 0; i < libFiles.length; i++) {
+			File file = libFiles[i];
+			if (!file.isDirectory()) {
+				String name = file.getName().toLowerCase();
+//				System.out.println(name);
+				if (name.endsWith(".jar")) {
+					// file.toURL() is obsolete
+					/* see http://www.jguru.com/faq/view.jsp?EID=1280051 */
+					JarInputStream jarFile = new JarInputStream(
+							new FileInputStream(file));
+					JarEntry jarEntry;
+
+					while (true) {
+						jarEntry = jarFile.getNextJarEntry();
+						if (jarEntry == null) {
+							break;
+						}
+						if(jarEntry.getName().contains(s))
+						{
+							System.out.println("Found " + jarEntry.getName()+ " in " + name);
+						}
+					}
+				}
+			}
+		}
+
+	}
+	public static void conflictCheck() throws Exception
+	{
+
 		File libdir;
 //		
 		libdir = new File("lib");

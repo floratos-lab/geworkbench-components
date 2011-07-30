@@ -130,8 +130,6 @@ public class MindyPlugin extends JPanel {
 
 	JCheckBox selectAllTargetsCheckBox;
 
-	JCheckBox listAllMarkersCheckBox;
-
 	private JButton addToSetButton /* list tab */, addToSetButtonMod;
 
 	private JLabel numModSelectedInModTab;
@@ -140,16 +138,13 @@ public class MindyPlugin extends JPanel {
 
 	Cursor normalCursor = new Cursor(Cursor.DEFAULT_CURSOR);
 
-	private JComponent[] cs = new JComponent[7];
+	private JComponent[] cs = new JComponent[6];
 
 	private int dataSize = 0;
 
 	// Contains the state of selections passed in from the marker panel and
 	// overrides via All Markers checkboxes
 //	MarkerLimitState globalSelectionState = new MarkerLimitState();
-
-	// For heatmap image rendering cursor
-	private JCheckBox heatmapAllMarkersCheckBox = new JCheckBox("All Markers");;
 
 	private JButton screenshotButton = new JButton("  Image Snapshot  ");;
 
@@ -212,13 +207,12 @@ public class MindyPlugin extends JPanel {
 		modulators = mindyData.getModulators();
 
 		// for heatmap image rendering cursor
-		cs[0] = heatmapAllMarkersCheckBox;
-		cs[1] = screenshotButton;
-		cs[2] = refreshButton;
-		cs[3] = heatMapModNameList;
-		cs[4] = modFilterField;
-		cs[5] = showSymbol;
-		cs[6] = showProbeName;
+		cs[0] = screenshotButton;
+		cs[1] = refreshButton;
+		cs[2] = heatMapModNameList;
+		cs[3] = modFilterField;
+		cs[4] = showSymbol;
+		cs[5] = showProbeName;
 
 		tabs = new JTabbedPane();
 		{
@@ -464,8 +458,6 @@ public class MindyPlugin extends JPanel {
 			l = new JLabel("Marker Selection", SwingConstants.LEFT);
 			l.setFont(new Font(l.getFont().getName(), Font.BOLD, 12));
 			l.setForeground(Color.BLUE);
-			listAllMarkersCheckBox = new JCheckBox("All Markers");
-			listAllMarkersCheckBox.setSelected(false);
 
 			selectionEnabledCheckBox.setSelected(true);
 			selectAllModsCheckBox.setEnabled(true);
@@ -481,7 +473,7 @@ public class MindyPlugin extends JPanel {
 			p.add(selectAllModsCheckBox);
 			p.add(selectAllTargetsCheckBox);
 			p.add(addToSetButton);
-			p.add(listAllMarkersCheckBox);
+
 			JPanel taskContainer = new JPanel();
 			taskContainer.setLayout(new BorderLayout(10, 10));
 			taskContainer.add(p, BorderLayout.NORTH);
@@ -550,37 +542,6 @@ public class MindyPlugin extends JPanel {
 				}
 			});
 
-			heatmapAllMarkersCheckBox.setSelected(false);
-			heatmapAllMarkersCheckBox.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent actionEvent) {
-					if( !processCursor() ) {
-						return;
-					}
-
-					if (heatmapAllMarkersCheckBox.isSelected()) {
-						if (dataSize > DATA_SIZE_THRESHOLD) {
-							heatmap.prepareGraphics();
-						}
-						heatmapModel.limitMarkers(null);
-					} else {
-						List<DSGeneMarker> l = mindyVisualComponent
-								.getSelectedMarkers();
-						if (l == null) {
-							if (dataSize > DATA_SIZE_THRESHOLD) {
-								heatmap.prepareGraphics();
-							}
-						} else {
-							if (l.size() > NUMBER_TARGETS_THRESHOLD) {
-								heatmap.prepareGraphics();
-							}
-						}
-						heatmapModel.limitMarkers(l);
-					}
-
-					setCursorFinished();
-				}
-			});
-
 			heatMapModNameList
 					.addListSelectionListener(new ListSelectionListener() {
 						// this is to compensate for a bug? in JList
@@ -597,25 +558,19 @@ public class MindyPlugin extends JPanel {
 
 								modFilterField.setText(heatMapModNameList
 										.getSelectedValue().toString());
-								if (heatmapAllMarkersCheckBox.isSelected()) {
-									if (dataSize > DATA_SIZE_THRESHOLD) {
-										heatmap.prepareGraphics();
-									}
-									heatmapModel.limitMarkers(null);
-								} else {
-									List<DSGeneMarker> l = mindyVisualComponent
+
+								List<DSGeneMarker> l = mindyVisualComponent
 											.getSelectedMarkers();
-									if (l == null) {
+								if (l == null) {
 										if (dataSize > DATA_SIZE_THRESHOLD) {
 											heatmap.prepareGraphics();
 										}
-									} else {
+								} else {
 										if (l.size() > NUMBER_TARGETS_THRESHOLD) {
 											heatmap.prepareGraphics();
 										}
-									}
-									heatmapModel.limitMarkers(l);
 								}
+								heatmapModel.limitMarkers(l);
 
 								// TODO do we need all of the above?
 								// set selected modulator,
@@ -686,26 +641,18 @@ public class MindyPlugin extends JPanel {
 					modFilterField.setText(heatMapModNameList
 							.getSelectedValue().toString());
 
-					if (heatmapAllMarkersCheckBox.isSelected()) {
-						if (dataSize > DATA_SIZE_THRESHOLD) {
-							heatmap.prepareGraphics();
-						}
-						heatmapModel.limitMarkers(null);
-					} else {
-
-						List<DSGeneMarker> l = mindyVisualComponent
+					List<DSGeneMarker> l = mindyVisualComponent
 								.getSelectedMarkers();
-						if (l == null) {
+					if (l == null) {
 							if (dataSize > DATA_SIZE_THRESHOLD) {
 								heatmap.prepareGraphics();
 							}
-						} else {
+					} else {
 							if (l.size() > NUMBER_TARGETS_THRESHOLD) {
 								heatmap.prepareGraphics();
 							}
-						}
-						heatmapModel.limitMarkers(l);
 					}
+					heatmapModel.limitMarkers(l);
 
 					heatmap.reset();
 
@@ -736,26 +683,18 @@ public class MindyPlugin extends JPanel {
 					modFilterField.setText(heatMapModNameList
 							.getSelectedValue().toString());
 
-					if (heatmapAllMarkersCheckBox.isSelected()) {
-
-						if (dataSize > DATA_SIZE_THRESHOLD) {
-							heatmap.prepareGraphics();
-						}
-						heatmapModel.limitMarkers(null);
-					} else {
-						List<DSGeneMarker> l = mindyVisualComponent
+					List<DSGeneMarker> l = mindyVisualComponent
 								.getSelectedMarkers();
-						if (l == null) {
+					if (l == null) {
 							if (dataSize > DATA_SIZE_THRESHOLD) {
 								heatmap.prepareGraphics();
 							}
-						} else {
+					} else {
 							if (l.size() > NUMBER_TARGETS_THRESHOLD) {
 								heatmap.prepareGraphics();
 							}
 						}
-						heatmapModel.limitMarkers(l);
-					}
+					heatmapModel.limitMarkers(l);
 
 					heatmap.reset();
 
@@ -782,7 +721,7 @@ public class MindyPlugin extends JPanel {
 			JPanel ps = new JPanel(new GridLayout(3, 1));
 			ps.add(refreshButton);
 			ps.add(screenshotButton);
-			ps.add(heatmapAllMarkersCheckBox);
+
 			p.add(ps, BorderLayout.SOUTH);
 			modulatorPane.add(p, BorderLayout.CENTER);
 
@@ -1285,12 +1224,9 @@ public class MindyPlugin extends JPanel {
 	private List<DSGeneMarker> getSelectedMarkers(
 			final MindyVisualComponent visualPlugin) {
 		List<DSGeneMarker> list;
-		if (heatmapAllMarkersCheckBox.isSelected()) {
-			list = null;
-		} else {
-			list = visualPlugin
+
+		list = visualPlugin
 					.getSelectedMarkers();
-		}
 		return list;
 	}
 

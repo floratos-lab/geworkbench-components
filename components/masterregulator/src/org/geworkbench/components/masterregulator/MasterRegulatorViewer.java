@@ -30,6 +30,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.EtchedBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.filechooser.FileFilter;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -43,6 +44,7 @@ import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.engine.properties.PropertiesManager;
 import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.util.OWFileChooser;
@@ -78,6 +80,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 	private ValueModel pValueHolder = new ValueHolder("1.0");
 	private ValueModel tfAHolder = new ValueHolder(" ");
 	JRadioButton currentSelectedRadioButton = null;
+	private static final String EXPORTDIR = "exportDir";
 
 	public MasterRegulatorViewer() {
 
@@ -85,6 +88,8 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		data[0][0] = "Start";
 		tv = new TableViewer(columnNames, data);
 		tv2 = new TableViewer(detailColumnNames, data);
+		tv.setPreferredSize(new Dimension(0, 156));
+		tv2.setPreferredSize(new Dimension(0, 156));
 		detailedTFGraphViewer = new DetailedTFGraphViewer();
 		tv.setNumerical(1, true);
 		tv.setNumerical(2, true);
@@ -102,7 +107,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		viewPanel.add(topPanel);
 		detailedTFGraphViewer.setPreferredSize(new Dimension(0,90));
 		viewPanel.add(detailedTFGraphViewer);
-		jSplitPane2.setDividerLocation(500);
+		jSplitPane2.setDividerLocation(630);
 		jSplitPane2.setDividerSize(3);
 
 		FormLayout layout = new FormLayout("500dlu:grow, pref",
@@ -153,12 +158,21 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 				// PS: we don't need to check n, because "threshold+n" will work
 				// as checking.
 				try {
-					String exportFileStr = "data/exportALL.csv";
-					File exportFile = new File(exportFileStr);
+					String exportFileStr = "exportALL.csv";
+					PropertiesManager properties = PropertiesManager.getInstance();
+					String exportDir = properties.getProperty(this.getClass(), EXPORTDIR, exportFileStr);
+					File exportFile = new File(exportDir);
 					OWFileChooser chooser = new OWFileChooser(exportFile);
-					chooser.showSaveDialog(MasterRegulatorViewer.this);
-					if (chooser.getSelectedFile() != null) {
+					CSVFileFilter filter = new CSVFileFilter();
+					chooser.setFileFilter(filter);
+					chooser.setDialogTitle("Export All MRA Results");
+					String extension = filter.getExtension();
+					int c = chooser.showSaveDialog(MasterRegulatorViewer.this);
+					if (c == OWFileChooser.APPROVE_OPTION && chooser.getSelectedFile() != null) {
 						exportFileStr = chooser.getSelectedFile().getPath();
+						properties.setProperty(this.getClass(), EXPORTDIR, chooser.getSelectedFile().getParent());
+						if (!exportFileStr.endsWith(extension))
+							exportFileStr += extension;
 						BufferedWriter writer = new BufferedWriter(
 								new FileWriter(exportFileStr));
 						// foreach tfA
@@ -176,9 +190,9 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 									str = "";
 									str += marker.getLabel() + ", "
 										+ marker.getShortName() + ", ";
-									str += new Float(MRAResultSet.getPValueOf(tfA,
-										marker)).toString()
-										+ ", ";
+//									str += new Float(MRAResultSet.getPValueOf(tfA,
+//										marker)).toString()
+//										+ ", ";
 									str += new Float(MRAResultSet.getTTestValueOf(
 										tfA, marker)).toString();
 									writer.write(str);
@@ -209,15 +223,24 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 					public void actionPerformed(ActionEvent e) {
 						if (detailedTFGraphViewer.tfA != null) {
 							try {
-								String exportFileStr = "data/exportTGs.csv";
-								File exportFile = new File(exportFileStr);
+								String exportFileStr = "exportTGs.csv";
+								PropertiesManager properties = PropertiesManager.getInstance();
+								String exportDir = properties.getProperty(this.getClass(), EXPORTDIR, exportFileStr);
+								File exportFile = new File(exportDir);
 								OWFileChooser chooser = new OWFileChooser(
 										exportFile);
-								chooser
+								CSVFileFilter filter = new CSVFileFilter();
+								chooser.setFileFilter(filter);
+								chooser.setDialogTitle("Export Selected MRA Results");
+								String extension = filter.getExtension();
+								int c = chooser
 										.showSaveDialog(MasterRegulatorViewer.this);
-								if (chooser.getSelectedFile() != null) {
+								if (c == OWFileChooser.APPROVE_OPTION && chooser.getSelectedFile() != null) {
 									exportFileStr = chooser.getSelectedFile()
 											.getPath();
+									properties.setProperty(this.getClass(), EXPORTDIR, chooser.getSelectedFile().getParent());
+									if (!exportFileStr.endsWith(extension))
+										exportFileStr += extension;
 									BufferedWriter writer = new BufferedWriter(
 											new FileWriter(exportFileStr));
 									String str = "";
@@ -231,13 +254,13 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 										str = "";
 										str += marker.getLabel() + ", "
 												+ marker.getShortName() + ", ";
-										str += new Float(
-												MRAResultSet
-														.getPValueOf(
-																detailedTFGraphViewer.tfA,
-																marker))
-												.toString()
-												+ ", ";
+//										str += new Float(
+//												MRAResultSet
+//														.getPValueOf(
+//																detailedTFGraphViewer.tfA,
+//																marker))
+//												.toString()
+//												+ ", ";
 										str += new Float(
 												MRAResultSet
 														.getTTestValueOf(
@@ -388,7 +411,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 					JOptionPane
 							.showMessageDialog(null,
 									"P-Value should be a float point number",
-									"Invalide P-Value",
+									"Invalid P-Value",
 									JOptionPane.INFORMATION_MESSAGE);
 					return;
 				}
@@ -409,7 +432,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 				.getPanel(), JScrollPane.VERTICAL_SCROLLBAR_NEVER,
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED));
 
-		detailedTFGraphViewer.setPreferredSize(new Dimension(600, 100));
+		detailedTFGraphViewer.setPreferredSize(new Dimension(600, 75));
 		detailedTFGraphViewer.setMinimumSize(new Dimension(50, 50));
 		detailedTFGraphViewer.setBorder(BorderFactory
 				.createEtchedBorder(EtchedBorder.LOWERED));
@@ -576,4 +599,25 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		return event;
 	}
 
+	private static class CSVFileFilter extends FileFilter {
+		private static final String fileExt = ".csv";
+
+		public String getExtension() {
+			return fileExt;
+		}
+
+		public String getDescription() {
+			return "Comma Separated Value Files";
+		}
+
+		public boolean accept(File f) {
+			boolean returnVal = false;
+			if (f.isDirectory() || f.getName().endsWith(fileExt)) {
+				return true;
+			}
+
+			return returnVal;
+		}
+
+	}
 }

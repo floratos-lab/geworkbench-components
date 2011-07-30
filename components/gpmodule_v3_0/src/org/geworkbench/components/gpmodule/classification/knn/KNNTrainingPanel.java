@@ -18,6 +18,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
 import java.io.Serializable;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -302,14 +303,14 @@ public class KNNTrainingPanel extends GPTrainingPanel {
         numNeighbors.setValue(n);
     }
 
-    protected String getSummaryFile()
+    protected URL getSummaryFile()
     {
-        return KNNTrainingPanel.class.getResource("help.html").getPath();
+        return KNNTrainingPanel.class.getResource("help.html");
     }
 
-    protected String getParamDescriptFile()
+    protected URL getParamDescriptFile()
     {
-        return KNNTrainingPanel.class.getResource("paramDesc.html").getPath();
+        return KNNTrainingPanel.class.getResource("paramDesc.html");
     }
 
     protected JPanel getParameterPanel()

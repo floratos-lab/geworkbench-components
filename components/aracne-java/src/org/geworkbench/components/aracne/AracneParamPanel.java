@@ -123,7 +123,7 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 
         pThresholdField.setEnabled(false);
         
-        prune.setSelected(true);
+        prune.setSelected(false);
 
         FormLayout layout = new FormLayout(
                 "right:max(40dlu;pref), 3dlu, 90dlu, 3dlu, 90dlu, 3dlu, 90dlu, 3dlu, 90dlu, 7dlu",
@@ -173,7 +173,7 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
         builder.append("Consensus threshold", pThresholdField);
 
         builder.nextRow();
-        builder.append("Choose edges with highest MI", prune);
+        builder.append("Merge multiple probesets", prune);
         
         markerSetCombo.addActionListener(new ActionListener() {
     		public void actionPerformed(ActionEvent actionEvent) {
@@ -706,8 +706,10 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
         if (params.isDPIToleranceSpecified()) {
             p.setEps(params.getDPITolerance());
         }
-        
-        return p.getParamterDescription();
+        String s=isPrune()?"yes":"no";
+        String resultString=p.getParamterDescription();
+        resultString+="[PARA] Merge multiple probesets: "+ s+"\n";
+        return resultString;
 
 	}
 	protected float pval = -1;

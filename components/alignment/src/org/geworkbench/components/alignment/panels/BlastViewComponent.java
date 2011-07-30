@@ -99,7 +99,14 @@ public class BlastViewComponent implements
 
 				String summary = nbp.getSummary();
 				blastViewPanel.setSummary(summary);
-				df.addDescription(summary);
+				df.addDescription(summary);						
+				if (nbp.getHitCount()==0){					
+					blastViewPanel.resetToWhite("No alignment hit is found.");
+					blastViewPanel.setSummaryPanelOff();
+				}
+				else {
+					blastViewPanel.setSummaryPanelOn();					
+				}
             } else {
                 blastViewPanel.resetToWhite();
             }

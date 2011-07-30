@@ -8,6 +8,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxModel;
 import javax.swing.JComboBox;
@@ -18,10 +19,6 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.PlainDocument;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
 
 /**
  * Autocomplete combobox with filtering and text inserting of new text
@@ -34,8 +31,7 @@ public class AutoCompleteCombo extends JComboBox {
 	 * 
 	 */
 	private static final long serialVersionUID = 6005100835716590271L;
-	private static final Logger logger = Logger
-			.getLogger(AutoCompleteCombo.class);
+
 	private Model model = new Model();
 	private final JTextComponent textComponent = (JTextComponent) getEditor()
 			.getEditorComponent();

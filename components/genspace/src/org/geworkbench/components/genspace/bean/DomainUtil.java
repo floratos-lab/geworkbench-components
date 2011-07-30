@@ -21,15 +21,15 @@ public class DomainUtil {
 	 * @param tools
 	 * @return
 	 */
-	public static String getStringID(List<org.geworkbench.components.genspace.entity.Tool> tools) {
+	public static String getStringID(List<org.geworkbench.components.genspace.server.stubs.Tool> tools) {
 		StringBuilder s = new StringBuilder();
-		Iterator<org.geworkbench.components.genspace.entity.Tool> it = tools.iterator();
+		Iterator<org.geworkbench.components.genspace.server.stubs.Tool> it = tools.iterator();
 		if (it.hasNext()) {
-			org.geworkbench.components.genspace.entity.Tool t = it.next();
+			org.geworkbench.components.genspace.server.stubs.Tool t = it.next();
 			s.append(t.getName());
 		}
 		while (it.hasNext()) {
-			org.geworkbench.components.genspace.entity.Tool t = it.next();
+			org.geworkbench.components.genspace.server.stubs.Tool t = it.next();
 			s.append("," + t.getName());
 		}
 		return s.toString();

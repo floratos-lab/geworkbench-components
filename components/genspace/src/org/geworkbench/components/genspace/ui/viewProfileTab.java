@@ -13,17 +13,18 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingWorker;
 
 import org.geworkbench.components.genspace.GenSpaceServerFactory;
-import org.geworkbench.components.genspace.entity.User;
+import org.geworkbench.components.genspace.server.wrapper.UserWrapper;
+import org.geworkbench.components.genspace.ui.chat.RosterFrame;
 
 public class viewProfileTab extends SocialTab {
 	boolean isFriend;
-	User u;
+	UserWrapper u;
 
-	public viewProfileTab(User p) {
+	public viewProfileTab(UserWrapper p) {
 		this.u = p;
 
 		
-		this.isFriend = p.isFriends();
+		this.isFriend = p.isFriendsWith();
 		
 		String desc = p.toHTML();
 		JLabel profile = new JLabel(desc);
@@ -52,7 +53,11 @@ public class viewProfileTab extends SocialTab {
 						@Override
 						protected Void doInBackground()
 							 {
-							GenSpaceServerFactory.getFriendOps().removeFriend(u.getId());
+							try {
+								GenSpaceServerFactory.getFriendOps().removeFriend(u.getId());
+							} catch (Exception e) {
+							}
+							
 							return null;
 							
 						}
@@ -62,6 +67,9 @@ public class viewProfileTab extends SocialTab {
 							JOptionPane.showMessageDialog(panel1,
 									"You are no longer friends with "
 											+ u.getShortName() + "");
+							SocialNetworksHome.getInstance().goToFriends();
+							RosterFrame.removedCache.add(u.getUsername()+"@genspace");
+							GenSpaceLogin.chatHandler.rf.refresh();
 						}
 
 					};
@@ -81,7 +89,11 @@ public class viewProfileTab extends SocialTab {
 						@Override
 						protected Void doInBackground()
 								 {
-								GenSpaceServerFactory.getFriendOps().addFriend(u.getId());
+								try {
+									GenSpaceServerFactory.getFriendOps().addFriend(u.getId());
+								} catch (Exception e) {
+									GenSpaceServerFactory.handleExecutionException(e);
+								}
 								return null;
 						}
 

@@ -59,6 +59,8 @@ public class CGITask extends ProgressTask<AgentDiseaseResults, String>{
         	}catch(InterruptedException e){
         		e.printStackTrace();
         	}
+        	if (agentDiseaseResults == null)
+        		return;
     		MarkerData[] markers = agentDiseaseResults.getMarkers();
             GeneData[] genes = agentDiseaseResults.getGenes();
             DiseaseData[] diseases = agentDiseaseResults.getDiseases();

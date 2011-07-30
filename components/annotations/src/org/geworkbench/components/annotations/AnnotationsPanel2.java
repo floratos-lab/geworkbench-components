@@ -118,7 +118,7 @@ import org.w3c.dom.Element;
  * Index database through caBio. Displays data in two table with 6 columns each.
  *
  * @author yc2480
- * @version $Id: AnnotationsPanel2.java,v 1.3 2009-10-08 16:27:54 chiangy Exp $
+ * @version $Id$
  *
  */
 @AcceptTypes({DSMicroarraySet.class})
@@ -214,7 +214,6 @@ public class AnnotationsPanel2 implements VisualPlugin{
 
         });
         annoClearButton.setForeground(Color.black);
-        annoClearButton.setToolTipText("");
         annoClearButton.setFocusPainted(true);
         annoClearButton.setText("Clear");
         annoClearButton.addActionListener(new ActionListener() {
@@ -1380,7 +1379,6 @@ public class AnnotationsPanel2 implements VisualPlugin{
 
 
         clearDiagramButton.setForeground(Color.black);
-        clearDiagramButton.setToolTipText("");
         clearDiagramButton.setFocusPainted(true);
         clearDiagramButton.setText("Clear Diagram");
         clearDiagramButton.addActionListener(new ActionListener() {
@@ -1390,7 +1388,6 @@ public class AnnotationsPanel2 implements VisualPlugin{
         });
 
         clearHistButton.setForeground(Color.black);
-        clearHistButton.setToolTipText("");
         clearHistButton.setFocusPainted(true);
         clearHistButton.setText("Clear History");
         clearHistButton.addActionListener(new ActionListener() {
@@ -1400,7 +1397,6 @@ public class AnnotationsPanel2 implements VisualPlugin{
         });
 
         imagePathwayButton.setForeground(Color.black);
-        imagePathwayButton.setToolTipText("");
         imagePathwayButton.setFocusPainted(true);
         imagePathwayButton.setText("Image Snapshot");
         imagePathwayButton.addActionListener(new ActionListener() {

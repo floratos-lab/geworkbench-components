@@ -1,7 +1,6 @@
 package org.geworkbench.components.genspace.chat;
 
 import java.util.HashMap;
-import java.util.Scanner;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.SwingWorker;

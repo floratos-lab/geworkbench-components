@@ -52,17 +52,17 @@ public class TabularDataViewer extends JPanel implements VisualPlugin {
 	private boolean mean = true;
 	private boolean std = true;
 	private String[] header;
-	private DispPref DP = null; // Panel for "Display Preference", make it
+	private DispPref DP = null; // Panel for "Display Preferences", make it
 								// global so it won't popup multiple times.
 
 	public TabularDataViewer() {
 		this.setLayout(new BorderLayout());
 
-		// add two buttons "Display Preference" and "Export" on the top
+		// add two buttons "Display Preferences" and "Export" on the top
 		JPanel topPanel = new JPanel();
 		topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.X_AXIS));
 		add(topPanel, java.awt.BorderLayout.NORTH);
-		JButton PrefButton = new JButton("Display Preference");
+		JButton PrefButton = new JButton("Display Preferences");
 		JButton exportButton = new JButton("Export");
 		topPanel.add(Box.createHorizontalGlue());
 		topPanel.add(PrefButton);
@@ -315,7 +315,7 @@ public class TabularDataViewer extends JPanel implements VisualPlugin {
 			builder.append(bM);
 			builder.append(bS);
 
-			setTitle("Display Preference");
+			setTitle("Display Preferences");
 			add(builder.getPanel());
 			pack();
 			setLocationRelativeTo(null);

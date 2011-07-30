@@ -101,7 +101,7 @@ public class GeneSearchCriteriaImpl implements GeneSearchCriteria {
 			
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, 
-					"geWorkbench cannot retrieve data from the caBIO server for gene annotations.\nIt could be connection error. Please check your internet connection or try again later.",
+					"geWorkbench cannot retrieve gene annotations from the caBIO server.\nThere may be a connection error. Please check your network connection or try again later.",
 					"Data processing/connection error", JOptionPane.ERROR_MESSAGE);
 			return null;
 		}

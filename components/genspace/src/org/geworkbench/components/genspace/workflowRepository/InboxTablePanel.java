@@ -47,7 +47,6 @@ import java.util.concurrent.ExecutionException;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -62,8 +61,9 @@ import javax.swing.table.AbstractTableModel;
 
 import org.geworkbench.components.genspace.GenSpace;
 import org.geworkbench.components.genspace.GenSpaceServerFactory;
-import org.geworkbench.components.genspace.entity.IncomingWorkflow;
-import org.geworkbench.components.genspace.entity.UserWorkflow;
+import org.geworkbench.components.genspace.server.stubs.IncomingWorkflow;
+import org.geworkbench.components.genspace.server.stubs.UserWorkflow;
+import org.geworkbench.components.genspace.server.wrapper.WorkflowWrapper;
 import org.geworkbench.engine.config.VisualPlugin;
 
 public class InboxTablePanel extends JPanel implements ActionListener,
@@ -180,7 +180,7 @@ VisualPlugin {
 				} catch (InterruptedException e) {
 					GenSpace.logger.warn("Unable to talk to server", e);
 				} catch (ExecutionException e) {
-					GenSpaceServerFactory.handleExecutionException();
+					GenSpaceServerFactory.handleExecutionException(e);
 					return;
 				}
 			};
@@ -211,7 +211,7 @@ VisualPlugin {
 				} catch (InterruptedException e) {
 					GenSpace.logger.warn("Unable to talk to server", e);
 				} catch (ExecutionException e) {
-					GenSpaceServerFactory.handleExecutionException();
+					GenSpaceServerFactory.handleExecutionException(e);
 					return;
 				}
 			};
@@ -229,7 +229,7 @@ private class RowListener implements ListSelectionListener {
 		if (i != -1) {
 			MyTableModel model = (MyTableModel) table.getModel();
 			IncomingWorkflow wi = model.getWorkflowAtRow(i);
-			workflowRepository.graphPanel.render(wi.getWorkflow());
+			workflowRepository.graphPanel.render(new WorkflowWrapper(wi.getWorkflow()));
 			workflowRepository.workflowDetailsPanel
 			.setAndPrintWorkflow(wi.getWorkflow());
 			workflowRepository.workflowCommentsPanel.setData(wi.getWorkflow());

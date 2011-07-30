@@ -30,7 +30,7 @@ public class LoginPanelModel {
         normalizeUserName(pm.getUserName());
         
         if(currentHost.equals("")) { // first time
-        	currentHost = "splash.cu-genome.org";
+        	currentHost = "splash.c2b2.columbia.edu";
         	port = "80";
         }
     }

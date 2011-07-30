@@ -15,7 +15,6 @@
 				visualizer="true"
 	 >
 		<required-component class="org.geworkbench.components.markus.MarkUsAnalysis" />
-		<required-component class="org.geworkbench.components.jmol.JmolComponent" />
 		<license><![CDATA[
 			<html><head><meta http-equiv=Content-Type content="text/html; charset=windows-1252"></head>
 				<body>----</body>

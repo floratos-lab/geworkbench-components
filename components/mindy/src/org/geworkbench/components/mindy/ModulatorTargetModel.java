@@ -150,26 +150,21 @@ class ModulatorTargetModel extends DefaultTableModel {
 			rows.clear();
 			if ((this.enabledModulators != null)
 					&& (this.enabledModulators.size() > 0)) {
-				if (mindyPlugin.listAllMarkersCheckBox.isSelected()) {
-					for (DSGeneMarker modMarker : enabledModulators) {
-						rows.addAll(mindyData.getRows(modMarker));
-					}
-				} else {
-					List<DSGeneMarker> mods = this.enabledModulators;
-					if ((this.limitedModulators != null)
+
+				List<DSGeneMarker> mods = this.enabledModulators;
+				if ((this.limitedModulators != null)
 							&& (this.limitedModulators.size() > 0))
 						mods = this.limitedModulators;
-					if ((this.limitedTargets != null)
+				if ((this.limitedTargets != null)
 //							&& (this.limitedTargets.size() > 0)
 							) {
 						for (DSGeneMarker modMarker : mods) {
 							rows.addAll(mindyData.getRows(modMarker, limitedTargets));
 						}
-					} else {
+				} else {
 						for (DSGeneMarker modMarker : enabledModulators) {
 							rows.addAll(mindyData.getRows(modMarker));
 						}
-					}
 				}
 			}
 			for (int i = 0; i < rows.size(); i++) {
@@ -332,20 +327,10 @@ class ModulatorTargetModel extends DefaultTableModel {
 		public int getRowCount() {
 			if(mindyPlugin==null)return 0;
 			
-			JCheckBox listAllMarkersCheckBox = mindyPlugin.listAllMarkersCheckBox;
-			if ((listAllMarkersCheckBox != null)
-					&& listAllMarkersCheckBox.isSelected()) {
-				if (modChecks == null) {
-					return 0;
-				} else {
+			if (rows != null)
 					return rows.size();
-				}
-			} else {
-				if (rows != null)
-					return rows.size();
-				else
+			else
 					return 0;
-			}
 		}
 
 		/**

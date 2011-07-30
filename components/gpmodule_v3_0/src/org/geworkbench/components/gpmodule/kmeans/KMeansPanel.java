@@ -3,6 +3,7 @@ package org.geworkbench.components.gpmodule.kmeans;
 
 import java.awt.BorderLayout;
 import java.io.Serializable;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -144,15 +145,15 @@ public class KMeansPanel extends GPAnalysisPanel
 		
 	}
 
-	 protected String getDescriptionFile()
+	 protected URL getDescriptionFile()
 	    {
-	        return KMeansPanel.class.getResource("help.html").getPath();
+	        return KMeansPanel.class.getResource("help.html");
 	    }
 	    
 
-	protected String getParamDescriptionFile()
+	protected URL getParamDescriptionFile()
     {
-        return KMeansPanel.class.getResource("help.html").getPath();
+        return KMeansPanel.class.getResource("help.html");
     }
 
 	

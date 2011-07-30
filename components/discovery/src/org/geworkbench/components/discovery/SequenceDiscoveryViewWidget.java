@@ -19,6 +19,7 @@ import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -26,6 +27,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JRadioButton;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 
@@ -40,6 +42,7 @@ import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.datastructure.complex.pattern.PatternDiscoveryParameters;
 import org.geworkbench.bison.datastructure.complex.pattern.PatternResult;
+import org.geworkbench.bison.util.RandomNumberGenerator;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.components.discovery.algorithm.AbstractSequenceDiscoveryAlgorithm;
 import org.geworkbench.components.discovery.algorithm.AlgorithmStub;
@@ -53,7 +56,7 @@ import org.geworkbench.events.ProgressChangeEvent;
 import org.geworkbench.events.StatusBarEvent;
 import org.geworkbench.events.listeners.ProgressChangeListener;
 import org.geworkbench.events.listeners.StatusChangeListener;
-import org.geworkbench.util.AlgorithmSelectionPanel;
+import org.geworkbench.util.patterns.DataSource;
 import org.geworkbench.util.remote.SPLASHDefinition;
 import org.geworkbench.util.session.DiscoverySession;
 
@@ -101,8 +104,9 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 	// Contains all the algorithm Stubs - they are mapped by the selected file.
 	private Map<String, AlgorithmStub> algorithmStubMap = new HashMap<String, AlgorithmStub>();
 
-	private AlgorithmSelectionPanel algoPanel = new org.geworkbench.util.AlgorithmSelectionPanel();
-
+    private JRadioButton discovery = new JRadioButton("Normal");
+    private JRadioButton exhaustive = new JRadioButton("Exhaustive");
+    
 	// property changes
 	public static final String TABLE_EVENT = "tableEvent";
 
@@ -204,6 +208,17 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 				loadBttn_actionPerformed(e);
 			}
 		});
+
+		discovery.setSelected(true);
+
+		ButtonGroup algorithmGroup = new ButtonGroup();
+        algorithmGroup.add(discovery);
+        algorithmGroup.add(exhaustive);
+
+        JPanel algoPanel = new JPanel();
+        algoPanel.add(discovery);
+        algoPanel.add(exhaustive);
+		
 		algoPanel.setMaximumSize(new Dimension(160, 20));
 		algoPanel.setMinimumSize(new Dimension(160, 20));
 		algoPanel.setPreferredSize(new Dimension(160, 32));
@@ -280,19 +295,25 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		
 		firePropertyChange(TABLE_EVENT, null, null);
 
-		String selectedAlgo = algoPanel.getSelectedAlgorithmName();
+		String selectedAlgo = getSelectedAlgorithmName();
 
 		// select the algorithm to run
 		boolean exhaustive = false;
 		String algorithmName = SPLASHDefinition.Algorithm.REGULAR;
-		if (selectedAlgo.equalsIgnoreCase(AlgorithmSelectionPanel.EXHAUSTIVE)) {
+		if (selectedAlgo.equalsIgnoreCase(PatternResult.EXHAUSTIVE)) {
 			exhaustive = true;
 			algorithmName = SPLASHDefinition.Algorithm.EXHAUSTIVE;
 		}
 
-		parms = readParameter(parameterPanel, getSequenceDB().getSequenceNo(),
-				exhaustive);
-		;
+		try {
+			parms = readParameter(parameterPanel, getSequenceDB().getSequenceNo(),
+					exhaustive);
+		} catch (Exception e1) {
+			JOptionPane.showMessageDialog(null, e1.getMessage(), "Invalid Parameter",
+					JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+
 		// fire a parameter change to the application
 		PatternDiscoveryParameters pp = ParameterTranslation.translate(parms);
 
@@ -308,6 +329,17 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		algorithm.setSequenceInputData(this.getSequenceDB());
 
 		switchAlgo(selectedAlgo, algorithm, DEFAULT_VIEW);
+	}
+
+	private String getSelectedAlgorithmName() {
+		if(discovery.isSelected()) {
+			return PatternResult.DISCOVER;
+		} else if(exhaustive.isSelected()) {
+			return PatternResult.EXHAUSTIVE;
+		} else {
+			log.error("Unexpected choice");
+			return null;
+		}
 	}
 
 	// invoked from SequenceDiscoveryViewAppComponent.receive(ProjectEvent, Object)
@@ -358,7 +390,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 	 * @return Parameters the parameters from the panel
 	 */
 	private Parameters readParameter(ParameterPanel parmsPanel, int seqNo,
-			boolean exhaustive) {
+			boolean exhaustive) throws Exception {
 		Parameters parms = new Parameters();
 		try {
 
@@ -382,7 +414,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 				parms.setCountSeq(1);
 
 			}
-			if (supportType.equalsIgnoreCase(ParameterPanel.SUPPORT_OCCURANCES)) {
+			if (supportType.equalsIgnoreCase(ParameterPanel.SUPPORT_OCCURRENCES)) {
 				// parms.setMinPer100Support(0);
 				int minSupport = (int) Double.parseDouble(supportString);
 				parms.setMinSupport(minSupport);
@@ -406,8 +438,9 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 			parms.setMinPValue(parmsPanel.getMinPValue());
 
 			// Parsing the GROUPING panel
-			parms.setGroupingType(parmsPanel.getGroupingType());
-			parms.setGroupingN(parmsPanel.getGroupingN());
+			// no GUI to set these two, so make sure the default values are set as expected
+			parms.setGroupingType(0);
+			parms.setGroupingN(1);
 
 			// Parsing the LIMITS panel
 			parms.setMaxPatternNo(parmsPanel.getMaxPatternNo());
@@ -439,20 +472,12 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 				final int SUPPORT = 1; // default
 				int minSupport = SUPPORT;
 
-				String minSupportStr = parmsPanel.getMinSupportExhaustive();
-				if (minSupportStr.endsWith("%")) {
-					String temp = minSupportStr.replace('%', ' ').trim();
-					double minSupportInt = Double.parseDouble(temp);
-
-					double percent = (minSupportInt / 100.0);
-					if (percent > 0.0 && percent < 1.0) {
-						minSupport = (int) (percent * (double) parms
-								.getMinSupport());
-					}
-				} else {
-					minSupport = Integer.parseInt(minSupportStr.replace('%',
-							' '));
+				try {
+					minSupport = Integer.parseInt(parmsPanel.getMinSupportExhaustive());
+				} catch(NumberFormatException e) {
+					throw new Exception("Min. Support must be an integer.");
 				}
+
 				// check that the min support is less than the initial support
 				if ((minSupport > parms.getMinSupport()) || (minSupport == 0)) {
 					minSupport = SUPPORT;
@@ -527,7 +552,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 			attachDataSource(newStub.getResultDataSource(), newStub);
 			// update the algorithms selection panel to reflect the running
 			// algo.
-			algoPanel.setSelectedAlgorithm(newStub.getDescription());
+			setSelectedAlgorithm(newStub.getDescription());
 		} else {
 			// set Default View
 			setCurrentView(DEFAULT_VIEW);
@@ -537,6 +562,34 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 			paramP.setMaxSeqNumber(getSequenceDB().size());
 			setCurrentParameterPanel(paramP);
 		}
+	}
+	
+	private void setSelectedAlgorithm(String description) {
+        if (description.equalsIgnoreCase(PatternResult.DISCOVER)) {
+            discovery.setSelected(true);
+        } else if (description.equalsIgnoreCase(PatternResult.EXHAUSTIVE)) {
+            exhaustive.setSelected(true);
+        }
+	}
+
+	private void loadPatternResult(PatternResult result) {
+
+		currentStubId = null;
+
+		// replace the view and model
+		setCurrentView(PATTERN_TABLE);
+
+		String idString = RandomNumberGenerator.getID();
+		result.setID(idString);
+
+		PatternDataSource PatternSource = new PatternDataSource(result);
+		model.attach(PatternSource);
+
+		int patternNumber = result.getPatternNo();
+		progressChanged(new ProgressChangeEvent(true, patternNumber));
+
+		// fire a clear table event
+		firePropertyChange(TABLE_EVENT, null, null);
 	}
 
 	/**
@@ -643,6 +696,8 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		parameterPanel.setMaxSeqNumber(sDB.size());
 		if (result != null) {
 			currentResultFile = result.getFile();
+			loadPatternResult(result);
+			return;
 		}
 		 if (sequenceDB.getID() != sDB.getID()) {
 			sequenceDB = sDB;
@@ -732,15 +787,27 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		}
 
 		if (type != null
-				&& type.equalsIgnoreCase(AlgorithmSelectionPanel.DISCOVER)) {
+				&& type.equalsIgnoreCase(PatternResult.DISCOVER)) {
 			@SuppressWarnings("unchecked")
 			AbstractSequenceDiscoveryAlgorithm loader = new RegularDiscoveryFileLoader(
 					sequenceFile, patternfile, appComponent, newNode,
 					(DSDataSet<DSSequence>) getSequenceDB());
-			String algoPanelName = AlgorithmSelectionPanel.DISCOVER;
 
 			currentStubId = null;
-			switchAlgo(algoPanelName, loader, PATTERN_TABLE);
+
+			loader.addProgressChangeListener(this);
+			
+			loader.addStatusChangeListener(this);
+			loader.setViewWidget(this);
+
+			loader.addProgressChangeListener(model);
+			model.attach((DataSource)loader);
+
+			// replace the view and model
+			setCurrentView(PATTERN_TABLE);
+
+			// start reading the file without creating new thread
+			loader.start();
 
 			// fire a clear table event
 			firePropertyChange(TABLE_EVENT, null, null);
@@ -775,7 +842,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 			return;
 		}
 		int patternFound = evt.getPatternFound();
-		String selectedAlgo = algoPanel.getSelectedAlgorithmName();
+		String selectedAlgo = getSelectedAlgorithmName();
 		ProjectPanel.addToHistory(resultData, "Pattern Discovery"
 				+"\nAlgorithm type: "+selectedAlgo
 				+"\nParameters: \n"+parametersText()
@@ -787,31 +854,48 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 	}
 
 	private String parametersText() {
-		return
-		   "   Compute P-value: "+parms.getComputePValue()
-		+"\n   Count of sequences: "+parms.getCountSeq()
-		+"\n   Exact: "+parms.getExact()
-		+"\n   Exact tokens: "+parms.getExactTokens()
-		+"\n   Grouping N: "+parms.getGroupingN()
-		+"\n   Grouping type: "+parms.getGroupingType()
-		+"\n   Input name: "+parms.getInputName()
-		+"\n   Max pattern number: "+parms.getMaxPatternNo()
-		+"\n   Max run time: "+parms.getMaxRunTime()
-		+"\n   Min pattern number: "+parms.getMinPatternNo()
-		+"\n   Min per 100 support: "+parms.getMinPer100Support()
-		+"\n   Min P-value: "+parms.getMinPValue()
-		+"\n   Min support: "+parms.getMinSupport()
-		+"\n   Min tokens: "+parms.getMinTokens()
-		+"\n   Min W tokens: "+parms.getMinWTokens()
-		+"\n   Output mode: "+parms.getOutputMode()
-		+"\n   Print details: "+parms.getPrintDetails()
-		+"\n   Similarity matrix: "+parms.getSimilarityMatrix()
-		+"\n   Similarity threshold: "+parms.getSimilarityThreshold()
-		+"\n   Sort mode: "+parms.getSortMode()
-		+"\n   Threshold ID: "+parms.getThreadId()
-		+"\n   Threshold number: "+parms.getThreadNo()
-		+"\n   Window: "+parms.getWindow()
-		;
+		StringBuffer sb = new StringBuffer();
+		sb.append("   Compute P-value: " + parms.getComputePValue());
+		sb.append("\n   Count of sequences: " + parms.getCountSeq());
+		sb.append("\n   Grouping N: " + parms.getGroupingN());
+		sb.append("\n   Grouping type: " + parms.getGroupingType());
+		sb.append("\n   Input name: " + parms.getInputName());
+		sb.append("\n   Max. pattern number: " + parms.getMaxPatternNo());
+		sb.append("\n   Max. run time: " + parms.getMaxRunTime());
+		sb.append("\n   Min. pattern number: " + parms.getMinPatternNo());
+		sb.append("\n   Min. per 100 support: " + parms.getMinPer100Support());
+		sb.append("\n   Min. P-value: " + parms.getMinPValue());
+		sb.append("\n   Min. support: " + parms.getMinSupport());
+		sb.append("\n   Min. tokens: " + parms.getMinTokens());
+		sb.append("\n   Density window: " + parms.getWindow());
+		sb.append("\n   Density window min. tokens: " + parms.getMinWTokens());
+		sb.append("\n   Output mode: " + parms.getOutputMode());
+		sb.append("\n   Print details: " + parms.getPrintDetails());
+		
+		sb.append("\n   Exact: " + parms.getExact());
+		sb.append("\n   Exact tokens: " + parms.getExactTokens());
+		if (parms.getExact() == 0) {
+			sb.append("\n   Similarity matrix: " + parms.getSimilarityMatrix());
+			sb.append("\n   Similarity threshold: "
+					+ parms.getSimilarityThreshold());
+		}
+
+
+		Exhaustive e = parms.getExhaustive();
+		if (e != null) {
+			int m = e.getMinSupport();
+			int d = (int) ((1 - e.getDecrease()) * 100); // convert back to the
+															// way the user
+															// entered.
+			sb.append("\n   Exhaustive - minimum support: " + m);
+			sb.append("\n   Exhaustive - decrease support: " + d);
+		}
+		
+		sb.append("\n   Sort mode: " + parms.getSortMode());
+		sb.append("\n   Thread ID: " + parms.getThreadId());
+		sb.append("\n   Thread number: " + parms.getThreadNo());
+
+		return sb.toString();
 	}
 
 	/**

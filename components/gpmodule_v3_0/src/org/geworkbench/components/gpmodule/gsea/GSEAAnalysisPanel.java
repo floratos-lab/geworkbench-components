@@ -7,6 +7,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
 import java.io.Serializable;
+import java.net.URL;
 import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -421,14 +422,14 @@ public class GSEAAnalysisPanel extends GPAnalysisPanel
     	numPerm.setValue(nperm);
     }
 
-    protected String getParamDescriptionFile()
+    protected URL getParamDescriptionFile()
     {
-        return GSEAAnalysisPanel.class.getResource("paramDesc.html").getPath();
+        return GSEAAnalysisPanel.class.getResource("paramDesc.html");
     }
 
-    protected String getDescriptionFile()
+    protected URL getDescriptionFile()
     {
-        return GSEAAnalysisPanel.class.getResource("help.html").getPath();
+        return GSEAAnalysisPanel.class.getResource("help.html");
     }
     /*
 	 * (non-Javadoc)

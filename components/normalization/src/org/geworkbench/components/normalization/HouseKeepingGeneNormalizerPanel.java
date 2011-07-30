@@ -505,7 +505,6 @@ public class HouseKeepingGeneNormalizerPanel extends AbstractSaveableParameterPa
             }
         });
         missingValuesLabel.setText("Missing Values");
-        missingValuesCombo.setToolTipText("");
         moveToAboveButton.setToolTipText("Previous highlighted marker");
         moveToAboveButton.setText("^");
         moveToAboveButton.addActionListener(new ActionListener() {

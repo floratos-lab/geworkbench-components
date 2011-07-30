@@ -1,7 +1,6 @@
 package org.geworkbench.components.discovery.algorithm;
 
 import java.io.File;
-import java.util.Arrays;
 
 import javax.swing.JOptionPane;
 
@@ -10,11 +9,10 @@ import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.datastructure.complex.pattern.PatternResult;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSMatchedSeqPattern;
 import org.geworkbench.bison.util.RandomNumberGenerator;
+import org.geworkbench.components.discovery.PatternDataSource;
 import org.geworkbench.components.discovery.SequenceDiscoveryViewAppComponent;
 import org.geworkbench.events.ProgressChangeEvent;
 import org.geworkbench.events.StatusBarEvent;
-import org.geworkbench.util.patterns.PatternSorter;
-import org.geworkbench.util.patterns.SequentialPatternSource;
 
 /**
  * This class loads saved patterns from a file.
@@ -27,7 +25,7 @@ import org.geworkbench.util.patterns.SequentialPatternSource;
  * @version $Id$
  */
 public class RegularDiscoveryFileLoader extends AbstractSequenceDiscoveryAlgorithm implements org.geworkbench.util.patterns.SequentialPatternSource {
-    FileDataSource PatternSource = null;
+    PatternDataSource PatternSource = null;
     PatternResult patternDB = null;
 
     File patternFile = null;
@@ -66,7 +64,7 @@ public class RegularDiscoveryFileLoader extends AbstractSequenceDiscoveryAlgorit
 
         //loading stuff
         if (patternDB.read(patternFile)) {
-            PatternSource = new FileDataSource(patternDB);
+            PatternSource = new PatternDataSource(patternDB);
             statusBarMessage = "Patterns were loaded from: " + patternFile.getAbsoluteFile();
             fireStatusBarChanged(new StatusBarEvent(statusBarMessage));
             patternNumber = patternDB.getPatternNo();
@@ -136,40 +134,5 @@ public class RegularDiscoveryFileLoader extends AbstractSequenceDiscoveryAlgorit
      */
     public void sort(int field) {
         PatternSource.sort(field);
-    }
-}
-
-/**
- * An adapter class for showing Patterns from a file.
- */
-class FileDataSource implements SequentialPatternSource {
-    //out pattern source
-    private DSMatchedSeqPattern[] pattern = null;
-
-    //Used to sort patterns
-    static private PatternSorter sorter = new PatternSorter();
-
-    public FileDataSource(PatternResult db) {
-        pattern = new DSMatchedSeqPattern[db.getPatternNo()];
-        for (int i = 0; i < pattern.length; ++i) {
-            pattern[i] = db.getPattern(i);
-        }
-    }
-
-    public int getPatternSourceSize() {
-        return pattern.length;
-    }
-
-    public DSMatchedSeqPattern getPattern(int i) {
-        return pattern[i];
-    }
-
-    public void sort(int field) {
-        sorter.setMode(field);
-        Arrays.sort(pattern, sorter);
-    }
-
-    public void mask(int[] index, boolean mask) {
-        //does nothing for local patterns
     }
 }

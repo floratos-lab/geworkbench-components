@@ -1,20 +1,31 @@
 package org.geworkbench.components.genspace.ui;
 
-import javax.swing.*;
-
-import org.geworkbench.components.genspace.GenSpace;
-import org.geworkbench.components.genspace.GenSpaceServerFactory;
-import org.geworkbench.components.genspace.RuntimeEnvironmentSettings;
-import org.geworkbench.components.genspace.entity.Network;
-import org.geworkbench.components.genspace.entity.User;
-import org.geworkbench.components.genspace.entity.UserNetwork;
-
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.ListCellRenderer;
+import javax.swing.SwingWorker;
+
+import org.geworkbench.components.genspace.GenSpace;
+import org.geworkbench.components.genspace.GenSpaceServerFactory;
+import org.geworkbench.components.genspace.server.stubs.Network;
+import org.geworkbench.components.genspace.server.stubs.User;
+import org.geworkbench.components.genspace.server.stubs.UserNetwork;
+import org.geworkbench.components.genspace.server.wrapper.UserWrapper;
+import org.geworkbench.components.genspace.ui.chat.RosterFrame;
 
 /**
  * Created by IntelliJ IDEA. User: jon Date: Aug 28, 2010 Time: 12:56:05 PM To
@@ -49,8 +60,8 @@ public class requestsTab extends SocialTab {
 					LinkedList<UserNetwork> ret = new LinkedList<UserNetwork>();
 					for (UserNetwork t : GenSpaceServerFactory.getNetworkOps().getMyNetworks()) {
 						Network nt = t.getNetwork();
-						if (nt.getOwner().equals(GenSpaceServerFactory.getUser()))
-							ret.addAll(GenSpaceServerFactory.getNetworkOps().getNetworkRequests(nt.getId()));
+						if ((new UserWrapper(nt.getOwner())).equals(GenSpaceServerFactory.getWrappedUser()))
+							ret.addAll((GenSpaceServerFactory.getNetworkOps().getNetworkRequests(nt.getId())));
 					}
 					return ret;
 				}
@@ -80,11 +91,10 @@ public class requestsTab extends SocialTab {
 
 			SwingWorker<List<User>, Void> worker2 = new SwingWorker<List<User>, Void>() {
 
-				@SuppressWarnings("unchecked")
 				@Override
 				protected List<User> doInBackground()
 						throws Exception {
-					return (List<User>) RuntimeEnvironmentSettings.readObject(GenSpaceServerFactory.getFriendOps().getFriendRequestsList());
+					return GenSpaceServerFactory.getFriendOps().getFriendRequests();
 				}
 
 				@Override
@@ -101,7 +111,7 @@ public class requestsTab extends SocialTab {
 					}
 					DefaultListModel model = new DefaultListModel();
 						for (User t : requests) {
-							model.addElement(t);
+							model.addElement(new UserWrapper(t));
 						}
 					friendsList.setModel(model);
 				}
@@ -119,7 +129,7 @@ public class requestsTab extends SocialTab {
 			public Component getListCellRendererComponent(JList list,
 					Object value, int index, boolean isSelected,
 					boolean cellHasFocus) {
-				User n = (User) value;
+				UserWrapper n = (UserWrapper) value;
 				JLabel ret = (JLabel) new DefaultListCellRenderer()
 						.getListCellRendererComponent(list, value, index,
 								isSelected, cellHasFocus);
@@ -141,7 +151,7 @@ public class requestsTab extends SocialTab {
 						.getListCellRendererComponent(list, value, index,
 								isSelected, cellHasFocus);
 				UserNetwork n = (UserNetwork) value;
-				ret.setText(n.getNetwork().getName() + ": " + n.getUser().getFullNameWUsername());
+				ret.setText(n.getNetwork().getName() + ": " + ((new UserWrapper(n.getUser()))).getFullNameWUsername());
 
 				if (isSelected)
 					ret.setBackground(new Color(205, 220, 243));
@@ -153,8 +163,13 @@ public class requestsTab extends SocialTab {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (networksList.getSelectedValue() != null) {
-					GenSpaceServerFactory.getNetworkOps().acceptNetworkRequest(((UserNetwork) networksList.getSelectedValue()).getId());
-					updateFormFields();
+					try {
+						GenSpaceServerFactory.getNetworkOps().acceptNetworkRequest(((UserNetwork) networksList.getSelectedValue()).getId());
+						GenSpaceLogin.chatHandler.rf.refresh();
+					} catch (Exception e1) {
+						GenSpaceServerFactory.handleExecutionException(e1);
+					}
+					SocialNetworksHome.getInstance().updateFormFields();
 				}
 			}
 		});
@@ -163,8 +178,12 @@ public class requestsTab extends SocialTab {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (networksList.getSelectedValue() != null) {
-					GenSpaceServerFactory.getNetworkOps().rejectNetworkRequest(((UserNetwork) networksList.getSelectedValue()).getId());
-					updateFormFields();
+					try {
+						GenSpaceServerFactory.getNetworkOps().rejectNetworkRequest(((UserNetwork) networksList.getSelectedValue()).getId());
+					} catch (Exception e1) {
+						GenSpaceServerFactory.handleExecutionException(e1);
+					}
+					SocialNetworksHome.getInstance().updateFormFields();
 				}
 			}
 		});
@@ -174,8 +193,15 @@ public class requestsTab extends SocialTab {
 			public void actionPerformed(ActionEvent e) {
 				if(friendsList.getSelectedValue() != null)
 				{
-					GenSpaceServerFactory.getFriendOps().addFriend(((User) friendsList.getSelectedValue()).getId());
-					updateFormFields();
+					try {
+						GenSpaceServerFactory.getFriendOps().addFriend(((UserWrapper) friendsList.getSelectedValue()).getId());
+						RosterFrame.removedCache.remove(((UserWrapper) friendsList.getSelectedValue()).getUsername()+"@genspace");
+						GenSpaceLogin.chatHandler.rf.refresh();
+						
+					} catch (Exception e1) {
+						GenSpaceServerFactory.handleExecutionException(e1);
+					}
+					SocialNetworksHome.getInstance().updateFormFields();
 				}
 			}
 		});
@@ -185,8 +211,12 @@ public class requestsTab extends SocialTab {
 			public void actionPerformed(ActionEvent e) {
 				if(friendsList.getSelectedValue() != null)
 				{
-					GenSpaceServerFactory.getFriendOps().rejectFriend(((User) friendsList.getSelectedValue()).getId());
-					updateFormFields();
+					try {
+						GenSpaceServerFactory.getFriendOps().rejectFriend(((UserWrapper) friendsList.getSelectedValue()).getId());
+					} catch (Exception e1) {
+						GenSpaceServerFactory.handleExecutionException(e1);
+					}
+					SocialNetworksHome.getInstance().updateFormFields();
 				}
 			}
 		});

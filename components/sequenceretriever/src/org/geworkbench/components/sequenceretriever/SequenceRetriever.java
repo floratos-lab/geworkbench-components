@@ -161,11 +161,11 @@ public class SequenceRetriever implements VisualPlugin {
 
 	private JPanel jPanel2 = new JPanel();
 
-	private SpinnerNumberModel model = new SpinnerNumberModel(1999, 1, 1999, 1);
+	private SpinnerNumberModel upstreamSpinnerModel = new SpinnerNumberModel(1999, 1, 1999, 1);
 
 	private JSpinner beforeText = new JSpinner();
 
-	private SpinnerNumberModel model1 = new SpinnerNumberModel(2000, 1, 2000, 1);
+	private SpinnerNumberModel downstreamSpinnerModel = new SpinnerNumberModel(2000, 1, 2000, 1);
 
 	private JSpinner afterText = new JSpinner();
 
@@ -288,8 +288,8 @@ public class SequenceRetriever implements VisualPlugin {
 		seqScrollPane.setPreferredSize(new Dimension(250, 250));
 
 		jPanel2.setLayout(new BorderLayout());
-		beforeText.setModel(model);
-		afterText.setModel(model1);
+		beforeText.setModel(upstreamSpinnerModel);
+		afterText.setModel(downstreamSpinnerModel);
 
 		jLabel1.setToolTipText("Downstream");
 		jLabel1.setText("+");
@@ -371,16 +371,16 @@ public class SequenceRetriever implements VisualPlugin {
 					if (currentSource != null
 							&& !currentSource.equalsIgnoreCase(cmd)) {
 						if (cmd != null && cmd.equalsIgnoreCase(LOCAL)) {
-							model = new SpinnerNumberModel(1999, 1, 1999, 1);
-							model1 = new SpinnerNumberModel(2000, 1, 2000, 1);
+							upstreamSpinnerModel = new SpinnerNumberModel(1999, 1, 1999, 1);
+							downstreamSpinnerModel = new SpinnerNumberModel(2000, 1, 2000, 1);
 						} else if (cmd != null && cmd.equalsIgnoreCase(UCSC)) {
-							model = new SpinnerNumberModel(2000, 1, 98000, 1);
-							model1 = new SpinnerNumberModel(1000, 1, 10000, 1);
+							upstreamSpinnerModel = new SpinnerNumberModel(2000, 0, 98000, 100);
+							downstreamSpinnerModel = new SpinnerNumberModel(1000, 0, 10000, 100);
 						}
 						currentSource = cmd;
 					}
-					beforeText.setModel(model);
-					afterText.setModel(model1);
+					beforeText.setModel(upstreamSpinnerModel);
+					afterText.setModel(downstreamSpinnerModel);
 					beforeText.revalidate();
 					beforeText.repaint();
 					main.repaint();
@@ -438,7 +438,7 @@ public class SequenceRetriever implements VisualPlugin {
 			afterText.setEnabled(true);
 			jSourceCategory.removeAllItems();
 			jSourceCategory.addItem(UCSC);
-			jSourceCategory.addItem(LOCAL);
+			// jSourceCategory.addItem(LOCAL);
 
 			currentSource = UCSC;
 			sequenceDB = dnaSequenceDB;
@@ -646,8 +646,8 @@ public class SequenceRetriever implements VisualPlugin {
 	private void getCachedDNASequences(DSGeneMarker marker) {
 
 		CSSequence seqs = SequenceFetcher.getCachedPromoterSequence(marker,
-				((Integer) model.getNumber()).intValue(),
-				((Integer) model1.getNumber()).intValue());
+				((Integer) upstreamSpinnerModel.getNumber()).intValue(),
+				((Integer) downstreamSpinnerModel.getNumber()).intValue());
 
 		if (seqs != null) {
 			dnaSequenceDB.addASequence(seqs);
@@ -671,9 +671,9 @@ public class SequenceRetriever implements VisualPlugin {
 	/* on background thread (non-EDT) */
 	private boolean getDnaSequences(Vector<DSGeneMarker> selectedList) {
 
-		RetrievedSequenceView.setUpstreamTotal(((Integer) model.getNumber())
+		RetrievedSequenceView.setUpstreamTotal(((Integer) upstreamSpinnerModel.getNumber())
 				.intValue());
-		RetrievedSequenceView.setDownstreamTotal(((Integer) model1.getNumber())
+		RetrievedSequenceView.setDownstreamTotal(((Integer) downstreamSpinnerModel.getNumber())
 				.intValue());
 		if (jSourceCategory.getSelectedItem().equals(LOCAL)) {
 			for (int i = 0; i < selectedList.size(); i++) {
@@ -690,8 +690,8 @@ public class SequenceRetriever implements VisualPlugin {
 			}
 
 		} else if (jSourceCategory.getSelectedItem().equals(UCSC)) {
-			int startPoint = ((Integer) model.getNumber()).intValue();
-			int endPoint = ((Integer) model1.getNumber()).intValue();
+			int startPoint = ((Integer) upstreamSpinnerModel.getNumber()).intValue();
+			int endPoint = ((Integer) downstreamSpinnerModel.getNumber()).intValue();
 
 			String currentChipType = AnnotationParser.getCurrentChipType();
 			String annotationFileName = ((CSMicroarraySet<?>) refMASet)
@@ -728,6 +728,7 @@ public class SequenceRetriever implements VisualPlugin {
 					if (geneName == null || geneName.equals(NOANNOTATION)) {
 						continue;
 					}
+					geneName = geneName.trim();
 					Vector<GeneChromosomeMatcher> geneChromosomeMatchers = null;
 					try {
 						geneChromosomeMatchers = SequenceFetcher
@@ -751,11 +752,15 @@ public class SequenceRetriever implements VisualPlugin {
 
 						// set up label now only
 						// marker.label + Real start point.
+						// UCSC database start points are zero-based, end points are "1" based!
+						// UCSC Genome Browser displayed values are all 1-based.
+						// Correct start value.
+						int startCoord = Integer.valueOf(o.getStartPoint()).intValue() + 1;
 						if (o.isPositiveStrandDirection()) {
-							seqs.setLabel(marker.getLabel() + "_" + o.getChr()
-									+ "_" + o.getStartPoint());
+							seqs.setLabel(marker.getLabel() + "_" + geneName + "_" + o.getChr()
+									+ "_" + startCoord); 
 						} else {
-							seqs.setLabel(marker.getLabel() + "_" + o.getChr()
+							seqs.setLabel(marker.getLabel() + "_" + geneName + "_" + o.getChr()
 									+ "_" + o.getEndPoint());
 						}
 						dnaSequenceDB.addASequence(seqs);
@@ -797,22 +802,20 @@ public class SequenceRetriever implements VisualPlugin {
 			for (int count = 0; count < selectedList.size(); count++) {
 				DSGeneMarker geneMarker = (DSGeneMarker) selectedList
 						.get(count);
-				final String affyid = geneMarker.getLabel();
+				final String marker_id = geneMarker.getLabel();
 				if (status.equalsIgnoreCase(STOP)) {
 					return false;
 				}
-				if (!affyid.endsWith("_at")) /* if not affyid, do nothing! */
-					continue;
-
+				
 				final double progress = (double) count
 						/ (double) (selectedList.size());
 				updateProgressBarFromBackgroundThread(progress, "Retrieving "
-						+ affyid);
+						+ marker_id);
 
 				CSSequenceSet<CSSequence> sequenceSet = SequenceFetcher
-						.getAffyProteinSequences(affyid);
+						.getAffyProteinSequences(marker_id);
 
-				String[] uniprotids = AnnotationParser.getInfo(affyid,
+				String[] uniprotids = AnnotationParser.getInfo(marker_id,
 						AnnotationParser.SWISSPROT);
 
 				ArrayList<String> values = new ArrayList<String>();
@@ -823,7 +826,7 @@ public class SequenceRetriever implements VisualPlugin {
 					proteinSequenceDB.addASequence((CSSequence) o);
 					RetrievedSequenceView retrievedSequenceView = new RetrievedSequenceView(
 							(CSSequence) o);
-					retrievedSequenceView.setUrl(uniprotids[i++]);
+					retrievedSequenceView.setUrl(uniprotids[i++].trim());
 					retrievedProteinMap
 							.put(o.toString(), retrievedSequenceView);
 					proteinSequenceDB.parseMarkers();
@@ -1290,8 +1293,8 @@ public class SequenceRetriever implements VisualPlugin {
 		if (((String) jComboCategory.getSelectedItem())
 				.equalsIgnoreCase(DNAVIEW)) {
 			histStr += "Start Point:"
-					+ ((Integer) model.getNumber()).intValue() + "\n";
-			histStr += "End Point:" + ((Integer) model1.getNumber()).intValue()
+					+ ((Integer) upstreamSpinnerModel.getNumber()).intValue() + "\n";
+			histStr += "End Point:" + ((Integer) downstreamSpinnerModel.getNumber()).intValue()
 					+ "\n";
 			if (jSourceCategory.getSelectedItem().equals(UCSC))
 				histStr += "Genome Assembly: "

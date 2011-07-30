@@ -42,20 +42,27 @@ import org.geworkbench.events.listeners.ParameterActionListener;
  */
 public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel {
 	private static final long serialVersionUID = 7706231137820482937L;
-	
+
 	public int permutationsNumber = 0;
 	public Float falseSignificantGenesLimit = null;
 	public Float pValueThreshold = null;
-	
-	public enum FalseDiscoveryRateControl {alpha, bonferroni, adjbonferroni, westfallyoung, number, proportion};
+
+	public enum FalseDiscoveryRateControl {
+		alpha, bonferroni, adjbonferroni, westfallyoung, number, proportion
+	};
+
 	public FalseDiscoveryRateControl falseDiscoveryRateControl;
-	public enum PValueEstimation {fdistribution, permutation};
+
+	public enum PValueEstimation {
+		fdistribution, permutation
+	};
+
 	public PValueEstimation pValueEstimation = null;
 
 	private int PermutationsNumberDefault = 100;
-	
+
 	private float PValueThresholdDefault = 0.05f;
-	
+
 	private String PermutationsNumberDefaultStr = Integer.valueOf(
 			PermutationsNumberDefault).toString();
 	private static Log log = LogFactory.getLog(AnovaAnalysisPanel.class);
@@ -316,6 +323,8 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel {
 		if (jTextField == null) {
 			jTextField = new JTextField();
 			jTextField.setText(PermutationsNumberDefaultStr);
+			jTextField.setColumns(5);
+			jTextField.setMaximumSize(new Dimension(8, jTextField.getHeight()));
 			jTextField.setEnabled(false);
 			jTextField.addCaretListener(new javax.swing.event.CaretListener() {
 				public void caretUpdate(javax.swing.event.CaretEvent e) {
@@ -323,10 +332,13 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel {
 					if (jTextField.getText().equals("")) {
 						permutationsNumber = PermutationsNumberDefault;
 					} else {
-						permutationsNumber = Integer
-								.valueOf(jTextField.getText());
+						permutationsNumber = Integer.valueOf(jTextField
+								.getText());
+
 					}
+
 				}
+
 			});
 		}
 		return jTextField;
@@ -663,6 +675,8 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel {
 		if (jTextFieldNFSG == null) {
 			jTextFieldNFSG = new JTextField();
 			jTextFieldNFSG.setText("10");
+			jTextFieldNFSG.setColumns(5);
+			jTextFieldNFSG.setMaximumSize(new Dimension(8, jTextFieldNFSG.getHeight()));
 			jTextFieldNFSG.setEnabled(false);
 			jTextFieldNFSG
 					.addCaretListener(new javax.swing.event.CaretListener() {
@@ -672,8 +686,7 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel {
 								// caused by update through program
 							} else {
 								falseSignificantGenesLimit = Float
-												.valueOf(jTextFieldNFSG
-														.getText());
+										.valueOf(jTextFieldNFSG.getText());
 							}
 						}
 					});
@@ -690,6 +703,8 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel {
 		if (jTextFieldPFSG == null) {
 			jTextFieldPFSG = new JTextField();
 			jTextFieldPFSG.setText("0.05");
+			jTextFieldPFSG.setColumns(5);
+			jTextFieldPFSG.setMaximumSize(new Dimension(8, jTextFieldPFSG.getHeight()));
 			jTextFieldPFSG.setEnabled(false);
 			jTextFieldPFSG
 					.addCaretListener(new javax.swing.event.CaretListener() {
@@ -699,8 +714,7 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel {
 								// caused by update through program
 							} else {
 								falseSignificantGenesLimit = Float
-												.valueOf(jTextFieldPFSG
-														.getText());
+										.valueOf(jTextFieldPFSG.getText());
 							}
 						}
 					});
@@ -719,7 +733,6 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel {
 			jLabelPValueThreshold.setText("P-Value Threshold");
 			jLabelPValueThreshold.setFont(new java.awt.Font("Dialog",
 					java.awt.Font.PLAIN, 12));
-			jLabelPValueThreshold.setToolTipText("");
 			FlowLayout flowLayout3 = new FlowLayout();
 			flowLayout3.setAlignment(java.awt.FlowLayout.LEFT);
 			jPanelPValueThreshold = new JPanel();
@@ -739,8 +752,10 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel {
 	private JTextField getjTextFieldPValueThreshold() {
 		if (jTextFieldPValueThreshold == null) {
 			jTextFieldPValueThreshold = new JTextField();
-			jTextFieldPValueThreshold.setText(Float.toString(PValueThresholdDefault));
+			jTextFieldPValueThreshold.setText(Float
+					.toString(PValueThresholdDefault));
 			jTextFieldPValueThreshold.setColumns(5);
+			jTextFieldPValueThreshold.setMaximumSize(new Dimension(8, jTextFieldPValueThreshold.getHeight()));
 			jTextFieldPValueThreshold
 					.setToolTipText("This should be a float number between 0.0 and 1.0. After ANOVA analysis, only Markers have p-value less then this number will be returned.");
 			jTextFieldPValueThreshold
@@ -811,12 +826,14 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel {
 		permutationsNumber = PermutationsNumberDefault;
 		falseSignificantGenesLimit = 10.0f;
 		pValueThreshold = PValueThresholdDefault;
-		
-	    ParameterActionListener parameterActionListener = new ParameterActionListener(this);
+
+		ParameterActionListener parameterActionListener = new ParameterActionListener(
+				this);
 		jComboBoxPValueBasedOn.addActionListener(parameterActionListener);
 		jTextField.addActionListener(parameterActionListener);
 		jTextField.addFocusListener(parameterActionListener);
-		//FIXME: monitor the model stead of the radio button, otherwise, the event will be sent twice and only process the first one.
+		// FIXME: monitor the model stead of the radio button, otherwise, the
+		// event will be sent twice and only process the first one.
 		jRadioButton.addActionListener(parameterActionListener);
 		jRadioButton1.addActionListener(parameterActionListener);
 		jRadioButton2.addActionListener(parameterActionListener);
@@ -827,7 +844,7 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel {
 		jTextFieldNFSG.addFocusListener(parameterActionListener);
 		jTextFieldPFSG.addActionListener(parameterActionListener);
 		jTextFieldPFSG.addFocusListener(parameterActionListener);
-		jTextFieldPValueThreshold.addActionListener(parameterActionListener);	
+		jTextFieldPValueThreshold.addActionListener(parameterActionListener);
 		jTextFieldPValueThreshold.addFocusListener(parameterActionListener);
 	}
 
@@ -842,79 +859,79 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
-	 * Set inputed parameters to GUI.
+	 *      Set inputed parameters to GUI.
 	 */
-    public void setParameters(Map<Serializable, Serializable> parameters){
-    	if (getStopNotifyAnalysisPanelTemporaryFlag()==true) return;
-    	stopNotifyAnalysisPanelTemporary(true);
-        Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
-        for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set.iterator(); iterator.hasNext();) {
-        	Map.Entry<Serializable, Serializable> parameter = iterator.next();
+	public void setParameters(Map<Serializable, Serializable> parameters) {
+		if (getStopNotifyAnalysisPanelTemporaryFlag() == true)
+			return;
+		stopNotifyAnalysisPanelTemporary(true);
+		Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
+		for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set
+				.iterator(); iterator.hasNext();) {
+			Map.Entry<Serializable, Serializable> parameter = iterator.next();
 			Object key = parameter.getKey();
 			Object value = parameter.getValue();
-			if (key.equals("FalseDiscoveryRateControl")){
-				falseDiscoveryRateControl = (FalseDiscoveryRateControl)value;
+			if (key.equals("FalseDiscoveryRateControl")) {
+				falseDiscoveryRateControl = (FalseDiscoveryRateControl) value;
 			}
-			if (key.equals("FalseSignificantGenesLimit")){
-				falseSignificantGenesLimit = (Float)value;
+			if (key.equals("FalseSignificantGenesLimit")) {
+				falseSignificantGenesLimit = (Float) value;
 			}
-			if (key.equals("PermutationsNumber")){
-				permutationsNumber = (Integer)value;
+			if (key.equals("PermutationsNumber")) {
+				permutationsNumber = (Integer) value;
 			}
-			if (key.equals("PValueEstimation")){
-				pValueEstimation = (PValueEstimation)value;
+			if (key.equals("PValueEstimation")) {
+				pValueEstimation = (PValueEstimation) value;
 			}
-			if (key.equals("PValueThreshold")){
-				pValueThreshold = (Float)value;
+			if (key.equals("PValueThreshold")) {
+				pValueThreshold = (Float) value;
 			}
 		}
 		// start translate anovaParameter to AnovaAnalysisPanel by
 		// manipulate GUI according to anovaParameter
 		this.jTextFieldPValueThreshold.setText(Float.toString(pValueThreshold));
-		if (pValueEstimation.equals(
-				PValueEstimation.permutation)) {
+		if (pValueEstimation.equals(PValueEstimation.permutation)) {
 			this.jComboBoxPValueBasedOn.setSelectedItem("Permutations");
 		} else {
 			this.jComboBoxPValueBasedOn.setSelectedItem("F-distribution");
 		}
-		this.jTextField.setText(Integer.toString(permutationsNumber)
-				);
+		this.jTextField.setText(Integer.toString(permutationsNumber));
 
-		if (falseDiscoveryRateControl.equals(
-				FalseDiscoveryRateControl.alpha)) {
+		if (falseDiscoveryRateControl.equals(FalseDiscoveryRateControl.alpha)) {
 			this.jRadioButton.setSelected(true);
-		} else if (falseDiscoveryRateControl.equals(
-				FalseDiscoveryRateControl.bonferroni)) {
+		} else if (falseDiscoveryRateControl
+				.equals(FalseDiscoveryRateControl.bonferroni)) {
 			this.jRadioButton1.setSelected(true);
-		} else if (falseDiscoveryRateControl.equals(
-				FalseDiscoveryRateControl.adjbonferroni)) {
+		} else if (falseDiscoveryRateControl
+				.equals(FalseDiscoveryRateControl.adjbonferroni)) {
 			this.jRadioButton2.setSelected(true);
-		} else if (falseDiscoveryRateControl.equals(
-				FalseDiscoveryRateControl.westfallyoung)) {
+		} else if (falseDiscoveryRateControl
+				.equals(FalseDiscoveryRateControl.westfallyoung)) {
 			this.jRadioButton3.setSelected(true);
-		} else if (falseDiscoveryRateControl.equals(
-				FalseDiscoveryRateControl.number)) {
+		} else if (falseDiscoveryRateControl
+				.equals(FalseDiscoveryRateControl.number)) {
 			this.jRadioButton4.setSelected(true);
 			this.jTextFieldNFSG.setText(falseSignificantGenesLimit.toString());
-		} else if (falseDiscoveryRateControl.equals(
-				FalseDiscoveryRateControl.proportion)) {
+		} else if (falseDiscoveryRateControl
+				.equals(FalseDiscoveryRateControl.proportion)) {
 			this.jRadioButton5.setSelected(true);
 			this.jTextFieldPFSG.setText(falseSignificantGenesLimit.toString());
 		}
 		stopNotifyAnalysisPanelTemporary(false);
-    }
+	}
 
-    /*
+	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
 	 *      Since HierClustPanel only has three parameters, we return metric,
 	 *      dimension and method in the format same as getBisonParameters().
 	 */
-    public Map<Serializable, Serializable> getParameters() {
+	public Map<Serializable, Serializable> getParameters() {
 		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
-		//FIXME: needs error checking
+		// FIXME: needs error checking
 		if (jRadioButton.isSelected()) {
 			parameters.put("FalseDiscoveryRateControl",
 					FalseDiscoveryRateControl.alpha);
@@ -957,63 +974,75 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel {
 			parameters.put("PermutationsNumber", Integer.valueOf(jTextField
 					.getText()));
 		}
-		parameters.put("PValueThreshold", Float.parseFloat(jTextFieldPValueThreshold.getText()));
+		parameters.put("PValueThreshold", Float
+				.parseFloat(jTextFieldPValueThreshold.getText()));
 		return parameters;
 	}
 
 	@Override
 	public String getDataSetHistory() {
 		StringBuilder histStr = new StringBuilder("ANOVA parameters:\n");
-		histStr .append( "----------------------------------------\n" );
+		histStr.append("----------------------------------------\n");
 		// P Value Estimation
-		histStr .append( "P Value estimation: " );
+		histStr.append("P Value estimation: ");
 		if (pValueEstimation == PValueEstimation.permutation) {
-			histStr .append( "Permutation\n" );
-			histStr .append( "Permutation#: " )
-					.append( permutationsNumber )
-							.append( "\n" );
+			histStr.append("Permutation\n");
+			histStr.append("Permutation#: ").append(permutationsNumber).append(
+					"\n");
 		} else {
-			histStr .append( "F-Distribution\n" );
+			histStr.append("F-Distribution\n");
 		}
 		// P Value threshold
-		histStr .append( "P Value threshold: " );
-		histStr .append( pValueThreshold )
-				.append( "\n" );
+		histStr.append("P Value threshold: ");
+		histStr.append(pValueThreshold).append("\n");
 
 		// Correction type
-		histStr .append( "Correction-method: " );
-		histStr .append( falseDiscoveryRateControl.toString() )
-				.append( "\n" );
-		if (falseDiscoveryRateControl==FalseDiscoveryRateControl.number){
-			histStr .append( "\tFalse Significant Genes limits: ") .append( falseSignificantGenesLimit.intValue() ).append("\n");
-		}else if(falseDiscoveryRateControl==FalseDiscoveryRateControl.proportion){
-			histStr .append( "\tFalse Significant Genes proportion limits: " ).append( falseSignificantGenesLimit ).append("\n");
+		histStr.append("Correction-method: ");
+		histStr.append(falseDiscoveryRateControl.toString()).append("\n");
+		if (falseDiscoveryRateControl == FalseDiscoveryRateControl.number) {
+			histStr.append("\tFalse Significant Genes limits: ").append(
+					falseSignificantGenesLimit.intValue()).append("\n");
+		} else if (falseDiscoveryRateControl == FalseDiscoveryRateControl.proportion) {
+			histStr.append("\tFalse Significant Genes proportion limits: ")
+					.append(falseSignificantGenesLimit).append("\n");
 		}
-		
+
 		return histStr.toString();
 	}
+
 	@Override
 	public ParamValidationResults validateParameters() {
-		if ((pValueThreshold<0)||(pValueThreshold>1)){
-			return new ParamValidationResults(false, "P-Value threshold should be a float number between 0.0 and 1.0.");
-		}else if (falseDiscoveryRateControl.equals(FalseDiscoveryRateControl.proportion)){
-			if ((falseSignificantGenesLimit<0)||(falseSignificantGenesLimit>1)){
-				return new ParamValidationResults(false, "Proportion should be a float number between 0.0 and 1.0.");
+		if ((pValueThreshold < 0) || (pValueThreshold > 1)) {
+			return new ParamValidationResults(false,
+					"P-Value threshold should be a float number between 0.0 and 1.0.");
+		} else if (falseDiscoveryRateControl
+				.equals(FalseDiscoveryRateControl.proportion)) {
+			if ((falseSignificantGenesLimit < 0)
+					|| (falseSignificantGenesLimit > 1)) {
+				return new ParamValidationResults(false,
+						"Proportion should be a float number between 0.0 and 1.0.");
 			}
 		}
 		return new ParamValidationResults(true, "No Error");
-    }
+	}
 
 	@Override
 	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
-		if(parameters.get("PValueEstimation")==null)parameters.put("PValueEstimation", PValueEstimation.fdistribution);
-		if(parameters.get("FalseDiscoveryRateControl")==null)parameters.put("FalseDiscoveryRateControl", FalseDiscoveryRateControl.alpha);
-		if(parameters.get("PValueEstimation")==PValueEstimation.permutation)
-			if(parameters.get("PermutationsNumber")==null)parameters.put("PermutationsNumber", PermutationsNumberDefault);
-		if(parameters.get("PValueThreshold")==null)parameters.put("PValueThreshold", PValueThresholdDefault);
-		if(parameters.get("FalseDiscoveryRateControl")==FalseDiscoveryRateControl.number)
-			if(parameters.get("FalseSignificantGenesLimit")==null)parameters.put("FalseSignificantGenesLimit", 10.0f);
-		if(parameters.get("FalseDiscoveryRateControl")==FalseDiscoveryRateControl.proportion)
-			if(parameters.get("FalseSignificantGenesLimit")==null)parameters.put("FalseSignificantGenesLimit", 0.05f);
+		if (parameters.get("PValueEstimation") == null)
+			parameters.put("PValueEstimation", PValueEstimation.fdistribution);
+		if (parameters.get("FalseDiscoveryRateControl") == null)
+			parameters.put("FalseDiscoveryRateControl",
+					FalseDiscoveryRateControl.alpha);
+		if (parameters.get("PValueEstimation") == PValueEstimation.permutation)
+			if (parameters.get("PermutationsNumber") == null)
+				parameters.put("PermutationsNumber", PermutationsNumberDefault);
+		if (parameters.get("PValueThreshold") == null)
+			parameters.put("PValueThreshold", PValueThresholdDefault);
+		if (parameters.get("FalseDiscoveryRateControl") == FalseDiscoveryRateControl.number)
+			if (parameters.get("FalseSignificantGenesLimit") == null)
+				parameters.put("FalseSignificantGenesLimit", 10.0f);
+		if (parameters.get("FalseDiscoveryRateControl") == FalseDiscoveryRateControl.proportion)
+			if (parameters.get("FalseSignificantGenesLimit") == null)
+				parameters.put("FalseSignificantGenesLimit", 0.05f);
 	}
 }

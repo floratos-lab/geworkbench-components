@@ -71,6 +71,9 @@ public class SkyBaseConfigPanel extends AbstractSaveableParameterPanel {
 		mincovEdit.addActionListener(parameterActionListener);
 		minsidEdit.addActionListener(parameterActionListener);
 		rphitsEdit.addActionListener(parameterActionListener);
+		mincovEdit.addFocusListener(parameterActionListener);
+		minsidEdit.addFocusListener(parameterActionListener);
+		rphitsEdit.addFocusListener(parameterActionListener);
 	}
 
 	/*

@@ -19,16 +19,13 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.SwingWorker;
 
 import org.geworkbench.components.genspace.GenSpace;
 import org.geworkbench.components.genspace.GenSpaceServerFactory;
-import org.geworkbench.components.genspace.RuntimeEnvironmentSettings;
-import org.geworkbench.components.genspace.chat.ChatReceiver;
-import org.geworkbench.components.genspace.entity.User;
+import org.geworkbench.components.genspace.server.stubs.User;
+import org.geworkbench.components.genspace.server.wrapper.UserWrapper;
 import org.geworkbench.components.genspace.ui.AutoCompleteCombo.Model;
-import org.geworkbench.components.genspace.ui.chat.RosterFrame;
 
 /**
  * Created by IntelliJ IDEA. User: jon Date: Aug 28, 2010 Time: 11:45:56 AM To
@@ -61,6 +58,18 @@ public class SocialNetworksHome implements UpdateablePanel {
 	private Stack<SocialTab> last = new Stack<SocialTab>();
 	private JPanel shownPanel;
 
+	private static SocialNetworksHome instance;
+	public static SocialNetworksHome getInstance()
+	{
+		return instance;
+	}
+	
+	public void goToFriends()
+	{
+		setContent(friends);
+		friends.updateFormFields();
+		updateFormFields();
+	}
 	/**
 	 * @noinspection ALL
 	 */
@@ -69,7 +78,7 @@ public class SocialNetworksHome implements UpdateablePanel {
 	}
 	
 	public void bringUpProfile(User u) {
-		setContent(new viewProfileTab(u));
+		setContent(new viewProfileTab(new UserWrapper(u)));
 	}
 
 	private void createUIComponents() {
@@ -89,6 +98,7 @@ public class SocialNetworksHome implements UpdateablePanel {
 	}
 
 	private void init() {
+		instance = this;
 		MouseListener listener = new MouseListener() {
 
 			@Override
@@ -162,7 +172,7 @@ public class SocialNetworksHome implements UpdateablePanel {
 							} catch (InterruptedException e) {
 								GenSpace.logger.warn("Error",e);
 							} catch (ExecutionException e) {
-								GenSpaceServerFactory.handleExecutionException();
+								GenSpaceServerFactory.handleExecutionException(e);
 								return;
 							}
 							if (prof == null) {
@@ -170,7 +180,7 @@ public class SocialNetworksHome implements UpdateablePanel {
 										.showMessageDialog(panel1,
 												"Error: Could not find user's profile!");
 							} else
-								setContent(new viewProfileTab(prof));
+								setContent(new viewProfileTab(new UserWrapper(prof)));
 						}
 
 					};
@@ -248,12 +258,11 @@ public class SocialNetworksHome implements UpdateablePanel {
 			current.updateFormFields();
 			SwingWorker<List<User>, Void> worker = new SwingWorker<List<User>, Void>() {
 				int evt;
-				@SuppressWarnings("unchecked")
 				@Override
 				protected List<User> doInBackground()
 						throws Exception {
 					evt = GenSpace.getStatusBar().start("Refreshing social tab");
-					return (List<User>) RuntimeEnvironmentSettings.readObject(GenSpaceServerFactory.getFriendOps().getFriendsBytes());
+					return GenSpaceServerFactory.getFriendOps().getFriends();
 				}
 
 				@Override
@@ -274,7 +283,7 @@ public class SocialNetworksHome implements UpdateablePanel {
 					m.data.clear();
 					if(lst != null)
 					for (User t : lst) {
-						m.data.add(t.getFullName());
+						m.data.add(t.getFirstName() + " " + t.getLastName());
 					}
 
 				}
@@ -285,7 +294,7 @@ public class SocialNetworksHome implements UpdateablePanel {
 				@Override
 				protected Integer doInBackground()
 						throws Exception {
-					return ((List<User>) (RuntimeEnvironmentSettings.readObject(GenSpaceServerFactory.getFriendOps().getFriendRequestsList()))).size() +
+					return GenSpaceServerFactory.getFriendOps().getFriendRequests().size() +
 					GenSpaceServerFactory.getNetworkOps().getNumberOfNetworkRequests();
 				}
 
@@ -297,6 +306,7 @@ public class SocialNetworksHome implements UpdateablePanel {
 					} catch (InterruptedException e) {
 						GenSpace.logger.warn("Error",e);
 					} catch (ExecutionException e) {
+						e.printStackTrace();
 						GenSpaceServerFactory.clearCache();
 						updateFormFields();
 						return;

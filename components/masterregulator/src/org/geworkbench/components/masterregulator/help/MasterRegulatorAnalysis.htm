@@ -3,6 +3,17 @@
 <title>Master Regulator Analysis - Workbench</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="generator" content="MediaWiki 1.16.0">
+<meta name="robots" content="noindex,follow">
+<link rel="alternate" type="application/x-wiki" title="Edit" href="http://wiki.c2b2.columbia.edu/workbench/index.php?title=Master_Regulator_Analysis&amp;action=edit">
+<link rel="edit" title="Edit" href="http://wiki.c2b2.columbia.edu/workbench/index.php?title=Master_Regulator_Analysis&amp;action=edit">
+<link rel="shortcut icon" href="http://wiki.c2b2.columbia.edu/workbench/skins/common/images/favicon.ico">
+<link rel="search" type="application/opensearchdescription+xml" href="http://wiki.c2b2.columbia.edu/workbench/opensearch_desc.php" title="Workbench (en)">
+<link rel="alternate" type="application/atom+xml" title="Workbench Atom feed" href="http://wiki.c2b2.columbia.edu/workbench/index.php?title=Special:RecentChanges&amp;feed=atom">
+<link rel="stylesheet" href="MasterRegulatorAnalysis_files/commonPrint.css" media="">
+<link rel="stylesheet" href="MasterRegulatorAnalysis_files/index_003.css">
+<link rel="stylesheet" href="MasterRegulatorAnalysis_files/index.css" media="">
+<link rel="stylesheet" href="MasterRegulatorAnalysis_files/index_002.css">
+<link rel="stylesheet" href="MasterRegulatorAnalysis_files/index_004.css">
 
 
 </head>
@@ -12,12 +23,13 @@
 	<a id="top"></a>
 	
 	<h1 id="firstHeading" class="firstHeading">Master Regulator Analysis</h1>
-	
+	<div id="bodyContent">
+
 		<!-- start content -->
 <p><br>
+</p><p><br>
 </p>
-<a name="Overview"></a>
-<h1> <span class="mw-headline" id="Overview">Overview</span></h1>
+<a name="Overview"></a><h1> <span class="mw-headline" id="Overview">Overview</span></h1>
 <p>Regulatory activity in the context of specific cellular phenotypes 
 can be investigated using interaction networks. These are graphs where 
 nodes represent genes and an edge between two nodes A and B means that 
@@ -55,56 +67,73 @@ regulon requires performing a t-test of differential expression on a
 dataset representing the phenotypes distinguished by the signature, 
 ideally the original dataset from which the signature was determined.
 </p>
-<a name="Setting_up_an_MRA_run"> </a>
-<h1> <span class="mw-headline" id="Setting_up_an_MRA_run">Setting up an MRA run</span></h1>
-<h2> <span class="mw-headline" id="Prerequisites">Prerequisites</span></h2>
-<ul><li> The Master Regulator Analysis (MRA) component must be loaded in the <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_Component_Configuration_Manager" title="Tutorial - Component Configuration Manager" class="mw-redirect"> Component Configuration Manager</a>.
+<a name="Setting_up_an_MRA_run"></a><h1> <span class="mw-headline" id="Setting_up_an_MRA_run">Setting up an MRA run</span></h1>
+<a name="Prerequisites"></a><h2> <span class="mw-headline" id="Prerequisites">Prerequisites</span></h2>
+<ul><li> The Master Regulator Analysis (MRA) component must be loaded in the <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Component_Configuration_Manager" title="Component Configuration Manager"> Component Configuration Manager</a>.
 <ul><li> The MRA component will be listed along with the other analysis routines within the geWorkbench Analysis Panel.
 </li></ul>
-</li><li> <b>Interaction Network</b> - An interaction network calculated
- with ARACNe from a dataset which includes the particular cellular 
-phenotypes being investigated.  In calculating the network, all genes 
-that will be tested as possible master regulators should be used as hubs
- in the ARACNe calculation.
-</li><li> <b>Signature genes</b> - A list of signature genes which 
-distinguish between two phenotypes.  This list may come from a t-test, 
-clustering, or some combination of methods.  The user must define this 
-set using methods relevant to the particular dataset and study goals.
-</li><li> <b>Candidate master regulator list</b> -  A set of genes that 
-will be tested as candidate master regulators.  This set may be 
-comprised of e.g. transcription factor and signalling pathway genes.
-</li><li> <b>Gene Expression dataset</b> - A gene expression dataset in 
-which the phenotypic signature was identified or can be demonstrated.  A
- t-test of differential expression will be run to generate the graphic 
-"bar code" display of the effect of the master regulator on its regulon.
- 
 </li></ul>
-<h2> <span class="mw-headline" id="Parameters_and_Settings">Parameters and Settings</span></h2>
+<a name="Interaction_Network"></a><h3> <span class="mw-headline" id="Interaction_Network">Interaction Network</span></h3>
+<p>An interaction network in the form of an adjacency matrix (See <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/File_Formats" title="File Formats">File Formats</a>.
+  Networks can be loaded from a file, or calculated with ARACNe from a 
+dataset which includes the particular cellular phenotypes being 
+investigated.  If calculating the network with ARACNe, all genes to be 
+tested as possible master regulators should be used as hubs.
+</p>
+<a name="Signature_genes"></a><h3> <span class="mw-headline" id="Signature_genes">Signature genes</span></h3>
+<p>A list of signature gene markers which distinguish between two 
+phenotypes.  This list may come from a t-test, clustering, or some 
+combination of methods.  The user must define this set using methods 
+relevant to the particular dataset and study goals.
+</p>
+<a name="Candidate_master_regulator_list"></a><h3> <span class="mw-headline" id="Candidate_master_regulator_list">Candidate master regulator list</span></h3>
+<p>A set of gene markers that will be tested as candidate master 
+regulators.  This set may be comprised of e.g. transcription factor and 
+signalling pathway genes.
+</p>
+<a name="Gene_Expression_dataset"></a><h3> <span class="mw-headline" id="Gene_Expression_dataset">Gene Expression dataset</span></h3>
+<p>A gene expression dataset in which the phenotypic signature was 
+identified or can be demonstrated.  A t-test of differential expression 
+will be run to generate the graphic "bar code" display of the effect of 
+the master regulator on its regulon.
+</p>
+<a name="Parameters_and_Settings"></a><h2> <span class="mw-headline" id="Parameters_and_Settings">Parameters and Settings</span></h2>
 <p><img alt="MRA Parameters panel.png" src="MasterRegulatorAnalysis_files/MRA_Parameters_panel.png" height="444" width="1212">
 </p>
-<h3> <span class="mw-headline" id="Load_Network">Load Network</span></h3>
+<a name="Load_Network"></a><h3> <span class="mw-headline" id="Load_Network">Load Network</span></h3>
 <p>There are 2 ways to designate the interaction network, represented by
  an adjacency matrix, that will be used for computing the regulons of 
 the candidate master regulator genes:
 </p>
-<ul><li> <b>From File</b>: by choosing a file that describes a network. 
-</li><li> <b>From Project</b>: by selecting an adjacency matrix node from the Project Folders component. Several analytical components in geWorkbench (e.g., <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_ARACNE" title="Tutorial - ARACNE" class="mw-redirect"> ARACNE</a>) produce adjacency matrix results nodes that can be utilized for this purpose.
+<ul><li> <b>From File</b>: by choosing a file that describes a network.  
+<ul><li> The file loading controls will become active when this option is chosen.
+</li><li> Press the "Load" button to bring up the file browser.
+</li><li> The chosen file name will be displayed in the adjacent text field.
+</li></ul>
+</li><li> <b>From Project</b>: by selecting an adjacency matrix node from the Project Folders component. 
+<ul><li> The pulldown menu for choosing an available adjacency matrix 
+will become active.  Only adjacency matrices that are children of the 
+current microarray dataset will be offered.  
+</li><li> Several analytical components in geWorkbench (e.g., <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/ARACNe" title="ARACNe"> ARACNe</a>) produce adjacency matrix results nodes that can be utilized for this purpose.
+</li></ul>
 </li></ul>
 <p>All edges in the network are assumed to be significant, and any strength value included is not used.
 </p>
-<h3> <span class="mw-headline" id="Master_Regulators">Master Regulators</span></h3>
-<p>A set of candidate master regulator markers.  This set must be loaded
- into the Markers component before running MRA.  This can be read in 
-either directly as markers, or as gene symbols.
+<a name="Master_Regulators"></a><h3> <span class="mw-headline" id="Master_Regulators">Master Regulators</span></h3>
+<p>A set of candidate master regulator markers.  
 </p>
-<h3> <span class="mw-headline" id="Signature_Markers">Signature Markers</span></h3>
-<p>A set of markers comprising the signature that distinguishes the 
-chosen phenotype from others.  This set must be loaded into the Markers 
-component before running MRA.  It can be read in either directly as 
-markers, or as gene symbols (but be aware that a gene can be represented
- by more than one marker, and not all may correspond to the signature).
+<ul><li> This set must be loaded into the Markers component before 
+running MRA.  The set can be created directly there, or read in from a 
+file.
+</li></ul>
+<a name="Signature_Markers"></a><h3> <span class="mw-headline" id="Signature_Markers">Signature Markers</span></h3>
+<p>A set of markers comprising the signature that distinguishes the chosen phenotype from others.  
 </p>
-<h3> <span class="mw-headline" id="Fisher.27s_Exact_Test_threshold">Fisher's Exact Test threshold</span></h3>
+<ul><li> This set must be loaded into the Markers component before 
+running MRA.  The signature can be generated directly, e.g. through a 
+t-test, or loaded from a file.
+</li></ul>
+<a name="Fisher.27s_Exact_Test_threshold"></a><h3> <span class="mw-headline" id="Fisher.27s_Exact_Test_threshold">Fisher's Exact Test threshold</span></h3>
 <p>Enter a p-value for the significance at which to accept the overlap 
 of the regulon of a candidate TF and the signature set of genes.
 </p>
@@ -118,28 +147,24 @@ least two sets of arrays must be activated, and at least one marked as
 "case", representing the target phenotype of the gene signature.  
 "Control" is the default classification.  See also the <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Differential_Expression" title="Differential Expression"> Differential Expression tutorial</a>).
 </p><p><br>
-  <img alt="Array set class assignment MRA.png" src="MasterRegulatorAnalysis_files/Array_set_class_assignment_MRA.png" height="400" width="228">
+<img alt="Array set class assignment MRA.png" src="MasterRegulatorAnalysis_files/Array_set_class_assignment_MRA.png" height="400" width="228">
 </p>
-<a name="Viewing_MRA_analysis_results"></a>
-<h1> <span class="mw-headline" id="Viewing_MRA_analysis_results">Viewing MRA analysis results</span></h1>
+<a name="Viewing_MRA_analysis_results"></a><h1> <span class="mw-headline" id="Viewing_MRA_analysis_results">Viewing MRA analysis results</span></h1>
 <p>Following the successful completion of the MRA computation, a result 
 node appears in the Project Folder area of the geWorkbench interface, 
 under the microarray experiment node used for the t-test:
 </p><p><img alt="MRA results node.png" src="MasterRegulatorAnalysis_files/MRA_results_node.png" height="135" width="229"> 
+</p><p>The results of the analysis can be visualized in the MRA Viewer component by selecting the result node.
 </p>
-<p>The results of the analysis can be visualized in the MRA Viewer component by selecting the result node.
-</p>
-<h2> <span class="mw-headline" id="MRA_Results_Viewer">MRA Results Viewer</span></h2>
+<a name="MRA_Results_Viewer"></a><h2> <span class="mw-headline" id="MRA_Results_Viewer">MRA Results Viewer</span></h2>
 <p>The MRA viewer is structured in 3 distinct areas.
 </p><p><br>
-  <img alt="MRA viewer GBM FOSL2.png" src="MasterRegulatorAnalysis_files/MRA_viewer_GBM_FOSL2.png" height="623" width="986">
+<img alt="MRA viewer GBM FOSL2.png" src="MasterRegulatorAnalysis_files/MRA_viewer_GBM_FOSL2.png" height="623" width="986">
+</p><p><br>
 </p>
-<p><br>
-</p>
-<h3> <span class="mw-headline" id="Summary_Listing">Summary Listing</span></h3>
+<a name="Summary_Listing"></a><h3> <span class="mw-headline" id="Summary_Listing">Summary Listing</span></h3>
 <p><img alt="MRA Summary listing.png" src="MasterRegulatorAnalysis_files/MRA_Summary_listing.png" height="179" width="481">
-</p>
-<p><br>
+</p><p><br>
 At upper left in the MRA viewer.  For each candidate master regulator 
 found to have a significant effect using Fisher's Exact test, the 
 following four columns are displayed:
@@ -162,24 +187,21 @@ marker belongs to the regulon of the master regulator or not. Counts are
 will display the list of intersection genes in a table to the right 
 (Detailed Listing), and will draw the regulon bar graph below.
 </p>
-<h3> <span class="mw-headline" id="Detailed_Listing">Detailed Listing</span></h3>
+<a name="Detailed_Listing"></a><h3> <span class="mw-headline" id="Detailed_Listing">Detailed Listing</span></h3>
 <p>The detailed list shows the genes/markers contained in the intersection set of the  MR regulon and the signature.
 </p><p><br>
-  <img alt="MRA Detailed listing.png" src="MasterRegulatorAnalysis_files/MRA_Detailed_listing.png" height="186" width="471">
-</p>
-<p>The genes are displayed in a table with the following columns:
+<img alt="MRA Detailed listing.png" src="MasterRegulatorAnalysis_files/MRA_Detailed_listing.png" height="186" width="471">
+</p><p>The genes are displayed in a table with the following columns:
 </p>
 <ul><li> <b>Genes in intersection set</b>: the names of the genes in the
  intersection set. Either the gene name or the marker/probe set name is 
 used (based on the choice of "Symbol" or "Probe Set" radio buttons).
 </li><li> <b>T-test value</b>: The actual value of the t-test statistic 
-for the gene. A positive value indicates that the expression of the gene
- is higher in cases than in controls. A negative value has the opposite 
-meaning.
+for each gene in the intersection set. A positive value indicates that 
+the expression of the gene is higher in cases than in controls. A 
+negative value has the opposite meaning.
 </li></ul>
-<p><br>
-</p>
-<h3> <span class="mw-headline" id="Graph_View">Graph View</span></h3>
+<a name="Graph_View"></a><h3> <span class="mw-headline" id="Graph_View">Graph View</span></h3>
 <p>For a given master regulator <i>A</i> and the intersection between 
 its regulon and the set of differentially expressed genes, the graph 
 view helps assess if the intersection genes are preferentially 
@@ -201,7 +223,7 @@ of the master regulator <i>A</i> currently selected within the “Summary listin
 </li><li> The relative location of a bar on the gradient represents the t-test statistic recorded for the corresponding gene. 
 </li><li> Further, the color of each bar provides information about the 
 correlation between the expression levels of the target gene and the 
-putative master regulator A (correlations are computed as Pearson’s 
+putative master regulator A (correlations are computed as Spearman’s 
 correlation, using data from all microarrays in the experiment): red 
 means that the two genes are positively correlated (r &gt; 0) while blue
  means that correlation is negative (r &lt; 0).
@@ -209,8 +231,7 @@ means that the two genes are positively correlated (r &gt; 0) while blue
 <p><br>
 FOSL2:
 </p><p><img alt="MRA graph GBM FOSL2.png" src="MasterRegulatorAnalysis_files/MRA_graph_GBM_FOSL2.png" height="98" width="960">
-</p>
-<p>The bar graph shown above, for FOSL2, indicates that more of its 
+</p><p>The bar graph shown above, for FOSL2, indicates that more of its 
 regulon genes have positive differential expression in the mesenchymal 
 phenotype, and that expression of FOSL2 is positively correlated with 
 the differential expression of its regulon in the mesenchymal phenotype.
@@ -218,45 +239,57 @@ the differential expression of its regulon in the mesenchymal phenotype.
 </p><p><br>
 ZNF238:
 </p><p><img alt="MRA graph GBM ZNF238.png" src="MasterRegulatorAnalysis_files/MRA_graph_GBM_ZNF238.png" height="102" width="961">
-</p>
-<p>The bar graph shown above, for ZNF238, indicates that  expression
+</p><p>The bar graph shown above, for ZNF238, indicates that  expression
  of ZNF238 is negatively correlated with the differential expression of 
 its regulon in the mesenchymal phenotype.
 </p>
-<h3> <span class="mw-headline" id="Control_buttons">Control buttons</span></h3>
-<p>Additional functionality is made available through the following buttons: 
+<a name="Control_buttons"></a><h3> <span class="mw-headline" id="Control_buttons">Control buttons</span></h3>
+<a name="Export"></a><h4> <span class="mw-headline" id="Export">Export</span></h4>
+<p>Markers in the intersection set can be exported to a file.  The 
+master regulator and the markers in the intersection of its regulon and 
+the signature genes are exported, along with the T-test value calculated
+ for display of the regulon.  Each master regulator is listed on a line,
+ followed by its intersection set markers with their t-test t values.  
+If "Export all is selected, each MR is separated by a blank line from 
+the preceeding section.
+</p><p><b>Export File format</b>:
 </p>
-<ul><li> <b>Add to Set</b>: creates a set containing the markers that 
-correspond to the genes currently displayed in the table. The new marker
- set appears in the Markers component and is named after the master 
-regulator.
-</li><li> <b>Export selected</b>: same as “Add to Set” but instead of being added to a marker set, the markers are stored into a file.
-</li><li> <b>Export all</b>: stores into a file information for all 
-master regulators (instead of only the one currently selected in the 
-“Summary” view). Specifically, for each master regulator, the file lists
- the markers for all genes that are both differential expressed and also
- belong to the master regulator’s regulon.
+<pre>marker, gene name, t-value
+</pre>
+<p>Example:
+</p>
+<pre>220462_at, CSRNP3
+200660_at, S100A11, 8.681083
+201474_s_at, ITGA3, 6.0778093
+</pre>
+<ul><li> <b>Export all</b>: export values for all master regulators that met the threshold of the Fisher's Exact test.
+</li><li> <b>Export selected</b>: export values only for the selected master regulator and its intersection set.
 </li></ul>
-<a name="Dataset_History"></a>
-<h1> <span class="mw-headline" id="Dataset_History">Dataset History</span></h1>
+<p>Exported files automatically receive a ".csv" file name extension.
+</p>
+<a name="Add_to_Set"></a><h4> <span class="mw-headline" id="Add_to_Set">Add to Set</span></h4>
+<p>Create a new marker set in the Markers component containing the 
+intersection set for the selected master regulator.  The set is named 
+after the master regulator.
+</p>
+<a name="Dataset_History"></a><h1> <span class="mw-headline" id="Dataset_History">Dataset History</span></h1>
 <p>Each results node stores the parameter settings used to setup the 
 corresponding MRA run. The specific parameter values can be inspected 
 within the Dataset History component, after clicking on the MRA results 
 node in the Project Folders pane.
 </p>
-<a name="Example_of_running_MRA"></a>
-<h1> <span class="mw-headline" id="Example_of_running_MRA">Example of running MRA</span></h1>
+<a name="Example_of_running_MRA"></a><h1> <span class="mw-headline" id="Example_of_running_MRA">Example of running MRA</span></h1>
 <p>This example uses a dataset comprised of 176 microarrays described in
  Phillips (2006).  The analysis follows that described in Carro et al. 
 (2010) for master regulators of Glioblastoma.
 </p><p><br>
 </p>
-<h2> <span class="mw-headline" id="Loading_and_preparing_the_example_data">Loading and preparing the example data</span></h2>
-<h3> <span class="mw-headline" id="Microarray_dataset">Microarray dataset</span></h3>
+<a name="Loading_and_preparing_the_example_data"></a><h2> <span class="mw-headline" id="Loading_and_preparing_the_example_data">Loading and preparing the example data</span></h2>
+<a name="Microarray_dataset"></a><h3> <span class="mw-headline" id="Microarray_dataset">Microarray dataset</span></h3>
 <ol><li> Load a microarray dataset.  (See <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_Local_Data_Files" title="Tutorial - Local Data Files" class="mw-redirect"> Local Data Files</a>).
 </li><li> When prompted, load the annotation file.
 </li></ol>
-<h3> <span class="mw-headline" id="Marker_sets">Marker sets</span></h3>
+<a name="Marker_sets"></a><h3> <span class="mw-headline" id="Marker_sets">Marker sets</span></h3>
 <p>Load marker sets for:
 </p>
 <ol><li> the list of candidate master regulators
@@ -264,7 +297,7 @@ node in the Project Folders pane.
 </li></ol>
 <p><img alt="MRA GBM Marker sets.png" src="MasterRegulatorAnalysis_files/MRA_GBM_Marker_sets.png" height="402" width="246">
 </p>
-<h3> <span class="mw-headline" id="Array_sets">Array sets</span></h3>
+<a name="Array_sets"></a><h3> <span class="mw-headline" id="Array_sets">Array sets</span></h3>
 <p>Array sets are shown defined for the three phenotypic classes of 
 arrays in the dataset: Mesenchymal (MES), Proneural (PN), and 
 Proliferative (Prolif).
@@ -274,7 +307,7 @@ Proliferative (Prolif).
 </li></ul>
 <p><img alt="Array set class assignment MRA.png" src="MasterRegulatorAnalysis_files/Array_set_class_assignment_MRA.png" height="400" width="228">
 </p>
-<h2> <span class="mw-headline" id="Setting_up_the_parameters_and_starting_MRA">Setting up the parameters and starting MRA</span></h2>
+<a name="Setting_up_the_parameters_and_starting_MRA"></a><h2> <span class="mw-headline" id="Setting_up_the_parameters_and_starting_MRA">Setting up the parameters and starting MRA</span></h2>
 <p>In the Analysis Panel, select the "MRA Analysis" entry and set the parameters as follows:
 </p>
 <ul><li> <b>Load Network</b> - from the drop down choose the option "From Set", click on the "Load" button, and select the desired set.
@@ -283,44 +316,69 @@ Proliferative (Prolif).
 </li><li> <b>P-value</b> - The p-value for the FET may be set as desired.
 </li></ul>
 <p><img alt="MRA GBM param setup.png" src="MasterRegulatorAnalysis_files/MRA_GBM_param_setup.png" height="306" width="1213">
-</p>
-<p><br>
+</p><p><br>
 </p>
 <ul><li> Click on the <b>Analyze</b> button.
 </li></ul>
-<h2> <span class="mw-headline" id="Results">Results</span></h2>
+<a name="Results"></a><h2> <span class="mw-headline" id="Results">Results</span></h2>
 <p>Upon completion of the analysis, an MRA results node is placed in the
  Project Folders tree. The analysis results can be browsed using the MRA
  viewer and are as shown above in the MRA Results Viewer section.
 </p>
-<p>&nbsp;</p>
-<a name="References"></a>
-<h1> <span class="mw-headline" id="References">References</span></h1>
-<ul>
-  <li> Basso K, Margolin AA, Stolovitzky G, Klein U, Dalla-Favera R, 
+<a name="References"></a><h1> <span class="mw-headline" id="References">References</span></h1>
+<p><span id="Basso2005"></span>
+</p>
+<ul><li> Basso K, Margolin AA, Stolovitzky G, Klein U, Dalla-Favera R, 
 Califano A (2005). Reverse engineering of regulatory networks in human B
  cells. Nat Genet 37(4):382-390 (<a href="http://www.nature.com/ng/journal/v37/n4/abs/ng1532.html" class="external text" rel="nofollow">link to paper</a>).
-</li>
- <li> Carro MS, Lim WK, Alvarez MJ, Bollo RJ, Zhao X, Snyder EY, 
+</li></ul>
+<p><span id="Lefebvre2010"></span>
+</p>
+<ul><li> Carro MS, Lim WK, Alvarez MJ, Bollo RJ, Zhao X, Snyder EY, 
 Sulman EP, Anne SL, Doetsch F, Colman H, Lasorella A, Aldape K, Califano
  A, Iavarone A  (2010)  The transcriptional network for mesenchymal 
 transformation of brain tumors.  Nature 463(7279):318-25.
-</li>
-<li> Lefebvre C, Rajbhandari P, Alvarez MJ, Bandaru P, Lim WK, Sato
+</li><li> Lefebvre C, Rajbhandari P, Alvarez MJ, Bandaru P, Lim WK, Sato
  M, Wang K, Sumazin P, Kustagi M, Bisikirska BC, Basso K, Beltrao P, 
 Krogan N, Gautier J, Dalla-Favera R, Califano A (2010)  A human B-cell 
 interactome identifies MYB and FOXM1 as master regulators of 
 proliferation in germinal centers.  Mol Syst Biol.  6:377. PMID: 
 20531406 (<a href="http://www.ncbi.nlm.nih.gov/pubmed/20531406" class="external text" rel="nofollow">link to paper</a>).
-</li>
-<li> Lim WK, Lyashenko E, Califano A: Master regulators used as 
+</li></ul>
+<p><span id="Lim2009"></span>
+</p>
+<ul><li> Lim WK, Lyashenko E, Califano A: Master regulators used as 
 breast cancer metastasis classifier. Pac Symp Biocomput. 2009:504-15 (<a href="http://psb.stanford.edu/psb-online/proceedings/psb09/lim.pdf" class="external text" rel="nofollow">link to paper</a>).
-</li>
-<li> Phillips HS, Kharbanda S, Chen R, Forrest WF, Soriano RH, Wu 
+</li><li> Phillips HS, Kharbanda S, Chen R, Forrest WF, Soriano RH, Wu 
 TD, Misra A, Nigro JM, Colman H, Soroceanu L, Williams PM, Modrusan Z, 
 Feuerstein BG, Aldape K (2006)  Molecular subclasses of high-grade 
 glioma predict prognosis, delineate a pattern of disease progression, 
 and resemble stages in neurogenesis.  Cancer Cell 9(3):157-73.
-</li>
+</li></ul>
 
+<!-- 
+NewPP limit report
+Preprocessor node count: 125/1000000
+Post-expand include size: 1889/2097152 bytes
+Template argument size: 0/2097152 bytes
+Expensive parser function count: 0/100
+-->
+
+<!-- Saved in parser cache with key workbench:pcache:idhash:1883-0!1!0!!en!2!printable=1 and timestamp 20110729011512 -->
+<div class="printfooter">
+Retrieved from "<a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Master_Regulator_Analysis">http://wiki.c2b2.columbia.edu/workbench/index.php/Master_Regulator_Analysis</a>"</div>
+		<div id="catlinks" class="catlinks catlinks-allhidden"></div>		<!-- end content -->
+				<div class="visualClear"></div>
+	</div>
+</div></div>
+<div class="visualClear"></div>
+<div id="footer">
+
+This page was last modified on 26 July 2011, at 22:13.
+
+
+</div>
+</div>
+
+<!-- Served in 0.361 secs. -->
 </body></html>

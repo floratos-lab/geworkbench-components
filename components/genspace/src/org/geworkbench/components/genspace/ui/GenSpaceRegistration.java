@@ -18,7 +18,8 @@ import javax.swing.JTextField;
 import javax.swing.SwingWorker;
 
 import org.geworkbench.components.genspace.GenSpaceServerFactory;
-import org.geworkbench.components.genspace.entity.User;
+import org.geworkbench.components.genspace.server.stubs.User;
+import org.geworkbench.components.genspace.server.wrapper.UserWrapper;
 import org.geworkbench.engine.config.VisualPlugin;
 
 public class GenSpaceRegistration extends JPanel implements VisualPlugin,
@@ -152,7 +153,7 @@ public class GenSpaceRegistration extends JPanel implements VisualPlugin,
 	}
 
 	private User getNewUser() {
-		User u = new User();
+		UserWrapper u = new UserWrapper(new User());
 
 		u.setUsername(userId.getText());
 
@@ -174,7 +175,7 @@ public class GenSpaceRegistration extends JPanel implements VisualPlugin,
 		u.setState(state.getText());
 		u.setZipcode(zipcode.getText());
 
-		return u;
+		return u.getDelegate();
 	}
 
 	@Override

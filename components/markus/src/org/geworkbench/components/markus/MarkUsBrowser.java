@@ -55,7 +55,7 @@ import org.jdesktop.jdic.browser.WebBrowserListener;
 
 @AcceptTypes( { MarkUsResultDataSet.class })
 public class MarkUsBrowser implements VisualPlugin {
-	private static final String MARKUS_RESULT_URL = "http://luna.bioc.columbia.edu/honiglab/mark-us/cgi-bin/browse.pl?pdb_id=";
+	private static final String MARKUS_RESULT_URL = "http://bhapp.c2b2.columbia.edu/MarkUs/cgi-bin/browse.pl?pdb_id=";
 
 	private static Log log = LogFactory.getLog(MarkUsResultDataSet.class);
 	

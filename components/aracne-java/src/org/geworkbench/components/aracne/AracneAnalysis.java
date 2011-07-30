@@ -176,16 +176,6 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 		if (bs <= 0 || pt <= 0 || pt > 1)
 			return null;
 		
-		if(mSetView.size()<MINIMUM_ARRAY_NUMBER) {
-			int n = JOptionPane.showConfirmDialog(
-				    null,
-				    "ARACNe should not in general be run on less than "+MINIMUM_ARRAY_NUMBER+" arrays. Do you want to continue?",
-				    "Too few arrays",
-				    JOptionPane.YES_NO_OPTION);
-			if(n!=JOptionPane.YES_OPTION)
-				return null;
-		}
-
 		AracneThread aracneThread = new AracneThread(mSetView, p, bs, pt, params.isPrune());
 
 		AracneProgress progress = new AracneProgress(aracneThread);
@@ -255,50 +245,44 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 	}
 
 	/**
-	 *
+	 * Convert the result from aracne-java to an AdjacencyMatrix object.
 	 * @param graph
+	 * @param p 
 	 * @param mSet
 	 * @return
 	 */
-	private AdjacencyMatrix convert(WeightedGraph graph,
+	private AdjacencyMatrix convert(WeightedGraph graph, Parameter p,
 			DSMicroarraySet<DSMicroarray> mSet, boolean prune) {
 		AdjacencyMatrix matrix = new AdjacencyMatrix(null, mSet);
 
-		int nNode = 0, nEdge = 0;
-		if (!prune) {
-			for (String node : graph.getNodes()) {
-				DSGeneMarker marker = mSet.getMarkers().get(node);
-				matrix.addGeneRow(new AdjacencyMatrix.Node(marker));
-				nNode++;
+		Vector<String> subnet = p.getSubnet();
+
+		int nEdge = 0;
+		for (GraphEdge graphEdge : graph.getEdges()) {
+			DSGeneMarker marker1 = mSet.getMarkers().get(graphEdge.getNode1());
+			DSGeneMarker marker2 = mSet.getMarkers().get(graphEdge.getNode2());
+			
+			if (!subnet.contains(marker1.getLabel())) {
+				DSGeneMarker m = marker1;
+				marker1 = marker2;
+				marker2 = m;
 			}
-			for (GraphEdge graphEdge : graph.getEdges()) {
-				DSGeneMarker marker1 = mSet.getMarkers().get(
-						graphEdge.getNode1());
-				DSGeneMarker marker2 = mSet.getMarkers().get(
-						graphEdge.getNode2());
-				matrix.add(new AdjacencyMatrix.Node(marker1),
-						new AdjacencyMatrix.Node(marker2),
-						graphEdge.getWeight(), null);
-				nEdge++;
+
+			AdjacencyMatrix.Node node1, node2;
+			if (!prune) {
+				node1 = new AdjacencyMatrix.Node(marker1);
+				node2 = new AdjacencyMatrix.Node(marker2);
+				matrix.add(node1, node2, graphEdge.getWeight(), null);
+			} else {
+				node1 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL,
+						marker1.getGeneName());
+				node2 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL,
+						marker2.getGeneName());
+				matrix.add(node1, node2, graphEdge.getWeight());
 			}
-		} else {
-			for (String node : graph.getNodes()) {
-				DSGeneMarker marker = mSet.getMarkers().get(node);
-				matrix.addGeneRow(new AdjacencyMatrix.Node(NodeType.STRING, marker.getGeneName()));
-				nNode++;
-			}
-			for (GraphEdge graphEdge : graph.getEdges()) {
-				DSGeneMarker marker1 = mSet.getMarkers().get(
-						graphEdge.getNode1());
-				DSGeneMarker marker2 = mSet.getMarkers().get(
-						graphEdge.getNode2());
-				matrix.add(new AdjacencyMatrix.Node(NodeType.STRING, marker1.getGeneName()),
-						new AdjacencyMatrix.Node(NodeType.STRING, marker2.getGeneName()),
-						graphEdge.getWeight());
-				nEdge++;
-			}
+			nEdge++;
 		}
-		log.debug("node count "+nNode + "; edge count " + nEdge);
+		log.debug("edge count " + nEdge);
 		return matrix;
 	}
 
@@ -360,16 +344,18 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 
 			if (weightedGraph.getEdges().size() > 0) {
 				AdjacencyMatrixDataSet dataSet = new AdjacencyMatrixDataSet(
-						convert(weightedGraph, mSetView.getMicroarraySet(), prune),
+						convert(weightedGraph, p, mSetView.getMicroarraySet(), prune),
 						0, "Adjacency Matrix", "ARACNE Set", mSetView
 								.getMicroarraySet());
 				StringBuilder paramDescB = new StringBuilder(
 						"Generated with ARACNE run with data:\n");
 				paramDescB.append(generateHistoryString(this.mSetView));
+				String s=prune?"yes":"no";
 				ProjectPanel.addToHistory(dataSet,
 						"Generated with ARACNE run with paramters:\n"
 								+ p.getParamterDescription()
 								+ dpiTargetListDescription()+"\n"
+								+ "[PARA] Merge multiple probesets: "+ s+"\n"
 								+ hubMarkersDescription(p)
 								+ paramDescB.toString());
 				publishProjectNodeAddedEvent(new ProjectNodeAddedEvent(
@@ -574,7 +560,9 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 			String gene = (String) iterator.next();
 			targetGene += gene;
 		}		
-
+		bisonParameters.put("isTargetListSpecified", paramPanel.isTargetListSpecified());
+		bisonParameters.put("target", targetGene);
+		bisonParameters.put("prune", paramPanel.isPrune());
 		bisonParameters.put("isMI", paramPanel.isThresholdMI());
 
 		float threshold = paramPanel.getThreshold();
@@ -688,6 +676,16 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 									+ " specified as hub gene in microarray set.");
 				}
 			}
+		}
+
+		if(mSetView.size()<MINIMUM_ARRAY_NUMBER) {
+			int n = JOptionPane.showConfirmDialog(
+				    null,
+				    "ARACNe should not in general be run on less than "+MINIMUM_ARRAY_NUMBER+" arrays. Do you want to continue?",
+				    "Too few arrays",
+				    JOptionPane.YES_NO_OPTION);
+			if(n!=JOptionPane.YES_OPTION)
+				return new ParamValidationResults(true, "QUIT");
 		}
 
 		return new ParamValidationResults(true, "No Error");

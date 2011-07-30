@@ -99,7 +99,6 @@ class CreateSessionDialog extends JDialog {
         cancelButton.addKeyListener(keyAdapter);
         cancelButton.setActionCommand("cancelAction");
         connectButton.setMaximumSize(new Dimension(73, 25));
-        connectButton.setToolTipText("");
         connectButton.setActionCommand("connectAction");
         connectButton.setText("Create");
         connectButton.addActionListener(new CreateSessionDialog_connectButton_actionAdapter());

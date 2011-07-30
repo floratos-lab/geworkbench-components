@@ -502,7 +502,6 @@ public final class PromoterViewPanel extends JPanel {
         parametersLabel.setText("Parameters:");
 
         resultLabel.setFont(new java.awt.Font("Times New Roman", Font.BOLD, 12));
-        resultLabel.setToolTipText("");
         resultLabel.setHorizontalTextPosition(SwingConstants.LEFT);
         resultLabel.setText("Results:");
         jLabel1.setText("% with hits:");
@@ -1590,6 +1589,8 @@ public final class PromoterViewPanel extends JPanel {
 
             List<DSPatternMatch<DSSequence,
                     CSSeqRegistration>> matches = pattern.matches();
+            
+            if(p==null) continue;
 
             seqPatternMatches.put(p, matches);
         }

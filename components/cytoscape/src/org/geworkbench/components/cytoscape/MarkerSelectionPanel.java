@@ -29,10 +29,9 @@ import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
 
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
-import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType;
+import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.util.ProgressBar;
@@ -126,7 +125,7 @@ public class MarkerSelectionPanel extends JPanel implements Observer {
 
 		if (view != null && Cytoscape.getCurrentNetwork() != null) {
 			CyAttributes edgeAttrs = Cytoscape.getEdgeAttributes();
-			CyAttributes nodeAttrs = Cytoscape.getNodeAttributes();
+
 			Iterator<?> iter = view.getEdgeViewsIterator();
 
 			while (iter.hasNext()) {
@@ -153,33 +152,11 @@ public class MarkerSelectionPanel extends JPanel implements Observer {
 
 				}
 
-				DSItemList<DSGeneMarker> markers = origMatrix
-						.getMicroarraySet().getMarkers();
-
-				String nodeType1 = nodeAttrs.getStringAttribute(gene1,
-						"nodeType");
-				String nodeType2 = nodeAttrs.getStringAttribute(gene1,
-						"nodeType");
-				AdjacencyMatrix.Node node1 = null, node2 = null;
-				if (nodeType1.equals(NodeType.GENE_SYMBOL.name()))
-					node1 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL,
+				AdjacencyMatrix.Node node1 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL,
 							gene1);
-				else if (nodeType1.equals(NodeType.MARKER.name()))
-					node1 = new AdjacencyMatrix.Node(markers.get(gene1));
-				else if (nodeType1.equals(NodeType.STRING.name()))
-					node1 = new AdjacencyMatrix.Node(NodeType.STRING, gene1);
-				else
-					node1 = new AdjacencyMatrix.Node(NodeType.OTHER, gene1);
 
-				if (nodeType2.equals(NodeType.GENE_SYMBOL.name()))
-					node2 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL,
+				AdjacencyMatrix.Node node2 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL,
 							gene2);
-				else if (nodeType2.equals(NodeType.MARKER.name()))
-					node2 = new AdjacencyMatrix.Node(markers.get(gene2));
-				else if (nodeType2.equals(NodeType.STRING.name()))
-					node2 = new AdjacencyMatrix.Node(NodeType.STRING, gene2);
-				else
-					node2 = new AdjacencyMatrix.Node(NodeType.OTHER, gene2);
 
 				if ((selectedGeneNameList.contains(gene1) || selectedGeneLabelList
 						.contains(gene1))

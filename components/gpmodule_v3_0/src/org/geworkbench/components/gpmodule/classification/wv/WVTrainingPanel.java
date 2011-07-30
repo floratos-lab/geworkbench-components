@@ -18,6 +18,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
 import java.io.Serializable;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -212,14 +213,14 @@ public class WVTrainingPanel extends GPTrainingPanel {
         return(featureFileMethod.isSelected());
     }
 
-    protected String getSummaryFile()
+    protected URL getSummaryFile()
     {
-        return WVTrainingPanel.class.getResource("help.html").getPath();
+        return WVTrainingPanel.class.getResource("help.html");
     }
 
-    protected String getParamDescriptFile()
+    protected URL getParamDescriptFile()
     {
-        return WVTrainingPanel.class.getResource("paramDesc.html").getPath();
+        return WVTrainingPanel.class.getResource("paramDesc.html");
     }
     
     protected JPanel getParameterPanel()

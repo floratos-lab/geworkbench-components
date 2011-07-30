@@ -311,10 +311,14 @@ public class NCBIBlastParser {
 	public String getSummary() {
 		if (hitOverLimit) {
 			return "Some sequences have more than 250 hits, only the first "
-					+ HIT_NUMBER_LIMIT + " hits are displayed. Total hits are "
+					+ HIT_NUMBER_LIMIT + " hits are displayed. Total hits: "
 					+ totalHitCount + ".";
 		}
-		return "Total hits for all sequences are " + totalHitCount + ".";
+		return "Total hits for all sequences: " + totalHitCount + ".";
+	}
+	
+	public int getHitCount(){
+		return totalHitCount;
 	}
 
 }

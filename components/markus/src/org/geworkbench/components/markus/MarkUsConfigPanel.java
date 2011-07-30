@@ -150,7 +150,7 @@ public class MarkUsConfigPanel extends AbstractSaveableParameterPanel {
 	public String getEmail(boolean isGrid) {
 		String e = email.getText();
 		if (isGrid) return escapeCgi(e);
-		return escapeHtml(e);
+		return e;
 	}
 	
 	public String getTitle(boolean isGrid) {

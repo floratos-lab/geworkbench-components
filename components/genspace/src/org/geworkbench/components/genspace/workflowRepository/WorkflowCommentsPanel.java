@@ -8,7 +8,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Arrays;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -24,15 +25,14 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumn;
+import javax.xml.datatype.DatatypeFactory;
 
 import org.geworkbench.components.genspace.GenSpace;
 import org.geworkbench.components.genspace.GenSpaceServerFactory;
-import org.geworkbench.components.genspace.RuntimeEnvironmentSettings;
-import org.geworkbench.components.genspace.entity.User;
-import org.geworkbench.components.genspace.entity.UserWorkflow;
-import org.geworkbench.components.genspace.entity.Workflow;
-import org.geworkbench.components.genspace.entity.WorkflowComment;
-import org.geworkbench.components.genspace.entity.WorkflowFolder;
+import org.geworkbench.components.genspace.server.stubs.User;
+import org.geworkbench.components.genspace.server.stubs.UserWorkflow;
+import org.geworkbench.components.genspace.server.stubs.Workflow;
+import org.geworkbench.components.genspace.server.stubs.WorkflowComment;
 import org.geworkbench.engine.config.VisualPlugin;
 
 public class WorkflowCommentsPanel extends JPanel implements VisualPlugin,
@@ -101,7 +101,7 @@ ActionListener {
 		this.workflow = workflow;
 		MyTableModel model = (MyTableModel) table.getModel();
 		if (workflow != null)
-			model.setData(workflow.getComments());
+			model.setData(GenSpaceServerFactory.getUsageOps().getWFComments(workflow));
 		else
 			clearData();
 	}
@@ -160,7 +160,7 @@ ActionListener {
 				} catch (InterruptedException e) {
 					GenSpace.logger.warn("Unable to talk to server", e);
 				} catch (ExecutionException e) {
-					GenSpaceServerFactory.handleExecutionException();
+					GenSpaceServerFactory.handleExecutionException(e);
 					return;
 				}
 			};
@@ -179,15 +179,15 @@ ActionListener {
 				protected WorkflowComment doInBackground() throws Exception {
 					WorkflowComment wc = new WorkflowComment();
 					wc.setComment(comment);
-					wc.setCreatedAt(new Date());
+					wc.setCreatedAt(DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar()));
 					wc.setCreator(GenSpaceServerFactory.getUser());
 					wc.setWorkflow(workflow);
-					WorkflowComment ret =(WorkflowComment) RuntimeEnvironmentSettings.readObject( GenSpaceServerFactory.getWorkflowOps()
-							.addComment(RuntimeEnvironmentSettings.writeObject(wc)));
+					WorkflowComment ret =GenSpaceServerFactory.getWorkflowOps()
+							.addComment(wc);
 					GenSpaceServerFactory.updateCachedUser();
 					if(GenSpaceServerFactory.isLoggedIn())
 					{
-						GenSpace.getInstance().getWorkflowRepository().repositoryPanel.tree.root = (WorkflowFolder) RuntimeEnvironmentSettings.readObject(GenSpaceServerFactory.getUserOps().getRootFolderBytes());
+						GenSpace.getInstance().getWorkflowRepository().repositoryPanel.tree.root = (GenSpaceServerFactory.getUserOps().getRootFolder());
 						GenSpace.getInstance().getWorkflowRepository().repositoryPanel.tree.recalculateAndReload();
 					}
 					return ret;
@@ -244,9 +244,12 @@ class MyTableModel extends AbstractTableModel {
 	public MyTableModel(ArrayList<WorkflowComment> wc) {
 		data = wc;
 	}
-
 	public void setData(List<WorkflowComment> list) {
 		data = list;
+		this.fireTableDataChanged();
+	}
+	public void setData(WorkflowComment[] list) {
+		data = Arrays.asList(list);
 		this.fireTableDataChanged();
 	}
 
