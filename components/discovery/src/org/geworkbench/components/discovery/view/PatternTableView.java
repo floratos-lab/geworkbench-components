@@ -33,7 +33,6 @@ import org.geworkbench.components.discovery.model.PatternTableModelWrapper;
 import org.geworkbench.events.listeners.ProgressChangeListener;
 import org.geworkbench.util.patterns.PatternOperations;
 import org.geworkbench.util.patterns.PatternTableModel;
-import org.geworkbench.util.remote.SPLASHDefinition;
 
 /**
  * <p>Title: Sequence and Pattern Plugin</p>
@@ -364,13 +363,13 @@ public class PatternTableView extends JPanel {
                     int column = patternTable.convertColumnIndexToModel(viewColumn);
                     if (e.getClickCount() == 1 && column != -1) {
                         if (column == PatternTableModel.PTMSeqNo) {
-                            sort(SPLASHDefinition.SortMode.SEQNO);
+                            sort(SEQNO);
                         } else if (column == PatternTableModel.PTMSupport) {
-                            sort(SPLASHDefinition.SortMode.IDNO);
+                            sort(IDNO);
                         } else if (column == PatternTableModel.PTMTokNo) {
-                            sort(SPLASHDefinition.SortMode.TOKNO);
+                            sort(TOKNO);
                         } else if (column == PatternTableModel.PTMZScore) {
-                            sort(SPLASHDefinition.SortMode.PVALUE);
+                            sort(PVALUE);
                         }
                     }
                 }
@@ -379,6 +378,11 @@ public class PatternTableView extends JPanel {
         JTableHeader th = patternTable.getTableHeader();
         th.addMouseListener(listMouseListener);
     }
+
+    private final static int IDNO = 1;
+    private final static int SEQNO = 2;
+    private final static int TOKNO = 3;
+    private final static int PVALUE = 4;
 
     private void sort(int field) {
         model.sort(field);

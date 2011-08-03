@@ -44,7 +44,6 @@ import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbench.util.PropertiesMonitor;
 import org.geworkbench.util.remote.Connection;
 import org.geworkbench.util.remote.ConnectionCreationException;
-import org.geworkbench.util.remote.SPLASHDefinition;
 import org.geworkbench.util.session.DiscoverySession;
 import org.geworkbench.util.session.Logger;
 import org.geworkbench.util.session.LoggerException;
@@ -139,12 +138,24 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 		DSSequenceSet<? extends DSSequence> database = CSSequenceSet
 				.getSequenceDB(seqFile);
 		// the database will be saved with this name on the server.
-		String databaseName = SPLASHDefinition.encodeFile(database.getFile(),
+		String databaseName = encodeFile(database.getFile(),
 				userName);
 		// create a session
 		return new DiscoverySession(sessionName, database, databaseName,
 				connection, userName, logger.getUserId());
 	}
+
+	/**
+     * The method constructs a string from a file and userName.
+     */
+    private static String encodeFile(File toEncode, String userName) {
+        String databaseName = toEncode.getPath();
+        databaseName = databaseName.replace(File.separatorChar, '_').replace(':', '[');
+
+        //append user name to get uniqueness
+        databaseName = userName + '_' + databaseName;
+        return databaseName;
+    }
 
 	private Logger getLogger(Connection connection, String user, char[] password)
 			throws SessionCreationException {
