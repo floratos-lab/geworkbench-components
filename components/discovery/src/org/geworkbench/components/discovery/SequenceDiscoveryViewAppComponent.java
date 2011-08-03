@@ -49,7 +49,7 @@ import org.geworkbench.util.session.Logger;
 import org.geworkbench.util.session.LoggerException;
 import org.geworkbench.util.session.LoginPanelModel;
 import org.geworkbench.util.session.SessionCreationException;
-import org.geworkbench.util.session.dialog.SessionChooser;
+import org.geworkbench.util.session.dialog.CreateSessionDialog;
 
 import polgara.soapPD_wsdl.Parameters;
 
@@ -349,24 +349,37 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 		// intermediate values of the loginPanelModel are saved here
 		LoginPanelModel tempLoginModel = new LoginPanelModel();
 		copyLoginPanelModel(loginPanelModel, tempLoginModel);
-		SessionChooser chooser = new SessionChooser(null,
-				"New DiscoverySession", tempLoginModel);
-		int retVal = chooser.show();
-		if (retVal == SessionChooser.CANCEL_OPTION) {
-			return null;
-		}
+		CreateSessionDialog dialog = new CreateSessionDialog(null, "New DiscoverySession", tempLoginModel, true);
 
-		String host = chooser.getHostName();
-		int port = chooser.getPortNum();
-		String userName = chooser.getUserName();
-		char[] password = chooser.getPassWord();
-		String sName = chooser.getSession();
+        dialog.setVisible(true);
+        int ret = dialog.getReturnValue();
+
+        String host = new String();
+        int port = -1;
+        String userName = new String();
+        char[] passWord = null;
+        String sessionName = new String();
+        if (ret == CreateSessionDialog.CONNECT_OPTION) {
+            host = dialog.getHostName();
+            port = dialog.getPortNum();
+            userName = dialog.getUserName();
+            char[] pWord = dialog.getPassWord();
+            if (pWord != null) {
+                passWord = new char[pWord.length];
+                System.arraycopy(pWord, 0, passWord, 0, pWord.length);
+            } else {
+                passWord = new char[0];
+            }
+            sessionName = dialog.getSessionName();
+        } else {
+        	return null;
+        }
 
 		// try to create this session
 		DiscoverySession aDiscoverySession = null;
 		try {
 			aDiscoverySession = connectToService(host, port, userName,
-					password, sName);
+					passWord, sessionName);
 
 		} catch (SessionCreationException exp) {
 			//exp.printStackTrace();
