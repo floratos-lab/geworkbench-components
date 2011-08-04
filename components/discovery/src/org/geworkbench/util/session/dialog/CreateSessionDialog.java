@@ -12,20 +12,25 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 
+import org.geworkbench.events.LoginPanelModelEvent;
+import org.geworkbench.events.LoginPanelModelListener;
 import org.geworkbench.util.session.LoginPanelModel;
 
 /**
@@ -38,7 +43,7 @@ import org.geworkbench.util.session.LoginPanelModel;
  * @author Aner
  * @version $Id$
  */
-public class CreateSessionDialog extends JDialog {
+public class CreateSessionDialog extends JDialog implements LoginPanelModelListener {
 	private static final long serialVersionUID = -6879419192925394259L;
 	
 	private BorderLayout borderLayout2 = new BorderLayout();
@@ -59,18 +64,57 @@ public class CreateSessionDialog extends JDialog {
     private static int sessionNo = 1;
     private JPanel jPanel5 = new JPanel();
     private BorderLayout borderLayout1 = new BorderLayout();
-    private LoginPanel loginPanel = null;
+    private JPanel loginPanel;
     private JPanel jPanel4 = new JPanel();
     private JTextField sessionName = new JTextField(10);
     private JLabel sessionL = new JLabel();
     private TitledBorder titledBorder3;
     private Border border9;
     private FlowLayout flowLayout1 = new FlowLayout();
+    
+    // these used to be in LoginPanel
+    private JPasswordField password = new JPasswordField();
+    private JTextField userName = new JTextField();
+	private JTextField portName = new JTextField();
+	private JComboBox hostName = new JComboBox();
+	
+	private LoginPanelModel model;
+	
+    private void initializeLoginPanel(LoginPanelModel model) {
+    	loginPanel = new JPanel();
+
+        hostName.setEditable(true);
+        portName.setText("");
+        userName.setScrollOffset(0);
+
+        password.setText("");
+        
+        loginPanel.setLayout(new GridBagLayout());
+        loginPanel.setBackground(new Color(204, 204, 204));
+        loginPanel.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
+
+        loginPanel.add(password, new GridBagConstraints(1, 4, 1, 1, 1.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
+        loginPanel.add(userName, new GridBagConstraints(1, 3, 1, 1, 1.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
+        loginPanel.add(portName, new GridBagConstraints(1, 2, 1, 1, 1.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
+        loginPanel.add(new JLabel("Port:"), new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(2, 2, 2, 0), 0, 0));
+        loginPanel.add(hostName, new GridBagConstraints(1, 1, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
+        loginPanel.add(new JLabel("Server:"), new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(2, 2, 2, 0), 0, 0));
+        loginPanel.add(new JLabel("User Name:"), new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(2, 2, 2, 0), 0, 0));
+        loginPanel.add(new JLabel("Password:"), new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(2, 2, 2, 0), 0, 0));
+
+        if (model == null) {
+            throw new IllegalArgumentException("Cannot set a null LoginPanelModel");
+        }
+        this.model = model;
+        model.addLoginPanelModelListener(this);
+        model.fireLoginPanelModelChanged();
+}
 
     public CreateSessionDialog(Frame frame, String title, LoginPanelModel model, boolean modal) {
         super(frame, title, modal);
 
-        loginPanel = new LoginPanel(model);
+        initializeLoginPanel(model);
+        
         try {
             jbInit();
             pack();
@@ -165,7 +209,10 @@ public class CreateSessionDialog extends JDialog {
      */
     private boolean verify() {
         //write the data in the loginPanel to the model
-        loginPanel.write();
+        model.setCurrentHostName((String) hostName.getSelectedItem());
+        model.setPort(portName.getText());
+        model.setUserName(userName.getText());
+        model.setPassword(password.getPassword());
         if (!verifySession()) {
             return false;
         }
@@ -182,7 +229,7 @@ public class CreateSessionDialog extends JDialog {
     }
 
     private boolean verifyUserName() {
-        if (loginPanel.getUserName().trim().equals("")) {
+        if (model.getUserName().trim().equals("")) {
             popMessage("Please enter user name.");
             return false;
         }
@@ -199,7 +246,7 @@ public class CreateSessionDialog extends JDialog {
 
     private boolean verifyPort() {
         try {
-            Integer.parseInt(loginPanel.getPortNum());
+            Integer.parseInt(model.getPort());
         } catch (NumberFormatException exp) {
             popMessage("Please enter a number for the port.");
             return false;
@@ -208,7 +255,7 @@ public class CreateSessionDialog extends JDialog {
     }
 
     private boolean verifyhost() {
-        String selected = (String) loginPanel.getHostName();
+        String selected = (String) model.getHostName();
         selected = selected.trim();
         if (selected.equals("")) {
             popMessage("Please enter host name.");
@@ -227,7 +274,7 @@ public class CreateSessionDialog extends JDialog {
      * @return host name
      */
     public String getHostName() {
-        return (String) (loginPanel.getHostName());
+        return (String) (model.getHostName());
     }
 
     /**
@@ -237,7 +284,7 @@ public class CreateSessionDialog extends JDialog {
      */
 
     public String getUserName() {
-        return loginPanel.getUserName();
+        return model.getUserName();
     }
 
     /**
@@ -246,7 +293,7 @@ public class CreateSessionDialog extends JDialog {
      * @return port number
      */
     public int getPortNum() {
-        return Integer.parseInt(loginPanel.getPortNum());
+        return Integer.parseInt(model.getPort());
     }
 
     /**
@@ -255,7 +302,7 @@ public class CreateSessionDialog extends JDialog {
      * @return password
      */
     public char[] getPassWord() {
-        return loginPanel.getPassword();
+        return model.getPassword();
     }
 
     public String getSessionName() {
@@ -301,5 +348,24 @@ public class CreateSessionDialog extends JDialog {
             }
         }
     }
+
+	@Override
+	public void loginPanelChanged(LoginPanelModelEvent evt) {
+        LoginPanelModel lpm = (LoginPanelModel) evt.getSource();
+        userName.setText(lpm.getUserName());
+        portName.setText(lpm.getPort());
+
+        // show Host Set
+        String name = lpm.getHostName();
+        if (name != null) {
+            hostName.addItem(name);
+        }
+        Set<?> hostSet = lpm.getHostSet();
+        if (hostSet != null) {
+            for (Object h: hostSet) {
+                hostName.addItem(h);
+            }
+        }
+	}
 
 }
