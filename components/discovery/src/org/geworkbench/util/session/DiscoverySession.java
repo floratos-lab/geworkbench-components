@@ -12,7 +12,6 @@ import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSe
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.util.patterns.PatternOfflet;
-import org.geworkbench.util.remote.Connection;
 
 import polgara.soapPD_wsdl.LoginToken;
 import polgara.soapPD_wsdl.Parameters;
@@ -76,14 +75,14 @@ public class DiscoverySession {
 	 */
 	public DiscoverySession(String sessionName,
 			DSSequenceSet<? extends DSSequence> database, String databaseName,
-			Connection connection, String userName, int userId)
+			SoapPDPortType soapPort, String userName, int userId)
 			throws SessionCreationException {
 		/* dna=0 protein=1 on server */
 		sType = (database.isDNA()) ? 0 : 1;
 
 		try {
 			this.database = database;
-			this.soapPort = connection.getPort();
+			this.soapPort = soapPort;
 			this.databaseName = databaseName;
 
 			int sessionId = soapPort.createSession(sessionName,
