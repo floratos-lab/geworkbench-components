@@ -1,4 +1,4 @@
-package org.geworkbench.util.session.dialog;
+package org.geworkbench.components.discovery.session;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -29,7 +29,6 @@ import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 
-import org.geworkbench.util.session.LoginPanelModel;
 
 /**
  * <p>Title: Sequence and Pattern Plugin</p>

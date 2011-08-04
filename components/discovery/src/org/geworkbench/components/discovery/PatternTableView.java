@@ -1,4 +1,4 @@
-package org.geworkbench.components.discovery.view;
+package org.geworkbench.components.discovery;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -26,10 +26,6 @@ import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSe
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.datastructure.complex.pattern.PatternResult;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSMatchedSeqPattern;
-import org.geworkbench.components.discovery.ParameterTranslation;
-import org.geworkbench.components.discovery.PatFilter;
-import org.geworkbench.components.discovery.SequenceDiscoveryViewWidget;
-import org.geworkbench.components.discovery.model.PatternTableModelWrapper;
 import org.geworkbench.events.listeners.ProgressChangeListener;
 import org.geworkbench.util.patterns.PatternOperations;
 import org.geworkbench.util.patterns.PatternTableModel;

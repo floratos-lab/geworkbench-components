@@ -48,8 +48,7 @@ import org.geworkbench.components.discovery.algorithm.AbstractSequenceDiscoveryA
 import org.geworkbench.components.discovery.algorithm.AlgorithmStub;
 import org.geworkbench.components.discovery.algorithm.RegularDiscoveryFileLoader;
 import org.geworkbench.components.discovery.algorithm.ServerBaseDiscovery;
-import org.geworkbench.components.discovery.model.PatternTableModelWrapper;
-import org.geworkbench.components.discovery.view.PatternTableView;
+import org.geworkbench.components.discovery.session.DiscoverySession;
 import org.geworkbench.events.HistoryEvent;
 import org.geworkbench.events.ProgressBarEvent;
 import org.geworkbench.events.ProgressChangeEvent;
@@ -57,7 +56,6 @@ import org.geworkbench.events.StatusBarEvent;
 import org.geworkbench.events.listeners.ProgressChangeListener;
 import org.geworkbench.events.listeners.StatusChangeListener;
 import org.geworkbench.util.patterns.DataSource;
-import org.geworkbench.util.session.DiscoverySession;
 
 import polgara.soapPD_wsdl.Exhaustive;
 import polgara.soapPD_wsdl.Parameters;
