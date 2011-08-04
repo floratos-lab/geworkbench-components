@@ -28,7 +28,6 @@ import org.geworkbench.bison.datastructure.complex.pattern.PatternResult;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSMatchedSeqPattern;
 import org.geworkbench.events.listeners.ProgressChangeListener;
 import org.geworkbench.util.patterns.PatternOperations;
-import org.geworkbench.util.patterns.PatternTableModel;
 
 /**
  * <p>Title: Sequence and Pattern Plugin</p>

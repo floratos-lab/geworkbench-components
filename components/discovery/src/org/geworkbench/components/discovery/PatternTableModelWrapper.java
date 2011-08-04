@@ -1,11 +1,10 @@
 package org.geworkbench.components.discovery;
 
+import javax.swing.SwingUtilities;
+
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSMatchedSeqPattern;
 import org.geworkbench.events.ProgressChangeEvent;
 import org.geworkbench.events.listeners.ProgressChangeListener;
-import org.geworkbench.util.patterns.PatternTableModel;
-
-import javax.swing.*;
 
 /**
  * <p>Title: Sequence and Pattern Plugin</p>
@@ -23,7 +22,7 @@ import javax.swing.*;
 
 public class PatternTableModelWrapper implements ProgressChangeListener {
     //holds patterns of the table
-    org.geworkbench.util.patterns.PatternTableModel patternModel = new PatternTableModel();
+    PatternTableModel patternModel = new PatternTableModel();
 
     public PatternTableModelWrapper() {
     }
