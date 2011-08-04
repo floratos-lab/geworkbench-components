@@ -467,7 +467,7 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 		JTable table = (JTable) evt.getNewValue();
 		List<DSMatchedPattern<DSSequence, CSSeqRegistration>> patternMatches = new ArrayList<DSMatchedPattern<DSSequence, CSSeqRegistration>>();
 		if (table != null) {
-			org.geworkbench.util.patterns.PatternTableModel model = (org.geworkbench.util.patterns.PatternTableModel) (table)
+			PatternTableModel model = (PatternTableModel) (table)
 					.getModel();
 			int[] rows = table.getSelectedRows();
 			for (int i = 0; i < rows.length; i++) {
