@@ -1734,6 +1734,12 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		cancelAction = true;
 		createNetWorkButton.setEnabled(true);
 	}
+	
+	public boolean isQueryRuning()
+	{
+		return isQueryRuning;
+	}
+
 
 	private boolean isProcessingAllowed() {
 		boolean isAllow = true;
