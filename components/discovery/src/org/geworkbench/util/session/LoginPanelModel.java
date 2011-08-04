@@ -2,9 +2,6 @@ package org.geworkbench.util.session;
 
 import java.util.Set;
 
-import javax.swing.event.EventListenerList;
-
-import org.geworkbench.events.LoginPanelModelEvent;
 import org.geworkbench.util.PropertiesMonitor;
 
 /**
@@ -40,36 +37,6 @@ public class LoginPanelModel {
     private Set<String> hostSet;
     private String currentHost;
     private String port;
-
-    /**
-     * List of listeners
-     */
-    private EventListenerList listenerList = new EventListenerList();
-
-    /**
-     * This method add listener to LoginPanelModel events.
-     *
-     * @param l
-     */
-    public void addLoginPanelModelListener(org.geworkbench.events.LoginPanelModelListener l) {
-        listenerList.add(org.geworkbench.events.LoginPanelModelListener.class, l);
-    }
-
-    /**
-     * This method fires an LoginPanelModelEvent to all listeners.
-     */
-    public void fireLoginPanelModelChanged() {
-        // Guaranteed to return a non-null array
-        Object[] listeners = listenerList.getListenerList();
-        LoginPanelModelEvent e = new LoginPanelModelEvent(this);
-        // Process the listeners last to first, notifying
-        // those that are interested in this event
-        for (int i = listeners.length - 2; i >= 0; i -= 2) {
-            if (listeners[i] == org.geworkbench.events.LoginPanelModelListener.class) {
-                ((org.geworkbench.events.LoginPanelModelListener) listeners[i + 1]).loginPanelChanged(e);
-            }
-        }
-    }
 
     /**
      * parse the host and host set
