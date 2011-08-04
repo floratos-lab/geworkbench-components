@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,13 +46,12 @@ import org.geworkbench.util.PropertiesMonitor;
 import org.geworkbench.util.remote.Connection;
 import org.geworkbench.util.remote.ConnectionCreationException;
 import org.geworkbench.util.session.DiscoverySession;
-import org.geworkbench.util.session.Logger;
-import org.geworkbench.util.session.LoggerException;
 import org.geworkbench.util.session.LoginPanelModel;
 import org.geworkbench.util.session.SessionCreationException;
 import org.geworkbench.util.session.dialog.CreateSessionDialog;
 
 import polgara.soapPD_wsdl.Parameters;
+import polgara.soapPD_wsdl.SoapPDPortType;
 
 /**
  * <p>
@@ -114,9 +114,21 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 			String userName, char[] password, String sessionName)
 			throws SessionCreationException {
 		// establish a connection
+		// TODO necessity of class Connection is questionable
 		Connection connection = getConnection(host, port);
-		// now try to login
-		Logger logger = getLogger(connection, userName, password);
+		SoapPDPortType soapPDPortType = connection.getPort();
+
+		int userId = 0;
+        try {
+            String pass = new String(password);
+            int returnVal = soapPDPortType.login(userName, pass);
+
+            if (returnVal > -1) {
+                userId = returnVal;
+            }
+        } catch (RemoteException exp) {
+             throw new SessionCreationException("Login operation failed.");
+        }
 
 		File seqFile = null;
 		/*
@@ -142,7 +154,7 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 				userName);
 		// create a session
 		return new DiscoverySession(sessionName, database, databaseName,
-				connection, userName, logger.getUserId());
+				connection, userName, userId);
 	}
 
 	/**
@@ -156,17 +168,6 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
         databaseName = userName + '_' + databaseName;
         return databaseName;
     }
-
-	private Logger getLogger(Connection connection, String user, char[] password)
-			throws SessionCreationException {
-		Logger logger = null;
-		try {
-			logger = new Logger(connection, user, password);
-		} catch (LoggerException exp) {
-			throw new SessionCreationException("Login operation failed.");
-		}
-		return logger;
-	}
 
 	private Connection getConnection(String host, int port)
 			throws SessionCreationException {
