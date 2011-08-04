@@ -14,6 +14,7 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
+import javax.xml.rpc.ServiceException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -43,14 +44,13 @@ import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.events.SequenceDiscoveryTableEvent;
 import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbench.util.PropertiesMonitor;
-import org.geworkbench.util.remote.Connection;
-import org.geworkbench.util.remote.ConnectionCreationException;
 import org.geworkbench.util.session.DiscoverySession;
 import org.geworkbench.util.session.LoginPanelModel;
 import org.geworkbench.util.session.SessionCreationException;
 import org.geworkbench.util.session.dialog.CreateSessionDialog;
 
 import polgara.soapPD_wsdl.Parameters;
+import polgara.soapPD_wsdl.SoapPDLocator;
 import polgara.soapPD_wsdl.SoapPDPortType;
 
 /**
@@ -113,11 +113,25 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 	private DiscoverySession connectToService(String host, int port,
 			String userName, char[] password, String sessionName)
 			throws SessionCreationException {
-		// establish a connection
-		// TODO necessity of class Connection is questionable
-		Connection connection = getConnection(host, port);
-		SoapPDPortType soapPDPortType = connection.getPort();
 
+		// establish a connection
+		URL url = null;
+		try {
+	        String urlString = new String("http://" + host + ":" + port + "/" + "PDServ.exe");
+	        url = new URL(urlString);
+		} catch (MalformedURLException ex) {
+			throw new SessionCreationException("Could not form URL. (host: "
+					+ host + "port: " + port + ")");
+		}
+
+		SoapPDPortType soapPDPortType = null;
+		try {
+			soapPDPortType = new SoapPDLocator().getsoapPD(url);
+		} catch (ServiceException ex) {
+			new SessionCreationException(
+			"Could not connect to the server.");
+		}
+		
 		int userId = 0;
         try {
             String pass = new String(password);
@@ -154,7 +168,7 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 				userName);
 		// create a session
 		return new DiscoverySession(sessionName, database, databaseName,
-				connection, userName, userId);
+				soapPDPortType, userName, userId);
 	}
 
 	/**
@@ -168,24 +182,6 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
         databaseName = userName + '_' + databaseName;
         return databaseName;
     }
-
-	private Connection getConnection(String host, int port)
-			throws SessionCreationException {
-		URL url = null;
-		try {
-			url = Connection.getURL(host, port);
-		} catch (MalformedURLException ex) {
-			throw new SessionCreationException("Could not form URL. (host: "
-					+ host + "port: " + port + ")");
-		}
-
-		try {
-			return new Connection(url);
-		} catch (ConnectionCreationException ex) {
-			throw new SessionCreationException(
-					"Could not connect to the server.");
-		}
-	}
 
 	public Component getComponent() {
 		return sDiscoveryViewWidget;
