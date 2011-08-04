@@ -61,6 +61,10 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 	private Log log = LogFactory.getLog(this.getClass());
 
 	private boolean isUserSelected = true;
+	private boolean isFirstCaught = true;
+	
+	private Integer currentContextIndex = null;
+	private Integer currentVersionIndex = null;
 
 	private JList contextJList;
 	private JList versionJList;
@@ -255,6 +259,23 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 					return;
 				String selectedCoxtext = contextJList.getSelectedValue()
 						.toString().split(" \\(")[0].trim();
+				
+				if (c.isQueryRuning()) {
+					if (isFirstCaught) {
+						String theMessage = "You can not change interactome during a query run.";
+
+						JOptionPane.showMessageDialog(null, theMessage,
+
+						"Information", JOptionPane.INFORMATION_MESSAGE);
+						isFirstCaught = false;
+						contextJList.setSelectedIndex(currentContextIndex);
+					    
+					} else
+						isFirstCaught = true;
+					return;
+				}
+				
+				
 				if (versionList == null)
 					versionList = new ArrayList<VersionDescriptor>();
 				versionList.clear();
@@ -262,6 +283,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 
 				if (selectedCoxtext != null
 						&& !selectedCoxtext.trim().equals("")) {
+					currentContextIndex = contextJList.getSelectedIndex();
 					InteractionsConnectionImpl interactionsConnection = new InteractionsConnectionImpl();
 					try {
 						interactomeDesc = interactionsConnection
@@ -310,6 +332,22 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 
 				if (selectedVersion != null
 						&& selectedVersion instanceof VersionDescriptor) {
+					if (c.isQueryRuning()) {
+						if (isFirstCaught) {
+							String theMessage = "You can not change interactome version during a query run.";
+
+							JOptionPane.showMessageDialog(null, theMessage,
+
+							"Information", JOptionPane.INFORMATION_MESSAGE);
+							isFirstCaught = false;
+							versionJList.setSelectedIndex(currentVersionIndex);
+						    
+						} else
+							isFirstCaught = true;
+						return;
+					}
+					
+					
 					context = contextJList.getSelectedValue().toString().split(
 							" \\(")[0].trim();
 					version = ((VersionDescriptor) selectedVersion)
@@ -321,7 +359,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 							 
 					versionJTextArea.setText(versionDesc);
 					versionJTextArea.setCaretPosition(0);
-
+					currentVersionIndex = versionJList.getSelectedIndex();
 				} else
 					return;
 				InteractionsConnectionImpl interactionsConnection = new InteractionsConnectionImpl();
