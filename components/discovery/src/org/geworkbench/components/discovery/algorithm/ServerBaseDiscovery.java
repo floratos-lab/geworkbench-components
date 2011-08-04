@@ -8,6 +8,8 @@ import javax.swing.JOptionPane;
 
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSMatchedSeqPattern;
 import org.geworkbench.components.discovery.SequenceDiscoveryViewWidget;
+import org.geworkbench.components.discovery.session.DiscoverySession;
+import org.geworkbench.components.discovery.session.SessionOperationException;
 import org.geworkbench.events.ProgressBarEvent;
 import org.geworkbench.events.ProgressChangeEvent;
 import org.geworkbench.events.StatusBarEvent;
@@ -15,8 +17,6 @@ import org.geworkbench.util.patterns.CSMatchedSeqPattern;
 import org.geworkbench.util.patterns.PatternFetchException;
 import org.geworkbench.util.patterns.PatternOperations;
 import org.geworkbench.util.patterns.SequentialPatternSource;
-import org.geworkbench.util.session.DiscoverySession;
-import org.geworkbench.util.session.SessionOperationException;
 
 import polgara.soapPD_wsdl.Parameters;
 

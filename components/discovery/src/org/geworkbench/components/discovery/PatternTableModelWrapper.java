@@ -1,4 +1,4 @@
-package org.geworkbench.components.discovery.model;
+package org.geworkbench.components.discovery;
 
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSMatchedSeqPattern;
 import org.geworkbench.events.ProgressChangeEvent;

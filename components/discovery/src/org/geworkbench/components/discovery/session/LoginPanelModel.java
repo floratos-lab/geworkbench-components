@@ -1,4 +1,4 @@
-package org.geworkbench.util.session;
+package org.geworkbench.components.discovery.session;
 
 import java.util.Set;
 
