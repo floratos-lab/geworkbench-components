@@ -29,8 +29,6 @@ import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 
-import org.geworkbench.events.LoginPanelModelEvent;
-import org.geworkbench.events.LoginPanelModelListener;
 import org.geworkbench.util.session.LoginPanelModel;
 
 /**
@@ -43,7 +41,7 @@ import org.geworkbench.util.session.LoginPanelModel;
  * @author Aner
  * @version $Id$
  */
-public class CreateSessionDialog extends JDialog implements LoginPanelModelListener {
+public class CreateSessionDialog extends JDialog {
 	private static final long serialVersionUID = -6879419192925394259L;
 	
 	private BorderLayout borderLayout2 = new BorderLayout();
@@ -106,8 +104,7 @@ public class CreateSessionDialog extends JDialog implements LoginPanelModelListe
             throw new IllegalArgumentException("Cannot set a null LoginPanelModel");
         }
         this.model = model;
-        model.addLoginPanelModelListener(this);
-        model.fireLoginPanelModelChanged();
+        loginPanelChanged();
 }
 
     public CreateSessionDialog(Frame frame, String title, LoginPanelModel model, boolean modal) {
@@ -349,18 +346,16 @@ public class CreateSessionDialog extends JDialog implements LoginPanelModelListe
         }
     }
 
-	@Override
-	public void loginPanelChanged(LoginPanelModelEvent evt) {
-        LoginPanelModel lpm = (LoginPanelModel) evt.getSource();
-        userName.setText(lpm.getUserName());
-        portName.setText(lpm.getPort());
+	private void loginPanelChanged() {
+        userName.setText(model.getUserName());
+        portName.setText(model.getPort());
 
         // show Host Set
-        String name = lpm.getHostName();
+        String name = model.getHostName();
         if (name != null) {
             hostName.addItem(name);
         }
-        Set<?> hostSet = lpm.getHostSet();
+        Set<?> hostSet = model.getHostSet();
         if (hostSet != null) {
             for (Object h: hostSet) {
                 hostName.addItem(h);
