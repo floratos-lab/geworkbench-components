@@ -309,7 +309,6 @@ public class PatternTableView extends JPanel {
             PatternOperations.fill(pattern, db);
             patternDB.add(pattern);
         }
-		ParameterTranslation.translate(widget.getParameters());
         return patternDB;
     }
 
@@ -322,7 +321,6 @@ public class PatternTableView extends JPanel {
             PatternOperations.fill(pattern, db);
             patternDB.add(pattern);
         }
-		ParameterTranslation.translate(widget.getParameters());
 
         return patternDB;
     }
