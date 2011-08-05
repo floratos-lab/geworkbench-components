@@ -320,7 +320,26 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		algorithm.setPatternResult(patternResult);
 		algorithm.setSequenceInputData(this.getSequenceDB());
 
-		switchAlgo(selectedAlgo, algorithm);
+		algorithm.addProgressChangeListener(this);
+		AlgorithmStub stub = getStub(currentStubId);
+		
+		stub.setAlgorithm(algorithm);
+		stub.setParameterPanel(parameterPanel);
+		stub.setDescription(selectedAlgo);
+
+		algorithmStubMap.put(currentStubId, stub);
+
+		algorithm.addStatusChangeListener(this);
+		algorithm.setViewWidget(this);
+
+		stub.gainedFocus(model);
+		model.attach(stub.getResultDataSource());
+
+		// replace the view and model
+		clearTableView();
+
+		// start the algorithm
+		stub.start(executeButton);
 	}
 
 	private final static String REGULAR = "regular";
@@ -342,32 +361,6 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		if (currentMinSupportTypeName != null)
 			parameterPanel.setCurrentSupportMenuStr(currentMinSupportTypeName);
 	};
-
-	// only in EDT
-	private void switchAlgo(String selectedAlgo,
-			AbstractSequenceDiscoveryAlgorithm algorithm) {
-		algorithm.addProgressChangeListener(this);
-		AlgorithmStub stub = getStub(currentStubId);
-		
-		stub.setAlgorithm(algorithm);
-		stub.setParameterPanel(parameterPanel);
-		stub.setDescription(selectedAlgo);
-
-		algorithmStubMap.put(currentStubId, stub);
-
-		algorithm.addStatusChangeListener(this);
-		algorithm.setViewWidget(this);
-
-
-		stub.gainedFocus(model);
-		model.attach(stub.getResultDataSource());
-
-		// replace the view and model
-		clearTableView();
-
-		// start the algorithm
-		stub.start(executeButton);
-	}
 
 	private DSAncillaryDataSet<? extends DSBioObject> resultData = null;
 
