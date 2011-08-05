@@ -55,7 +55,6 @@ import org.geworkbench.events.ProgressChangeEvent;
 import org.geworkbench.events.StatusBarEvent;
 import org.geworkbench.events.listeners.ProgressChangeListener;
 import org.geworkbench.events.listeners.StatusChangeListener;
-import org.geworkbench.util.patterns.DataSource;
 
 import polgara.soapPD_wsdl.Exhaustive;
 import polgara.soapPD_wsdl.Parameters;
@@ -788,26 +787,27 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 
 		if (type != null
 				&& type.equalsIgnoreCase(PatternResult.DISCOVER)) {
-			@SuppressWarnings("unchecked")
-			AbstractSequenceDiscoveryAlgorithm loader = new RegularDiscoveryFileLoader(
-					sequenceFile, patternfile, appComponent, newNode,
-					(DSDataSet<DSSequence>) getSequenceDB());
+			RegularDiscoveryFileLoader loader = new RegularDiscoveryFileLoader();
 
 			currentStubId = null;
 
 			loader.addProgressChangeListener(this);
 			
 			loader.addStatusChangeListener(this);
-			loader.setViewWidget(this);
 
 			loader.addProgressChangeListener(model);
-			model.attach((DataSource)loader);
+			model.attach(loader.getPatternSource());
 
 			// replace the view and model
 			setCurrentView(PATTERN_TABLE);
 
 			// start reading the file without creating new thread
-			loader.start();
+			// the case newNode==false may not be necessary at all
+			@SuppressWarnings("unchecked")
+			PatternResult patternDB = loader.read(sequenceFile, patternfile, (DSDataSet<DSSequence>) getSequenceDB());
+            if(patternDB!=null && newNode)
+				appComponent.createNewNode(patternDB);
+
 
 			// fire a clear table event
 			firePropertyChange(TABLE_EVENT, null, null);
