@@ -284,6 +284,7 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 	/**
 	 * We want to know when the user selects file
 	 */
+	// only in EDT
 	@SuppressWarnings("unchecked")
 	@Subscribe
 	public void receive(ProjectEvent e, Object source) {
@@ -317,11 +318,9 @@ public class SequenceDiscoveryViewAppComponent implements VisualPlugin,
 			if (df.equals(fullSequenceDB)) sequenceDB = activeSequenceDB;
 			sDiscoveryViewWidget.setSequenceDB(sequenceDB, true,
 					soapParmsDataSet.getID(), parms, soapParmsDataSet);
-			sDiscoveryViewWidget
-					.setCurrentView(SequenceDiscoveryViewWidget.PATTERN_TABLE);
+			sDiscoveryViewWidget.setTableView();
 		} else {
-			sDiscoveryViewWidget
-					.setCurrentView(SequenceDiscoveryViewWidget.DEFAULT_VIEW);
+			sDiscoveryViewWidget.clearTableView();
 		}
 	}
 
