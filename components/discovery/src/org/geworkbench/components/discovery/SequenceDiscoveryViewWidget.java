@@ -42,7 +42,6 @@ import org.geworkbench.bison.datastructure.complex.pattern.PatternDiscoveryParam
 import org.geworkbench.bison.datastructure.complex.pattern.PatternResult;
 import org.geworkbench.bison.util.RandomNumberGenerator;
 import org.geworkbench.builtin.projects.ProjectPanel;
-import org.geworkbench.components.discovery.algorithm.AbstractSequenceDiscoveryAlgorithm;
 import org.geworkbench.components.discovery.algorithm.AlgorithmStub;
 import org.geworkbench.components.discovery.algorithm.RegularDiscoveryFileLoader;
 import org.geworkbench.components.discovery.algorithm.ServerBaseDiscovery;
@@ -315,15 +314,14 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		currentStubId = currentNodeID + id;
 		resultData = patternResult;
 
-		AbstractSequenceDiscoveryAlgorithm algorithm = new ServerBaseDiscovery(
-				discoverySession, getParameters(), algorithmName);
+		final ServerBaseDiscovery algorithm = new ServerBaseDiscovery(
+				discoverySession, parms, algorithmName);
 		algorithm.setPatternResult(patternResult);
 		algorithm.setSequenceInputData(this.getSequenceDB());
 
 		algorithm.addProgressChangeListener(this);
-		AlgorithmStub stub = getStub(currentStubId);
+		AlgorithmStub stub = getStub(currentStubId, algorithm);
 		
-		stub.setAlgorithm(algorithm);
 		stub.setParameterPanel(parameterPanel);
 		stub.setDescription(selectedAlgo);
 
@@ -339,7 +337,17 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		clearTableView();
 
 		// start the algorithm
-		stub.start(executeButton);
+        executeButton.setEnabled(false);
+        Thread thread = new Thread(
+        	new Runnable() {
+        		public void run() {
+        			algorithm.start();
+        			executeButton.setEnabled(true);
+        		}
+        	}, 
+        	"Algorithm thread Start");
+        thread.setPriority(Thread.MIN_PRIORITY);
+        thread.start();
 	}
 
 	private final static String REGULAR = "regular";
@@ -636,11 +644,11 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		repaint();
 	}
 
-	private AlgorithmStub getStub(String key) {
+	private AlgorithmStub getStub(String key, ServerBaseDiscovery algorithm) {
 		AlgorithmStub stub = algorithmStubMap.get(key);
 		// if stub is null we need to create stub for this algorithm
 		if (stub == null) {
-			stub = new AlgorithmStub();
+			stub = new AlgorithmStub(algorithm);
 		} else {
 			// we had a stub.
 			// stop the previous algorithm
@@ -648,6 +656,8 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 			// remove the model from the stopped algorithm
 			stub.lostFocus(model);
 			stub.removeStatusChangeListener(this);
+			
+			stub.setAlgorithm(algorithm);
 		}
 		return stub;
 	}
@@ -713,10 +723,6 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 	void setSequenceDiscoveryViewAppComponent(
 			SequenceDiscoveryViewAppComponent s) {
 		appComponent = s;
-	}
-
-	public Parameters getParameters() {
-		return parms;
 	}
 
 	private void writeObject(ObjectOutputStream oos) throws IOException {

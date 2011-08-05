@@ -16,62 +16,19 @@ import javax.swing.*;
  * <p>Company: </p>
  *
  * @author not attributable
- * @version 1.0
+ * @version $Id$
  */
-
 public class AlgorithmStub {
-    //the "empty" algorithm - used in initialization.
-    protected final static AbstractSequenceDiscoveryAlgorithm emptyAlgorithm = new AbstractSequenceDiscoveryAlgorithm() {
-        public void start() {
-        };
-        public void stop() {
-        };
-    };
 
     //Visual parameter panel
     private JPanel parameterPanel = null;
     //algorithm description
     private String algorithmName = "";
-
-    // handle to enable/disable exec button
-    private javax.swing.JButton execbutton = null;
-
     //the algorithm to run in this stub.
-    private AbstractSequenceDiscoveryAlgorithm algorithm;
-    //we create a thread to start the algorithm in.
-    private Runnable doStart = new Runnable() {
-        public void run() {
-            algorithm.start();
-            enableExec();
-        }
-    };
+    private ServerBaseDiscovery algorithm;
 
-    /*
-     * re-enables the execute button for running the algorithm
-     *
-     */
-    private void enableExec() {
-        if (execbutton != null) {
-            execbutton.setEnabled(true);
-            execbutton = null;
-        }
-    }
-
-    public AlgorithmStub() {
-        algorithm = AlgorithmStub.emptyAlgorithm;
-    }
-
-    /**
-     * Start the algorithm in this stub.
-     * The method startd the algorithm in its own thread.
-     */
-
-    public void start(javax.swing.JButton disable) {
-        execbutton = disable;
-        execbutton.setEnabled(false);
-        Thread thread = new Thread(doStart, "Algorithm thread Start");
-        thread.setPriority(Thread.MIN_PRIORITY);
-        thread.start();
+    public AlgorithmStub(ServerBaseDiscovery algorithm) {
+        this.algorithm = algorithm;
     }
 
     /**
@@ -104,18 +61,9 @@ public class AlgorithmStub {
     }
 
     /**
-     * Get the algorithm of this stub.
-     *
-     * @return alogrithm
-     */
-    public AbstractSequenceDiscoveryAlgorithm getAlgorithm() {
-        return algorithm;
-    }
-
-    /**
      * Set the algorithm of this stub.
      */
-    public void setAlgorithm(AbstractSequenceDiscoveryAlgorithm algorithm) {
+    public void setAlgorithm(ServerBaseDiscovery algorithm) {
         this.algorithm = algorithm;
     }
 
@@ -154,6 +102,4 @@ public class AlgorithmStub {
     public JPanel getParameterPanel() {
         return this.parameterPanel;
     }
-
-    //  public abstract JPanel getViewPanel();
 }
