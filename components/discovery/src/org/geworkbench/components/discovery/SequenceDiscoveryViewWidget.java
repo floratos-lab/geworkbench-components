@@ -13,7 +13,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,7 +28,6 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JRadioButton;
 import javax.swing.JToolBar;
-import javax.swing.SwingUtilities;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -108,8 +106,6 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 
 	// the displayed view component in this widget
 	private Component currentViewComponent = new JPanel();
-	public static final int DEFAULT_VIEW = -1;
-	public static final int PATTERN_TABLE = 0;
 
 	// view and model
 	private JPanel view;
@@ -324,7 +320,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		algorithm.setPatternResult(patternResult);
 		algorithm.setSequenceInputData(this.getSequenceDB());
 
-		switchAlgo(selectedAlgo, algorithm, DEFAULT_VIEW);
+		switchAlgo(selectedAlgo, algorithm);
 	}
 
 	private final static String REGULAR = "regular";
@@ -347,8 +343,9 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 			parameterPanel.setCurrentSupportMenuStr(currentMinSupportTypeName);
 	};
 
+	// only in EDT
 	private void switchAlgo(String selectedAlgo,
-			AbstractSequenceDiscoveryAlgorithm algorithm, int viewId) {
+			AbstractSequenceDiscoveryAlgorithm algorithm) {
 		algorithm.addProgressChangeListener(this);
 		AlgorithmStub stub = getStub(currentStubId);
 		
@@ -366,7 +363,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		model.attach(stub.getResultDataSource());
 
 		// replace the view and model
-		setCurrentView(viewId);
+		clearTableView();
 
 		// start the algorithm
 		stub.start(executeButton);
@@ -378,9 +375,11 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		this.resultData = resultData;
 	}
 
+	// only in EDT
 	public void firePropertyChangeAlgo(){
 		appComponent.createNewNode(resultData);
 		firePropertyChange(TABLE_EVENT, null, null);
+		setTableView();
 	}
 
 	/**
@@ -515,6 +514,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 	 * @param stub
 	 *            the id of the selected file.
 	 */
+	// only in EDT
 	private void projectFileChanged(String stub) {
 		if (stub == null) {
 			return;
@@ -554,7 +554,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 			setSelectedAlgorithm(newStub.getDescription());
 		} else {
 			// set Default View
-			setCurrentView(DEFAULT_VIEW);
+			clearTableView();
 			ParameterPanel paramP = new ParameterPanel();
 
 			//bug 2425
@@ -571,12 +571,13 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
         }
 	}
 
+	// only in EDT
 	private void loadPatternResult(PatternResult result) {
 
 		currentStubId = null;
 
 		// replace the view and model
-		setCurrentView(PATTERN_TABLE);
+		setTableView();
 
 		String idString = RandomNumberGenerator.getID();
 		result.setID(idString);
@@ -591,46 +592,23 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		firePropertyChange(TABLE_EVENT, null, null);
 	}
 
-	/**
-	 * Replaces the view for this component.
-	 * This method is invoked from either EDT or non-EDT.
-	 *
-	 * @param i
-	 *            the index of a view.
-	 */
-	public void setCurrentView(final int i) {
-		if(SwingUtilities.isEventDispatchThread()) {
-			setCurrentViewFromEDT(i);
-		} else {
-			try {
-				SwingUtilities.invokeAndWait(new Runnable() {
+	// replace the original setCurrentView for the 'DEFAULT_VIEW' or empty case
+	// make it public so ServerBaseDiscovery can call. TODO move to one package
+	public void clearTableView() {
+		statusBarChanged(DefaultLook.statusEvt);
+		progressBarChanged(DefaultLook.progressEvt);
 
-					@Override
-					public void run() {
-						setCurrentViewFromEDT(i);
-					}
-					
-				});
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			} catch (InvocationTargetException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-
-	// this method should be invoked only from EDT
-	private void setCurrentViewFromEDT(int i) {
-		Component comp = null;
-		if (i == DEFAULT_VIEW) {
-			comp = DefaultLook.panel;
-			statusBarChanged(DefaultLook.statusEvt);
-			progressBarChanged(DefaultLook.progressEvt);
-		} else {
-			comp = view;
-		}
 		panelView.remove(currentViewComponent);
-		currentViewComponent = comp;
+		currentViewComponent = DefaultLook.panel;
+		panelView.add(currentViewComponent, BorderLayout.CENTER);
+		revalidate();
+		repaint();
+	}
+	
+	// replace the original setCurrentView for the 'PATTERN_TABLE' or not-empty case
+	void setTableView() {
+		panelView.remove(currentViewComponent);
+		currentViewComponent = view;
 		panelView.add(currentViewComponent, BorderLayout.CENTER);
 		revalidate();
 		repaint();
@@ -639,6 +617,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 	/**
 	 * This method tries to attach a DataSource to one of the models.
 	 */
+	// only in EDT
 	private void attachDataSource(
 			org.geworkbench.util.patterns.DataSource source, AlgorithmStub stub) {
 		// only one model now
@@ -646,7 +625,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 			// pass the model to the algorithm stub
 			stub.gainedFocus(model);
 			// update the view panel
-			setCurrentView(0);
+			setTableView();
 			setCurrentParameterPanel(stub.getParameterPanel());
 		}
 	}
@@ -756,6 +735,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		ois.defaultReadObject();
 	}
 
+	// only in EDT
 	private void loadPatternFile(File patternfile, boolean newNode) {
 		File sequenceFile = getSequenceDB().getFile();
 		if (!patternfile.getName().endsWith(".pat")) {
@@ -799,7 +779,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 			model.attach(loader.getPatternSource());
 
 			// replace the view and model
-			setCurrentView(PATTERN_TABLE);
+			setTableView();
 
 			// start reading the file without creating new thread
 			// the case newNode==false may not be necessary at all

@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSMatchedSeqPattern;
-import org.geworkbench.components.discovery.SequenceDiscoveryViewWidget;
 import org.geworkbench.components.discovery.session.DiscoverySession;
 import org.geworkbench.components.discovery.session.SessionOperationException;
 import org.geworkbench.events.ProgressBarEvent;
@@ -266,6 +266,7 @@ public final class ServerBaseDiscovery extends
      * If no listeners are listening for updates we suspend the polling
      * with the "tryWait()"
      */
+	// only in background thread
     private void pollAndUpdate() {
         DiscoverySession discoverySession = getSession();
         try {
@@ -288,15 +289,26 @@ public final class ServerBaseDiscovery extends
             ex.printStackTrace();
         }
         fireDisplayUpdate();
-		int viewId = SequenceDiscoveryViewWidget.DEFAULT_VIEW;
         if (discoveredPattern == 0){
-			JOptionPane.showMessageDialog(null, "No patterns were found");
+			SwingUtilities.invokeLater(new Runnable() {
+
+				@Override
+				public void run() {
+					JOptionPane.showMessageDialog(null, "No patterns were found");
+					viewWidget.clearTableView();
+				}
+				
+			});
 		} else {
-			viewWidget.firePropertyChangeAlgo();
-			viewId = SequenceDiscoveryViewWidget.PATTERN_TABLE;
+			SwingUtilities.invokeLater(new Runnable() {
+
+				@Override
+				public void run() {
+					viewWidget.firePropertyChangeAlgo();
+				}
+				
+			});
 		}
-		// replace the view and model
-		viewWidget.setCurrentView(viewId);
     }
 
     private void fireStatusEvent() {
