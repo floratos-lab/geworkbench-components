@@ -315,9 +315,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		resultData = patternResult;
 
 		final ServerBaseDiscovery algorithm = new ServerBaseDiscovery(
-				discoverySession, parms, algorithmName);
-		algorithm.setPatternResult(patternResult);
-		algorithm.setSequenceInputData(this.getSequenceDB());
+				discoverySession, parms, algorithmName, this, patternResult);
 
 		algorithm.addProgressChangeListener(this);
 		AlgorithmStub stub = getStub(currentStubId, algorithm);
@@ -328,7 +326,6 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		algorithmStubMap.put(currentStubId, stub);
 
 		algorithm.addStatusChangeListener(this);
-		algorithm.setViewWidget(this);
 
 		stub.gainedFocus(model);
 		model.attach(stub.getResultDataSource());
