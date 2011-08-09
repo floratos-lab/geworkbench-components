@@ -52,7 +52,6 @@ public class RegularDiscoveryFileLoader {
             return patternDB;
 
         } else {
-            JOptionPane.showMessageDialog(null, "The file " + patternDB.getDataSetName() + " could not be loaded.\n " + "Please make sure that the sequence file" + " is loaded and selected in the project.");
             return null;
         }
 
