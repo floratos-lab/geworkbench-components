@@ -778,12 +778,17 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 			setTableView();
 
 			// start reading the file without creating new thread
-			// the case newNode==false may not be necessary at all
 			@SuppressWarnings("unchecked")
 			PatternResult patternDB = loader.read(sequenceFile, patternfile, (DSDataSet<DSSequence>) getSequenceDB());
-            if(patternDB!=null && newNode)
-				appComponent.createNewNode(patternDB);
-
+            if(newNode) {
+            	if(patternDB!=null) {
+            		appComponent.createNewNode(patternDB);
+            	} else {
+                    JOptionPane.showMessageDialog(null, "The file " + patternfile + " could not be loaded.\n " + "Please make sure that the sequence file" + " is loaded and selected in the project.");
+            	}
+            } else { // the case newNode==false may not be necessary at all 
+            	log.debug("read file "+patternfile+" but do nothing further");
+            }
 
 			// fire a clear table event
 			firePropertyChange(TABLE_EVENT, null, null);
