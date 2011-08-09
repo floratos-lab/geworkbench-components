@@ -2,17 +2,25 @@ package org.geworkbench.components.discovery.algorithm;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.EventListener;
 import java.util.List;
 
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
+import javax.swing.event.EventListenerList;
 
+import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
+import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
+import org.geworkbench.bison.datastructure.complex.pattern.PatternResult;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSMatchedSeqPattern;
+import org.geworkbench.components.discovery.SequenceDiscoveryViewWidget;
 import org.geworkbench.components.discovery.session.DiscoverySession;
 import org.geworkbench.components.discovery.session.SessionOperationException;
 import org.geworkbench.events.ProgressBarEvent;
 import org.geworkbench.events.ProgressChangeEvent;
 import org.geworkbench.events.StatusBarEvent;
+import org.geworkbench.events.listeners.ProgressChangeListener;
+import org.geworkbench.events.listeners.StatusChangeListener;
 import org.geworkbench.util.patterns.CSMatchedSeqPattern;
 import org.geworkbench.util.patterns.PatternFetchException;
 import org.geworkbench.util.patterns.PatternOperations;
@@ -31,19 +39,17 @@ import polgara.soapPD_wsdl.Parameters;
  * @version $Id$
  */
 
-public final class ServerBaseDiscovery extends
-		AbstractSequenceDiscoveryAlgorithm implements SequentialPatternSource {
+public final class ServerBaseDiscovery implements SequentialPatternSource {
     //the discoverySession to connect to.
-    private DiscoverySession discoverySession;
+    final private DiscoverySession discoverySession;
     //initial parameters for the search
-    private Parameters parms;
+    final private Parameters parms;
     //Status event
     private org.geworkbench.events.StatusBarEvent statusEvent = new StatusBarEvent();
-    private boolean algorithmStop = false;
-    protected boolean reconnect = false;
+    private volatile boolean algorithmStop = false;
 
     //Did the algorithm complete?
-    protected boolean done = false;
+    private volatile boolean done = false;
 
     //Event for updating the progress bar
     private ProgressBarEvent progressBarEvent = new ProgressBarEvent("", Color.gray, 0, 0, 100);
@@ -54,51 +60,34 @@ public final class ServerBaseDiscovery extends
      * @param discoverySession the object to run queries to the server.
      */
     public ServerBaseDiscovery(DiscoverySession discoverySession, Parameters parm,
-    		String algorithmType) {
-        initSession(discoverySession);
+    		String algorithmType, SequenceDiscoveryViewWidget viewWidget, PatternResult patternResult) {
+        if (discoverySession == null) {
+            throw new NullPointerException("ServerBaseDiscovery Constructor failed: [discoverySession=null]");
+        }
+        this.discoverySession = discoverySession;
         if (parm == null) {
             throw new NullPointerException("ServerBaseDiscovery Constructor failed: [parm=null]");
         }
         this.parms = parm;
         this.algorithmType = algorithmType;
-    }
-
-    // TODO not used anywhere. maybe we should remove this constructor.
-    /**
-     * This constructor will force a reconnection to an existing running algorithm
-     * on the server. It will reconnectAlgorithm.
-     *
-     * @param discoverySession DiscoverySession
-     */
-    public ServerBaseDiscovery(DiscoverySession discoverySession) {
-        initSession(discoverySession);
-        this.reconnect = true;
-    }
-
-    private void initSession(DiscoverySession discoverySession) {
-        if (discoverySession == null) {
-            throw new NullPointerException("ServerBaseDiscovery Constructor failed: [discoverySession=null]");
-        }
-        this.discoverySession = discoverySession;
+		this.viewWidget = viewWidget;
+		sequenceInputData = viewWidget.getSequenceDB();
+		this.result = patternResult;
     }
 
     /**
      * Start the algorithm. The first thing we do is upload sequences
      * to the server. We let subclasses implement the actual algorithm.
      */
-    @Override
     public void start() {
         try {
-//Temp change for bug 329.
-             if (discoverySession.isDone() && (!reconnect)) {
-                // if (!discoverySession.loadSequenceRemote()) {
+             if (discoverySession.isDone()) {
                     //upload sequences
                     fireStatusBarEvent("Uploading....");
                     if (!upload()) {
                         return;
                     }
                     discoverySession.saveSeqDB();
-                // }
 
                 discoverySession.setParameters(parms);
                 fireStatusBarEvent("Discovering...");
@@ -118,14 +107,13 @@ public final class ServerBaseDiscovery extends
     /**
      * fires a progress change event.
      */
-    protected void fireProgressBarEvent() {
-        DiscoverySession discoverySession = getSession();
+    private void fireProgressBarEvent() {
         try {
             double percent = discoverySession.getCompletion();
             int percentAsInt = (int) (percent * 100);
             progressBarEvent.setPercentDone(percentAsInt);
-//            System.out.println("ProgessBar at " + percentAsInt);
-            if (!done && !isStop()) {
+
+            if (!done && !algorithmStop) {
                 if (percentAsInt < 50) {
                     progressBarEvent.setMessage("Processing Seeds");
                 } else if (percentAsInt < 99) {
@@ -134,7 +122,7 @@ public final class ServerBaseDiscovery extends
                     progressBarEvent.setMessage("Collating");
                 }
             } else {
-				if (isStop()) {
+				if (algorithmStop) {
 					progressBarEvent.setMessage("Canceled by user");
 				} else {
 					progressBarEvent.setMessage("Done");
@@ -159,24 +147,6 @@ public final class ServerBaseDiscovery extends
     }
 
     /**
-     * The method return true if a stop was called on this object.
-     *
-     * @return true if and only if stop was called on this object.
-     */
-    public synchronized boolean isStop() {
-        return algorithmStop;
-    }
-
-    /**
-     * Get the discoverySession of this algorithm.
-     *
-     * @return discoverySession the discoverySession object.
-     */
-    protected DiscoverySession getSession() {
-        return discoverySession;
-    }
-
-    /**
      * Uploads the sequence in the discoverySession to the server.
      *
      * @param s
@@ -187,7 +157,7 @@ public final class ServerBaseDiscovery extends
         fireProgressBarChanged(progressBarEvent);
         for (int i = 0; i < databaseSize; ++i) {
             //check that we were not stopped.
-			if (isStop()) {
+			if (algorithmStop) {
 				progressBarEvent = new ProgressBarEvent("Canceled by user",
 						Color.black, 0, 0, databaseSize);
 				fireProgressBarEvent(progressBarEvent,i);
@@ -244,7 +214,6 @@ public final class ServerBaseDiscovery extends
     private int lastDiscoveredPattern = 0;
 
     void runAlgorithm() {
-        DiscoverySession discoverySession = getSession();
         try {
             //start discovery
             discoverySession.discover(algorithmType);
@@ -268,15 +237,14 @@ public final class ServerBaseDiscovery extends
      */
 	// only in background thread
     private void pollAndUpdate() {
-        DiscoverySession discoverySession = getSession();
         try {
-            while (!done && !isStop()) {
+            while (!done && !algorithmStop) {
                 Thread.sleep(100);
                 fireDisplayUpdate();
                 done = discoverySession.isDone();
                 tryWait();
             }
-            if(isStop()){
+            if(algorithmStop){
             	return;
             }
 
@@ -312,7 +280,6 @@ public final class ServerBaseDiscovery extends
     }
 
     private void fireStatusEvent() {
-        DiscoverySession discoverySession = getSession();
         //only get patterns if the algorithm
         //was started on the server
         if (started) {
@@ -324,7 +291,7 @@ public final class ServerBaseDiscovery extends
         }
 
         statusBarMessage = "Pattern/s found: " + discoveredPattern;
-        if (isStop()) {
+        if (algorithmStop) {
             statusBarMessage += " (Algorithm was stopped).";
         }
 
@@ -355,10 +322,10 @@ public final class ServerBaseDiscovery extends
         //of all patterns. Hence the maskOperation is not used
         try {
             if (index == null) { //unmask all patterns
-                getSession().unmask();
+            	discoverySession.unmask();
             } else {
                 for (int i = 0; i < index.length; i++) {
-                    getSession().maskPattern(index[i], 1);
+                	discoverySession.maskPattern(index[i], 1);
                 }
             }
         } catch (SessionOperationException ex) {
@@ -371,7 +338,7 @@ public final class ServerBaseDiscovery extends
         try {
             //clear the locally cached patterns
             pattern.clear();
-            getSession().sortPatterns(i);
+            discoverySession.sortPatterns(i);
         } catch (SessionOperationException ex) {
             System.out.println("DiscoverySession operationException at Sort");
         }
@@ -381,7 +348,6 @@ public final class ServerBaseDiscovery extends
      * As specified by SequentialPatternSource.
      */
     public synchronized DSMatchedSeqPattern getPattern(int index) {
-        DiscoverySession discoverySession = getSession();
         if (index >= pattern.size() || pattern.get(index) == null) {
             CSMatchedSeqPattern pat = new org.geworkbench.util.patterns.CSMatchedSeqPattern(discoverySession.getSequenceDB());
             try {
@@ -402,7 +368,6 @@ public final class ServerBaseDiscovery extends
      * As specified by SequentialPatternSource.
      */
     public synchronized int getPatternSourceSize() {
-        DiscoverySession discoverySession = getSession();
         if (!started) {
             //we have not started the discovery...
             return 0;
@@ -414,25 +379,31 @@ public final class ServerBaseDiscovery extends
         return discoveredPattern;
     }
 
-    @Override
+    /**
+     * This method is called every time a StatusChangeListener is added
+     * to this algorithm. The default  behavior of this method is unblock the
+     * algorithm if it was blocked before.
+     */
     protected void statusChangedListenerAdded() {
-        super.statusChangedListenerAdded();
+        wakeUp();
         fireDisplayUpdate();
     }
 
-    @Override
+    /**
+     * This method is called every time a ProgressChangeListener is added
+     * to this algorithm. The default behavior of this method is unblock the
+     * algorithm if it was blocked before.
+     */
     protected void progressChangeListenerAdded() {
-        super.progressChangeListenerAdded();
+    	wakeUp();
         fireDisplayUpdate();
 
     }
 
 	private void updateResult() {
-		DiscoverySession session = getSession();
-		//result = new PatternResult(sequenceInputData.getFile(), null);
 		int totalPatternNum;
 		try {
-			totalPatternNum = session.getPatternNo();
+			totalPatternNum = discoverySession.getPatternNo();
 			for (int i = 0; i < totalPatternNum; i++) {
 				DSMatchedSeqPattern pattern = getPattern(i);
 				PatternOperations.fill(pattern, sequenceInputData);
@@ -443,5 +414,153 @@ public final class ServerBaseDiscovery extends
 		}
 	}
 
-    private String algorithmType = null;
+    final private String algorithmType;
+    
+    /**
+     * List of listeners
+     */
+    private EventListenerList listenerList = new EventListenerList();
+
+    final private PatternResult result;
+    final private DSSequenceSet<? extends DSSequence> sequenceInputData;
+
+    // SequenceDiscoveryViewWidget which created this stub
+    final private SequenceDiscoveryViewWidget viewWidget;
+
+    /**
+     * Adds a listener to the list that's notified each time a change
+     * to the progress of the algorithm occurs.
+     *
+     * @param	listener		the ProgressChangeListener
+     */
+    public void addProgressChangeListener(ProgressChangeListener listener) {
+        if (listener instanceof ProgressChangeListener) {
+            addListener(ProgressChangeListener.class, listener);
+            progressChangeListenerAdded();
+        }
+    }
+
+    /**
+     * Removes a listener from the list.
+     *
+     * @param	listener		the ProgressChangeListener
+     */
+    public void removeProgressChangeListener(ProgressChangeListener listener) {
+        if (listener instanceof ProgressChangeListener) {
+            removeListener(ProgressChangeListener.class, listener);
+            wakeUp();
+        }
+    }
+
+    /**
+     * Adds a listener for status changes.
+     *
+     * @param	listener		the StatusChangeListener
+     */
+    public void addStatusChangeListener(StatusChangeListener listener) {
+        if (listener instanceof StatusChangeListener) {
+            addListener(StatusChangeListener.class, listener);
+            statusChangedListenerAdded();
+        }
+    }
+
+    /**
+     * Removes a listener from the list.
+     *
+     * @param	listener		the StatusChangeListener
+     */
+    public void removeStatusChangeListener(StatusChangeListener listener) {
+        if (listener instanceof StatusChangeListener) {
+            removeListener(StatusChangeListener.class, listener);
+        }
+    }
+
+    /**
+     * Forwards the given notification event to all
+     * <code>ProgressChangeListeners</code> that registered
+     * themselves as listeners.
+     *
+     * @param e the event to be forwarded
+     * @see ProgressChangeEvent
+     */
+    private void fireProgressChanged(ProgressChangeEvent e) {
+        // Guaranteed to return a non-null array
+        Object[] listeners = listenerList.getListenerList();
+        // Process the listeners last to first, notifying
+        // those that are interested in this event
+        for (int i = listeners.length - 2; i >= 0; i -= 2) {
+            if (listeners[i] == ProgressChangeListener.class) {
+                ((ProgressChangeListener) listeners[i + 1]).progressChanged(e);
+            }
+        }
+    }
+
+    private void fireProgressBarChanged(org.geworkbench.events.ProgressBarEvent e) {
+        // Guaranteed to return a non-null array
+        Object[] listeners = listenerList.getListenerList();
+        // Process the listeners last to first, notifying
+        // those that are interested in this event
+        for (int i = listeners.length - 2; i >= 0; i -= 2) {
+            if (listeners[i] == StatusChangeListener.class) {
+                ((StatusChangeListener) listeners[i + 1]).progressBarChanged(e);
+            }
+        }
+    }
+
+    private void fireStatusBarChanged(StatusBarEvent e) {
+        // Guaranteed to return a non-null array
+        Object[] listeners = listenerList.getListenerList();
+        // Process the listeners last to first, notifying
+        // those that are interested in this event
+        for (int i = listeners.length - 2; i >= 0; i -= 2) {
+            if (listeners[i] == StatusChangeListener.class) {
+                ((StatusChangeListener) listeners[i + 1]).statusBarChanged(e);
+            }
+        }
+    }
+
+    /**
+     * This method blocks if no listeners are registered with this object.
+     * It will unblock when a lister is added to the object.
+     */
+    private synchronized void tryWait() {
+        if (listenerList.getListenerCount() == 0) {
+            synchronized (this) {
+                try {
+                    wait();
+                } catch (InterruptedException exp) {
+                }
+            }
+        }
+    }
+
+    private void wakeUp() {
+        synchronized (this) {
+            //we have listener, unblock ourself...
+            notifyAll();
+        }
+    }
+
+    /**
+     * Adds a listener to the listener list.
+     *
+     * @param listenerClass
+     * @param listener
+     */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private synchronized void addListener(Class listenerClass, EventListener listener) {
+        listenerList.add(listenerClass, listener);
+    }
+
+    /**
+     * Removes a listener to the listener list.
+     *
+     * @param listenerClass
+     * @param listener
+     */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+	private synchronized void removeListener(Class listenerClass, EventListener listener) {
+        listenerList.remove(listenerClass, listener);
+    }
+
 }
