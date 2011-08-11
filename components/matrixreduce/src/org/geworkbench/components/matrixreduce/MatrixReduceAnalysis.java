@@ -4,11 +4,13 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.Serializable;
@@ -344,7 +346,20 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 				topology = topoFile;
 				list = "-list";
 			} else {
-				topology = params.getTopoPattern().toLowerCase();
+				/*
+				 * @author - Nikhil
+				 * The topological pattern is converted into temporary topofile and supplied to 'FitModel'.
+				 * This change is made since 'FitModel' doesn't work on Linux and Mac if we supply pattern as an argument.
+				 * We don't have source for 'FitModel' to fix that issue. 
+				 */
+				String topologyPattern = params.getTopoPattern().toLowerCase();
+                topoFileTemp = new File(TOPOLOGY_FILE_NAME);
+                InputStream is = new ByteArrayInputStream(topologyPattern.getBytes("UTF-8"));
+                Util.copyFile(is, topoFileTemp);
+                topoFile = StringUtils.replace(topoFileTemp.getPath(), "\\",
+                "/");
+                topology = topoFile;
+                list = "-list";
 			}
 
 			String[] newArgs = { "-se=" + sequenceFile, "-e=" + expressionFile,
