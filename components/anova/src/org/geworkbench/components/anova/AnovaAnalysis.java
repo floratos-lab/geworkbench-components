@@ -23,7 +23,6 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSAnovaResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSSignificanceResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
 import org.geworkbench.bison.datastructure.complex.panels.CSAnnotPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSAnnotatedPanel;
@@ -34,6 +33,8 @@ import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.components.anova.gui.AnovaAnalysisPanel;
+import org.geworkbench.components.anova.gui.AnovaAnalysisPanel.FalseDiscoveryRateControl;
+import org.geworkbench.components.anova.gui.AnovaAnalysisPanel.PValueEstimation;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.util.ProgressBar;
@@ -43,9 +44,6 @@ import org.tigr.microarray.mev.cluster.algorithm.AlgorithmException;
 import org.tigr.microarray.mev.cluster.algorithm.impl.OneWayANOVA;
 import org.tigr.microarray.mev.cluster.gui.impl.owa.OneWayANOVAInitBox;
 import org.tigr.util.FloatMatrix;
-
-import org.geworkbench.components.anova.gui.AnovaAnalysisPanel.PValueEstimation;
-import org.geworkbench.components.anova.gui.AnovaAnalysisPanel.FalseDiscoveryRateControl;
 
 /**
  * @author yc2480
@@ -543,34 +541,6 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 		return histStr.toString();
 	}
 
-	/**
-	 * 
-	 * @param set
-	 * @return
-	 */
-	private boolean isLogNormalized(DSMicroarraySet<DSMicroarray> set) {
-		double minValue = Double.POSITIVE_INFINITY;
-		double maxValue = Double.NEGATIVE_INFINITY;
-		for (DSMicroarray microarray : set) {
-			DSMutableMarkerValue[] values = microarray.getMarkerValues();
-			double v;
-			for (DSMutableMarkerValue value : values) {
-				v = value.getValue();
-				if (v < minValue) {
-					minValue = v;
-				}
-				if (v > maxValue) {
-					maxValue = v;
-				}
-			}
-		}
-		/*
-		 * if the range of the values is small enough, we guess it's
-		 * lognormalized.
-		 */
-		return ((maxValue - minValue) < 100);
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -658,29 +628,7 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 			return new ParamValidationResults(false,
 					"A minimum of 3 array groups must be activated.");
 		}
-		/* check for log normalization */
-//		if (!isLogNormalized(maSetView.getMicroarraySet())) {
-//			Object[] options = { "Proceed", "Cancel" };
-//			int n = JOptionPane
-//					.showOptionDialog(
-//							/*
-//							 * this make it shown in the center of our software
-//							 */
-//							anovaAnalysisPanel.getTopLevelAncestor(),
-//							"The input dataset should be log-transformed (to approximate a standard distribution); \n\nClick Proceed to override and continue the analysis with the input dataset selected.",
-//							"Log Transformation", JOptionPane.YES_NO_OPTION,
-//							JOptionPane.QUESTION_MESSAGE,
-//							/* do not use a custom Icon */
-//							null,
-//							/* the titles of buttons */
-//							options,
-//							/* default button title */
-//							options[0]);
-//			if (n == 1) { /* n==1 means canceled */
-//				return new ParamValidationResults(false,
-//						"Analysis canceled by user.");
-//			}
-//		}
+
 		return new ParamValidationResults(true, "No Error");
 	}
 
