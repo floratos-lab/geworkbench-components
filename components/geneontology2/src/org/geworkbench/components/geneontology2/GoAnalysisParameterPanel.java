@@ -220,7 +220,7 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 		if (listString.length() == 0)
 			return null;
 
-		return listString.split(", ");
+		return listString.split(",| ");
 	}
 
 	/* this is called from getDataHistory */
