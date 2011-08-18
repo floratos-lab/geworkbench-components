@@ -48,7 +48,6 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.CSAnovaResultSe
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSSignificanceResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSTTestResultSet;
-import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.builtin.projects.DataSetNode;
 import org.geworkbench.builtin.projects.DataSetSubNode;
@@ -631,30 +630,12 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 		}
 	}
 
-	/**
-	 * Get all genes from the marker selection panel.
-	 * @param setName
-	 * @return
-	 */
 	private Set<String> getAllGenes() {
 		Set<String> set = new HashSet<String>();
 		if (dataset == null)
 			return set; // in case maSet is not properly set
-
-		DSAnnotationContextManager manager = CSAnnotationContextManager
-				.getInstance();
-		DSAnnotationContext<DSGeneMarker> markerSet = manager
-				.getCurrentContext(dataset.getMarkers());
-
-		DSItemList<DSGeneMarker> markers = null;
-		try {
-			markers = markerSet.getItemList();
-		} catch (NullPointerException e) {
-			return set;
-		}
-		if(markers==null) return set;
 		
-		for ( DSGeneMarker marker : markers ) {
+		for ( DSGeneMarker marker : dataset.getMarkers() ) {
 			String geneName = marker.getGeneName().trim();
 			if (!geneName.equals("---")) {
 				set.add(geneName);
