@@ -510,7 +510,7 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 							publishSubpanelChangedEvent(new org.geworkbench.events.SubpanelChangedEvent<DSGeneMarker>(
 									DSGeneMarker.class,
 									GeneToMarkers(getMarkerSetName(), genes),
-									org.geworkbench.events.SubpanelChangedEvent.SET_CONTENTS));
+									org.geworkbench.events.SubpanelChangedEvent.NEW));
 
 						}
 
