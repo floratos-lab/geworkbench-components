@@ -37,8 +37,6 @@ import org.geworkbench.events.listeners.ParameterActionListener;
 import com.jgoodies.binding.adapter.BasicComponentFactory;
 import com.jgoodies.binding.list.ArrayListModel;
 import com.jgoodies.binding.list.SelectionInList;
-import com.jgoodies.binding.value.ValueHolder;
-import com.jgoodies.binding.value.ValueModel;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
 
@@ -48,7 +46,7 @@ import com.jgoodies.forms.layout.FormLayout;
  * @author yc2480
  * @version $Id$
  */
-public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
+public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 	private static final long serialVersionUID = -6160058089960168299L;
 
 	private static final float PValueThresholdDefault = 0.05f;
@@ -57,17 +55,11 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 	// AFFX-HUMGAPDH/M33197_M_at, AFFX-HUMRGE/M10098_3_at,
 	// AFFX-HUMRGE/M10098_M_at");
 	private static final String TFGeneListDefault = "";
-	static final String[] DEFAULT_SET = { " " };
+	private static final String[] DEFAULT_SET = { " " };
 
 	private Log log = LogFactory.getLog(this.getClass());
-	private ArrayListModel<String> networkFromModel; // used for 0,0 drop
-														// down box
-	private ArrayListModel<String> adjModel; // used for 0,1 drop down box
-	private ArrayListModel<String> tfFromModel; // used for 1,0 drop down box
-	private ArrayListModel<String> sigFromModel; // used for 1,0 drop down
-													// box
-	private ValueModel correctionHolder; // No correction, Standard
-											// Bonferroni, Adj Bonferroni
+	private ArrayListModel<String> adjModel; 
+
 	private JTextField pValueTextField = null;
 	private JTextField TFGeneListTextField = null; // Marker 1, Marker 2...
 	private JTextField networkTextField = null;
@@ -154,17 +146,9 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		builder.append(pValueTextField);
 		builder.nextLine();
 
-		ArrayList<String> correctionComboBoxStrings = new ArrayList<String>();
-		correctionComboBoxStrings.add("No correction");
-		correctionComboBoxStrings.add("Standard Bonferroni");
-		correctionComboBoxStrings.add("Adjusted Bonferroni");
-		correctionHolder = new ValueHolder("No correction");
-
 		builder.nextLine();
 		JTabbedPane jTabbedPane1 = new JTabbedPane();
 		jTabbedPane1.add(builder.getPanel(), "Main");
-		// jTabbedPane1.add(tTestPanel,"T-test");
-		// t-test panel
 		this.add(jTabbedPane1, BorderLayout.CENTER);
 
 		tfGroups.addActionListener(new ActionListener() {
@@ -280,7 +264,7 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 	}
 
 	private JComboBox createNetworkFromComboBox() {
-		networkFromModel = new ArrayListModel<String>();
+		ArrayListModel<String> networkFromModel = new ArrayListModel<String>();
 		networkFromModel.add("From Project");
 		networkFromModel.add("From File");
 		NetworkFromListener networkFromListener = new NetworkFromListener();
@@ -366,7 +350,7 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 	}
 
 	private JComboBox createTFFromComboBox() {
-		tfFromModel = new ArrayListModel<String>();
+		ArrayListModel<String> tfFromModel = new ArrayListModel<String>();
 		tfFromModel.add("From Sets");
 		tfFromModel.add("From File");
 		TFFromListener tfFromListener = new TFFromListener();
@@ -377,12 +361,12 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 	}
 
 	private JComboBox createSigFromComboBox() {
-		sigFromModel = new ArrayListModel<String>();
+		ArrayListModel<String> sigFromModel = new ArrayListModel<String>();
 		sigFromModel.add("From Sets");
 		sigFromModel.add("From File");
 		SigFromListener sigFromListener = new SigFromListener();
 		SelectionInList<String> selectionInList = new SelectionInList<String>(
-				(ListModel) tfFromModel);
+				(ListModel) sigFromModel);
 		selectionInList.addPropertyChangeListener(sigFromListener);
 		return BasicComponentFactory.createComboBox(selectionInList);
 	}
@@ -413,10 +397,6 @@ public class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 	// get the adjMatrix user selected.
 	public AdjacencyMatrixDataSet getAdjMatrixDataSet() {
 		return this.adjMatrix.get("adjMatrix");
-	}
-
-	public String getCorrection() {
-		return correctionHolder.getValue().toString();
 	}
 
 	public double getPValue() {

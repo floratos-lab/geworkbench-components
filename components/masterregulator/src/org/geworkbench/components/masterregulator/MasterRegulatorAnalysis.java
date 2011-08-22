@@ -93,22 +93,21 @@ public class MasterRegulatorAnalysis extends AbstractAnalysis implements
 		// analysis
 		DSMasterRagulatorResultSet<DSGeneMarker> mraResultSet = new CSMasterRegulatorResultSet<DSGeneMarker>(
 				maSet, analysisName, view.markers().size());		
-		//t-test
-		log.info("Executing T-Test...");
-		TAnalysis tTestAnalysis= new TAnalysis();
-		Map<DSGeneMarker, Double> tTestResultSet;
+		//t-analysis
+		log.info("Executing T Analysis");
+		Map<DSGeneMarker, Double> tValues = null;
 		try {
-			tTestResultSet = tTestAnalysis.calculate(input);
+			TAnalysis tTestAnalysis= new TAnalysis(view);
+			tValues = tTestAnalysis.calculateTValues();
 		} catch (TAnalysisException e1) {
 			return new AlgorithmExecutionResults(false,
 					e1.getMessage(), 
 					null);
 		}
-		if (tTestResultSet==null) return new AlgorithmExecutionResults(false,
+		if (tValues==null) return new AlgorithmExecutionResults(false,
 				"The set of t values is set null.", 
 				null);
-		mraResultSet.setTValues(tTestResultSet);
-		log.info("We got TGs");
+		mraResultSet.setTValues(tValues);
 	 
 		//get TFs
 		ArrayList<DSGeneMarker> transcriptionFactors=new ArrayList<DSGeneMarker>();
@@ -146,10 +145,7 @@ public class MasterRegulatorAnalysis extends AbstractAnalysis implements
 			}
 		}
 		log.info("We got "+signatureMarkers.size()+" signature markers");
-		
-		
-		
-			
+
 		//y = size of significantMarkers		 
 		int y = signatureMarkers.size();
 		//x = size of markers
@@ -177,16 +173,16 @@ public class MasterRegulatorAnalysis extends AbstractAnalysis implements
 			for (DSGeneMarker marker: signatureMarkers){
 				if (nA.contains(marker)){
 					genesInTargetList.add(marker);				 
-					log.debug(tfA.getShortName()+"\t"+ marker.getShortName()+"\tT:"+tTestResultSet.get(marker));
+					log.debug(tfA.getShortName()+"\t"+ marker.getShortName()+"\tT:"+tValues.get(marker));
 				}
 			}
 			
 			for (DSGeneMarker marker: nA){				 
 			     mraResultSet.setPValueOf(tfA,marker, 0); // p-values is ignored
-		    	 Double tValue = tTestResultSet.get(marker);
+		    	 Double tValue = tValues.get(marker);
 		    	 if(tValue==null) tValue = Double.NaN;
 			     mraResultSet.setTTestValueOf(tfA,marker,tValue);
-				 log.debug(tfA.getShortName()+"\t"+ marker.getShortName()+"\tT:"+tTestResultSet.get(marker));
+				 log.debug(tfA.getShortName()+"\t"+ marker.getShortName()+"\tT:"+tValues.get(marker));
 			}			
 			//now we got w in genesInTargetList
 			int w = genesInTargetList.size();
@@ -215,10 +211,7 @@ public class MasterRegulatorAnalysis extends AbstractAnalysis implements
 		}
 		
 		// generate result
-		String historyStr ="";
-		historyStr += generateHistoryString(view);
-
-		historyStr += tTestAnalysis.GenerateMarkerString(view);
+		String historyStr = generateHistoryString(view);
 
 		String groupAndChipsString = "Groups analyzed:\n";
 		{//generate group information
@@ -279,18 +272,20 @@ public class MasterRegulatorAnalysis extends AbstractAnalysis implements
 
 	private String generateHistoryString(
 			DSMicroarraySetView<DSGeneMarker, DSMicroarray> view) {
-		String histStr = "";
-		// Header
-		histStr += "Generated with MRA run with parameters:\n";
-		histStr += "----------------------------------------\n";
-//		histStr += "Correction: " + mraAnalysisPanel.getCorrection() + "\n";
-//		histStr += "P-Value: " + mraAnalysisPanel.getPValue() + "\n";
-		histStr += "Transcription Factor: " + mraAnalysisPanel.getTranscriptionFactor() + "\n";
-		histStr += "Signature Markers: " + mraAnalysisPanel.getSigMarkers() + "\n";
-		histStr += "adjMatrix: "
-				+ mraAnalysisPanel.getAdjMatrixDataSet().getDataSetName()
-				+ "\n\n\n";
-		return histStr;
+		StringBuffer histStr = new StringBuffer("Generated with MRA run with parameters:\n");
+		histStr .append( "----------------------------------------\n" );
+		histStr .append( "Transcription Factor: " + mraAnalysisPanel.getTranscriptionFactor() ).append("\n");
+		histStr .append( "Signature Markers: " + mraAnalysisPanel.getSigMarkers() ).append("\n");
+		histStr .append( "adjMatrix: " )
+				.append( mraAnalysisPanel.getAdjMatrixDataSet().getDataSetName() )
+						.append( "\n\n\n" );
+
+		histStr .append( view.markers().size()+" markers analyzed:\n" );
+		for (DSGeneMarker marker : view.markers()) {
+			histStr.append( "\t" ).append( marker.getLabel() ).append( "\n" );
+		}
+		
+		return histStr.toString();
 	}
 	
 	@Subscribe
