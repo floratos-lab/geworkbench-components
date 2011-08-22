@@ -31,7 +31,7 @@ public class DetailedTFGraphViewer extends JPanel {
 	private int numberOfMarkers;
 	private HashMap<Integer, DSGeneMarker> Rank2GeneMap;
 	private HashMap<DSGeneMarker, Integer> Gene2RankMap;
-	private double pValue = 1.0;
+
 	private double minTValue = 0;
 	private double maxTValue = 0;
 	private int numOfPositiveTValues = 0; // included 0
@@ -78,11 +78,6 @@ public class DetailedTFGraphViewer extends JPanel {
 		}
 	}
 
-	public void setPValueFilter(double pValue) {
-		this.pValue = pValue;
-		repaint();
-	};
-
 	public void paintComponent(Graphics g1) {
 		super.paintComponent(g1);
 		Graphics2D g = (Graphics2D) g1;
@@ -114,46 +109,39 @@ public class DetailedTFGraphViewer extends JPanel {
 			// draw the lines for geneMarkers
 
 			double maxAbsValue = Math.max(Math.abs(minTValue), Math.abs(maxTValue));
-//			for (int i = 0; i < numMarkers; i++) {			 		 
-				DSItemList<DSGeneMarker> genesInRegulonList = mraResultSet.getGenesInRegulon(tfA);					 
-				if (genesInRegulonList == null) { // if user selected wrong
-													// TF, which doesn't have
-													// neighbors
-					System.out.println("Wrong TF");
-					return;//continue;
-				} 
-				for (int cx = 0; cx < genesInRegulonList.size(); cx++) {
-					DSGeneMarker marker = (DSGeneMarker) genesInRegulonList
-							.get(cx);
-					double tValue = mraResultSet.getTValue(marker);	
-					
-//					Integer rank = Gene2RankMap.get(marker);
-//					if (rank != null && rank.intValue() == i) {
-						if (mraResultSet.getPValueOf(tfA, marker) <= pValue) {
-							SpearmansCorrelation SC = new SpearmansCorrelation();
-							double spearCor = 0.0;
-							DSMicroarraySet<DSMicroarray> maSet = mraResultSet
-									.getMicroarraySet();
-							double[] arrayData1 = maSet.getRow(tfA);
-							double[] arrayData2 = maSet.getRow(marker);
 
-							spearCor = SC.correlation(arrayData1, arrayData2);
-//							Color save = g.getColor();
-							int center = 0;
-							center = (int) ((width / 2) * (1 + tValue / maxAbsValue));
-							if (spearCor >= 0) {							
-								g.setColor(Color.RED);
-								g.drawLine(center, 0, center, height * 1 / 3);
-							} else {							 
-								g.setColor(Color.BLUE);
-								g.drawLine(center, height * 1 / 3, center,
-										height * 2 / 3);
-							}
-//							g.setColor(save);
-						}
-//					}
-				} 
-//			} 
+			DSItemList<DSGeneMarker> genesInRegulonList = mraResultSet.getGenesInRegulon(tfA);					 
+			if (genesInRegulonList == null) { // if user selected wrong
+												// TF, which doesn't have
+												// neighbors
+				System.out.println("Wrong TF");
+				return;//continue;
+			} 
+			for (int cx = 0; cx < genesInRegulonList.size(); cx++) {
+				DSGeneMarker marker = (DSGeneMarker) genesInRegulonList
+						.get(cx);
+				double tValue = mraResultSet.getTValue(marker);	
+					
+				SpearmansCorrelation SC = new SpearmansCorrelation();
+				double spearCor = 0.0;
+				DSMicroarraySet<DSMicroarray> maSet = mraResultSet
+						.getMicroarraySet();
+				double[] arrayData1 = maSet.getRow(tfA);
+				double[] arrayData2 = maSet.getRow(marker);
+
+				spearCor = SC.correlation(arrayData1, arrayData2);
+
+				int center = 0;
+				center = (int) ((width / 2) * (1 + tValue / maxAbsValue));
+				if (spearCor >= 0) {							
+					g.setColor(Color.RED);
+					g.drawLine(center, 0, center, height * 1 / 3);
+				} else {							 
+					g.setColor(Color.BLUE);
+					g.drawLine(center, height * 1 / 3, center,
+							height * 2 / 3);
+				}
+			} 
 		}
 	}
 

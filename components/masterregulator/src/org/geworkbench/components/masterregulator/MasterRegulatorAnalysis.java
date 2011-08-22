@@ -177,13 +177,6 @@ public class MasterRegulatorAnalysis extends AbstractAnalysis implements
 				}
 			}
 			
-			for (DSGeneMarker marker: nA){				 
-			     mraResultSet.setPValueOf(tfA,marker, 0); // p-values is ignored
-		    	 Double tValue = tValues.get(marker);
-		    	 if(tValue==null) tValue = Double.NaN;
-			     mraResultSet.setTTestValueOf(tfA,marker,tValue);
-				 log.debug(tfA.getShortName()+"\t"+ marker.getShortName()+"\tT:"+tValues.get(marker));
-			}			
 			//now we got w in genesInTargetList
 			int w = genesInTargetList.size();
 			
