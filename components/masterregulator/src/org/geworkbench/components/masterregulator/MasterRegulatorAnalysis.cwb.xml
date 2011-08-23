@@ -17,6 +17,7 @@
 							analysis="true"							
 	 >
 		<required-component class="org.geworkbench.components.masterregulator.MasterRegulatorViewer" />
+		<required-component class="org.geworkbench.components.masterregulator.MasterRegulatorTableViewer" />
 		<license><![CDATA[
 			<html><head><meta http-equiv=Content-Type content="text/html; charset=windows-1252"></head>
 				<body>----</body>
