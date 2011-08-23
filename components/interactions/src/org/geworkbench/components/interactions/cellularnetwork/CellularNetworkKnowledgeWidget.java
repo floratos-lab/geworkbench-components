@@ -170,8 +170,6 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	private Vector<CellularNetWorkElementInformation> hits = null;
 
-	private Map<String, List<Integer>> geneIdToMarkerIdMap = new HashMap<String, List<Integer>>();
-
 	private JButton refreshButton;
 
 	private JButton createNetWorkButton;
@@ -213,7 +211,6 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	private Vector<Vector<Object>> cachedPreviewData = new Vector<Vector<Object>>();
 
-	// this variable is only assigned in method processData
 	private DSMicroarraySet<DSMicroarray> dataset = null;
 
 	private Map<String, String> geneTypeMap = null;
@@ -310,27 +307,15 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 					}
 
 					Integer geneId = c.getdSGeneMarker().getGeneId();
-					Collection<Integer> markerIds = geneIdToMarkerIdMap
-							.get(geneId.toString());
-					if (markerIds != null) {
-						for (Integer markerId : markerIds)
-							selectedMarkers.add((DSGeneMarker) dataset
-									.getMarkers().get(markerId));
-
-					}
+					Collection<DSGeneMarker> markers = CNKBUtil.getMarkersForGivenGeneId(dataset, geneId.toString());
+					selectedMarkers.addAll(markers);
 
 					for (InteractionDetail detail : arrayList) {
 						Integer interactionGeneId = detail
 								.getInteractionGeneId(geneId);
-						if (interactionGeneId != null)
-							markerIds = geneIdToMarkerIdMap
-									.get(interactionGeneId.toString());
-						if (markerIds != null) {
-							for (Integer markerId : markerIds)
-								selectedMarkers.add((DSGeneMarker) dataset
-										.getMarkers().get(markerId));
-
-						}
+						Collection<DSGeneMarker> markers2
+							= CNKBUtil.getMarkersForGivenGeneId(dataset, interactionGeneId.toString());
+						selectedMarkers.addAll(markers2);
 					}
 
 				}
@@ -2521,10 +2506,10 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	@Subscribe
 	public void receive(ProjectEvent pe, Object source) {
 		DSDataSet<?> ds = pe.getDataSet();
-		if (ds != null && ds instanceof DSMicroarraySet) {
-			geneIdToMarkerIdMap = AnnotationParser
-					.getGeneIdToMarkerIDMapping((DSMicroarraySet<DSMicroarray>) ds);
-
+		if (ds instanceof DSMicroarraySet) {
+			if(ds!=dataset) {
+				dataset = (DSMicroarraySet<DSMicroarray>) ds;
+			}
 		}
 	}
 
