@@ -1,17 +1,9 @@
 package org.geworkbench.components.sequenceretriever;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.rmi.RemoteException;
@@ -38,10 +30,8 @@ import org.apache.axis.encoding.XMLType;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
-import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbench.util.sequences.GeneChromosomeMatcher;
 
 /**
@@ -58,104 +48,14 @@ public class SequenceFetcher {
 
 	private static final String UCSCDATABASEURL = "jdbc:mysql://genome-mysql.cse.ucsc.edu:3306/";
 	private static final String EBIURL = "http://www.ebi.ac.uk/ws/services/Dbfetch";
-	private static final int UPSTREAM = 2000;
-	private static final int DOWNSTREAM = 2000;
 
 	private static String genomeAssembly = "";
 
-	private static CSSequenceSet<CSSequence> cachedSequences = null;
 	private static SortedMap<String, String> recentDBs = new TreeMap<String, String>();
 
 	private static ArrayList<String> displayList = new ArrayList<String>();
 	private static String defaultChipChoice = "Select a genome";
 	private static Object selectedValue = null;
-
-	@SuppressWarnings("unchecked")
-	private static void populateSequenceCache() {
-		File file = new File(FilePathnameUtils.getTemporaryFilesDirectoryPath()
-				+ "sequences" + File.separator + "cachedSequences");
-
-		if (file.exists()) {
-			try {
-				FileInputStream fis = new FileInputStream(file);
-				ObjectInputStream ois = new ObjectInputStream(fis);
-				cachedSequences = (CSSequenceSet<CSSequence>) ois.readObject();
-				ois.close();
-				fis.close();
-			} catch (FileNotFoundException fnfe) {
-				fnfe.printStackTrace();
-			} catch (IOException ioe) {
-				ioe.printStackTrace();
-			} catch (ClassNotFoundException cnfe) {
-				cnfe.printStackTrace();
-			}
-		} else {
-			File downloadedFile = new File(
-					FilePathnameUtils.getTemporaryFilesDirectoryPath()
-							+ "sequences" + File.separator
-							+ "downloadedSequences");
-			try {
-				if (!downloadedFile.exists()) {
-					downloadedFile.getParentFile().mkdirs();
-					downloadedFile.createNewFile();
-					URL url = new URL(System.getProperty("data.download.site")
-							+ "All.NC.-2k+2k.txt");
-					BufferedReader br = new BufferedReader(
-							new InputStreamReader(url.openStream()));
-					BufferedWriter bw = new BufferedWriter(new FileWriter(
-							downloadedFile));
-					String line = null;
-					while ((line = br.readLine()) != null) {
-						bw.write(line);
-						bw.write("\n");
-					}
-					bw.flush();
-					br.close();
-					bw.close();
-				}
-			} catch (MalformedURLException mfe) {
-				mfe.printStackTrace();
-			} catch (FileNotFoundException fnfe) {
-				fnfe.printStackTrace();
-			} catch (IOException ioe) {
-				ioe.printStackTrace();
-			}
-			try {
-				cachedSequences = CSSequenceSet.getSequenceDB(downloadedFile);
-				cachedSequences.parseMarkers();
-				if (!file.exists()) {
-					file.getParentFile().mkdirs();
-					file.createNewFile();
-				}
-				FileOutputStream fos = new FileOutputStream(
-						file.getAbsolutePath());
-				ObjectOutputStream oos = new ObjectOutputStream(fos);
-				oos.writeObject(cachedSequences);
-				oos.flush();
-				oos.close();
-			} catch (FileNotFoundException fnfe) {
-				fnfe.printStackTrace();
-			} catch (IOException ioe) {
-				ioe.printStackTrace();
-			}
-		}
-	}
-
-	static CSSequence getCachedPromoterSequence(DSGeneMarker marker,
-			int upstream, int fromStart) {
-		if (cachedSequences == null) {
-			populateSequenceCache();
-		}
-		if (cachedSequences != null) {
-			CSSequence sequence = (CSSequence) cachedSequences.get(marker
-					.getLabel());
-			if (sequence != null) {
-				return sequence.getSubSequence(UPSTREAM - upstream - 1,
-						sequence.length() - DOWNSTREAM + fromStart - 1);
-			}
-		}
-		return null;
-	}
 
 	static {
 		try {
@@ -289,8 +189,7 @@ public class SequenceFetcher {
 		String database = null;
 		if (selectedValue != null && !selectedValue.equals("Select a genome")) {
 			genomeAssembly = (String) selectedValue;
-			String choice = (String) selectedValue;
-			database = choice.substring(choice.indexOf("/") + 1);
+			database = genomeAssembly.substring(genomeAssembly.indexOf("/") + 1);
 		}
 
 		return database;
@@ -333,16 +232,12 @@ public class SequenceFetcher {
 		String[] columnName = { "chrom", "strand", "txStart", "txEnd" };
 		Vector<GeneChromosomeMatcher> vector = new Vector<GeneChromosomeMatcher>();
 		try {
-			Statement stmt;
 			Class.forName("com.mysql.jdbc.Driver");
 
 			String url = UCSCDATABASEURL + database.trim()
 					+ "?autoReconnect=true";
 			Connection con = DriverManager.getConnection(url, "genome", "");
-			stmt = con.createStatement();
-//			boolean success = stmt
-//					.execute("select known.chrom, known.strand, known.txStart, known.txEnd, kg.refseq from knownGene as known, kgXref as kg  where kg.refseq = '"
-//							+ geneName + "' and kg.kgID = known.name ");
+			Statement stmt = con.createStatement();
 			boolean success = stmt
 					.execute("select refGene.chrom, refGene.strand, refGene.txStart, refGene.txEnd from refGene where refGene.name = '" + geneName + "' ");
 			if (success) {
@@ -407,7 +302,6 @@ public class SequenceFetcher {
 				+ geneChromosomeMatcher.getGenomeBuildNumber()
 				+ "/dna?segment=" + geneChromosomeMatcher.getChr() + ":"
 				+ startPoint + ":" + endPoint;
-		;
 
 		try {
 			InputStream uin = new URL(request).openStream();
