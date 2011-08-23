@@ -6,14 +6,20 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.zip.GZIPOutputStream;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -27,12 +33,16 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
+import org.geworkbench.bison.annotation.CSAnnotationContextManager;
+import org.geworkbench.bison.annotation.DSAnnotationContext;
+import org.geworkbench.bison.annotation.DSAnnotationContextManager;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.events.listeners.ParameterActionListener;
+import org.geworkbench.util.FilePathnameUtils;
 
 import com.jgoodies.binding.adapter.BasicComponentFactory;
 import com.jgoodies.binding.list.ArrayListModel;
@@ -49,7 +59,7 @@ import com.jgoodies.forms.layout.FormLayout;
 public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 	private static final long serialVersionUID = -6160058089960168299L;
 
-	private static final float PValueThresholdDefault = 0.05f;
+	private static final float PValueThresholdDefault = 0.01f;
 	// private static final String TFGeneListDefault =
 	// ("AFFX-HUMGAPDH/M33197_3_at, AFFX-HUMGAPDH/M33197_5_at,
 	// AFFX-HUMGAPDH/M33197_M_at, AFFX-HUMRGE/M10098_3_at,
@@ -78,6 +88,18 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 	private JComboBox networkFrom = null;
 	private JComboBox tfFrom = null;
 	private JComboBox sigFrom = null;
+	private JTextField mintg = new JTextField("20");  //minimum number of targets to run GSEA
+	private JTextField minsp = new JTextField("6");  //minimum number of samples for label shuffling
+	private JTextField nperm = new JTextField("1000"); //number of permutations
+	private JTextField tail = new JTextField("2");   //tail: If the Spearman's correlation value is not known, use tail = 1. Otherwise tail = 2. 2 for GSEA2, 1 for GSEA
+	private JTextField pvshadow = new JTextField("0.01"); //Significance threshold for shadow analysis
+	private JTextField pvsynergy = new JTextField("0.01"); //Significance threshold for synergy analysis
+	private JTextField resultid = new JTextField("mra0001"); //mra result id for retrieving prior result
+	private JComboBox priorBox = new JComboBox(new String[]{"Don't retrieve prior result with ID", "Retrieve prior MRA result with ID"});
+	private static final String lastDirConf = FilePathnameUtils.getUserSettingDirectoryPath()
+					+ "masterregulator" + FilePathnameUtils.FILE_SEPARATOR + "lastDir.conf";
+	boolean allpos = true;
+	private int correlationCol = 3;
 
 	public MasterRegulatorPanel() {
 		networkTextField = new JTextField();
@@ -104,6 +126,21 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		builder.append(loadNetworkButton);
 		builder.nextLine();
 
+		builder.appendSeparator("Fisher's Exact Test Threshold");
+		builder.append("GSEA P-value ");
+		if (pValueTextField == null)
+			pValueTextField = new JTextField();
+		pValueTextField.setText(Float.toString(PValueThresholdDefault));
+		builder.append(pValueTextField);
+		builder.nextLine();
+
+		JTabbedPane jTabbedPane1 = new JTabbedPane();
+		jTabbedPane1.add(builder.getPanel(), "Main");
+
+		layout = new FormLayout(
+				"left:max(100dlu;pref), 10dlu, 100dlu, 10dlu, "
+						+ "100dlu, 10dlu, 100dlu, 10dlu, 100dlu", "");
+		builder = new DefaultFormBuilder(layout);
 		builder.append("Master Regulators");
 		tfFrom = createTFFromComboBox();
 		tfFrom.setSelectedIndex(0); // preselect "From File"
@@ -138,17 +175,46 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		builder.append(loadSigButton);
 		builder.nextLine();
 
-		builder.appendSeparator("Fisher's Exact Test Threshold");
-		builder.append("P-value ");
-		if (pValueTextField == null)
-			pValueTextField = new JTextField();
-		pValueTextField.setText(Float.toString(PValueThresholdDefault));
-		builder.append(pValueTextField);
+		jTabbedPane1.add(builder.getPanel(), "FET");
+
+		builder = new DefaultFormBuilder(new FormLayout(
+				"left:max(60dlu;pref), 10dlu, 100dlu, 80dlu, "
+				+ "60dlu, 10dlu, 100dlu", ""));
+		builder.append("Minimum number of Targets", mintg);
+		builder.append("GSEA Tail", tail);
+		builder.append("Minimum number of Samples", minsp);
+		builder.append("Shadow P-value", pvshadow);
+		builder.append("Number of GSEA Permutations", nperm);
+		builder.append("Synergy P-value", pvsynergy);
 		builder.nextLine();
 
-		builder.nextLine();
-		JTabbedPane jTabbedPane1 = new JTabbedPane();
-		jTabbedPane1.add(builder.getPanel(), "Main");
+		builder.append(priorBox, resultid);
+		resultid.setEnabled(false);
+		priorBox.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent actionEvent) {
+				if (priorBox.getSelectedIndex()==1) {
+					mintg.setEnabled(false);
+					minsp.setEnabled(false);
+					nperm.setEnabled(false);
+					tail.setEnabled(false);
+					pvshadow.setEnabled(false);
+					pvsynergy.setEnabled(false);
+					pValueTextField.setEnabled(false);
+					resultid.setEnabled(true);
+				} else {
+					mintg.setEnabled(true);
+					minsp.setEnabled(true);
+					nperm.setEnabled(true);
+					tail.setEnabled(true);
+					pvshadow.setEnabled(true);
+					pvsynergy.setEnabled(true);
+					pValueTextField.setEnabled(true);
+					resultid.setEnabled(false);
+				}
+				parameterActionListener.actionPerformed(null);
+			}
+		});
+		jTabbedPane1.add(builder.getPanel(), "MARINa");
 		this.add(jTabbedPane1, BorderLayout.CENTER);
 
 		tfGroups.addActionListener(new ActionListener() {
@@ -176,7 +242,7 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 			}
 		});
 
-		ParameterActionListener parameterActionListener = new ParameterActionListener(
+		parameterActionListener = new ParameterActionListener(
 				this);
 		TFGeneListTextField.addActionListener(parameterActionListener);
 		sigGeneListTextField.addActionListener(parameterActionListener);
@@ -188,8 +254,28 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		tfGroups.addActionListener(parameterActionListener);
 		sigGroups.addActionListener(parameterActionListener);
 		pValueTextField.addActionListener(parameterActionListener);
+		mintg.addActionListener(parameterActionListener);
+		minsp.addActionListener(parameterActionListener);
+		nperm.addActionListener(parameterActionListener);
+		tail.addActionListener(parameterActionListener);
+		pvshadow.addActionListener(parameterActionListener);
+		pvsynergy.addActionListener(parameterActionListener);
+		resultid.addActionListener(parameterActionListener);
+		priorBox.addActionListener(parameterActionListener);
 
+		TFGeneListTextField.addFocusListener(parameterActionListener);
+		sigGeneListTextField.addFocusListener(parameterActionListener);
+		networkTextField.addFocusListener(parameterActionListener);
+		pValueTextField.addFocusListener(parameterActionListener);
+		mintg.addFocusListener(parameterActionListener);
+		minsp.addFocusListener(parameterActionListener);
+		nperm.addFocusListener(parameterActionListener);
+		tail.addFocusListener(parameterActionListener);
+		pvshadow.addFocusListener(parameterActionListener);
+		pvsynergy.addFocusListener(parameterActionListener);
+		resultid.addFocusListener(parameterActionListener);
 	}
+	private ParameterActionListener parameterActionListener;
 
 	public class LoadNetworkButtonListener implements
 			java.awt.event.ActionListener {
@@ -207,16 +293,25 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 					File adjMatrixFile = new File(adjMatrixFileStr);
 					JFileChooser chooser = new JFileChooser(adjMatrixFile
 							.getParent());
+					String lastDir = null;
+					if ((lastDir = getLastDir()) != null) {
+						chooser.setCurrentDirectory(new File(lastDir));
+					}
 					chooser.showOpenDialog(MasterRegulatorPanel.this);
 					if (chooser.getSelectedFile() != null) {
-						adjMatrixFileStr = chooser.getSelectedFile().getPath();
-						AdjacencyMatrixDataSet adjMatrix = new AdjacencyMatrixDataSet(
-								null, 0, adjMatrixFileStr, adjMatrixFileStr,
-								maSet);
-						adjMatrix.readFromFile(adjMatrixFileStr, maSet);
-						this.adjMatrixHolder.remove("adjMatrix");
-						this.adjMatrixHolder.put("adjMatrix", adjMatrix);
+						File selectedFile = chooser.getSelectedFile();
+						adjMatrixFileStr = selectedFile.getPath();
 						networkTextField.setText(adjMatrixFileStr);
+						networkFilename = selectedFile.getName();
+						saveLastDir(selectedFile.getParent());
+						if (!is5colnetwork(adjMatrixFileStr, 10)){
+							AdjacencyMatrixDataSet adjMatrix = new AdjacencyMatrixDataSet(
+									null, 0, adjMatrixFileStr, adjMatrixFileStr,
+									maSet);
+							adjMatrix.readFromFile(adjMatrixFileStr, maSet);
+							this.adjMatrixHolder.remove("adjMatrix");
+							this.adjMatrixHolder.put("adjMatrix", adjMatrix);
+						}
 					} else {
 						// user canceled
 					}
@@ -509,11 +604,14 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		if (maSet != null && networkTextField.isEnabled()
 				&& networkText != null && !networkText.trim().equals("")) {
 			networkTextField.setText(networkText);
-			AdjacencyMatrixDataSet adjMatrix2 = new AdjacencyMatrixDataSet(
-					null, 0, networkText, networkText, maSet);
-			adjMatrix2.readFromFile(networkText, maSet);
-			this.adjMatrix.remove("adjMatrix");
-			this.adjMatrix.put("adjMatrix", adjMatrix2);
+			networkFilename = new File(networkText).getName();
+			if (!is5colnetwork(networkText, 10)){
+				AdjacencyMatrixDataSet adjMatrix2 = new AdjacencyMatrixDataSet(
+						null, 0, networkText, networkText, maSet);
+				adjMatrix2.readFromFile(networkText, maSet);
+				this.adjMatrix.remove("adjMatrix");
+				this.adjMatrix.put("adjMatrix", adjMatrix2);
+			}
 		}
 		if (parameters.get("tfFrom") != null
 				&& !parameters.get("tfFrom").toString().trim().equals(""))
@@ -545,8 +643,25 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 			if (d >= 0 && d <= 1)
 			   setPValue(d);
 			else
-			   setPValue(0.05);
+			   setPValue(0.01);
 		}
+
+		if (parameters.get("mintg") != null)
+			setMintg((Integer)parameters.get("mintg"));
+		if (parameters.get("minsp") != null)
+			setMinsp((Integer)parameters.get("minsp"));
+		if (parameters.get("nperm") != null)
+			setNperm((Integer)parameters.get("nperm"));
+		if (parameters.get("tail") != null)
+			setTail((Integer)parameters.get("tail"));
+		if (parameters.get("pvshadow") != null)
+			setPVshadow((Double)parameters.get("pvshadow"));
+		if (parameters.get("pvsynergy") != null)
+			setPVsynergy((Double)parameters.get("pvsynergy"));
+		if (parameters.get("resultid") != null)
+			setResultid((String)parameters.get("resultid"));
+		if (parameters.get("priorid") != null)
+			setPriorid((Integer)parameters.get("priorid"));
 
 		stopNotifyAnalysisPanelTemporary(false);
 	}
@@ -572,9 +687,19 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		answer.put("sigGroups", (String)sigGroups.getSelectedItem());
     	
 		if (getPValue() > 1 || getPValue() < 0)
-			answer.put("Fisher's Exact P Value", 0.05);
+			answer.put("Fisher's Exact P Value", 0.01);
 		else
 			answer.put("Fisher's Exact P Value", getPValue());
+
+		if (mintg.isEnabled())     answer.put("mintg", getMintg());
+		if (minsp.isEnabled())     answer.put("minsp", getMinsp());
+		if (nperm.isEnabled())     answer.put("nperm", getNperm());
+		if (tail.isEnabled())      answer.put("tail", getTail());
+		if (pvshadow.isEnabled())  answer.put("pvshadow", getPVshadow());
+		if (pvsynergy.isEnabled()) answer.put("pvsynergy", getPVsynergy());
+		if (resultid.isEnabled())  answer.put("resultid", getResultid());
+		answer.put("priorid", getPriorid());
+
 		return answer;
 	}
 
@@ -615,4 +740,202 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 
 	}
 
+	private String getLastDir(){
+		String dir = null;
+		try {
+			File file = new File(lastDirConf);
+			if (file.exists()) {
+				BufferedReader br = new BufferedReader(new FileReader(file));
+				dir = br.readLine();
+				br.close();
+			}
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
+		return dir;
+	}
+	private void saveLastDir(String dir){
+		//save as last used dir
+		try {
+			BufferedWriter br = new BufferedWriter(new FileWriter(lastDirConf));
+			br.write(dir);
+			br.close();
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
+	}
+
+	/**
+	 * Test if the network is in 5-column format, and if all correlation cols are positive.
+	 * @param fname    network file name
+	 * @param numrows  test format in the first numrows; if numrows <= 0, test whole file.
+	 * @return if the network is in 5-column format
+	 */
+	private boolean is5colnetwork(String fname, int numrows){
+		if (!new File(fname).exists())
+			return false;
+		BufferedReader br = null;
+		try{
+			br = new BufferedReader(new FileReader(fname));
+			allpos = true;
+			String line = null; int i = 0;
+			while( (line = br.readLine()) != null && 
+					(numrows <= 0 || i++ < numrows)) {
+				String[] toks = line.split("\t");
+				if (toks.length != 5 || !isDouble(toks[2]) 
+						|| !isDouble(toks[3]) || !isDouble(toks[4]))
+					return false;
+				if (allpos && Double.valueOf(toks[correlationCol]) < 0)
+					allpos = false;
+			}
+			log.info("This is a 5-column network");
+			return true;
+		}catch(IOException e){
+			e.printStackTrace();
+			return false;
+		}finally{
+			try{ 
+				if (br!=null) br.close(); 
+			}catch(IOException e){
+				e.printStackTrace();
+			}
+		}
+	}
+
+	private boolean isDouble(String s){
+		try{
+			Double.parseDouble(s);
+			return true;
+		}catch(NumberFormatException e){
+			return false;
+		}
+	}
+
+	public int getMintg() {
+		try {
+			return Integer.valueOf(mintg.getText());
+		} catch (NumberFormatException e) {
+			return -1;
+		}
+	}
+	public void setMintg(int p){
+		mintg.setText(Integer.toString(p));
+	}
+	public int getMinsp() {
+		try {
+			return Integer.valueOf(minsp.getText());
+		} catch (NumberFormatException e) {
+			return -1;
+		}
+	}
+	public void setMinsp(int p){
+		minsp.setText(Integer.toString(p));
+	}
+	public int getNperm() {
+		try {
+			return Integer.valueOf(nperm.getText());
+		} catch (NumberFormatException e) {
+			return -1;
+		}
+	}
+	public void setNperm(int p){
+		nperm.setText(Integer.toString(p));
+	}
+	public int getTail() {
+		try {
+			return Integer.valueOf(tail.getText());
+		} catch (NumberFormatException e) {
+			return -1;
+		}
+	}
+	public void setTail(int p){
+		tail.setText(Integer.toString(p));
+	}
+	public double getPVshadow() {
+		try {
+			return Double.valueOf(pvshadow.getText());
+		} catch (NumberFormatException nfe) {
+			return -1;
+		}
+	}
+	public void setPVshadow(double d) {
+		pvshadow.setText(Double.toString(d));
+	}
+	public double getPVsynergy() {
+		try {
+			return Double.valueOf(pvsynergy.getText());
+		} catch (NumberFormatException nfe) {
+			return -1;
+		}
+	}
+	public void setPVsynergy(double d) {
+		pvsynergy.setText(Double.toString(d));
+	}
+	public String getResultid(){
+		if (priorBox.getSelectedIndex() == 0) return null;
+		return resultid.getText().toLowerCase();
+	}
+	public void setResultid(String id){
+		resultid.setText(id);
+	}
+	public int getPriorid(){
+		return priorBox.getSelectedIndex();
+	}
+	public void setPriorid(int i){
+		priorBox.setSelectedIndex(i);
+	}
+
+	private String networkFilename = "";
+	public String getNetworkFilename(){
+		return networkFilename;
+	}
+
+	/*get zipped network file in byte[]*/
+	public byte[] getNetwork(){
+		String fname = networkTextField.getText();
+		if (!is5colnetwork(fname, 0))
+			return null;
+
+		int blocksize = 4096;
+		FileInputStream in = null;
+		GZIPOutputStream zipout = null;
+		try {
+			ByteArrayOutputStream bo = new ByteArrayOutputStream();
+			zipout = new GZIPOutputStream(bo);
+			byte[] buffer = new byte[blocksize];
+
+			in = new FileInputStream(fname);
+			int length;
+			while ((length = in.read(buffer, 0, blocksize)) != -1)
+				zipout.write(buffer, 0, length);
+			zipout.close();
+			return bo.toByteArray();
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		} finally {
+			try {
+				if (in!=null)     in.close();
+				if (zipout!=null) zipout.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	HashSet<String> getIxClass(String contextClass){
+		DSAnnotationContextManager manager = CSAnnotationContextManager.getInstance();
+		DSAnnotationContext<DSMicroarray> context = manager.getCurrentContext(maSet);
+		String[] groups = context.getLabelsForClass(contextClass);
+		HashSet<String> hash = new HashSet<String>();
+		for (String group : groups){
+			if (context.isLabelActive(group)){
+				DSPanel<DSMicroarray> panel = context.getItemsWithLabel(group);
+				int size = panel.size();
+				for (int i = 0; i < size; i++)
+					hash.add(panel.get(i).getLabel());
+			}
+		}
+		return hash;
+	}
 }

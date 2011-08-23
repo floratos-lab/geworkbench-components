@@ -1,16 +1,21 @@
 package org.geworkbench.components.masterregulator;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import javax.swing.JOptionPane;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.analysis.AbstractAnalysis;
+import org.geworkbench.analysis.AbstractGridAnalysis;
 import org.geworkbench.bison.annotation.CSAnnotationContext;
 import org.geworkbench.bison.annotation.CSAnnotationContextManager;
 import org.geworkbench.bison.annotation.DSAnnotationContext;
@@ -43,7 +48,7 @@ import org.geworkbench.events.GeneSelectorEvent;
  * @author yc2480
  * @version $Id$
  */
-public class MasterRegulatorAnalysis extends AbstractAnalysis implements
+public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
 	private static final long serialVersionUID = 940204157465957195L;
 	
@@ -57,7 +62,7 @@ public class MasterRegulatorAnalysis extends AbstractAnalysis implements
 
 	@Override
 	public int getAnalysisType() {
-		return AbstractAnalysis.MRA_TYPE;
+		return AbstractGridAnalysis.MRA_TYPE;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -367,5 +372,96 @@ public class MasterRegulatorAnalysis extends AbstractAnalysis implements
 			histStr += "\t\t" + panel.get(aIndex) + "\n";
 
 		return histStr;
+	}
+
+	@Override
+	public String getAnalysisName() {
+		return analysisName;
+	}
+
+	@Override
+	protected Map<Serializable, Serializable> getBisonParameters() {
+		Map<Serializable, Serializable> parameterMap = new HashMap<Serializable, Serializable>();
+		if (mraAnalysisPanel.getResultid() != null){
+			parameterMap.put("resultid", mraAnalysisPanel.getResultid());
+			return parameterMap;
+		}
+		byte[] network = mraAnalysisPanel.getNetwork();
+		if (network == null){
+			parameterMap.put("network", null);
+			return parameterMap;
+		}
+		parameterMap.put("mintg", mraAnalysisPanel.getMintg());
+		parameterMap.put("minsp", mraAnalysisPanel.getMinsp());
+		parameterMap.put("nperm", mraAnalysisPanel.getNperm());
+		parameterMap.put("pvgsea", mraAnalysisPanel.getPValue());
+		parameterMap.put("tail", mraAnalysisPanel.getTail());
+		parameterMap.put("pvshadow", mraAnalysisPanel.getPVshadow());
+		parameterMap.put("pvsynergy", mraAnalysisPanel.getPVsynergy());
+		parameterMap.put("networkname", mraAnalysisPanel.getNetworkFilename());
+		parameterMap.put("network", network);network=null;
+		if (mraAnalysisPanel.allpos && mraAnalysisPanel.getTail()==2){
+			JOptionPane.showMessageDialog(null, "Since all Spearman's correlation >= 0, gsea will use tail = 1.");
+			parameterMap.put("tail", 1);
+		}
+		parameterMap.put("class1", mraAnalysisPanel.getIxClass(CSAnnotationContext.CLASS_CONTROL).toArray(new String[0]));
+		parameterMap.put("class2", mraAnalysisPanel.getIxClass(CSAnnotationContext.CLASS_CASE).toArray(new String[0]));
+		return parameterMap;
+	}
+
+	@Override
+	public Class<?> getBisonReturnType() {
+		return String.class;
+	}
+
+	@Override
+	protected boolean useMicroarraySetView() {
+		return true;
+	}
+
+	@Override
+	protected boolean useOtherDataSet() {
+		return false;
+	}
+
+	@Override
+	public ParamValidationResults validInputData(
+			DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView,
+			DSDataSet<?> refMASet) {
+		if (maSetView == null)
+			return new ParamValidationResults(false, "Invalid input.");
+		assert maSetView instanceof DSMicroarraySetView;
+
+		if (mraAnalysisPanel.getNetworkFilename() == null)
+			return new ParamValidationResults(false, "Network cannot be empty.");
+		
+		if (mraAnalysisPanel.getMintg() <= 0)
+			return new ParamValidationResults(false, "Min targets should be a positive integer.");
+		if (mraAnalysisPanel.getMinsp() <= 0)
+			return new ParamValidationResults(false, "Min samples should be a positive integer.");
+		if (mraAnalysisPanel.getNperm() <= 0)
+			return new ParamValidationResults(false, "Nperm should be a positive integer.");
+		double pvgsea = mraAnalysisPanel.getPValue();
+		if (pvgsea < 0 || pvgsea > 1)
+			return new ParamValidationResults(false, "GSEA Pvalue should be between 0 and 1.");
+		int tail = mraAnalysisPanel.getTail();
+		if (tail != 1 && tail != 2)
+			return new ParamValidationResults(false, "Tail should be 1 or 2.");
+		double pvshadow = mraAnalysisPanel.getPVshadow();
+		if (pvshadow < 0 || pvshadow > 1)
+			return new ParamValidationResults(false, "Shadow Pvalue should be between 0 and 1.");
+		double pvsynergy = mraAnalysisPanel.getPVsynergy();
+		if (pvsynergy < 0 || pvsynergy > 1)
+			return new ParamValidationResults(false, "Synergy Pvalue should be between 0 and 1.");
+		HashSet<String> ctrls = mraAnalysisPanel.getIxClass(CSAnnotationContext.CLASS_CONTROL);
+		if (ctrls.size() == 0)
+			return new ParamValidationResults(false, "Please activate at least one control array.");
+		Iterator<String> casei = mraAnalysisPanel.getIxClass(CSAnnotationContext.CLASS_CASE).iterator();
+		while (casei.hasNext()){
+		    if (ctrls.contains(casei.next()))
+			return new ParamValidationResults(false, "An array cannot be in case and control at the same time.");
+		}
+		
+		return new ParamValidationResults(true, "No Error");
 	}
 }

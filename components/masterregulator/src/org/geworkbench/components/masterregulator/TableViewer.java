@@ -151,6 +151,12 @@ public class TableViewer extends JPanel {
 					setting);
 	}
 
+	public boolean isNumerical(int columnIndex) {
+		if (this.model instanceof DefaultViewerTableModel)
+			return ((DefaultViewerTableModel) this.model).isNumerical(columnIndex);
+		return false;
+	}
+
 	public int getSelectedRow() {
 		int index = table.getSelectedRow();
 		if (index < 0)
@@ -343,6 +349,11 @@ public class TableViewer extends JPanel {
 				if (table.isRowSelected(row))
 					textArea.setBackground(table.getSelectionBackground());
 				return textArea;
+			} else if (col == 1 && !isNumerical(col)) {
+				Component c = super.getTableCellRendererComponent(table, obj,
+						param, param3, row, col);
+				((JLabel) c).setHorizontalAlignment(JLabel.LEFT);
+				return c;
 			}
 			Component c = super.getTableCellRendererComponent(table, obj,
 					param, param3, row, col);
