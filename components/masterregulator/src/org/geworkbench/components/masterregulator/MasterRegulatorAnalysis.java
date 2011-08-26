@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.regex.Pattern;
 
 import javax.swing.JOptionPane;
 
@@ -54,6 +55,7 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
 	
 	private Log log = LogFactory.getLog(this.getClass());
 	private final String analysisName = "MRA";
+    private static final Pattern pattern = Pattern.compile("^mra\\d+$");
 	private MasterRegulatorPanel mraAnalysisPanel = new MasterRegulatorPanel();
 
 	public MasterRegulatorAnalysis() {
@@ -73,6 +75,9 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
 					"Input dataset for MRA analysis should be a MicroarraySet.\n"+
 					"But you selected a "+input.getClass().getName(), null);
 		};
+		if (mraAnalysisPanel.getResultid() != null)
+			return new AlgorithmExecutionResults(false,
+					"Retrieving prior result is not supported by local MRA.", null);
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> view = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
 		DSMicroarraySet<DSMicroarray> maSet = view.getMicroarraySet();
 		AdjacencyMatrixDataSet amSet = mraAnalysisPanel.getAdjMatrixDataSet();
@@ -432,6 +437,13 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
 			return new ParamValidationResults(false, "Invalid input.");
 		assert maSetView instanceof DSMicroarraySetView;
 
+		String runid = mraAnalysisPanel.getResultid();
+		if (runid != null){
+			if (!pattern.matcher(runid).find())
+				return new ParamValidationResults(false, "Invalid MRA Result ID: "+runid);
+			else
+				return new ParamValidationResults(true, "No Error");
+		}
 		if (mraAnalysisPanel.getNetworkFilename() == null)
 			return new ParamValidationResults(false, "Network cannot be empty.");
 		
@@ -457,6 +469,11 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
 		if (ctrls.size() == 0)
 			return new ParamValidationResults(false, "Please activate at least one control array.");
 		Iterator<String> casei = mraAnalysisPanel.getIxClass(CSAnnotationContext.CLASS_CASE).iterator();
+		if (!casei.hasNext()){
+			int c = JOptionPane.showConfirmDialog(null, "Are you sure to use only control group?");
+			if (c != JOptionPane.YES_OPTION)
+				return new ParamValidationResults(false, "Please activate both control and case.");
+		}
 		while (casei.hasNext()){
 		    if (ctrls.contains(casei.next()))
 			return new ParamValidationResults(false, "An array cannot be in case and control at the same time.");
