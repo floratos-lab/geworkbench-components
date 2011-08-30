@@ -4,12 +4,21 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JMenu;
@@ -24,12 +33,18 @@ import org.geworkbench.bison.annotation.DSAnnotationContext;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
+import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.components.selectors.GenePanel.MarkerPanelSetFileFilter;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.PhenotypeSelectedEvent;
 import org.geworkbench.events.PhenotypeSelectorEvent;
 import org.geworkbench.events.SingleMicroarrayEvent;
 import org.geworkbench.util.FilePathnameUtils;
+import org.geworkbench.util.Util;
+
+import com.Ostermiller.util.ExcelCSVParser;
 
 /**
  * @author John Watkinson
@@ -131,11 +146,91 @@ public class PhenotypePanel extends SelectorPanel<DSMicroarray> {
         for (int i = 0; i < CLASSES.length; i++) {
             JLabel classLabel = new JLabel(CLASSES[i], CLASS_ICONS[i], SwingConstants.TRAILING);
             classLabel.setIconTextGap(0);
+            classLabel.addMouseListener(new MouseAdapter(){
+            	public void mousePressed(MouseEvent e){
+            		String classname = null;
+            		JLabel label = (JLabel)e.getComponent();
+            		if (label!=null) classname = label.getText();
+            		loadButtonPressed(classname);
+            	}
+            });
             legend.add(classLabel);
             legend.add(Box.createHorizontalGlue());
         }
         lowerPanel.add(legend);
     }
+
+    private void loadButtonPressed(String classname){
+    	helper = getSelectorHelper();
+		JFileChooser fc = new JFileChooser(".");
+		javax.swing.filechooser.FileFilter filter = new MarkerPanelSetFileFilter();
+		fc.setAcceptAllFileFilterUsed(false);
+		fc.setFileFilter(filter);
+		fc.setDialogTitle("Load "+classname+" Arrayset");
+		if (!lastDir.equals("")) {
+			fc.setCurrentDirectory(new File(lastDir));
+		}
+		int choice = fc.showOpenDialog(mainPanel.getParent());
+
+		if (choice == JFileChooser.APPROVE_OPTION) {
+			lastDir = fc.getSelectedFile().getPath();
+			try {
+				helper.setLastDataDirectory(fc.getCurrentDirectory()
+						.getCanonicalPath());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			DSPanel<DSMicroarray> panel = getPanelFromSet(fc.getSelectedFile());
+			addPanel(panel);
+			if (!classname.equals(context.getDefaultClass()))
+				context.assignClassToLabel(panel.getLabel(), classname);
+			throwLabelEvent();
+		}
+    }
+
+	private DSPanel<DSMicroarray> getPanelFromSet(final File file) {
+		FileInputStream inputStream = null;
+		String filename = file.getName();
+		if (filename.toLowerCase().endsWith(".csv")) {
+			filename = filename.substring(0, filename.length() - 4);
+		}
+		// Ensure loaded file has unique name
+		Set<String> nameSet = new HashSet<String>();
+		int n = context.getNumberOfLabels();
+		for (int i = 0; i < n; i++) {
+			nameSet.add(context.getLabel(i));
+		}
+		filename = Util.getUniqueName(filename, nameSet);
+		DSPanel<DSMicroarray> panel = new CSPanel<DSMicroarray>(filename);
+		
+		List<String> selectedNames = new ArrayList<String>();
+		try {
+			inputStream = new FileInputStream(file);
+			ExcelCSVParser parser = new ExcelCSVParser(inputStream);
+			String[][] data = parser.getAllValues();
+			for (int i = 0; i < data.length; i++) {
+				String[] line = data[i];
+				if (line.length > 0) {
+					selectedNames.add(line[0]);
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (inputStream != null) {
+				try {
+					inputStream.close();
+				} catch (IOException e) {
+					// Lost cause
+				}
+			}
+		}
+		for(DSMicroarray array: itemList) {
+			if(selectedNames.contains(array.getLabel()))
+				panel.add(array);
+		}
+		return panel;
+	}
 
     protected void setSelectorLastDirConf() {
 		selectorLastDirConf = FilePathnameUtils.getUserSettingDirectoryPath()
