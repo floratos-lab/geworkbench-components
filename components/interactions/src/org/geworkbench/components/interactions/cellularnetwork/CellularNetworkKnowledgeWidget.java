@@ -2565,7 +2565,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 		}
 
-		int currentCount = hits.size();
+		int currentCount = 0;
+		if(hits!=null) currentCount = hits.size();
 
 		if (panel != null) {
 			if (panel.size() == 0) {
