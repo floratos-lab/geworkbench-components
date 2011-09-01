@@ -17,7 +17,8 @@ public class CupidTableModel extends AbstractTableModel {
 		rowCount = data.size();
 		refSeq = new String[rowCount];
 		miRNA = new String[rowCount];
-		siteStart = new int[rowCount];
+		distanceFromStart = new float[rowCount];
+		distanceFromEnd = new float[rowCount];
 		targetScanScore = new float[rowCount];
 		mirandaScore = new float[rowCount];
 		pitaScore = new float[rowCount];
@@ -26,16 +27,17 @@ public class CupidTableModel extends AbstractTableModel {
 		interactionProb = new float[rowCount];
 		int i = 0;
 		for (String[] row : data) {
-			refSeq[i] = row[0];
-			miRNA[i] = row[1];
+			refSeq[i] = row[1];
+			miRNA[i] = row[2];
 			try {
-				siteStart[i] = Integer.parseInt(row[2]);
-				targetScanScore[i] = Float.parseFloat(row[3]);
-				mirandaScore[i] = Float.parseFloat(row[4]);
+				distanceFromStart[i] = Float.parseFloat(row[3]);
+				distanceFromEnd[i] = Float.parseFloat(row[4]);
 				pitaScore[i] = Float.parseFloat(row[5]);
-				conservationScore[i] = Float.parseFloat(row[6]);
-				goldStandardClass[i] = Integer.parseInt(row[7]);
-				interactionProb[i] = Float.parseFloat(row[8]);
+				mirandaScore[i] = Float.parseFloat(row[6]);
+				targetScanScore[i] = Float.parseFloat(row[7]);
+				conservationScore[i] = Float.parseFloat(row[8]);
+				goldStandardClass[i] = Integer.parseInt(row[9]);
+				interactionProb[i] = Float.parseFloat(row[0]);
 			} catch (NumberFormatException e) {
 				// let's just keep going if things go wrong
 				e.printStackTrace();
@@ -47,7 +49,8 @@ public class CupidTableModel extends AbstractTableModel {
 	int rowCount = 0;
 	String[] refSeq;
 	String[] miRNA;
-	int[] siteStart;
+	float[] distanceFromStart;
+	float[] distanceFromEnd;
 	float[] targetScanScore;
 	float[] mirandaScore;
 	float[] pitaScore;
@@ -68,26 +71,32 @@ public class CupidTableModel extends AbstractTableModel {
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
 		switch (columnIndex) {
-		case 0:
-			return refSeq[rowIndex];
 		case 1:
-			return miRNA[rowIndex];
+			return refSeq[rowIndex];
 		case 2:
-			return siteStart[rowIndex];
+			return miRNA[rowIndex];
 		case 3:
-			return targetScanScore[rowIndex];
+			return distanceFromStart[rowIndex];
 		case 4:
-			return mirandaScore[rowIndex];
+			return distanceFromEnd[rowIndex];
 		case 5:
 			return pitaScore[rowIndex];
 		case 6:
-			return conservationScore[rowIndex];
+			return mirandaScore[rowIndex];
 		case 7:
-			return goldStandardClass[rowIndex];
+			return targetScanScore[rowIndex];
 		case 8:
-			return interactionProb[rowIndex];
+			return conservationScore[rowIndex];
 		case 9:
-			return 0;
+			int g = goldStandardClass[rowIndex];
+			if(g==1)
+				return "Yes";
+			else if(g==0)
+				return "No";
+			else
+				return "";
+		case 0:
+			return interactionProb[rowIndex];
 		default:
 			log.error("Wrong column number");
 			return null;
@@ -99,9 +108,10 @@ public class CupidTableModel extends AbstractTableModel {
 		return columnNames[col];
 	}
 
-	private static String[] columnNames = { "refSeq", "miRNA", "Site Start",
-			"TargetScan Score", "MIRANDA Score", "PITA Score",
-			"Conservation Score", "Gold Standard Class", "Overall Probablity",
-			"NUMBER10" };
+	private static String[] columnNames = { "Interaction Probablity", "refSeq", "miRNA", 
+		"Distance From Start of UTR", "Distance From End of UTR",
+		"PITA Score", "MIRANDA Score", 	"TargetScan Score", 
+		"Conservation Score", "Gold Standard Class" 
+		};
 
 }
