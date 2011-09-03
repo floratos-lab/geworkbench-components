@@ -65,7 +65,6 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
 	 *      Set inputed parameters to GUI.
 	 */
-	@SuppressWarnings("unchecked")
 	public void setParameters(Map<Serializable, Serializable> parameters) {
 		Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
 		for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set
@@ -75,15 +74,39 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 			Object value = parameter.getValue();
 
 			// set the parameters on GUI based on the Map
-			if (key.equals("network")) {
-				ideaNetwork = (ArrayList<IdeaNetworkEdge>)value;
+			if (key.equals("networkText")) {
+				networkField.setText((String)value);
+				try {
+					getNetworkFromFile(networkField.getText());
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					ideaNetwork = null;
+					e.printStackTrace();
+				}
 			}
-			if (key.equals("phenotype")) {
-				phenotype = (Phenotype)value;
+			if (key.equals("phenotypeText")) {
+				phenotypeField.setText((String)value);
+				try{
+					phenotype = new Phenotype(new File(phenotypeField.getText()));
+				}
+				catch (FileNotFoundException e1) {
+					e1.printStackTrace();
+					phenotype = null;
+				} catch (IOException e2) {
+					e2.printStackTrace();
+					phenotype = null;
+				}			
 			}
-			if (key.equals("nullData")) {
+			if (key.equals("nullDataText")) {
 				nullDataField.setText((String)value);
-			}		
+			}
+			if (key.equals("pValueText")) {
+				pValueTextField.setText((String)value);
+			}
+			if (key.equals("nullDataCheckbox")) {
+				nullDataCheckbox.setSelected((Boolean)value);
+				nullDataField.setEnabled((Boolean)value);
+			}	
 					
 		}
 	}
@@ -98,9 +121,11 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 
 		// set the Map with the parameter values retrieved from GUI
 		// component
-		parameters.put("network", ideaNetwork);
-		parameters.put("phenotype", phenotype);
-		parameters.put("nullData", nullDataField.getText());
+		parameters.put("networkText", networkField.getText());
+		parameters.put("phenotypeText", phenotypeField.getText());
+		parameters.put("nullDataText", nullDataField.getText());
+		parameters.put("pValueText", pValueTextField.getText());
+		parameters.put("nullDataCheckbox", nullDataCheckbox.isSelected());
 		
 		
 		return parameters;
@@ -252,14 +277,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 		if(parameters.get("phenotype")==null)
 			parameters.put("phenotype", "");
 		if(parameters.get("nullData")==null)
-			parameters.put("nullData", "");
-		
-		if(parameters.get("loadedAnnotation")==null)
-			parameters.put("loadedAnnotation", true);
-		if(parameters.get("loadedAnnotationFile")==null)
-			parameters.put("loadedAnnotationFile", "");
-		if(parameters.get("alternateAnnotationFile")==null)
-			parameters.put("alternateAnnotationFile", "");		
+			parameters.put("nullData", "");		
 	}
 
 	@Override
@@ -287,18 +305,8 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 			try {
 				String filename = fc.getSelectedFile().getAbsolutePath();			
 				String filepath = fc.getCurrentDirectory().getCanonicalPath();
-                setLastDirectory(filepath);		                
-				
-				BufferedReader br;
-				br = new BufferedReader(new FileReader(filename));
-				String line = br.readLine(); // skip the header line
-				line = br.readLine();
-				ideaNetwork = new ArrayList<IdeaNetworkEdge>();
-				while(line!=null && line.trim().length()>0) {
-					IdeaNetworkEdge edge = new IdeaNetworkEdge(line);
-					ideaNetwork.add(edge);
-					line = br.readLine();
-				}
+                setLastDirectory(filepath);			
+                getNetworkFromFile(filename);				
 				networkField.setText(filename);			
 			} catch (FileNotFoundException e1) {
 				e1.printStackTrace();
@@ -310,6 +318,18 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 		}	
 	}
 	
+	private void getNetworkFromFile(String filename) throws IOException{
+		BufferedReader br;
+		br = new BufferedReader(new FileReader(filename));
+		String line = br.readLine(); // skip the header line
+		line = br.readLine();
+		ideaNetwork = new ArrayList<IdeaNetworkEdge>();
+		while(line!=null && line.trim().length()>0) {
+			IdeaNetworkEdge edge = new IdeaNetworkEdge(line);
+			ideaNetwork.add(edge);
+			line = br.readLine();
+		}
+	}
 	
 	public void phenotypeLoadPressed(){
 		JFileChooser fc = new JFileChooser(this.getLastDirectory());

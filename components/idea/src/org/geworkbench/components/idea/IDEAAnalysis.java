@@ -1,18 +1,26 @@
 package org.geworkbench.components.idea;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.math.MathException;
 import org.geworkbench.analysis.AbstractAnalysis;
+import org.geworkbench.analysis.AbstractGridAnalysis;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.IdeaEdge;
+import org.geworkbench.bison.datastructure.bioobjects.IdeaGLoc;
+import org.geworkbench.bison.datastructure.bioobjects.IdeaModule;
+import org.geworkbench.bison.datastructure.bioobjects.IdeaNode;
 import org.geworkbench.bison.datastructure.bioobjects.IdeaProbeGene;
 import org.geworkbench.bison.datastructure.bioobjects.IdeaResult;
 
@@ -22,6 +30,7 @@ import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
+import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.util.ProgressBar;
 
@@ -31,7 +40,7 @@ import org.geworkbench.util.ProgressBar;
  * @author zm2165
  * @version $Id$
  */
-public class IDEAAnalysis extends AbstractAnalysis implements
+public class IDEAAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
 	private static final long serialVersionUID = 7928879302023716304L;
 
@@ -377,8 +386,50 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 			return null;
 		}
 		
+		//prepare locResultList,gocResultList,nodeResultList
+		//locList->locResultList		
+		List<IdeaGLoc> locResultList=new ArrayList<IdeaGLoc>();
+		for(IdeaEdge e:locList){
+			IdeaGLoc anItem=new IdeaGLoc(e.getProbeId1(),e.getMarker1().getGeneName(),
+					e.getProbeId2(), e.getMarker2().getGeneName(),
+					e.getMI(), e.getDeltaCorr(), e.getzDeltaCorr() );
+			locResultList.add(anItem);
+		}
+		//gocList->gocResultList
+		List<IdeaGLoc> gocResultList=new ArrayList<IdeaGLoc>();
+		for(IdeaEdge e:gocList){
+			IdeaGLoc anItem=new IdeaGLoc(e.getProbeId1(),e.getMarker1().getGeneName(),
+					e.getProbeId2(), e.getMarker2().getGeneName(),
+					e.getMI(), e.getDeltaCorr(), e.getzDeltaCorr() );
+			gocResultList.add(anItem);
+		}
+		//probeNes->nodeResultList
+		List<IdeaNode> nodeResultList=new ArrayList<IdeaNode>();
+		for(IdeaProbeGene pg:probeNes){			
+			DSGeneMarker m = maSet.getMarkers().get(pg.getProbeId());
+
+			int locHits = 0;
+			int gocHits = 0;
+			for (IdeaEdge e : pg.getEdges()) {
+				if (e.getDeltaCorr() < 0)
+					locHits++;
+				else if (e.getDeltaCorr() > 0)
+					gocHits++;
+			}
+			double locnes = -Math.log(pg.getCumLoc());
+			double gocnes = -Math.log(pg.getCumGoc());
+			IdeaNode aNode=new IdeaNode(pg.getProbeId(), m.getGeneName(), "chromosomal", 
+					pg.getEdges().size(), pg.getNes(), pg.getLocs(), locHits, pg.getCumLoc(), 
+					locnes, pg.getGocs(), gocHits, pg.getCumGoc(), gocnes);
+			nodeResultList.add(aNode);			
+		}
+		//prepare moduleResultList
+		List<IdeaModule> moduleResultList=new ArrayList<IdeaModule>();
+		
+		
+		
 		IdeaResult analysisResult = new IdeaResult(maSet,
-				"IDEA Analysis Result",locList, gocList, probeNes, pvalue);
+				"IDEA Analysis Result",locResultList, gocResultList, nodeResultList, moduleResultList,pvalue);
 		String stemp = generateHistoryString();
 		ProjectPanel.addToHistory(analysisResult, stemp);
 
@@ -392,5 +443,48 @@ public class IDEAAnalysis extends AbstractAnalysis implements
 		StringBuffer histStr = new StringBuffer();
 		histStr.append(IDEAAnalysisPanel.getDataSetHistory());
 		return histStr.toString();
+	}
+
+	@Override
+	public String getAnalysisName() {
+		// TODO Auto-generated method stub
+		return "Idea";
+	}
+
+	@Override
+	protected Map<Serializable, Serializable> getBisonParameters() {
+		// TODO Auto-generated method stub
+		Map<Serializable, Serializable> bisonParameters = new HashMap<Serializable, Serializable>();
+		IDEAPanel paramPanel = (IDEAPanel) this.aspp;
+		String pvalue=paramPanel.getPvalue();
+		bisonParameters.put("ideaParameter", pvalue);
+		
+		return bisonParameters;
+	}
+
+	@Override
+	public Class<?> getBisonReturnType() {
+		// TODO Auto-generated method stub
+		return IdeaResult.class;
+	}
+
+	@Override
+	protected boolean useMicroarraySetView() {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+	@Override
+	protected boolean useOtherDataSet() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public ParamValidationResults validInputData(
+			DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView,
+			DSDataSet<?> refMASet) {
+		// TODO Auto-generated method stub
+		return new ParamValidationResults(true, "No, no Error");
 	}
 }
