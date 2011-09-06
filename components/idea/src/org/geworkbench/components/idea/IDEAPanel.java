@@ -58,6 +58,8 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 
 	private Phenotype phenotype;
 	private ArrayList<IdeaNetworkEdge> ideaNetwork;
+	private String[] phenotypeAsString;	
+	private ArrayList<String> networkList=new ArrayList<String>();
 	
 	/*
 	 * (non-Javadoc)
@@ -142,10 +144,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 	/* this is called from IDEAAnalysis */
 	List<IdeaNetworkEdge> getNetwork() {
 		return ideaNetwork;
-	}
-	Boolean getUseNullData(){
-		return nullDataCheckbox.isSelected();
-	}
+	}	
 	
 	public String getNullFileName() {
 		return nullDataField.getText();
@@ -297,6 +296,10 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 		return pValueTextField.getText();
 	}
 	
+	public boolean getUseNullData(){
+		return nullDataCheckbox.isSelected();
+	}
+	
 	public void networkLoadPressed(){
 
 		JFileChooser fc = new JFileChooser(this.getLastDirectory());
@@ -322,12 +325,15 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 		BufferedReader br;
 		br = new BufferedReader(new FileReader(filename));
 		String line = br.readLine(); // skip the header line
+		networkList.add(line);
 		line = br.readLine();
+		networkList.add(line);
 		ideaNetwork = new ArrayList<IdeaNetworkEdge>();
 		while(line!=null && line.trim().length()>0) {
 			IdeaNetworkEdge edge = new IdeaNetworkEdge(line);
 			ideaNetwork.add(edge);
 			line = br.readLine();
+			networkList.add(line);
 		}
 	}
 	
@@ -341,6 +347,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
                 setLastDirectory(filepath);
                 File file=new File(filename);
                 phenotype = new Phenotype(file);
+                phenotypeAsString= phenotype.getPhenotypeAsString();
 				phenotypeField.setText(filename);			
 			} catch (FileNotFoundException e1) {
 				e1.printStackTrace();
@@ -405,6 +412,19 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
         }
     }
 	
+	public String[] getPhenotypeAsString() {
+		return phenotypeAsString;
+	}
+	
+	public String[] getNetworkAsString() {
+		String[] networkAsString=new String[networkList.size()];
+		int i=0;
+		for(String s:networkList){
+			networkAsString[i]=s;
+			i++;
+		}
+		return networkAsString;
+	}
 	
 	
 	
