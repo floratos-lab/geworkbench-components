@@ -2502,17 +2502,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		return event;
 	}
 
-	@SuppressWarnings("unchecked")
-	@Subscribe
-	public void receive(ProjectEvent pe, Object source) {
-		DSDataSet<?> ds = pe.getDataSet();
-		if (ds instanceof DSMicroarraySet) {
-			if(ds!=dataset) {
-				dataset = (DSMicroarraySet<DSMicroarray>) ds;
-			}
-		}
-	}
-
+ 
 	@Subscribe
 	public void receive(GeneSelectorEvent gse, Object source) {
 		log.debug("received GeneSelectorEvent::source="
