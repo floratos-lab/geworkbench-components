@@ -24,6 +24,7 @@ import org.geworkbench.bison.datastructure.bioobjects.IdeaNode;
 import org.geworkbench.bison.datastructure.bioobjects.IdeaProbeGene;
 import org.geworkbench.bison.datastructure.bioobjects.IdeaResult;
 
+import org.geworkbench.bison.datastructure.bioobjects.IdeaEdge.InteractionType;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
@@ -426,7 +427,30 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 		//prepare moduleResultList
 		List<IdeaModule> moduleResultList=new ArrayList<IdeaModule>();
 		
-		
+		for (IdeaProbeGene p : probeNes) {// present significant node with its
+			// edges
+			if ((p.getCumLoc() < pvalue) || (p.getCumGoc() < pvalue)) {
+				ArrayList<IdeaEdge> pe=p.getEdges();
+				for (IdeaEdge e : pe) {					
+					String gLoc="";
+					String ppi = "";
+					if (e.isLoc()||e.isGoc()){
+						if (e.isLoc()) gLoc= "LoC";
+						if (e.isGoc()) gLoc="GoC";						
+					}
+					else 
+						gLoc="None";
+					if (e.getPpi() == InteractionType.PROTEIN_PROTEIN)
+						ppi = "ppi";
+					else if (e.getPpi() == InteractionType.PROTEIN_DNA)
+						ppi = "pdi";
+					
+					IdeaModule aModule=new IdeaModule(e.getProbeId1(),e.getProbeId2(),
+							ppi, gLoc);
+					moduleResultList.add(aModule);
+				}
+			}
+		}
 		
 		IdeaResult analysisResult = new IdeaResult(maSet,
 				"IDEA Analysis Result",locResultList, gocResultList, nodeResultList, moduleResultList,pvalue);
@@ -456,8 +480,14 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 		// TODO Auto-generated method stub
 		Map<Serializable, Serializable> bisonParameters = new HashMap<Serializable, Serializable>();
 		IDEAPanel paramPanel = (IDEAPanel) this.aspp;
-		String pvalue=paramPanel.getPvalue();
-		bisonParameters.put("ideaParameter", pvalue);
+		float pvalue=Float.parseFloat(paramPanel.getPvalue());
+		bisonParameters.put("pvalue", pvalue);
+		boolean useNullData=paramPanel.getUseNullData();
+		bisonParameters.put("useNullData", useNullData);
+		String[] phenotype= paramPanel.getPhenotypeAsString();
+		bisonParameters.put("phenotype", phenotype);
+		String[] network= paramPanel.getNetworkAsString();
+		bisonParameters.put("network", network);
 		
 		return bisonParameters;
 	}

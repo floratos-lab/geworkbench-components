@@ -18,11 +18,12 @@ import java.util.Set;
 public class Phenotype implements Serializable {
 	private static final long serialVersionUID = 1929271049658752446L;
 
-	private final Set<Integer> newColumnIncluded;	//zheng
+	private final Set<Integer> newColumnIncluded;	
 	private final Set<Integer> columnExcluded;
 
 	final static private String PHENO_INCLUDE = "Include";
 	final static private String PHENO_EXCLUDE = "Exclude";
+	private String[] phenotypeAsString=new String[2];
 
 	/**
 	 * Constructor from given column indices included. User for null distribution only.
@@ -38,6 +39,7 @@ public class Phenotype implements Serializable {
 		
 		BufferedReader br = new BufferedReader(new FileReader(file));
 		String line = br.readLine();
+		phenotypeAsString[0]=line;
 		String[] tokens = line.split("\\s");
 		Set<Integer> columnIncluded = new HashSet<Integer>();
 		if(tokens[0].equals(PHENO_INCLUDE)) {
@@ -51,6 +53,7 @@ public class Phenotype implements Serializable {
 		}
 
 		line = br.readLine();
+		phenotypeAsString[1]=line;
 		tokens = line.split("\\s");
 		if(tokens[0].equals(PHENO_EXCLUDE)) {
 			columnExcluded = new HashSet<Integer>();
@@ -101,5 +104,8 @@ public class Phenotype implements Serializable {
 
 	public int getExcludedCount() {
 		return columnExcluded.size();
+	}
+	public String[] getPhenotypeAsString(){
+		return phenotypeAsString;
 	}
 }
