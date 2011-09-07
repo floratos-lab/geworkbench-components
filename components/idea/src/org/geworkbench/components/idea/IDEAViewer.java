@@ -28,7 +28,7 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 import org.geworkbench.bison.datastructure.bioobjects.IdeaGLoc;
 import org.geworkbench.bison.datastructure.bioobjects.IdeaModule;
 import org.geworkbench.bison.datastructure.bioobjects.IdeaNode;
-import org.geworkbench.bison.datastructure.bioobjects.IdeaResult;
+import org.geworkbench.bison.datastructure.bioobjects.IdeaResultDataSet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
@@ -44,7 +44,7 @@ import org.geworkbench.events.ProjectEvent;
  * @version $Id$
  * 
  */
-@AcceptTypes({ IdeaResult.class })
+@AcceptTypes({ IdeaResultDataSet.class })
 public class IDEAViewer extends JPanel implements VisualPlugin {
 
 	private static final long serialVersionUID = -4415752683103679560L;
@@ -75,6 +75,7 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 
 		@Override
 		public int getRowCount() {
+			if(list==null) return 0;
 			return list.size();
 		}
 
@@ -132,6 +133,7 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 
 		@Override
 		public int getRowCount() {
+			if(list==null) return 0;
 			return list.size();
 		}
 
@@ -204,6 +206,7 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 
 		@Override
 		public int getRowCount() {
+			if(list==null) return 0;
 			return list.size();
 		}
 
@@ -433,14 +436,14 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 		}
 	}
 
-	private IdeaResult ideaResult = null;
+	private IdeaResultDataSet ideaResult = null;
 
 	@Subscribe
 	public void receive(ProjectEvent event, Object source) {
 		DSDataSet<?> dataSet = event.getDataSet();
-		if (dataSet instanceof IdeaResult) {
+		if (dataSet instanceof IdeaResultDataSet) {
 
-			ideaResult = (IdeaResult) dataSet;
+			ideaResult = (IdeaResultDataSet) dataSet;
 			gocTableModel.setValues(ideaResult.getGocList());
 			gocTableModel.fireTableDataChanged();
 			locTableModel.setValues(ideaResult.getLocList());
