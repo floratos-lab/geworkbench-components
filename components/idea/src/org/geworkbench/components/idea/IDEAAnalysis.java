@@ -452,10 +452,10 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 			}
 		}
 		
-		//IdeaResultDataSet analysisResult = new IdeaResultDataSet(maSet,
-			//	"IDEA Analysis Result",locResultList, gocResultList, nodeResultList, moduleResultList,pvalue);
 		IdeaResultDataSet analysisResult = new IdeaResultDataSet(maSet,
-				"IDEA Analysis Result",null, null, null, null,pvalue);
+				"IDEA Analysis Result",locResultList, gocResultList, nodeResultList, moduleResultList,pvalue);
+		//IdeaResultDataSet analysisResult = new IdeaResultDataSet(maSet,
+		//		"IDEA Analysis Result",null, null, null, null,pvalue);
 		String stemp = generateHistoryString();
 		ProjectPanel.addToHistory(analysisResult, stemp);
 
