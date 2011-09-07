@@ -22,7 +22,7 @@ import org.geworkbench.bison.datastructure.bioobjects.IdeaGLoc;
 import org.geworkbench.bison.datastructure.bioobjects.IdeaModule;
 import org.geworkbench.bison.datastructure.bioobjects.IdeaNode;
 import org.geworkbench.bison.datastructure.bioobjects.IdeaProbeGene;
-import org.geworkbench.bison.datastructure.bioobjects.IdeaResult;
+import org.geworkbench.bison.datastructure.bioobjects.IdeaResultDataSet;
 
 import org.geworkbench.bison.datastructure.bioobjects.IdeaEdge.InteractionType;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
@@ -452,8 +452,10 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 			}
 		}
 		
-		IdeaResult analysisResult = new IdeaResult(maSet,
-				"IDEA Analysis Result",locResultList, gocResultList, nodeResultList, moduleResultList,pvalue);
+		//IdeaResultDataSet analysisResult = new IdeaResultDataSet(maSet,
+			//	"IDEA Analysis Result",locResultList, gocResultList, nodeResultList, moduleResultList,pvalue);
+		IdeaResultDataSet analysisResult = new IdeaResultDataSet(maSet,
+				"IDEA Analysis Result",null, null, null, null,pvalue);
 		String stemp = generateHistoryString();
 		ProjectPanel.addToHistory(analysisResult, stemp);
 
@@ -495,7 +497,7 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 	@Override
 	public Class<?> getBisonReturnType() {
 		// TODO Auto-generated method stub
-		return IdeaResult.class;
+		return IdeaResultDataSet.class;
 	}
 
 	@Override
