@@ -516,7 +516,31 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 	public ParamValidationResults validInputData(
 			DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView,
 			DSDataSet<?> refMASet) {
-		// TODO Auto-generated method stub
+		if (aspp == null)
+			return new ParamValidationResults(true, null);
+		// Use this to get params
+		IDEAPanel params = (IDEAPanel) aspp;
+		
+		if (params.getNetwork()== null) {
+			return new ParamValidationResults(false,
+					"You did not load networks.");
+		}
+		if (params.getPhenotype()== null) {
+			return new ParamValidationResults(false,
+					"You did not load phenotype.");
+		}
+		double pvalue;
+		try{
+			pvalue=Double.parseDouble(IDEAAnalysisPanel.getPvalue());
+			if((pvalue<=0)||(pvalue>=1))
+				return new ParamValidationResults(false,
+						"P-value should be between 0 and 1.");
+		}
+		catch (Exception e){
+			return new ParamValidationResults(false,
+					"P-value is invalid.");
+		}
+		
 		return new ParamValidationResults(true, "No, no Error");
 	}
 }
