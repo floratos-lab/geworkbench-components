@@ -39,7 +39,7 @@ public class Cupid extends JPanel implements VisualPlugin {
 	private static final long serialVersionUID = 1717902242692528577L;
 	private Log log = LogFactory.getLog(Cupid.class);
 
-	private static final String defaultServerUrl = "http://localhost:8080";
+	private static final String defaultServerUrl = "http://afdev.c2b2.columbia.edu:8080";
 
 	public Cupid() {
 		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
