@@ -5,6 +5,9 @@ import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.math.MathException;
+import org.apache.commons.math.distribution.TDistribution;
+import org.apache.commons.math.distribution.TDistributionImpl;
 import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.bison.annotation.CSAnnotationContext;
 import org.geworkbench.bison.annotation.CSAnnotationContextManager;
@@ -25,16 +28,12 @@ import org.geworkbench.bison.datastructure.complex.panels.DSAnnotatedPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
-import org.geworkbench.builtin.projects.ProjectPanel;
+import org.geworkbench.builtin.projects.history.HistoryPanel;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.util.Combinations;
 import org.geworkbench.util.ProgressBar;
 import org.geworkbench.util.QSort;
-
-import org.apache.commons.math.MathException;
-import org.apache.commons.math.distribution.TDistribution;
-import org.apache.commons.math.distribution.TDistributionImpl;
 
 /**
  * <p>geWorkbench</p>
@@ -334,7 +333,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 		setFoldChnage(maSet, sigSet);
 		
 		// add data set history.
-		ProjectPanel.addToHistory(sigSet, GenerateHistoryHeader() + groupAndChipsString
+		HistoryPanel.addToHistory(sigSet, GenerateHistoryHeader() + groupAndChipsString
 				+ histMarkerString);
 
 		pbTtest.dispose();

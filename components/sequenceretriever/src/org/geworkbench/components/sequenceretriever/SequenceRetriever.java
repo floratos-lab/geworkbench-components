@@ -66,7 +66,7 @@ import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.util.RandomNumberGenerator;
-import org.geworkbench.builtin.projects.ProjectPanel;
+import org.geworkbench.builtin.projects.history.HistoryPanel;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
@@ -621,7 +621,7 @@ public class SequenceRetriever implements VisualPlugin {
 				if (label != null) {
 					selectedSequenceDB.setLabel(label);
 					selectedSequenceDB.parseMarkers();
-					ProjectPanel.addToHistory(selectedSequenceDB,
+					HistoryPanel.addToHistory(selectedSequenceDB,
 							generateHistStr());
 					ProjectNodeAddedEvent event = new ProjectNodeAddedEvent(
 							"message", selectedSequenceDB, null);

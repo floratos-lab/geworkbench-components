@@ -89,6 +89,7 @@ import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.builtin.projects.ProjectPanel;
+import org.geworkbench.builtin.projects.history.HistoryPanel;
 import org.geworkbench.engine.config.Closable;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
@@ -1685,7 +1686,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 					+ "      Threshold:     " + thresholdTextField.getText()
 					+ "\n" + "      Selected Marker List: \n" + historyStr
 					+ "\n";
-			ProjectPanel.addToHistory(adjacencyMatrixdataSet, history);
+			HistoryPanel.addToHistory(adjacencyMatrixdataSet, history);
 
 			if (handler.isCancelled())
 				return;

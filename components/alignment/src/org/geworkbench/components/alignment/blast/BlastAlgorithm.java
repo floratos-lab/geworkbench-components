@@ -19,7 +19,7 @@ import org.geworkbench.bison.datastructure.bioobjects.sequence.CSAlignmentResult
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.util.RandomNumberGenerator;
-import org.geworkbench.builtin.projects.ProjectPanel;
+import org.geworkbench.builtin.projects.history.HistoryPanel;
 import org.geworkbench.components.alignment.blast.RemoteBlast.NcbiResponseException;
 import org.geworkbench.components.alignment.blast.RemoteBlast.Status;
 import org.geworkbench.components.alignment.panels.AlgorithmMatcher;
@@ -272,7 +272,7 @@ public class BlastAlgorithm extends SwingWorker<CSAlignmentResultSet, Integer> {
 			if (blastResult==null)return;
 			
 			String historyStr = generateHistoryStr(sequenceDB);
-			ProjectPanel.addToHistory(blastResult, historyStr);
+			HistoryPanel.addToHistory(blastResult, historyStr);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

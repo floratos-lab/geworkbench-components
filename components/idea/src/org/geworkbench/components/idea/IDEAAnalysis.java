@@ -18,13 +18,12 @@ import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.IdeaEdge;
+import org.geworkbench.bison.datastructure.bioobjects.IdeaEdge.InteractionType;
 import org.geworkbench.bison.datastructure.bioobjects.IdeaGLoc;
 import org.geworkbench.bison.datastructure.bioobjects.IdeaModule;
 import org.geworkbench.bison.datastructure.bioobjects.IdeaNode;
 import org.geworkbench.bison.datastructure.bioobjects.IdeaProbeGene;
 import org.geworkbench.bison.datastructure.bioobjects.IdeaResultDataSet;
-
-import org.geworkbench.bison.datastructure.bioobjects.IdeaEdge.InteractionType;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
@@ -32,7 +31,7 @@ import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
-import org.geworkbench.builtin.projects.ProjectPanel;
+import org.geworkbench.builtin.projects.history.HistoryPanel;
 import org.geworkbench.util.ProgressBar;
 
 /**
@@ -457,7 +456,7 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 		//IdeaResultDataSet analysisResult = new IdeaResultDataSet(maSet,
 		//		"IDEA Analysis Result",null, null, null, null,pvalue);
 		String stemp = generateHistoryString();
-		ProjectPanel.addToHistory(analysisResult, stemp);
+		HistoryPanel.addToHistory(analysisResult, stemp);
 
 		AlgorithmExecutionResults results = new AlgorithmExecutionResults(true,
 				"Idea Analysis", analysisResult);

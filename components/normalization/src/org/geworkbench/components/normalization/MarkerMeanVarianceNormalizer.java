@@ -1,5 +1,7 @@
 package org.geworkbench.components.normalization;
 
+import java.util.Arrays;
+
 import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMarkerValue;
@@ -7,9 +9,7 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.NormalizingAnalysis;
-import org.geworkbench.builtin.projects.ProjectPanel;
-
-import java.util.Arrays;
+import org.geworkbench.builtin.projects.history.HistoryPanel;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>
@@ -120,7 +120,7 @@ public class MarkerMeanVarianceNormalizer extends AbstractAnalysis implements No
         }
 
 		// add to history
-        ProjectPanel.addHistoryDetail(maSet,((MarkerMeanVarianceNormalizerPanel) aspp).getParamDetail());
+        HistoryPanel.addHistoryDetail(maSet,((MarkerMeanVarianceNormalizerPanel) aspp).getParamDetail());
 
         return new AlgorithmExecutionResults(true, "No errors", input);
     }

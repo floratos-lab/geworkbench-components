@@ -18,7 +18,7 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarker
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.NormalizingAnalysis;
-import org.geworkbench.builtin.projects.ProjectPanel;
+import org.geworkbench.builtin.projects.history.HistoryPanel;
 import org.geworkbench.engine.management.Subscribe;
 
 /**
@@ -125,7 +125,7 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
 
         }
        
-        ProjectPanel.addHistoryDetail(maSet,((HouseKeepingGeneNormalizerPanel) aspp).getParamDetail());
+        HistoryPanel.addHistoryDetail(maSet,((HouseKeepingGeneNormalizerPanel) aspp).getParamDetail());
         
         return new AlgorithmExecutionResults(true, "No errors", input);
     }
