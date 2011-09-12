@@ -27,6 +27,9 @@ import javax.swing.JTextField;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.engine.config.VisualPlugin;
+import org.geworkbench.util.ProgressDialog;
+import org.geworkbench.util.ProgressItem;
+import org.geworkbench.util.ProgressTask;
 
 /**
  * @author zji
@@ -60,8 +63,28 @@ public class Cupid extends JPanel implements VisualPlugin {
 		final JButton submitButton = new JButton("Submit");
 		submitButton.addActionListener(new ActionListener() {
 
+			final ProgressDialog pd = ProgressDialog.create(ProgressDialog.MODAL_TYPE);
+			
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				ProgressTask<Void, Void> task = new ProgressTask<Void, Void>(ProgressItem.INDETERMINATE_TYPE, "Querying CUPID database") {
+
+					
+					@Override
+					protected Void doInBackground() throws Exception {
+						queryRemoteData();
+						return null;
+					}
+					
+			    	@Override
+					protected void done(){
+			    		pd.removeTask(this);
+			    	}
+				};
+				pd.executeTask(task);
+			}
+			
+			private void queryRemoteData() {
 				String queryType = encodeSpace( (String) queryTypeComboBox.getSelectedItem() );
 				String queryValue = encodeSpace( queryValueField.getText() );
 				String host = urlField.getText();
@@ -71,12 +94,6 @@ public class Cupid extends JPanel implements VisualPlugin {
 					url = new URL(host+"/CupidServlet/CupidServlet?type="+queryType+"&value="+queryValue);
 					HttpURLConnection connection = (HttpURLConnection) url
 							.openConnection();
-//					connection.setDoOutput(true);
-//					OutputStreamWriter out = new OutputStreamWriter(connection
-//							.getOutputStream());
-//
-//					out.write(methodAndParams);
-//					out.close();
 
 					int respCode = connection.getResponseCode();
 					if (respCode != HttpURLConnection.HTTP_OK) {
@@ -92,12 +109,9 @@ public class Cupid extends JPanel implements VisualPlugin {
 					while(line!=null) {
 						String[] fields = line.split("\\|");
 						data.add(fields);
-//						for(String f: fields)
-//							System.out.print(f+"|");
-//						System.out.println();
 						line = in.readLine();
 					}
-//					System.out.println("END");
+
 					in.close();
 					
 					tableModel.setValues(data);
