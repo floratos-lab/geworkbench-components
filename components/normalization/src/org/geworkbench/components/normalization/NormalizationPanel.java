@@ -32,17 +32,18 @@ import org.geworkbench.analysis.ParameterKey;
 import org.geworkbench.analysis.ReHighlightable;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.NormalizingAnalysis;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.bison.model.analysis.ParameterPanel;
+import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.ComponentRegistry;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.AnalysisInvokedEvent;
-import org.geworkbench.events.NormalizationEvent;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
@@ -589,10 +590,11 @@ public class NormalizationPanel implements VisualPlugin, ReHighlightable {
 			 * with the results of the normalization operation.
 			 */
 			if (results.getResults() instanceof DSMicroarraySet<?>) {
-				DSMicroarraySet<?> normalizedData = (DSMicroarraySet<?>) results
+				@SuppressWarnings("unchecked")
+				DSMicroarraySet<DSMicroarray> normalizedData = (DSMicroarraySet<DSMicroarray>) results
 						.getResults();
-				publishNormalizationEvent(new NormalizationEvent(maSet,
-						normalizedData, selectedNormalizer.getLabel()));
+				ProjectPanel.getInstance().processNormalization(maSet,
+						normalizedData, selectedNormalizer.getLabel());
 				AnalysisInvokedEvent event = new AnalysisInvokedEvent(
 						selectedNormalizer, maSet.getDataSetName());
 				publishAnalysisInvokedEvent(event);
@@ -602,16 +604,6 @@ public class NormalizationPanel implements VisualPlugin, ReHighlightable {
 						.error("This shouldn't happen. results.getResults() should return a DSMicroarraySet<?>");
 			}
 		}
-	}
-
-	/**
-	 * publish NormalizationEvent after we successfully execute the
-	 * normalization.
-	 */
-	@Publish
-	public org.geworkbench.events.NormalizationEvent publishNormalizationEvent(
-			org.geworkbench.events.NormalizationEvent event) {
-		return event;
 	}
 
 	@Publish
