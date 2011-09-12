@@ -36,7 +36,6 @@ import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.ProjectEvent;
-import org.geworkbench.events.StructureAnalysisEvent;
 
 /**
  * SkyLine result viewer for all homology models
@@ -61,20 +60,6 @@ public class SkyLineViewAllPanel implements VisualPlugin, ActionListener {
 	private JPanel choose = new JPanel();
 	private JLabel choosefile = new JLabel();
 	private int maxhitcols = 16;
-
-	@Subscribe
-	public void receive(StructureAnalysisEvent event, Object source) {
-		DSDataSet<?> dataset = event.getDataSet();
-		if (dataset instanceof DSProteinStructure) {
-			proteinData = (DSProteinStructure) dataset;
-			String htmlText = event.getAnalyzedStructure();
-			if (htmlText == "SkyLine results available") {
-				log.info("structure analysis event");
-				rootdir = event.getInformation();
-				showResults(proteinData);
-			}
-		}
-	}
 
 	@Subscribe
 	public void receive(ProjectEvent event, Object source) {
