@@ -6,7 +6,9 @@ import gov.nih.nci.caarray.services.external.v1_0.InvalidInputException;
 import java.awt.Component;
 import java.rmi.RemoteException;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedMap;
+import java.util.TreeMap;
 
 import javax.security.auth.login.FailedLoginException;
 import javax.swing.JPanel;
@@ -29,7 +31,6 @@ import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.CaArrayEvent;
 import org.geworkbench.events.CaArrayQueryEvent;
-import org.geworkbench.events.CaArrayQueryResultEvent;
 import org.geworkbench.events.CaArrayRequestEvent;
 import org.geworkbench.events.CaArrayRequestHybridizationListEvent;
 import org.geworkbench.events.CaArrayReturnHybridizationListEvent;
@@ -39,7 +40,7 @@ import org.geworkbench.events.CaArraySuccessEvent;
  * The wrapper class for CaArray Component.
  *
  * @author xiaoqing
- * @version $Id: CaArray2Component.java,v 1.15 2008/05/01 14:23:10 xiaoqing Exp $
+ * @version $Id$
  *
  */
 @AcceptTypes( { DSMicroarraySet.class, CSSequenceSet.class })
@@ -292,29 +293,32 @@ public class CaArray2Component implements VisualPlugin {
 		int port = ce.getPort();
 		String username = ce.getUsername();
 		String password = ce.getPassword();
-		CaArrayQueryResultEvent event = new CaArrayQueryResultEvent();
+
+		boolean succeeded;
+		String message = null;
+		TreeMap<String, Set<String>> treeMap = null;
 		try {
 			CaArrayClient client = new CaArrayClient(url, port, username,
 					password);
-			event.setQueryPairs(client.lookupTypeValues());
-			event.setSucceed(true);
+			treeMap = client.lookupTypeValues();
+			succeeded = true;
 		} catch (ServerConnectionException se) {
-			event.setSucceed(false);
-			event.setErrorMessage("ServerConnectionException: host " + url
-					+ "; port " + port + "; " + se.getMessage());
+			succeeded = false;
+			message = "ServerConnectionException: host " + url
+					+ "; port " + port + "; " + se.getMessage();
 		} catch (FailedLoginException fe) {
-			event.setSucceed(false);
-			event.setErrorMessage("FailedLoginException: username " + username
-					+ "; " + fe.getMessage());
+			succeeded = false;
+			message = "FailedLoginException: username " + username
+					+ "; " + fe.getMessage();
 		} catch (RemoteException e) {
-			event.setSucceed(false);
-			event.setErrorMessage("RemoteException: " + e.getMessage());
+			succeeded = false;
+			message = "RemoteException: " + e.getMessage();
 		} catch (InvalidInputException e) {
-			event.setSucceed(false);
-			event.setErrorMessage("InvalidInputException: "
-					+ e.getMessage());
+			succeeded = false;
+			message = "InvalidInputException: "
+					+ e.getMessage();
 		}
-		publishCaArrayQueryResultEvent(event);
+		ProjectPanel.getInstance().processCaArrayResult(succeeded, message, treeMap);
 	}
 
 	// the event of the new data node to be added
@@ -332,13 +336,6 @@ public class CaArray2Component implements VisualPlugin {
 	 */
 	@Publish
 	public CaArrayEvent publishCaArrayEvent(CaArrayEvent event) {
-		return event;
-	}
-
-	// the even that the filter has been processed
-	@Publish
-	public CaArrayQueryResultEvent publishCaArrayQueryResultEvent(
-			CaArrayQueryResultEvent event) {
 		return event;
 	}
 
