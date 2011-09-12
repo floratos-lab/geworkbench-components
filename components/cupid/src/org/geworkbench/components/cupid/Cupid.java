@@ -139,6 +139,7 @@ public class Cupid extends JPanel implements VisualPlugin {
 		topPanel.setMaximumSize(new Dimension(500, 30));
 
 		result = new JTable(tableModel);
+		result.setAutoCreateRowSorter(true);
 		JScrollPane scrollPane = new JScrollPane(result);
 
 		add(topPanel);
