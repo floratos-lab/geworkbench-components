@@ -38,7 +38,7 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
-import org.geworkbench.builtin.projects.ProjectPanel;
+import org.geworkbench.builtin.projects.history.HistoryPanel;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.ProjectEvent;
@@ -276,7 +276,7 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 				log.error("Error in trying to delete the temporary file "
 						+ populationSet.getAbsolutePath());
 			}
-			ProjectPanel.addToHistory(analysisResult, generateHistoryString(
+			HistoryPanel.addToHistory(analysisResult, generateHistoryString(
 					analysisResult.getCount()));
 			return new AlgorithmExecutionResults(true,
 					"GO Term Analysis succeeded.", analysisResult);

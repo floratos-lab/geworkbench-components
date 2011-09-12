@@ -26,7 +26,7 @@ import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbench.bison.model.clusters.HierCluster;
-import org.geworkbench.builtin.projects.ProjectPanel;
+import org.geworkbench.builtin.projects.history.HistoryPanel;
 import org.geworkbench.util.CorrelationDistance;
 import org.geworkbench.util.Distance;
 import org.geworkbench.util.EuclideanDistance;
@@ -155,7 +155,7 @@ public class FastHierClustAnalysis extends AbstractGridAnalysis implements
 		}
 				
 		// add to Dataset History
-		ProjectPanel.addToHistory(dataSet, generateHistoryString());
+		HistoryPanel.addToHistory(dataSet, generateHistoryString());
         
 		
 		return new AlgorithmExecutionResults(true, "No errors.", dataSet);

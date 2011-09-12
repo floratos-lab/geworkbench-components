@@ -1,33 +1,33 @@
 package org.geworkbench.components.gpmodule.classification;
 
-import org.geworkbench.analysis.AbstractAnalysis;
-import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
-import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
-import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
-import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
-import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.algorithm.classification.CSClassifier;
-import org.geworkbench.bison.annotation.DSAnnotationContext;
-import org.geworkbench.bison.annotation.CSAnnotationContextManager;
-import org.geworkbench.bison.annotation.CSAnnotationContext;
-import org.geworkbench.events.ProjectNodeAddedEvent;
-import org.geworkbench.events.SubpanelChangedEvent;
-import org.geworkbench.events.ProjectEvent;
-import org.geworkbench.events.PhenotypeSelectorEvent;
-import org.geworkbench.engine.management.Publish;
-import org.geworkbench.engine.management.Subscribe;
-import org.geworkbench.util.ProgressBar;
-import org.geworkbench.builtin.projects.ProjectPanel;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import java.util.List;
-import java.util.ArrayList;
+import org.geworkbench.analysis.AbstractAnalysis;
+import org.geworkbench.bison.algorithm.classification.CSClassifier;
+import org.geworkbench.bison.annotation.CSAnnotationContext;
+import org.geworkbench.bison.annotation.CSAnnotationContextManager;
+import org.geworkbench.bison.annotation.DSAnnotationContext;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
+import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
+import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
+import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
+import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
+import org.geworkbench.builtin.projects.history.HistoryPanel;
+import org.geworkbench.engine.management.Publish;
+import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.events.PhenotypeSelectorEvent;
+import org.geworkbench.events.ProjectEvent;
+import org.geworkbench.events.ProjectNodeAddedEvent;
+import org.geworkbench.events.SubpanelChangedEvent;
+import org.geworkbench.util.ProgressBar;
 
 /**
  * An abstract trainer for a machine learning algorithm.
@@ -69,7 +69,7 @@ public abstract class AbstractTraining extends AbstractAnalysis implements Clust
         {
             String history = generateHistoryString(classifier, controlPanel, casePanel, testPanel, markers);
 
-            ProjectPanel.addToHistory(classifier, history);
+            HistoryPanel.addToHistory(classifier, history);
             runClassifier(casePanel, controlPanel, testPanel, classifier);
         }
 

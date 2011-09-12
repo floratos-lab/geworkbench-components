@@ -31,7 +31,7 @@ import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
-import org.geworkbench.builtin.projects.ProjectPanel;
+import org.geworkbench.builtin.projects.history.HistoryPanel;
 import org.geworkbench.components.anova.gui.AnovaAnalysisPanel;
 import org.geworkbench.components.anova.gui.AnovaAnalysisPanel.FalseDiscoveryRateControl;
 import org.geworkbench.components.anova.gui.AnovaAnalysisPanel.PValueEstimation;
@@ -401,7 +401,7 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 			pb.stop();
 			/* add to Dataset History */
 			String history = generateHistoryString(view);
-			ProjectPanel.addToHistory(sigSet, history);
+			HistoryPanel.addToHistory(sigSet, history);
 
 			CSAnovaResultSet<DSGeneMarker> anovaResultSet = new CSAnovaResultSet<DSGeneMarker>(view,
 					"Anova Analysis Result Set", labels, significantMarkerNames,
@@ -417,7 +417,7 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 			anovaResultSet.sortMarkersBySignificance();
 
 			/* add to Dataset History */
-			ProjectPanel.addToHistory(anovaResultSet, history);
+			HistoryPanel.addToHistory(anovaResultSet, history);
 
 			AlgorithmExecutionResults results = new AlgorithmExecutionResults(true,
 					"Anova Analysis", anovaResultSet);

@@ -8,6 +8,12 @@ import java.util.Scanner;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.genepattern.client.GPClient;
+import org.genepattern.util.GPpropertiesManager;
+import org.genepattern.webservice.AnalysisWebServiceProxy;
+import org.genepattern.webservice.JobResult;
+import org.genepattern.webservice.Parameter;
+import org.genepattern.webservice.WebServiceException;
 import org.geworkbench.bison.annotation.CSAnnotationContextManager;
 import org.geworkbench.bison.annotation.DSAnnotationContext;
 import org.geworkbench.bison.annotation.DSAnnotationContextManager;
@@ -26,18 +32,12 @@ import org.geworkbench.bison.model.clusters.Cluster;
 import org.geworkbench.bison.model.clusters.DefaultSOMCluster;
 import org.geworkbench.bison.model.clusters.LeafSOMCluster;
 import org.geworkbench.bison.model.clusters.SOMCluster;
-import org.geworkbench.builtin.projects.ProjectPanel;
+import org.geworkbench.builtin.projects.history.HistoryPanel;
 import org.geworkbench.components.gpmodule.GPAnalysis;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.util.ClassifierException;
 import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbench.util.ProgressBar;
-import org.genepattern.client.GPClient;
-import org.genepattern.util.GPpropertiesManager;
-import org.genepattern.webservice.AnalysisWebServiceProxy;
-import org.genepattern.webservice.JobResult;
-import org.genepattern.webservice.Parameter;
-import org.genepattern.webservice.WebServiceException;
 
 /**
  *
@@ -264,14 +264,14 @@ public class KMAnalysis extends GPAnalysis{
 					graphResults, clusterBy, resultList);
 			results = new AlgorithmExecutionResults(true,
 					"K-Means Analysis", analysisResult);
-			ProjectPanel.addToHistory(analysisResult, histHeader + histMarkerString );			
+			HistoryPanel.addToHistory(analysisResult, histHeader + histMarkerString );			
 		}
 		else{
 			KMeansResultMarkers analysisResult = new KMeansResultMarkers(maSet,"K-Means Clustering",
 					data, graphResults, clusterBy, resultList);
 			results = new AlgorithmExecutionResults(true,
 					"K-Means Analysis", analysisResult);			
-			ProjectPanel.addToHistory(analysisResult, histHeader + histMarkerString );
+			HistoryPanel.addToHistory(analysisResult, histHeader + histMarkerString );
 		}		
 		pbFCtest.dispose();		
 		return results;		

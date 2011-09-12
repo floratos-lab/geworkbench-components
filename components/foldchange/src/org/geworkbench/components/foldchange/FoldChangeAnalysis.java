@@ -22,7 +22,7 @@ import org.geworkbench.bison.datastructure.complex.panels.DSAnnotatedPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
-import org.geworkbench.builtin.projects.ProjectPanel;
+import org.geworkbench.builtin.projects.history.HistoryPanel;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.util.ProgressBar;
@@ -265,7 +265,7 @@ public class FoldChangeAnalysis extends AbstractAnalysis implements
 		// add data set history.
 		histHeader = GenerateHistoryHeader();
 		String stemp=histHeader + groupAndChipsString + histMarkerString;
-		ProjectPanel.addToHistory(analysisResult, stemp );
+		HistoryPanel.addToHistory(analysisResult, stemp );
 		
 		pbFCtest.dispose();
 		

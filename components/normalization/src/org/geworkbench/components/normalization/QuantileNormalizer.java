@@ -1,16 +1,16 @@
 package org.geworkbench.components.normalization;
 
+import java.util.Arrays;
+import java.util.Comparator;
+
 import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.NormalizingAnalysis;
-import org.geworkbench.builtin.projects.ProjectPanel;
+import org.geworkbench.builtin.projects.history.HistoryPanel;
 import org.geworkbench.engine.management.Script;
-
-import java.util.Arrays;
-import java.util.Comparator;
 
 /**
  * <p>Copyright: Copyright (c) 2005</p>
@@ -101,7 +101,7 @@ public class QuantileNormalizer extends AbstractAnalysis implements NormalizingA
         }
 
 		// add to history
-        ProjectPanel.addHistoryDetail(maSet,((QuantileNormalizerPanel) aspp).getParamDetail());
+        HistoryPanel.addHistoryDetail(maSet,((QuantileNormalizerPanel) aspp).getParamDetail());
 
         return new AlgorithmExecutionResults(true, "No errors", input);
     }

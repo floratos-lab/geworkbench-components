@@ -41,6 +41,7 @@ import org.geworkbench.builtin.projects.DataSetNode;
 import org.geworkbench.builtin.projects.DataSetSubNode;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.ProjectSelection;
+import org.geworkbench.builtin.projects.history.HistoryPanel;
 import org.geworkbench.components.masterregulator.TAnalysis.TAnalysisException;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.GeneSelectorEvent;
@@ -250,7 +251,7 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
 		}
 		historyStr += groupAndChipsString;
 
-		ProjectPanel.addToHistory(mraResultSet, historyStr);
+		HistoryPanel.addToHistory(mraResultSet, historyStr);
 
 		AlgorithmExecutionResults results = new AlgorithmExecutionResults(true,
 				"MRA Analysis", mraResultSet);

@@ -49,7 +49,7 @@ import org.geworkbench.bison.datastructure.complex.pattern.matrix.DSPositionSpec
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
-import org.geworkbench.builtin.projects.ProjectPanel;
+import org.geworkbench.builtin.projects.history.HistoryPanel;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.ProjectNodePostCompletedEvent;
@@ -555,7 +555,7 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 					log.info("Saving run log to project history.");
 					progressBar.setMessage("Saving Run Log");
 					if (!StringUtils.isEmpty(mr.stderr)) {
-						ProjectPanel
+						HistoryPanel
 								.addToHistory(
 										dataSet,
 										params.toString()
@@ -575,7 +575,7 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 																		.getSequenceFile()));
 						dataSet.setRunLog(mr.stderr);
 					} else {
-						ProjectPanel
+						HistoryPanel
 								.addToHistory(
 										dataSet,
 										params.toString()
@@ -591,7 +591,7 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 					paramDescB.append("p Value: "+params.getPValue()+"\n");
 					paramDescB.append("Max Motif: "+params.getMaxMotif()+"\n");
 					paramDescB.append("Strand: "+params.getStrandString()+"\n");
-					ProjectPanel.addToHistory(dataSet, paramDescB.toString());
+					HistoryPanel.addToHistory(dataSet, paramDescB.toString());
 				}
 				progressBar.stop();
 				return new AlgorithmExecutionResults(true, "Completed", dataSet);
@@ -705,7 +705,7 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 				String runlog = ((DSMatrixReduceSet) data).getRunLog();
 				if (!StringUtils.isEmpty(runlog)) {
 					log.info("Received run log from grid service.");
-					ProjectPanel.addToHistory(data,
+					HistoryPanel.addToHistory(data,
 							"\nMatrixREDUCE Output:\n----------------------------------------\n"
 									+ runlog);
 				}

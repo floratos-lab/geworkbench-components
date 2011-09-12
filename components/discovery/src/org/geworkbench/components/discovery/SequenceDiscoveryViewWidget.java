@@ -41,7 +41,7 @@ import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.datastructure.complex.pattern.PatternDiscoveryParameters;
 import org.geworkbench.bison.datastructure.complex.pattern.PatternResult;
 import org.geworkbench.bison.util.RandomNumberGenerator;
-import org.geworkbench.builtin.projects.ProjectPanel;
+import org.geworkbench.builtin.projects.history.HistoryPanel;
 import org.geworkbench.components.discovery.algorithm.AlgorithmStub;
 import org.geworkbench.components.discovery.algorithm.RegularDiscoveryFileLoader;
 import org.geworkbench.components.discovery.algorithm.ServerBaseDiscovery;
@@ -824,7 +824,7 @@ public class SequenceDiscoveryViewWidget extends JPanel implements
 		}
 		int patternFound = evt.getPatternFound();
 		String selectedAlgo = getSelectedAlgorithmName();
-		ProjectPanel.addToHistory(resultData, "Pattern Discovery"
+		HistoryPanel.addToHistory(resultData, "Pattern Discovery"
 				+"\nAlgorithm type: "+selectedAlgo
 				+"\nParameters: \n"+parametersText()
 				+"\nNumber of patterns found: "+patternFound

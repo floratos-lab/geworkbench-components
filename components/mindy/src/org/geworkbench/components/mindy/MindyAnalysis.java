@@ -25,7 +25,7 @@ import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
-import org.geworkbench.builtin.projects.ProjectPanel;
+import org.geworkbench.builtin.projects.history.HistoryPanel;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.GeneSelectorEvent;
@@ -559,7 +559,7 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 
 			if (mindyDataSet != null) {
 				log.info(paramDesc);
-				ProjectPanel.addToHistory(mindyDataSet, paramDesc);
+				HistoryPanel.addToHistory(mindyDataSet, paramDesc);
 				progressBar.stop();
 				publishProjectNodeAddedEvent(new ProjectNodeAddedEvent(
 						"Mindy Result Added", null, mindyDataSet));
