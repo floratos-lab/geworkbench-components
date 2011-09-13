@@ -22,6 +22,7 @@ import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSe
 import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.builtin.projects.FileOpenHandler;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.remoteresources.carraydata.CaArray2Experiment;
 import org.geworkbench.builtin.projects.util.CaARRAYPanel;
@@ -258,7 +259,10 @@ public class CaArray2Component implements VisualPlugin {
 					hybridzations.size()));
 
 		} // loop of all hybridizations
-		ProjectPanel.getInstance().doMergeSets(sets);
+		DSMicroarraySet<DSMicroarray> mergedSet = FileOpenHandler.doMergeSets(sets);
+		if(mergedSet!=null) {
+			ProjectPanel.getInstance().addDataSetNode(mergedSet, true);
+		}
 		for(DSMicroarraySet<? extends DSMicroarray>set: sets) {
 			Object obj = set;
 			AnnotationParser.cleanUpAnnotatioAfterUnload((DSDataSet<DSBioObject>) obj);
