@@ -57,7 +57,7 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
 import org.geworkbench.builtin.projects.remoteresources.carraydata.CaArray2Experiment;
-import org.geworkbench.builtin.projects.remoteresources.query.CaARRAYQueryPanel;
+import org.geworkbench.builtin.projects.remoteresources.query.CaArrayFilteringDialog;
 
 /**
  * The class to invoke StandAloneCaArrayWrapper
@@ -131,13 +131,13 @@ public class CaArrayClient {
 	 */
 	TreeMap<String, Set<String>> lookupTypeValues() throws RemoteException, InvalidInputException
 			 {
-		String[] types = CaARRAYQueryPanel.listContent;
+		String[] types = CaArrayFilteringDialog.listContent;
 
 		TreeMap<String, Set<String>> tree = new TreeMap<String, Set<String>>();
 
 		for (String type : types) {
 			TreeSet<String> values = new TreeSet<String>();
-			if (type.equalsIgnoreCase(CaARRAYQueryPanel.ORGANISM)) {
+			if (type.equalsIgnoreCase(CaArrayFilteringDialog.ORGANISM)) {
 				List<Organism> organisms = lookupOrganisms();
 				for (Organism o : organisms) {
 					String commonName = o.getCommonName();
@@ -145,13 +145,13 @@ public class CaArrayClient {
 						values.add( commonName );
 					}
 				}
-			} else if (type.equalsIgnoreCase(CaARRAYQueryPanel.PINAME)) {
+			} else if (type.equalsIgnoreCase(CaArrayFilteringDialog.PINAME)) {
 				List<Person> pis = searchService.getAllPrincipalInvestigators();
 				for (Person p : pis) {
 					values.add( p.getLastName() + NAME_SEPARATOR
 							+ p.getFirstName() );
 				}
-			} else if (type.equalsIgnoreCase(CaARRAYQueryPanel.CHIPPROVIDER)) {
+			} else if (type.equalsIgnoreCase(CaArrayFilteringDialog.CHIPPROVIDER)) {
 				List<ArrayProvider> providers = lookupArrayProviders();
 				for (ArrayProvider p : providers) {
 					values.add( p.getName() );
@@ -172,7 +172,7 @@ public class CaArrayClient {
 		ExperimentSearchCriteria experimentSearchCriteria = new ExperimentSearchCriteria();
 
 		if(filterkey!=null) {
-		if (filterkey.equalsIgnoreCase(CaARRAYQueryPanel.ORGANISM)) {
+		if (filterkey.equalsIgnoreCase(CaArrayFilteringDialog.ORGANISM)) {
 	        ExampleSearchCriteria<Organism> organismCriteria = new ExampleSearchCriteria<Organism>();
 	        Organism exampleOrganism = new Organism();
 	        exampleOrganism.setCommonName(filtervalue);
@@ -184,7 +184,7 @@ public class CaArrayClient {
 		        CaArrayEntityReference organismRef = organisms.get(0).getReference();
 		        experimentSearchCriteria.setOrganism(organismRef);
 	        }
-		} else if (filterkey.equalsIgnoreCase(CaARRAYQueryPanel.PINAME)) {
+		} else if (filterkey.equalsIgnoreCase(CaArrayFilteringDialog.PINAME)) {
 			String[] name = filtervalue.split(NAME_SEPARATOR);
 	        // Select principal investigator by last name
 	        List<Person> investigators = searchService.getAllPrincipalInvestigators();
@@ -198,7 +198,7 @@ public class CaArrayClient {
 	                break;
 	            }
 	        }
-		} else if (filterkey.equalsIgnoreCase(CaARRAYQueryPanel.CHIPPROVIDER)) {
+		} else if (filterkey.equalsIgnoreCase(CaArrayFilteringDialog.CHIPPROVIDER)) {
 	        // Select array provider. (See LookUpEntities example client to see how to get list of all array providers.)
 	        ExampleSearchCriteria<ArrayProvider> providerCriteria = new ExampleSearchCriteria<ArrayProvider>();
 	        ArrayProvider exampleProvider = new ArrayProvider();
