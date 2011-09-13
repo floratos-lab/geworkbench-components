@@ -56,8 +56,8 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.A
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
+import org.geworkbench.builtin.projects.remoteresources.CaArrayFilteringDialog;
 import org.geworkbench.builtin.projects.remoteresources.carraydata.CaArray2Experiment;
-import org.geworkbench.builtin.projects.remoteresources.query.CaArrayFilteringDialog;
 
 /**
  * The class to invoke StandAloneCaArrayWrapper
