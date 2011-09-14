@@ -270,7 +270,7 @@ public class PhenotypePanel extends SelectorPanel<DSMicroarray> {
 				}
 			}
 		}
-		JOptionPane.showMessageDialog(null, "All the missing array will be skipped");
+		JOptionPane.showMessageDialog(null, "Arrays present in the file loaded but not in the dataset will be skipped");
 		for(DSMicroarray array: itemList) {
 			if(selectedNames.contains(array.getLabel())) 
 				panel.add(array);
