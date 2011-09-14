@@ -1,5 +1,7 @@
 package org.geworkbench.components.idea;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -7,6 +9,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.TreeSet;
 
 import org.apache.commons.logging.Log;
@@ -46,7 +49,9 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 
 	private static Log log = LogFactory.getLog(IDEAAnalysis.class);
 
-	private IDEAPanel IDEAAnalysisPanel = new IDEAPanel();
+	private IDEAPanel IDEAAnalysisPanel = new IDEAPanel();	
+	
+	private String[] nullDataAsString;
 
 	public IDEAAnalysis() {
 		setDefaultPanel(IDEAAnalysisPanel);
@@ -85,7 +90,7 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 		if(maSet.getAnnotationFileName()==null){
 			return new AlgorithmExecutionResults(false,
 					"IDEA analysis needs annotation file. Please load it first.", null);
-		}
+		}		
 		int numGenes = view.markers().size();
 
 		ProgressBar pbIdea = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
@@ -469,6 +474,8 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 		histStr.append(IDEAAnalysisPanel.getDataSetHistory());
 		return histStr.toString();
 	}
+	
+	
 
 	@Override
 	public String getAnalysisName() {
@@ -477,8 +484,8 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 	}
 
 	@Override
-	protected Map<Serializable, Serializable> getBisonParameters() {
-		// TODO Auto-generated method stub
+	protected Map<Serializable, Serializable> getBisonParameters() {		// TODO Auto-generated method stub
+		
 		Map<Serializable, Serializable> bisonParameters = new HashMap<Serializable, Serializable>();
 		IDEAPanel paramPanel = (IDEAPanel) this.aspp;
 		float pvalue=Float.parseFloat(paramPanel.getPvalue());
@@ -489,6 +496,9 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 		bisonParameters.put("phenotype", phenotype);
 		String[] network= paramPanel.getNetworkAsString();
 		bisonParameters.put("network", network);
+		//String[] nullData= nullDataAsString;
+		String[] nullData= nullDataAsString;
+		bisonParameters.put("nullData", nullData);
 		
 		return bisonParameters;
 	}
@@ -539,6 +549,39 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 			return new ParamValidationResults(false,
 					"P-value is invalid.");
 		}
+		DSMicroarraySetView<DSGeneMarker, DSMicroarray> view = maSetView;
+		DSMicroarraySet<DSMicroarray> maSet = view.getMicroarraySet();
+		if(maSet.getAnnotationFileName()==null){
+			return new ParamValidationResults(false,
+					"IDEA analysis needs annotation file. Please load it first.");
+		}
+		String annoFile=maSet.getAnnotationFileName();
+		ArrayList<String> nullDataList;
+		
+			FileReader filereader;				
+			try {
+				filereader = new FileReader(annoFile);			
+				Scanner in = new Scanner(filereader);
+				nullDataList =new ArrayList<String>();				
+				while (in.hasNextLine()) {
+					String line = in.nextLine();
+					String[] tokens = line.split("\",\"");
+					//only column ProbesetId,GeneSymbol,Chromosomal,EntrezGene are picked up
+					String[] token0s=tokens[0].split("\"");
+					String oneLine=token0s[1]+"\t"+tokens[14]+"\t"+tokens[15]+"\t"+tokens[18]+"\t";
+					nullDataList.add(oneLine);					
+				}
+				
+				nullDataAsString=new String[nullDataList.size()];
+				int l=0;
+				for(String s:nullDataList){
+					nullDataAsString[l]=s+"\n";
+					l++;
+				}		
+			} catch (FileNotFoundException e1) {
+				return new ParamValidationResults(false,
+						"Annotation file is not valid. Please load it first.");
+			}		
 		
 		return new ParamValidationResults(true, "No, no Error");
 	}
