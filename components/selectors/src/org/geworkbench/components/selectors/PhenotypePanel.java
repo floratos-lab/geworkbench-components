@@ -18,10 +18,12 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JMenu;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JRadioButtonMenuItem;
@@ -158,8 +160,51 @@ public class PhenotypePanel extends SelectorPanel<DSMicroarray> {
             legend.add(Box.createHorizontalGlue());
         }
         lowerPanel.add(legend);
+        JPanel loadPanel = new JPanel();
+		loadPanel.setLayout(new BoxLayout(loadPanel, BoxLayout.X_AXIS));
+		JButton loadButton = new JButton("Load Set");
+		loadPanel.add(loadButton);
+		loadPanel.add(Box.createHorizontalGlue());
+		loadButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				loadSetPressed();
+			}
+		});
+
+		lowerPanel.add(loadPanel);		
     }
 
+    private void loadSetPressed() {
+		helper = getSelectorHelper();
+		/**
+		 * The line below sets root directory for JFileChooser to set to home
+		 * directory user commented line JFileChooser without any parameters
+		 */
+		JFileChooser fc = new JFileChooser(".");
+		// JFileChooser fc = new JFileChooser();
+		javax.swing.filechooser.FileFilter filter = new MarkerPanelSetFileFilter();
+		fc.setAcceptAllFileFilterUsed(false);
+		fc.setFileFilter(filter);
+		fc.setDialogTitle("Open Array/Phenotype Set");
+		if (!lastDir.equals("")) {
+			fc.setCurrentDirectory(new File(lastDir));
+		}
+		int choice = fc.showOpenDialog(mainPanel.getParent());
+
+		if (choice == JFileChooser.APPROVE_OPTION) {
+			lastDir = fc.getSelectedFile().getPath();
+			try {
+				helper.setLastDataDirectory(fc.getCurrentDirectory()
+						.getCanonicalPath());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			DSPanel<DSMicroarray> panel = getPanelFromSet(fc.getSelectedFile());
+			addPanel(panel);
+			throwLabelEvent();
+		}
+	}
+   
     private void loadButtonPressed(String classname){
     	helper = getSelectorHelper();
 		JFileChooser fc = new JFileChooser(".");
@@ -225,8 +270,9 @@ public class PhenotypePanel extends SelectorPanel<DSMicroarray> {
 				}
 			}
 		}
+		JOptionPane.showMessageDialog(null, "All the missing array will be skipped");
 		for(DSMicroarray array: itemList) {
-			if(selectedNames.contains(array.getLabel()))
+			if(selectedNames.contains(array.getLabel())) 
 				panel.add(array);
 		}
 		return panel;
