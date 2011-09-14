@@ -247,7 +247,7 @@ public class PhenotypePanel extends SelectorPanel<DSMicroarray> {
 		}
 		filename = Util.getUniqueName(filename, nameSet);
 		DSPanel<DSMicroarray> panel = new CSPanel<DSMicroarray>(filename);
-		
+		 
 		List<String> selectedNames = new ArrayList<String>();
 		try {
 			inputStream = new FileInputStream(file);
@@ -270,10 +270,14 @@ public class PhenotypePanel extends SelectorPanel<DSMicroarray> {
 				}
 			}
 		}
-		JOptionPane.showMessageDialog(null, "Arrays present in the file loaded but not in the dataset will be skipped");
+		
 		for(DSMicroarray array: itemList) {
 			if(selectedNames.contains(array.getLabel())) 
 				panel.add(array);
+		}
+		if(panel.size() != selectedNames.size()) {
+			JOptionPane.showMessageDialog(null, "Number of arrays missing in the dataset which are present in the CSV file : " 
+					+ (selectedNames.size() - panel.size()) + ".\n Hence they are ignored.");
 		}
 		return panel;
 	}
