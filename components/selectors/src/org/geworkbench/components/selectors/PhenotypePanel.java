@@ -276,8 +276,11 @@ public class PhenotypePanel extends SelectorPanel<DSMicroarray> {
 				panel.add(array);
 		}
 		if(panel.size() != selectedNames.size()) {
-			JOptionPane.showMessageDialog(null, "Number of arrays missing in the dataset which are present in the CSV file : " 
-					+ (selectedNames.size() - panel.size()) + ".\n Hence they are ignored.");
+			int missing = selectedNames.size() - panel.size();
+			if (missing == 1)
+				JOptionPane.showMessageDialog(null, missing + " array listed in the CSV file is not present in the dataset.  Skipped.", "Array Not Found", JOptionPane.WARNING_MESSAGE );
+			else 
+				JOptionPane.showMessageDialog(null, missing + " arrays listed in the CSV file are not present in the dataset.  Skipped.", "Arrays Not Found", JOptionPane.WARNING_MESSAGE );
 		}
 		return panel;
 	}
