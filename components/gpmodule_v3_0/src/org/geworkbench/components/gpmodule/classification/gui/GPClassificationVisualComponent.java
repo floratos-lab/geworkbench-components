@@ -53,18 +53,6 @@ public class GPClassificationVisualComponent implements VisualPlugin
         return component;
     }
 
-    @SuppressWarnings("unchecked")
-	@Subscribe
-    public void receive(org.geworkbench.events.ProjectNodeAddedEvent e, Object source)
-    {
-        DSDataSet<?> dataSet = e.getDataSet();
-
-        if (dataSet instanceof DSMicroarraySet)
-        {
-            microarraySets.put(dataSet.getDataSetName(), (DSMicroarraySet<DSMicroarray>)dataSet);
-		}
-    }
-
     @Subscribe
     public void receive(org.geworkbench.events.ProjectNodeRemovedEvent e, Object source)
     {

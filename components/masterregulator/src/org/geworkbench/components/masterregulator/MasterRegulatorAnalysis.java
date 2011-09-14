@@ -303,16 +303,6 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
 
 	@SuppressWarnings("rawtypes")
 	@Subscribe
-	public void receive(org.geworkbench.events.ProjectNodeAddedEvent e,
-			Object source) {
-		DSDataSet dataSet = e.getAncillaryDataSet();
-		if (dataSet instanceof AdjacencyMatrixDataSet) {
-			this.mraAnalysisPanel
-					.addAdjMatrixToCombobox((AdjacencyMatrixDataSet) dataSet);
-		}
-	}
-	@SuppressWarnings("rawtypes")
-	@Subscribe
 	public void receive(org.geworkbench.events.ProjectNodeRemovedEvent e,
 			Object source) {
 		DSDataSet dataSet = e.getAncillaryDataSet();
