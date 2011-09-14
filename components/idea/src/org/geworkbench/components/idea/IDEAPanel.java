@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Set;
 
 import javax.swing.JButton;
@@ -58,7 +59,9 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 
 	private Phenotype phenotype;
 	private ArrayList<IdeaNetworkEdge> ideaNetwork;
-	private String[] phenotypeAsString;	
+	private String[] phenotypeAsString;
+	private String[] nullDataAsString;
+	private ArrayList<String> nullDataList;
 	private ArrayList<String> networkList=new ArrayList<String>();
 	
 	/*
@@ -233,7 +236,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 				phenotypeLoadPressed();
 			}});
 
-//		// this setting maps the source choice of 'From Set'
+
 		networkField.setEnabled(true);
 		networkField.setEditable(false);
 		networkLoadButton.setEnabled(true);		
@@ -367,7 +370,17 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 				String filename = fc.getSelectedFile().getAbsolutePath();			
 				String filepath = fc.getCurrentDirectory().getCanonicalPath();
                 setLastDirectory(filepath);                
-				nullDataField.setText(filename);			
+				nullDataField.setText(filename);				
+				
+				FileReader filereader;				
+				filereader = new FileReader(filename);			
+				Scanner in = new Scanner(filereader);
+				nullDataList =new ArrayList<String>();				
+				while (in.hasNextLine()) {
+					String line = in.nextLine();
+					nullDataList.add(line+"\n");					
+				}				
+				int t=0;
 			} catch (FileNotFoundException e1) {
 				e1.printStackTrace();
 				nullDataField.setText("");
@@ -414,6 +427,18 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 	
 	public String[] getPhenotypeAsString() {
 		return phenotypeAsString;
+	}
+	
+	public String[] getNullDataAsString() {
+		
+			String[] nullDataAsString=new String[nullDataList.size()];
+			int i=0;
+			for(String s:nullDataList){
+				nullDataAsString[i]=s;
+				i++;
+			}
+	
+			return nullDataAsString;
 	}
 	
 	public String[] getNetworkAsString() {
