@@ -77,7 +77,6 @@ import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.engine.properties.PropertiesManager;
 import org.geworkbench.events.AnalysisInvokedEvent;
-import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.util.ProgressBar;
 import org.geworkbench.util.Util;
@@ -372,9 +371,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		Object resultObject = results.getResults();
 		if (resultObject instanceof DSAncillaryDataSet) {
 			DSAncillaryDataSet<DSBioObject> dataSet = (DSAncillaryDataSet<DSBioObject>) resultObject;
-			final ProjectNodeAddedEvent event = new ProjectNodeAddedEvent(
-					"Analysis Result", null, dataSet);
-			publishProjectNodeAddedEvent(event);
+			ProjectPanel.getInstance().addProjectNode(null, dataSet);
 			return;
 		}
 		if (resultObject instanceof Hashtable) {
@@ -385,17 +382,6 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 						DSGeneMarker.class, panel, SubpanelChangedEvent.NEW));
 			}
 		}
-	}
-
-	/**
-	 * 
-	 * @param event
-	 * @return
-	 */
-	@Publish
-	public ProjectNodeAddedEvent publishProjectNodeAddedEvent(
-			ProjectNodeAddedEvent event) {
-		return event;
 	}
 
 	/**
