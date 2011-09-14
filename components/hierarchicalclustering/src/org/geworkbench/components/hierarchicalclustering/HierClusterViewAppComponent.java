@@ -14,6 +14,7 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.clusters.DSHierClusterDataSet;
+import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.engine.config.MenuListener;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
@@ -21,21 +22,20 @@ import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.HierClusterModelEvent;
 import org.geworkbench.events.HierClusterModelEventListener;
-import org.geworkbench.events.ImageSnapshotEvent;
 import org.geworkbench.events.ProjectEvent;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>
  * <p>Company: First Genetic Trust Inc.</p>
  * @author First Genetic Trust
- * @version 1.0
+ * @version $Id$
  */
 
 /**
  * The application component that "wraps" the <code>HierClusterViewWidget</code>
  * which does the actual displaying of the clusters.
  * <p/>
- * This component recieves events from the analysis pane when a hierarchical
+ * This component receives events from the analysis pane when a hierarchical
  * clustering analysis is finished.
  * <p/>
  * Upon receiving such events, it updates
@@ -48,12 +48,12 @@ public class HierClusterViewAppComponent implements VisualPlugin, MenuListener, 
     /**
      * The widget used by the component.
      */
-    HierClusterViewWidget hclWidget = new HierClusterViewWidget();
+    private final HierClusterViewWidget hclWidget = new HierClusterViewWidget();
     /**
      * For registering the <code>hclWidget</code>, to be notified when a new
      * clustering analysis has produced new data.
      */
-    EventListenerList listenerList = new EventListenerList();
+    private final EventListenerList listenerList = new EventListenerList();
 
     /**
      * Default Constructor
@@ -111,10 +111,6 @@ public class HierClusterViewAppComponent implements VisualPlugin, MenuListener, 
         }
     }
 
-    @Publish public ImageSnapshotEvent publishImageSnapshotEvent(ImageSnapshotEvent event) {
-        return event;
-    }
-
     @Publish
     public org.geworkbench.events.MarkerSelectedEvent publishSingleMarkerEvent(org.geworkbench.events.MarkerSelectedEvent event) {
         return event;
@@ -130,7 +126,7 @@ public class HierClusterViewAppComponent implements VisualPlugin, MenuListener, 
 	public void propertyChange(PropertyChangeEvent event) {
         String propertyName = event.getPropertyName();
         if (propertyName.equals(HierClusterViewWidget.SAVEIMAGE_PROPERTY)) {
-            publishImageSnapshotEvent(new ImageSnapshotEvent("Cluster ImageSnapshot", (ImageIcon) event.getNewValue(), org.geworkbench.events.ImageSnapshotEvent.Action.SAVE));
+        	ProjectPanel.getInstance().addImageNode((ImageIcon) event.getNewValue());
         } else if (propertyName.equals(HierClusterViewWidget.SINGLE_MARKER_SELECTED_PROPERTY)) {
             publishSingleMarkerEvent(new org.geworkbench.events.MarkerSelectedEvent((DSGeneMarker) event.getNewValue()));
         } else if (propertyName.equals(HierClusterViewWidget.MULTIPLE_MARKER_SELECTED_PROPERTY)) {
