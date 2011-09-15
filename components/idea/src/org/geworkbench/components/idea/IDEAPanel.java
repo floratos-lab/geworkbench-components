@@ -60,7 +60,6 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 	private Phenotype phenotype;
 	private ArrayList<IdeaNetworkEdge> ideaNetwork;
 	private String[] phenotypeAsString;
-	private String[] nullDataAsString;
 	private ArrayList<String> nullDataList;
 	private ArrayList<String> networkList=new ArrayList<String>();
 	
@@ -380,7 +379,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 					String line = in.nextLine();
 					nullDataList.add(line+"\n");					
 				}				
-				int t=0;
+				
 			} catch (FileNotFoundException e1) {
 				e1.printStackTrace();
 				nullDataField.setText("");
