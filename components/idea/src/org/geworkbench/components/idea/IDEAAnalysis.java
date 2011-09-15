@@ -52,6 +52,13 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 	private IDEAPanel IDEAAnalysisPanel = new IDEAPanel();	
 	
 	private String[] nullDataAsString;
+	
+	private static final String PROBE_SET="Probe Set ID";
+	private static final String GENE_SYMBOL="Gene Symbol";
+	private static final String CHROMO_LOCATION="Chromosomal Location";
+	private static final String ENTREZ_GENE="Entrez Gene";
+	private static final String SEQUENCE_TYPE="Sequence Type";
+	private static final String GENE_TITLE="Gene Title";
 
 	public IDEAAnalysis() {
 		setDefaultPanel(IDEAAnalysisPanel);
@@ -562,14 +569,35 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 			try {
 				filereader = new FileReader(annoFile);			
 				Scanner in = new Scanner(filereader);
-				nullDataList =new ArrayList<String>();				
+				nullDataList =new ArrayList<String>();
+				int probeSetCol=0;				
+				int geneSymbolCol=14;
+				int chromoCol=15;
+				int entrezCol=18;
+				boolean headLineProcessed=false;
 				while (in.hasNextLine()) {
 					String line = in.nextLine();
-					String[] tokens = line.split("\",\"");
-					//only column ProbesetId,GeneSymbol,Chromosomal,EntrezGene are picked up
-					String[] token0s=tokens[0].split("\"");
-					String oneLine=token0s[1]+"\t"+tokens[14]+"\t"+tokens[15]+"\t"+tokens[18]+"\t";
-					nullDataList.add(oneLine);					
+					char firstChar=line.charAt(0);	//the following lines parsing the annotation file
+					if(!Character.toString(firstChar).equals("#")){//remove the line begin with #
+						String[] tokens = line.split("\",\"");
+						//only column ProbesetId,GeneSymbol,Chromosomal,EntrezGene are picked up
+						if(!headLineProcessed){
+							if(tokens[0].indexOf(PROBE_SET)!=-1){//means the head line without comments
+								for(int i=0;i<tokens.length;i++){								
+									if(tokens[i].equalsIgnoreCase(GENE_SYMBOL))
+										geneSymbolCol=i;
+									if(tokens[i].equalsIgnoreCase(CHROMO_LOCATION))
+										chromoCol=i;
+									if(tokens[i].equalsIgnoreCase(ENTREZ_GENE))
+										entrezCol=i;								
+								}
+								headLineProcessed=true;
+							}
+						}
+						String[] token0s=tokens[probeSetCol].split("\"");
+						String oneLine=token0s[1]+"\t"+tokens[geneSymbolCol]+"\t"+tokens[chromoCol]+"\t"+tokens[entrezCol]+"\t";
+						nullDataList.add(oneLine);
+					}
 				}
 				
 				nullDataAsString=new String[nullDataList.size()];
