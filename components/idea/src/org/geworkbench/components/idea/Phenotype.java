@@ -20,9 +20,7 @@ public class Phenotype implements Serializable {
 
 	private final Set<Integer> newColumnIncluded;	
 	private final Set<Integer> columnExcluded;
-
-	final static private String PHENO_INCLUDE = "B-CLLPurified";
-	final static private String PHENO_EXCLUDE = "CL";
+	
 	private String[] phenotypeAsString=new String[2];
 
 	/**
@@ -43,7 +41,7 @@ public class Phenotype implements Serializable {
 		String line = br.readLine();
 		phenotypeAsString[0]=line;
 		String[] tokens = line.split("\\s");
-		if(tokens[0].equals(PHENO_EXCLUDE)) {
+		if(tokens[0].matches("[[A-Za-z]|\\-]*")) {
 			columnExcluded = new HashSet<Integer>();
 			for(int i=0; i<tokens.length-1; i++) {
 				int index = Integer.parseInt(tokens[i + 1]) - 1;
@@ -58,7 +56,7 @@ public class Phenotype implements Serializable {
 		phenotypeAsString[1]=line;
 		tokens = line.split("\\s");
 		Set<Integer> columnIncluded = new HashSet<Integer>();
-		if(tokens[0].equals(PHENO_INCLUDE)) {
+		if(tokens[0].matches("[[A-Za-z]|\\-]*")) {
 			for(int i=0; i<tokens.length-1; i++) {
 				int index = Integer.parseInt(tokens[i + 1]) - 1;
 				if(index>maxIndex) maxIndex = index;
