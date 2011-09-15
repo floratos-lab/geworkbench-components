@@ -2,6 +2,8 @@ package org.geworkbench.components.masterregulator;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.util.Arrays;
+
 import javax.swing.JPanel;
 
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
@@ -29,13 +31,15 @@ public class MasterRegulatorTableViewer extends JPanel implements VisualPlugin {
     * absNES: absolute value of NES
     * PV: p-value of normalized (?) enrichment score.
     * OddRatio: (NumLedge/(microarray set genes in the regulon of the TF))/((number of differentially expressed genes left of the leading edge)/(total number of microarray set genes))
+    * TScore: T-Score
     * MeanClass1: mean expression value of TF among all "Class 1" arrays.
     * MeanClass2: mean expression value of TF among all "Class 2" arrays.
     * Original MRA/Recovered_MRA: a value of 1 in this column means that the TF was found to be enriched by GSEA (above the significance level pvalue_gsea) and that it was not shadowed by any other TF. 
     *   A value of 0 means that the TF was found to be enriched by GSEA and that it was shadowed by another TF and that it remained enriched even after the common targets with the other TF were removed from its regulon. 
 	 */
 	private String[] columnNames = { "TFsym", "GeneName", "NumPosGSet", "NumNegGSet", "NumLedgePos", "NumLedgeNeg", "NumLedge",
-			"ES", "NES", "absNES", "PV", "OddRatio", "MeanClass1", "MeanClass2", "Original MRA/Recovered_MRA"};
+			"ES", "NES", "absNES", "PV", "OddRatio", "TScore", "MeanClass1", "MeanClass2", "Original MRA/Recovered_MRA"};
+	private final int colNum = columnNames.length;
 	public MasterRegulatorTableViewer(){
 		Object[][] data = new Object[1][1];
 		data[0][0] = "Start";
@@ -55,6 +59,14 @@ public class MasterRegulatorTableViewer extends JPanel implements VisualPlugin {
 		DSDataSet<?> dataSet = event.getDataSet();
 		if (dataSet instanceof DSMasterRegulatorTableResultSet) {
 			MRAResultSet = (DSMasterRegulatorTableResultSet) dataSet;
+			// Results don't have "MeanClass1" & "MeanClass2" if marina is run using 
+			// probe shuffling instead of gene shuffling by setting min_samples > 9
+			if (MRAResultSet.getData()[0].length == colNum - 2){
+				String[] reducedNames = Arrays.copyOf(columnNames, colNum - 2);
+				reducedNames[colNum-3] = columnNames[colNum - 1];
+				tv.headerNames = reducedNames;
+			} else
+				tv.headerNames = columnNames;
 			tv.setTableModel(MRAResultSet.getData());
 			for (int i = 2; i < columnNames.length; i++)
 				tv.setNumerical(i, true);
