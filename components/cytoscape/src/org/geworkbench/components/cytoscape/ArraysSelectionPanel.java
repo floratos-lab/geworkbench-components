@@ -129,11 +129,15 @@ public class ArraysSelectionPanel extends JPanel   {
 		double[] values = null;
 		
 		String nodeId = node.getIdentifier();
-		 
+		Object geneId = attrs.getAttribute(nodeId,"geneID");						
+		if (geneId == null || geneId.toString().trim().equals(""))
+		   return null;
+		
 		String nodeDisplayedName = attrs.getStringAttribute(nodeId, "displayedName");
 	     
 		Vector<DSGeneMarker> markerSet = null;	 
 	    
+		
 		markerSet = ((CSMicroarraySet<DSMicroarray>)maSet).getMarkers().getMatchingMarkers(nodeDisplayedName);
 		 
 	    if (markerSet == null || markerSet.size() == 0)

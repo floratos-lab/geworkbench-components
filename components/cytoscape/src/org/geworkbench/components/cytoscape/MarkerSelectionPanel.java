@@ -125,7 +125,7 @@ public class MarkerSelectionPanel extends JPanel implements Observer {
 
 		if (view != null && Cytoscape.getCurrentNetwork() != null) {
 			CyAttributes edgeAttrs = Cytoscape.getEdgeAttributes();
-
+			CyAttributes nodeAttrs = Cytoscape.getNodeAttributes();
 			Iterator<?> iter = view.getEdgeViewsIterator();
 
 			while (iter.hasNext()) {
@@ -152,22 +152,36 @@ public class MarkerSelectionPanel extends JPanel implements Observer {
 
 				}
 
-				AdjacencyMatrix.Node node1 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL,
-							gene1);
+				Object geneId1 = nodeAttrs.getAttribute(gene1, "geneID");				
+				Object geneId2 = nodeAttrs.getAttribute(gene2, "geneID");
+				AdjacencyMatrix.Node node1 = null;
+				AdjacencyMatrix.Node node2 = null;
+				
+				if (geneId1 != null && !geneId1.toString().trim().equals(""))
+				     node1 = new AdjacencyMatrix.Node(
+							NodeType.GENE_SYMBOL, gene1);
+				else
+					 node1 = new AdjacencyMatrix.Node(
+							NodeType.GENE_SYMBOL, gene1, 0);
+				
+				if (geneId2 != null && !geneId2.toString().trim().equals(""))
+				     node2 = new AdjacencyMatrix.Node(
+							NodeType.GENE_SYMBOL, gene2);
+				else
+					 node2 = new AdjacencyMatrix.Node(
+							NodeType.GENE_SYMBOL, gene2, 0);
+				
 
-				AdjacencyMatrix.Node node2 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL,
-							gene2);
-
-				if ((selectedGeneNameList.contains(gene1) || selectedGeneLabelList
-						.contains(gene1))
-						&& (selectedGeneNameList.contains(gene2) || selectedGeneLabelList
-								.contains(gene2))) {
+				if (((selectedGeneNameList.contains(gene1) || selectedGeneLabelList
+						.contains(gene1)) && node1.intId != 0)
+						&& ((selectedGeneNameList.contains(gene2) || selectedGeneLabelList
+								.contains(gene2))&& node2.intId != 0)) {					
 					matrix.add(node1, node2, 0.8f, interactionType);
-				} else if (selectedGeneNameList.contains(gene1)
-						|| selectedGeneLabelList.contains(gene1)) {
+				} else if ((selectedGeneNameList.contains(gene1)
+						|| selectedGeneLabelList.contains(gene1)) && node1.intId != 0) {
 					matrix.addGeneRow(node1);
-				} else if (selectedGeneNameList.contains(gene2)
-						|| selectedGeneLabelList.contains(gene2)) {
+				} else if ((selectedGeneNameList.contains(gene2)
+						|| selectedGeneLabelList.contains(gene2)) && node2.intId != 0) {
 					matrix.addGeneRow(node2);
 				}
 
