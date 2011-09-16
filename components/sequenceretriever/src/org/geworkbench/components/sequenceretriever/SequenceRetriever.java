@@ -158,11 +158,11 @@ public class SequenceRetriever implements VisualPlugin {
 
 	private JPanel jPanel2 = new JPanel();
 
-	private SpinnerNumberModel upstreamSpinnerModel = new SpinnerNumberModel(1999, 1, 1999, 1);
+	final static private SpinnerNumberModel upstreamSpinnerModel = new SpinnerNumberModel(2000, 0, 98000, 100);
 
 	private JSpinner beforeText = new JSpinner();
 
-	private SpinnerNumberModel downstreamSpinnerModel = new SpinnerNumberModel(2000, 1, 2000, 1);
+	final static private SpinnerNumberModel downstreamSpinnerModel = new SpinnerNumberModel(1000, 0, 10000, 100);
 
 	private JSpinner afterText = new JSpinner();
 
