@@ -1558,7 +1558,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 									.equals("")
 							&& !interactionDetail.getdSGeneName2().trim()
 									.equals("null")) {					 
-						node2 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL, interactionDetail.getdSGeneName2());
+						node2 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL, interactionDetail.getdSGeneName2(), 0);
 					} else {					 
 						node2 = new AdjacencyMatrix.Node(NodeType.STRING, mid2);
 					}
@@ -1637,7 +1637,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 							&& !interactionDetail.getdSGeneName1().trim()
 									.equals("null")) {
 					 
-						node1 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL, interactionDetail.getdSGeneName1());
+						node1 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL, interactionDetail.getdSGeneName1(),0);
 					} else {						 
 						node1 = new AdjacencyMatrix.Node(NodeType.STRING, mid1); 
 					}
