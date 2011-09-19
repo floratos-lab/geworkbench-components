@@ -111,7 +111,7 @@ public class Phenotype implements Serializable {
 		return columnExcluded.size();
 	}
 	public String[] getPhenotypeAsString(){
-		phenotypeAsString[INCLUDE_LINE_NUMBER]="Phenotype"+"\t";
+		phenotypeAsString[INCLUDE_LINE_NUMBER]="Include"+"\t";
 		phenotypeAsString[EXCLUDE_LINE_NUMBER]="Exclude"+"\t";
 		for(int i:newColumnIncluded){
 			phenotypeAsString[INCLUDE_LINE_NUMBER]+=Integer.toString(i)+"\t";
