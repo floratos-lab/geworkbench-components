@@ -448,9 +448,13 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 		histStr.append("----------------------------------------");
 		histStr.append("\nNetwork: "+networkField.getText());
 		histStr.append("\nPhenotype: "+phenotypeField.getText());
+		String includeStr=phenotype.getPhenotypeAsString()[0];		
+		histStr.append("\n"+includeStr);
+		String excludeStr=phenotype.getPhenotypeAsString()[1];
+		histStr.append("\n"+excludeStr);
 		if(nullDataCheckbox.isSelected())
 				histStr.append("\nNull file: "+nullDataField.getText());
-		histStr.append("\np-value: "+pValueTextField.getText());
+		//histStr.append("\np-value: "+pValueTextField.getText());
 		return histStr.toString();
 	}
 
