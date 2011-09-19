@@ -192,7 +192,7 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 		phenotype.setIncludeList(includeSet);
 		Set<Integer> excludeSet=IDEAAnalysisPanel.preparePhenoSet(IDEAAnalysisPanel.getExcludeString());
 		phenotype.setExcludeList(excludeSet);
-		if (phenotype == null){			
+		if ((phenotype == null)||IDEAAnalysisPanel.getIncludeString().equals("")){			
 			pbIdea.dispose();			
 			return new AlgorithmExecutionResults(false,
 					"pheno type file is invalid.", null);
@@ -542,11 +542,7 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 			return new ParamValidationResults(true, null);
 		// Use this to get params
 		IDEAPanel params = (IDEAPanel) aspp;
-		Phenotype phenotype = params.getPhenotype();
-		Set<Integer> includeSet=params.preparePhenoSet(params.getIncludeString());
-		phenotype.setIncludeList(includeSet);
-		Set<Integer> excludeSet=params.preparePhenoSet(params.getExcludeString());
-		phenotype.setExcludeList(excludeSet);
+		Phenotype phenotype = params.getPhenotype();		
 		
 		if (params.getNetwork()== null) {
 			return new ParamValidationResults(false,
@@ -567,6 +563,12 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 			return new ParamValidationResults(false,
 					"P-value is invalid.");
 		}
+		
+		Set<Integer> includeSet=params.preparePhenoSet(params.getIncludeString());
+		phenotype.setIncludeList(includeSet);
+		Set<Integer> excludeSet=params.preparePhenoSet(params.getExcludeString());
+		phenotype.setExcludeList(excludeSet);
+		
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> view = maSetView;
 		DSMicroarraySet<DSMicroarray> maSet = view.getMicroarraySet();
 		if(maSet.getAnnotationFileName()==null){
