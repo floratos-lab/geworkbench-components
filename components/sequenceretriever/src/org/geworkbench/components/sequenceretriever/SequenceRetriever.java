@@ -679,7 +679,7 @@ public class SequenceRetriever implements VisualPlugin {
 									"No annotation information was available for marker "
 											+ marker.getLabel()
 											+ ". Cannot retrieve sequence.",
-									"A Silly Question", JOptionPane.YES_NO_OPTION,
+									"No annotation information", JOptionPane.YES_NO_OPTION,
 									JOptionPane.QUESTION_MESSAGE, null, options,
 									options[0]);
 					if (JOptionPane.YES_OPTION == n)
