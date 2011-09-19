@@ -18,43 +18,33 @@ import java.util.Set;
 public class Phenotype implements Serializable {
 	private static final long serialVersionUID = 1929271049658752446L;
 
-	private final Set<Integer> newColumnIncluded;	
-	private final Set<Integer> columnExcluded;
+	private static final int INCLUDE_LINE_NUMBER=0;
+	private static final int EXCLUDE_LINE_NUMBER=1;
+	private Set<Integer> newColumnIncluded;	
+	private Set<Integer> columnExcluded;
 	
 	private String[] phenotypeAsString=new String[2];
+	
+	public Phenotype(){
+		
+	}
 
 	/**
 	 * Constructor from given column indices included. User for null distribution only.
 	 * @param nullPhenoCols 
 	 */
-	Phenotype(Set<Integer> nullPhenoCols)  {
+	public Phenotype(Set<Integer> nullPhenoCols)  {
 		columnExcluded = new HashSet<Integer>();
 		newColumnIncluded = nullPhenoCols;
 	}
 	
-	Phenotype(File file) throws IOException {
+	public Phenotype(File file) throws IOException {
 		int maxIndex = 0;
 		
-		BufferedReader br = new BufferedReader(new FileReader(file));
-		
-
-		String line = br.readLine();
-		phenotypeAsString[0]=line;
+		BufferedReader br = new BufferedReader(new FileReader(file));		
+		String line = br.readLine();	//first line is Include phenotype
+		//phenotypeAsString[0]=line;
 		String[] tokens = line.split("\\s");
-		if(tokens[0].matches("[[A-Za-z]|\\-]*")) {
-			columnExcluded = new HashSet<Integer>();
-			for(int i=0; i<tokens.length-1; i++) {
-				int index = Integer.parseInt(tokens[i + 1]) - 1;
-				if(index>maxIndex) maxIndex = index;
-				columnExcluded.add( index );
-			}
-		} else {
-			throw new IOException("Format Error: phetype file does not have 'Excluded' line.");
-		}
-		
-		line = br.readLine();
-		phenotypeAsString[1]=line;
-		tokens = line.split("\\s");
 		Set<Integer> columnIncluded = new HashSet<Integer>();
 		if(tokens[0].matches("[[A-Za-z]|\\-]*")) {
 			for(int i=0; i<tokens.length-1; i++) {
@@ -64,6 +54,20 @@ public class Phenotype implements Serializable {
 			}
 		} else {
 			throw new IOException("Format Error: phetype file does not have 'Included' line.");
+		}
+		
+		line = br.readLine();		//second line is Exclude.
+		//phenotypeAsString[1]=line;
+		tokens = line.split("\\s");
+		if(tokens[0].matches("[[A-Za-z]|\\-]*")) {
+			columnExcluded = new HashSet<Integer>();
+			for(int i=0; i<tokens.length-1; i++) {
+				int index = Integer.parseInt(tokens[i + 1]) - 1;
+				if(index>maxIndex) maxIndex = index;
+				columnExcluded.add( index );
+			}
+		} else {
+			throw new IOException("Format Error: phetype file does not have 'Excluded' line.");
 		}
 		
 		
@@ -107,6 +111,29 @@ public class Phenotype implements Serializable {
 		return columnExcluded.size();
 	}
 	public String[] getPhenotypeAsString(){
+		phenotypeAsString[INCLUDE_LINE_NUMBER]="Phenotype"+"\t";
+		phenotypeAsString[EXCLUDE_LINE_NUMBER]="Exclude"+"\t";
+		for(int i:newColumnIncluded){
+			phenotypeAsString[INCLUDE_LINE_NUMBER]+=Integer.toString(i)+"\t";
+		}
+		for(int i:columnExcluded){
+			phenotypeAsString[EXCLUDE_LINE_NUMBER]+=Integer.toString(i)+"\t";
+		}
 		return phenotypeAsString;
 	}
+	public void setIncludeList(Set<Integer> includeSet){
+		this.newColumnIncluded=includeSet;		
+	}
+	
+	public Set<Integer> getIncludeList(){
+		return newColumnIncluded;
+	}
+	
+	public void setExcludeList(Set<Integer> excludeSet){
+		this.columnExcluded=excludeSet;		
+	}
+	public Set<Integer> getExcludeList(){
+		return columnExcluded;
+	}
+	
 }
