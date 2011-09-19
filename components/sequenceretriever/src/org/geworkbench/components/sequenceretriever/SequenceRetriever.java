@@ -672,13 +672,27 @@ public class SequenceRetriever implements VisualPlugin {
 
 				String[] knownGeneName = AnnotationParser.getInfo(
 						marker.getLabel(), AnnotationParser.REFSEQ);
-				if (knownGeneName == null)
-					continue;
+				if (knownGeneName == null || (knownGeneName.length==1 && (knownGeneName[0] == null || knownGeneName[0].equals(NOANNOTATION))) ) {
+					Object[] options = { "Continue", "Cancel retrieval" };
+					int n = JOptionPane
+							.showOptionDialog(null,
+									"No annotation information was available for marker "
+											+ marker.getLabel()
+											+ ". Cannot retrieve sequence.",
+									"A Silly Question", JOptionPane.YES_NO_OPTION,
+									JOptionPane.QUESTION_MESSAGE, null, options,
+									options[0]);
+					if (JOptionPane.YES_OPTION == n)
+						continue;
+					else
+						return false;
+				}
 
 				for (String geneName : knownGeneName) {
 					if (!serverWorking)
 						break;
 					if (geneName == null || geneName.equals(NOANNOTATION)) {
+						log.error("invalid gene symbol "+geneName); // should never happen because of the previous checking
 						continue;
 					}
 					geneName = geneName.trim();
@@ -1243,13 +1257,10 @@ public class SequenceRetriever implements VisualPlugin {
 	}
 
 	private String generateHistStr() {
-		String histStr = "Sequence Retriever\n";
-		histStr += "get sequence parameters:\n";
-		histStr += "Type Category: "
-				+ jComboCategory.getSelectedItem().toString() + "\n";
-		;
-		histStr += "Source Category: "
-				+ jSourceCategory.getSelectedItem().toString() + "\n";
+		String histStr = "Sequence Retriever\n"
+			+ "get sequence parameters:\n"
+			+ "Type Category: "	+ jComboCategory.getSelectedItem().toString() + "\n"
+			+ "Source Category: " + jSourceCategory.getSelectedItem().toString() + "\n";
 		if (((String) jComboCategory.getSelectedItem())
 				.equalsIgnoreCase(DNAVIEW)) {
 			histStr += "Start Point:"
