@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.logging.Log;
@@ -31,10 +32,13 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
+import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.builtin.projects.history.HistoryPanel;
+import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.util.ProgressBar;
 
 /**
@@ -56,9 +60,7 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 	private static final String PROBE_SET="Probe Set ID";
 	private static final String GENE_SYMBOL="Gene Symbol";
 	private static final String CHROMO_LOCATION="Chromosomal Location";
-	private static final String ENTREZ_GENE="Entrez Gene";
-	private static final String SEQUENCE_TYPE="Sequence Type";
-	private static final String GENE_TITLE="Gene Title";
+	private static final String ENTREZ_GENE="Entrez Gene";	
 
 	public IDEAAnalysis() {
 		setDefaultPanel(IDEAAnalysisPanel);
@@ -184,7 +186,12 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 			}
 		}
 
+		
 		Phenotype phenotype = IDEAAnalysisPanel.getPhenotype();
+		Set<Integer> includeSet=IDEAAnalysisPanel.preparePhenoSet(IDEAAnalysisPanel.getIncludeString());
+		phenotype.setIncludeList(includeSet);
+		Set<Integer> excludeSet=IDEAAnalysisPanel.preparePhenoSet(IDEAAnalysisPanel.getExcludeString());
+		phenotype.setExcludeList(excludeSet);
 		if (phenotype == null){			
 			pbIdea.dispose();			
 			return new AlgorithmExecutionResults(false,
@@ -305,8 +312,7 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 			probes.add(p2);
 		}
 
-		for (IdeaProbeGene p : probes) {
-			// System.out.println(p.getProbeId());
+		for (IdeaProbeGene p : probes) {			
 			ArrayList<IdeaEdge> edges = new ArrayList<IdeaEdge>();
 			for (IdeaEdge e : edgeIndex) {
 				if ((p.getProbeId() == e.getProbeId1())
@@ -498,7 +504,7 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 		float pvalue=Float.parseFloat(paramPanel.getPvalue());
 		bisonParameters.put("pvalue", pvalue);
 		boolean useNullData=paramPanel.getUseNullData();
-		bisonParameters.put("useNullData", useNullData);
+		bisonParameters.put("useNullData", useNullData);				
 		String[] phenotype= paramPanel.getPhenotypeAsString();
 		bisonParameters.put("phenotype", phenotype);
 		String[] network= paramPanel.getNetworkAsString();
@@ -536,6 +542,11 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 			return new ParamValidationResults(true, null);
 		// Use this to get params
 		IDEAPanel params = (IDEAPanel) aspp;
+		Phenotype phenotype = params.getPhenotype();
+		Set<Integer> includeSet=params.preparePhenoSet(params.getIncludeString());
+		phenotype.setIncludeList(includeSet);
+		Set<Integer> excludeSet=params.preparePhenoSet(params.getExcludeString());
+		phenotype.setExcludeList(excludeSet);
 		
 		if (params.getNetwork()== null) {
 			return new ParamValidationResults(false,
@@ -613,4 +624,29 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 		
 		return new ParamValidationResults(true, "No, no Error");
 	}
+
+	@Subscribe
+	public void receive(ProjectEvent e, Object source) {
+		DSDataSet<?> data = e.getDataSet();
+		if ((data != null) && (data instanceof DSMicroarraySet)) {
+			((IDEAPanel) aspp).setMicroarraySet((DSMicroarraySet<DSMicroarray>) data);
+			
+		}
+	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Subscribe
+	public void receive(org.geworkbench.events.PhenotypeSelectorEvent e,
+			Object source) {		
+
+		if (e.getTaggedItemSetTree() != null) {
+			DSPanel<DSMicroarray> activatedArrays = e.getTaggedItemSetTree();
+			((IDEAPanel) aspp).setSelectorPanelForArray(activatedArrays);
+		}else
+			log.debug("IDEA Received Microarray Selector Event: Selection panel sent was null");		
+
+	}
+
+	
+	
 }
