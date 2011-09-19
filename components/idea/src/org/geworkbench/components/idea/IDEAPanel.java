@@ -516,16 +516,11 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
                 phenotypeField.setText(filename);
 				loadPhenoForPanel();
 				
-			} catch (FileNotFoundException e1) {
-				e1.printStackTrace();
+			} catch (IOException e) {				
 				phenotype = null;
 				includeField.setText("");
 				excludeField.setText("");
-			} catch (IOException e2) {
-				e2.printStackTrace();
-				phenotype = null;
-				includeField.setText("");
-				excludeField.setText("");
+				log.error(e);
 			}					
 		}	
 	}
@@ -652,8 +647,8 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 		targetComboModel.addElement(" ");
 		target2ComboModel.removeAllElements();
 		target2ComboModel.addElement(" ");		
-		includeField.setText("");
-		excludeField.setText("");
+		//includeField.setText("");
+		//excludeField.setText("");
 		for (DSPanel<DSMicroarray> panel : selectorPanelOfArrays.panels()) {
 			String label = panel.getLabel().trim();
 			targetComboModel.addElement(label);
