@@ -34,6 +34,7 @@ import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.bioobjects.structure.DSProteinStructure;
 import org.geworkbench.bison.datastructure.bioobjects.structure.MarkUsResultDataSet;
+import org.geworkbench.engine.config.UILauncher;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Subscribe;
@@ -418,6 +419,7 @@ public class MarkUsBrowser implements VisualPlugin {
 							"The webpage you are viewing is trying to close the window.\n Do you want to close this window?",
 							"Warning", JOptionPane.YES_NO_OPTION,
 							JOptionPane.QUESTION_MESSAGE)) {
+				UILauncher.printTimeStamp("geWorkbench exited.");
 				System.exit(0);
 			}
 		}
