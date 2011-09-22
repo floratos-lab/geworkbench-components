@@ -1,6 +1,8 @@
 package org.geworkbench.components.interactions.cellularnetwork;
 import javax.swing.*; 
 import javax.swing.table.*; 
+
+import org.geworkbench.engine.config.UILauncher;
 import java.awt.event.*;
  
 
@@ -38,6 +40,7 @@ public class CellSelectionlTableTest {
     frame.addWindowListener(
       new WindowAdapter() {
 		    public void windowClosing(WindowEvent e) {
+		    	UILauncher.printTimeStamp("geWorkbench exited.");
           System.exit(0);
         }
       }
