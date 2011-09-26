@@ -35,6 +35,7 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarr
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMicroarray;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
@@ -337,7 +338,7 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 	@SuppressWarnings("unchecked")
 	@Subscribe
 	public void receive(ProjectEvent e, Object source) {
-		DSDataSet<CSMicroarray> dataset = e.getDataSet();
+		DSDataSet<? extends DSMicroarray> dataset = e.getDataSet();
 		if ((dataset != null) && (dataset instanceof CSMicroarraySet)) {
 			CSMicroarraySet<CSMicroarray> d =(CSMicroarraySet<CSMicroarray>)dataset;
 			parameterPanel.setDataset(d);
