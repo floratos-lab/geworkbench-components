@@ -48,7 +48,7 @@ import javax.security.auth.login.FailedLoginException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.CSExprMicroarraySet;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.CSExpressionMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
@@ -289,7 +289,7 @@ public class CaArrayClient {
 	 * Hybridization and QuantitationType. A BISON DataType will be returned.
 	 *
 	 */
-	CSExprMicroarraySet getDataSet(String hybridizationName,
+	CSMicroarraySet<?> getDataSet(String hybridizationName,
 			String hybridizationId, String quantitationType, String chipType)
 			throws Exception {
 
@@ -388,7 +388,7 @@ public class CaArrayClient {
 	 * Translate the data file into BISON type.
 	 *
 	 */
-	private CSExprMicroarraySet processDataToBISON(
+	private CSMicroarraySet<?> processDataToBISON(
 			MarkerValuePair[] pairs, String name, String chipType) {
 
 		List<String> markerNames = new ArrayList<String>();
@@ -405,30 +405,29 @@ public class CaArrayClient {
 
 		int markerNo = markerNames.size();
 		DSMicroarray microarray = null;
-		CSExprMicroarraySet maSet = new CSExprMicroarraySet();
-		if (!maSet.initialized) {
-			maSet.initialize(0, markerNo);
-			maSet.getMarkerVector().clear();
-			// maSet.setCompatibilityLabel(bioAssayImpl.getIdentifier());
-			for (int z = 0; z < markerNo; z++) {
+		CSMicroarraySet<DSMicroarray> maSet = new CSMicroarraySet<DSMicroarray>();
 
-				String markerName = markerNames.get(z);
-				if (markerName != null) {
-					CSExpressionMarker marker = new CSExpressionMarker(z);
-//					bug 1956 geneName will be correctly initialized before usage, lazy initialization
-					marker.setGeneName(null);
-					marker.setDisPlayType(DSGeneMarker.AFFY_TYPE);
-					marker.setLabel(markerName);
-					marker.setDescription(markerName);
-					maSet.getMarkerVector().add(z, marker);
-					// Why annotation information are always null? xz.
-					// maSet.getMarkers().get(z).setDescription(
-					// markersArray[z].getAnnotation().getLsid());
-				} else {
-					log
-							.error("LogicalProbes have some null values. The location is "
-									+ z);
-				}
+		maSet.initialize(0, markerNo);
+		maSet.getMarkerVector().clear();
+		// maSet.setCompatibilityLabel(bioAssayImpl.getIdentifier());
+		for (int z = 0; z < markerNo; z++) {
+
+			String markerName = markerNames.get(z);
+			if (markerName != null) {
+				CSExpressionMarker marker = new CSExpressionMarker(z);
+				// bug 1956 geneName will be correctly initialized before usage,
+				// lazy initialization
+				marker.setGeneName(null);
+				marker.setDisPlayType(DSGeneMarker.AFFY_TYPE);
+				marker.setLabel(markerName);
+				marker.setDescription(markerName);
+				maSet.getMarkerVector().add(z, marker);
+				// Why annotation information are always null? xz.
+				// maSet.getMarkers().get(z).setDescription(
+				// markersArray[z].getAnnotation().getLsid());
+			} else {
+				log.error("LogicalProbes have some null values. The location is "
+						+ z);
 			}
 		}
 

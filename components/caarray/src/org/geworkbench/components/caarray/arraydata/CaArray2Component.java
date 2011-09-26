@@ -16,7 +16,7 @@ import javax.swing.JPanel;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.CSExprMicroarraySet;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
@@ -152,10 +152,9 @@ public class CaArray2Component implements VisualPlugin {
 						}
 						String hybridizationId = hybridzations
 								.get(hybridizationName);
-						CSExprMicroarraySet maSet2 = client.getDataSet(
+						CSMicroarraySet<?> maSet2 = client.getDataSet(
 								hybridizationName, hybridizationId, qType,
 								chipType);
-						;
 
 						if (CaARRAYPanel.isCancelled
 								&& CaARRAYPanel.cancelledConnectionInfo != null
