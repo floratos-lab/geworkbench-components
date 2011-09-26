@@ -9,7 +9,7 @@ import java.util.TreeSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.CSExprMicroarraySet;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSGenepixMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSGenepixMarkerValue;
@@ -77,7 +77,8 @@ public class GenepixFlagsFilter extends FilteringAnalysis {
      *
      * @param e ProjectEvent
      */
-    @Subscribe public void receive(org.geworkbench.events.ProjectEvent e,
+    @SuppressWarnings("rawtypes")
+	@Subscribe public void receive(org.geworkbench.events.ProjectEvent e,
                                    Object source) {
         Set<String> flagSet = new TreeSet<String>();
         int unflaggedProbeNum = 0;
@@ -91,15 +92,15 @@ public class GenepixFlagsFilter extends FilteringAnalysis {
                 ((GenepixFlagsFilterPanel) aspp).setFlagInfoPanel(
                          "The data format is: null.");
 
-            }else if (dataSet instanceof CSExprMicroarraySet) {
-                String compatibilityLabel = ((CSExprMicroarraySet) dataSet).
+            }else if (dataSet instanceof CSMicroarraySet) {
+                String compatibilityLabel = ((CSMicroarraySet) dataSet).
                                             getCompatibilityLabel();
-                CSExprMicroarraySet maSet = (CSExprMicroarraySet) dataSet;
+                CSMicroarraySet maSet = (CSMicroarraySet) dataSet;
                 if (compatibilityLabel != null && compatibilityLabel.equals("Genepix")) {
                     int markerCount = maSet.getMarkers().size();
                     int arrayCount = maSet.size();
                     for (int i = 0; i < arrayCount; i++) {
-                        DSMicroarray mArray = maSet.get(i);
+                        DSMicroarray mArray = (DSMicroarray) maSet.get(i);
                         unflaggedProbeNum = 0;
                         for (int j = 0; j < markerCount; ++j) {
                             DSMutableMarkerValue mv = (DSMutableMarkerValue)
