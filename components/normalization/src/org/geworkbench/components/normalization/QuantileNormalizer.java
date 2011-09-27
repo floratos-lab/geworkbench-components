@@ -10,7 +10,6 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarker
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.NormalizingAnalysis;
 import org.geworkbench.builtin.projects.history.HistoryPanel;
-import org.geworkbench.engine.management.Script;
 
 /**
  * <p>Copyright: Copyright (c) 2005</p>
@@ -196,12 +195,6 @@ public class QuantileNormalizer extends AbstractAnalysis implements NormalizingA
             }
 
         return (nonMissing != 0 ? sumOfValues / nonMissing : 0);
-    }
-
-     @Script
-     public void normalize(Object input, String avgtype) {
-        ((QuantileNormalizerPanel) aspp).setAveragingType(avgtype);
-        execute(input);
     }
 
     static class MarkerValueComparator<T extends DSMutableMarkerValue> implements Comparator<T>{
