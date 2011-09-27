@@ -386,7 +386,6 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
                     testClass = caseRadioButton.getText();
                     predictedResultPanel = new CSPanel<DSMicroarray>("Predicted Cases");
 
-                    @SuppressWarnings({ "rawtypes" })
 					CSMicroarraySet dataset = (CSMicroarraySet) visualGPClassifier.getParentDataSet();
                     for(int i = 0; i < testResultsTable.getRowCount(); i++)
                     {
@@ -408,7 +407,6 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
                     testClass = controlRadioButton.getText();
                     predictedResultPanel = new CSPanel<DSMicroarray>("Predicted Controls");
 
-                    @SuppressWarnings("rawtypes")
 					CSMicroarraySet dataset = (CSMicroarraySet) visualGPClassifier.getParentDataSet();
                     for(int i = 0; i < testResultsTable.getRowCount(); i++)
                     {

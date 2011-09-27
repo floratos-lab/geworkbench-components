@@ -555,7 +555,7 @@ public class SequenceRetriever implements VisualPlugin {
 			sequenceDB = new CSSequenceSet<DSSequence>();
 		}
 
-		String annotationFileName = ((CSMicroarraySet<?>) refMASet)
+		String annotationFileName = ((CSMicroarraySet) refMASet)
 				.getAnnotationFileName();
 		if (annotationFileName == null) {
 			JOptionPane
@@ -647,7 +647,7 @@ public class SequenceRetriever implements VisualPlugin {
 			int endPoint = ((Integer) downstreamSpinnerModel.getNumber()).intValue();
 
 			String currentChipType = AnnotationParser.getCurrentChipType();
-			String annotationFileName = ((CSMicroarraySet<?>) refMASet)
+			String annotationFileName = ((CSMicroarraySet) refMASet)
 					.getAnnotationFileName();
 			String database = SequenceFetcher.matchChipType(currentChipType,
 					annotationFileName);

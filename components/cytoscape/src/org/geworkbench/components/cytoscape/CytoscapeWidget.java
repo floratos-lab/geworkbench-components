@@ -667,7 +667,7 @@ public class CytoscapeWidget implements VisualPlugin {
 					if (node.type == NodeType.MARKER)
 						markerSet.add(marker);
 					else if (node.type == NodeType.GENE_SYMBOL) {
-						markerSet = ((CSMicroarraySet<DSMicroarray>) maSet)
+						markerSet = ((CSMicroarraySet) maSet)
 								.getMarkers().getMatchingMarkers(marker);
 					}
 					Set<String> swissProtIDs = getSwissProtIDsForMarkers(markerSet);
@@ -1070,7 +1070,7 @@ public class CytoscapeWidget implements VisualPlugin {
 				Object geneId = nodeAttrs.getAttribute(id, "geneID");
 				if (geneId == null || geneId.toString().trim().equals(""))
 					continue;
-				Vector<DSGeneMarker> markerSet = ((CSMicroarraySet<DSMicroarray>) maSet)
+				Vector<DSGeneMarker> markerSet = ((CSMicroarraySet) maSet)
 						.getMarkers().getMatchingMarkers(id);
 				selectedMarkers.addAll(markerSet);
 			}
