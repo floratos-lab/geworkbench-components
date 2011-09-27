@@ -113,9 +113,9 @@ public class EvidenceIntegrationAnalysis extends AbstractGridAnalysis implements
         	log.warn("No data node selected.");
         	return;
         }
-        if (dNode.dataFile instanceof CSMicroarraySet) {
+        if (dNode.getDataset() instanceof CSMicroarraySet) {
             log.debug("Selected dataset is microarray type.");
-            CSMicroarraySet dataFile = (CSMicroarraySet) dNode.dataFile;
+            CSMicroarraySet dataFile = (CSMicroarraySet) dNode.getDataset();
             mSetView = new CSMicroarraySetView(dataFile);
         }
         eiParamPanel.clearEvidence();
