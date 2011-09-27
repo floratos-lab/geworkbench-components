@@ -8,7 +8,6 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarker
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.NormalizingAnalysis;
-import org.geworkbench.engine.management.Script;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>
@@ -34,11 +33,6 @@ public class LogTransformationNormalizer extends AbstractAnalysis implements Nor
 
     public int getAnalysisType() {
         return analysisType;
-    }
-
-    @Script
-    public void normalize(Object input) {
-        execute(input);
     }
 
     @SuppressWarnings("unchecked")
