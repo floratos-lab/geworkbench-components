@@ -627,6 +627,7 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 		return new ParamValidationResults(true, "No, no Error");
 	}
 
+	@SuppressWarnings("unchecked")
 	@Subscribe
 	public void receive(ProjectEvent e, Object source) {
 		DSDataSet<?> data = e.getDataSet();

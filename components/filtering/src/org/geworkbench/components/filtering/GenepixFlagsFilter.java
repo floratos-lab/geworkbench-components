@@ -77,8 +77,7 @@ public class GenepixFlagsFilter extends FilteringAnalysis {
      *
      * @param e ProjectEvent
      */
-    @SuppressWarnings("rawtypes")
-	@Subscribe public void receive(org.geworkbench.events.ProjectEvent e,
+    @Subscribe public void receive(org.geworkbench.events.ProjectEvent e,
                                    Object source) {
         Set<String> flagSet = new TreeSet<String>();
         int unflaggedProbeNum = 0;

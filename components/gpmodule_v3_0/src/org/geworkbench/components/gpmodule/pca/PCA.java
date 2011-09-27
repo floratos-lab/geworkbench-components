@@ -157,7 +157,6 @@ public class PCA extends MicroarrayViewEventBase
         createButton.setEnabled(false);
         createButton.addActionListener(new ActionListener()
         {
-            @SuppressWarnings({ "unchecked" })
 			public void actionPerformed(ActionEvent event)
             {
                 int[] pcs = compResultsTable.getSelectedRows();
@@ -647,8 +646,7 @@ public class PCA extends MicroarrayViewEventBase
         compGraphPanel.setDividerLocation(0.5);
     }
 
-    @SuppressWarnings("unchecked")
-	private void buildProjectionPlot(int[] pComp)
+    private void buildProjectionPlot(int[] pComp)
     {
     	CSMicroarraySet maSet = (CSMicroarraySet)dataSet;
         List<String> dataLabelList = new ArrayList<String>();

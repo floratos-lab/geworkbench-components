@@ -126,7 +126,8 @@ public class CARTTraining extends GPTraining implements TrainingTask
         return classifier;
     }
 
-    public void runClassifier(DSPanel<DSMicroarray> casePanel, DSPanel<DSMicroarray> controlPanel, DSPanel<DSMicroarray> testPanel, CSClassifier classifier)
+    @SuppressWarnings("unchecked")
+	public void runClassifier(DSPanel<DSMicroarray> casePanel, DSPanel<DSMicroarray> controlPanel, DSPanel<DSMicroarray> testPanel, CSClassifier classifier)
     {
         ProgressBar progressBar;
         progressBar = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);

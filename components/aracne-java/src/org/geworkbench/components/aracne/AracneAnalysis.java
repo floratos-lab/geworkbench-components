@@ -747,7 +747,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 						+ "consider relaxing your thresholds.");
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({ "unchecked" })
 	private String generateHistoryString(DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView) {
 		StringBuilder ans = new StringBuilder(
 				"=The MicroarraySetView used for analysis contains following data=\n");
