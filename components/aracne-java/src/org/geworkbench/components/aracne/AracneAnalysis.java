@@ -19,7 +19,7 @@ import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.CSExprMicroarraySet;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.CSExpressionMarker;
@@ -747,7 +747,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 						+ "consider relaxing your thresholds.");
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private String generateHistoryString(DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView) {
 		StringBuilder ans = new StringBuilder(
 				"=The MicroarraySetView used for analysis contains following data=\n");
@@ -766,9 +766,9 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 						ans .append( "\t\t" ).append( temp2.toString() ).append( "\n" );
 					}
 				}
-			}else if (maSetView.items().getClass() == CSExprMicroarraySet.class){
+			}else if (maSetView.items().getClass() == CSMicroarraySet.class){
 				log.debug("situation 2: microarraySets not selected");
-				CSExprMicroarraySet exprSet = (CSExprMicroarraySet)maSetView.items();
+				CSMicroarraySet exprSet = (CSMicroarraySet)maSetView.items();
 				ans .append( "==Used Microarrays [" ).append( exprSet.size() ).append( "]==\n" );
 				for (Iterator<DSMicroarray> iterator = exprSet.iterator(); iterator.hasNext();) {
 					DSMicroarray array = iterator.next();
