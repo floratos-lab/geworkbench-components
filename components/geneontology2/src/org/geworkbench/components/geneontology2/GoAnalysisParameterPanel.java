@@ -108,7 +108,7 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 	private JComboBox calculationMethod = null;
 	private JComboBox correctionMethod = null;
 
-	private CSMicroarraySet<CSMicroarray> dataset;
+	private CSMicroarraySet dataset;
 
 	private JRadioButton loadedAnnotationsRadioButton;
 
@@ -720,7 +720,7 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 		}
 	}
 
-	public void setDataset(CSMicroarraySet<CSMicroarray> d) {
+	public void setDataset(CSMicroarraySet d) {
 		dataset = d;
 		annotationFileNameField.setText(dataset.getAnnotationFileName());
 

@@ -439,7 +439,7 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 		}
 
 
-		private MindyData createMindyData(MindyResults results, CSMicroarraySet<DSMicroarray> arraySet, ArrayList<DSMicroarray> arrayForMindyRun, float setFraction, DSGeneMarker transFac){
+		private MindyData createMindyData(MindyResults results, CSMicroarraySet arraySet, ArrayList<DSMicroarray> arrayForMindyRun, float setFraction, DSGeneMarker transFac){
 			MindyData mindyData = new MindyData(arraySet, arrayForMindyRun, setFraction, transFac);
 
 			processResults(mindyData, results, arraySet);
@@ -454,7 +454,7 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 		 * @param arraySet
 		 * @param mindyData
 		 */
-		private void processResults(MindyData mindyData, MindyResults results, CSMicroarraySet<DSMicroarray> arraySet) {
+		private void processResults(MindyData mindyData, MindyResults results, CSMicroarraySet arraySet) {
 			int numWithSymbols = 0;
 			List<MindyResultRow> dataRows = new ArrayList<MindyResultRow>();
 
@@ -541,7 +541,7 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 
 			progressBar.setMessage("Processing MINDY Results");
 
-			MindyData loadedData = createMindyData(results, (CSMicroarraySet<DSMicroarray>) mSet, arrayForMindyRun, setFraction, transFac);
+			MindyData loadedData = createMindyData(results, (CSMicroarraySet) mSet, arrayForMindyRun, setFraction, transFac);
 
 			mindyDataSet = new MindyDataSet(mSet, "MINDY Results", loadedData,
 					candidateModFile);

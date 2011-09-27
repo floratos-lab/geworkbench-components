@@ -340,7 +340,7 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 	public void receive(ProjectEvent e, Object source) {
 		DSDataSet<? extends DSMicroarray> dataset = e.getDataSet();
 		if ((dataset != null) && (dataset instanceof CSMicroarraySet)) {
-			CSMicroarraySet<CSMicroarray> d =(CSMicroarraySet<CSMicroarray>)dataset;
+			CSMicroarraySet d =(CSMicroarraySet)dataset;
 			parameterPanel.setDataset(d);
 		}
 	}

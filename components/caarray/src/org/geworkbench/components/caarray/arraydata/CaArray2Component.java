@@ -152,7 +152,7 @@ public class CaArray2Component implements VisualPlugin {
 						}
 						String hybridizationId = hybridzations
 								.get(hybridizationName);
-						CSMicroarraySet<?> maSet2 = client.getDataSet(
+						CSMicroarraySet maSet2 = client.getDataSet(
 								hybridizationName, hybridizationId, qType,
 								chipType);
 

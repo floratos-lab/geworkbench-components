@@ -289,7 +289,7 @@ public class CaArrayClient {
 	 * Hybridization and QuantitationType. A BISON DataType will be returned.
 	 *
 	 */
-	CSMicroarraySet<?> getDataSet(String hybridizationName,
+	CSMicroarraySet getDataSet(String hybridizationName,
 			String hybridizationId, String quantitationType, String chipType)
 			throws Exception {
 
@@ -388,7 +388,7 @@ public class CaArrayClient {
 	 * Translate the data file into BISON type.
 	 *
 	 */
-	private CSMicroarraySet<?> processDataToBISON(
+	private CSMicroarraySet processDataToBISON(
 			MarkerValuePair[] pairs, String name, String chipType) {
 
 		List<String> markerNames = new ArrayList<String>();
@@ -405,7 +405,7 @@ public class CaArrayClient {
 
 		int markerNo = markerNames.size();
 		DSMicroarray microarray = null;
-		CSMicroarraySet<DSMicroarray> maSet = new CSMicroarraySet<DSMicroarray>();
+		CSMicroarraySet maSet = new CSMicroarraySet();
 
 		maSet.initialize(0, markerNo);
 		maSet.getMarkerVector().clear();

@@ -176,7 +176,7 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
                                               DSPanel<DSGeneMarker> markerPanel) {
         int markerCount = markerPanel.size();
 
-        CSMarkerVector csMarkerVector = ((CSMicroarraySet<DSMicroarray>) maSet).
+        CSMarkerVector csMarkerVector = ((CSMicroarraySet) maSet).
                 getMarkerVector();
 
         DSGeneMarker dsgmarker = csMarkerVector.get(0);
@@ -304,7 +304,7 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
      * @return
      */
     private boolean updateMissingValue(String csgMarkerStr, DSMicroarraySet<DSMicroarray> maSet) {
-        CSMarkerVector csMarkerVector = ((CSMicroarraySet<DSMicroarray>) maSet).
+        CSMarkerVector csMarkerVector = ((CSMicroarraySet) maSet).
                 getMarkerVector();
         int arrayCount = maSet.size();
 
@@ -414,7 +414,7 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
     private double[] getRatioForGenepix(DSMicroarraySet<DSMicroarray> maSet,
                                        DSPanel<DSGeneMarker> markerPanel) {
 
-        CSMarkerVector csMarkerVector = ((CSMicroarraySet<DSMicroarray>) maSet).
+        CSMarkerVector csMarkerVector = ((CSMicroarraySet) maSet).
                 getMarkerVector();
         csMarkerVector.correctMaps();
         int markerCount = markerPanel.size();
