@@ -590,7 +590,6 @@ public class CytoscapeWidget implements VisualPlugin {
 
 	}
 
-	@SuppressWarnings("unchecked")
 	private CyNode createNode(AdjacencyMatrix.Node node) {
 
 		String nodeId = null;
@@ -1056,7 +1055,6 @@ public class CytoscapeWidget implements VisualPlugin {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	public DSPanel<DSGeneMarker> nodesToMarkers(Collection<Node> nodes) {
 
 		DSPanel<DSGeneMarker> selectedMarkers = new CSPanel<DSGeneMarker>(

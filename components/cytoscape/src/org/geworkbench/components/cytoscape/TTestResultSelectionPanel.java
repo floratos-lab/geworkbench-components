@@ -118,7 +118,6 @@ public class TTestResultSelectionPanel extends JPanel {
 			while (iter.hasNext()) {
 				NodeView nodeView = (NodeView) iter.next();				 
 				String id = nodeView.getNode().getIdentifier();
-				Object geneId = attrs.getAttribute(id,"geneID");
 				String displayedName = attrs.getStringAttribute(id, "displayedName").trim().toUpperCase();
 				if (attrs.hasAttribute(id, CytoscapeWidget.NODE_FILL_COLOR))
 					attrs.deleteAttribute(id, CytoscapeWidget.NODE_FILL_COLOR);

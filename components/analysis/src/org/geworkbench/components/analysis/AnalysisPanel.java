@@ -441,7 +441,6 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	 * @param maSetView
 	 * @return
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private String generateHistoryString(DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView) {
 		StringBuilder ans = new StringBuilder("=The MicroarraySetView used for analysis contains following data=");
 		/* Generate text for microarrays/groups */
