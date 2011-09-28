@@ -3,6 +3,8 @@ package org.geworkbench.components.foldchange;
 import java.util.HashSet;
 import java.util.Vector;
 
+import javax.swing.JOptionPane;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractAnalysis;
@@ -41,7 +43,11 @@ public class FoldChangeAnalysis extends AbstractAnalysis implements
 	private static final int GROUP_B = 2;
 	private static final int NEITHER_GROUP = 3;
 	private static final double LOG2=Math.log(2);
-	private static final double SMALLDOUBLE= 1E-99;
+	private static final int SIG_POSITIVE=1;
+	private static final int SIG_NEGATIVE=2;
+	private static final int SIG_RATIO_INVALID=-1;
+	private static final int SIG_NOT=0;
+	private static final int MAX_INVALID_MARKERS=6;
 	
 	private double[][] expMatrix;
 
@@ -139,6 +145,7 @@ public class FoldChangeAnalysis extends AbstractAnalysis implements
 				}
 			}
 		}
+		
 		if (numberGroupA == 0 && numberGroupB == 0) {
 			pbFCtest.dispose();
 			return new AlgorithmExecutionResults(
@@ -162,13 +169,20 @@ public class FoldChangeAnalysis extends AbstractAnalysis implements
 
 		try{
 			alpha = Double.parseDouble(((FoldChangePanel) aspp).getAlpha());
+			if (alpha<0){
+				pbFCtest.dispose();
+				return new AlgorithmExecutionResults(
+						false,
+						"Criterion should not be negative, please input a positive number.",
+						null);
+			}
 			isLinear=((FoldChangePanel) aspp).isLinear();			
 			isRatio=((FoldChangePanel) aspp).isRatio();				
 		}
 		catch(NumberFormatException e){
 			pbFCtest.dispose();
 			return new AlgorithmExecutionResults(false,
-					"Parameters are not valid.", null);
+					"Criterion is not valid.", null);
 		}
 		
 		expMatrix = new double[numGenes][numExps];
@@ -180,10 +194,15 @@ public class FoldChangeAnalysis extends AbstractAnalysis implements
 			}
 			
 			for (int j = 0; j < numExps; j++) {
-				if((!isLinear)&&isRatio)
+				if((!isLinear)&&isRatio){
 					expMatrix[i][j] = Math.pow(2,(double) data.getValue(i, j));
+					if(expMatrix[i][j]==Double.POSITIVE_INFINITY){
+						pbFCtest.dispose();
+						return new AlgorithmExecutionResults(false, "Please check if input data is log2-transformed", null);
+					}
+				}
 				else if(isLinear&&(!isRatio)){
-					if (data.getValue(i, j)<SMALLDOUBLE) {
+					if (data.getValue(i, j)<=0) {
 						pbFCtest.dispose();
 						return new AlgorithmExecutionResults(false, "Cannot log2 transform this dataset, some values are zero, negative or n/a.", null);
 					}
@@ -238,11 +257,29 @@ public class FoldChangeAnalysis extends AbstractAnalysis implements
 
 		Vector<Integer> clusterVectorPositive = sortGenesBySignificancePositive(pbFCtest);		
 		DSAnnotatedPanel<DSGeneMarker, Float> panelSignificantPositive = new CSAnnotPanel<DSGeneMarker, Float>(
-				"Fold_change_pos"+alpha);		
+				"Fold_change_pos"+alpha);
+		int invalidMarkersNo=0;
+		String invalidMarkers="\n";
 		for (Integer index : clusterVectorPositive) {
-			DSGeneMarker item = data.markers().get(index);
-			panelSignificantPositive.add(item, new Float(index));
+			if(index>=0){ 
+				DSGeneMarker item = data.markers().get(index);
+				panelSignificantPositive.add(item, new Float(index));
+			}
+			else{
+				invalidMarkersNo++;
+				if(invalidMarkersNo<MAX_INVALID_MARKERS){					
+					invalidMarkers+=data.markers().get(-index).getGeneName()+"\n";
+				}
+				else if (invalidMarkersNo==MAX_INVALID_MARKERS){
+					invalidMarkers+="...";
+				}
+			}
 		}
+		if(invalidMarkersNo>0){
+			JOptionPane.showMessageDialog(null, invalidMarkersNo+" markers are not valid for \"ratio\" calculation and are discarded."+invalidMarkers,
+					"Analysis Warning", JOptionPane.ERROR_MESSAGE);
+		}
+		
 		publishSubpanelChangedEvent(new SubpanelChangedEvent<DSGeneMarker>(
 				DSGeneMarker.class, panelSignificantPositive,
 				SubpanelChangedEvent.NEW));
@@ -251,8 +288,10 @@ public class FoldChangeAnalysis extends AbstractAnalysis implements
 		DSAnnotatedPanel<DSGeneMarker, Float> panelSignificantNegative = new CSAnnotPanel<DSGeneMarker, Float>(
 				"Fold_change_neg"+alpha);		
 		for (Integer index : clusterVectorNegative) {
-			DSGeneMarker item = data.markers().get(index);
-			panelSignificantNegative.add(item, new Float(index));
+			if(index>=0) {		
+				DSGeneMarker item = data.markers().get(index);
+				panelSignificantNegative.add(item, new Float(index));
+			}
 		}
 		publishSubpanelChangedEvent(new SubpanelChangedEvent<DSGeneMarker>(
 				DSGeneMarker.class, panelSignificantNegative,
@@ -337,8 +376,13 @@ public class FoldChangeAnalysis extends AbstractAnalysis implements
 				return null;
 			}
 
-			if(isSignificant(i)==1)
-				sigGenes.add(new Integer(i));		
+			if(isSignificant(i)==SIG_POSITIVE){
+				sigGenes.add(new Integer(i));
+			}
+			else if(isSignificant(i)==SIG_RATIO_INVALID){
+				sigGenes.add(new Integer(-i));
+				pbFCtest.dispose();
+			}
 		}
 		return sigGenes;
 	
@@ -353,8 +397,13 @@ public class FoldChangeAnalysis extends AbstractAnalysis implements
 				return null;
 			}
 
-			if(isSignificant(i)==2)
-				sigGenes.add(new Integer(i));		
+			if(isSignificant(i)==SIG_NEGATIVE){
+				sigGenes.add(new Integer(i));
+			}
+			else if(isSignificant(i)==SIG_RATIO_INVALID){
+				sigGenes.add(new Integer(-i));
+				pbFCtest.dispose();
+			}
 		}
 		return sigGenes;
 	
@@ -362,7 +411,7 @@ public class FoldChangeAnalysis extends AbstractAnalysis implements
 	
 	
 	private int isSignificant(int gene) {
-		int sig = 0;
+		int sig = SIG_NOT;
 		double numbValidValuesA = 0;
 		double numbValidValuesB = 0;
 		
@@ -379,17 +428,20 @@ public class FoldChangeAnalysis extends AbstractAnalysis implements
 		
 		
 		double fcValue=0;
-		if (isRatio&&(numbValidValuesB>SMALLDOUBLE)){
+		if (isRatio&&(numbValidValuesB!=0)){
 			fcValue=numbValidValuesA/numbValidValuesB;
-			if((fcValue<1)&&(Math.abs(fcValue)>SMALLDOUBLE))
+			if((fcValue<1)&&(fcValue!=0))
 				fcValue=-1.0/fcValue;
 		}
 		else if(!isRatio)
 			fcValue=numbValidValuesA-numbValidValuesB;
 		
-		if (fcValue>=alpha) sig=1;
-		else if (fcValue<=-alpha) sig=2;
-		else sig=0;
+		if(isRatio&&((numbValidValuesB==0)||numbValidValuesA<0)){
+			sig=SIG_RATIO_INVALID;	//avg of control should not be zero
+		}
+		else if (fcValue>=alpha) sig=SIG_POSITIVE;
+		else if (fcValue<=-alpha) sig=SIG_NEGATIVE;
+		else sig=SIG_NOT;
 		return sig;		
 	}	
 
