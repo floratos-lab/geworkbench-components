@@ -1,6 +1,6 @@
 <component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
-	<component  name="PCA Analysis 3.0"
+	<component  name="PCA Analysis 3_0"
 				class="org.geworkbench.components.gpmodule.pca.PCAAnalysis"
 				version="1.0"
 				author="Broad Institute"
@@ -25,6 +25,6 @@
 
 	</component>
 
-    <plugin id="PCAAnalysis" name="PCA Analysis 3.0" class="org.geworkbench.components.gpmodule.pca.PCAAnalysis" source="gpmodule_v3_0"/>
+    <plugin id="PCAAnalysis" name="PCA Analysis 3_0" class="org.geworkbench.components.gpmodule.pca.PCAAnalysis" source="gpmodule_v3_0"/>
 
 </component-descriptor>
