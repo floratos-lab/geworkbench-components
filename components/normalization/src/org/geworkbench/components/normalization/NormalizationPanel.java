@@ -18,9 +18,13 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.MenuElement;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -38,11 +42,19 @@ import org.geworkbench.bison.model.analysis.NormalizingAnalysis;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.bison.model.analysis.ParameterPanel;
 import org.geworkbench.builtin.projects.ProjectPanel;
+import org.geworkbench.engine.config.MenuListener;
+import org.geworkbench.engine.config.PluginDescriptor;
 import org.geworkbench.engine.config.VisualPlugin;
+import org.geworkbench.engine.config.rules.GeawConfigObject;
+import org.geworkbench.engine.config.rules.MalformedMenuItemException;
+import org.geworkbench.engine.config.rules.NotMenuListenerException;
+import org.geworkbench.engine.config.rules.NotVisualPluginException;
+import org.geworkbench.engine.config.rules.PluginObject;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.ComponentRegistry;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.engine.skin.Skin;
 import org.geworkbench.events.AnalysisInvokedEvent;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
@@ -63,7 +75,7 @@ import com.jgoodies.forms.layout.FormLayout;
  * @version $Id$
  */
 @AcceptTypes( { DSMicroarraySet.class })
-public class NormalizationPanel implements VisualPlugin, ReHighlightable {
+public class NormalizationPanel implements VisualPlugin, ReHighlightable, MenuListener {
 	private Log log = LogFactory.getLog(this.getClass());
 	/**
 	 * The underlying panel for the normalization component
@@ -274,6 +286,7 @@ public class NormalizationPanel implements VisualPlugin, ReHighlightable {
 	@Subscribe
 	public void receive(org.geworkbench.events.ProjectEvent pe, Object source) {
 		DSDataSet<?> dataSet = pe.getDataSet();
+		if (dataSet != null) clearMenuItems();
 		if (dataSet instanceof DSMicroarraySet<?>) {
 			maSet = (DSMicroarraySet<?>) dataSet;
 			reset();
@@ -344,6 +357,11 @@ public class NormalizationPanel implements VisualPlugin, ReHighlightable {
 		for (int i = 0; i < availableNormalizers.length; i++) {
 			names[i] = availableNormalizers[i].getLabel();
 			pluginNormalizers.addItem(names[i]);
+			try{
+				setMenuItem(names[i]);
+			}catch(Exception e){
+				e.printStackTrace();
+			}
 		}
 		
 		if (selectedName != null)
@@ -658,5 +676,43 @@ public class NormalizationPanel implements VisualPlugin, ReHighlightable {
 						.getNamesOfStoredParameterSets());
 			}
 		}
+	}
+
+	private static final String popMenuItem = "Normalization";
+	private static final String topMenuItem = "Commands";
+	private void setMenuItem(String name) throws NotMenuListenerException, NotVisualPluginException, MalformedMenuItemException{
+		String menuName = topMenuItem + GeawConfigObject.menuItemDelimiter + popMenuItem + GeawConfigObject.menuItemDelimiter + name;
+		if (listeners.get(menuName)==null)
+			listeners.put(menuName, new ActionListener(){
+				public void actionPerformed(ActionEvent e){
+					pluginNormalizers.setSelectedItem(e.getActionCommand());
+					Skin skin = (Skin) GeawConfigObject.getGuiWindow();
+					skin.undockCommandPanel(popMenuItem);
+				}
+			});
+		PluginDescriptor pluginDesc = ComponentRegistry.getRegistry().getDescriptorForPlugin(this);
+		if (pluginDesc!=null)
+			PluginObject.registerMenuItem(pluginDesc, menuName, "always", menuName, null, null);
+	}
+	private void clearMenuItems(){
+    	MenuElement[] elements = GeawConfigObject.getMenuBar().getSubElements();
+    	for (MenuElement element: elements){
+    		JMenu menu = (JMenu)element.getComponent();
+    		if (menu.getText().equals(topMenuItem)){
+    			JPopupMenu popMenu = menu.getPopupMenu();
+    			MenuElement[] subelements = popMenu.getSubElements();
+    			for (MenuElement subelement: subelements){
+    				JMenuItem submenu = (JMenuItem)subelement.getComponent();
+    				if (submenu.getText().equals(popMenuItem)){
+    					popMenu.remove(submenu);
+    				}
+    			}
+    			break;
+    		}
+    	}
+    }
+	private HashMap<String, ActionListener> listeners = new HashMap<String, ActionListener>();
+	public ActionListener getActionListener(String var) {
+		return listeners.get(var);
 	}
 }
