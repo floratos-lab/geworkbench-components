@@ -101,7 +101,7 @@ public class PreviewDialog extends JDialog {
 				
 				for(int i=0; i<markerTableModel.getRowCount(); i++) {
 					String markerName = (String)markerTableModel.getValueAt(i, 0);
-					if(markerName.contains(markerToBeSearched.getText())) {
+					if(markerName.toUpperCase().contains(markerToBeSearched.getText().toUpperCase())) {
 						
 						int row = markers.convertRowIndexToView(i);
 						Rectangle r = markers.getCellRect(row, 0, false);  
@@ -133,7 +133,7 @@ public class PreviewDialog extends JDialog {
 				
 				for(int i=0; i<markerTableModel.getRowCount(); i++) {
 					String geneName = (String)markerTableModel.getValueAt(i, 1);
-					if(geneName.contains(geneToBeSearched.getText())) {
+					if(geneName.toUpperCase().contains(geneToBeSearched.getText().toUpperCase())) {
 						
 						int row = markers.convertRowIndexToView(i);
 						Rectangle r = markers.getCellRect(row, 0, false);  
