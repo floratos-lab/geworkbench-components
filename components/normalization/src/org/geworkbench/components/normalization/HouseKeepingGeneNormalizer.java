@@ -36,10 +36,8 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
         NormalizingAnalysis {
 	private static final long serialVersionUID = -66936300682683764L;
 
-    private static StringBuffer errorMessage = new StringBuffer();
-    private DSPanel<DSGeneMarker> markerPanel;
     private TreeSet<String> nonFoundGenes = new TreeSet<String>();
-    private boolean[] ExistedMarkers;
+
     private boolean haveNonExistMarker = false;
     private double[] ch1fArray = null;
     private double[] ch1bArray = null;
@@ -64,13 +62,12 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
         }
         
         DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet<DSMicroarray>) input;
-        errorMessage = new StringBuffer();
+
         haveNonExistMarker = false;
         // Collect the parameters needed for the execution of the normalizer
-        markerPanel = ((HouseKeepingGeneNormalizerPanel) aspp).getPanel();
+        DSPanel<DSGeneMarker> markerPanel = ((HouseKeepingGeneNormalizerPanel) aspp).getPanel();
         ignoreMissingValues = ((HouseKeepingGeneNormalizerPanel) aspp).isMissingValueIgnored();
-        int houseKeepgeneNumber = markerPanel.size();
-        ExistedMarkers = new boolean[houseKeepgeneNumber];
+
         double[] ratioArray = null;
 
         if (maSet instanceof CSMicroarraySet &&
@@ -97,16 +94,14 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
 
         int arrayCount = maSet.size();
         int markerCount = maSet.getMarkers().size();
-        DSMicroarray microarray = null;
-        DSMutableMarkerValue markerValue = null;
 
         for (int i = 0; i < arrayCount; i++) {
             if (Double.isNaN(ratioArray[i])) {
                 continue;
             }
             for (int j = 0; j < markerCount; j++) {
-                microarray = maSet.get(i);
-                markerValue = (DSMutableMarkerValue) microarray.getMarkerValue(
+            	DSMicroarray microarray = maSet.get(i);
+                DSMutableMarkerValue markerValue = (DSMutableMarkerValue) microarray.getMarkerValue(
                         j);
                 if (!markerValue.isMissing()) {
                     if (markerValue instanceof CSGenepixMarkerValue) {
@@ -206,6 +201,7 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
         // does not have a serial number >0. so instead, CSMicroarraySet.getRow(DSGeneMakrer)
         //is used here.
 
+        boolean[] ExistedMarkers = new boolean[markerPanel.size()];
         for (int j = 0; j < markerCount; j++) {
             ExistedMarkers[j] = true;
             CSGeneMarker csgMarker = (CSGeneMarker) markerPanel.get(j);
@@ -223,7 +219,6 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
                 // DSMutableMarkerValue dsMutableMarkerValue = maSet.getValuesForName()
                 if (Double.isNaN(arrays[j][k]) || arrays[j][k] == 0) {
                     if (ignoreMissingValues) {
-                        errorMessage.append(csgMarker.getLabel() + " ");
                         nonFoundGenes.add(csgMarker.getLabel());
                         ExistedMarkers[j] = false;
                         haveNonExistMarker = true;
@@ -232,7 +227,6 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
                         ExistedMarkers[j] = updateMissingValue(csgMarker, maSet);
                         arrays[j][k] = maSet.getValue(csgMarker, k);
                         if (!ExistedMarkers[j]) {
-                            errorMessage.append(csgMarker.getLabel() + " ");
                             nonFoundGenes.add(csgMarker.getLabel());
                             haveNonExistMarker = true;
                         }
@@ -303,7 +297,7 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
      * @param maSet
      * @return
      */
-    private boolean updateMissingValue(String csgMarkerStr, DSMicroarraySet<DSMicroarray> maSet) {
+    private boolean updateMissingValue(String csgMarkerStr, DSMicroarraySet<DSMicroarray> maSet, DSPanel<DSGeneMarker> markerPanel) {
         CSMarkerVector csMarkerVector = ((CSMicroarraySet) maSet).
                 getMarkerVector();
         int arrayCount = maSet.size();
@@ -435,8 +429,7 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
             ch2bArray[i] = 0;
             DSMicroarray microarray = (DSMicroarray) maSet.get(i);
             for (int j = 0; j < markerCount; j++) {
-                //for the bug list above.
-                ExistedMarkers[j] = true;
+
                 String csgMarkerString = ((CSGeneMarker) markerPanel.get(j)).
                         getLabel();
                 Vector<DSGeneMarker>
@@ -460,17 +453,13 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
                         } else {
                             if (ignoreMissingValues) {
                                 nonFoundGenes.add(dsgMarker.getLabel());
-                                ExistedMarkers[j] = false;
                                 haveNonExistMarker = true;
                             } else {
-                                // updateMissingValue(csgMarkerValue,  maSet);
-                                if (updateMissingValue(csgMarkerString, maSet)) {
+                                if (updateMissingValue(csgMarkerString, maSet, markerPanel)) {
                                     ch1fArray[i] += csgMarkerValue.getCh1Fg();
                                     ch2fArray[i] += csgMarkerValue.getCh2Fg();
                                     ch1bArray[i] += csgMarkerValue.getCh1Bg();
                                     ch2bArray[i] += csgMarkerValue.getCh2Bg();
-                                } else {
-                                    ExistedMarkers[j] = false;
                                 }
                             }
                         }
@@ -480,7 +469,6 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
                 } else {
 
                     nonFoundGenes.add(csgMarkerString);
-                    ExistedMarkers[j] = false;
                     haveNonExistMarker = true;
 
                 }
