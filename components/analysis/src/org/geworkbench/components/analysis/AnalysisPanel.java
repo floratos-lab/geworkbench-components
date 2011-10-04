@@ -1170,9 +1170,12 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		pollingThread.start();
 	}
 
+	@SuppressWarnings("unchecked")
 	private void executeLocally() {
 		if (refOtherSet != null) {
 			// first case: analysis that does not take in microarray data set
+			if (refOtherSet instanceof CSSequenceSet)
+				((CSSequenceSet)refOtherSet).useMarkerPanel(!chkAllMarkers.isSelected());
 			results = selectedAnalysis.execute(refOtherSet);
 		} else if (maSetView != null && refMASet != null) {
 			// second case: analysis that takes microarray set 
