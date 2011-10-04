@@ -1,4 +1,4 @@
-package org.geworkbench.components.alignment.panels;
+package org.geworkbench.components.alignment.blast;
 
 /**
  * 
@@ -58,9 +58,7 @@ public class ParameterSetting {
         /**
          * For subsequence information.
          */
-        private int startPoint = -1;
-        private int endPoint = -1;
-
+        
         private boolean excludeModelsOn;
         private boolean excludeUncultureOn;
         private boolean megaBlastOn;
@@ -151,15 +149,7 @@ public class ParameterSetting {
 
     public void setUseNCBI(boolean useNCBI) {
         this.useNCBI = useNCBI;
-    }
-
-    public void setEndPoint(int endPoint) {
-        this.endPoint = endPoint;
-    }
-
-    public void setStartPoint(int startPoint) {
-        this.startPoint = startPoint;
-    }
+    }     
 
     public void setWordsize(String wordsize) {
         this.wordsize = wordsize;
@@ -204,15 +194,7 @@ public class ParameterSetting {
 
     public boolean isUseNCBI() {
         return useNCBI;
-    }
-
-    public int getEndPoint() {
-        return endPoint;
-    }
-
-    public int getStartPoint() {
-        return startPoint;
-    }
+    } 
 
     public boolean isMaskLowCase() {
         return maskLowCase;
