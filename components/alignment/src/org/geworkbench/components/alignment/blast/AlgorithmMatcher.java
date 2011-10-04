@@ -1,4 +1,4 @@
-package org.geworkbench.components.alignment.panels;
+package org.geworkbench.components.alignment.blast;
 
 import java.io.File;
 import java.io.IOException;

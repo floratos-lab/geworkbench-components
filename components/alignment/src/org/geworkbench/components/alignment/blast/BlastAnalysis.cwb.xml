@@ -3,7 +3,7 @@
 	xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
 	<component name="BLAST Analysis"
-		class="org.geworkbench.components.alignment.panels.BlastAppComponent"
+		class="org.geworkbench.components.alignment.blast.BlastAnalysis"
 		version="1.0" 
 		author="geWorkbench Development Team"
 		authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
@@ -12,7 +12,8 @@
 		description="The Sequence Alignment component allows amino-acid (protein)
  or nucleotide (DNA) sequences to be submitted to the NCBI BLAST server
  for sequence similarity search against various databases."
-		category="analysis" loadByDefault="true">
+        analysis="true" loadByDefault="true">
+		<!--category="analysis" loadByDefault="true">-->
 		<required-component
 			class="org.geworkbench.components.alignment.panels.BlastViewComponent" />
 		<required-component
@@ -26,9 +27,9 @@
 
 	</component>
 
-	<plugin id="BlastAppComponent" name="Sequence Alignment"
-		class="org.geworkbench.components.alignment.panels.BlastAppComponent"
+	<plugin id="BlastAnalysis" name="BLAST Analysis"
+		class="org.geworkbench.components.alignment.blast.BlastAnalysis"
 		source="alignment">
-		<gui-area name="CommandArea" />
+		<!-- <gui-area name="CommandArea" />   -->
 	</plugin>
 </component-descriptor>

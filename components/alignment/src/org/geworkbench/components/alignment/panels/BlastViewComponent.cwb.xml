@@ -15,7 +15,7 @@
 		mustAccept="false" 
 		category="visualizer" loadByDefault="true">
 		<required-component
-			class="org.geworkbench.components.alignment.panels.BlastAppComponent" />
+			class="org.geworkbench.components.alignment.blast.BlastAnalysis" />
 		<license><![CDATA[
 			<html><head><meta http-equiv=Content-Type content="text/html; charset=windows-1252"></head>
 				<body>----</body>
