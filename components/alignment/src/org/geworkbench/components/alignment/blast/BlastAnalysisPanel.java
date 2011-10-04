@@ -59,8 +59,6 @@ import org.geworkbench.events.listeners.ParameterActionListener;
  * @author not attributable
  * @version $Id: BlastAanalysisPanel.java 7338 2010-12-16 16:46:53Z maz $
  */
-// test
-@SuppressWarnings("unchecked")
 @AcceptTypes( { CSSequenceSet.class })
 public class BlastAnalysisPanel extends AbstractSaveableParameterPanel {
 	/**
@@ -150,7 +148,6 @@ public class BlastAnalysisPanel extends AbstractSaveableParameterPanel {
 	private JLabel jTemplateTypeLabel = new JLabel("Template Type:");
 	private JComboBox jTemplateTypeBox = new JComboBox();
 
-	private BlastAnalysisPanel BlastAanalysisPanel = null;
 	private JPanel subSeqPanel;
 	private JPanel subSeqPanel2;
 
@@ -166,9 +163,6 @@ public class BlastAnalysisPanel extends AbstractSaveableParameterPanel {
 
 	private BorderLayout borderLayout3 = new BorderLayout();
 	private JScrollPane jScrollPane4 = new JScrollPane();
-
-	private static final int MAIN = 0;
-	private static final int SERVER = 2;
 
 	private JPanel discontiguousWordOptionsPanel;
 
@@ -1071,7 +1065,6 @@ public class BlastAnalysisPanel extends AbstractSaveableParameterPanel {
 	 * 
 	 * @return ParameterSetting
 	 */
-	@SuppressWarnings("rawtypes")
 	public ParameterSetting collectParameters() {
 		String programName = (String) jProgramBox.getSelectedItem();
 
@@ -1132,16 +1125,6 @@ public class BlastAnalysisPanel extends AbstractSaveableParameterPanel {
 		}
 
 		return ps;
-	}
-
-	public void setBlastDisplayPanel(int selectedPanel) {
-		if (selectedPanel == BlastAanalysisPanel.SERVER) {
-			jTabbedBlastPane.setSelectedIndex(BlastAanalysisPanel.SERVER);
-
-		} else {
-			jTabbedBlastPane.setSelectedIndex(BlastAanalysisPanel.MAIN);
-		}
-
 	}
 
 	/**
