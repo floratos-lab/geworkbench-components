@@ -293,15 +293,15 @@ public class TabularMicroarrayPanel extends MicroarrayViewEventBase {
 					try {
 						DSItemList<DSMicroarray> arrays = maSetView.items();
 						PrintWriter pw = new PrintWriter(file);
-						pw.print(arrays.get(0));
-						for(int i=1; i<arrays.size(); i++) {
+						pw.print("ID");
+						for(int i=0; i<arrays.size(); i++) {
 							pw.print("\t"+arrays.get(i));
 						}
 						pw.println();
 						for(int index=0; index<maSetView.markers().size(); index++) {
 							double[] v = maSetView.getRow(index);
-							pw.print(v[0]);
-							for(int i=1; i<v.length; i++) {
+							pw.print(maSetView.markers().get(index).getLabel());
+							for(int i=0; i<v.length; i++) {
 								pw.print("\t"+v[i]);
 							}
 							pw.println();
