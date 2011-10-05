@@ -179,18 +179,12 @@ public class BlastAnalysisPanel extends AbstractSaveableParameterPanel {
 	private boolean isFinished = false;
 
 	public BlastAnalysisPanel() {
-		try {
-			init1();
-			init2();
+		sequenceNumberField = new JTextField(20);
+		sequenceNumberField.setMaximumSize(sequenceNumberField
+				.getPreferredSize());
+		sequenceNumberField.setEditable(false);
 
-			this.add(jTabbedBlastPane);
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	private void init2() throws Exception {
+		sequenceNumberField.setText("Total Sequence Number:");
 
 		parameterActionListener = new ParameterActionListener(this);
 		jBasicPane = new JPanel();
@@ -644,7 +638,9 @@ public class BlastAnalysisPanel extends AbstractSaveableParameterPanel {
 		jEntrezQueryText.addActionListener(parameterActionListener);
 		jQueryFromText.addActionListener(parameterActionListener);
 		jQueryToText.addActionListener(parameterActionListener);
-        
+
+		this.setLayout(new BorderLayout());
+		this.add(jTabbedBlastPane, BorderLayout.CENTER);
 	}
 
 	static private class UneditableTableModel extends AbstractTableModel {
@@ -1137,17 +1133,6 @@ public class BlastAnalysisPanel extends AbstractSaveableParameterPanel {
 	public org.geworkbench.events.ProjectNodeAddedEvent publishProjectNodeAddedEvent(
 			org.geworkbench.events.ProjectNodeAddedEvent event) {
 		return event;
-	}
-
-	private void init1() throws Exception {
-
-		sequenceNumberField = new JTextField(20);
-		sequenceNumberField.setMaximumSize(sequenceNumberField
-				.getPreferredSize());
-		sequenceNumberField.setEditable(false);
-
-		sequenceNumberField.setText("Total Sequence Number:");
-
 	}
 
 	// following are a group of listener classes
