@@ -6,17 +6,21 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.math.RoundingMode;
-
 import java.util.ArrayList;
 
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
@@ -39,6 +43,7 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
+import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.util.microarrayutils.MicroarrayViewEventBase;
 
@@ -274,7 +279,41 @@ public class TabularMicroarrayPanel extends MicroarrayViewEventBase {
 		jToolBar3.add(jrbScientific);
 		jToolBar3.add(labelDecimalPlaces);
 		jToolBar3.add(jspDecimalPlaces);
+		
+		JButton button = new JButton("Export");
+		jToolBar3.add(button);
+		button.addActionListener(new ActionListener() {
 
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser fileChooser = new JFileChooser();
+				int ret = fileChooser.showSaveDialog(TabularMicroarrayPanel.this.getComponent());
+				if(ret==JFileChooser.APPROVE_OPTION) {
+					File file = fileChooser.getSelectedFile();
+					try {
+						DSItemList<DSMicroarray> arrays = maSetView.items();
+						PrintWriter pw = new PrintWriter(file);
+						pw.print(arrays.get(0));
+						for(int i=1; i<arrays.size(); i++) {
+							pw.print("\t"+arrays.get(i));
+						}
+						pw.println();
+						for(int index=0; index<maSetView.markers().size(); index++) {
+							double[] v = maSetView.getRow(index);
+							pw.print(v[0]);
+							for(int i=1; i<v.length; i++) {
+								pw.print("\t"+v[i]);
+							}
+							pw.println();
+						}
+						pw.close();
+					} catch (FileNotFoundException e1) {
+						e1.printStackTrace();
+					}
+				}
+			}
+		});
+		
 		selectedFormat = NUMBERS;
 		decimalPlaces = 2;
 		nf = NumberFormat.getInstance();
