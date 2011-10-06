@@ -23,6 +23,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -35,6 +36,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
+import javax.swing.JToolBar;
 import javax.swing.MenuElement;
 
 import org.apache.axis.types.URI.MalformedURIException;
@@ -89,10 +91,10 @@ import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.engine.properties.PropertiesManager;
 import org.geworkbench.engine.skin.Skin;
 import org.geworkbench.events.AnalysisInvokedEvent;
+import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.util.ProgressBar;
 import org.geworkbench.util.Util;
-import org.geworkbench.util.microarrayutils.MicroarrayViewEventBase;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.EdgeListDataSet;
 import org.ginkgo.labs.util.FileTools;
 import org.ginkgo.labs.ws.GridEndpointReferenceType;
@@ -114,7 +116,7 @@ import edu.columbia.geworkbench.cagrid.dispatcher.client.DispatcherClient;
  */
 @AcceptTypes( { DSMicroarraySet.class, EdgeListDataSet.class,
 		CSProteinStructure.class, CSSequenceSet.class })
-public class AnalysisPanel extends MicroarrayViewEventBase implements
+public class AnalysisPanel implements
 		VisualPlugin, ReHighlightable, MenuListener {
 
 	private static Log log = LogFactory.getLog(AnalysisPanel.class);
@@ -128,7 +130,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	private static final String USER_INFO_DELIMIETER = "==";
 
 	/* from application.properties */
-	final static String DISPATCHER_URL = "dispatcher.url";
+	private final static String DISPATCHER_URL = "dispatcher.url";
 
 	/* from PropertiesManager (user preference) */
 	private static final String GRID_HOST_KEY = "dispatcherURL";
@@ -140,31 +142,13 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	/* user interface */
 	private JPanel analysisPanel = null;
 
-	private JScrollPane analysisScrollPane = null;
-
-	private JPanel innerAnalysisPanel = null;
-
-	private BorderLayout analysisPanelBorderLayout = null;
-
-	private BorderLayout borderLayout3 = null;
-
-	private ParameterPanel emptyParameterPanel = null;
-
-	private JPanel analysisMainPanel = null;
+	private final ParameterPanel emptyParameterPanel = new ParameterPanel();;
 
 	private JPanel selectedAnalysisParameterPanel = null;
 
 	private ParameterPanel currentParameterPanel = null;
 
-	private BorderLayout borderLayout4 = null;
-
-	private BorderLayout borderLayout5 = null;
-
-	private JPanel parameterPanel = null;
-
 	private JButton analyze = null;
-
-	private JPanel jPanel1 = null;
 
 	private JTabbedPane jAnalysisTabbedPane = null;
 
@@ -182,17 +166,11 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	 * configuration file as <code>plugin</code> components and they are
 	 * expected to have been associated with the extension point <code>clustering</code>.
 	 */
-	protected AbstractAnalysis[] availableAnalyses = null;
-	protected AbstractAnalysis selectedAnalysis = null;
+	private AbstractAnalysis[] availableAnalyses = null;
+	private AbstractAnalysis selectedAnalysis = null;
 
 	private JComboBox analysisComboBox = new JComboBox();
 	private JComboBox parameterComboBox = new JComboBox();
-
-	/*
-	 * Results obtained from execution of an analysis. This is an instance
-	 * variable as the analysis is carried out on a worker thread.
-	 */
-	private AlgorithmExecutionResults results = null;
 
 	/**
 	 * Default Constructor
@@ -222,34 +200,45 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	}
 
 	/**
-	 * 
-	 * @return Return the Analysis Panel
-	 */
-	public AnalysisPanel getAnalysisPanel() {
-		return this;
-	}
-
-	/**
 	 * initialize GUI
 	 * 
 	 * @throws Exception
 	 *             exception thrown during GUI construction
 	 */
 	private void init() throws Exception {
+		// this part used to be in MicroarrayViewEvent: initialize tool bar for 'all markers', 'all arrays'
+		mainPanel = new JPanel();
+		JToolBar jToolBar3 = new JToolBar();
+		mainPanel.setLayout(new BorderLayout());
+		chkAllMarkers.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				refreshMaSetView();
+				mainPanel.repaint();
+			}
+
+		});
+		chkAllArrays.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				refreshMaSetView();
+				mainPanel.repaint();
+			}
+
+		});
+		jToolBar3.add(chkAllArrays, null);
+		jToolBar3.add(chkAllMarkers, null);
+		mainPanel.add(jToolBar3, java.awt.BorderLayout.SOUTH);
+
 		analysisPanel = new JPanel();
-		analysisScrollPane = new JScrollPane();
-		innerAnalysisPanel = new JPanel();
-		analysisPanelBorderLayout = new BorderLayout();
-		borderLayout3 = new BorderLayout();
-		emptyParameterPanel = new ParameterPanel();
-		analysisMainPanel = new JPanel();
+		JScrollPane analysisScrollPane = new JScrollPane();
+
 		save = new JButton("Save Settings");
 		delete = new JButton("Delete Settings");
 		selectedAnalysisParameterPanel = new JPanel();
 		currentParameterPanel = emptyParameterPanel;
-		borderLayout4 = new BorderLayout();
-		borderLayout5 = new BorderLayout();
-		parameterPanel = new JPanel();
 
 		analyze = new JButton("Analyze");
 		/* Double it's width */
@@ -257,10 +246,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		d.setSize(d.getWidth() * 2, d.getHeight());
 		analyze.setPreferredSize(d);
 
-		jPanel1 = new JPanel();
-
-		analysisPanel.setLayout(analysisPanelBorderLayout);
-		innerAnalysisPanel.setLayout(borderLayout3);
+		analysisPanel.setLayout(new BorderLayout());
 
 		save.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -275,17 +261,15 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 
 		});
 
-		selectedAnalysisParameterPanel.setLayout(borderLayout4);
-		currentParameterPanel.setLayout(borderLayout5);
+		selectedAnalysisParameterPanel.setLayout(new BorderLayout());
+		currentParameterPanel.setLayout(new BorderLayout());
 
-		parameterPanel.setLayout(new BorderLayout());
 		analyze.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				analyze_actionPerformed(e);
 			}
 
 		});
-		analysisMainPanel.setLayout(new BoxLayout(analysisMainPanel, BoxLayout.Y_AXIS));
 
 		parameterComboBox.addActionListener(new ActionListener() {
 
@@ -305,12 +289,19 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 			
 		});
 		analysisPanel.add(analysisScrollPane, BorderLayout.CENTER);
+		
+		JPanel innerAnalysisPanel = new JPanel();
+		innerAnalysisPanel.setLayout(new BorderLayout());
 		analysisScrollPane.getViewport().add(innerAnalysisPanel, null);
+		JPanel analysisMainPanel = new JPanel();
+		analysisMainPanel.setLayout(new BoxLayout(analysisMainPanel, BoxLayout.Y_AXIS));
 		innerAnalysisPanel.add(analysisMainPanel, BorderLayout.CENTER);
 
 		selectedAnalysisParameterPanel.add(currentParameterPanel,
 				BorderLayout.CENTER);
 
+		JPanel parameterPanel = new JPanel();
+		parameterPanel.setLayout(new BorderLayout());
 		parameterPanel.add(selectedAnalysisParameterPanel, BorderLayout.CENTER);
 
 		/* buttons */
@@ -330,6 +321,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 
 		parameterPanel.add(buttonsBuilder.getPanel(), BorderLayout.LINE_END);
 
+		JPanel jPanel1 = new JPanel();
 		analysisMainPanel.add(jPanel1);
 		jPanel1.setLayout(new BoxLayout(jPanel1, BoxLayout.LINE_AXIS));
 		jPanel1.add(Box.createRigidArea(new Dimension(5, 0)));
@@ -357,43 +349,6 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	public org.geworkbench.events.SubpanelChangedEvent publishSubpanelChangedEvent(
 			org.geworkbench.events.SubpanelChangedEvent event) {
 		return event;
-	}
-
-	/**
-	 * Post analysis steps to check if analysis terminated properly and then to
-	 * fire the appropriate application event
-	 */
-	@SuppressWarnings("unchecked")
-	private void analysisDone() {
-		if (results == null) {
-			log.error("unexpected null result");
-			return;
-		}
-		/*
-		 * If everything was OK construct and fire the proper application-level
-		 * event, thus notify interested application components of the results
-		 * of the analysis operation. If there were problems encountered, let
-		 * the user know.
-		 */
-		if (!results.isExecutionSuccessful()) {
-			JOptionPane.showMessageDialog(null, results.getMessage(),
-					"Analysis Error", JOptionPane.ERROR_MESSAGE);
-			return;
-		}
-		Object resultObject = results.getResults();
-		if (resultObject instanceof DSAncillaryDataSet) {
-			DSAncillaryDataSet<DSBioObject> dataSet = (DSAncillaryDataSet<DSBioObject>) resultObject;
-			ProjectPanel.getInstance().addProjectNode(null, dataSet);
-			return;
-		}
-		if (resultObject instanceof Hashtable) {
-			DSPanel<DSGeneMarker> panel = ((Hashtable<?, DSPanel<DSGeneMarker>>) resultObject)
-					.get("Significant Genes");
-			if (panel != null) {
-				publishSubpanelChangedEvent(new org.geworkbench.events.SubpanelChangedEvent<DSGeneMarker>(
-						DSGeneMarker.class, panel, SubpanelChangedEvent.NEW));
-			}
-		}
 	}
 
 	/**
@@ -687,7 +642,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 				}
 			}
 		} else {
-			setParametersPanel(this.emptyParameterPanel);
+			setParametersPanel(emptyParameterPanel);
 			save.setEnabled(false);
 		}
 		analysisPanel.revalidate();
@@ -899,9 +854,9 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 			String className = paramPanel.getClass().getName();
 			if (className.equals("org.geworkbench.components.ttest.MultiTTestAnalysisPanel")
 					|| className.equals("org.geworkbench.components.ttest.TtestAnalysis"))
-				super.chkAllArrays.setVisible(false);
+				chkAllArrays.setVisible(false);
 			else
-				super.chkAllArrays.setVisible(true);
+				chkAllArrays.setVisible(true);
 
 			/*
 			 * If it's first time (means just after load from file) for this
@@ -918,7 +873,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 
 			save.setEnabled(true);
 		} else {
-			setParametersPanel(this.emptyParameterPanel);
+			setParametersPanel(emptyParameterPanel);
 			save.setEnabled(false);
 			/*
 			 * Since the analysis admits no parameters, there are no named
@@ -1170,8 +1125,10 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 		pollingThread.start();
 	}
 
-	@SuppressWarnings("unchecked")
+	// this method is only invoked form background thread
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void executeLocally() {
+		AlgorithmExecutionResults results = null;
 		if (refOtherSet != null) {
 			// first case: analysis that does not take in microarray data set
 			if (refOtherSet instanceof CSSequenceSet)
@@ -1179,7 +1136,7 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 			results = selectedAnalysis.execute(refOtherSet);
 		} else if (maSetView != null && refMASet != null) {
 			// second case: analysis that takes microarray set 
-		if(selectedAnalysis instanceof AbstractGridAnalysis) {
+			if(selectedAnalysis instanceof AbstractGridAnalysis) {
 				ParamValidationResults validResult = ((AbstractGridAnalysis) selectedAnalysis)
 				.validInputData(maSetView, refMASet);
 				if (!validResult.isValid()) {
@@ -1194,7 +1151,37 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 			}
 			results = selectedAnalysis.execute(maSetView);
 		}
-		analysisDone();
+		
+		// check the result before further publishing event 
+		if (results == null) {
+			log.error("unexpected null result");
+			return;
+		}
+		/*
+		 * If everything was OK construct and fire the proper application-level
+		 * event, thus notify interested application components of the results
+		 * of the analysis operation. If there were problems encountered, let
+		 * the user know.
+		 */
+		if (!results.isExecutionSuccessful()) {
+			JOptionPane.showMessageDialog(null, results.getMessage(),
+					"Analysis Error", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		Object resultObject = results.getResults();
+		if (resultObject instanceof DSAncillaryDataSet) {
+			DSAncillaryDataSet<DSBioObject> dataSet = (DSAncillaryDataSet<DSBioObject>) resultObject;
+			ProjectPanel.getInstance().addProjectNode(null, dataSet);
+			return;
+		}
+		if (resultObject instanceof Hashtable) {
+			DSPanel<DSGeneMarker> panel = ((Hashtable<?, DSPanel<DSGeneMarker>>) resultObject)
+					.get("Significant Genes");
+			if (panel != null) {
+				publishSubpanelChangedEvent(new org.geworkbench.events.SubpanelChangedEvent<DSGeneMarker>(
+						DSGeneMarker.class, panel, SubpanelChangedEvent.NEW));
+			}
+		}
 	}
 	
 	private Class<?> currentDataType = null, lastDataType = null;
@@ -1205,25 +1192,40 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	/**
 	 * Refresh the list of available analyses.
 	 */
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Subscribe
-	public void receive(org.geworkbench.events.ProjectEvent even, Object source) {
-		super.receive(even, source);
-		DSDataSet dataSet = even.getDataSet();
-		if (dataSet != null) clearMenuItems();
+	public void receive(org.geworkbench.events.ProjectEvent event, Object source) {
+
+		// the first part used to be in MicroarrayViewEventBase
+		if (event.getMessage().equals(org.geworkbench.events.ProjectEvent.CLEARED)) {
+			refMASet = null;
+		} else {
+			DSDataSet<?> dataSet = event.getDataSet();
+			if (dataSet instanceof DSMicroarraySet) {
+				if (refMASet != dataSet) {
+					this.refMASet = (DSMicroarraySet<DSMicroarray>) dataSet;					
+				}
+			}
+			refreshMaSetView();
+		}
+		
+		DSDataSet dataSet = event.getDataSet();
+		if(dataSet==null) return;
+		
+		clearMenuItems();
 		if ( dataSet instanceof DSMicroarraySet ) {
 			refOtherSet = null;
 		} else {
 			refOtherSet = dataSet;
 		}
-		if (even.getDataSet() != null && even.getParent() == null) {
+		if (event.getParent() == null) { // if not a sub-node under DataSet node
 			lastDataType = currentDataType;
-			currentDataType = even.getDataSet().getClass();
+			currentDataType = event.getDataSet().getClass();
 			if (!pidMap.containsKey(currentDataType) || lastDataType != currentDataType)
 				pidMap.put(currentDataType, DEFAULT_SELECTED_INDEX);
-			if (even.getDataSet().getClass().equals(CSProteinStructure.class)) {
+			if (event.getDataSet().getClass().equals(CSProteinStructure.class)) {
 				getAvailableAnalyses(ProteinStructureAnalysis.class);
-			} else if (even.getDataSet().getClass().equals(CSSequenceSet.class)) {
+			} else if (event.getDataSet().getClass().equals(CSSequenceSet.class)) {
 				getAvailableAnalyses(ProteinSequenceAnalysis.class);
 			} else {
 				getAvailableAnalyses(ClusteringAnalysis.class);
@@ -1339,5 +1341,104 @@ public class AnalysisPanel extends MicroarrayViewEventBase implements
 	private HashMap<String, ActionListener> listeners = new HashMap<String, ActionListener>();
 	public ActionListener getActionListener(String var) {
 		return listeners.get(var);
+	}
+	
+	////////////////////////////////////////////////////////////////////////////////////
+	// the following code used to be in MicroarrayViewEventBase. see bug 2743 note 10396
+	/**
+	 * The reference microarray set.
+	 */
+	private DSMicroarraySet<DSMicroarray> refMASet = null;
+	private DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView = null;
+
+	private JCheckBox chkAllMarkers = new JCheckBox("All Markers", false);
+	private JCheckBox chkAllArrays = new JCheckBox("All Arrays", false);
+
+	private final String markerLabelPrefix = "  Markers: ";
+	private JLabel numMarkersSelectedLabel = new JLabel(markerLabelPrefix);
+	private JPanel mainPanel;
+
+	private DSPanel<DSGeneMarker> activatedMarkers = null;
+	private DSPanel<DSMicroarray> activatedArrays = null;
+
+	/**
+	 * getComponent
+	 *
+	 * @return Component
+	 */
+	public Component getComponent() {
+		return mainPanel;
+	}
+
+	/**
+	 * geneSelectorAction
+	 *
+	 * @param e
+	 *            GeneSelectorEvent
+	 */
+	@Subscribe
+	public void receive(GeneSelectorEvent e, Object source) {
+
+		log.debug("Source object " + source);
+
+		DSPanel<DSGeneMarker> markersPanel = e.getPanel();
+		activatedMarkers = new CSPanel<DSGeneMarker>();
+		if (markersPanel != null && markersPanel.size() > 0) {            
+			for (int j = 0; j < markersPanel.panels().size(); j++) {
+				DSPanel<DSGeneMarker> mrk = markersPanel.panels().get(j);
+				if (mrk.isActive()) {
+					for (int i = 0; i < mrk.size(); i++) {						
+						activatedMarkers.add(mrk.get(i));
+
+					}
+				}
+			}
+			markersPanel = activatedMarkers;
+
+			numMarkersSelectedLabel.setText(markerLabelPrefix
+					+ activatedMarkers.size() + "  ");
+
+		} else {
+			numMarkersSelectedLabel.setText(markerLabelPrefix);
+		}
+
+		if (markersPanel!=null)
+			refreshMaSetView();
+
+	}
+
+	/**
+	 * phenotypeSelectorAction
+	 *
+	 * @param e
+	 *            PhenotypeSelectorEvent
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Subscribe
+	public void receive(org.geworkbench.events.PhenotypeSelectorEvent e,
+			Object source) {
+
+		log.debug("Source object " + source);
+
+		if (e.getTaggedItemSetTree() != null) {
+			activatedArrays = e.getTaggedItemSetTree().activeSubset();
+		}
+
+		refreshMaSetView();
+
+	}
+
+	/**
+	 * Refreshes the chart view.
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	final private void refreshMaSetView() {
+		maSetView = new CSMicroarraySetView(this.refMASet);
+		if (activatedMarkers != null && activatedMarkers.panels().size() > 0)
+			maSetView.setMarkerPanel(activatedMarkers);
+		if (activatedArrays != null && activatedArrays.panels().size() > 0 && activatedArrays.size() > 0)
+			maSetView.setItemPanel(activatedArrays);
+		maSetView.useMarkerPanel(!chkAllMarkers.isSelected());
+		maSetView.useItemPanel(!chkAllArrays.isSelected());
 	}
 }
