@@ -52,7 +52,6 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
     private transient double[] ch2bArray = null;
     
     private boolean ignoreMissingValues = true;
-    private DSMicroarraySet<? extends DSMicroarray> refMASet;
     private HouseKeepingGeneNormalizerPanel houseKeepingGeneNormalizerPanel = new HouseKeepingGeneNormalizerPanel();
 
     public HouseKeepingGeneNormalizer() {
@@ -334,31 +333,26 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
 		return true;
     }
 
+    // this is only to track the DSMicroarraySet coming with the last ProjectEvent
+    // not used in other part of the class
+    private transient DSMicroarraySet<? extends DSMicroarray> refMASet = null;
+
     /**
      * receiveProjectSelection
      *
      * @param e ProjectEvent
      */
-    @Subscribe
-    @SuppressWarnings("unchecked")
-    public void receive(org.geworkbench.events.ProjectEvent e, Object source) {
+	@Subscribe
+	@SuppressWarnings("unchecked")
+	public void receive(org.geworkbench.events.ProjectEvent e, Object source) {
 
-        if (e.getMessage().equals(org.geworkbench.events.ProjectEvent.CLEARED)) {
+		DSDataSet<?> dataSet = e.getDataSet();
 
-        } else {
-            DSDataSet<?> dataSet = e.getDataSet();
-
-            if (dataSet instanceof DSMicroarraySet) {
-                if (refMASet == null) {
-                    refMASet = (DSMicroarraySet<DSMicroarray>) dataSet;
-                } else if (refMASet != dataSet) {
-                    houseKeepingGeneNormalizerPanel.clearAllHightlightsPressed();
-                }
-
-            }
-        }
-    }
-
+		if (dataSet instanceof DSMicroarraySet && refMASet != dataSet) {
+			houseKeepingGeneNormalizerPanel.clearAllHightlightsPressed();
+			refMASet = (DSMicroarraySet<DSMicroarray>) dataSet;
+		}
+	}
 
     /**
      * getRatioForGenepix
