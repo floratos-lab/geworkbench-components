@@ -14,12 +14,12 @@ import javax.swing.JOptionPane;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.model.analysis.FilteringAnalysis;
 import org.geworkbench.components.filtering.MultipleProbesetFilterPanel.Action;
+import org.geworkbench.util.annotation.AffyAnnotationUtil;
 
 /**
  * 
@@ -66,7 +66,7 @@ public class MultipleProbesetFilter extends FilteringAnalysis {
 			String probeSetID = dsGeneMarker.getLabel();
 			probesetIndexMap.put(probeSetID, i);
 
-			Set<String> set = AnnotationParser.getGeneIDs(probeSetID);
+			Set<String> set = AffyAnnotationUtil.getGeneIDs(probeSetID);
 			if(set.size()==0)
 				continue;
 			
