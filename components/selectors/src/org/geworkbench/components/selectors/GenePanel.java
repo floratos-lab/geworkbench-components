@@ -32,7 +32,6 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
 import org.geworkbench.bison.datastructure.complex.panels.CSAnnotPanel;
@@ -211,7 +210,7 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 	private void sortByProbe(){
 		Collections.sort(itemList, new MarkerOrderByProbe());
 		sortProbeItem.setEnabled(false);
-		if (AnnotationParser.getCurrentChipType() != null)
+		if (maSet.getAnnotationFileName() != null)
 			sortGeneItem.setEnabled(true);
 		else sortGeneItem.setEnabled(false);
 		sortOriginalItem.setEnabled(true);
@@ -220,7 +219,7 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 	private void sortOriginal(){
 		Collections.sort(itemList, new MarkerOrderOriginal());
 		sortProbeItem.setEnabled(true);
-		if (AnnotationParser.getCurrentChipType() != null)
+		if (maSet.getAnnotationFileName() != null)
 			sortGeneItem.setEnabled(true);
 		else sortGeneItem.setEnabled(false);
 		sortOriginalItem.setEnabled(false);
@@ -468,7 +467,7 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 			sortProbeItem.setEnabled(true);
 			sortOriginalItem.setEnabled(false);
 			maSet = (DSMicroarraySet) dataSet;
-			if (AnnotationParser.getCurrentChipType() != null)
+			if (maSet.getAnnotationFileName() != null)
 				sortGeneItem.setEnabled(true);
 			else sortGeneItem.setEnabled(false);
 			setItemList(maSet.getMarkers());
