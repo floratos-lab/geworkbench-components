@@ -646,11 +646,9 @@ public class SequenceRetriever implements VisualPlugin {
 			int startPoint = ((Integer) upstreamSpinnerModel.getNumber()).intValue();
 			int endPoint = ((Integer) downstreamSpinnerModel.getNumber()).intValue();
 
-			String currentChipType = AnnotationParser.getCurrentChipType();
 			String annotationFileName = ((CSMicroarraySet) refMASet)
 					.getAnnotationFileName();
-			String database = SequenceFetcher.matchChipType(currentChipType,
-					annotationFileName);
+			String database = SequenceFetcher.matchChipType(annotationFileName);
 
 			/* No selection was made */
 			if (database == null) {

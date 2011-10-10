@@ -162,7 +162,7 @@ public class SequenceFetcher {
 		return sequenceSet;
 	}
 
-	static String matchChipType(String chipId, String annotationFileName) {
+	static String matchChipType(String annotationFileName) {
 
 		displayList.clear();
 		displayList.add("Select a genome");
