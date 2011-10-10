@@ -539,8 +539,11 @@ public class CytoscapeWidget implements VisualPlugin {
 		if (markerSet != null) {
 			for (DSGeneMarker marker : markerSet) {
 				try {
-					results.addAll(AnnotationParser.getSwissProtIDs(marker
-							.getLabel()));
+					String[] ids = AnnotationParser.getInfo(marker
+							.getLabel(), AnnotationParser.SWISSPROT);
+					for (String s : ids) {
+						results.add(s.trim());
+					}
 				} catch (Exception e) {
 					continue;
 				}

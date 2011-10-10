@@ -1435,7 +1435,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		CellularNetworkKnowledgeWidget.EntrezIdComparator eidc = new CellularNetworkKnowledgeWidget.EntrezIdComparator();
 		Collections.sort(copy, eidc);
 
-		Map<String, List<Integer>> geneNameToMarkerIdMap = AnnotationParser
+		Map<String, List<Integer>> geneNameToMarkerIdMap = CellularNetworkKnowledgeWidget
 				.getGeneNameToMarkerIDMapping(dataset);
 
 		AdjacencyMatrix matrix = new AdjacencyMatrix(null, dataset,
@@ -1526,8 +1526,12 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 							 
 							if (interactionDetail.getDbSource2()
 									.equalsIgnoreCase(Constants.UNIPORT)) {
-								Set<String> SwissProtIds = AnnotationParser
-										.getSwissProtIDs(marker.getLabel());
+								Set<String> SwissProtIds = new HashSet<String>();
+								String[] ids = AnnotationParser.getInfo(marker
+										.getLabel(), AnnotationParser.SWISSPROT);
+								for (String s : ids) {
+									SwissProtIds.add(s.trim());
+								}
 								if (SwissProtIds.contains(interactionDetail
 										.getdSGeneMarker2())) {
 									serial2 = marker.getSerial();
@@ -1603,8 +1607,12 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 							
 							if (interactionDetail.getDbSource1()
 									.equalsIgnoreCase(Constants.UNIPORT)) {
-								Set<String> SwissProtIds = AnnotationParser
-										.getSwissProtIDs(marker.getLabel());
+								Set<String> SwissProtIds = new HashSet<String>();
+								String[] ids = AnnotationParser.getInfo(marker
+										.getLabel(), AnnotationParser.SWISSPROT);
+								for (String s : ids) {
+									SwissProtIds.add(s.trim());
+								}
 								if (SwissProtIds.contains(interactionDetail
 										.getdSGeneMarker1())) {
 									serial1 = marker.getSerial();
@@ -2758,4 +2766,43 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			timer = null;
 		}
 	}
+
+	private static Map<String, List<Integer>> getGeneNameToMarkerIDMapping(
+			DSMicroarraySet<? extends DSMicroarray> microarraySet) {
+		Map<String, List<Integer>> map = new HashMap<String, List<Integer>>();
+		DSItemList<DSGeneMarker> markers = microarraySet.getMarkers();
+		int index = 0;
+		for (DSGeneMarker marker : markers) {
+			if (marker != null && marker.getLabel() != null) {			 
+				try {
+					
+					Set<String> geneNames = getGeneNames(marker.getLabel());							
+					for (String s : geneNames) {
+						List<Integer> list = map.get(s);
+						if(list==null) {
+							list = new ArrayList<Integer>();
+							list.add(index);
+							map.put(s, list);
+						} else {
+							list.add(index);
+						}
+					}
+					index++;
+				} catch (Exception e) {					 
+					continue;
+				}
+			}
+		}
+		return map;
+	}
+	
+	private static Set<String> getGeneNames(String markerID) {
+		HashSet<String> set = new HashSet<String>();
+			String[] ids = AnnotationParser.getInfo(markerID, AnnotationParser.GENE_SYMBOL);
+			for (String s : ids) {
+				set.add(s.trim());
+			}
+		return set;
+	}
+
 }
