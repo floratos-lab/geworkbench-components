@@ -2054,10 +2054,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 					case 1: {
 						if (value.getGeneName() != null) {
 							return value.getGeneName();
-						} else {
-							return AnnotationParser.getGeneName(value
-									.getLabel());
-
+						} else { // this should never happen
+							return null;
 						}
 					}
 					case 2: {
