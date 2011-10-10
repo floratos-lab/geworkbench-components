@@ -105,6 +105,7 @@ import org.geworkbench.util.BrowserLauncher;
 import org.geworkbench.util.ProgressBar;
 import org.geworkbench.util.ResultSetlUtil;
 import org.geworkbench.util.UnAuthenticatedException;
+import org.geworkbench.util.annotation.AffyAnnotationUtil;
 import org.geworkbench.util.network.CellularNetWorkElementInformation;
 import org.geworkbench.util.network.CellularNetworkPreference;
 import org.geworkbench.util.network.InteractionDetail;
@@ -307,14 +308,14 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 					}
 
 					Integer geneId = c.getdSGeneMarker().getGeneId();
-					Collection<DSGeneMarker> markers = CNKBUtil.getMarkersForGivenGeneId(dataset, geneId.toString());
+					Collection<DSGeneMarker> markers = AffyAnnotationUtil.getMarkersForGivenGeneId(dataset, geneId.toString());
 					selectedMarkers.addAll(markers);
 
 					for (InteractionDetail detail : arrayList) {
 						Integer interactionGeneId = detail
 								.getInteractionGeneId(geneId);
 						Collection<DSGeneMarker> markers2
-							= CNKBUtil.getMarkersForGivenGeneId(dataset, interactionGeneId.toString());
+							= AffyAnnotationUtil.getMarkersForGivenGeneId(dataset, interactionGeneId.toString());
 						selectedMarkers.addAll(markers2);
 					}
 
@@ -1435,7 +1436,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		CellularNetworkKnowledgeWidget.EntrezIdComparator eidc = new CellularNetworkKnowledgeWidget.EntrezIdComparator();
 		Collections.sort(copy, eidc);
 
-		Map<String, List<Integer>> geneNameToMarkerIdMap = CellularNetworkKnowledgeWidget
+		Map<String, List<Integer>> geneNameToMarkerIdMap = AffyAnnotationUtil
 				.getGeneNameToMarkerIDMapping(dataset);
 
 		AdjacencyMatrix matrix = new AdjacencyMatrix(null, dataset,
@@ -2765,44 +2766,6 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			timer.stop();
 			timer = null;
 		}
-	}
-
-	private static Map<String, List<Integer>> getGeneNameToMarkerIDMapping(
-			DSMicroarraySet<? extends DSMicroarray> microarraySet) {
-		Map<String, List<Integer>> map = new HashMap<String, List<Integer>>();
-		DSItemList<DSGeneMarker> markers = microarraySet.getMarkers();
-		int index = 0;
-		for (DSGeneMarker marker : markers) {
-			if (marker != null && marker.getLabel() != null) {			 
-				try {
-					
-					Set<String> geneNames = getGeneNames(marker.getLabel());							
-					for (String s : geneNames) {
-						List<Integer> list = map.get(s);
-						if(list==null) {
-							list = new ArrayList<Integer>();
-							list.add(index);
-							map.put(s, list);
-						} else {
-							list.add(index);
-						}
-					}
-					index++;
-				} catch (Exception e) {					 
-					continue;
-				}
-			}
-		}
-		return map;
-	}
-	
-	private static Set<String> getGeneNames(String markerID) {
-		HashSet<String> set = new HashSet<String>();
-			String[] ids = AnnotationParser.getInfo(markerID, AnnotationParser.GENE_SYMBOL);
-			for (String s : ids) {
-				set.add(s.trim());
-			}
-		return set;
 	}
 
 }
