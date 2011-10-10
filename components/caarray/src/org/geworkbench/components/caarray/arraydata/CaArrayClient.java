@@ -51,7 +51,6 @@ import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.CSExpressionMarker;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
@@ -418,7 +417,6 @@ public class CaArrayClient {
 				// bug 1956 geneName will be correctly initialized before usage,
 				// lazy initialization
 				marker.setGeneName(null);
-				marker.setDisPlayType(DSGeneMarker.AFFY_TYPE);
 				marker.setLabel(markerName);
 				marker.setDescription(markerName);
 				maSet.getMarkerVector().add(z, marker);
