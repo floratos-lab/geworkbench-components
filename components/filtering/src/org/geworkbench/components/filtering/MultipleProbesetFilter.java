@@ -49,8 +49,7 @@ public class MultipleProbesetFilter extends FilteringAnalysis {
 		maSet = (DSMicroarraySet<DSMicroarray>) input;
 		DSItemList<DSGeneMarker> dsItemList = maSet.getMarkers();
 
-		String annotation = AnnotationParser.getChipType(maSet);
-		if(annotation==null) {
+		if(maSet.getAnnotationFileName()==null) {
 			JOptionPane.showMessageDialog(null,
 				    "Filtering aborted because no annotation is loaded.",
 				    "No annotation warning",
