@@ -16,7 +16,6 @@ import javax.swing.JPanel;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
@@ -127,7 +126,7 @@ public class CaArray2Component implements VisualPlugin {
 						.get(CaArrayRequestEvent.EXPERIMENT);
 				SortedMap<String, String> hybridzations = ce
 						.getAssayNameFilter();
-				boolean merge = ce.isMerge();
+
 				String qType = ce.getQType();
 				if (qType == null) {
 					qType = "CHPSignal";
@@ -136,45 +135,8 @@ public class CaArray2Component implements VisualPlugin {
 				String chipType = AnnotationParser.matchChipType(null, "",
 						false);
 
-				if (merge) {
-					doMerge(client, hybridzations, qType, experimentName,
+				doMerge(client, hybridzations, qType, experimentName,
 							currentConnectionInfo, chipType);
-				} else {
-
-					int number = 0; // index number out of total arrays
-					for (String hybridizationName : hybridzations.keySet()) {
-
-						if (CaARRAYPanel.isCancelled
-								&& CaARRAYPanel.cancelledConnectionInfo != null
-								&& CaARRAYPanel.cancelledConnectionInfo
-										.equalsIgnoreCase(currentConnectionInfo)) {
-							return;
-						}
-						String hybridizationId = hybridzations
-								.get(hybridizationName);
-						CSMicroarraySet maSet2 = client.getDataSet(
-								hybridizationName, hybridizationId, qType,
-								chipType);
-
-						if (CaARRAYPanel.isCancelled
-								&& CaARRAYPanel.cancelledConnectionInfo != null
-								&& CaARRAYPanel.cancelledConnectionInfo
-										.equalsIgnoreCase(currentConnectionInfo)) {
-							return;
-						}
-
-						publishCaArraySuccessEvent(new CaArraySuccessEvent(
-								number++, hybridzations.size()));
-
-						if (maSet2 != null) {
-							maSet2.setLabel(experimentName + "_"
-									+ hybridizationName);
-
-							publishProjectNodeAddedEvent(new org.geworkbench.events.ProjectNodeAddedEvent(
-									"message", maSet2, null));
-						}
-					} // loop of all hybridizations
-				}
 
 				CaArrayEvent event = new CaArrayEvent(url, port);
 				event.setPopulated(true);
