@@ -15,10 +15,8 @@ import javax.swing.JPanel;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
-import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.builtin.projects.FileOpenHandler;
@@ -190,7 +188,6 @@ public class CaArray2Component implements VisualPlugin {
 
 	}
 
-	@SuppressWarnings("unchecked")
 	private void doMerge(CaArrayClient client,
 			SortedMap<String, String> hybridzations, String qType,
 			String experimentName, String currentConnectionInfo, String chipType)
@@ -199,6 +196,7 @@ public class CaArray2Component implements VisualPlugin {
 				.size()];
 
 		int number = 0;
+		CaArraySuccessEvent caArraySuccessEvent = new CaArraySuccessEvent(hybridzations.size());
 		for (String hybridizationName : hybridzations.keySet()) {
 			String hybridizationId = hybridzations.get(hybridizationName);
 			sets[number] = client.getDataSet(hybridizationName,
@@ -216,17 +214,13 @@ public class CaArray2Component implements VisualPlugin {
 				return;
 			}
 
-			publishCaArraySuccessEvent(new CaArraySuccessEvent(number++,
-					hybridzations.size()));
-
+			publishCaArraySuccessEvent(caArraySuccessEvent);
+			number++;
 		} // loop of all hybridizations
+
 		DSMicroarraySet<DSMicroarray> mergedSet = FileOpenHandler.doMergeSets(sets);
-		if(mergedSet!=null) {
+		if(mergedSet!=null) { // mergedSet should never be null here
 			ProjectPanel.getInstance().addDataSetNode(mergedSet, true);
-		}
-		for(DSMicroarraySet<? extends DSMicroarray>set: sets) {
-			Object obj = set;
-			AnnotationParser.cleanUpAnnotatioAfterUnload((DSDataSet<DSBioObject>) obj);
 		}
 	}
 
