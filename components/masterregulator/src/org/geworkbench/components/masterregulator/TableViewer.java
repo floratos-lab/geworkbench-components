@@ -14,16 +14,28 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.Expression;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.Iterator;
 
 import javax.swing.BorderFactory;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -35,9 +47,17 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory; 
+import org.geworkbench.engine.properties.PropertiesManager;
+import org.geworkbench.util.OWFileChooser;
+
 public class TableViewer extends JPanel {
 	private static final long serialVersionUID = -5229999809803617742L;
-	
+
+	private Log log = LogFactory.getLog(TableViewer.class);
+	private static final String EXPORTDIR = "exportDir";
+
 	protected JTable table;
 	protected TableModel model;
 	protected JScrollPane pane;
@@ -65,6 +85,7 @@ public class TableViewer extends JPanel {
 		table = new JTable(model);
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.getTableHeader().addMouseListener(new TableHeaderMouseListener());
+		table.addMouseListener(new TableMouseListener());
 		// table.getColumnModel().getColumn(0).setCellRenderer(new
 		// CellRenderer());
 		// table.getColumnModel().getColumn(1).setCellRenderer(new
@@ -99,7 +120,8 @@ public class TableViewer extends JPanel {
 	}
 
 	public void setTableModel(Object[][] data) {
-		this.model = new DefaultViewerTableModel(headerNames, data);;
+		this.model = new DefaultViewerTableModel(headerNames, data);
+		;
 		table.setModel(model);
 		Enumeration<TableColumn> columns = table.getColumnModel().getColumns();
 		while (columns.hasMoreElements()) {
@@ -153,7 +175,8 @@ public class TableViewer extends JPanel {
 
 	public boolean isNumerical(int columnIndex) {
 		if (this.model instanceof DefaultViewerTableModel)
-			return ((DefaultViewerTableModel) this.model).isNumerical(columnIndex);
+			return ((DefaultViewerTableModel) this.model)
+					.isNumerical(columnIndex);
 		return false;
 	}
 
@@ -258,6 +281,7 @@ public class TableViewer extends JPanel {
 
 			/*
 			 * (non-Javadoc)
+			 * 
 			 * @see java.lang.Comparable#compareTo(java.lang.Object)
 			 */
 			public int compareTo(Object other) {
@@ -280,19 +304,18 @@ public class TableViewer extends JPanel {
 							return myFloat.compareTo(otherFloat);
 						}
 					}
-					return ((Comparable<Object>) myObject).compareTo(otherObject);
+					return ((Comparable<Object>) myObject)
+							.compareTo(otherObject);
 				}
 				if (myObject instanceof JLabel) {
 					myString = ((JLabel) (myObject)).getText();
 					otherString = ((JLabel) (otherObject)).getText();
 					return myString.compareTo(otherString);
-				}else if (myObject instanceof JRadioButton)
-				{
+				} else if (myObject instanceof JRadioButton) {
 					myString = ((JRadioButton) (myObject)).getText();
 					otherString = ((JRadioButton) (otherObject)).getText();
 					return myString.compareTo(otherString);
-				}
-				else
+				} else
 					return index - otherRow.index;
 			}
 		}
@@ -306,18 +329,21 @@ public class TableViewer extends JPanel {
 		JLabel label;
 		JTextArea textArea;
 		JRadioButton jRadioButton;
+
 		/**
 		 * Renders basic data input types JLabel, Color,
 		 */
 		public Component getTableCellRendererComponent(JTable jTable,
 				Object obj, boolean param, boolean param3, int row, int col) {
-			//System.out.println(obj.getClass().getName());
+			// System.out.println(obj.getClass().getName());
 			if (obj instanceof JRadioButton) {
 				jRadioButton = (JRadioButton) obj;
-				if (table.isRowSelected(row)&&(!jRadioButton.isSelected())){
-					//means user selected a new row, we need to clean the old one
-					for (int cx=0; cx<model.getRowCount();cx++){
-						JRadioButton oldButton = (JRadioButton)model.getValueAt(cx, col);
+				if (table.isRowSelected(row) && (!jRadioButton.isSelected())) {
+					// means user selected a new row, we need to clean the old
+					// one
+					for (int cx = 0; cx < model.getRowCount(); cx++) {
+						JRadioButton oldButton = (JRadioButton) model
+								.getValueAt(cx, col);
 						oldButton.setSelected(false);
 					}
 				}
@@ -361,28 +387,30 @@ public class TableViewer extends JPanel {
 
 			return c;
 		}
-		
+
 		/*
 		 * (non-Javadoc)
+		 * 
 		 * @see javax.swing.table.DefaultTableCellRenderer#setValue(java.lang.Object)
 		 */
 		public void setValue(Object value) {
-			if ((value != null) && ((value instanceof Double) || (value instanceof Float))) {
+			if ((value != null)
+					&& ((value instanceof Double) || (value instanceof Float))) {
 				if (((Number) value).doubleValue() < 0.1)
 					value = String.format("%.2E", value);
 				else
 					value = String.format("%.2f", value);
-			}else if ((value != null) && (value instanceof Integer)){
+			} else if ((value != null) && (value instanceof Integer)) {
 				value = String.valueOf(value);
 			}
 			super.setValue(value);
 		}
 	}
-	
+
 	/**
 	 * 
 	 * @author yc2480
-	 *
+	 * 
 	 */
 	public class TableHeaderMouseListener extends MouseAdapter {
 
@@ -398,6 +426,104 @@ public class TableViewer extends JPanel {
 				}
 			}
 		}
+	}
+
+	public class TableMouseListener extends MouseAdapter {
+
+		 
+		public void mouseReleased(MouseEvent e) {
+			showPopup(e);
+		}
+
+		private void showPopup(MouseEvent e) {
+
+			if (e.isPopupTrigger()) {
+
+				if (table != null && table.getRowCount() > 0) {
+					// create popup menu...
+					Point p = new Point(e.getX(), e.getY());
+					JPopupMenu contextMenu = new JPopupMenu();
+					JMenuItem itemMenu = new JMenuItem();
+					itemMenu.setText("export table");
+					itemMenu.addActionListener(new ActionListener() {
+						public void actionPerformed(ActionEvent e) {
+							exportTableData();
+						}
+
+					});
+					contextMenu.add(itemMenu);
+					contextMenu.show(table, p.x, p.y);
+
+				}
+			}
+		}
+
+		private void exportTableData() {
+
+			try {
+				String exportFileStr = "exportTable.csv";
+				PropertiesManager properties = PropertiesManager.getInstance();
+				String exportDir = properties.getProperty(this.getClass(),
+						EXPORTDIR, exportFileStr);
+				File exportFile = new File(exportDir);
+				OWFileChooser chooser = new OWFileChooser(exportFile);
+				CSVFileFilter filter = new CSVFileFilter();
+				chooser.setFileFilter(filter);
+				chooser.setDialogTitle("Export MRA Table Results");
+				String extension = filter.getExtension();
+				int c = chooser.showSaveDialog(table);
+				if (c == OWFileChooser.APPROVE_OPTION
+						&& chooser.getSelectedFile() != null) {
+					exportFileStr = chooser.getSelectedFile().getPath();
+					properties.setProperty(this.getClass(), EXPORTDIR, chooser
+							.getSelectedFile().getParent());
+					if (!exportFileStr.endsWith(extension))
+						exportFileStr += extension;
+					BufferedWriter out = new BufferedWriter(new FileWriter(
+							exportFileStr));
+					// foreach tfA
+					TableModel model = table.getModel();
+
+					for (int i = 0; i < model.getColumnCount(); i++) {
+						out.write(model.getColumnName(i) + ",");
+					}
+					out.write("\n");
+
+					for (int i = 0; i < model.getRowCount(); i++) {
+						for (int j = 0; j < model.getColumnCount(); j++) {
+							Object obj = model.getValueAt(i, j);
+							if (obj instanceof JRadioButton)
+								obj = ((JRadioButton) obj).getText();
+							else if (obj instanceof JLabel) 
+							   obj = ((JLabel) (obj)).getText();
+							else if ((obj instanceof Double) || (obj instanceof Float)) {
+								if (((Number) obj).doubleValue() < 0.1)
+									obj = String.format("%.2E", obj);
+								else
+									obj = String.format("%.2f", obj);
+								
+							} else if (obj instanceof Integer) {
+								obj = String.valueOf(obj);
+							}
+							 
+							out.write(obj.toString() + ",");
+						}
+						out.write("\n");
+					}
+
+					out.close();
+					JOptionPane.showMessageDialog(null, "File " + exportFileStr
+							+ " has been saved.", "File saved.",
+							JOptionPane.INFORMATION_MESSAGE);
+				} else {
+					// user canceled
+				}
+			} catch (IOException ioe) {
+				log.error(ioe);
+			}
+
+		}
+
 	}
 
 	/**
