@@ -279,7 +279,7 @@ public class CaArray2Component implements VisualPlugin {
 
 		int markerNo = valuesList.size();
 
-		DSMicroarray microarray = new CSMicroarray(0, markerNo, name, null, null, false,
+		DSMicroarray microarray = new CSMicroarray(0, markerNo, name,
 				DSMicroarraySet.geneExpType);
 		microarray.setLabel(name);
 		int[] markerOrder = microarraySet.getNewMarkerOrder();
