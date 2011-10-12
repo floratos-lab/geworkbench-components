@@ -5,6 +5,8 @@ import gov.nih.nci.caarray.services.external.v1_0.InvalidInputException;
 
 import java.awt.Component;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
@@ -15,14 +17,18 @@ import javax.swing.JPanel;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
+import org.geworkbench.bison.datastructure.bioobjects.markers.CSExpressionMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.builtin.projects.FileOpenHandler;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.remoteresources.carraydata.CaArray2Experiment;
 import org.geworkbench.builtin.projects.util.CaARRAYPanel;
+import org.geworkbench.components.caarray.arraydata.CaArrayClient.MarkerValuePair;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
@@ -44,7 +50,7 @@ import org.geworkbench.events.CaArraySuccessEvent;
 @AcceptTypes( { DSMicroarraySet.class, CSSequenceSet.class })
 public class CaArray2Component implements VisualPlugin {
 
-	private Log log = LogFactory.getLog(CaArray2Component.class);
+	private static Log log = LogFactory.getLog(CaArray2Component.class);
 
 	// process two types of queries: (1) the list of experiments; and (2) the
 	// actual data
@@ -188,24 +194,91 @@ public class CaArray2Component implements VisualPlugin {
 
 	}
 
+	/**
+	 * Translate the data file into BISON type.
+	 *
+	 */
+	private static DSMicroarray processDataToBISON(
+			MarkerValuePair[] pairs, String name, final DSMicroarraySet<DSMicroarray> microarraySet) {
+
+		int markerNo = pairs.length;
+		List<Double> valuesList = new ArrayList<Double>();
+		for (int i = 0; i < pairs.length; i++) {
+			MarkerValuePair p = pairs[i];
+			valuesList.add(new Double(p.value));
+		}
+
+		DSMicroarray microarray = new CSMicroarray(0, markerNo, name, null, null, false,
+				DSMicroarraySet.geneExpType);
+		microarray.setLabel(name);
+		int[] markerOrder = microarraySet.getNewMarkerOrder();
+		for (int i = 0; i < markerNo; i++) {
+			DSMutableMarkerValue m = (DSMutableMarkerValue) microarray.getMarkerValue(markerOrder[i]);
+			m.setValue(valuesList.get(i));
+			m.setMissing(false);
+		}
+
+		return microarray;
+	}
+
+	private static CSMicroarraySet createInitialMicroarraySet(final MarkerValuePair[] markerValuePairs, String chipType) {
+		CSMicroarraySet microarraySet = new CSMicroarraySet();
+		List<String> markerNames = new ArrayList<String>();
+
+		for (int i = 0; i < markerValuePairs.length; i++) {
+			MarkerValuePair p = markerValuePairs[i];
+			markerNames.add(p.marker);
+		}
+
+		int markerNo = markerNames.size();
+		microarraySet.initialize(0, markerNo);
+		microarraySet.getMarkerVector().clear();
+		// maSet.setCompatibilityLabel(bioAssayImpl.getIdentifier());
+		for (int z = 0; z < markerNo; z++) {
+
+			String markerName = markerNames.get(z);
+			if (markerName != null) {
+				CSExpressionMarker marker = new CSExpressionMarker(z);
+				// bug 1956 geneName will be correctly initialized before usage,
+				// lazy initialization
+				marker.setGeneName(null);
+				marker.setLabel(markerName);
+				marker.setDescription(markerName);
+				microarraySet.getMarkerVector().add(z, marker);
+			} else {
+				log.error("LogicalProbes have some null values. The location is "
+						+ z);
+			}
+		}
+		microarraySet.setCompatibilityLabel(chipType);
+		microarraySet.setAnnotationFileName(AnnotationParser.getLastAnnotationFileName());
+		AnnotationParser.setChipType(microarraySet, chipType);
+		microarraySet.sortMarkers(markerNo);
+		
+		return microarraySet;
+	}
+	
 	private void doMerge(CaArrayClient client,
 			SortedMap<String, String> hybridzations, String qType,
 			String experimentName, String currentConnectionInfo, String chipType)
 			throws Exception {
-		DSMicroarraySet<? extends DSMicroarray>[] sets = new DSMicroarraySet<?>[hybridzations
-				.size()];
+		CSMicroarraySet microarraySet = null;
+
+		String desc = "";
+		if(hybridzations.size()>1)desc = "Merged DataSet: ";
 
 		int number = 0;
 		CaArraySuccessEvent caArraySuccessEvent = new CaArraySuccessEvent(hybridzations.size());
 		for (String hybridizationName : hybridzations.keySet()) {
 			String hybridizationId = hybridzations.get(hybridizationName);
-			sets[number] = client.getDataSet(hybridizationName,
-					hybridizationId, qType, chipType);
+			MarkerValuePair[] markerValuePairs = client.getDataSet(hybridizationName,
+					hybridizationId, qType);
+			
+			if(number==0) { // create the dataset when processing the first microarray
+				microarraySet = createInitialMicroarraySet(markerValuePairs, chipType);
+			}
 
-			if (sets[number] == null)
-				continue;
-
-			sets[number].setLabel(experimentName + "_" + hybridizationName);
+			DSMicroarray microarray = processDataToBISON(markerValuePairs, hybridizationName, microarraySet);
 
 			if (CaARRAYPanel.isCancelled
 					&& CaARRAYPanel.cancelledConnectionInfo != null
@@ -214,14 +287,15 @@ public class CaArray2Component implements VisualPlugin {
 				return;
 			}
 
+			microarraySet.add(microarray);
+			desc += experimentName + "_" + hybridizationName + " ";
+			
 			publishCaArraySuccessEvent(caArraySuccessEvent);
 			number++;
 		} // loop of all hybridizations
 
-		DSMicroarraySet<DSMicroarray> mergedSet = FileOpenHandler.doMergeSets(sets);
-		if(mergedSet!=null) { // mergedSet should never be null here
-			ProjectPanel.getInstance().addDataSetNode(mergedSet, true);
-		}
+		microarraySet.setLabel(desc);
+		ProjectPanel.getInstance().addProjectNode(microarraySet, null);
 	}
 
 	// the event that data has been retrieved
