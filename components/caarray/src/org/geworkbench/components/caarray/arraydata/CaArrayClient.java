@@ -2,18 +2,9 @@ package org.geworkbench.components.caarray.arraydata;
 
 import gov.nih.nci.caarray.external.v1_0.CaArrayEntityReference;
 import gov.nih.nci.caarray.external.v1_0.array.ArrayProvider;
-import gov.nih.nci.caarray.external.v1_0.data.AbstractDataColumn;
 import gov.nih.nci.caarray.external.v1_0.data.DataSet;
-import gov.nih.nci.caarray.external.v1_0.data.DataType;
-import gov.nih.nci.caarray.external.v1_0.data.DesignElement;
-import gov.nih.nci.caarray.external.v1_0.data.DoubleColumn;
 import gov.nih.nci.caarray.external.v1_0.data.FileCategory;
-import gov.nih.nci.caarray.external.v1_0.data.FloatColumn;
-import gov.nih.nci.caarray.external.v1_0.data.HybridizationData;
-import gov.nih.nci.caarray.external.v1_0.data.IntegerColumn;
-import gov.nih.nci.caarray.external.v1_0.data.LongColumn;
 import gov.nih.nci.caarray.external.v1_0.data.QuantitationType;
-import gov.nih.nci.caarray.external.v1_0.data.ShortColumn;
 import gov.nih.nci.caarray.external.v1_0.experiment.Experiment;
 import gov.nih.nci.caarray.external.v1_0.experiment.Organism;
 import gov.nih.nci.caarray.external.v1_0.experiment.Person;
@@ -35,7 +26,6 @@ import java.rmi.RemoteException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -276,15 +266,13 @@ public class CaArrayClient {
 	}
 
 	/**
-	 * The method to grab the data from caArray server with defined
+	 * Get caArray dataset from caArray server with defined
 	 * Hybridization and QuantitationType.
 	 *
 	 */
-	MarkerValuePair[] getDataSet(String hybridizationName,
+	DataSet getCaArrayDataSet(String hybridizationName,
 			String hybridizationId, String quantitationType)
 			throws Exception {
-
-		MarkerValuePair[] markerValuePairs = null;
 
 		DataSetRequest dataSetRequest = new DataSetRequest();
 		Set<CaArrayEntityReference> hybridizationRefs = new HashSet<CaArrayEntityReference>();
@@ -309,79 +297,7 @@ public class CaArrayClient {
         }
         dataSetRequest.setQuantitationTypes(quantitationTypeRefs);
 
-        DataSet dataSet = dataService.getDataSet(dataSetRequest);
-
-        // Ordered list of row headers (probe sets)
-        List<DesignElement> probeSets = dataSet.getDesignElements();
-        // Ordered list of column headers (quantitation types like Signal, Log Ratio etc.)
-        List<QuantitationType> quantitationTypes = dataSet.getQuantitationTypes();
-        // Data for the first hybridization (the only hybridization, in our case)
-        if(dataSet.getDatas().size()<1) {
-        	throw new Exception("Quantitation type: " + quantitationType + " has no data.");
-        }
-        HybridizationData data = dataSet.getDatas().get(0);
-        // Ordered list of columns with values (columns are in the same order as column headers/quantitation types)
-        List<AbstractDataColumn> dataColumns = data.getDataColumns();
-        Iterator<AbstractDataColumn> columnIterator = dataColumns.iterator();
-
-        markerValuePairs = new MarkerValuePair[probeSets.size()];
-		double[] doubleValues = new double[probeSets.size()];
-
-		AbstractDataColumn dataColumn = null;
-        DataType columnDataType = null;
-        for (QuantitationType qType : quantitationTypes) {
-            dataColumn = (AbstractDataColumn) columnIterator.next();
-
-            if(qType.getName().equalsIgnoreCase(quantitationType)) {
-                columnDataType = qType.getDataType();
-            	break; // found the right column
-            }
-        }
-
-        if(columnDataType==null)throw new Exception("No column of type "+quantitationType+" in this dataset.");
-
-        switch (columnDataType) {
-            case INTEGER:
-                int[] intValues = ((IntegerColumn) dataColumn).getValues();
-        		for (int i = 0; i < doubleValues.length; i++) doubleValues[i] = intValues[i];
-                break;
-            case DOUBLE:
-                doubleValues = ((DoubleColumn) dataColumn).getValues();
-                break;
-            case FLOAT:
-                float[] floatValues = ((FloatColumn) dataColumn).getValues();
-        		for (int i = 0; i < doubleValues.length; i++) doubleValues[i] = floatValues[i];
-                break;
-            case SHORT:
-                short[] shortValues = ((ShortColumn) dataColumn).getValues();
-        		for (int i = 0; i < doubleValues.length; i++) doubleValues[i] = shortValues[i];
-                break;
-            case LONG:
-                long[] longValues = ((LongColumn) dataColumn).getValues();
-        		for (int i = 0; i < doubleValues.length; i++) doubleValues[i] = longValues[i];
-                break;
-            case BOOLEAN:
-            case STRING:
-            default:
-                // Should never get here.
-            	log.error("Type "+columnDataType + " not expected.");
-        }
-
-		for (int i = 0; i < doubleValues.length; i++) {
-				markerValuePairs[i] = new MarkerValuePair(
-						probeSets.get(i).getName(), doubleValues[i]);
-		}
-
-		return markerValuePairs;
+        return dataService.getDataSet(dataSetRequest);
 	}
 
-	static class MarkerValuePair {
-		public MarkerValuePair(String marker, double value) {
-			this.marker = marker;
-			this.value = value;
-		}
-
-		String marker;
-		double value;
-	}
 }
