@@ -26,7 +26,6 @@ import javax.swing.JSplitPane;
 import javax.swing.border.EtchedBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.filechooser.FileFilter;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -480,25 +479,5 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		return event;
 	}
 
-	private static class CSVFileFilter extends FileFilter {
-		private static final String fileExt = ".csv";
-
-		public String getExtension() {
-			return fileExt;
-		}
-
-		public String getDescription() {
-			return "Comma Separated Value Files";
-		}
-
-		public boolean accept(File f) {
-			boolean returnVal = false;
-			if (f.isDirectory() || f.getName().endsWith(fileExt)) {
-				return true;
-			}
-
-			return returnVal;
-		}
-
-	}
+	 
 }

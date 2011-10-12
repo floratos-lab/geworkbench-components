@@ -32,6 +32,7 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMasterRegulat
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMasterRagulatorResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
+import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
@@ -43,8 +44,10 @@ import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.ProjectSelection;
 import org.geworkbench.builtin.projects.history.HistoryPanel;
 import org.geworkbench.components.masterregulator.TAnalysis.TAnalysisException;
+import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.GeneSelectorEvent;
+import org.geworkbench.events.SubpanelChangedEvent;
 
 /**
  * @author yc2480
@@ -252,6 +255,15 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
 		historyStr += groupAndChipsString;
 
 		HistoryPanel.addToHistory(mraResultSet, historyStr);
+		
+		DSPanel<DSGeneMarker> selectedMarkers = new CSPanel<DSGeneMarker>(
+				"MRA Genes", "MRA");
+		
+		selectedMarkers.addAll(mraResultSet.getTFs());
+
+		publishSubpanelChangedEvent(new SubpanelChangedEvent<DSGeneMarker>(
+				DSGeneMarker.class, selectedMarkers,
+				SubpanelChangedEvent.NEW));
 
 		AlgorithmExecutionResults results = new AlgorithmExecutionResults(true,
 				"MRA Analysis", mraResultSet);
@@ -356,6 +368,15 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
             }
         }
 	}
+	
+	
+	@Publish
+	public org.geworkbench.events.SubpanelChangedEvent<DSGeneMarker> publishSubpanelChangedEvent(
+			org.geworkbench.events.SubpanelChangedEvent<DSGeneMarker> event) {
+		return event;
+	}
+	
+	
 	private String GenerateGroupAndChipsString(DSPanel<DSMicroarray> panel) {
 		String histStr = null;
 
