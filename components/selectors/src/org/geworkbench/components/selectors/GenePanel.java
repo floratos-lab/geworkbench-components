@@ -28,6 +28,7 @@ import org.geworkbench.bison.annotation.DSAnnotationContext;
 import org.geworkbench.bison.annotation.DSAnnotationContextManager;
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMasterRegulatorTableResultSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
@@ -599,6 +600,37 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 			 */
 			this.receive(new SubpanelChangedEvent<DSGeneMarker>(DSGeneMarker.class,
 					panelSignificant, SubpanelChangedEvent.NEW), this);
+
+			// 3. change it back
+			context = currentContext;
+
+		}
+		else if ( result instanceof DSMasterRegulatorTableResultSet) {
+			 
+			DSMasterRegulatorTableResultSet mraResultSet = (DSMasterRegulatorTableResultSet)result;
+			DSPanel<DSGeneMarker> selectedMarkers = new CSPanel<DSGeneMarker>(
+					"MRA Genes", "MRA");	
+	 
+			// 1. save current context
+			DSAnnotationContext<DSGeneMarker> currentContext = context;
+			// 2. change to the one need modify
+			dataSetChanged(pnce.getAncillaryDataSet().getParentDataSet());
+
+		    Object[][] data = mraResultSet.getData();			
+			if (data != null)
+			{
+				DSItemList<DSGeneMarker> markers = maSet.getMarkers();
+ 				for (int i=0; i< data.length; i++)
+					selectedMarkers.add(markers.get(data[i][0].toString()));
+			}
+			
+			
+			publishSubpanelChangedEvent(new SubpanelChangedEvent<DSGeneMarker>(
+					DSGeneMarker.class, selectedMarkers,
+					SubpanelChangedEvent.NEW));
+			 
+			this.receive(new SubpanelChangedEvent<DSGeneMarker>(DSGeneMarker.class,
+					selectedMarkers, SubpanelChangedEvent.NEW), this);
 
 			// 3. change it back
 			context = currentContext;
