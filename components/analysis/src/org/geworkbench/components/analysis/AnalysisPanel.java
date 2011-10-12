@@ -27,17 +27,13 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
-import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
-import javax.swing.MenuElement;
 
 import org.apache.axis.types.URI.MalformedURIException;
 import org.apache.commons.lang.StringUtils;
@@ -76,23 +72,16 @@ import org.geworkbench.bison.model.analysis.ProteinSequenceAnalysis;
 import org.geworkbench.bison.model.analysis.ProteinStructureAnalysis;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.components.cagrid.gui.GridServicePanel;
-import org.geworkbench.engine.config.MenuListener;
-import org.geworkbench.engine.config.PluginDescriptor;
 import org.geworkbench.engine.config.VisualPlugin;
-import org.geworkbench.engine.config.rules.GeawConfigObject;
-import org.geworkbench.engine.config.rules.MalformedMenuItemException;
-import org.geworkbench.engine.config.rules.NotMenuListenerException;
-import org.geworkbench.engine.config.rules.NotVisualPluginException;
-import org.geworkbench.engine.config.rules.PluginObject;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.ComponentRegistry;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.engine.properties.PropertiesManager;
-import org.geworkbench.engine.skin.Skin;
 import org.geworkbench.events.AnalysisInvokedEvent;
 import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.SubpanelChangedEvent;
+import org.geworkbench.util.CommandBase;
 import org.geworkbench.util.ProgressBar;
 import org.geworkbench.util.Util;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.EdgeListDataSet;
@@ -116,8 +105,8 @@ import edu.columbia.geworkbench.cagrid.dispatcher.client.DispatcherClient;
  */
 @AcceptTypes( { DSMicroarraySet.class, EdgeListDataSet.class,
 		CSProteinStructure.class, CSSequenceSet.class })
-public class AnalysisPanel implements
-		VisualPlugin, ReHighlightable, MenuListener {
+public class AnalysisPanel extends CommandBase implements
+		VisualPlugin, ReHighlightable {
 
 	private static Log log = LogFactory.getLog(AnalysisPanel.class);
 
@@ -280,6 +269,8 @@ public class AnalysisPanel implements
 		});
 		parameterComboBox.setAutoscrolls(true);
 
+		popMenuItem = "Analysis";
+		pluginComboBox = analysisComboBox;
 		analysisComboBox.addActionListener(new ActionListener() {
 
 			@Override
@@ -1218,7 +1209,7 @@ public class AnalysisPanel implements
 		} else {
 			refOtherSet = dataSet;
 		}
-		if (event.getParent() == null) { // if not a sub-node under DataSet node
+		if (event.getParent() == null  && !pendingNodeSelected()) { // if not a sub-node under DataSet node nor a pending node
 			lastDataType = currentDataType;
 			currentDataType = event.getDataSet().getClass();
 			if (!pidMap.containsKey(currentDataType) || lastDataType != currentDataType)
@@ -1305,44 +1296,6 @@ public class AnalysisPanel implements
 
 	}
 
-	private static final String popMenuItem = "Analysis";
-	private static final String topMenuItem = "Commands";
-	private void setMenuItem(String name) throws NotMenuListenerException, NotVisualPluginException, MalformedMenuItemException{
-		String menuName = topMenuItem + GeawConfigObject.menuItemDelimiter + popMenuItem + GeawConfigObject.menuItemDelimiter + name;
-		if (listeners.get(menuName)==null)
-			listeners.put(menuName, new ActionListener(){
-				public void actionPerformed(ActionEvent e){
-					analysisComboBox.setSelectedItem(e.getActionCommand());
-					Skin skin = (Skin) GeawConfigObject.getGuiWindow();
-					skin.undockCommandPanel(popMenuItem);
-				}
-			});
-		PluginDescriptor pluginDesc = ComponentRegistry.getRegistry().getDescriptorForPlugin(this);
-		if (pluginDesc!=null)
-			PluginObject.registerMenuItem(pluginDesc, menuName, "always", menuName, null, null);
-	}
-	private void clearMenuItems(){
-    	MenuElement[] elements = GeawConfigObject.getMenuBar().getSubElements();
-    	for (MenuElement element: elements){
-    		JMenu menu = (JMenu)element.getComponent();
-    		if (menu.getText().equals(topMenuItem)){
-    			JPopupMenu popMenu = menu.getPopupMenu();
-    			MenuElement[] subelements = popMenu.getSubElements();
-    			for (MenuElement subelement: subelements){
-    				JMenuItem submenu = (JMenuItem)subelement.getComponent();
-    				if (submenu.getText().equals(popMenuItem)){
-    					popMenu.remove(submenu);
-    				}
-    			}
-    			break;
-    		}
-    	}
-    }
-	private HashMap<String, ActionListener> listeners = new HashMap<String, ActionListener>();
-	public ActionListener getActionListener(String var) {
-		return listeners.get(var);
-	}
-	
 	////////////////////////////////////////////////////////////////////////////////////
 	// the following code used to be in MicroarrayViewEventBase. see bug 2743 note 10396
 	/**
