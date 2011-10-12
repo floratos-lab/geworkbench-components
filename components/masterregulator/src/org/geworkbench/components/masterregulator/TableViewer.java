@@ -444,7 +444,7 @@ public class TableViewer extends JPanel {
 					Point p = new Point(e.getX(), e.getY());
 					JPopupMenu contextMenu = new JPopupMenu();
 					JMenuItem itemMenu = new JMenuItem();
-					itemMenu.setText("export table");
+					itemMenu.setText("Export Table");
 					itemMenu.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent e) {
 							exportTableData();
