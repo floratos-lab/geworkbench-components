@@ -32,7 +32,6 @@ import gov.nih.nci.caarray.services.external.v1_0.search.SearchApiUtils;
 import gov.nih.nci.caarray.services.external.v1_0.search.SearchService;
 
 import java.rmi.RemoteException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -48,13 +47,6 @@ import javax.security.auth.login.FailedLoginException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.datastructure.bioobjects.markers.CSExpressionMarker;
-import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMicroarray;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
 import org.geworkbench.builtin.projects.remoteresources.CaArrayFilteringDialog;
 import org.geworkbench.builtin.projects.remoteresources.carraydata.CaArray2Experiment;
 
@@ -285,11 +277,11 @@ public class CaArrayClient {
 
 	/**
 	 * The method to grab the data from caArray server with defined
-	 * Hybridization and QuantitationType. A BISON DataType will be returned.
+	 * Hybridization and QuantitationType.
 	 *
 	 */
-	CSMicroarraySet getDataSet(String hybridizationName,
-			String hybridizationId, String quantitationType, String chipType)
+	MarkerValuePair[] getDataSet(String hybridizationName,
+			String hybridizationId, String quantitationType)
 			throws Exception {
 
 		MarkerValuePair[] markerValuePairs = null;
@@ -380,80 +372,10 @@ public class CaArrayClient {
 						probeSets.get(i).getName(), doubleValues[i]);
 		}
 
-		return processDataToBISON(markerValuePairs, hybridizationName, chipType);
+		return markerValuePairs;
 	}
 
-	/**
-	 * Translate the data file into BISON type.
-	 *
-	 */
-	private CSMicroarraySet processDataToBISON(
-			MarkerValuePair[] pairs, String name, String chipType) {
-
-		List<String> markerNames = new ArrayList<String>();
-		List<Double> valuesList = new ArrayList<Double>();
-
-		for (int i = 0; i < pairs.length; i++) {
-			MarkerValuePair p = pairs[i];
-			markerNames.add(p.marker);
-			valuesList.add(new Double(p.value));
-		}
-
-		Date date = new Date();
-		long startTime = date.getTime();
-
-		int markerNo = markerNames.size();
-		DSMicroarray microarray = null;
-		CSMicroarraySet maSet = new CSMicroarraySet();
-
-		maSet.initialize(0, markerNo);
-		maSet.getMarkerVector().clear();
-		// maSet.setCompatibilityLabel(bioAssayImpl.getIdentifier());
-		for (int z = 0; z < markerNo; z++) {
-
-			String markerName = markerNames.get(z);
-			if (markerName != null) {
-				CSExpressionMarker marker = new CSExpressionMarker(z);
-				// bug 1956 geneName will be correctly initialized before usage,
-				// lazy initialization
-				marker.setGeneName(null);
-				marker.setLabel(markerName);
-				marker.setDescription(markerName);
-				maSet.getMarkerVector().add(z, marker);
-				// Why annotation information are always null? xz.
-				// maSet.getMarkers().get(z).setDescription(
-				// markersArray[z].getAnnotation().getLsid());
-			} else {
-				log.error("LogicalProbes have some null values. The location is "
-						+ z);
-			}
-		}
-
-		maSet.setCompatibilityLabel(chipType);
-		maSet.setAnnotationFileName(AnnotationParser.getLastAnnotationFileName());
-		AnnotationParser.setChipType(maSet, chipType);
-		maSet.sortMarkers(markerNo);
-
-		microarray = new CSMicroarray(0, markerNo, name, null, null, false,
-				DSMicroarraySet.geneExpType);
-		microarray.setLabel(name);
-		for (int i = 0; i < markerNo; i++) {
-			DSMutableMarkerValue m = (DSMutableMarkerValue) microarray.getMarkerValue(maSet.newid[i]);
-			m.setValue(valuesList.get(i));
-			m.setMissing(false);
-		}
-		if (maSet != null && microarray != null) {
-			maSet.add(microarray);
-		}
-		long endTime = new Date().getTime();
-		log.debug("For " + name
-				+ ", the total second to convert it to BISON Data is "
-				+ ((endTime - startTime) / 1000) + ".");
-		maSet.setLabel("CaArray Data");
-		return maSet;
-	}
-
-	private static class MarkerValuePair {
+	static class MarkerValuePair {
 		public MarkerValuePair(String marker, double value) {
 			this.marker = marker;
 			this.value = value;
