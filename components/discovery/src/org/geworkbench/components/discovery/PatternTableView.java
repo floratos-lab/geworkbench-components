@@ -59,7 +59,7 @@ public class PatternTableView extends JPanel {
     private boolean saveAllPatterns;
 
     private JMenuItem addPatToProj = new JMenuItem();
-    private SequenceDiscoveryViewWidget widget = null;
+    private PatternViewPanel widget = null;
 
     private static class JPTable extends JTable {
 		private static final long serialVersionUID = -8375106946681259570L;
@@ -89,7 +89,7 @@ public class PatternTableView extends JPanel {
 
     private JPTable patternTable = new JPTable();
 
-    public PatternTableView(ProgressChangeListener model, SequenceDiscoveryViewWidget widget) {
+    public PatternTableView(ProgressChangeListener model, PatternViewPanel widget) {
         this.model = (PatternTableModelWrapper) model;
         this.widget = widget;
         try {
@@ -327,7 +327,7 @@ public class PatternTableView extends JPanel {
 
     private void addPatToProj_actionPerformed() {
         PatternResult db = getPatternDB();
-        widget.getAppComponent().createNewNode(db);
+        //widget.getAppComponent().createNewNode(db);
     }
 
     /**

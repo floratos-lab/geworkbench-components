@@ -54,6 +54,7 @@ public class PatternTableModelWrapper implements ProgressChangeListener {
     }
 
     public boolean attach(org.geworkbench.util.patterns.DataSource data) {
+    	
         if (data instanceof org.geworkbench.util.patterns.SequentialPatternSource) {
             clear();
             org.geworkbench.util.patterns.SequentialPatternSource source = (org.geworkbench.util.patterns.SequentialPatternSource) data;
