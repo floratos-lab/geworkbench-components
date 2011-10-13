@@ -142,13 +142,7 @@ public class MindyPlugin extends JPanel {
 
 	private int dataSize = 0;
 
-	// Contains the state of selections passed in from the marker panel and
-	// overrides via All Markers checkboxes
-//	MarkerLimitState globalSelectionState = new MarkerLimitState();
-
 	private JButton screenshotButton = new JButton("  Image Snapshot  ");;
-
-	private JButton refreshButton = new JButton("  Refresh HeatMap  ");;
 
 	private JList heatMapModNameList = new JList();;
 
@@ -208,11 +202,10 @@ public class MindyPlugin extends JPanel {
 
 		// for heatmap image rendering cursor
 		cs[0] = screenshotButton;
-		cs[1] = refreshButton;
-		cs[2] = heatMapModNameList;
-		cs[3] = modFilterField;
-		cs[4] = showSymbol;
-		cs[5] = showProbeName;
+		cs[1] = heatMapModNameList;
+		cs[2] = modFilterField;
+		cs[3] = showSymbol;
+		cs[4] = showProbeName;
 
 		tabs = new JTabbedPane();
 		{
@@ -584,36 +577,6 @@ public class MindyPlugin extends JPanel {
 						}
 					});
 
-			refreshButton.addActionListener(new ActionListener() {
-				/* some redundancy after refactoring, clean later  */
-				public void actionPerformed(ActionEvent actionEvent) {
-					if( !processCursor() ) {
-						return;
-					}
-
-					modFilterField.setText(heatMapModNameList
-							.getSelectedValue().toString());
-
-					List<DSGeneMarker> l = getSelectedMarkers(mindyVisualComponent);
-
-					if (l == null) {
-						if (dataSize > DATA_SIZE_THRESHOLD) {
-							heatmap.prepareGraphics();
-						}
-					} else {
-						if (l.size() > NUMBER_TARGETS_THRESHOLD) {
-							heatmap.prepareGraphics();
-						}
-					}
-
-					filterHeatMapMarkersSet(selectedSetName);
-					heatMapSync();
-
-					setCursorFinished();
-				}
-
-			});
-
 			JLabel dl = new JLabel("Marker Display  ", SwingConstants.LEFT);
 			dl.setFont(new Font(dl.getFont().getName(), Font.BOLD, 12));
 			dl.setForeground(Color.BLUE);
@@ -718,11 +681,8 @@ public class MindyPlugin extends JPanel {
 			JPanel p = new JPanel(new BorderLayout(10, 10));
 			p.add(modFilterField, BorderLayout.NORTH);
 			p.add(modListScrollPane, BorderLayout.CENTER);
-			JPanel ps = new JPanel(new GridLayout(3, 1));
-			ps.add(refreshButton);
-			ps.add(screenshotButton);
 
-			p.add(ps, BorderLayout.SOUTH);
+			p.add(screenshotButton, BorderLayout.SOUTH);
 			modulatorPane.add(p, BorderLayout.CENTER);
 
 			JPanel taskContainer = new JPanel();
@@ -1219,15 +1179,6 @@ public class MindyPlugin extends JPanel {
 		tabs.setEnabledAt(1, true);
 		tabs.setEnabledAt(2, true);
 		tabs.setEnabledAt(3, true);
-	}
-
-	private List<DSGeneMarker> getSelectedMarkers(
-			final MindyVisualComponent visualPlugin) {
-		List<DSGeneMarker> list;
-
-		list = visualPlugin
-					.getSelectedMarkers();
-		return list;
 	}
 
 	public void addToTargetSetModel(DSPanel<DSGeneMarker> selectorPanel) {
