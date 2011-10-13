@@ -142,6 +142,7 @@ public class DiscoverySession {
 			// returned int is ignored
 			soapPort.setParameters(logToken, parms);
 		} catch (RemoteException exp) {
+			
 			throw new SessionOperationException(
 					"Could not set parameters for the session.");
 		}
@@ -212,8 +213,10 @@ public class DiscoverySession {
 			soapPort.discover(logToken, algorithm);
 		} catch (RemoteException ex) {
 			String msg = ex.getMessage();
+			System.out.println(msg);
 			throw new SessionOperationException("Unable to run discovery. "
 					+ msg);
+			
 		}
 	}
 
