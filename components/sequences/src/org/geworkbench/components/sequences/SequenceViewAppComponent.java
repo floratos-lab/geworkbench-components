@@ -31,7 +31,7 @@ import org.geworkbench.util.sequences.SequenceViewWidget;
  * @author
  * @version $Id$
  */
-@AcceptTypes({ CSSequenceSet.class, PatternResult.class })
+@AcceptTypes({ CSSequenceSet.class })
 public class SequenceViewAppComponent implements VisualPlugin {
 	private SequenceViewWidget sViewWidget;
 
