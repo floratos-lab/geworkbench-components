@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.swing.JOptionPane;
 import javax.xml.rpc.ServiceException;
 
 import org.geworkbench.analysis.AbstractAnalysis;
@@ -25,6 +26,7 @@ import org.geworkbench.bison.datastructure.complex.pattern.PatternResult;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSMatchedSeqPattern;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ProteinSequenceAnalysis;
+import org.geworkbench.builtin.projects.history.HistoryPanel;
 import org.geworkbench.components.discovery.session.CreateSessionDialog;
 import org.geworkbench.components.discovery.session.DiscoverySession;
 import org.geworkbench.components.discovery.session.LoginPanelModel;
@@ -62,8 +64,6 @@ public class PatternDiscoveryAnalysis extends AbstractAnalysis implements
     private List<DSMatchedSeqPattern> pattern = new ArrayList<DSMatchedSeqPattern>();
 	// login data parameters are stored here
 	private LoginPanelModel loginPanelModel = new LoginPanelModel();
-	//Did the algorithm complete?
-    private volatile boolean done = false;
 	
 	public PatternDiscoveryAnalysis() {
 		patternPanel = new PatternDiscoveryParamPanel();
@@ -136,7 +136,6 @@ public class PatternDiscoveryAnalysis extends AbstractAnalysis implements
 				try {
 					discoverySession.stop();
 				} catch (SessionOperationException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				return new AlgorithmExecutionResults(false, "Pattern Discovery is canceled at " + new Date(), null);
@@ -179,7 +178,7 @@ public class PatternDiscoveryAnalysis extends AbstractAnalysis implements
 			System.out.println(ex.toString());
             ex.printStackTrace();
 		}
-        
+        boolean done = false;
         while (!done) {
             try {
             	Thread.sleep(100);
@@ -194,21 +193,32 @@ public class PatternDiscoveryAnalysis extends AbstractAnalysis implements
         int totalPatternNum;
 		try {
 			totalPatternNum = discoverySession.getPatternNo();
-			System.out.println(totalPatternNum);
-			for (int i = 0; i < totalPatternNum; i++) {
-				DSMatchedSeqPattern patternData = getPattern(i, discoverySession);
-				PatternOperations.fill(patternData, discoverySession.getSequenceDB());
-				patternResult.add(patternData);
+			if(totalPatternNum == 0) {
+				progressBar.stop();
+				
+				JOptionPane.showMessageDialog(null,
+						"No patterns found for input provided ",
+						"Pattern Discovery", JOptionPane.WARNING_MESSAGE);
+				return new AlgorithmExecutionResults(true, "No patterns found", null);
+			}else {
+				for (int i = 0; i < totalPatternNum; i++) {
+					DSMatchedSeqPattern patternData = getPattern(i, discoverySession);
+					PatternOperations.fill(patternData, discoverySession.getSequenceDB());
+					patternResult.add(patternData);
+				}
 			}
 		} catch (SessionOperationException e) {
 			e.printStackTrace();
 		}
-		done = false;
+
+		String historyStr = generateHistoryStr(activeSequenceDB,
+				parms);
+		HistoryPanel.addToHistory(patternResult, historyStr);
 		progressBar.stop();
-		return new AlgorithmExecutionResults(true, "Pattern Discovery Done ", patternResult);
+		return new AlgorithmExecutionResults(true, "Pattern Discovery Done", patternResult);
 	}
-	
-    public synchronized DSMatchedSeqPattern getPattern(int index, DiscoverySession session) {
+
+	public synchronized DSMatchedSeqPattern getPattern(int index, DiscoverySession session) {
         if (index >= pattern.size() || pattern.get(index) == null) {
             CSMatchedSeqPattern pat = new org.geworkbench.util.patterns.CSMatchedSeqPattern(session.getSequenceDB());
             try {
@@ -359,6 +369,37 @@ public class PatternDiscoveryAnalysis extends AbstractAnalysis implements
 			return null;
 		}
 		return parms;
+	}
+	
+	/*
+	 * This method returns history string to display in DataSet History
+	 * 
+	 */
+	
+	private String generateHistoryStr(
+			CSSequenceSet<CSSequence> activeSequenceDB, Parameters params) {
+    	String histStr = "";
+    	if(params != null) {
+    		
+    		histStr += "Pattern Discovery run with the following parameters:\n";
+			histStr += "----------------------------------------\n";
+			
+			histStr += "Algorithm Type: " + getAlgorithmName() + "\n";						
+			histStr += "Support: " + params.getMinSupport() + "\n";
+			histStr += "Minimum Tokens: " + params.getMinTokens() + "\n";
+			histStr += "Density Window: " + params.getWindow() + "\n";
+			histStr += "Density Window Min. Tokens: " + params.getMinWTokens() + "\n";
+			
+			if(getAlgorithmName().equalsIgnoreCase(EXHAUSTIVE)) {
+				histStr += "Decrease Support(%): " + params.getExhaustive().getDecrease() + "\n";
+				histStr += "Minimum Support(%): " + params.getExhaustive().getMinSupport() + "\n";
+			}
+			
+			histStr += "Max. Pattern Number: " + params.getMaxPatternNo() + "\n";
+			histStr += "Number of Sequences: " + activeSequenceDB.size() + "\n";
+    	}
+    	
+    	return histStr;
 	}
 	
 	/**
