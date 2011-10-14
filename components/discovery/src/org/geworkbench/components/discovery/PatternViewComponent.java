@@ -1,19 +1,9 @@
 package org.geworkbench.components.discovery;
 
 import java.awt.Component;
-import java.awt.Container;
-
-import javax.swing.JTabbedPane;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
-import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
-import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
-import org.geworkbench.builtin.projects.ProjectPanel;
-import org.geworkbench.builtin.projects.ProjectSelection;
 import org.geworkbench.components.discovery.PatternViewPanel;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
@@ -58,7 +48,6 @@ public class PatternViewComponent implements
      *
      * @param e ProjectEvent
      */
-    @SuppressWarnings("unchecked")
 	@Subscribe public void receive(org.geworkbench.events.ProjectEvent e,
                                    Object source) { 	
 
@@ -70,8 +59,6 @@ public class PatternViewComponent implements
     		patternViewPanel.setPatternResults(dataSet);
     		String summary = "Number of Patterns found:" + ((PatternResult) dataSet).getPatternNo();
     		dataSet.addDescription(summary);
-    		summary = null;
-    		dataSet = null;
     	}
     }
 }

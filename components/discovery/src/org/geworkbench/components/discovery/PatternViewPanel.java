@@ -18,6 +18,7 @@ import org.geworkbench.util.sequences.SequenceViewWidget;
 public class PatternViewPanel extends JPanel implements PropertyChangeListener {
 
 	private static final long serialVersionUID = -7717226801492350199L;
+	@SuppressWarnings("unused")
 	private PatternViewComponent patternViewComponent;
 	private SequenceViewWidget seqWidget;
 	private JSplitPane mainPanel = new JSplitPane();
