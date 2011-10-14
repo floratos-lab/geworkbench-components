@@ -16,7 +16,7 @@ import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.ImageSnapshotEvent;
 import org.geworkbench.events.ProjectEvent;
 
-@AcceptTypes({ CSSequenceSet.class, PatternResult.class })
+@AcceptTypes({ CSSequenceSet.class })
 public class PromoterView implements VisualPlugin {
 
 	PromoterViewPanel main = new PromoterViewPanel();
