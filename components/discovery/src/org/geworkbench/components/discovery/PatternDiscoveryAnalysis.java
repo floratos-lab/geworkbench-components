@@ -4,6 +4,9 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 import javax.xml.rpc.ServiceException;
 
@@ -19,15 +22,20 @@ import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.datastructure.complex.pattern.PatternDiscoveryParameters;
 import org.geworkbench.bison.datastructure.complex.pattern.PatternResult;
+import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSMatchedSeqPattern;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ProteinSequenceAnalysis;
-import org.geworkbench.components.discovery.algorithm.ServerBaseDiscovery;
 import org.geworkbench.components.discovery.session.CreateSessionDialog;
 import org.geworkbench.components.discovery.session.DiscoverySession;
 import org.geworkbench.components.discovery.session.LoginPanelModel;
 import org.geworkbench.components.discovery.session.SessionCreationException;
+import org.geworkbench.components.discovery.session.SessionOperationException;
 import org.geworkbench.util.ProgressBar;
 import org.geworkbench.util.PropertiesMonitor;
+import org.geworkbench.util.patterns.CSMatchedSeqPattern;
+import org.geworkbench.util.patterns.PatternFetchException;
+import org.geworkbench.util.patterns.PatternOperations;
+
 import polgara.soapPD_wsdl.Exhaustive;
 import polgara.soapPD_wsdl.Parameters;
 import polgara.soapPD_wsdl.ProfileHMM;
@@ -48,13 +56,14 @@ public class PatternDiscoveryAnalysis extends AbstractAnalysis implements
 	private DSSequenceSet<? extends DSSequence> sequenceDB;
 	private final String analysisName = "Pattern Discovery";
 	private Parameters parms = null;
-	private PatternResult resultData;
 	//algorithm names
     public static final String DISCOVER = "discovery";
     public ProgressBar progressBar;
-    
+    private List<DSMatchedSeqPattern> pattern = new ArrayList<DSMatchedSeqPattern>();
 	// login data parameters are stored here
 	private LoginPanelModel loginPanelModel = new LoginPanelModel();
+	//Did the algorithm complete?
+    private volatile boolean done = false;
 	
 	public PatternDiscoveryAnalysis() {
 		patternPanel = new PatternDiscoveryParamPanel();
@@ -102,7 +111,6 @@ public class PatternDiscoveryAnalysis extends AbstractAnalysis implements
 
 		try {
 			parms = readParameter(patternPanel, activeSequenceDB.getSequenceNo(), exhaustive);
-			System.out.println(activeSequenceDB.getSequenceNo());
 		} catch (Exception e1) {
 			return new AlgorithmExecutionResults(false, "Invalid parameters supplied ", null);
 		}
@@ -116,18 +124,107 @@ public class PatternDiscoveryAnalysis extends AbstractAnalysis implements
 			return new AlgorithmExecutionResults(false, "Unable to load the session.", null);
 		}
 		progressBar = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
+		progressBar.addObserver(this);
 		progressBar.setTitle("Pattern Discovery");
 		progressBar.start();
-		progressBar.setMessage("Running Pattern Discovery");
+		this.stopAlgorithm = false;
 		
-		final ServerBaseDiscovery algorithm = new ServerBaseDiscovery(
-				discoverySession, parms, algorithmName, this, patternResult);
+		final int databaseSize = discoverySession.getSequenceDB().getSequenceNo();
+		//uploading sequence to the server
+		for (int i = 0; i < databaseSize; ++i) {		
+			if(this.stopAlgorithm) {
+				try {
+					discoverySession.stop();
+				} catch (SessionOperationException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				return new AlgorithmExecutionResults(false, "Pattern Discovery is canceled at " + new Date(), null);
+			}
+        	
+			try {
+        		progressBar.setMessage("Uploading sequence: " + discoverySession.getSequenceDB().getSequence(i).getLabel());
+				discoverySession.upload(i);
+			} catch (SessionOperationException ex) {
+				System.out.println(ex.toString());
+	            ex.printStackTrace();
+			}
+        }
 		
-		algorithm.start();
-		resultData = patternResult;
+		
+        //Save sequence and setting parameters
+		try {
+			progressBar.setMessage("Saving sequences and parameters on the server");
+			discoverySession.saveSeqDB();
+			discoverySession.setParameters(parms);
+			if(this.stopAlgorithm) {
+				discoverySession.stop();
+				return new AlgorithmExecutionResults(false, "Pattern Discovery is canceled at " + new Date(), null);
+			}
+			
+		} catch (SessionOperationException ex) {
+            System.out.println(ex.toString());
+            ex.printStackTrace();
+		}
+       
+		//start discovery
+        try {
+        	progressBar.setMessage("Running Pattern Discovery");
+			discoverySession.discover(algorithmName);
+			if(this.stopAlgorithm) {
+				discoverySession.stop();
+				return new AlgorithmExecutionResults(false, "Pattern Discovery is canceled at " + new Date(), null);
+			}
+		} catch (SessionOperationException ex) {
+			System.out.println(ex.toString());
+            ex.printStackTrace();
+		}
+        
+        while (!done) {
+            try {
+            	Thread.sleep(100);
+				done = discoverySession.isDone();
+			} catch (SessionOperationException e) {
+				e.printStackTrace();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+        }
+        
+        int totalPatternNum;
+		try {
+			totalPatternNum = discoverySession.getPatternNo();
+			System.out.println(totalPatternNum);
+			for (int i = 0; i < totalPatternNum; i++) {
+				DSMatchedSeqPattern patternData = getPattern(i, discoverySession);
+				PatternOperations.fill(patternData, discoverySession.getSequenceDB());
+				patternResult.add(patternData);
+			}
+		} catch (SessionOperationException e) {
+			e.printStackTrace();
+		}
+		done = false;
 		progressBar.stop();
-		return new AlgorithmExecutionResults(true, "Pattern Discovery Done ",resultData);
+		return new AlgorithmExecutionResults(true, "Pattern Discovery Done ", patternResult);
 	}
+	
+    public synchronized DSMatchedSeqPattern getPattern(int index, DiscoverySession session) {
+        if (index >= pattern.size() || pattern.get(index) == null) {
+            CSMatchedSeqPattern pat = new org.geworkbench.util.patterns.CSMatchedSeqPattern(session.getSequenceDB());
+            try {
+                session.getPattern(index, pat);
+            } catch (SessionOperationException ext) {
+                throw new PatternFetchException(ext.getMessage());
+            }
+            while (pattern.size() < index) {
+                pattern.add(null);
+            }
+            org.geworkbench.util.patterns.PatternOperations.fill(pat, session.getSequenceDB());
+            pattern.add(index, pat);
+        }
+        return pattern.get(index);
+    }
+	
 	
 	private final static String REGULAR = "regular";
     private final static String EXHAUSTIVE = "exhaustive";
@@ -317,7 +414,6 @@ public class PatternDiscoveryAnalysis extends AbstractAnalysis implements
 		return aDiscoverySession;
 	}
 	
-	@SuppressWarnings("unchecked")
 	private DiscoverySession connectToService(String host, int port,
 			String userName, char[] password, String sessionName)
 			throws SessionCreationException {
