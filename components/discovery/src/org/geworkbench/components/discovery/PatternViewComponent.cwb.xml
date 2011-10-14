@@ -8,7 +8,9 @@
 		authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/BLAST"
 		toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
-		description=" "
+		description="The Pattern Discovery Results component displays
+ 		the results of Pattern Discovery Analysis.  Sequence hits can be returned to the Project
+ 		for further analysis."
 		mustAccept="false" 
 		category="visualizer" loadByDefault="true">
 		<required-component
@@ -18,6 +20,8 @@
 				<body>----</body>
 			</html>
 		]]></license>
+		
+		<online-help helpSet="org/geworkbench/components/discovery/help/patternDiscoveryHelpSet.hs"/>
 
 	</component>
 	<plugin id="PatternViewComponent" name="Pattern Discovery Results"
