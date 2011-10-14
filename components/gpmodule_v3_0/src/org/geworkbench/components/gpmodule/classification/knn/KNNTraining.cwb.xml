@@ -1,6 +1,6 @@
 <component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
-	<component  name="KNN Analysis 3_0"
+	<component  name="KNN Analysis 3.0"
 				class="org.geworkbench.components.gpmodule.classification.knn.KNNTraining"
 				version="1.0"
 				author="Broad Institute"
@@ -23,6 +23,6 @@
 	</component>
 
 
-	<plugin id="KNNTraining" name="KNN Analysis 3_0" class="org.geworkbench.components.gpmodule.classification.knn.KNNTraining" source="gpmodule_v3_0"/>
+	<plugin id="KNNTraining" name="KNN Analysis 3.0" class="org.geworkbench.components.gpmodule.classification.knn.KNNTraining" source="gpmodule_v3_0"/>
 
 </component-descriptor>

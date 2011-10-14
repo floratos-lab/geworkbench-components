@@ -73,15 +73,6 @@ public class NormalizationPanel extends CommandBase implements VisualPlugin, ReH
 	private JPanel mainPanel = new JPanel();
 
 	/**
-	 * Contains the pluggable normalizers available to the user to choose from.
-	 * These normalizers will have been defined in the application configuration
-	 * file as <code>plugin</code> components and they are expected to have
-	 * been associated with the extension point <code>normalizers</code>.
-	 * E.g., availableNormalizers[i].getLabel(), should give the display name
-	 * for an analysis.
-	 */
-	protected AbstractAnalysis[] availableNormalizers;
-	/**
 	 * The currently selected microarray set.
 	 */
 	protected DSMicroarraySet<?> maSet = null;
@@ -90,7 +81,6 @@ public class NormalizationPanel extends CommandBase implements VisualPlugin, ReH
 	 */
 	protected AbstractAnalysis selectedNormalizer = null;
 
-	private JComboBox pluginNormalizers = new JComboBox();
 	private JComboBox namedParameters = new JComboBox();
 	
 	BorderLayout borderLayout1 = new BorderLayout();
@@ -124,10 +114,10 @@ public class NormalizationPanel extends CommandBase implements VisualPlugin, ReH
 		}
 
 		/*
-		 * Get (and display) the available normalizers from the
+		 * Get the available normalizers from the
 		 * ComponentRegistry
 		 */
-		reset();
+		getAvailableNormalizers();
 	}
 
 	/**
@@ -158,6 +148,7 @@ public class NormalizationPanel extends CommandBase implements VisualPlugin, ReH
 		analyze.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				normalization_actionPerformed(e);
+				hideDialog();
 			}
 
 		});
@@ -176,15 +167,6 @@ public class NormalizationPanel extends CommandBase implements VisualPlugin, ReH
 		jPanel1.setLayout(new BoxLayout(jPanel1, BoxLayout.LINE_AXIS));
 
 		popMenuItem = "Normalization";
-		pluginComboBox = pluginNormalizers;
-		pluginNormalizers.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				normalizerSelected_action(e);
-			}
-
-		});
 
 		namedParameters.addActionListener(new ActionListener() {
 
@@ -223,8 +205,6 @@ public class NormalizationPanel extends CommandBase implements VisualPlugin, ReH
 		jPanel1.add(Box.createRigidArea(new Dimension(5, 0)));
 		jPanel1.add(new JLabel("Normalizer"));
 		jPanel1.add(Box.createRigidArea(new Dimension(5, 0)));
-		jPanel1.add(pluginNormalizers, null);
-		jPanel1.add(Box.createRigidArea(new Dimension(50, 0)));
 		jPanel1.add(new JLabel("Saved Parameters"));
 		jPanel1.add(Box.createRigidArea(new Dimension(5, 0)));
 		jPanel1.add(namedParameters, null);
@@ -280,7 +260,8 @@ public class NormalizationPanel extends CommandBase implements VisualPlugin, ReH
 		if (dataSet != null) clearMenuItems();
 		if (dataSet != null && dataSet instanceof DSMicroarraySet<?> && !pendingNodeSelected()) {
 			maSet = (DSMicroarraySet<?>) dataSet;
-			reset();
+			getAvailableNormalizers();
+			updateMenuItems();
 		}
 	}
 
@@ -294,7 +275,7 @@ public class NormalizationPanel extends CommandBase implements VisualPlugin, ReH
 	 * loaded between uses of the normalization panel, will be correctly picked
 	 * up.
 	 */
-	public void getAvailableAnalyses() {
+	private void getAvailableNormalizers() {
 		/* To check if the last used normalizer is still available. */
 		boolean selectionChanged = true;
 		/*
@@ -302,10 +283,10 @@ public class NormalizationPanel extends CommandBase implements VisualPlugin, ReH
 		 */
 		NormalizingAnalysis[] analyses = ComponentRegistry.getRegistry()
 				.getModules(NormalizingAnalysis.class);
-		availableNormalizers = new AbstractAnalysis[analyses.length];
+		availableCommands = new AbstractAnalysis[analyses.length];
 		for (int i = 0; i < analyses.length; i++) {
-			availableNormalizers[i] = (AbstractAnalysis) analyses[i];
-			if (selectedNormalizer == availableNormalizers[i])
+			availableCommands[i] = (AbstractAnalysis) analyses[i];
+			if (selectedNormalizer == availableCommands[i])
 				selectionChanged = false;
 		}
 
@@ -315,57 +296,12 @@ public class NormalizationPanel extends CommandBase implements VisualPlugin, ReH
 		 */
 		if (selectionChanged)
 			if (analyses.length > 0)
-				selectedNormalizer = availableNormalizers[0];
+				selectedNormalizer = availableCommands[0];
 			else
 				selectedNormalizer = null;
 		
 		AbstractAnalysisLabelComparator comparator = new AbstractAnalysisLabelComparator();
-		Arrays.sort(availableNormalizers, comparator );
-	}
-
-	/**
-	 * Obtains from the <code>ComponentRegistry</code> and displays the set of
-	 * available normalizers.
-	 */
-	public void reset() {
-		/* Get the most recent available normalizers. Redisplay */
-		getAvailableAnalyses();
-		displayNormalizers();
-	}
-
-	/**
-	 * Displays the list of available normalizers.
-	 */
-	private void displayNormalizers() {
-		String selectedName = null;
-		if(selectedNormalizer!=null) 
-			selectedName = selectedNormalizer.getLabel();
-		/* Clean the list */
-		pluginNormalizers.removeAllItems();
-
-		/* Get the display names of the available normalizers. */
-		String[] names = new String[availableNormalizers.length];
-		for (int i = 0; i < availableNormalizers.length; i++) {
-			names[i] = availableNormalizers[i].getLabel();
-			pluginNormalizers.addItem(names[i]);
-			try{
-				setMenuItem(names[i]);
-			}catch(Exception e){
-				e.printStackTrace();
-			}
-		}
-		
-		if (selectedName != null)
-			for(int i=0; i<pluginNormalizers.getItemCount(); i++) {
-				if(selectedName.equals(pluginNormalizers.getItemAt(i))) {
-					pluginNormalizers.setSelectedIndex(i);
-					break;
-				}
-			}
-		else {
-			setParametersPanel(this.emptyParameterPanel);
-			save.setEnabled(false);
-		}
+		Arrays.sort(availableCommands, comparator );
 	}
 
 	/**
@@ -448,21 +384,11 @@ public class NormalizationPanel extends CommandBase implements VisualPlugin, ReH
 		highlightCurrentParameterGroup();
 	}
 
-	/**
-	 * Listener invoked when a new normalizer is selected from the displayed
-	 * list of normalizers.
-	 * 
-	 * @param lse
-	 *            The <code>ListSelectionEvent</code> received from the list
-	 *            selection.
-	 */
-	private void normalizerSelected_action(ActionEvent actionEvent) {
-		if (pluginNormalizers.getSelectedIndex() == -1)
-			return;
+	protected void setSelectedCommandByName(String commandName) {
+
 		delete.setEnabled(false);
 
-		selectedNormalizer = availableNormalizers[pluginNormalizers
-				.getSelectedIndex()];
+		selectedNormalizer = getCommandByName(commandName);
 		/* Set the parameters panel for the selected normalizer. */
 		ParameterPanel paramPanel = selectedNormalizer.getParameterPanel();
 		/*

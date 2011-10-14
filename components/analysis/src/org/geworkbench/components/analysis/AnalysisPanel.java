@@ -21,7 +21,6 @@ import java.util.Map;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -149,16 +148,8 @@ public class AnalysisPanel extends CommandBase implements
 	// threads to check submitted caGrid service jobs
 	private List<Thread> threadList = new ArrayList<Thread>();
 
-	/*
-	 * Contains the pluggable clustering analysis available to the user to
-	 * choose from. These analyses will have been defined in the application
-	 * configuration file as <code>plugin</code> components and they are
-	 * expected to have been associated with the extension point <code>clustering</code>.
-	 */
-	private AbstractAnalysis[] availableAnalyses = null;
 	private AbstractAnalysis selectedAnalysis = null;
 
-	private JComboBox analysisComboBox = new JComboBox();
 	private JComboBox parameterComboBox = new JComboBox();
 
 	/**
@@ -174,17 +165,17 @@ public class AnalysisPanel extends CommandBase implements
 		/**
 		 * Resets the list of analysis.
 		 */
-		if (currentDataType == null) return;
+		if (currentDataType == null)
+			return;
 		else {
 			log.error("I don't see how this can happen");
-		if (currentDataType.equals(CSProteinStructure.class)) {
-			getAvailableAnalyses(ProteinStructureAnalysis.class);
-		} else if (currentDataType.equals(CSSequenceSet.class)) {
-			getAvailableAnalyses(ProteinSequenceAnalysis.class);
-		} else {
-			getAvailableAnalyses(ClusteringAnalysis.class);
-		}
-		displayAnalyses();
+			if (currentDataType.equals(CSProteinStructure.class)) {
+				getAvailableAnalyses(ProteinStructureAnalysis.class);
+			} else if (currentDataType.equals(CSSequenceSet.class)) {
+				getAvailableAnalyses(ProteinSequenceAnalysis.class);
+			} else {
+				getAvailableAnalyses(ClusteringAnalysis.class);
+			}
 		}
 	}
 
@@ -256,6 +247,7 @@ public class AnalysisPanel extends CommandBase implements
 		analyze.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				analyze_actionPerformed(e);
+				hideDialog();
 			}
 
 		});
@@ -270,15 +262,6 @@ public class AnalysisPanel extends CommandBase implements
 		parameterComboBox.setAutoscrolls(true);
 
 		popMenuItem = "Analysis";
-		pluginComboBox = analysisComboBox;
-		analysisComboBox.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				analysisSelected_action(e);
-			}
-			
-		});
 		analysisPanel.add(analysisScrollPane, BorderLayout.CENTER);
 		
 		JPanel innerAnalysisPanel = new JPanel();
@@ -318,8 +301,6 @@ public class AnalysisPanel extends CommandBase implements
 		jPanel1.add(Box.createRigidArea(new Dimension(5, 0)));
 		jPanel1.add(new JLabel("Analysis"));
 		jPanel1.add(Box.createRigidArea(new Dimension(5, 0)));
-		jPanel1.add(analysisComboBox, null);
-		jPanel1.add(Box.createRigidArea(new Dimension(50, 0)));
 		jPanel1.add(new JLabel("Saved Parameters"));
 		jPanel1.add(Box.createRigidArea(new Dimension(5, 0)));
 		jPanel1.add(parameterComboBox, null);
@@ -590,56 +571,6 @@ public class AnalysisPanel extends CommandBase implements
 	}
 
 	/**
-	 * Displays the list of available analyses.
-	 */
-	private void displayAnalyses() {
-		/* Clean the list */
-		analysisComboBox.removeAllItems();
-
-		/* Get the display names of the available analyses. */
-		String[] names = new String[availableAnalyses.length];
-		for (int i = 0; i < availableAnalyses.length; i++) {
-			names[i] = ComponentRegistry.getRegistry().getDescriptorForPlugin(
-					availableAnalyses[i]).getLabel();
-			if (log.isDebugEnabled())
-				if (availableAnalyses[i] instanceof AbstractGridAnalysis) {
-					log.info("Analysis: " + availableAnalyses[i]
-							+ ", Is grid enabled? " + true);
-				} else {
-					log.info("Analysis: " + availableAnalyses[i]
-							+ ", Is grid enabled? " + false);
-				}
-			try{
-				setMenuItem(names[i]);
-			}catch(Exception e){
-				e.printStackTrace();
-			}
-		}
-
-		String selectedAnalysisName = null;
-		if(selectedAnalysis!=null) {
-			selectedAnalysisName = selectedAnalysis.getLabel();
-		}
-		/* Show graphical components */
-		// populate the combo box
-		analysisComboBox.setModel(new DefaultComboBoxModel(names));
-
-		// use name to restore selectedAnalysis because addItem de-selected combo box, and thus de-select the analysis 
-		if (selectedAnalysisName != null) {
-			for(int i=0; i<analysisComboBox.getItemCount(); i++) {
-				if(selectedAnalysisName.equals(analysisComboBox.getItemAt(i))) {
-					analysisComboBox.setSelectedIndex(i);
-					break;
-				}
-			}
-		} else {
-			setParametersPanel(emptyParameterPanel);
-			save.setEnabled(false);
-		}
-		analysisPanel.revalidate();
-	}
-
-	/**
 	 * Set the parameters panel used in the analysis pane.
 	 * 
 	 * @param parameterPanel
@@ -817,27 +748,16 @@ public class AnalysisPanel extends CommandBase implements
 		}
 	}
 
-	private static final int DEFAULT_SELECTED_INDEX = -1;
+	protected void setSelectedCommandByName(String commandName) {
 
-	/**
-	 * Listener invoked when an analysis is selected from the combo box of
-	 * analyses. The parameters for this analysis are shown.
-	 * 
-	 * @param action evene
-	 */
-	private void analysisSelected_action(ActionEvent actionEvent) {
-		if (analysisComboBox.getSelectedIndex() == -1) {
-			return;
-		}
 		delete.setEnabled(false);
 
-		int index = analysisComboBox.getSelectedIndex();
-		selectedAnalysis = availableAnalyses[index];
+		selectedAnalysis = getCommandByName(commandName);
 
 		/* Set the parameters panel for the selected analysis. */
 		ParameterPanel paramPanel = selectedAnalysis.getParameterPanel();
 		if (paramPanel != null) {
-			String[] storedParameterSetNames = availableAnalyses[index]
+			String[] storedParameterSetNames = selectedAnalysis
 					.getNamesOfStoredParameterSets();
 			setNamedParameters(storedParameterSetNames);
 			setParametersPanel(paramPanel);
@@ -874,7 +794,7 @@ public class AnalysisPanel extends CommandBase implements
 		}
 
 		if (selectedAnalysis instanceof AbstractGridAnalysis) {
-			if (analysisComboBox.getSelectedIndex() != pidMap.get(currentDataType)) {
+			if (selectedAnalysis != pidMap.get(currentDataType)) {
 				jGridServicePanel = new GridServicePanel(SERVICE);
 				jGridServicePanel.setAnalysisType(selectedAnalysis);
 				if (jAnalysisTabbedPane.getTabCount() > ANALYSIS_TAB_COUNT)
@@ -889,7 +809,7 @@ public class AnalysisPanel extends CommandBase implements
 			// service information every time.
 			// Should have a better implementation.
 		}
-		pidMap.put(currentDataType, analysisComboBox.getSelectedIndex());
+		pidMap.put(currentDataType, selectedAnalysis);
 	}
 
 	/**
@@ -1176,7 +1096,7 @@ public class AnalysisPanel extends CommandBase implements
 	}
 	
 	private Class<?> currentDataType = null, lastDataType = null;
-	private HashMap<Class<?>, Integer> pidMap = new HashMap<Class<?>, Integer>();
+	private HashMap<Class<?>, AbstractAnalysis> pidMap = new HashMap<Class<?>, AbstractAnalysis>();
 
 	@SuppressWarnings("rawtypes")
 	private DSDataSet refOtherSet = null;
@@ -1213,7 +1133,7 @@ public class AnalysisPanel extends CommandBase implements
 			lastDataType = currentDataType;
 			currentDataType = event.getDataSet().getClass();
 			if (!pidMap.containsKey(currentDataType) || lastDataType != currentDataType)
-				pidMap.put(currentDataType, DEFAULT_SELECTED_INDEX);
+				pidMap.put(currentDataType, null);
 			if (event.getDataSet().getClass().equals(CSProteinStructure.class)) {
 				getAvailableAnalyses(ProteinStructureAnalysis.class);
 			} else if (event.getDataSet().getClass().equals(CSSequenceSet.class)) {
@@ -1221,7 +1141,7 @@ public class AnalysisPanel extends CommandBase implements
 			} else {
 				getAvailableAnalyses(ClusteringAnalysis.class);
 			}
-			displayAnalyses();
+			updateMenuItems();
 		}
 	}
 
@@ -1231,30 +1151,30 @@ public class AnalysisPanel extends CommandBase implements
 	private void getAvailableAnalyses(Class<? extends Analysis> analysisType) {
 		boolean selectionChanged = true;
 		Analysis[] analyses = ComponentRegistry.getRegistry().getModules(analysisType);
-		availableAnalyses = new AbstractAnalysis[analyses.length];
+		availableCommands = new AbstractAnalysis[analyses.length];
 		for (int i = 0; i < analyses.length; i++) {
-			availableAnalyses[i] = (AbstractAnalysis) analyses[i];
-			if (selectedAnalysis == availableAnalyses[i]) {
+			availableCommands[i] = (AbstractAnalysis) analyses[i];
+			if (selectedAnalysis == availableCommands[i]) {
 				selectionChanged = false;
 			}
 		}
 		if (selectionChanged) {
-			if (availableAnalyses.length > 0) {
-				selectedAnalysis = availableAnalyses[0];
+			if (availableCommands.length > 0) {
+				selectedAnalysis = availableCommands[0];
 			} else {
 				selectedAnalysis = null;
 			}
 		}
 		
-		String[] names = new String[availableAnalyses.length];
-		for (int i = 0; i < availableAnalyses.length; i++) {
+		String[] names = new String[availableCommands.length];
+		for (int i = 0; i < availableCommands.length; i++) {
 			names[i] = ComponentRegistry.getRegistry().getDescriptorForPlugin(
-					availableAnalyses[i]).getLabel();
-			availableAnalyses[i].setLabel(names[i]);
+					availableCommands[i]).getLabel();
+			availableCommands[i].setLabel(names[i]);
 		}
 
 		AbstractAnalysisLabelComparator comparator = new AbstractAnalysisLabelComparator();
-		Arrays.sort(availableAnalyses, comparator);
+		Arrays.sort(availableCommands, comparator);
 	}
 	
 	private Boolean guessLogNormalized(DSMicroarraySetView<DSGeneMarker, DSMicroarray> data) {

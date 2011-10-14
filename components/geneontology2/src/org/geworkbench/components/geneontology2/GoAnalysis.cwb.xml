@@ -1,6 +1,6 @@
 <component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
-	<component name="Gene Ontology Term Analysis (Ontologizer 2_0)"
+	<component name="Gene Ontology Term Analysis (Ontologizer 2.0)"
 		class="org.geworkbench.components.geneontology2.GoAnalysis"
 		version="1.0"
 		author="Robinson lab (Charite, Berlin)"
@@ -15,7 +15,7 @@
 
 	</component>
 	
-	<plugin id="GeneOntology2" name="Gene Ontology Term Analysis (Ontologizer 2_0)"
+	<plugin id="GeneOntology2" name="Gene Ontology Term Analysis (Ontologizer 2.0)"
 		class="org.geworkbench.components.geneontology2.GoAnalysis" source="geneontology2" />
 	
 </component-descriptor>

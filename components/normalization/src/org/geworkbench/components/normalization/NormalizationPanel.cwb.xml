@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
 	<component  name="Normalization"
@@ -21,7 +22,6 @@
 
 
 	<plugin id="NormalizationPanel" name="Normalization" class="org.geworkbench.components.normalization.NormalizationPanel" source="normalization">
-		<gui-area name="CommandArea"/>
 	</plugin>
 
 	

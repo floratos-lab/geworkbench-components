@@ -1,6 +1,6 @@
 <component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
-	<component  name="WV Analysis 3_0"
+	<component  name="WV Analysis 3.0"
 				class="org.geworkbench.components.gpmodule.classification.wv.WVTraining"
 				version="1.0"
 				author="Broad Institute"
@@ -24,6 +24,6 @@
 	</component>
 
 
-	<plugin id="WVTraining" name="WV Analysis 3_0" class="org.geworkbench.components.gpmodule.classification.wv.WVTraining" source="gpmodule_v3_0"/>
+	<plugin id="WVTraining" name="WV Analysis 3.0" class="org.geworkbench.components.gpmodule.classification.wv.WVTraining" source="gpmodule_v3_0"/>
 
 </component-descriptor>
