@@ -451,7 +451,7 @@ public class AnalysisPanel extends CommandBase implements
 			sb.append("The data set used for analysis is [ ");
 			sb.append(dataset.getDataSetName());
 			sb.append(" ] from file [ ");
-			sb.append(dataset.getPath());
+			sb.append(dataset.getFile());
 			sb.append(" ]." + FileTools.NEWLINE);
 			return sb.toString();
 		}

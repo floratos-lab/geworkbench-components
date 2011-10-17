@@ -116,7 +116,7 @@ public class MedusaVisualComponent implements VisualPlugin {
 		}
 
 		String runpath = dataSet.getFilename();
-		dataSet.setAbsPath(runpath);
+		dataSet.setOuputPath(runpath);
 		return true;
 	}
 
@@ -126,14 +126,14 @@ public class MedusaVisualComponent implements VisualPlugin {
 
         @Override
         protected MedusaVisualizationPanel doInBackground() {
-            String tarstr = dataSet.getPath();
+            String tarstr = dataSet.getOutputPath();
 			// result returned from grid service
 			if (dataSet.getFilename() != null && dataSet.getFilename() != tarstr) {
 				if (isCancelled() || !handleGridOutput(tarstr)) return null;
 			}
 			if (isCancelled()) return null;
 			medusaVisualizationPanel = new MedusaVisualizationPanel(MedusaVisualComponent.this,
-					dataSet.getData(), dataSet.getPath());
+					dataSet.getData(), dataSet.getOutputPath());
             return medusaVisualizationPanel;
         }
 
