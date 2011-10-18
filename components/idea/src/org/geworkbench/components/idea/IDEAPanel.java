@@ -29,11 +29,15 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.filechooser.FileFilter;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
+import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
+import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.Edge;
+import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
@@ -51,37 +55,36 @@ import com.jgoodies.forms.layout.FormLayout;
 public class IDEAPanel extends AbstractSaveableParameterPanel {
 	
 	private static final long serialVersionUID = 5983582161253754386L;
-	static Log log = LogFactory.getLog(IDEAPanel.class);
+	static Log log = LogFactory.getLog(IDEAPanel.class);	
 	
-	private static final float PValueThresholdDefault = 0.05f;
-	private JTextField pValueTextField = new JTextField(20);
-	
-	private JPanel selectionPanel = null;
-	
-	private JTextField networkField = new JTextField(20);
-	private JTextField phenotypeField = new JTextField(20);
-	private JTextField nullDataField = new JTextField(20);
-	private JButton networkLoadButton = new JButton("Load");
-	private JButton phenotypeLoadButton = new JButton("Load");
-	private JButton nullDataLoadButton = new JButton("Load");
-	private JCheckBox nullDataCheckbox = new JCheckBox("Use the existing null data", false);
-	private JLabel pvalueLabel=new JLabel("P-value");
-	private JLabel loadNullDataLabel=new JLabel("      Load null data      ");	
-	
+	private static final String P_VALUE="0.05";
 	private Phenotype phenotype=new Phenotype();
 	private ArrayList<IdeaNetworkEdge> ideaNetwork;
 	private ArrayList<String> nullDataList;
 	private ArrayList<String> networkList=new ArrayList<String>();
-	
+	private ArrayList<String> adjModel=new ArrayList<String>();
 	private static final String FROM_FILE = "From File";
-	private static final String FROM_SETS = "From Set";	
-	private static final String[] NETWORK_FROM = { FROM_FILE };
-	private static final String[] PHENOTYPE_FROM = { FROM_FILE,	FROM_SETS };	
-	static final String[] DEFAULT_SET = { " " };
+	private static final String FROM_FILE_LAB = "From File (Lab Format)";
+	private static final String FROM_SETS = "From Set";
+	private static final String FROM_PROJECT = "From Project";
+	private static final String[] NETWORK_FROM = { FROM_FILE_LAB, FROM_PROJECT};
+	private static final String[] PHENOTYPE_FROM = { FROM_SETS, FROM_FILE};	
+	static final String[] DEFAULT_SET = { " " };	
 	
-	private JComboBox networkFrom = new JComboBox(NETWORK_FROM);
-	private JComboBox phenotypeFrom = new JComboBox(PHENOTYPE_FROM);
+	private JPanel selectionPanel = null;	
+	private JTextField networkField = new JTextField(20);	
+	private JTextField nullDataField = new JTextField(20);
+	private JButton networkLoadButton = new JButton("Load");
 	
+	private JButton includeLoadButton = new JButton("Load");
+	private JButton excludeLoadButton = new JButton("Load");
+	private JButton nullDataLoadButton = new JButton("Load");
+	private JCheckBox nullDataCheckbox = new JCheckBox("Use the existing null data", false);
+	private JLabel loadNullDataLabel=new JLabel("      Load null data      ");
+	
+	private JComboBox networkMatrix = new JComboBox();	
+	private JComboBox networkFrom = new JComboBox(NETWORK_FROM);	
+	private JComboBox phenotypeFrom = new JComboBox(PHENOTYPE_FROM);	
 	private JComboBox includeSets = new JComboBox(new DefaultComboBoxModel(
 			DEFAULT_SET));
 	private JComboBox excludeSets = new JComboBox(new DefaultComboBoxModel(
@@ -93,18 +96,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 	
 	private DSPanel<DSMicroarray> selectorPanelOfArrays;
 	private DSMicroarraySet<DSMicroarray> maSet=null;
-	private boolean firstRunFlag;
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
-	 *      Set inputed parameters to GUI.
-	 */
-	
-	/**
-	 * This is added to make the marker sets available.
-	 */
-	
+	private boolean firstRunFlag;	
 	
 	public IDEAPanel() {
 		try {
@@ -139,26 +131,16 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 	
 	public Phenotype getPhenotype() {
 			return phenotype;
-	}	
-
+	}
 	
-	private void init() throws Exception {
+	private void init() throws Exception {		
 		firstRunFlag=true;
 		phenotypeFrom.setSelectedIndex(0);
-		includeSets.setEnabled(false);
-		excludeSets.setEnabled(false);
+		includeSets.setEnabled(true);
+		excludeSets.setEnabled(true);
 		includeField.setText("");
 		excludeField.setText("");
-		networkField.setText("");
-		phenotypeField.setText("");
-		
-		//nullDataCheckbox.setVisible(false);
-		//nullDataField.setVisible(false);
-		//nullDataLoadButton.setVisible(false);
-		//loadNullDataLabel.setVisible(false);
-		
-		pvalueLabel.setVisible(false);			//pvalue is temporarily off on GUI
-		pValueTextField.setVisible(false);
+		networkField.setText("");		
 		
 		this.setLayout(new BorderLayout());		
 		selectionPanel = new JPanel();
@@ -166,6 +148,15 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 		this.add(selectionPanel, BorderLayout.CENTER);		
 		
 		{
+			networkField.setEnabled(true);
+			networkField.setEditable(false);
+			networkLoadButton.setEnabled(true);		
+			includeLoadButton.setEnabled(false);
+			excludeLoadButton.setEnabled(false);
+			nullDataField.setEnabled(false);
+			nullDataField.setEditable(false);
+			nullDataLoadButton.setEnabled(false);		
+			
 			FormLayout layout = new FormLayout(
 					"left:max(100dlu;pref), 10dlu, 100dlu, 10dlu, "
 							+ "100dlu, 10dlu, 100dlu, 10dlu, 100dlu", "");
@@ -176,25 +167,25 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 			builder.append("Load Network");
 			builder.append(networkFrom);			
 			builder.append(networkField);
+			networkMatrix.setEnabled(false);
+			builder.append(networkMatrix);
 			builder.append(networkLoadButton);						
 			builder.nextLine();			
 			
 			builder.append("Define Phenotype");
 			builder.append(phenotypeFrom);			
-			builder.append(phenotypeField);
-			builder.append(phenotypeLoadButton);
 			builder.nextLine();			
 			
 			builder.append(includeLabel);
 			builder.append(includeSets);
 			builder.append(includeField);
-			builder.append(" ");
+			builder.append(includeLoadButton);
 			builder.nextLine();			
 			
 			builder.append(excludeLabel);
 			builder.append(excludeSets);
 			builder.append(excludeField);
-			builder.append(" ");
+			builder.append(excludeLoadButton);
 			builder.nextLine();		
 			
 			nullDataCheckbox.setToolTipText("Only when gene expression, annotation, network, phenotype input data set are the same.");
@@ -207,48 +198,53 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 					nullDataField, nullDataLoadButton);
 			builder.nextLine();			
 			
-			//builder.appendSeparator("Significance Threshold");	//pvalue is temporarily off	on GUI
-			builder.append(pvalueLabel);
-			if (pValueTextField == null)
-				pValueTextField = new JTextField();
-			pValueTextField.setText(Float.toString(PValueThresholdDefault));
-			builder.append(pValueTextField);
-			builder.nextLine();
-			
 			selectionPanel.add(builder.getPanel(), BorderLayout.CENTER);
-		}
+		}		
 		
 		phenotypeFrom.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent actionEvent) {				
 				
 				String selected = (String) phenotypeFrom.getSelectedItem();
-				if (StringUtils.equals(selected, FROM_FILE)) {
-					includeSets.setSelectedIndex(0);
-					includeSets.setEnabled(false);					
-					excludeSets.setSelectedIndex(0);
-					excludeSets.setEnabled(false);					
-					phenotypeField.setEnabled(true);
-					phenotypeLoadButton.setEnabled(true);
-				} else {
-					phenotypeField.setText("");
-					phenotypeField.setEnabled(false);					
+				if (StringUtils.equals(selected, FROM_SETS)) {					
+					includeLoadButton.setEnabled(false);
+					excludeLoadButton.setEnabled(false);
 					includeSets.setEnabled(true);
 					excludeSets.setEnabled(true);
-					phenotypeLoadButton.setEnabled(false);
+				} else {					
+					includeLoadButton.setEnabled(true);
+					excludeLoadButton.setEnabled(true);
+					includeSets.setEnabled(false);
+					excludeSets.setEnabled(false);
 				}
 			}
 		});
 		
 		networkFrom.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent actionEvent) {
-				networkField.setText("");
+			public void actionPerformed(ActionEvent actionEvent) {				
+				
+				String selected = (String) networkFrom.getSelectedItem();
+				if (StringUtils.equals(selected, FROM_PROJECT)) {
+					networkMatrix.setEnabled(true);
+					networkLoadButton.setEnabled(false);
+					networkField.setEnabled(false);
+					
+					networkMatrix.removeAllItems();
+					networkMatrix.addItem(" ");
+                	for(String setName: adjModel) {
+                		networkMatrix.addItem(setName);
+                	}					
+				} else {
+					networkMatrix.setEnabled(false);
+					networkLoadButton.setEnabled(true);
+					networkField.setEnabled(true);
+				}
 			}
 		});		
 		
 		 includeSets.addActionListener(new ActionListener() {
 	    		public void actionPerformed(ActionEvent actionEvent) {
 	    			String selectedLabel = (String) includeSets.getSelectedItem();
-	    			if (!StringUtils.isEmpty(selectedLabel))
+	    			if ((!StringUtils.isEmpty(selectedLabel))&&(!selectedLabel.equals(""))&&(!selectedLabel.equals(" ")))	//!StringUtils.isEmpty(selectedLabel)
 	    				if (!chooseArraysFromSet(selectedLabel, includeField)) {
 	    					includeSets.setSelectedIndex(0);	    					
 	    				}
@@ -259,9 +255,13 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 			public void actionPerformed(ActionEvent actionEvent) {
 				if(!excludeSets.isEnabled())return;
 				String selectedLabel = (String) excludeSets.getSelectedItem();
-				if (!StringUtils.isEmpty(selectedLabel))
-					if (!chooseArraysFromSet(selectedLabel, excludeField)) {							
-					}
+				if ((!StringUtils.isEmpty(selectedLabel))&&(!selectedLabel.equals(""))&&(!selectedLabel.equals(" "))){
+					if (!chooseArraysFromSet(selectedLabel, excludeField)) {
+    					excludeSets.setSelectedIndex(0);	    					
+    				}
+				}
+				else
+					excludeField.setText("");
 			}
 		});
 		
@@ -275,6 +275,17 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 			
 		});
 
+		networkMatrix.addActionListener(new ActionListener() {
+    		public void actionPerformed(ActionEvent actionEvent) {
+    			String selectedLabel = (String) networkMatrix.getSelectedItem();
+    			if (!StringUtils.isEmpty(selectedLabel))
+    				if (!chooseNetworkFromSet(selectedLabel)) {
+    					networkMatrix.setSelectedIndex(0);
+    					ideaNetwork=null;
+    				}
+    		}
+    	});
+		
 		networkLoadButton.addActionListener(new ActionListener(){
 
 			@Override
@@ -282,33 +293,21 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 				networkLoadPressed();
 			}	
 			
-		});
+		});		
 
-		phenotypeLoadButton.addActionListener(new ActionListener(){
-
-			@Override
+		includeLoadButton.addActionListener(new ActionListener(){			
 			public void actionPerformed(ActionEvent e) {
-				phenotypeLoadPressed();
+				includeLoadPressed();
 			}});
-
-
-		networkField.setEnabled(true);
-		networkField.setEditable(false);
-		networkLoadButton.setEnabled(true);		
-		phenotypeField.setEnabled(true);
-		phenotypeField.setEditable(false);
-		phenotypeLoadButton.setEnabled(true);
-		nullDataField.setEnabled(false);
-		nullDataField.setEditable(false);
-		nullDataLoadButton.setEnabled(false);
 		
-		// define the 'update/refreshing'behavior of GUI components - see the
-		// examples
-		// they are (basically) all the same
+		excludeLoadButton.addActionListener(new ActionListener(){			
+			public void actionPerformed(ActionEvent e) {
+				excludeLoadPressed();
+			}});		
+		
 		ParameterActionListener parameterActionListener = new ParameterActionListener(
 				this);
-		networkField.addActionListener(parameterActionListener);
-		phenotypeField.addActionListener(parameterActionListener);
+		networkField.addActionListener(parameterActionListener);		
 		nullDataField.addActionListener(parameterActionListener);
 		includeField.addActionListener(parameterActionListener);
 		excludeField.addActionListener(parameterActionListener);
@@ -355,23 +354,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 					ideaNetwork = null;
 					e.printStackTrace();
 				}
-			}
-			if (key.equals("phenotypeText")) {
-				phenotypeField.setText((String)value);
-				if(!phenotypeField.getText().equals("")){
-					try{
-						phenotype = new Phenotype(new File(phenotypeField.getText()));
-						loadPhenoForPanel();
-					}
-					catch (FileNotFoundException e1) {
-						e1.printStackTrace();
-						phenotype = null;
-					} catch (IOException e2) {
-						e2.printStackTrace();
-						phenotype = null;
-					}
-				}
-			}
+			}			
 		
 			if (key.equals("phenotypeFromType")){
 				this.phenotypeFrom.setSelectedIndex((Integer)value);
@@ -392,9 +375,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 			if (key.equals("nullDataText")) {
 				nullDataField.setText((String)value);
 			}
-			if (key.equals("pValueText")) {
-				pValueTextField.setText((String)value);
-			}
+			
 			if (key.equals("nullDataCheckbox")) {
 				nullDataCheckbox.setSelected((Boolean)value);
 				nullDataField.setEnabled((Boolean)value);
@@ -415,21 +396,16 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 		// set the Map with the parameter values retrieved from GUI
 		// component
 		parameters.put("networkText", networkField.getText());
-		parameters.put("phenotypeFromType", this.phenotypeFrom.getSelectedIndex());
-		parameters.put("phenotypeText", phenotypeField.getText());
+		parameters.put("phenotypeFromType", this.phenotypeFrom.getSelectedIndex());		
 		parameters.put("", (String) this.includeSets.getSelectedItem());
 		parameters.put("includeText",includeField.getText());
 		parameters.put("", (String) this.excludeSets.getSelectedItem());
 		parameters.put("excludeText", excludeField.getText());
-		parameters.put("nullDataText", nullDataField.getText());
-		parameters.put("pValueText", pValueTextField.getText());
-		parameters.put("nullDataCheckbox", nullDataCheckbox.isSelected());
-		
+		parameters.put("nullDataText", nullDataField.getText());		
+		parameters.put("nullDataCheckbox", nullDataCheckbox.isSelected());	
 		
 		return parameters;
-	}
-
-	
+	}	
 
 	@Override
 	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
@@ -446,8 +422,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 		StringBuilder histStr = new StringBuilder("");
 		histStr.append("IDEA Analysis parameters:\n");
 		histStr.append("----------------------------------------");
-		histStr.append("\nNetwork: "+networkField.getText());
-		histStr.append("\nPhenotype: "+phenotypeField.getText());
+		histStr.append("\nNetwork: "+networkField.getText());		
 		String includeStr=phenotype.getPhenotypeAsString()[0];		
 		histStr.append("\n"+includeStr);
 		String excludeStr=phenotype.getPhenotypeAsString()[1];
@@ -459,7 +434,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 	}
 
 	public String getPvalue(){
-		return pValueTextField.getText();
+		return P_VALUE;
 	}
 	
 	public boolean getUseNullData(){
@@ -503,43 +478,105 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 		}
 	}
 	
-	public void phenotypeLoadPressed(){
-		JFileChooser fc = new JFileChooser(this.getLastDirectory());
-		int returnVal = fc.showOpenDialog(IDEAPanel.this);
-		if (returnVal == JFileChooser.APPROVE_OPTION) {					
-			try {
-				String filename = fc.getSelectedFile().getAbsolutePath();			
-				String filepath = fc.getCurrentDirectory().getCanonicalPath();
-                setLastDirectory(filepath);
-                File file=new File(filename);
-                phenotype = new Phenotype(file); 
-                phenotypeField.setText(filename);
-				loadPhenoForPanel();
+	//prepare networkList and ideaNetwork from project adjacencyMatrix
+	private void getNetworkFromProject(AdjacencyMatrixDataSet adjDataSet){
+		ideaNetwork = new ArrayList<IdeaNetworkEdge>();		
+		NodeType nt=adjDataSet.getMatrix().getEdges().get(0).node1.getNodeType();
+		if(nt.equals(NodeType.PROBESET_ID)||nt.equals(NodeType.MARKER)){
+			for(Edge ed:adjDataSet.getMatrix().getEdges()){
 				
-			} catch (IOException e) {				
-				phenotype = null;
-				includeField.setText("");
-				excludeField.setText("");
+				int i1=ed.node1.getMarker().getGeneId();
+				int i2=ed.node2.getMarker().getGeneId();
+				IdeaNetworkEdge anEdge=new IdeaNetworkEdge(i1,i2);
+				boolean newEdge=true;
+				for(IdeaNetworkEdge ie:ideaNetwork){
+					if(ie.compareTo(anEdge)==0){
+						newEdge=false;
+						break;
+					}				
+				}
+				if (newEdge){
+					ideaNetwork.add(anEdge);					
+				}				
+			}
+		}
+		
+		for(IdeaNetworkEdge ie:ideaNetwork){			
+			networkList.add(ie.getGene1()+"\t"+ie.getGene2()+"\t1"+"\t0"+"\t0");
+		}		
+	}
+	
+	public void includeLoadPressed(){
+		loadPhenotype(includeField);
+	}
+	public void excludeLoadPressed(){
+		loadPhenotype(excludeField);
+	}	
+	
+	private void loadPhenotype(JTextField textField){
+
+		JFileChooser fc = new JFileChooser(this.getLastDirectory());
+		fc.addChoosableFileFilter(new CSVFilter());
+        fc.setAcceptAllFileFilterUsed(false);
+        int returnVal = fc.showOpenDialog(IDEAPanel.this);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {	
+        	try{
+	        	String filename = fc.getSelectedFile().getAbsolutePath();			
+				String filepath = fc.getCurrentDirectory().getCanonicalPath();
+	            setLastDirectory(filepath);	           
+	            BufferedReader br;
+	    		br = new BufferedReader(new FileReader(filename));	    		
+	    		String line = br.readLine();
+	    		String text="";
+	    		int invalidArrayNo=0;
+	    		while(line!=null && line.trim().length()>0) {
+	    			String[] tokens = line.split(",");
+	    			if(isValidArray(tokens[0])){
+	    				text+=tokens[0]+",";		//only get the column0
+	    			}
+	    			else{
+	    				invalidArrayNo++;
+	    			}
+	    			line = br.readLine();
+	    		}
+	    		if(invalidArrayNo!=0){
+	    			JOptionPane.showMessageDialog(
+							null,
+							invalidArrayNo+" array(s) listed in the CSV file not present in data.",
+							"Warning",
+							JOptionPane.ERROR_MESSAGE);
+	    		}
+	    		if(text.length()>1){
+		    		String s=text.substring(0,text.length()-1);	//remove the last ,	    		
+		    		textField.setText(s);
+	    		}
+	    		else{
+	    			textField.setText("");
+	    		}
+	    		
+        	}
+        	catch (IOException e) {				
+				textField.setText("");				
 				log.error(e);
+				JOptionPane.showMessageDialog(
+						null,
+						"The input file does not comply with the designated csv format.",
+						"Parsing Error",
+						JOptionPane.ERROR_MESSAGE);
 			}					
-		}	
-	}
+        }
+		
 	
-	private void loadPhenoForPanel(){		
-		String str="";
-		for(int i:phenotype.getIncludeList()){
-			str+=maSet.get(i).getLabel()+",";
-		}
-		String s=str.substring(0,str.length()-1);
-		includeField.setText(s);
-		str="";
-		for(int i:phenotype.getExcludeList()){
-			str+=maSet.get(i).getLabel()+",";
-		}
-		s=str.substring(0,str.length()-1);
-		excludeField.setText(s);
 	}
+	public boolean isValidArray(String token){		
+		for(int i=0;i<maSet.size();i++){		
+			if(token.equalsIgnoreCase(maSet.get(i).getLabel())){
+				return true;
+			}
+		}
 	
+		return false;
+	}
 	public void nullDataLoadPressed(){
 		JFileChooser fc = new JFileChooser(this.getLastDirectory());
 		int returnVal = fc.showOpenDialog(IDEAPanel.this);
@@ -567,9 +604,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 				nullDataField.setText("");
 			}					
 		}	
-	}
-	
-	
+	}	
 	
 	public String getLastDirectory() {
         String dir = ".";
@@ -635,7 +670,48 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 	
 	public String getExcludeString(){
 		return excludeField.getText();
+	}	
+	
+	ArrayList<AdjacencyMatrixDataSet> adjacencymatrixDataSets = new ArrayList<AdjacencyMatrixDataSet>();	
+
+	public void renameAdjMatrixToCombobox(AdjacencyMatrixDataSet adjDataSet,
+			String oldName, String newName) {
+		for (AdjacencyMatrixDataSet adjSet : adjacencymatrixDataSets) {
+			if (adjSet == adjDataSet)
+				adjSet.setLabel(newName);
+		}
+		adjModel.remove(oldName);
+		adjModel.add(newName);
 	}
+	
+	public void removeAdjMatrixToCombobox(AdjacencyMatrixDataSet adjDataSet) {
+		try {
+			adjacencymatrixDataSets.remove(adjDataSet);
+			// adjModel.remove(adjDataSet.getDataSetName());
+			adjModel.remove(adjModel.indexOf(adjDataSet.getDataSetName()));
+		} catch (Exception ex) {
+			log.error(ex.getMessage());
+		}
+	}
+	
+	public void addAdjMatrixToCombobox(AdjacencyMatrixDataSet adjDataSet) {
+		adjacencymatrixDataSets.add(adjDataSet);
+		adjModel.add(adjDataSet.getDataSetName());		
+	}
+	
+	public String getSelectedAdjMatrix()
+	{		 
+		   return (String)networkMatrix.getSelectedItem();
+	}
+	
+	public void setSelectedAdjMatrix(String datasetName)
+	{		 
+		networkMatrix.getModel().setSelectedItem(datasetName);
+	}
+	public void clearAdjMatrixCombobox() {
+		adjacencymatrixDataSets.clear();
+		if (adjModel!=null)		adjModel.clear();
+	}	
 	
 	void setSelectorPanelForArray(DSPanel<DSMicroarray> ap) {
 		selectorPanelOfArrays = ap;		
@@ -666,6 +742,47 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 			
 		}
 	}
+	
+	public boolean chooseNetworkFromSet(String setLabel){
+		for (AdjacencyMatrixDataSet adjSet : adjacencymatrixDataSets) {
+			if (adjSet.getLabel() == setLabel){				
+				getNetworkFromProject(adjSet);
+				return true;
+			}
+		}
+		return false;
+	}
+	private class CSVFilter extends FileFilter {
+	    //Accept all directories and csv files.
+	    public boolean accept(File f) {
+	        if (f.isDirectory()) {
+	            return true;
+	        }
+	        String extension = getExtension(f);
+	        if (extension != null) {
+	            if (extension.equals("csv")) {
+	                    return true;
+	            } else {
+	                return false;
+	            }
+	        }
+	        return false;
+	    }
+	    public String getExtension(File f) {
+	        String ext = null;
+	        String s = f.getName();
+	        int i = s.lastIndexOf('.');
+	        if (i > 0 &&  i < s.length() - 1) {
+	            ext = s.substring(i+1).toLowerCase();
+	        }
+	        return ext;
+	    }
+	    //The description of this filter
+	    public String getDescription() {
+	        return "Comma Separated Values Files";
+	    }
+	}
+	
 	
 	public boolean chooseArraysFromSet(String setLabel, JTextField toPopulate) {
 		DSPanel<DSMicroarray> selectedSet = chooseArraysSet(setLabel, selectorPanelOfArrays);

@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,11 +14,14 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.math.MathException;
 import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.analysis.AbstractGridAnalysis;
+import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
+import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
@@ -36,9 +40,12 @@ import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
+import org.geworkbench.builtin.projects.DataSetNode;
+import org.geworkbench.builtin.projects.DataSetSubNode;
+import org.geworkbench.builtin.projects.ProjectPanel;
+import org.geworkbench.builtin.projects.ProjectSelection;
 import org.geworkbench.builtin.projects.history.HistoryPanel;
 import org.geworkbench.engine.management.Subscribe;
-import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.util.ProgressBar;
 
 /**
@@ -195,7 +202,7 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 		if ((phenotype == null)||IDEAAnalysisPanel.getIncludeString().equals("")){			
 			pbIdea.dispose();			
 			return new AlgorithmExecutionResults(false,
-					"pheno type file is invalid.", null);
+					"phenotype data is invalid.", null);
 		}
 
 
@@ -546,11 +553,11 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 		
 		if (params.getNetwork()== null) {
 			return new ParamValidationResults(false,
-					"You did not load networks.");
+					"Please load networks.");
 		}
-		if (params.getPhenotype()== null) {
+		if ((params.getIncludeString().equals(""))||(params.getIncludeString().equals(" "))) {
 			return new ParamValidationResults(false,
-					"You did not load phenotype.");
+					"Phenotype include text field is required.");
 		}
 		double pvalue;
 		try{
@@ -627,16 +634,6 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 		return new ParamValidationResults(true, "No, no Error");
 	}
 
-	@SuppressWarnings("unchecked")
-	@Subscribe
-	public void receive(ProjectEvent e, Object source) {
-		DSDataSet<?> data = e.getDataSet();
-		if ((data != null) && (data instanceof DSMicroarraySet)) {
-			((IDEAPanel) aspp).setMicroarraySet((DSMicroarraySet<DSMicroarray>) data);
-			
-		}
-	}
-	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Subscribe
 	public void receive(org.geworkbench.events.PhenotypeSelectorEvent e,
@@ -650,6 +647,65 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 
 	}
 
+	@SuppressWarnings("rawtypes")
+	@Subscribe
+	public void receive(org.geworkbench.events.ProjectNodeRemovedEvent e,
+			Object source) {
+		DSDataSet dataSet = e.getAncillaryDataSet();
+		if (dataSet instanceof AdjacencyMatrixDataSet) {
+			this.IDEAAnalysisPanel
+					.removeAdjMatrixToCombobox((AdjacencyMatrixDataSet) dataSet);
+		}
+	}
 	
+
+	@SuppressWarnings("rawtypes")
+	@Subscribe
+	public void receive(org.geworkbench.events.ProjectNodeRenamedEvent e,
+			Object source) {
+		DSDataSet dataSet = e.getDataSet();
+		if (dataSet instanceof AdjacencyMatrixDataSet) {
+			this.IDEAAnalysisPanel
+					.renameAdjMatrixToCombobox((AdjacencyMatrixDataSet)dataSet, e.getOldName(),e.getNewName());
+		}
+	}
+	
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Subscribe
+	public void receive(org.geworkbench.events.ProjectEvent e, Object source) {
+		if (e.getMessage().equals(org.geworkbench.events.ProjectEvent.SELECTED)){
+			DSDataSet dataSet = e.getDataSet();
+			if (dataSet instanceof DSMicroarraySet) {
+				this.IDEAAnalysisPanel.setMicroarraySet((DSMicroarraySet<DSMicroarray>)dataSet);
+			}else{
+				this.IDEAAnalysisPanel.setMicroarraySet(null);
+			}
+		}
+
+        ProjectSelection selection = ((ProjectPanel) source).getSelection();
+        DataSetNode dNode = selection.getSelectedDataSetNode();
+        if(dNode == null){
+        	return;
+        }
+        
+       
+        String currentTargetSet = this.IDEAAnalysisPanel.getSelectedAdjMatrix();
+        this.IDEAAnalysisPanel.clearAdjMatrixCombobox();
+        Enumeration children = dNode.children();
+        while (children.hasMoreElements()) {
+            Object obj = children.nextElement();
+            if (obj instanceof DataSetSubNode) {
+                DSAncillaryDataSet ads = ((DataSetSubNode) obj)._aDataSet;
+                if (ads instanceof AdjacencyMatrixDataSet) {
+                    this.IDEAAnalysisPanel.addAdjMatrixToCombobox((AdjacencyMatrixDataSet) ads);                    
+                    if (currentTargetSet != null && StringUtils.equals(ads.getDataSetName(), currentTargetSet.trim())) {
+                    	IDEAAnalysisPanel.setSelectedAdjMatrix(ads.getDataSetName());
+        			}
+                }
+            }
+        }
+	}
+
 	
 }

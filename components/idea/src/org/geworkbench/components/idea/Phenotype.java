@@ -1,9 +1,5 @@
 package org.geworkbench.components.idea;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -37,52 +33,7 @@ public class Phenotype implements Serializable {
 		columnExcluded = new HashSet<Integer>();
 		newColumnIncluded = nullPhenoCols;
 	}
-	
-	public Phenotype(File file) throws IOException {
-		int maxIndex = 0;
-		
-		BufferedReader br = new BufferedReader(new FileReader(file));		
-		String line = br.readLine();	//first line is Include phenotype
-		//phenotypeAsString[0]=line;
-		String[] tokens = line.split("\\s");
-		Set<Integer> columnIncluded = new HashSet<Integer>();
-		if(tokens[0].matches("[[A-Za-z]|\\-]*")) {
-			for(int i=0; i<tokens.length-1; i++) {
-				int index = Integer.parseInt(tokens[i + 1]) - 1;
-				if(index>maxIndex) maxIndex = index;
-				columnIncluded.add( index );
-			}
-		} else {
-			throw new IOException("Format Error: phetype file does not have 'Included' line.");
-		}
-		
-		line = br.readLine();		//second line is Exclude.
-		//phenotypeAsString[1]=line;
-		tokens = line.split("\\s");
-		if(tokens[0].matches("[[A-Za-z]|\\-]*")) {
-			columnExcluded = new HashSet<Integer>();
-			for(int i=0; i<tokens.length-1; i++) {
-				int index = Integer.parseInt(tokens[i + 1]) - 1;
-				if(index>maxIndex) maxIndex = index;
-				columnExcluded.add( index );
-			}
-		} else {
-			throw new IOException("Format Error: phetype file does not have 'Excluded' line.");
-		}
-		
-		
-		newColumnIncluded= new HashSet<Integer>();
-		int newIndex = 0;
-		for(int i=0; i<=maxIndex; i++) {
-			if(isExcluded(i)) continue;
-			
-			if(columnIncluded.contains(i)) {
-				newColumnIncluded.add(newIndex);
-			}
-			newIndex++;
-		}
-	}
-	
+
 	/**
 	 * Check if this column number belongs to the 'phenotype' set.
 	 * The index is based on the set that excludes the 'excluded' columns.
