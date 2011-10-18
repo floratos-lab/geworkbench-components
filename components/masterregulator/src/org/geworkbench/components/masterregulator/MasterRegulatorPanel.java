@@ -42,6 +42,7 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.events.listeners.ParameterActionListener;
+import org.geworkbench.parsers.InputFileFormatException;
 import org.geworkbench.util.FilePathnameUtils;
 
 import com.jgoodies.binding.adapter.BasicComponentFactory;
@@ -305,12 +306,16 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 						networkFilename = selectedFile.getName();
 						saveLastDir(selectedFile.getParent());
 						if (!is5colnetwork(adjMatrixFileStr, 10)){
-							AdjacencyMatrixDataSet adjMatrix = new AdjacencyMatrixDataSet(
-									null, 0, adjMatrixFileStr, adjMatrixFileStr,
-									maSet);
-							adjMatrix.readFromFile(adjMatrixFileStr, maSet);
-							this.adjMatrixHolder.remove("adjMatrix");
-							this.adjMatrixHolder.put("adjMatrix", adjMatrix);
+							try {
+								AdjacencyMatrixDataSet adjMatrix = new AdjacencyMatrixDataSet(
+										0, adjMatrixFileStr, adjMatrixFileStr,
+										maSet, adjMatrixFileStr);
+								this.adjMatrixHolder.remove("adjMatrix");
+								this.adjMatrixHolder.put("adjMatrix", adjMatrix);
+							} catch (InputFileFormatException e1) {
+								log.error(e1.getMessage());
+								e1.printStackTrace();
+							}
 						}
 					} else {
 						// user canceled
@@ -606,11 +611,15 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 			networkTextField.setText(networkText);
 			networkFilename = new File(networkText).getName();
 			if (!is5colnetwork(networkText, 10)){
-				AdjacencyMatrixDataSet adjMatrix2 = new AdjacencyMatrixDataSet(
-						null, 0, networkText, networkText, maSet);
-				adjMatrix2.readFromFile(networkText, maSet);
-				this.adjMatrix.remove("adjMatrix");
-				this.adjMatrix.put("adjMatrix", adjMatrix2);
+				try {
+					AdjacencyMatrixDataSet adjMatrix2 = new AdjacencyMatrixDataSet(
+							0, networkText, networkText, maSet, networkText);
+					this.adjMatrix.remove("adjMatrix");
+					this.adjMatrix.put("adjMatrix", adjMatrix2);
+				} catch (InputFileFormatException e) {
+					log.error(e.getMessage());
+					e.printStackTrace();
+				}
 			}
 		}
 		if (parameters.get("tfFrom") != null
