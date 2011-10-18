@@ -2,7 +2,7 @@ package org.geworkbench.components.alignment.blast;
 
 import org.geworkbench.analysis.AbstractAnalysis;
 
-import java.awt.Color;
+ 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -273,74 +273,7 @@ public class BlastAnalysis extends AbstractAnalysis implements
 				null);
 
 
-	}
-	 
-
-	/**
-	 * The workhorse to run Blast program.
-	 * 
-	 * This method is invoked by from the working thread.
-	 */
-	// @Override
-	/*
-	 * protected CSAlignmentResultSet doInBackground() throws Exception { if
-	 * (sequenceDB == null || parentSequenceDB == null) { throw new
-	 * Exception("null sequenceDB or null parentSequenceDB"); }
-	 * 
-	 * String tempFolder = FilePathnameUtils.getTemporaryFilesDirectoryPath(); //
-	 * generate a new file name for the coming output file. String outputFile =
-	 * tempFolder + "Blast" + RandomNumberGenerator.getID() + ".html";
-	 * 
-	 * RemoteBlast blast; DSSequenceSet<? extends DSSequence> parentSequenceSet =
-	 * parentSequenceDB;
-	 * 
-	 * for (CSSequence sequence : sequenceDB) { updateStatus("Uploading
-	 * sequence: " + sequence); blast = new RemoteBlast(sequence.getSequence(),
-	 * outputFile, AlgorithmMatcher .translateToCommandline(parameterSetting));
-	 * String BLAST_rid = null; try { BLAST_rid = blast.submitBlast(); } catch
-	 * (NcbiResponseException e1) { processExceptionFromNcbi(e1, sequence);
-	 * return null; } if (isCancelled()) { return null; } if (BLAST_rid == null) {
-	 * if (blastAnalysisPanel != null) { blastAnalysisPanel .reportError(
-	 * "Sequence " + sequence + " cannot be blasted, please check your
-	 * parameters.", "Parameter Error"); } updateStatus(false, "NCBI Blast is
-	 * stopped at " + new Date()); return null; } updateStatus("The Request ID
-	 * is : " + BLAST_rid);
-	 * 
-	 * String resultURLString =
-	 * "http://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Get&FORMAT_TYPE=HTML&RID=" +
-	 * BLAST_rid; Status status = blast.retrieveResult(resultURLString);
-	 * while(status==Status.WAITING && !isCancelled()) { updateStatus("For
-	 * sequence " + sequence + ", the blast job is running. "); try {
-	 * Thread.sleep(TIMEGAP); } catch (InterruptedException e) { // do nothing }
-	 * status = blast.retrieveResult(resultURLString); } if(isCancelled())
-	 * return null; else if(status!=Status.READY) { String msg =
-	 * parseError(outputFile); processExceptionFromNcbi(new Exception(msg),
-	 * sequence); return null; } } if(isCancelled()){ updateStatus(false, "NCBI
-	 * Blast is canceled at " + new Date()); return null; } updateStatus(false,
-	 * "NCBI Blast is finisheded at " + new Date()); String outputFilePath =
-	 * "file://" + new File(outputFile).getAbsolutePath(); if
-	 * (parameterSetting.isViewInBrowser()) { if ((new
-	 * File(outputFile)).canRead()) { try { String osName =
-	 * System.getProperty("os.name"); if (osName.startsWith("Mac OS")) {
-	 * BrowserLauncher.openURL(outputFilePath); } else {
-	 * BrowserLauncher.openURL("file:///"+new File(outputFile)
-	 * .getAbsolutePath().replace("\\", "/").replace(" ", "%20")); } } catch
-	 * (Exception ex) { ex.printStackTrace();
-	 * JOptionPane.showMessageDialog(null, "No web browser can be launched, the
-	 * result is saved at " + outputFile, "No Web Browser",
-	 * JOptionPane.ERROR_MESSAGE); } } else {
-	 * 
-	 * JOptionPane.showMessageDialog(null, "The result cannot be read at " +
-	 * outputFile, "File cannot be read", JOptionPane.ERROR_MESSAGE); } }
-	 * 
-	 * CSAlignmentResultSet blastResult = new CSAlignmentResultSet(outputFile,
-	 * sequenceDB .getFASTAFileName(), sequenceDB, parentSequenceSet);
-	 * blastResult.setLabel(blastAnalysisPanel.NCBILABEL); ProjectNodeAddedEvent
-	 * event = new ProjectNodeAddedEvent(null, null, blastResult);
-	 * if(isCancelled())return null;
-	 * blastAnalysisPanel.publishProjectNodeAddedEvent(event); log.debug("blast
-	 * result node added"); return blastResult; }
-	 */
+	}	 
 
 	private static String parseError(String outputFile) {
 		BufferedReader br = null;
