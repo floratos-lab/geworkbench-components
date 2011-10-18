@@ -36,6 +36,7 @@ import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.bison.annotation.CSAnnotationContextManager;
 import org.geworkbench.bison.annotation.DSAnnotationContext;
 import org.geworkbench.bison.annotation.DSAnnotationContextManager;
+import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
@@ -201,6 +202,10 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 					pvshadow.setEnabled(false);
 					pvsynergy.setEnabled(false);
 					pValueTextField.setEnabled(false);
+					networkFrom.setEnabled(false);
+					networkMatrix.setEnabled(false);
+					networkTextField.setEnabled(false);
+					loadNetworkButton.setEnabled(false);
 					resultid.setEnabled(true);
 				} else {
 					mintg.setEnabled(true);
@@ -210,6 +215,13 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 					pvshadow.setEnabled(true);
 					pvsynergy.setEnabled(true);
 					pValueTextField.setEnabled(true);
+					networkFrom.setEnabled(true);
+					if (networkFrom.getSelectedIndex()==0)
+						networkMatrix.setEnabled(true);
+					else{
+						networkTextField.setEnabled(true);
+						loadNetworkButton.setEnabled(true);
+					}
 					resultid.setEnabled(false);
 				}
 				parameterActionListener.actionPerformed(null);
@@ -267,6 +279,9 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		TFGeneListTextField.addFocusListener(parameterActionListener);
 		sigGeneListTextField.addFocusListener(parameterActionListener);
 		networkTextField.addFocusListener(parameterActionListener);
+		networkFrom.addFocusListener(parameterActionListener);
+		networkMatrix.addFocusListener(parameterActionListener);
+		loadNetworkButton.addFocusListener(parameterActionListener);
 		pValueTextField.addFocusListener(parameterActionListener);
 		mintg.addFocusListener(parameterActionListener);
 		minsp.addFocusListener(parameterActionListener);
@@ -605,7 +620,7 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
      	if (parameters.get("networkMatrix") != null )
 	        networkMatrix.setSelectedItem(parameters.get("networkMatrix"));
 		
-		String networkText = parameters.get("networkField").toString();		 
+		String networkText = parameters.get("networkField")==null?null:parameters.get("networkField").toString();		 
 		if (maSet != null && networkTextField.isEnabled()
 				&& networkText != null && !networkText.trim().equals("")) {
 			networkTextField.setText(networkText);
@@ -684,10 +699,12 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		Map<Serializable, Serializable> answer = new HashMap<Serializable, Serializable>();
 		answer.put("TF", getTranscriptionFactor());
 		answer.put("sigMarkers", getSigMarkers());	 
-		answer.put("networkFrom", networkFrom.getSelectedIndex());	
+		if (networkFrom.isEnabled())
+			answer.put("networkFrom", networkFrom.getSelectedIndex());	
 		if (networkMatrix.getSelectedItem() != null)
 		   answer.put("networkMatrix", (String)networkMatrix.getSelectedItem());
-		answer.put("networkField", networkTextField.getText());
+		if (networkTextField.isEnabled())
+			answer.put("networkField", networkTextField.getText());
 		answer.put("tfFrom", tfFrom.getSelectedIndex());	 
 		answer.put("sigFrom", sigFrom.getSelectedIndex());
 		if (tfGroups.getSelectedItem() != null)
@@ -896,11 +913,19 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 
 	private String networkFilename = "";
 	public String getNetworkFilename(){
+		if (!networkTextField.isEnabled()) return "adjMatrix5col.txt";
 		return networkFilename;
 	}
 
 	/*get zipped network file in byte[]*/
 	public byte[] getNetwork(){
+		if (!networkFrom.isEnabled()) return null;
+		if (!networkMatrix.isEnabled())
+			return getNetworkFromFile();
+		else return getNetworkFromAdjMatrix();
+	}
+	
+	private byte[] getNetworkFromFile(){
 		String fname = networkTextField.getText();
 		if (!is5colnetwork(fname, 0))
 			return null;
@@ -928,6 +953,43 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 				if (zipout!=null) zipout.close();
 			} catch (IOException e) {
 				e.printStackTrace();
+			}
+		}
+	}
+
+	private byte[] getNetworkFromAdjMatrix(){
+		AdjacencyMatrixDataSet amSet = getAdjMatrixDataSet();
+		AdjacencyMatrix matrix  = amSet.getMatrix();
+		if (amSet==null || matrix==null)
+			return null;
+		GZIPOutputStream zipout = null;
+		try{
+			ByteArrayOutputStream bo = new ByteArrayOutputStream();
+			zipout = new GZIPOutputStream(bo);
+
+			for (AdjacencyMatrix.Node node1 : matrix.getNodes()) {
+				StringBuilder builder = new StringBuilder();
+				for (AdjacencyMatrix.Edge edge : matrix.getEdges(node1)) {
+					builder.append(amSet.getExportName(node1) + "\t");
+					builder.append(amSet.getExportName(edge.node2) + "\t"
+							+ edge.info.value +"\t"  // Mutual information
+							+ "1\t"   // Spearman's correlation = 1
+							+ "0\n"); // P-value for Spearman's correlation = 0
+				}
+				zipout.write(builder.toString().getBytes());
+			}
+			zipout.close();
+			return bo.toByteArray();
+		}catch(IOException e){
+			e.printStackTrace();
+			return null;
+		}finally{
+			if (zipout!=null) {
+				try{
+					zipout.close();
+				}catch(Exception e){
+					e.printStackTrace();
+				}
 			}
 		}
 	}
