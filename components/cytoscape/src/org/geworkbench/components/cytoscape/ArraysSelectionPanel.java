@@ -155,7 +155,7 @@ public class ArraysSelectionPanel extends JPanel   {
 			}
 		} else // use all arrays
 		{
-			int num = maSet.getRow(0).length;
+			int num = maSet.size();
 
 			values = new double[num];
 			double[] valuesForOneArray = new double[markerSet.size()];
