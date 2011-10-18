@@ -78,7 +78,7 @@ public class MedusaUtil {
 			for (DSGeneMarker marker : markers) {
 
 				double[] data = microarraySetView.getMicroarraySet().getRow(
-						marker.getSerial());
+						marker);
 
 				if (data == null)
 					continue;
