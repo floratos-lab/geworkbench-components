@@ -456,7 +456,7 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
 			else
 				return new ParamValidationResults(true, "No Error");
 		}
-		if (mraAnalysisPanel.getNetwork() == null)
+		if (mraAnalysisPanel.is5colnetwork() && mraAnalysisPanel.getNetwork() == null)
 			return new ParamValidationResults(false, "Network is invalid.");
 		
 		if (mraAnalysisPanel.getMintg() <= 0)
