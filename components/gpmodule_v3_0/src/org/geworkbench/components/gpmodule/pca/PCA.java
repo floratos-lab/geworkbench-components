@@ -176,7 +176,7 @@ public class PCA extends MicroarrayViewEventBase
 
                 for(int pc = 0; pc < pcs.length; pc++)
                 {
-                    CSMicroarray array =  new CSMicroarray(numRows);
+                    DSMicroarray array =  new CSMicroarray(numRows);
                     CSMarkerVector markerVector = pcDataSet.getMarkerVector();
                     for(int r = 0; r < numRows; r++)
                     {
