@@ -38,6 +38,7 @@ import org.geworkbench.bison.annotation.DSAnnotationContext;
 import org.geworkbench.bison.annotation.DSAnnotationContextManager;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
+import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
@@ -701,7 +702,7 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		answer.put("sigMarkers", getSigMarkers());	 
 		if (networkFrom.isEnabled())
 			answer.put("networkFrom", networkFrom.getSelectedIndex());	
-		if (networkMatrix.getSelectedItem() != null)
+		if (networkMatrix.isEnabled() && networkMatrix.getSelectedItem() != null)
 		   answer.put("networkMatrix", (String)networkMatrix.getSelectedItem());
 		if (networkTextField.isEnabled())
 			answer.put("networkField", networkTextField.getText());
@@ -826,6 +827,10 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	public boolean is5colnetwork(){
+		return is5colnetwork(networkTextField.getText(), 10);
 	}
 
 	private boolean isDouble(String s){
@@ -968,6 +973,8 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 			zipout = new GZIPOutputStream(bo);
 
 			for (AdjacencyMatrix.Node node1 : matrix.getNodes()) {
+				if (node1.type != NodeType.MARKER)
+					return null;
 				StringBuilder builder = new StringBuilder();
 				for (AdjacencyMatrix.Edge edge : matrix.getEdges(node1)) {
 					builder.append(amSet.getExportName(node1) + "\t");
