@@ -49,8 +49,7 @@ public class MicroarrayCenteringNormalizer extends AbstractAnalysis implements N
         return AbstractAnalysis.MICROARRAY_MEAN_MEDIAN_CENTERING_NORMALIZER_TYPE;
     }
 
-    @SuppressWarnings("unchecked")
-	public AlgorithmExecutionResults execute(Object input) {
+    public AlgorithmExecutionResults execute(Object input) {
         if (input == null || !(input instanceof DSMicroarraySet))
             return new AlgorithmExecutionResults(false, "Invalid input.", null);
 
@@ -58,7 +57,7 @@ public class MicroarrayCenteringNormalizer extends AbstractAnalysis implements N
         meanMedianType = ((CenteringNormalizerPanel) aspp).getAveragingSelection();
         missingValues = ((CenteringNormalizerPanel) aspp).getMissingValueTreatment();
 
-        DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet<DSMicroarray>) input;
+        DSMicroarraySet maSet = (DSMicroarraySet) input;
         DSMicroarray mArray = null;
         double[] arrayValues = null;
         DSMutableMarkerValue markerValue = null;
@@ -119,7 +118,7 @@ public class MicroarrayCenteringNormalizer extends AbstractAnalysis implements N
      * @return A <code>double[]</code> array containing only the
      *         non-missing values for the designated microarray.
      */
-    double[] getNonMissingValues(DSMicroarraySet<DSMicroarray> maSet, int index) {
+    double[] getNonMissingValues(DSMicroarraySet maSet, int index) {
         if (maSet == null || index < 0 || index >= maSet.size())
             return null;
         int markerCount = maSet.getMarkers().size();

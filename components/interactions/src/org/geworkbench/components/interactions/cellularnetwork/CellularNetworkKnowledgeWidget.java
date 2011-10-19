@@ -83,7 +83,6 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.A
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.GeneOntologyUtil;
 import org.geworkbench.bison.datastructure.bioobjects.markers.goterms.GOTerm;
 import org.geworkbench.bison.datastructure.bioobjects.markers.goterms.GeneOntologyTree;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
@@ -212,7 +211,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	private Vector<Vector<Object>> cachedPreviewData = new Vector<Vector<Object>>();
 
-	private DSMicroarraySet<DSMicroarray> dataset = null;
+	private DSMicroarraySet dataset = null;
 
 	private Map<String, String> geneTypeMap = null;
 
@@ -2537,7 +2536,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			return;
 
 		if ((dataset == null) || (dataset.hashCode() != ds.hashCode())) {
-			dataset = (DSMicroarraySet<DSMicroarray>) ds;
+			dataset = (DSMicroarraySet) ds;
 			if (dataset.getValuesForName(Constants.CNKB_HITS) == null)
 				dataset.addNameValuePair(Constants.CNKB_HITS,
 						new Vector<CellularNetWorkElementInformation>());

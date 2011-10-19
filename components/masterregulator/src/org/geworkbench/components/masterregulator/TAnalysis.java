@@ -57,7 +57,7 @@ public class TAnalysis {
 
 		groupAssignments = new Group[numExps];
 
-		DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet<DSMicroarray>) datasetView.getDataSet();
+		DSMicroarraySet maSet = (DSMicroarraySet) datasetView.getDataSet();
 		DSAnnotationContextManager manager = CSAnnotationContextManager
 				.getInstance();
 		DSAnnotationContext<DSMicroarray> context = manager

@@ -26,10 +26,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.Iterator;
 
 import javax.swing.BorderFactory;
-import javax.swing.filechooser.FileFilter;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
@@ -48,7 +46,7 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory; 
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.engine.properties.PropertiesManager;
 import org.geworkbench.util.OWFileChooser;
 

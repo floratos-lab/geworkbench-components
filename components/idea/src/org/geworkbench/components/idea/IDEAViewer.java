@@ -30,7 +30,6 @@ import org.geworkbench.bison.datastructure.bioobjects.IdeaModule;
 import org.geworkbench.bison.datastructure.bioobjects.IdeaNode;
 import org.geworkbench.bison.datastructure.bioobjects.IdeaResultDataSet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
@@ -301,7 +300,7 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 				JFileChooser fc = new JFileChooser();
 				int returnVal = fc.showSaveDialog(IDEAViewer.this);
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
-					DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet<DSMicroarray>) ideaResult
+					DSMicroarraySet maSet = (DSMicroarraySet) ideaResult
 							.getParentDataSet();
 					saveNodeAsFile(fc.getSelectedFile(),
 							ideaResult.getNodeList(),

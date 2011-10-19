@@ -147,7 +147,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 			return null;
 		}
 
-		DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet<DSMicroarray>) set;
+		DSMicroarraySet maSet = (DSMicroarraySet) set;
 		DSAnnotationContextManager manager = CSAnnotationContextManager
 				.getInstance();
 		DSAnnotationContext<DSMicroarray> context = manager
@@ -799,7 +799,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 
 	}
 
-	private void setFoldChnage(DSMicroarraySet<DSMicroarray> set,
+	private void setFoldChnage(DSMicroarraySet set,
 			DSSignificanceResultSet<DSGeneMarker> resultSet) {
 
 		String[] caseLabels = resultSet.getLabels(DSTTestResultSet.CASE);

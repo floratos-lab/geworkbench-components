@@ -72,7 +72,7 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 	private int geneNo = 0;
 	private int clusterNo = 0;
 	private EisenBlock[] cluster = new EisenBlock[maxClusterNo];
-	private DSMicroarraySet<DSMicroarray> microarraySet = null;
+	private DSMicroarraySet microarraySet = null;
 	private BorderLayout borderLayout1 = new BorderLayout();
 
 	private DSPanel<DSGeneMarker> markerPanel = null;
@@ -421,7 +421,7 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 	/*
 	 * This method is only called in COlorMosaicPanel.
 	 */
-	void setChips(DSMicroarraySet<DSMicroarray> chips) {
+	void setChips(DSMicroarraySet chips) {
 		microarraySet = chips;
 		clearPatterns();
 	}
@@ -432,7 +432,7 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 	}
 
 	/* used only by ColorMosaicPanel */
-	DSMicroarraySet<DSMicroarray> getChips() {
+	DSMicroarraySet getChips() {
 		return microarraySet;
 	}
 
@@ -537,7 +537,7 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 	}
 
 	/* used only ColorMosaicPanel */
-	DSMicroarraySet<DSMicroarray> getGeneChips() {
+	DSMicroarraySet getGeneChips() {
 		return microarraySet;
 	}
 

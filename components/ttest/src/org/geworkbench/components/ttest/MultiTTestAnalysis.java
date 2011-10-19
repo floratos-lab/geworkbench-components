@@ -79,7 +79,7 @@ public class MultiTTestAnalysis extends AbstractAnalysis implements
 		ProgressBarT pbMTtest = null;
 		try {
 			DSMicroarraySetView<DSGeneMarker, DSMicroarray> view = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
-			DSMicroarraySet<DSMicroarray> maSet = view.getMicroarraySet();
+			DSMicroarraySet maSet = view.getMicroarraySet();
 			TTest tTest = new TTestImpl();
 			// Get params
 			Set<String> labelSet = panel.getLabels();
@@ -238,12 +238,12 @@ public class MultiTTestAnalysis extends AbstractAnalysis implements
 		return null;
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({ "rawtypes" })
 	@Subscribe
 	public void receive(ProjectEvent event, Object source) {
 		DSDataSet dataSet = event.getDataSet();
 		if ((dataSet != null) && (dataSet instanceof DSMicroarraySet)) {
-			panel.setMaSet((DSMicroarraySet<DSMicroarray>) dataSet);
+			panel.setMaSet((DSMicroarraySet) dataSet);
 			panel.rebuildForm();
 		}
 	}
@@ -313,7 +313,7 @@ public class MultiTTestAnalysis extends AbstractAnalysis implements
 
 	}
 	
-	private void setFoldChnage(DSMicroarraySet<DSMicroarray> set, DSSignificanceResultSet<DSGeneMarker> resultSet)
+	private void setFoldChnage(DSMicroarraySet set, DSSignificanceResultSet<DSGeneMarker> resultSet)
 	{ 
                       
              String[] caseLabels = resultSet.getLabels(DSTTestResultSet.CASE);

@@ -2,7 +2,6 @@ package org.geworkbench.components.normalization;
 
 import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.NormalizingAnalysis;
@@ -41,13 +40,12 @@ public class MissingValueNormalizer extends AbstractAnalysis implements Normaliz
         return MISSING_VALUE_NORMALIZER_TYPE;
     }
 
-    @SuppressWarnings("unchecked")
-	public AlgorithmExecutionResults execute(Object input) {
+    public AlgorithmExecutionResults execute(Object input) {
         if (input == null || !(input instanceof DSMicroarraySet))
             return new AlgorithmExecutionResults(false, "Invalid input.", null);
 
         // Set things up for the calculations to begin.
-        DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet<DSMicroarray>) input;
+        DSMicroarraySet maSet = (DSMicroarraySet) input;
         int arrayCount = maSet.size();
         int markerCount = maSet.getMarkers().size();
 

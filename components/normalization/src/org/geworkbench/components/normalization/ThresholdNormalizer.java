@@ -42,12 +42,11 @@ public class ThresholdNormalizer extends AbstractAnalysis implements Normalizing
         return THRESHOLD_NORMALIZER_TYPE;
     }
 
-    @SuppressWarnings("unchecked")
-	public AlgorithmExecutionResults execute(Object input) {
+    public AlgorithmExecutionResults execute(Object input) {
         if (input == null || !(input instanceof DSMicroarraySet))
             return new AlgorithmExecutionResults(false, "Invalid input.", null);
 
-        DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet<DSMicroarray>) input;
+        DSMicroarraySet maSet = (DSMicroarraySet) input;
         // Collect the parameters needed for the execution of the normalizer
         threshold = ((ThresholdNormalizerPanel) aspp).getCutoffValue();
         thresholdType = ((ThresholdNormalizerPanel) aspp).getCutoffType();

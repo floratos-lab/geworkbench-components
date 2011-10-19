@@ -194,7 +194,7 @@ public class VolcanoPlot implements VisualPlugin {
 	}
 
 	private void generateChart() {
-        DSMicroarraySet<DSMicroarray> set = significance.getParentDataSet();
+        DSMicroarraySet set = significance.getParentDataSet();
         String[] caseLabels = significance.getLabels(DSTTestResultSet.CASE);
         String[] controlLabels = significance.getLabels(DSTTestResultSet.CONTROL);
         DSAnnotationContext<DSMicroarray> context = CSAnnotationContextManager.getInstance().getCurrentContext(set);

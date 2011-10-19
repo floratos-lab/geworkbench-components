@@ -5,7 +5,6 @@ import java.util.Arrays;
 import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMarkerValue;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.NormalizingAnalysis;
@@ -52,15 +51,14 @@ public class MarkerMeanVarianceNormalizer extends AbstractAnalysis implements No
         return AbstractAnalysis.MARKER_MEAN_VARIANCE_NORMALIZER_TYPE;
     }
 
-    @SuppressWarnings("unchecked")
-	public AlgorithmExecutionResults execute(Object input) {
+    public AlgorithmExecutionResults execute(Object input) {
         if (input == null || !(input instanceof DSMicroarraySet))
             return new AlgorithmExecutionResults(false, "Invalid input.", null);
 
         // Collect the parameters needed for the execution of the normalizer
         missingValues = ((MarkerMeanVarianceNormalizerPanel) aspp).getMissingValueTreatment();
 
-        DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet<DSMicroarray>) input;
+        DSMicroarraySet maSet = (DSMicroarraySet) input;
         double[] profile = null;
         DSMutableMarkerValue markerValue = null;
         double signal = 0.0d;
@@ -133,7 +131,7 @@ public class MarkerMeanVarianceNormalizer extends AbstractAnalysis implements No
      * @return A <code>double[]</code> array containing only the
      *         non-missing values for the marker.
      */
-    double[] getProfile(DSMicroarraySet<DSMicroarray> maSet, int index) {
+    double[] getProfile(DSMicroarraySet maSet, int index) {
         if (maSet == null || index < 0 || index >= maSet.getMarkers().size())
             return null;
         int arrayCount = maSet.size();

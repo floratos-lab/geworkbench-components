@@ -326,6 +326,7 @@ public class PatternTableView extends JPanel {
     }
 
     private void addPatToProj_actionPerformed() {
+    	// FIXME this is right
         PatternResult db = getPatternDB();
         //widget.getAppComponent().createNewNode(db);
     }

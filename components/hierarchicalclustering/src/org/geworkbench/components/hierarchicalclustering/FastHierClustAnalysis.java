@@ -71,7 +71,7 @@ public class FastHierClustAnalysis extends AbstractGridAnalysis implements
 			return new AlgorithmExecutionResults(false, "Invalid input.", null);
 		assert input instanceof DSMicroarraySetView;
 		data = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
-		DSMicroarraySet<DSMicroarray> maSet = data.getMicroarraySet();
+		DSMicroarraySet maSet = data.getMicroarraySet();
 		int numMAs = data.items().size();
 		int numMarkers = data.getUniqueMarkers().size();
 		if ((numMAs < 3)&&(numMarkers < 3)) {

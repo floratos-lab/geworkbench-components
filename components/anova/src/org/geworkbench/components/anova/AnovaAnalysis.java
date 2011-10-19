@@ -83,7 +83,7 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 	public AlgorithmExecutionResults execute(Object input) {
 		assert (input instanceof DSMicroarraySetView);
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> view = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
-		DSMicroarraySet<DSMicroarray> maSet = view.getMicroarraySet();
+		DSMicroarraySet maSet = view.getMicroarraySet();
 
 		/* Get params */
 		double pvalueth = anovaAnalysisPanel.pValueThreshold;

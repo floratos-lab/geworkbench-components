@@ -40,13 +40,12 @@ public class MultipleProbesetFilter extends FilteringAnalysis {
 		setDefaultPanel(new MultipleProbesetFilterPanel());
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public List<Integer> getMarkersToBeRemoved(DSMicroarraySet<?> input) {
+	public List<Integer> getMarkersToBeRemoved(DSMicroarraySet input) {
 
 		getParametersFromPanel();
 
-		maSet = (DSMicroarraySet<DSMicroarray>) input;
+		maSet = (DSMicroarraySet) input;
 		DSItemList<DSGeneMarker> dsItemList = maSet.getMarkers();
 
 		if(maSet.getAnnotationFileName()==null) {
@@ -199,7 +198,7 @@ public class MultipleProbesetFilter extends FilteringAnalysis {
 		return median;
 	}
 	
-	private double[] getProfile(DSMicroarraySet<DSMicroarray> maSet, int index) {
+	private double[] getProfile(DSMicroarraySet maSet, int index) {
 		if (maSet == null || index < 0 || index >= maSet.getMarkers().size())
 			return null;
 		int arrayCount = maSet.size();

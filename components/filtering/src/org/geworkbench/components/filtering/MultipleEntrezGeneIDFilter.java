@@ -8,7 +8,6 @@ import javax.swing.JOptionPane;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
@@ -42,10 +41,9 @@ public class MultipleEntrezGeneIDFilter extends FilteringAnalysis {
 		filterAction = multipleEntrezGeneIDFilterPanel.getFilterAction();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public List<Integer> getMarkersToBeRemoved(DSMicroarraySet<?> input) {
-		maSet = (DSMicroarraySet<DSMicroarray>) input;
+	public List<Integer> getMarkersToBeRemoved(DSMicroarraySet input) {
+		maSet = (DSMicroarraySet) input;
 		if(maSet.getAnnotationFileName()==null){
 			JOptionPane.showMessageDialog(null, "The filter needs annotation file. Please load it first.",
 					"Multiple Gene ID Filter Error", JOptionPane.ERROR_MESSAGE);
@@ -62,9 +60,8 @@ public class MultipleEntrezGeneIDFilter extends FilteringAnalysis {
 		return null;
 	}
 
-	@SuppressWarnings("unchecked")
-	private List<Integer> remove(DSMicroarraySet<?> input) {
-		maSet = (DSMicroarraySet<DSMicroarray>) input;
+	private List<Integer> remove(DSMicroarraySet input) {
+		maSet = (DSMicroarraySet) input;
 		DSItemList<DSGeneMarker> dsItemList = maSet.getMarkers();		
 		
 		List<Integer> removeList = new ArrayList<Integer>();
@@ -101,9 +98,8 @@ public class MultipleEntrezGeneIDFilter extends FilteringAnalysis {
 		return removeList;
 	}
 
-	@SuppressWarnings("unchecked")
-	private void createFromMatching(DSMicroarraySet<?> input){
-		maSet = (DSMicroarraySet<DSMicroarray>) input;
+	private void createFromMatching(DSMicroarraySet input){
+		maSet = (DSMicroarraySet) input;
 		String label = input.getLabel();
 		DSItemList<DSGeneMarker> dsItemList = maSet.getMarkers();
 		getParametersFromPanel();
@@ -136,9 +132,8 @@ public class MultipleEntrezGeneIDFilter extends FilteringAnalysis {
 
 	}
 
-	@SuppressWarnings("unchecked")
-	private void createFromExcluding(DSMicroarraySet<?> input){
-		maSet = (DSMicroarraySet<DSMicroarray>) input;
+	private void createFromExcluding(DSMicroarraySet input){
+		maSet = (DSMicroarraySet) input;
 		String label = input.getLabel();
 		DSItemList<DSGeneMarker> dsItemList = maSet.getMarkers();
 		getParametersFromPanel();

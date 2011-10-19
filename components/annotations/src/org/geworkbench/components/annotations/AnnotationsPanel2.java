@@ -1193,7 +1193,7 @@ public class AnnotationsPanel2 implements VisualPlugin{
     GeneSearchCriteria criteria = null;
     Pathway[] pathways = new Pathway[0];
 
-    DSMicroarraySet<DSMicroarray>  maSet = null;
+    DSMicroarraySet  maSet = null;
 
     /**
      * geneSelectorAction
@@ -1227,7 +1227,7 @@ public class AnnotationsPanel2 implements VisualPlugin{
         int hashcode = 0;
 
         if (data != null && data instanceof DSMicroarraySet) {
-            maSet = (DSMicroarraySet<DSMicroarray>) data;
+            maSet = (DSMicroarraySet) data;
 
         }
 

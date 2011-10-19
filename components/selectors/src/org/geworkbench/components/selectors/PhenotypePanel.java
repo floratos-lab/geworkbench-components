@@ -116,7 +116,7 @@ public class PhenotypePanel extends SelectorPanel<DSMicroarray> {
         }
     }
 
-    private DSMicroarraySet<DSMicroarray> set;
+    private DSMicroarraySet set;
     private JRadioButtonMenuItem[] rightClickClassButtons;
     private JRadioButtonMenuItem[] leftClickClassButtons;
     private JPopupMenu classPopup;
@@ -331,10 +331,10 @@ public class PhenotypePanel extends SelectorPanel<DSMicroarray> {
         context.setDefaultClass(DEFAULT_CLASS);
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({ "rawtypes" })
 	protected boolean dataSetChanged(DSDataSet dataSet) {
         if (dataSet instanceof DSMicroarraySet) {
-            set = (DSMicroarraySet<DSMicroarray>) dataSet;
+            set = (DSMicroarraySet) dataSet;
             setItemList(set);
             return true;
         } else {

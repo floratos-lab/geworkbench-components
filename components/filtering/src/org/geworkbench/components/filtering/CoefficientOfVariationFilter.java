@@ -118,7 +118,7 @@ public class CoefficientOfVariationFilter extends FilteringAnalysis{
      * @return A <code>double[]</code> array containing the
      *         marker values across all microarrays.
      */
-    double[] getProfile(DSMicroarraySet<DSMicroarray> maSet, int index) {
+    double[] getProfile(DSMicroarraySet maSet, int index) {
         if (maSet == null || index < 0 || index >= maSet.getMarkers().size())
             return null;
         int arrayCount = maSet.size();
@@ -162,7 +162,7 @@ public class CoefficientOfVariationFilter extends FilteringAnalysis{
      *
      * @param maSet The reference microarray set.
      */
-    private void computeMicroarrayAverages(DSMicroarraySet<DSMicroarray> maSet) {
+    private void computeMicroarrayAverages(DSMicroarraySet maSet) {
         if (maSet == null)
             return;
         int markerCount = maSet.getMarkers().size();
@@ -213,11 +213,10 @@ public class CoefficientOfVariationFilter extends FilteringAnalysis{
         numberThreshold = 0;
       }
 
-	@SuppressWarnings("unchecked")	
 	@Override
-	public List<Integer> getMarkersToBeRemoved(DSMicroarraySet<?> input) {
+	public List<Integer> getMarkersToBeRemoved(DSMicroarraySet input) {
 
-		maSet = (DSMicroarraySet<DSMicroarray>) input;
+		maSet = (DSMicroarraySet) input;
 		
 		int markerCount = maSet.getMarkers().size();
         int arrayCount = maSet.size();

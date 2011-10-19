@@ -35,12 +35,11 @@ public class LogTransformationNormalizer extends AbstractAnalysis implements Nor
         return analysisType;
     }
 
-    @SuppressWarnings("unchecked")
-	public AlgorithmExecutionResults execute(Object input) {
+    public AlgorithmExecutionResults execute(Object input) {
         if (input == null || !(input instanceof DSMicroarraySet))
             return new AlgorithmExecutionResults(false, "Invalid input.", null);
 
-        DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet<DSMicroarray>) input;
+        DSMicroarraySet maSet = (DSMicroarraySet) input;
         DSItemList<DSGeneMarker> markerInfo = maSet.getMarkers();
         int count = maSet.size();
         DSMicroarray microarray = null;

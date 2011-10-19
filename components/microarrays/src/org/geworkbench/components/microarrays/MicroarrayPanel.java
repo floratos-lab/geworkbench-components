@@ -80,7 +80,7 @@ public class MicroarrayPanel extends MicroarrayVisualizer implements
 			Color.gray, Color.gray, Color.gray);
 	private BorderLayout jLayout = new BorderLayout();
 	private HashMap<String, ActionListener> listeners = new HashMap<String, ActionListener>();
-	private DSMicroarraySet<DSMicroarray> mArraySet = null;
+	private DSMicroarraySet mArraySet = null;
 	private boolean forcedSliderChange = false;
 
 	public MicroarrayPanel() {
@@ -96,7 +96,6 @@ public class MicroarrayPanel extends MicroarrayVisualizer implements
 		return (ActionListener) listeners.get(key);
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	protected void setMicroarraySet(DSMicroarraySet maSet) {
 		// Note that the check to guarantee that this is in fact a valid MA Set

@@ -564,7 +564,7 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 	static private DSMicroarraySetView<DSGeneMarker, DSMicroarray> discretize(
 			DSMicroarraySetView<DSGeneMarker, DSMicroarray> microarraySetView, double base, double bound) {
 
-		DSMicroarraySet<DSMicroarray> microarraySet = microarraySetView.getMicroarraySet();
+		DSMicroarraySet microarraySet = microarraySetView.getMicroarraySet();
 
 		/* extract microarray info from DSMicroarraySet */
 		int numArrays = microarraySetView.size();
