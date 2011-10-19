@@ -34,7 +34,6 @@ import org.geworkbench.bison.datastructure.biocollections.GoAnalysisResult;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
@@ -113,7 +112,7 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 			return new AlgorithmExecutionResults(false, e1.getMessage(), null);
 		}
 
-		DSMicroarraySetView<DSGeneMarker, CSMicroarray> microArraySetView = (DSMicroarraySetView<DSGeneMarker, CSMicroarray>) input;
+		DSMicroarraySetView<DSGeneMarker, DSMicroarray> microArraySetView = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
 		GoAnalysisResult analysisResult = new GoAnalysisResult(microArraySetView.getDataSet(), "Go Terms Analysis Result");
 
 		final String studySetFileName = "STUDYSET_TEMPORARY";
