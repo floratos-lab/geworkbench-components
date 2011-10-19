@@ -1103,7 +1103,7 @@ public class AnalysisPanel extends CommandBase implements
 	/**
 	 * Refresh the list of available analyses.
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({ "rawtypes" })
 	@Subscribe
 	public void receive(org.geworkbench.events.ProjectEvent event, Object source) {
 
@@ -1114,7 +1114,7 @@ public class AnalysisPanel extends CommandBase implements
 			DSDataSet<?> dataSet = event.getDataSet();
 			if (dataSet instanceof DSMicroarraySet) {
 				if (refMASet != dataSet) {
-					this.refMASet = (DSMicroarraySet<DSMicroarray>) dataSet;					
+					this.refMASet = (DSMicroarraySet) dataSet;					
 				}
 			}
 			refreshMaSetView();
@@ -1186,7 +1186,7 @@ public class AnalysisPanel extends CommandBase implements
 		try {
 			DSDataSet<DSMicroarray> set = data.getDataSet();
 			if (set instanceof DSMicroarraySet) {
-				DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet<DSMicroarray>) set;
+				DSMicroarraySet maSet = (DSMicroarraySet) set;
 				double minValue = Double.POSITIVE_INFINITY;
 				double maxValue = Double.NEGATIVE_INFINITY;
 				for (DSMicroarray microarray : maSet) {
@@ -1221,7 +1221,7 @@ public class AnalysisPanel extends CommandBase implements
 	/**
 	 * The reference microarray set.
 	 */
-	private DSMicroarraySet<DSMicroarray> refMASet = null;
+	private DSMicroarraySet refMASet = null;
 	private DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView = null;
 
 	private JCheckBox chkAllMarkers = new JCheckBox("All Markers", false);

@@ -114,7 +114,7 @@ public class FoldChangeAnalysis extends AbstractAnalysis implements
 			return null;
 		}
 
-		DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet<DSMicroarray>) set;
+		DSMicroarraySet maSet = (DSMicroarraySet) set;
 		DSAnnotationContextManager manager = CSAnnotationContextManager
 				.getInstance();
 		DSAnnotationContext<DSMicroarray> context = manager

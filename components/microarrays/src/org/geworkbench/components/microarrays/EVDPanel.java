@@ -431,7 +431,7 @@ public class EVDPanel extends MicroarrayViewEventBase {
         double max = 0.0d;
         double min = 0.0d;
         if (maSetView != null){
-        	maSet = (DSMicroarraySet<DSMicroarray>) maSetView.getDataSet();
+        	maSet = (DSMicroarraySet) maSetView.getDataSet();
         if (maSet != null && maSetView.markers() != null) {
             int numGenes = maSetView.markers().size();
             for (int geneCtr = 0; geneCtr < numGenes; geneCtr++) {
@@ -495,7 +495,7 @@ public class EVDPanel extends MicroarrayViewEventBase {
 
     }
 
-    private DSMicroarraySet<DSMicroarray> maSet = null;
+    private DSMicroarraySet maSet = null;
     public XYSeriesCollection createCollection(double min, double max,
                                                int selectedId, boolean active) {
         PanelVisualPropertiesManager propertiesManager =
@@ -507,7 +507,7 @@ public class EVDPanel extends MicroarrayViewEventBase {
         String bin = myFormatter.format(binSize);
         binNumLabel.setText("Bin size:  " + bin);
         XYSeriesCollection plots = new XYSeriesCollection();
-        maSet = (DSMicroarraySet<DSMicroarray>) maSetView.getDataSet();
+        maSet = (DSMicroarraySet) maSetView.getDataSet();
         if (maSet == null) {
             return null;
         }

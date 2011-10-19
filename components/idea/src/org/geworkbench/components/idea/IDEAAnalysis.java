@@ -102,7 +102,7 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 		}
 		
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> view = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
-		DSMicroarraySet<DSMicroarray> maSet = view.getMicroarraySet();
+		DSMicroarraySet maSet = view.getMicroarraySet();
 		if(maSet.getAnnotationFileName()==null){
 			return new AlgorithmExecutionResults(false,
 					"IDEA analysis needs annotation file. Please load it first.", null);
@@ -577,7 +577,7 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 		phenotype.setExcludeList(excludeSet);
 		
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> view = maSetView;
-		DSMicroarraySet<DSMicroarray> maSet = view.getMicroarraySet();
+		DSMicroarraySet maSet = view.getMicroarraySet();
 		if(maSet.getAnnotationFileName()==null){
 			return new ParamValidationResults(false,
 					"IDEA analysis needs annotation file. Please load it first.");
@@ -671,13 +671,13 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 	}
 	
 	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({ "rawtypes" })
 	@Subscribe
 	public void receive(org.geworkbench.events.ProjectEvent e, Object source) {
 		if (e.getMessage().equals(org.geworkbench.events.ProjectEvent.SELECTED)){
 			DSDataSet dataSet = e.getDataSet();
 			if (dataSet instanceof DSMicroarraySet) {
-				this.IDEAAnalysisPanel.setMicroarraySet((DSMicroarraySet<DSMicroarray>)dataSet);
+				this.IDEAAnalysisPanel.setMicroarraySet((DSMicroarraySet)dataSet);
 			}else{
 				this.IDEAAnalysisPanel.setMicroarraySet(null);
 			}

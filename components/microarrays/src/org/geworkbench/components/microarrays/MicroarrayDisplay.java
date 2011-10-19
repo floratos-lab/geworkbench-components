@@ -79,7 +79,7 @@ public class MicroarrayDisplay extends JPanel {
         }
     }
 
-    void setMicroarrays(DSMicroarraySet<DSMicroarray> microarrays) {
+    void setMicroarrays(DSMicroarraySet microarrays) {
         rows = 0;
         cols = 0;
         if (microarrays != null) {

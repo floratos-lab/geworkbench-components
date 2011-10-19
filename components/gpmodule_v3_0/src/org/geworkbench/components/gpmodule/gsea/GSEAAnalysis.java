@@ -221,7 +221,7 @@ public class GSEAAnalysis extends GPAnalysis
                       {
                           String history = generateHistoryString(view);
 
-                          DSMicroarraySet<DSMicroarray> maSet = view.getMicroarraySet();
+                          DSMicroarraySet maSet = view.getMicroarraySet();
 
                           DSAnnotationContext<DSMicroarray> context = CSAnnotationContextManager.getInstance().getCurrentContext(maSet);
 

@@ -67,7 +67,6 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationManager;
 import org.geworkbench.bison.datastructure.bioobjects.markers.goterms.GeneOntologyTree;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.builtin.projects.ProjectPanel;
@@ -546,11 +545,10 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
 	private DSPanel<DSGeneMarker> GeneToMarkers(String setLabel, Set<String> genes) {
 		DSPanel<DSGeneMarker> selectedMarkers = new CSPanel<DSGeneMarker>(
 				setLabel, "Go Terms Anlaysis");
-		DSMicroarraySet<DSMicroarray> dataset = (DSMicroarraySet<DSMicroarray>) (ProjectPanel
+		DSMicroarraySet dataset = (DSMicroarraySet) (ProjectPanel
 				.getInstance().getSelection().getDataSet());
 		for (Object obj : dataset.getMarkers()) {
 			DSGeneMarker marker = (DSGeneMarker) obj;
@@ -717,10 +715,9 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 	}
 	
 	// this is only used in the case of expression data set instead of ontology analysis result
-	private DSMicroarraySet<DSMicroarray> dataSet = null;
+	private DSMicroarraySet dataSet = null;
 	
 	// listen to the even that the user switches between data/result nodes, or new result node is created
-	@SuppressWarnings("unchecked")
 	@Subscribe
 	public void receive(ProjectEvent e, Object source) {
 		DSDataSet<?> dataSet = e.getDataSet();
@@ -737,7 +734,7 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 			repaint();
 		} else if (dataSet instanceof DSMicroarraySet) {
 			result = null;
-			this.dataSet = (DSMicroarraySet<DSMicroarray>)dataSet;
+			this.dataSet = (DSMicroarraySet)dataSet;
 			if(GeneOntologyTree.getInstance()==null) {
 				updateFromBackground();
 				return;

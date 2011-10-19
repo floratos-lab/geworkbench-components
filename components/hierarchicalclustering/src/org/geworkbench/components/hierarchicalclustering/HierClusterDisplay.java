@@ -174,7 +174,7 @@ public class HierClusterDisplay extends JPanel {
 		ColorContext colorCtx = null;
 
 		if (microarraySet.getDataSet() instanceof DSMicroarraySet) {
-			colorCtx = (org.geworkbench.bison.util.colorcontext.ColorContext) ((DSMicroarraySet<DSMicroarray>) microarraySet
+			colorCtx = (org.geworkbench.bison.util.colorcontext.ColorContext) ((DSMicroarraySet) microarraySet
 					.getDataSet())
 					.getObject(org.geworkbench.bison.util.colorcontext.ColorContext.class);
 		} else {

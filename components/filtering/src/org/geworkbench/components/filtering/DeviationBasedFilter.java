@@ -133,7 +133,7 @@ public class DeviationBasedFilter extends FilteringAnalysis {
      * @return A <code>double[]</code> array containing the
      *         marker values across all microarrays.
      */
-    double[] getProfile(DSMicroarraySet<DSMicroarray> maSet, int index) {
+    double[] getProfile(DSMicroarraySet maSet, int index) {
         if (maSet == null || index < 0 || index >= maSet.getMarkers().size())
             return null;
         int arrayCount = maSet.size();
@@ -177,7 +177,7 @@ public class DeviationBasedFilter extends FilteringAnalysis {
      *
      * @param maSet The reference microarray set.
      */
-    private void computeMicroarrayAverages(DSMicroarraySet<DSMicroarray> maSet) {
+    private void computeMicroarrayAverages(DSMicroarraySet maSet) {
         if (maSet == null)
             return;
         int markerCount = maSet.getMarkers().size();

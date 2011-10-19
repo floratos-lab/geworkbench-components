@@ -8,43 +8,41 @@ package org.geworkbench.components.cytoscape;
  */
 
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Iterator;
-import java.util.Map; 
-import java.util.Collections;
+import giny.view.NodeView;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.Color;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
-
-import javax.swing.AbstractListModel; 
-import javax.swing.JButton; 
+import javax.swing.AbstractListModel;
+import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListModel;
-import javax.swing.JDialog;
 import javax.swing.ListSelectionModel;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSSignificanceResultSet;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray; 
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
- 
+
 import cytoscape.Cytoscape;
 import cytoscape.data.CyAttributes;
 import cytoscape.view.CyNetworkView;
 import cytoscape.visual.parsers.ObjectToString;
- 
-import giny.view.NodeView;
 
 public class TTestResultSelectionPanel extends JPanel {
 	 
@@ -55,8 +53,8 @@ public class TTestResultSelectionPanel extends JPanel {
 	private JList list;
 	private List<String> TTestNameList = new ArrayList<String>();
 	protected Map<String, CSSignificanceResultSet<DSGeneMarker>> ttestResultMap;
-    protected DSMicroarraySet<? extends DSMicroarray> maSet;
-	public TTestResultSelectionPanel(JDialog parent, Map<String, CSSignificanceResultSet<DSGeneMarker>> map, DSMicroarraySet<? extends DSMicroarray> maSet) {
+    protected DSMicroarraySet maSet;
+	public TTestResultSelectionPanel(JDialog parent, Map<String, CSSignificanceResultSet<DSGeneMarker>> map, DSMicroarraySet maSet) {
 		setLayout(new BorderLayout());
 
 		this.parent = parent;		 

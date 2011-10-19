@@ -83,7 +83,7 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
 			return new AlgorithmExecutionResults(false,
 					"Retrieving prior result is not supported by local MRA.", null);
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> view = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
-		DSMicroarraySet<DSMicroarray> maSet = view.getMicroarraySet();
+		DSMicroarraySet maSet = view.getMicroarraySet();
 		AdjacencyMatrixDataSet amSet = mraAnalysisPanel.getAdjMatrixDataSet();
 		if (amSet==null || amSet.getMatrix()==null){
 			return new AlgorithmExecutionResults(false,
@@ -333,13 +333,13 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
 					.renameAdjMatrixToCombobox((AdjacencyMatrixDataSet)dataSet, e.getOldName(),e.getNewName());
 		}
 	}
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({ "rawtypes" })
 	@Subscribe
 	public void receive(org.geworkbench.events.ProjectEvent e, Object source) {
 		if (e.getMessage().equals(org.geworkbench.events.ProjectEvent.SELECTED)){
 			DSDataSet dataSet = e.getDataSet();
 			if (dataSet instanceof DSMicroarraySet) {
-				this.mraAnalysisPanel.setMicroarraySet((DSMicroarraySet<DSMicroarray>)dataSet);
+				this.mraAnalysisPanel.setMicroarraySet((DSMicroarraySet)dataSet);
 			}else{
 				this.mraAnalysisPanel.setMicroarraySet(null);
 			}

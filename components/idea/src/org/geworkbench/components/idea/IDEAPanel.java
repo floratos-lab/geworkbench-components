@@ -95,7 +95,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 	private JTextField excludeField = new JTextField();
 	
 	private DSPanel<DSMicroarray> selectorPanelOfArrays;
-	private DSMicroarraySet<DSMicroarray> maSet=null;
+	private DSMicroarraySet maSet=null;
 	private boolean firstRunFlag;	
 	
 	public IDEAPanel() {
@@ -328,7 +328,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 		}
 	}
 	
-	public void setMicroarraySet(DSMicroarraySet<DSMicroarray> maSet){
+	public void setMicroarraySet(DSMicroarraySet maSet){
 		this.maSet = maSet;		
 	}	
 	

@@ -5,7 +5,6 @@ import java.util.Comparator;
 
 import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.NormalizingAnalysis;
@@ -64,12 +63,11 @@ public class QuantileNormalizer extends AbstractAnalysis implements NormalizingA
         return AbstractAnalysis.QUANTILE_NORMALIZER_TYPE;
     }
 
-    @SuppressWarnings("unchecked")
-	public AlgorithmExecutionResults execute(Object input) {
+    public AlgorithmExecutionResults execute(Object input) {
         if (input == null || !(input instanceof DSMicroarraySet))
             return new AlgorithmExecutionResults(false, "Invalid input.", null);
 
-        DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet<DSMicroarray>) input;
+        DSMicroarraySet maSet = (DSMicroarraySet) input;
         
         arrayCount  = maSet.size();
         markerCount = maSet.getMarkers().size();
@@ -111,7 +109,7 @@ public class QuantileNormalizer extends AbstractAnalysis implements NormalizingA
      * value of either their corresponding marker or their correponding microarray,
      * per the preference set in the parameters panel.
      */
-    private void replaceMissingValues(DSMicroarraySet<DSMicroarray> maSet){
+    private void replaceMissingValues(DSMicroarraySet maSet){
         DSMutableMarkerValue markerValue = null;
         double meanValue = 0.0;
         int nonMissingCount;

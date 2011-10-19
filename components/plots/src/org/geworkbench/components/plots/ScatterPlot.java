@@ -415,7 +415,7 @@ public class ScatterPlot implements VisualPlugin {
         public DSGeneMarker getMarker(int series, int item) {
             ArrayList<RankSorter> list = xyPoints.get(series);
             org.geworkbench.util.pathwaydecoder.RankSorter rs = (RankSorter) list.get(item);
-            DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet<DSMicroarray>) dataSetView.getDataSet();
+            DSMicroarraySet maSet = (DSMicroarraySet) dataSetView.getDataSet();
             if (maSet != null) {
                 if (rs.id < maSet.getMarkers().size()) {
                     DSGeneMarker marker = maSet.getMarkers().get(rs.id);
@@ -428,7 +428,7 @@ public class ScatterPlot implements VisualPlugin {
         public DSMicroarray getMicroarray(int series, int item) {
             ArrayList<RankSorter> list = xyPoints.get(series);
             RankSorter rs = (org.geworkbench.util.pathwaydecoder.RankSorter) list.get(item);
-            DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet<DSMicroarray>) dataSetView.getDataSet();
+            DSMicroarraySet maSet = (DSMicroarraySet) dataSetView.getDataSet();
             if (maSet != null) {
                 if (rs.id < maSet.size()) {
                     DSMicroarray ma = maSet.get(rs.id);
@@ -481,7 +481,7 @@ public class ScatterPlot implements VisualPlugin {
             DSMicroarray ma = chartData.getMicroarray(series, item);
             if (ma != null) {
                 org.geworkbench.util.pathwaydecoder.RankSorter rs = chartData.getRankSorter(series, item);
-                DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet<DSMicroarray>) dataSetView.getDataSet();
+                DSMicroarraySet maSet = (DSMicroarraySet) dataSetView.getDataSet();
                 DSAnnotationContext<DSMicroarray> context = CSAnnotationContextManager.getInstance().getCurrentContext(maSet);
                 String xLabel = nf.format(rs.x);
                 String yLabel = nf.format(rs.y);
@@ -554,7 +554,7 @@ public class ScatterPlot implements VisualPlugin {
 
 			DSPanel<DSGeneMarker> panel = dataSetView.getMarkerPanel();
 
-			DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet<DSMicroarray>) dataSetView
+			DSMicroarraySet maSet = (DSMicroarraySet) dataSetView
 			.getDataSet();
 			if (maSet == null)
 				return ""; /*
@@ -1486,7 +1486,7 @@ public class ScatterPlot implements VisualPlugin {
             ProjectSelection selection = ((ProjectPanel) source).getSelection();
             DSDataSet<? extends DSBioObject> dataFile = selection.getDataSet();
             if (dataFile != null && dataFile instanceof DSMicroarraySet) {
-                DSMicroarraySet<DSMicroarray> set = (DSMicroarraySet<DSMicroarray>) dataFile;
+                DSMicroarraySet set = (DSMicroarraySet) dataFile;
                 // If it is the same dataset as before, then don't reset everything
                 if (dataSetView.getDataSet() != set) {
                     dataSetView.setMicroarraySet(set);
@@ -1541,7 +1541,7 @@ public class ScatterPlot implements VisualPlugin {
         ArrayList<PanelVisualProperties> propertiesList = new ArrayList<PanelVisualProperties>();
         PanelVisualPropertiesManager propertiesManager = PanelVisualPropertiesManager.getInstance();
 
-        DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet<DSMicroarray>) dataSetView.getDataSet();
+        DSMicroarraySet maSet = (DSMicroarraySet) dataSetView.getDataSet();
         boolean rankPlot = rankStatisticsCheckbox.isSelected();
         HashMap<Integer, RankSorter> map = new HashMap<Integer, RankSorter>();
         int microarrayNo = dataSetView.getMicroarraySet().size();
@@ -1699,7 +1699,7 @@ public class ScatterPlot implements VisualPlugin {
     }
     
     private DSMicroarray findMA(String label){
-    	DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet<DSMicroarray>) dataSetView.getDataSet();
+    	DSMicroarraySet maSet = (DSMicroarraySet) dataSetView.getDataSet();
     	for(DSMicroarray ma: maSet){
     		if(StringUtils.equals(ma.getLabel(), label))
     			return ma;
@@ -1708,7 +1708,7 @@ public class ScatterPlot implements VisualPlugin {
     }
     
     private int findMAIndex(String label){
-    	DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet<DSMicroarray>) dataSetView.getDataSet();
+    	DSMicroarraySet maSet = (DSMicroarraySet) dataSetView.getDataSet();
     	for(int i = 0; i < maSet.size(); i++){
     		if(StringUtils.equals(maSet.get(i).getLabel(), label))
     			return i;
@@ -1729,7 +1729,7 @@ public class ScatterPlot implements VisualPlugin {
         ArrayList<PanelVisualProperties> propertiesList = new ArrayList<PanelVisualProperties>();
         PanelVisualPropertiesManager propertiesManager = PanelVisualPropertiesManager.getInstance();
 
-        DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet<DSMicroarray>) dataSetView.getDataSet();
+        DSMicroarraySet maSet = (DSMicroarraySet) dataSetView.getDataSet();
         boolean rankPlot = rankStatisticsCheckbox.isSelected();
         HashMap<Integer, RankSorter> map = new HashMap<Integer, RankSorter>();
         int numMarkers = maSet.getMarkers().size();

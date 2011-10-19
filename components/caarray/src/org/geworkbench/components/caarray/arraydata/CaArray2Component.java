@@ -275,7 +275,7 @@ public class CaArray2Component implements VisualPlugin {
 	 *
 	 */
 	private static DSMicroarray createMicroarray(
-			final List<Double> valuesList, final String name, final DSMicroarraySet<DSMicroarray> microarraySet) {
+			final List<Double> valuesList, final String name, final DSMicroarraySet microarraySet) {
 
 		int markerNo = valuesList.size();
 

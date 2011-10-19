@@ -62,7 +62,7 @@ public class ArraysSelectionPanel extends JPanel   {
 	 
 	private ProgressBar computePb = null;
 	 
-	private final DSMicroarraySet<? extends DSMicroarray> maSet;
+	private final DSMicroarraySet maSet;
 	private CalculationWorker worker = null;
 
 	public ArraysSelectionPanel(JDialog parent) {

@@ -1,7 +1,6 @@
 package org.geworkbench.components.cytoscape;
 
 import giny.model.Node;
-import ding.view.DNodeView;
 import giny.view.EdgeView;
 import giny.view.GraphViewChangeEvent;
 import giny.view.GraphViewChangeListener;
@@ -49,7 +48,6 @@ import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.GeneOntologyUtil;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.builtin.projects.ProjectPanel;
@@ -98,6 +96,7 @@ import cytoscape.visual.mappings.DiscreteMapping;
 import cytoscape.visual.mappings.ObjectMapping;
 import cytoscape.visual.mappings.PassThroughMapping;
 import cytoscape.visual.parsers.ObjectToString;
+import ding.view.DNodeView;
 
 /**
  * 
@@ -170,7 +169,7 @@ public class CytoscapeWidget implements VisualPlugin {
 	private CyNetworkView view = null;
 
 	private CyNetwork cytoNetwork = null;
-	DSMicroarraySet<? extends DSMicroarray> maSet = null;
+	DSMicroarraySet maSet = null;
 	boolean publishEnabled = true;
 
 	Map<String, String> interactionTypeSifMap = null;

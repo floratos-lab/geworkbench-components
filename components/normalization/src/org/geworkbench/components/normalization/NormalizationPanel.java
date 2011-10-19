@@ -32,7 +32,6 @@ import org.geworkbench.analysis.ParameterKey;
 import org.geworkbench.analysis.ReHighlightable;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.NormalizingAnalysis;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
@@ -75,7 +74,7 @@ public class NormalizationPanel extends CommandBase implements VisualPlugin, ReH
 	/**
 	 * The currently selected microarray set.
 	 */
-	protected DSMicroarraySet<?> maSet = null;
+	protected DSMicroarraySet maSet = null;
 	/**
 	 * The most recently used normalizer.
 	 */
@@ -258,8 +257,8 @@ public class NormalizationPanel extends CommandBase implements VisualPlugin, ReH
 	public void receive(org.geworkbench.events.ProjectEvent pe, Object source) {
 		DSDataSet<?> dataSet = pe.getDataSet();
 		if (dataSet != null) clearMenuItems();
-		if (dataSet != null && dataSet instanceof DSMicroarraySet<?> && !pendingNodeSelected()) {
-			maSet = (DSMicroarraySet<?>) dataSet;
+		if (dataSet != null && dataSet instanceof DSMicroarraySet && !pendingNodeSelected()) {
+			maSet = (DSMicroarraySet) dataSet;
 			getAvailableNormalizers();
 			updateMenuItems();
 		}
@@ -524,9 +523,8 @@ public class NormalizationPanel extends CommandBase implements VisualPlugin, ReH
 			 * If everything was OK, notify interested application components
 			 * with the results of the normalization operation.
 			 */
-			if (results.getResults() instanceof DSMicroarraySet<?>) {
-				@SuppressWarnings("unchecked")
-				DSMicroarraySet<DSMicroarray> normalizedData = (DSMicroarraySet<DSMicroarray>) results
+			if (results.getResults() instanceof DSMicroarraySet) {
+				DSMicroarraySet normalizedData = (DSMicroarraySet) results
 						.getResults();
 				ProjectPanel.getInstance().processNormalization(maSet,
 						normalizedData, selectedNormalizer.getLabel());

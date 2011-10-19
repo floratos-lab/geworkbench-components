@@ -6,7 +6,7 @@ import giny.view.NodeView;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.ArrayList; 
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,11 +28,10 @@ import org.geworkbench.bison.annotation.DSAnnotationContext;
 import org.geworkbench.bison.annotation.DSAnnotationContextManager;
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.datastructure.bioobjects.DSBioObject; 
+import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSSignificanceResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSTTestResultSet;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray; 
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
@@ -42,7 +41,7 @@ import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.ProjectTreeNode;
 import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.util.Util;
- 
+
 import cytoscape.Cytoscape;
 import ding.view.DNodeView;
 import ding.view.NodeContextMenuListener;
@@ -51,7 +50,7 @@ public class ExpandMenuListener implements NodeContextMenuListener,
 		MouseListener {
 	final static Log log = LogFactory.getLog(ExpandMenuListener.class);
  
-	final private DSMicroarraySet<? extends DSMicroarray> maSet;
+	final private DSMicroarraySet maSet;
 
 	public ExpandMenuListener(final CytoscapeWidget cytoscapeWidget) {
 	 

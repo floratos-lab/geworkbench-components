@@ -47,7 +47,7 @@ public class KMeansViewer extends JPanel implements VisualPlugin {
 
 	private static final long serialVersionUID = 8763573636321803637L;
 	private static final int INDEX_OF_GENE=0;
-	DSMicroarraySet<DSMicroarray> maSet;
+	DSMicroarraySet maSet;
 	
 	private ArrayList<List<String[]>> resultList=null;
 	int selectedRow=0;

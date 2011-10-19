@@ -52,7 +52,7 @@ public abstract class AbstractTrainingPanel extends AbstractSaveableParameterPan
     protected JLabel falseNegatives = new JLabel();
     protected JLabel truePositives = new JLabel();
     protected JLabel trueNegatives = new JLabel();
-    protected DSMicroarraySet<DSMicroarray> maSet = null;
+    protected DSMicroarraySet maSet = null;
     private DSPanel<DSGeneMarker> selectionPanel;
     protected JButton crossTest = new JButton("Test via Cross Validation");
     protected JButton cancelTest = new JButton("Cancel Test");
@@ -75,11 +75,11 @@ public abstract class AbstractTrainingPanel extends AbstractSaveableParameterPan
         return ((Number) numberFolds.getValue()).intValue();
     }
 
-    public void setMaSet(DSMicroarraySet<DSMicroarray> maSet) {
+    public void setMaSet(DSMicroarraySet maSet) {
         this.maSet = maSet;
     }
 
-    public DSMicroarraySet<DSMicroarray> getMaSet() {
+    public DSMicroarraySet getMaSet() {
         return maSet;
     }
 
@@ -89,7 +89,7 @@ public abstract class AbstractTrainingPanel extends AbstractSaveableParameterPan
 
     public DSItemList<DSGeneMarker> getActiveMarkers() {
         if (selectionPanel != null) {
-            DSMicroarraySetView<DSGeneMarker, DSMicroarray> maView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>((DSMicroarraySet<DSMicroarray>) maSet);
+            DSMicroarraySetView<DSGeneMarker, DSMicroarray> maView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>((DSMicroarraySet) maSet);
             maView.setMarkerPanel(selectionPanel);
             DSPanel<DSGeneMarker> activeMarkers = maView.getMarkerPanel().activeSubset();
             if (activeMarkers.size() > 0) {

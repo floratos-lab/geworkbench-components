@@ -45,7 +45,7 @@ public class MultiTTestAnalysisPanel extends AbstractSaveableParameterPanel impl
 
     private JFormattedTextField pValue = new JFormattedTextField();
 
-    private DSMicroarraySet<DSMicroarray> maSet = null;
+    private DSMicroarraySet maSet = null;
 
     private ArrayList<JCheckBox> checkBoxes = new ArrayList<JCheckBox>();
 
@@ -138,7 +138,7 @@ public class MultiTTestAnalysisPanel extends AbstractSaveableParameterPanel impl
         return result;
     }
 
-    public void setMaSet(DSMicroarraySet<DSMicroarray> maSet) {
+    public void setMaSet(DSMicroarraySet maSet) {
         this.maSet = maSet;
     }
     

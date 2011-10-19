@@ -75,7 +75,7 @@ public class FilteringPanel extends CommandBase implements VisualPlugin, ReHighl
 	/**
 	 * The currently selected microarray set.
 	 */
-	protected DSMicroarraySet<?> maSet = null;
+	protected DSMicroarraySet maSet = null;
 
 	/**
 	 * The most recently used filter.
@@ -285,7 +285,7 @@ public class FilteringPanel extends CommandBase implements VisualPlugin, ReHighl
 		DSDataSet<?> dataSet = pe.getDataSet();
 		if (dataSet != null) clearMenuItems();
 		if (dataSet != null && dataSet instanceof DSMicroarraySet && !pendingNodeSelected()) {
-			maSet = (DSMicroarraySet<?>) dataSet;			 
+			maSet = (DSMicroarraySet) dataSet;			 
 			FilterOptionPanel.arrayNumber = maSet.size();
 			getAvailableFilters();
 			updateMenuItems();
@@ -568,7 +568,7 @@ public class FilteringPanel extends CommandBase implements VisualPlugin, ReHighl
 			 * If everything was OK, notify interested application components
 			 * with the results of the normalization operation.
 			 */
-			DSMicroarraySet<?> filteredData = (DSMicroarraySet<?>) results
+			DSMicroarraySet filteredData = (DSMicroarraySet) results
 					.getResults();
 			String historyString = "";
 			if (selectedFilter.getLabel() != null)

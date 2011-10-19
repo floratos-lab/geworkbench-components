@@ -1291,7 +1291,7 @@ public class GenericDisplayPanel extends JPanel {
         public DSGeneMarker getMarker(int series, int item) {
             ArrayList<RankSorter> list = xyPoints.get(series);
             org.geworkbench.util.pathwaydecoder.RankSorter rs = (RankSorter) list.get(item);
-            DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet<DSMicroarray>) dataSetView.getDataSet();
+            DSMicroarraySet maSet = (DSMicroarraySet) dataSetView.getDataSet();
             if (maSet != null) {
                 if (rs.id < maSet.getMarkers().size()) {
                     DSGeneMarker marker = maSet.getMarkers().get(rs.id);
@@ -1304,7 +1304,7 @@ public class GenericDisplayPanel extends JPanel {
         public DSMicroarray getMicroarray(int series, int item) {
             ArrayList<RankSorter> list = xyPoints.get(series);
             RankSorter rs = (org.geworkbench.util.pathwaydecoder.RankSorter) list.get(item);
-            DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet<DSMicroarray>) dataSetView.getDataSet();
+            DSMicroarraySet maSet = (DSMicroarraySet) dataSetView.getDataSet();
             if (maSet != null) {
                 if (rs.id < maSet.size()) {
                     DSMicroarray ma = maSet.get(rs.id);

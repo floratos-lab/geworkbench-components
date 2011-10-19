@@ -16,7 +16,6 @@ import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMasterRagulatorResultSet;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 
 public class DetailedTFGraphViewer extends JPanel {
@@ -27,7 +26,7 @@ public class DetailedTFGraphViewer extends JPanel {
 	DSGeneMarker tfA;
 
 	private DSMasterRagulatorResultSet<DSGeneMarker> mraResultSet;
-	private DSMicroarraySet<DSMicroarray> mSet;
+	private DSMicroarraySet mSet;
 	private int numberOfMarkers;
 	private HashMap<Integer, DSGeneMarker> Rank2GeneMap;
 	private HashMap<DSGeneMarker, Integer> Gene2RankMap;
@@ -124,7 +123,7 @@ public class DetailedTFGraphViewer extends JPanel {
 					
 				SpearmansCorrelation SC = new SpearmansCorrelation();
 				double spearCor = 0.0;
-				DSMicroarraySet<DSMicroarray> maSet = mraResultSet
+				DSMicroarraySet maSet = mraResultSet
 						.getMicroarraySet();
 				double[] arrayData1 = maSet.getRow(tfA);
 				double[] arrayData2 = maSet.getRow(marker);

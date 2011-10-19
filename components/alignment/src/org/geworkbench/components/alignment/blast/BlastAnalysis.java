@@ -1,8 +1,5 @@
 package org.geworkbench.components.alignment.blast;
 
-import org.geworkbench.analysis.AbstractAnalysis;
-
- 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -12,14 +9,13 @@ import java.util.Date;
 
 import javax.swing.JOptionPane;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.bison.annotation.CSAnnotationContextManager;
 import org.geworkbench.bison.annotation.DSAnnotationContext;
 import org.geworkbench.bison.annotation.DSAnnotationContextManager;
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
-import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet; 
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker; 
+import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
+import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSAlignmentResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
@@ -48,8 +44,6 @@ public class BlastAnalysis extends AbstractAnalysis implements
 	 */
 	private static final long serialVersionUID = 1L;
 
-	static private Log log = LogFactory.getLog(RemoteBlast.class);
-
 	private BlastAnalysisPanel blastAnalysisPanel = null;
 
 	private boolean startBrowser;
@@ -71,7 +65,7 @@ public class BlastAnalysis extends AbstractAnalysis implements
 		return AbstractAnalysis.BLAST_TYPE;
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public AlgorithmExecutionResults execute(Object input) {
 
@@ -79,28 +73,28 @@ public class BlastAnalysis extends AbstractAnalysis implements
 			return new AlgorithmExecutionResults(false, "Invalid input. ", null);
 		}
 
-		sequenceDB = (DSSequenceSet) input;
+		sequenceDB = (DSSequenceSet<?>) input;
 
-		boolean activateMarkers = ((CSSequenceSet) sequenceDB).useMarkerPanel();
+		boolean activateMarkers = ((CSSequenceSet<?>) sequenceDB).useMarkerPanel();
 		DSAnnotationContextManager manager = CSAnnotationContextManager
 				.getInstance();
-		DSAnnotationContext context = manager.getCurrentContext(sequenceDB
+		DSAnnotationContext<?> context = manager.getCurrentContext(sequenceDB
 				.getMarkerList());
 
-		DSPanel<? extends DSGeneMarker> activatedMarkers = context
+		DSPanel<? extends DSGeneMarker> activatedMarkers = (DSPanel<? extends DSGeneMarker>) context
 				.getActiveItems().activeSubset();
 
 		if (activateMarkers) {
 			if (activatedMarkers != null && activatedMarkers.size() > 0) {
-				activeSequenceDB = (CSSequenceSet) ((CSSequenceSet) sequenceDB)
+				activeSequenceDB = (CSSequenceSet<CSSequence>) ((CSSequenceSet) sequenceDB)
 						.getActiveSequenceSet(activatedMarkers);
 			} else if (sequenceDB != null) {
 
-				activeSequenceDB = (CSSequenceSet) sequenceDB;
+				activeSequenceDB = (CSSequenceSet<CSSequence>) sequenceDB;
 			}
 
 		} else
-			activeSequenceDB = (CSSequenceSet) sequenceDB;
+			activeSequenceDB = (CSSequenceSet<CSSequence>) sequenceDB;
 
 		ParameterSetting parameterSetting = blastAnalysisPanel
 				.collectParameters();

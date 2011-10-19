@@ -252,7 +252,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 	 * @return
 	 */
 	private AdjacencyMatrix convert(WeightedGraph graph, Parameter p,
-			DSMicroarraySet<DSMicroarray> mSet, boolean prune) {
+			DSMicroarraySet mSet, boolean prune) {
 		AdjacencyMatrix matrix = new AdjacencyMatrix(null, mSet);
 
 		Vector<String> subnet = p.getSubnet();
@@ -696,7 +696,6 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 	 * @param e
 	 * @param source
 	 */
-	@SuppressWarnings("unchecked")
 	@Subscribe
 	public void receive(org.geworkbench.events.ProjectEvent e, Object source) {
 		DSDataSet<?> dataSet = e.getDataSet();
@@ -706,7 +705,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 		} else if (dataSet instanceof DSMicroarraySet) {
 			AracneParamPanel params = (AracneParamPanel) aspp;
 			/* This following line is added only at the point when the mark set info is needed for parameter panel. */
-			params.setMicroarraySet((DSMicroarraySet<DSMicroarray>)dataSet);
+			params.setMicroarraySet((DSMicroarraySet)dataSet);
 			params.maMode();
 		}
 	}

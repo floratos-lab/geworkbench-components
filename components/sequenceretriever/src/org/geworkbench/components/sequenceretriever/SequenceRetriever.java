@@ -59,7 +59,6 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
@@ -85,7 +84,6 @@ import org.geworkbench.util.sequences.GeneChromosomeMatcher;
  * @version $Id$
  */
 
-@SuppressWarnings("unchecked")
 @AcceptTypes({ DSMicroarraySet.class })
 public class SequenceRetriever implements VisualPlugin {
 	private Log log = LogFactory.getLog(SequenceRetriever.class);
@@ -116,7 +114,7 @@ public class SequenceRetriever implements VisualPlugin {
 
 	private static final String NOANNOTATION = "---";
 
-	private DSMicroarraySet<DSMicroarray> refMASet = null;
+	private DSMicroarraySet refMASet = null;
 
 	private TreeMap<String, ArrayList<String>> currentRetrievedSequences = new TreeMap<String, ArrayList<String>>();
 
@@ -938,7 +936,7 @@ public class SequenceRetriever implements VisualPlugin {
 			DSDataSet dataSet = e.getDataSet();
 			if (dataSet instanceof DSMicroarraySet) {
 				if (refMASet != dataSet) {
-					this.refMASet = (DSMicroarraySet<DSMicroarray>) dataSet;
+					this.refMASet = (DSMicroarraySet) dataSet;
 					cleanUpAll();
 					sequenceDB = new CSSequenceSet<DSSequence>();
 					markerList = refMASet.getMarkers();

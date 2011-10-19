@@ -33,7 +33,6 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
 import org.geworkbench.bison.datastructure.complex.panels.CSAnnotPanel;
 import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
@@ -458,7 +457,7 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 		return panel;
 	}
 
-	private DSMicroarraySet<DSMicroarray> maSet = null;
+	private DSMicroarraySet maSet = null;
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	protected boolean dataSetChanged(DSDataSet dataSet) {

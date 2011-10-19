@@ -250,13 +250,13 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 		return psamddG;
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({ "rawtypes" })
 	public AlgorithmExecutionResults execute(Object input) {
 		if (input == null) {
 			return new AlgorithmExecutionResults(false, "Invalid input.", null);
 		}
 		try {
-			DSMicroarraySet<DSMicroarray> mSet = ((DSMicroarraySetView) input)
+			DSMicroarraySet mSet = ((DSMicroarraySetView) input)
 					.getMicroarraySet();
 			progressBar = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
 			progressBar.addObserver(this);

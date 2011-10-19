@@ -47,7 +47,7 @@ public abstract class AbstractTraining extends AbstractAnalysis implements Clust
 	public AlgorithmExecutionResults execute(Object input) {
         assert (input instanceof DSMicroarraySetView);
         DSMicroarraySetView<DSGeneMarker, DSMicroarray> view = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
-        DSMicroarraySet<DSMicroarray> maSet = view.getMicroarraySet();
+        DSMicroarraySet maSet = view.getMicroarraySet();
         DSItemList<DSGeneMarker> markers = view.markers();
 
         DSAnnotationContext<DSMicroarray> context = CSAnnotationContextManager.getInstance().getCurrentContext(maSet);
@@ -143,13 +143,12 @@ public abstract class AbstractTraining extends AbstractAnalysis implements Clust
         return event;
     }
 
-    @SuppressWarnings("unchecked")
-	@Subscribe public void receive(ProjectEvent event, Object source) {
+    @Subscribe public void receive(ProjectEvent event, Object source) {
         log.debug("abstracttraining received project event.");
 
         DSDataSet<?> dataSet = event.getDataSet();
         if ((dataSet != null) && (dataSet instanceof DSMicroarraySet)) {
-            panel.setMaSet((DSMicroarraySet<DSMicroarray>) dataSet);
+            panel.setMaSet((DSMicroarraySet) dataSet);
             panel.rebuildForm();
         }
     }

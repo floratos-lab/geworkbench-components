@@ -126,7 +126,7 @@ public class KMAnalysis extends GPAnalysis{
 			return null;
 		}
 
-		DSMicroarraySet<DSMicroarray> maSet = (DSMicroarraySet<DSMicroarray>) set;		
+		DSMicroarraySet maSet = (DSMicroarraySet) set;		
 		DSAnnotationContextManager manager = CSAnnotationContextManager
 			.getInstance();
 		DSAnnotationContext<DSMicroarray> arraySet = manager

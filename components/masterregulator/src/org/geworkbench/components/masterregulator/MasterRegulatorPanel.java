@@ -77,7 +77,7 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 	private JTextField networkTextField = null;
 	private JTextField sigGeneListTextField = null;
 	private HashMap<String, AdjacencyMatrixDataSet> adjMatrix = new HashMap<String, AdjacencyMatrixDataSet>();
-	private DSMicroarraySet<DSMicroarray> maSet = null;
+	private DSMicroarraySet maSet = null;
 
 	private JComboBox networkMatrix = createNetworkMatrixComboBox();
 	private JComboBox tfGroups = new JComboBox(new DefaultComboBoxModel(
@@ -587,7 +587,7 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		adjModel.add(newName);
 	}
 
-	public void setMicroarraySet(DSMicroarraySet<DSMicroarray> maSet) {
+	public void setMicroarraySet(DSMicroarraySet maSet) {
 		this.maSet = maSet;
 	}
 
