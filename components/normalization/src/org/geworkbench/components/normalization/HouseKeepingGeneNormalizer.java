@@ -188,7 +188,7 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
             DSGeneMarker csgMarker = (CSGeneMarker) markerPanel.get(j);
 
 			DSGeneMarker markerAvaiable = ((CSMicroarraySet) maSet)
-					.getMarkerVector().get(csgMarker.getLabel());
+					.getMarkers().get(csgMarker.getLabel());
 			if (markerAvaiable != null) { // this is null for the marker that is not in the dataset
 				csgMarker = markerAvaiable;
 			}
@@ -363,7 +363,7 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
                                        DSPanel<DSGeneMarker> markerPanel) {
 
         CSMarkerVector csMarkerVector = ((CSMicroarraySet) maSet).
-                getMarkerVector();
+        getMarkers();
         refreshMaps(csMarkerVector);
         int markerCount = markerPanel.size();
         int arrayCount = maSet.size();

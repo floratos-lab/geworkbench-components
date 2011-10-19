@@ -304,7 +304,7 @@ public class CaArray2Component implements VisualPlugin {
 
 		int markerNo = markerNames.size();
 		microarraySet.initialize(0, markerNo);
-		microarraySet.getMarkerVector().clear();
+		microarraySet.getMarkers().clear();
 		// maSet.setCompatibilityLabel(bioAssayImpl.getIdentifier());
 		for (int z = 0; z < markerNo; z++) {
 
@@ -316,7 +316,7 @@ public class CaArray2Component implements VisualPlugin {
 				marker.setGeneName(null);
 				marker.setLabel(markerName);
 				marker.setDescription(markerName);
-				microarraySet.getMarkerVector().add(z, marker);
+				microarraySet.getMarkers().add(z, marker);
 			} else {
 				log.error("LogicalProbes have some null values. The location is "
 						+ z);

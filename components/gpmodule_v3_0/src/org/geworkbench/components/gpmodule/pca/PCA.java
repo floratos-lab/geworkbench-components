@@ -177,7 +177,7 @@ public class PCA extends MicroarrayViewEventBase
                 for(int pc = 0; pc < pcs.length; pc++)
                 {
                     DSMicroarray array =  new CSMicroarray(numRows);
-                    CSMarkerVector markerVector = pcDataSet.getMarkerVector();
+                    CSMarkerVector markerVector = pcDataSet.getMarkers();
                     for(int r = 0; r < numRows; r++)
                     {
                         array.setLabel("PC " + (pcs[pc]+1));
@@ -672,7 +672,7 @@ public class PCA extends MicroarrayViewEventBase
         if(pcaDataSet.getVariables().equals("experiments") && !chkAllMarkers.isSelected()
                 && activatedMarkers != null && activatedMarkers.size() > 0 )
         {
-            DSAnnotationContext<DSGeneMarker> context = CSAnnotationContextManager.getInstance().getCurrentContext(maSet.getMarkerVector());
+            DSAnnotationContext<DSGeneMarker> context = CSAnnotationContextManager.getInstance().getCurrentContext(maSet.getMarkers());
 
             for(int i =0; i < activatedMarkers.size(); i++)
             {
