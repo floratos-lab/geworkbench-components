@@ -68,7 +68,8 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 	private static final String GENE_SYMBOL="Gene Symbol";
 	private static final String CHROMO_LOCATION="Chromosomal Location";
 	private static final String ENTREZ_GENE="Entrez Gene";	
-
+	private ProgressBar pbIdea = null;
+	
 	public IDEAAnalysis() {
 		setDefaultPanel(IDEAAnalysisPanel);
 	}
@@ -108,8 +109,8 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 					"IDEA analysis needs annotation file. Please load it first.", null);
 		}		
 		int numGenes = view.markers().size();
-
-		ProgressBar pbIdea = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
+		
+		pbIdea = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
 		pbIdea.addObserver(this);
 		pbIdea.setTitle("IDEA Analysis");
 		pbIdea.setBounds(new ProgressBar.IncrementModel(0, numGenes, 0,
@@ -174,25 +175,29 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 					gene2 = g;
 				}
 			}
-
-			if ((gene1.getMarkers() != null) && (gene2.getMarkers() != null)) {
-				for (DSGeneMarker marker1 : gene1.getMarkers()) {
-					for (DSGeneMarker marker2 : gene2.getMarkers()) {
-						IdeaEdge anEdge = new IdeaEdge(edge.geneId1,
-								edge.geneId2, marker1, marker2,
-								marker1.getSerial(), marker2.getSerial(),
-								marker1.getLabel(), marker2.getLabel(),
-								edge.interactionType);
-						edgeIndex.add(anEdge);
-
-						gene1.addEdge(anEdge);// add the edge to related
-												// gene in preGeneList
-						gene2.addEdge(anEdge);
+			if((gene1!=null)&&(gene2!=null)){
+				if ((gene1.getMarkers() != null) && (gene2.getMarkers() != null)) {
+					for (DSGeneMarker marker1 : gene1.getMarkers()) {
+						for (DSGeneMarker marker2 : gene2.getMarkers()) {
+							IdeaEdge anEdge = new IdeaEdge(edge.geneId1,
+									edge.geneId2, marker1, marker2,
+									marker1.getSerial(), marker2.getSerial(),
+									marker1.getLabel(), marker2.getLabel(),
+									edge.interactionType);
+							edgeIndex.add(anEdge);
+	
+							gene1.addEdge(anEdge);// add the edge to related
+													// gene in preGeneList
+							gene2.addEdge(anEdge);
+						}
 					}
 				}
 			}
 		}
-
+		if (this.stopAlgorithm) {
+			pbIdea.dispose();
+			return null;
+		}
 		
 		Phenotype phenotype = IDEAAnalysisPanel.getPhenotype();
 		Set<Integer> includeSet=IDEAAnalysisPanel.preparePhenoSet(IDEAAnalysisPanel.getIncludeString());
@@ -222,13 +227,21 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 			}
 			columnIndexOverall++;
 		}
+		if (this.stopAlgorithm) {
+			pbIdea.dispose();
+			return null;
+		}
 
 		try {
 			// ************Key process********************
 			NullDistribution nullDist = new NullDistribution(edgeIndex,
 					expressionData, IDEAAnalysisPanel.getUseNullData(),
-					IDEAAnalysisPanel.getNullFileName(), columnCount, phenotype);
+					IDEAAnalysisPanel.getNullFileName(), columnCount, phenotype, this);
 			nullDist.calcNullDist();
+			if (this.stopAlgorithm) {
+				pbIdea.dispose();
+				return null;
+			}
 			edgeIndex = nullDist.getEdgeIndex();
 			
 			for (IdeaEdge anEdge : edgeIndex) {
@@ -296,7 +309,11 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 									// updated from null distribution
 			ArrayList<IdeaEdge> edges = new ArrayList<IdeaEdge>();
 			for (IdeaEdge anEdge : g.getEdges()) {
-				for (IdeaEdge eInEdgeIndex : edgeIndex) {
+				if (this.stopAlgorithm) {
+					pbIdea.dispose();
+					return null;
+				}
+				for (IdeaEdge eInEdgeIndex : edgeIndex) {					
 					if ((eInEdgeIndex.compareTo(anEdge) == 0)
 							&& (eInEdgeIndex.getGeneNo1() == g.getGeneNo())) {
 						edges.add(eInEdgeIndex);
@@ -329,6 +346,10 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 			p.setEdges(edges);
 		}
 
+		if (this.stopAlgorithm) {
+			pbIdea.dispose();
+			return null;
+		}
 		for (IdeaProbeGene p : probes) { // enrichment to find the significant
 											// probe
 			int locs = 0;
@@ -346,6 +367,10 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 
 		}	
 
+		if (this.stopAlgorithm) {
+			pbIdea.dispose();
+			return null;
+		}
 		int N = edgeIndex.size();
 		FisherExact fe = new FisherExact(2 * N);
 
@@ -399,7 +424,7 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 					"\nfinding significant genes using Fisher Exact Test.",
 					null);
 		}
-
+		
 		List<IdeaProbeGene> probeNes = new ArrayList<IdeaProbeGene>();
 		for (IdeaProbeGene p : probes) {
 			probeNes.add(p);
@@ -475,7 +500,10 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 				}
 			}
 		}
-		
+		if (this.stopAlgorithm) {
+			pbIdea.dispose();
+			return null;
+		}		
 		IdeaResultDataSet analysisResult = new IdeaResultDataSet(maSet,
 				"IDEA Analysis Result",locResultList, gocResultList, nodeResultList, moduleResultList,pvalue);
 		//IdeaResultDataSet analysisResult = new IdeaResultDataSet(maSet,
@@ -495,7 +523,9 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 		return histStr.toString();
 	}
 	
-	
+	public void stop(){
+		pbIdea.dispose();
+	}
 
 	@Override
 	public String getAnalysisName() {
@@ -582,9 +612,16 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 			return new ParamValidationResults(false,
 					"IDEA analysis needs annotation file. Please load it first.");
 		}
-		String annoFile=maSet.getAnnotationFileName();
-		ArrayList<String> nullDataList;
 		
+		ProgressBar pbPrepare = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
+		pbPrepare.addObserver(this);
+		pbPrepare.setTitle("Data Preparation");		
+		pbPrepare.setMessage("Preparing data for calculation...");
+		pbPrepare.start();
+		
+		this.stopAlgorithm = false;
+		String annoFile=maSet.getAnnotationFileName();
+		ArrayList<String> nullDataList;		
 			FileReader filereader;				
 			try {
 				filereader = new FileReader(annoFile);			
@@ -625,12 +662,14 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 				for(String s:nullDataList){
 					nullDataAsString[l]=s+"\n";
 					l++;
-				}		
+				}
+				
 			} catch (FileNotFoundException e1) {
+				pbPrepare.dispose();
 				return new ParamValidationResults(false,
 						"Annotation file is not valid. Please load it first.");
 			}		
-		
+		pbPrepare.dispose();
 		return new ParamValidationResults(true, "No, no Error");
 	}
 
@@ -671,7 +710,7 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 	}
 	
 	
-	@SuppressWarnings({ "rawtypes" })
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Subscribe
 	public void receive(org.geworkbench.events.ProjectEvent e, Object source) {
 		if (e.getMessage().equals(org.geworkbench.events.ProjectEvent.SELECTED)){
