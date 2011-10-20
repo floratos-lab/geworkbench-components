@@ -50,6 +50,7 @@ import org.geworkbench.events.CaArrayRequestEvent;
 import org.geworkbench.events.CaArrayRequestHybridizationListEvent;
 import org.geworkbench.events.CaArrayReturnHybridizationListEvent;
 import org.geworkbench.events.CaArraySuccessEvent;
+import org.geworkbench.util.AffyAnnotationUtil;
 
 /**
  * The wrapper class for CaArray Component.
@@ -147,8 +148,7 @@ public class CaArray2Component implements VisualPlugin {
 					qType = "CHPSignal";
 				}
 
-				String chipType = AnnotationParser.matchChipType(null, "",
-						false);
+				String chipType = AffyAnnotationUtil.matchAffyAnnotationFile(null);
 
 				getData(client, hybridzations, qType, experimentName,
 							currentConnectionInfo, chipType);
