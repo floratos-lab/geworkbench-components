@@ -1,7 +1,5 @@
 package org.geworkbench.components.matrixreduce;
 
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
@@ -19,8 +17,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Observer;
-
-import javax.swing.ImageIcon;
 
 import org.apache.commons.collections15.map.ListOrderedMap;
 import org.apache.commons.lang.StringUtils;
@@ -56,8 +52,6 @@ import org.geworkbench.events.ProjectNodePostCompletedEvent;
 import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbench.util.ProgressBar;
 import org.geworkbench.util.Util;
-
-import com.larvalabs.chart.PSAMPlot;
 
 /**
  * @author John Watkinson
@@ -233,21 +227,6 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 			return new ParamValidationResults(true, null);
 		else
 			return new ParamValidationResults(false, errMsg);
-	}
-
-	private static double[][] convertScoresToWeights(double[][] psamData) {
-		double[][] psamddG = new double[psamData.length][4];
-		for (int i = 0; i < psamData.length; i++) {
-			double logMean = 0;
-			for (int j = 0; j < 4; j++) {
-				logMean += Math.log(psamData[i][j]);
-			}
-			logMean /= 4;
-			for (int j = 0; j < 4; j++) {
-				psamddG[i][j] = Math.log(psamData[i][j]) - logMean;
-			}
-		}
-		return psamddG;
 	}
 
 	@SuppressWarnings({ "rawtypes" })
@@ -522,23 +501,6 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 						scores[j][3] = affPos.get(j).get_t();
 					}
 					psam.setScores(scores);
-					// Generate logo
-					PSAMPlot psamPlot = new PSAMPlot(
-							convertScoresToWeights(scores));
-					psamPlot.setMaintainProportions(false);
-					psamPlot.setAxisDensityScale(4);
-					psamPlot.setAxisLabelScale(3);
-					BufferedImage image = new BufferedImage(
-							MatrixReduceViewer.IMAGE_WIDTH,
-							MatrixReduceViewer.IMAGE_HEIGHT,
-							BufferedImage.TYPE_INT_RGB);
-					Graphics2D graphics = (Graphics2D) image.getGraphics();
-					psamPlot.layoutChart(MatrixReduceViewer.IMAGE_WIDTH,
-							MatrixReduceViewer.IMAGE_HEIGHT, graphics
-									.getFontRenderContext());
-					psamPlot.paint(graphics);
-					ImageIcon psamImage = new ImageIcon(image);
-					psam.setPsamImage(psamImage);
 					dataSet.add(psam);
 				}
 				dataSet.setSequences(sequenceMap);

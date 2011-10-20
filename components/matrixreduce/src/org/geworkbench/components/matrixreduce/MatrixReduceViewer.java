@@ -6,6 +6,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -64,6 +65,7 @@ import org.geworkbench.events.ProjectEvent;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
+import com.larvalabs.chart.PSAMPlot;
 
 /**
  * @author John Watkinson
@@ -242,7 +244,7 @@ public class MatrixReduceViewer implements VisualPlugin {
 				return selectedPSAMs.contains(psam);
 			case 1:
 				if (imageMode) {
-					return psam.getPsamImage();
+					return getPsamImage(psam.getScores());
 				} else {
 					return psam.getConsensusSequence();
 				}
@@ -651,7 +653,7 @@ public class MatrixReduceViewer implements VisualPlugin {
 				graph.createScores(dataSet.get(selectedPSAM), true);
 				graph.createScores(dataSet.get(selectedPSAM), false);
 			}
-			psamLabel.setIcon(dataSet.get(selectedPSAM).getPsamImage());
+			psamLabel.setIcon(getPsamImage(dataSet.get(selectedPSAM).getScores()));
 		}
 	}
 
@@ -792,6 +794,40 @@ public class MatrixReduceViewer implements VisualPlugin {
 				psamList.setSelectedIndex(0);
 			}
 		}
+	}
+
+	private ImageIcon getPsamImage(double[][] scores){
+		PSAMPlot psamPlot = new PSAMPlot(
+				convertScoresToWeights(scores));
+		psamPlot.setMaintainProportions(false);
+		psamPlot.setAxisDensityScale(4);
+		psamPlot.setAxisLabelScale(3);
+		BufferedImage image = new BufferedImage(
+				MatrixReduceViewer.IMAGE_WIDTH,
+				MatrixReduceViewer.IMAGE_HEIGHT,
+				BufferedImage.TYPE_INT_RGB);
+		Graphics2D graphics = (Graphics2D) image.getGraphics();
+		psamPlot.layoutChart(MatrixReduceViewer.IMAGE_WIDTH,
+				MatrixReduceViewer.IMAGE_HEIGHT, graphics
+						.getFontRenderContext());
+		psamPlot.paint(graphics);
+		ImageIcon psamImage = new ImageIcon(image);
+		return psamImage;
+	}
+	
+	private static double[][] convertScoresToWeights(double[][] psamData) {
+		double[][] psamddG = new double[psamData.length][4];
+		for (int i = 0; i < psamData.length; i++) {
+			double logMean = 0;
+			for (int j = 0; j < 4; j++) {
+				logMean += Math.log(psamData[i][j]);
+			}
+			logMean /= 4;
+			for (int j = 0; j < 4; j++) {
+				psamddG[i][j] = Math.log(psamData[i][j]) - logMean;
+			}
+		}
+		return psamddG;
 	}
 
 }
