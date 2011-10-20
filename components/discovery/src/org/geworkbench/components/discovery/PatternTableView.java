@@ -119,17 +119,9 @@ public class PatternTableView extends JPanel {
         patternMenu.add(jSaveSelectedPatternsWInfoItem);
         patternMenu.addSeparator();
         patternMenu.add(jSavePatternsWInfoItem);
-        patternMenu.addSeparator();
-        patternMenu.add(addPatToProj);
     }
 
     private void initPopupMenuItem() {
-        addPatToProj.setText("Add Patterns to Project");
-        addPatToProj.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                addPatToProj_actionPerformed();
-            }
-        });
 
         maskPatternItem.setText("Mask Pattern");
         maskPatternItem.addActionListener(new java.awt.event.ActionListener() {
@@ -324,13 +316,7 @@ public class PatternTableView extends JPanel {
 
         return patternDB;
     }
-
-    private void addPatToProj_actionPerformed() {
-    	// FIXME this is right
-        PatternResult db = getPatternDB();
-        //widget.getAppComponent().createNewNode(db);
-    }
-
+    
     /**
      * Pops an Error Panel.
      *
