@@ -17,7 +17,6 @@ import java.util.TreeSet;
 import org.apache.commons.math.MathException;
 import org.apache.commons.math.stat.descriptive.moment.StandardDeviation;
 import org.geworkbench.bison.datastructure.bioobjects.IdeaEdge;
-
 import weka.estimators.KernelEstimator;
 
 /**
@@ -52,10 +51,11 @@ public class NullDistribution {
 	private ArrayList<Bin> bins; // a bin has MinP and MaxP of sortedCorr[],
 									// there are 100 bins totally
 	private final Phenotype phenotype;
+	IDEAAnalysis analysis;
 
 	public NullDistribution(ArrayList<IdeaEdge> edgeIndex, final double[][] expData,
 			Boolean useExistNull, String nullFileName,
-			int columnCount, final Phenotype phenotype) {
+			int columnCount, final Phenotype phenotype, IDEAAnalysis analysis) {
 		
 		this.edgeIndex = edgeIndex;
 		this.expData = expData;
@@ -63,7 +63,8 @@ public class NullDistribution {
 		this.nullFileName = nullFileName;
 
 		this.columnCount = columnCount;
-		this.phenotype = phenotype;		
+		this.phenotype = phenotype;
+		this.analysis=analysis;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -119,9 +120,15 @@ public class NullDistribution {
 				//System.out.println("deltaMI of edge's delta corr is "
 				//		+ ideaEdge.getDeltaCorr());
 			}
-
+			if (analysis.stopAlgorithm) {
+				 analysis.stop();
+				return -1;
+			}
 			prepareBins();
-
+			if (analysis.stopAlgorithm) {
+				 analysis.stop();
+				return -1;
+			}
 			// compute 100X100X100 null delta Corrs
 			for (int i = 0; i < 100; i++) {// set 100 bins, get MI positions in
 											// sortedCorr for each bin
@@ -145,7 +152,10 @@ public class NullDistribution {
 					}
 				}// end of each bin
 				System.out.println("bin " + i);
-
+				if (analysis.stopAlgorithm) {
+					 analysis.stop();
+					return -1;
+				}
 			}// end of 100 bins			
 		
 			int binMin = 0;

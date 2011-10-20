@@ -55,9 +55,9 @@ import com.jgoodies.forms.layout.FormLayout;
 public class IDEAPanel extends AbstractSaveableParameterPanel {
 	
 	private static final long serialVersionUID = 5983582161253754386L;
-	static Log log = LogFactory.getLog(IDEAPanel.class);	
+	static Log log = LogFactory.getLog(IDEAPanel.class);
 	
-	private static final String P_VALUE="0.05";
+	private static final float PValueThresholdDefault = 0.05f;
 	private Phenotype phenotype=new Phenotype();
 	private ArrayList<IdeaNetworkEdge> ideaNetwork;
 	private ArrayList<String> nullDataList;
@@ -71,6 +71,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 	private static final String[] PHENOTYPE_FROM = { FROM_SETS, FROM_FILE};	
 	static final String[] DEFAULT_SET = { " " };	
 	
+	private JTextField pValueTextField = new JTextField(20);	
 	private JPanel selectionPanel = null;	
 	private JTextField networkField = new JTextField(20);	
 	private JTextField nullDataField = new JTextField(20);
@@ -80,6 +81,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 	private JButton excludeLoadButton = new JButton("Load");
 	private JButton nullDataLoadButton = new JButton("Load");
 	private JCheckBox nullDataCheckbox = new JCheckBox("Use the existing null data", false);
+	private JLabel pvalueLabel=new JLabel("P-value");
 	private JLabel loadNullDataLabel=new JLabel("      Load null data      ");
 	
 	private JComboBox networkMatrix = new JComboBox();	
@@ -140,7 +142,15 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 		excludeSets.setEnabled(true);
 		includeField.setText("");
 		excludeField.setText("");
-		networkField.setText("");		
+		networkField.setText("");	
+		
+		//nullDataCheckbox.setVisible(false);
+		//nullDataField.setVisible(false);
+		//nullDataLoadButton.setVisible(false);
+		//loadNullDataLabel.setVisible(false);
+		
+		pvalueLabel.setVisible(false);			//pvalue is temporarily off on GUI
+		pValueTextField.setVisible(false);
 		
 		this.setLayout(new BorderLayout());		
 		selectionPanel = new JPanel();
@@ -198,16 +208,27 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 					nullDataField, nullDataLoadButton);
 			builder.nextLine();			
 			
+			//builder.appendSeparator("Significance Threshold");	//pvalue is temporarily off	on GUI
+			builder.append(pvalueLabel);
+			if (pValueTextField == null)
+				pValueTextField = new JTextField();
+			pValueTextField.setText(Float.toString(PValueThresholdDefault));
+			builder.append(pValueTextField);
+			builder.nextLine();
+			
 			selectionPanel.add(builder.getPanel(), BorderLayout.CENTER);
 		}		
 		
 		phenotypeFrom.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent actionEvent) {				
-				
+				includeField.setText("");
+				excludeField.setText("");
+				includeSets.setSelectedIndex(0);
+				excludeSets.setSelectedIndex(0);
 				String selected = (String) phenotypeFrom.getSelectedItem();
 				if (StringUtils.equals(selected, FROM_SETS)) {					
 					includeLoadButton.setEnabled(false);
-					excludeLoadButton.setEnabled(false);
+					excludeLoadButton.setEnabled(false);					
 					includeSets.setEnabled(true);
 					excludeSets.setEnabled(true);
 				} else {					
@@ -221,13 +242,12 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 		
 		networkFrom.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent actionEvent) {				
-				
+				networkField.setText("");
 				String selected = (String) networkFrom.getSelectedItem();
 				if (StringUtils.equals(selected, FROM_PROJECT)) {
 					networkMatrix.setEnabled(true);
-					networkLoadButton.setEnabled(false);
-					networkField.setEnabled(false);
-					
+					networkLoadButton.setEnabled(false);					
+					networkField.setEnabled(false);					
 					networkMatrix.removeAllItems();
 					networkMatrix.addItem(" ");
                 	for(String setName: adjModel) {
@@ -303,8 +323,11 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 		excludeLoadButton.addActionListener(new ActionListener(){			
 			public void actionPerformed(ActionEvent e) {
 				excludeLoadPressed();
-			}});		
+			}});
 		
+		// define the 'update/refreshing'behavior of GUI components - see the
+		// examples
+		// they are (basically) all the same
 		ParameterActionListener parameterActionListener = new ParameterActionListener(
 				this);
 		networkField.addActionListener(parameterActionListener);		
@@ -375,7 +398,9 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 			if (key.equals("nullDataText")) {
 				nullDataField.setText((String)value);
 			}
-			
+			if (key.equals("pValueText")) {
+				pValueTextField.setText((String)value);
+			}
 			if (key.equals("nullDataCheckbox")) {
 				nullDataCheckbox.setSelected((Boolean)value);
 				nullDataField.setEnabled((Boolean)value);
@@ -401,7 +426,8 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 		parameters.put("includeText",includeField.getText());
 		parameters.put("", (String) this.excludeSets.getSelectedItem());
 		parameters.put("excludeText", excludeField.getText());
-		parameters.put("nullDataText", nullDataField.getText());		
+		parameters.put("nullDataText", nullDataField.getText());
+		parameters.put("pValueText", pValueTextField.getText());
 		parameters.put("nullDataCheckbox", nullDataCheckbox.isSelected());	
 		
 		return parameters;
@@ -434,7 +460,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 	}
 
 	public String getPvalue(){
-		return P_VALUE;
+		return pValueTextField.getText();
 	}
 	
 	public boolean getUseNullData(){
@@ -480,7 +506,8 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 	
 	//prepare networkList and ideaNetwork from project adjacencyMatrix
 	private void getNetworkFromProject(AdjacencyMatrixDataSet adjDataSet){
-		ideaNetwork = new ArrayList<IdeaNetworkEdge>();		
+		ideaNetwork = new ArrayList<IdeaNetworkEdge>();
+		int edgeNo=0;
 		NodeType nt=adjDataSet.getMatrix().getEdges().get(0).node1.getNodeType();
 		if(nt.equals(NodeType.PROBESET_ID)||nt.equals(NodeType.MARKER)){
 			for(Edge ed:adjDataSet.getMatrix().getEdges()){
@@ -496,11 +523,31 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 					}				
 				}
 				if (newEdge){
-					ideaNetwork.add(anEdge);					
+					ideaNetwork.add(anEdge);
+					edgeNo++;
+					if(edgeNo>100) break;	//FIXME:only for debug
+					//String s1=ed.node1.getMarker().getLabel();
+					//String s2=ed.node2.getMarker().getLabel();
+					//System.out.println(i1+":"+i2+"\tnode1: "+s1+"\tnode2: "+s2);
 				}				
 			}
 		}
-		
+		else if(nt.equals(NodeType.STRING)){
+			for(Edge ed:adjDataSet.getMatrix().getEdges()){
+				String s=ed.node1.getStringId();				
+				int i1=Integer.parseInt(s);
+				int i2=Integer.parseInt(ed.node2.getStringId());
+				System.out.println(i1+":"+i2);
+			}
+		}
+		else if(nt.equals(NodeType.GENE_SYMBOL)){
+			for(Edge ed:adjDataSet.getMatrix().getEdges()){
+				String s=ed.node1.getStringId();				
+				int i1=Integer.parseInt(s);
+				int i2=Integer.parseInt(ed.node2.getStringId());
+				System.out.println(i1+":"+i2);
+			}
+		}
 		for(IdeaNetworkEdge ie:ideaNetwork){			
 			networkList.add(ie.getGene1()+"\t"+ie.getGene2()+"\t1"+"\t0"+"\t0");
 		}		
