@@ -181,8 +181,16 @@ public class PatternDiscoveryAnalysis extends AbstractAnalysis implements
         boolean done = false;
         while (!done) {
             try {
+            	if(this.stopAlgorithm) {
+					discoverySession.stop();
+					return new AlgorithmExecutionResults(false, "Pattern Discovery is canceled at " + new Date(), null);
+				}
             	Thread.sleep(100);
 				done = discoverySession.isDone();
+				if(this.stopAlgorithm) {
+					discoverySession.stop();
+					return new AlgorithmExecutionResults(false, "Pattern Discovery is canceled at " + new Date(), null);
+				}
 			} catch (SessionOperationException e) {
 				e.printStackTrace();
 			} catch (InterruptedException e) {
