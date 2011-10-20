@@ -58,7 +58,6 @@ public class PatternTableView extends JPanel {
     private JMenuItem jSaveSelectedPatternsWInfoItem = new JMenuItem();
     private boolean saveAllPatterns;
 
-    private JMenuItem addPatToProj = new JMenuItem();
     private PatternViewPanel widget = null;
 
     private static class JPTable extends JTable {
