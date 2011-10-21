@@ -129,14 +129,19 @@ public class NullDistribution {
 				 analysis.stop();
 				return -1;
 			}
+			IdeaEdge currentEdge=MI_Edge.get(0);//usually sortedCorr.length always >t except in test environment.
 			// compute 100X100X100 null delta Corrs
 			for (int i = 0; i < 100; i++) {// set 100 bins, get MI positions in
 											// sortedCorr for each bin
 
 				for (int j = 0; j < 100; j++) { // each bin has 100 points of
 												// edge
-					IdeaEdge currentEdge = MI_Edge.get(sortedCorr[bins.get(i)
-							.getMinP() + j]);
+					int t=bins.get(i).getMinP() + j;
+					
+					if(t<sortedCorr.length){
+						currentEdge = MI_Edge.get(sortedCorr[t]);
+					}
+					
 					if(currentEdge.getNullData()==null) {
 						// the 100 null delta data for each edge
 						double[] nullData = new double[100]; 
@@ -192,13 +197,15 @@ public class NullDistribution {
 				KernelEstimator kernel = new KernelEstimator(K_PRECISION);
 				/* 0.0072 may be reasonable, not sure, the parameter impact a lot */
 				for (Integer a : binsPoints) {
-					double[] nullDeltaI = MI_Edge.get(sortedCorr[a]).getNullData();
-					for (int i = 0; i < nullDeltaI.length; i++) {
-						kernel.addValue(nullDeltaI[i], K_WEIGHT);
-						if (anEdge.getDeltaCorr() > 0 && nullDeltaI[i] > 0)
-							zNullI.add(nullDeltaI[i]);
-						else if (anEdge.getDeltaCorr() < 0 && nullDeltaI[i] < 0) {
-							zNullI.add(nullDeltaI[i]);
+					if(a<sortedCorr.length){
+						double[] nullDeltaI = MI_Edge.get(sortedCorr[a]).getNullData();
+						for (int i = 0; i < nullDeltaI.length; i++) {
+							kernel.addValue(nullDeltaI[i], K_WEIGHT);
+							if (anEdge.getDeltaCorr() > 0 && nullDeltaI[i] > 0)
+								zNullI.add(nullDeltaI[i]);
+							else if (anEdge.getDeltaCorr() < 0 && nullDeltaI[i] < 0) {
+								zNullI.add(nullDeltaI[i]);
+							}
 						}
 					}
 				}
