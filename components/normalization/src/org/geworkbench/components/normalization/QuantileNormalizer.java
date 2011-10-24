@@ -3,8 +3,11 @@ package org.geworkbench.components.normalization;
 import java.util.Arrays;
 import java.util.Comparator;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.NormalizingAnalysis;
@@ -41,6 +44,9 @@ public class QuantileNormalizer extends AbstractAnalysis implements NormalizingA
 	 * 
 	 */
 	private static final long serialVersionUID = 5147146459001795596L;
+	
+	private static Log log = LogFactory.getLog(QuantileNormalizer.class);
+	
 	// Static fields used to designate the available user option within the
     // normalizer's parameters panel.
     public static final int MARKER_PROFILE_MEAN = 0;
@@ -83,12 +89,18 @@ public class QuantileNormalizer extends AbstractAnalysis implements NormalizingA
         replaceMissingValues(maSet);
 
         for (int arrayIndex = 0; arrayIndex < arrayCount; ++arrayIndex){
-            DSMutableMarkerValue[] anArray = maSet.
+            DSMarkerValue[] anArray = maSet.
                                               get(arrayIndex).getMarkerValues();
-            for (int markerIndex = 0; markerIndex < markerCount; ++markerIndex)
-                arrays[arrayIndex][markerIndex] = anArray[markerIndex];
+            for (int markerIndex = 0; markerIndex < markerCount; ++markerIndex) {
+            	if(! (anArray[markerIndex] instanceof DSMutableMarkerValue) ) {
+            		// this may happen after future design improvement. in that case the the value need to set at microarray set level
+            		log.error("anArray[markerIndex] is "+ arrays[arrayIndex][markerIndex].getClass().getName()+", not DSMutableMarkerValue");
+            		return new AlgorithmExecutionResults(false, "mutable marker value expected", null);
+            	}
+                arrays[arrayIndex][markerIndex] = (DSMutableMarkerValue) anArray[markerIndex]; //new CSExpressionMarkerValue((float) anArray[markerIndex].getValue());
+            }
 
-            Arrays.sort(arrays[arrayIndex], new MarkerValueComparator<DSMutableMarkerValue>());
+            Arrays.sort(arrays[arrayIndex], new MarkerValueComparator<DSMarkerValue>());
         }
 
         for (int markerIndex = 0; markerIndex < markerCount; ++markerIndex){
@@ -195,7 +207,7 @@ public class QuantileNormalizer extends AbstractAnalysis implements NormalizingA
         return (nonMissing != 0 ? sumOfValues / nonMissing : 0);
     }
 
-    static class MarkerValueComparator<T extends DSMutableMarkerValue> implements Comparator<T>{
+    static class MarkerValueComparator<T extends DSMarkerValue> implements Comparator<T>{
         public int compare(T v1, T v2){
             if (v1 != null && v2!= null){
                 if (v1.getValue() == v2.getValue())
