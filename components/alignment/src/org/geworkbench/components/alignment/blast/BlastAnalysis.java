@@ -5,7 +5,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Vector;
 
 import javax.swing.JOptionPane;
 
@@ -16,8 +18,9 @@ import org.geworkbench.bison.annotation.DSAnnotationContextManager;
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.sequence.BlastObj;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSAlignmentResultSet;
-import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
+import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence; 
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
@@ -236,9 +239,15 @@ public class BlastAnalysis extends AbstractAnalysis implements
 					}
 
 				}
+				
+				NCBIBlastParser nbp = new NCBIBlastParser(sequenceDB.size(),
+						outputFile);
+			 	ArrayList<Vector<BlastObj>> blastDataSet = nbp.parseResults();
+              
+				
 
 				CSAlignmentResultSet blastResult = new CSAlignmentResultSet(
-						outputFile, activeSequenceDB.getFASTAFileName(),
+						outputFile, blastDataSet, nbp.getSummary(), nbp.getHitCount(), activeSequenceDB.getFASTAFileName(),
 						activeSequenceDB, parentSequenceSet);
 				blastResult.setLabel(BlastAnalysisPanel.NCBILABEL);
  
@@ -298,19 +307,7 @@ public class BlastAnalysis extends AbstractAnalysis implements
 		}
 		return "Other error (not able to be parsed)";
 	}
-
-	/*
-	 * @Override protected void done() { if(isCancelled())return;
-	 * 
-	 * CSAlignmentResultSet blastResult; try { blastResult = get(); if
-	 * (blastResult==null)return;
-	 * 
-	 * String historyStr = generateHistoryStr(sequenceDB);
-	 * HistoryPanel.addToHistory(blastResult, historyStr); } catch
-	 * (InterruptedException e) { // TODO Auto-generated catch block
-	 * e.printStackTrace(); } catch (ExecutionException e) { // TODO
-	 * Auto-generated catch block e.printStackTrace(); } }
-	 */
+	 
 
 	private String generateHistoryStr(
 			CSSequenceSet<CSSequence> activeSequenceDB,

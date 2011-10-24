@@ -31,10 +31,10 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
+import org.geworkbench.bison.datastructure.bioobjects.sequence.BlastObj;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.util.RandomNumberGenerator;
-import org.geworkbench.components.alignment.blast.BlastObj;
 import org.geworkbench.util.BrowserLauncher;
 import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbench.util.JAutoList;
@@ -217,11 +217,11 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 
 		summaryLabel.setText(s);
 		double propLoc = .8D;
-		rightPanel.setDividerLocation(propLoc);
+	    rightPanel.setDividerLocation(propLoc);
 		rightPanel.setResizeWeight(0.95);
-		jSplitPane1.setDividerLocation(jSplitPane1DividerLocation);
-		jSplitPane1.setResizeWeight(0.4);
-		revalidate();
+	    jSplitPane1.setDividerLocation(jSplitPane1DividerLocation);
+		jSplitPane1.setResizeWeight(0.4);		
+		revalidate();		 
 	}
 
 	/**
@@ -277,7 +277,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 		JTable table = new JTable(myModel);
 
 		// setting the size of the table and its columns
-		table.setPreferredScrollableViewportSize(new Dimension(800, 100));
+		table.setPreferredScrollableViewportSize(new Dimension(800, 100));		 
 		table.getColumnModel().getColumn(0).setPreferredWidth(35);
 		table.getColumnModel().getColumn(1).setPreferredWidth(50);
 		table.getColumnModel().getColumn(2).setPreferredWidth(300);
