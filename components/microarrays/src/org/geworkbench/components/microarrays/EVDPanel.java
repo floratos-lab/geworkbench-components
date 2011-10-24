@@ -30,8 +30,8 @@ import javax.swing.event.ChangeEvent;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
@@ -1004,7 +1004,7 @@ public class EVDPanel extends MicroarrayViewEventBase {
 
                 DSGeneMarker marker = genes.get(geneCtr);
 
-                DSMutableMarkerValue markerValue = ma.getMarkerValue(marker);
+                DSMarkerValue markerValue = ma.getMarkerValue(marker);
                 if(markerValue==null)continue;
                 
                 double value = markerValue.getValue();
