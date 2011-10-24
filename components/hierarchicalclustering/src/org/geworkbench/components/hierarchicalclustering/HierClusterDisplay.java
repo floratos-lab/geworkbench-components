@@ -16,8 +16,8 @@ import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
 import org.geworkbench.bison.model.clusters.Cluster;
 import org.geworkbench.bison.model.clusters.MarkerHierCluster;
 import org.geworkbench.bison.model.clusters.MicroarrayHierCluster;
@@ -204,7 +204,7 @@ public class HierClusterDisplay extends JPanel {
 
 				int x = (j * geneWidth);
 				int width = ((j + 1) * geneWidth) - x;
-				DSMutableMarkerValue marker = mArray.getMarkerValue(stats);
+				DSMarkerValue marker = mArray.getMarkerValue(stats);
 
 				Color color = colorCtx.getMarkerValueColor(marker, stats,
 						(float) intensity);

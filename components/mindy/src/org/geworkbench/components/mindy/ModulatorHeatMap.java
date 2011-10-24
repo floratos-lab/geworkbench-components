@@ -18,8 +18,8 @@ import javax.swing.JPanel;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
 import org.geworkbench.bison.util.colorcontext.ColorContext;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyResultRow;
 
@@ -298,7 +298,7 @@ public class ModulatorHeatMap extends JPanel {
 		int halfArrays = size / 2;
 		for (int i = 0; i < size; i++) {
 			int startX;
-			DSMutableMarkerValue value = null;
+			DSMarkerValue value = null;
 			if (i < halfArrays) {
 				startX = SPACER_SIDE + (int) (i * cellWidth);
 				value = ((DSMicroarray) model.getHalf1().get(i))
