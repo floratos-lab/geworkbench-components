@@ -55,8 +55,8 @@ import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetV
 import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.markers.CSExpressionMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.structure.CSProteinStructure;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
@@ -1190,10 +1190,10 @@ public class AnalysisPanel extends CommandBase implements
 				double minValue = Double.POSITIVE_INFINITY;
 				double maxValue = Double.NEGATIVE_INFINITY;
 				for (DSMicroarray microarray : maSet) {
-					DSMutableMarkerValue[] values = microarray
+					DSMarkerValue[] values = microarray
 							.getMarkerValues();
 					double v;
-					for (DSMutableMarkerValue value : values) {
+					for (DSMarkerValue value : values) {
 						v = value.getValue();
 						if (v < minValue) {
 							minValue = v;
