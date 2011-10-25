@@ -967,25 +967,32 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		AdjacencyMatrix matrix  = amSet.getMatrix();
 		if (amSet==null || matrix==null)
 			return null;
+		boolean goodNetwork = false;
 		GZIPOutputStream zipout = null;
 		try{
 			ByteArrayOutputStream bo = new ByteArrayOutputStream();
 			zipout = new GZIPOutputStream(bo);
 
 			for (AdjacencyMatrix.Node node1 : matrix.getNodes()) {
-				if (node1.type != NodeType.MARKER)
-					return null;
-				StringBuilder builder = new StringBuilder();
-				for (AdjacencyMatrix.Edge edge : matrix.getEdges(node1)) {
-					builder.append(amSet.getExportName(node1) + "\t");
-					builder.append(amSet.getExportName(edge.node2) + "\t"
-							+ edge.info.value +"\t"  // Mutual information
-							+ "1\t"   // Spearman's correlation = 1
-							+ "0\n"); // P-value for Spearman's correlation = 0
+				String marker1 = getMarkerInNode(node1, matrix);
+				if (marker1 != null) {
+					StringBuilder builder = new StringBuilder();
+					for (AdjacencyMatrix.Edge edge : matrix.getEdges(node1)) {
+						String marker2 = getMarkerInNode(edge.node2, matrix);
+						if (marker2 != null) {
+							builder.append(marker1 + "\t");
+							builder.append(marker2 + "\t"
+									+ edge.info.value +"\t"  // Mutual information
+									+ "1\t"   // Spearman's correlation = 1
+									+ "0\n"); // P-value for Spearman's correlation = 0
+						}
+					}
+					if (!goodNetwork && builder.length() > 0) goodNetwork = true;
+					zipout.write(builder.toString().getBytes());
 				}
-				zipout.write(builder.toString().getBytes());
 			}
 			zipout.close();
+			if (!goodNetwork) return null;
 			return bo.toByteArray();
 		}catch(IOException e){
 			e.printStackTrace();
@@ -999,6 +1006,18 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 				}
 			}
 		}
+	}
+
+	private String getMarkerInNode(AdjacencyMatrix.Node node, AdjacencyMatrix matrix){
+		if (node == null || matrix == null) return null;
+		DSGeneMarker marker = null;
+		if (node.type == NodeType.MARKER) 
+			marker = node.getMarker();
+		else 
+			marker = matrix.getMicroarraySet().getMarkers().get(node.stringId);
+		if (marker != null) 
+			return marker.getLabel();
+		return null;
 	}
 
 	HashSet<String> getIxClass(String contextClass){
