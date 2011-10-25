@@ -42,7 +42,6 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.util.microarrayutils.MicroarrayViewEventBase;
@@ -108,7 +107,7 @@ public class TabularMicroarrayPanel extends MicroarrayViewEventBase {
 			} else {
 				DSGeneMarker stats = uniqueMarkers.get(row);
 				if (stats != null) {
-					DSMutableMarkerValue marker = maSetView.items().get(
+					DSMarkerValue marker = maSetView.items().get(
 							modelCol - 1).getMarkerValue(stats.getSerial());
 					if (marker.isMissing()) {
 						c.setBackground(Color.yellow);
