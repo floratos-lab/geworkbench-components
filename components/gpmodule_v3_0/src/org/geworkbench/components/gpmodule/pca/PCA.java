@@ -50,6 +50,7 @@ import org.geworkbench.bison.annotation.DSAnnotationContext;
 import org.geworkbench.bison.datastructure.biocollections.CSMarkerVector;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.pca.CSPCADataSet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.CSExpressionMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
@@ -176,11 +177,10 @@ public class PCA extends MicroarrayViewEventBase
 
                 for(int pc = 0; pc < pcs.length; pc++)
                 {
-                    DSMicroarray array =  new CSMicroarray(numRows);
+                    DSMicroarray array =  new CSMicroarray(pc, numRows, "PC " + (pcs[pc]+1), DSMicroarraySet.DO_NOT_CREATE_VALUE_OBJECT);
                     CSMarkerVector markerVector = pcDataSet.getMarkers();
                     for(int r = 0; r < numRows; r++)
                     {
-                        array.setLabel("PC " + (pcs[pc]+1));
                         CSExpressionMarkerValue markerValue = new CSExpressionMarkerValue();
                         markerValue.setMissing(false);
                         markerValue.setValue(uMatrix.get(r, pcs[pc]));
