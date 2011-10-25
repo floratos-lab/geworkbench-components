@@ -27,6 +27,7 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
@@ -194,6 +195,10 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> discretizedInput = 
 				discretize(newMicroarraySetView, params.getIntervalBase(), params
 						.getIntervalBound());
+		if(discretizedInput==null) {
+    		log.error("markerValue is "+ newMicroarraySetView.get(0).getMarkerValue(0).getClass().getName() +", not DSMutableMarkerValue");
+    		return new AlgorithmExecutionResults(false, "mutable marker value expected", null);
+		}
 
 		// create labels file (and get targets & regulators)
 		if (StringUtils.isEmpty(params.getLabelsFilePath()))
@@ -582,8 +587,13 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 
 			for (int j = 0; j < ddata.length; j++) {
 
-				DSMutableMarkerValue markerValue = discreteMicroarray
-						.getMarkerValue(j);
+                DSMarkerValue v = discreteMicroarray.getMarkerValue(j);
+            	if(! (v instanceof DSMutableMarkerValue) ) {
+            		// this may happen after future design improvement. in that case the the value need to set at microarray set level
+            		return null;
+            	}
+
+                DSMutableMarkerValue markerValue = (DSMutableMarkerValue)v;
 				markerValue.setValue(ddata[j]);
 				discreteMicroarray.setMarkerValue(j, markerValue);
 			}
