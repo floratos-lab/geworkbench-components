@@ -303,7 +303,7 @@ public class CaArray2Component implements VisualPlugin {
 		}
 
 		int markerNo = markerNames.size();
-		microarraySet.initialize(0, markerNo);
+		microarraySet.initializeMarkerVector(markerNo);
 		microarraySet.getMarkers().clear();
 		// maSet.setCompatibilityLabel(bioAssayImpl.getIdentifier());
 		for (int z = 0; z < markerNo; z++) {
