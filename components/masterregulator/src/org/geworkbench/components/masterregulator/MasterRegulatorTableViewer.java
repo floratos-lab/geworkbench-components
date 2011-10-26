@@ -61,7 +61,7 @@ public class MasterRegulatorTableViewer extends JPanel implements VisualPlugin {
 			MRAResultSet = (DSMasterRegulatorTableResultSet) dataSet;
 			// Results don't have "MeanClass1" & "MeanClass2" if marina is run using 
 			// probe shuffling instead of gene shuffling by setting min_samples > 9
-			if (MRAResultSet.getData()[0].length == colNum - 2){
+			if (MRAResultSet.getData().length>0 && MRAResultSet.getData()[0].length == colNum - 2){
 				String[] reducedNames = Arrays.copyOf(columnNames, colNum - 2);
 				reducedNames[colNum-3] = columnNames[colNum - 1];
 				tv.headerNames = reducedNames;
