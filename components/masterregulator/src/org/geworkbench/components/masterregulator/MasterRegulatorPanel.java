@@ -964,9 +964,9 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 
 	private byte[] getNetworkFromAdjMatrix(){
 		AdjacencyMatrixDataSet amSet = getAdjMatrixDataSet();
+		if (amSet==null) return null;
 		AdjacencyMatrix matrix  = amSet.getMatrix();
-		if (amSet==null || matrix==null)
-			return null;
+		if (matrix==null) return null;
 		boolean goodNetwork = false;
 		GZIPOutputStream zipout = null;
 		try{
