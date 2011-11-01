@@ -248,11 +248,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 					networkMatrix.setEnabled(true);
 					networkLoadButton.setEnabled(false);					
 					networkField.setEnabled(false);					
-					networkMatrix.removeAllItems();
-					networkMatrix.addItem(" ");
-                	for(String setName: adjModel) {
-                		networkMatrix.addItem(setName);
-                	}					
+					refreshNetworkMatrixs();
 				} else {
 					networkMatrix.setEnabled(false);
 					networkLoadButton.setEnabled(true);
@@ -729,6 +725,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 		}
 		adjModel.remove(oldName);
 		adjModel.add(newName);
+		refreshNetworkMatrixs();
 	}
 	
 	public void removeAdjMatrixToCombobox(AdjacencyMatrixDataSet adjDataSet) {
@@ -736,6 +733,8 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 			adjacencymatrixDataSets.remove(adjDataSet);
 			// adjModel.remove(adjDataSet.getDataSetName());
 			adjModel.remove(adjModel.indexOf(adjDataSet.getDataSetName()));
+			refreshNetworkMatrixs();			
+			
 		} catch (Exception ex) {
 			log.error(ex.getMessage());
 		}
@@ -743,7 +742,16 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 	
 	public void addAdjMatrixToCombobox(AdjacencyMatrixDataSet adjDataSet) {
 		adjacencymatrixDataSets.add(adjDataSet);
-		adjModel.add(adjDataSet.getDataSetName());		
+		adjModel.add(adjDataSet.getDataSetName());
+		refreshNetworkMatrixs();
+	}
+	
+	private void refreshNetworkMatrixs(){
+		networkMatrix.removeAllItems();
+		networkMatrix.addItem(" ");
+    	for(String setName: adjModel) {
+    		networkMatrix.addItem(setName);
+    	}		
 	}
 	
 	public String getSelectedAdjMatrix()
