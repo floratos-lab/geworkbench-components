@@ -1,8 +1,7 @@
 package org.geworkbench.components.interactions.cellularnetwork;
 
 public class InteractionParticipant {
-	private static final long serialVersionUID = -4163326138016520669L;
-	 ;
+
 	private String dSGeneMarker;    
     private String dSGeneName;     
     private String dbSource;   
