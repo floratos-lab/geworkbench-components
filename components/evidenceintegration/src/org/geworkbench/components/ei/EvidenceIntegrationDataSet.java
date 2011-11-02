@@ -1,6 +1,5 @@
 package org.geworkbench.components.ei;
 
-import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -25,15 +24,6 @@ public class EvidenceIntegrationDataSet extends CSAncillaryDataSet<DSBioObject> 
         this.evidence = evidence;
         this.filename = filename;
         this.goldStandardSources = goldStandardSources;
-    }
-
-    public File getDataSetFile() {
-        // no-op
-        return null;
-    }
-
-    public void setDataSetFile(File file) {
-        // no-op
     }
 
     public List<Evidence> getEvidence() {
