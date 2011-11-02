@@ -58,7 +58,7 @@ public class PatternViewComponent implements
     		patternViewPanel.setSequenceDB(dataSet.getActiveDataSet());
     		patternViewPanel.setPatternResults(dataSet);
     		String summary = "Number of Patterns found:" + ((PatternResult) dataSet).getPatternNo();
-    		dataSet.addDescription(summary);
+    		dataSet.setDescription(summary);
     	}
     }
 }
