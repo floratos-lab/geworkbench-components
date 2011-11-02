@@ -108,7 +108,7 @@ public class BlastViewComponent implements VisualPlugin {
 
 				String summary = resultSet.getSummary();
 				blastViewPanel.setSummary(summary);
-				df.addDescription(summary);
+				df.setDescription(summary);
 
 				if (resultSet.getHitCount() == 0) {
 					blastViewPanel.resetToWhite("No alignment hit is found.");
