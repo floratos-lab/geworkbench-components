@@ -45,6 +45,7 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.util.microarrayutils.MicroarrayViewEventBase;
+import org.geworkbench.builtin.projects.SaveFileFilterFactory;
 
 /**
  * 
@@ -286,7 +287,9 @@ public class TabularMicroarrayPanel extends MicroarrayViewEventBase {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				JFileChooser fileChooser = new JFileChooser();
+				fileChooser.setFileFilter(SaveFileFilterFactory.getTabDelimitedFileFilter());
 				int ret = fileChooser.showSaveDialog(TabularMicroarrayPanel.this.getComponent());
+				
 				if(ret==JFileChooser.APPROVE_OPTION) {
 					File file = fileChooser.getSelectedFile();
 					try {
