@@ -194,9 +194,11 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 				}
 			}
 		}
-		if (this.stopAlgorithm) {
+		
+		if(edgeIndex.size()==0){
 			pbIdea.dispose();
-			return null;
+			return new AlgorithmExecutionResults(false,
+					"None of valid network edges loaded, analysis aborted!", null);
 		}
 		
 		Phenotype phenotype = IDEAAnalysisPanel.getPhenotype();
