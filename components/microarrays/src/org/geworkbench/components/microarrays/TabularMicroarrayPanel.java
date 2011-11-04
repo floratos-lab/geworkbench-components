@@ -6,8 +6,8 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.File; 
+import java.io.FileNotFoundException; 
 import java.io.PrintWriter;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -22,6 +22,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
@@ -46,6 +47,7 @@ import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.util.microarrayutils.MicroarrayViewEventBase;
 import org.geworkbench.builtin.projects.SaveFileFilterFactory;
+import org.geworkbench.builtin.projects.SaveFileFilterFactory.TabDelimitedFileFilter;
 
 /**
  * 
@@ -57,7 +59,7 @@ import org.geworkbench.builtin.projects.SaveFileFilterFactory;
  * @author zji
  * @version $Id$
  */
-@AcceptTypes( { DSMicroarraySet.class })
+@AcceptTypes({ DSMicroarraySet.class })
 public class TabularMicroarrayPanel extends MicroarrayViewEventBase {
 
 	private static Log log = LogFactory.getLog(TabularMicroarrayPanel.class);
@@ -108,8 +110,8 @@ public class TabularMicroarrayPanel extends MicroarrayViewEventBase {
 			} else {
 				DSGeneMarker stats = uniqueMarkers.get(row);
 				if (stats != null) {
-					DSMarkerValue marker = maSetView.items().get(
-							modelCol - 1).getMarkerValue(stats.getSerial());
+					DSMarkerValue marker = maSetView.items().get(modelCol - 1)
+							.getMarkerValue(stats.getSerial());
 					if (marker.isMissing()) {
 						c.setBackground(Color.yellow);
 						c.setForeground(Color.blue);
@@ -128,7 +130,7 @@ public class TabularMicroarrayPanel extends MicroarrayViewEventBase {
 	};
 
 	private AbstractTableModel microarrayTableModel = new AbstractTableModel() {
-		private static final long serialVersionUID = -6400581862850298421L;		 
+		private static final long serialVersionUID = -6400581862850298421L;
 
 		public int getColumnCount() {
 			if (maSetView == null || refMASet == null) {
@@ -229,19 +231,18 @@ public class TabularMicroarrayPanel extends MicroarrayViewEventBase {
 					public void stateChanged(ChangeEvent e) {
 						decimalPlaces = ((Integer) ((JSpinner) e.getSource())
 								.getValue()).intValue();
-					 
+
 						nf.setMinimumFractionDigits(decimalPlaces);
 						nf.setMaximumFractionDigits(decimalPlaces);
-						 
 
 						String s = "";
 						for (int i = 0; i < decimalPlaces; i++) {
 							s = s + "#";
 						}
-                    
+
 						sf.applyPattern("0." + s + "E0");
 						sf.setMinimumFractionDigits(decimalPlaces);
-					 
+
 						microarrayTableModel.fireTableDataChanged();
 
 					}
@@ -279,7 +280,7 @@ public class TabularMicroarrayPanel extends MicroarrayViewEventBase {
 		jToolBar3.add(jrbScientific);
 		jToolBar3.add(labelDecimalPlaces);
 		jToolBar3.add(jspDecimalPlaces);
-		
+
 		JButton button = new JButton("Export");
 		jToolBar3.add(button);
 		button.addActionListener(new ActionListener() {
@@ -287,24 +288,46 @@ public class TabularMicroarrayPanel extends MicroarrayViewEventBase {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				JFileChooser fileChooser = new JFileChooser();
-				fileChooser.setFileFilter(SaveFileFilterFactory.getTabDelimitedFileFilter());
-				int ret = fileChooser.showSaveDialog(TabularMicroarrayPanel.this.getComponent());
-				
-				if(ret==JFileChooser.APPROVE_OPTION) {
-					File file = fileChooser.getSelectedFile();
+				TabDelimitedFileFilter tabDelimitedFileFilter = SaveFileFilterFactory
+						.getTabDelimitedFileFilter();
+				fileChooser.setFileFilter(tabDelimitedFileFilter);
+				int ret = fileChooser
+						.showSaveDialog(TabularMicroarrayPanel.this
+								.getComponent());
+
+				if (ret == JFileChooser.APPROVE_OPTION) {
+					String newFileName = fileChooser.getSelectedFile()
+							.getAbsolutePath();
+
+					if (fileChooser.getFileFilter().getDescription().equals(tabDelimitedFileFilter.getDescription()))
+					{
+						if (!tabDelimitedFileFilter.accept(new File(newFileName)))
+						newFileName += "." + tabDelimitedFileFilter.getExtension();
+					}
+					
+					File file = new File(newFileName);
+					if (file.exists()) {
+						int o = JOptionPane.showConfirmDialog(null, "Replace the file",
+								"Replace the existing file?",
+								JOptionPane.YES_NO_CANCEL_OPTION);
+						if (o != JOptionPane.YES_OPTION) {
+							return;
+						}
+					}					
+					
 					try {
 						DSItemList<DSMicroarray> arrays = maSetView.items();
 						PrintWriter pw = new PrintWriter(file);
 						pw.print("ID");
-						for(int i=0; i<arrays.size(); i++) {
-							pw.print("\t"+arrays.get(i));
+						for (int i = 0; i < arrays.size(); i++) {
+							pw.print("\t" + arrays.get(i));
 						}
 						pw.println();
-						for(int index=0; index<maSetView.markers().size(); index++) {
+						for (int index = 0; index < maSetView.markers().size(); index++) {
 							double[] v = maSetView.getRow(index);
 							pw.print(maSetView.markers().get(index).getLabel());
-							for(int i=0; i<v.length; i++) {
-								pw.print("\t"+v[i]);
+							for (int i = 0; i < v.length; i++) {
+								pw.print("\t" + new Float(v[i]));
 							}
 							pw.println();
 						}
@@ -315,11 +338,11 @@ public class TabularMicroarrayPanel extends MicroarrayViewEventBase {
 				}
 			}
 		});
-		
+
 		selectedFormat = NUMBERS;
 		decimalPlaces = 2;
 		nf = NumberFormat.getInstance();
-	    nf.setRoundingMode(RoundingMode.HALF_UP);
+		nf.setRoundingMode(RoundingMode.HALF_UP);
 		nf.setMinimumFractionDigits(decimalPlaces);
 		nf.setMaximumFractionDigits(decimalPlaces);
 		sf = new DecimalFormat("0.##E0");
