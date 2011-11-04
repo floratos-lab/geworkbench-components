@@ -12,6 +12,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -35,14 +36,16 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
-import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.Edge;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType;
+import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.events.listeners.ParameterActionListener;
 import org.geworkbench.util.FilePathnameUtils;
+import org.geworkbench.util.annotation.AffyAnnotationUtil;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
@@ -542,14 +545,70 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 				System.out.println(i1+":"+i2);
 			}
 		}
-		else if(nt.equals(NodeType.GENE_SYMBOL)){
-			for(Edge ed:adjDataSet.getMatrix().getEdges()){
-				String s=ed.node1.getStringId();				
-				int i1=Integer.parseInt(s);
-				int i2=Integer.parseInt(ed.node2.getStringId());
-				System.out.println(i1+":"+i2);
+		else if (nt.equals(NodeType.GENE_SYMBOL)) {
+		// FIXME this is a temporary solution to make the gene symbol node works
+		// both the design and the implementation should be carefully reviewed and probably redone later
+			DSMicroarraySet dataset = (DSMicroarraySet) adjDataSet.getParentDataSet();
+			Map<String, List<Integer>> geneNameToMarkerIdMap = AffyAnnotationUtil
+			.getGeneNameToMarkerIDMapping(dataset);
+
+			for (Edge ed : adjDataSet.getMatrix().getEdges()) {
+				Collection<Integer> markers1 = geneNameToMarkerIdMap.get( ed.node1.stringId );
+				Collection<Integer> markers2 = geneNameToMarkerIdMap.get( ed.node2.stringId );
+
+				List<Integer> entrez1 = new ArrayList<Integer>();
+				List<Integer> entrez2 = new ArrayList<Integer>();
+
+				// for now add only one match
+				if(markers1!=null && markers1.size()>0) {
+					Integer index = markers1.iterator().next();
+					DSGeneMarker m = (DSGeneMarker) dataset.getMarkers().get(index);
+					Set<String> entrezIds = AffyAnnotationUtil.getGeneIDs(m.getLabel());
+					if(entrezIds!=null && entrezIds.size()>0) {
+						try {
+							int ent = Integer.parseInt(entrezIds.iterator().next());
+							entrez1.add(ent);
+						} catch (NumberFormatException e) {
+							log.error(e);
+						}
+					}
+				}
+
+				// for now add only on match
+				if(markers2!=null && markers2.size()>0) {
+					Integer index = markers2.iterator().next();
+					DSGeneMarker m = (DSGeneMarker) dataset.getMarkers().get(index);
+					Set<String> entrezIds = AffyAnnotationUtil.getGeneIDs(m.getLabel());
+					if(entrezIds!=null && entrezIds.size()>0) {
+						try {
+							int ent = Integer.parseInt(entrezIds.iterator().next());
+							entrez2.add(ent);
+						} catch (NumberFormatException e) {
+							log.error(e);
+						}
+					}
+				}
+
+				for (int i = 0; i < entrez1.size(); i++)
+					for (int j = 0; j < entrez2.size(); j++) {
+						IdeaNetworkEdge anEdge = new IdeaNetworkEdge(
+								entrez1.get(i), entrez2.get(j));
+						boolean newEdge = true;
+						for (IdeaNetworkEdge ie : ideaNetwork) {
+							if (ie.compareTo(anEdge) == 0) {
+								newEdge = false;
+								break;
+							}
+						}
+						if (newEdge) {
+							ideaNetwork.add(anEdge);
+							edgeNo++;
+						}
+
+					}
 			}
 		}
+		log.debug("network size is "+ideaNetwork.size());
 		for(IdeaNetworkEdge ie:ideaNetwork){			
 			networkList.add(ie.getGene1()+"\t"+ie.getGene2()+"\t1"+"\t0"+"\t0");
 		}		
