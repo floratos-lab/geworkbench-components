@@ -444,7 +444,13 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 		StringBuilder histStr = new StringBuilder("");
 		histStr.append("IDEA Analysis parameters:\n");
 		histStr.append("----------------------------------------");
-		histStr.append("\nNetwork: "+networkField.getText());		
+		String selected = (String) networkFrom.getSelectedItem();
+		if (StringUtils.equals(selected, FROM_PROJECT)){
+			histStr.append("\nNetwork: "+getSelectedAdjMatrix());
+		}
+		else
+			histStr.append("\nNetwork: "+networkField.getText());
+		histStr.append("\nPhenotype:");
 		String includeStr=phenotype.getPhenotypeAsString()[0];		
 		histStr.append("\n"+includeStr);
 		String excludeStr=phenotype.getPhenotypeAsString()[1];
