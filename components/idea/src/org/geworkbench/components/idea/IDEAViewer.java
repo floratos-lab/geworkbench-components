@@ -247,10 +247,14 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 		JTabbedPane tabbedPane = new JTabbedPane();
 
 		JTable gocTable = new JTable(gocTableModel);
+		gocTable.setAutoCreateRowSorter(true);
 		JTable locTable = new JTable(locTableModel);
+		locTable.setAutoCreateRowSorter(true);
 		JTable nodeTable = new JTable(moduleTableModel);
+		nodeTable.setAutoCreateRowSorter(true);
 		JTable significantGeneTable = new JTable(significantGeneTableModel);
-
+		significantGeneTable.setAutoCreateRowSorter(true);
+		
 		// significantGeneTable.setPreferredSize(new Dimension(700, 50));
 		tabbedPane.addTab("Genes of Significance", new JScrollPane(
 				significantGeneTable));
