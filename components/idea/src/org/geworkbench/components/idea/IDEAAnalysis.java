@@ -468,10 +468,11 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 				else if (e.getDeltaCorr() > 0)
 					gocHits++;
 			}
-			double locnes = -Math.log(pg.getCumLoc());
-			double gocnes = -Math.log(pg.getCumGoc());
+			double locnes = Math.abs(-Math.log(pg.getCumLoc()));
+			double gocnes =  Math.abs(-Math.log(pg.getCumGoc()));
+			
 			IdeaNode aNode=new IdeaNode(pg.getProbeId(), m.getGeneName(), "chromosomal", 
-					pg.getEdges().size(), pg.getNes(), pg.getLocs(), locHits, pg.getCumLoc(), 
+					pg.getEdges().size(), Math.abs(pg.getNes()), pg.getLocs(), locHits, pg.getCumLoc(), 
 					locnes, pg.getGocs(), gocHits, pg.getCumGoc(), gocnes);
 			nodeResultList.add(aNode);			
 		}
