@@ -135,7 +135,18 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 			if(list==null) return 0;
 			return list.size();
 		}
-
+		@Override
+		public Class getColumnClass(int column) {
+			if ((column == 3)||(column == 5)||(column == 6)||(column == 9)
+			||(column == 10)){ // n is column concerned
+			return Integer.class;
+			}		
+			if ((column == 4)||(column == 7)||(column == 8)||(column == 11)
+					||(column == 12)){ // n is column concerned
+					return Double.class;
+					}		
+			return String.class;
+		}
 		@Override
 		public Object getValueAt(int rowIndex, int columnIndex) {
 			if (ideaResult == null)
