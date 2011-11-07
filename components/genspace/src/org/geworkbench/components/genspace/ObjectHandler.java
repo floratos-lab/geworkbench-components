@@ -16,12 +16,11 @@ import org.geworkbench.bison.model.analysis.Analysis;
  * A handler used to log events.
  * 
  * @author sheths
- * @version $Id: ObjectHandler.java,v 1.2 2011/02/21 21:36:34 jsb2125 Exp $
+ * @version $Id$
  */
 public class ObjectHandler {
 
 	private Log log = LogFactory.getLog(this.getClass());
-	private static int count = 0;
 	private static String lastRunDataSetName = "";
 	private static long lastRunTime = 0;
 	private long defaultRunTime = 1000 * 60 * 10; // 10 min
@@ -76,8 +75,6 @@ public class ObjectHandler {
 					o.log(analysisName, dataSetName,
 							lastTransactionId, parameters);
 				}
-
-				count++;
 
 			}
 		}

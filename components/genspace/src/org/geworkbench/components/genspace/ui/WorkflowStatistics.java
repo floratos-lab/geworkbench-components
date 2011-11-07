@@ -150,7 +150,6 @@ public class WorkflowStatistics extends JPanel implements VisualPlugin {
 					GenSpace.getStatusBar().stop(evt);
 					List<Workflow> results = get();
 					int lim = 10;
-					int i = 1;
 					String txt = "";
 					if(results != null)
 					for (Workflow s : results) {
@@ -158,7 +157,6 @@ public class WorkflowStatistics extends JPanel implements VisualPlugin {
 						w.loadToolsFromCache();
 						txt = txt + "<li>" + w.toString() + "</li>";
 						lim--;
-						i++;
 						if (lim <= 0)
 							break;
 					}
