@@ -232,9 +232,7 @@ public class Matrix {
         return score;
     }
 
-    public int collectSequenceScores(DSSequence sequence, double[] scores) {
-        int cUP = 0;
-        int cDN = 0;
+    public void collectSequenceScores(DSSequence sequence, double[] scores) {
         int i = 0;
         for (int offset = 0;
                           offset < Math.min(scores.length / 3,
@@ -246,15 +244,12 @@ public class Matrix {
             scores[i++] = score2;
             if (score1 == 1) {
                 score1 = Math.exp(score(sequence, offset));
-                cUP++;
             }
             if (score2 == 1) {
                 score2 = Math.exp(scoreReverse(sequence, offset));
-                cDN++;
             }
         }
         Arrays.sort(scores);
-        return cUP + cDN;
     }
 
     public void countSequenceMatches(int length, double threshold,

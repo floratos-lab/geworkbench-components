@@ -1343,7 +1343,6 @@ public final class PromoterViewPanel extends JPanel {
                                                  RandomSequenceGenerator(
                             sequenceDB, pValue);
 
-                    int i = 0;
                     MatchStats msActual = new MatchStats();
                     MatchStats msExpect = new MatchStats();
                     int seqNo = 0;
@@ -1468,7 +1467,6 @@ public final class PromoterViewPanel extends JPanel {
                                 PatternOperations.
                                              getPatternColor(
                                         pattern.hashCode());
-                                i++;
                                 if (showTF.isSelected()) {
                                     seqDisPanel.addAPattern(pattern,
                                             matches);
@@ -1705,7 +1703,6 @@ public final class PromoterViewPanel extends JPanel {
         // To get goo statistics, we expect at least 100 matches to exceed
         // the threshold in the null hypothesis. Hence, this is the number
         // of 1KB sequences we must test.
-        int overT = 0;
         int seqLen = 1000;
         int seqNo = (int) (100 / pValue);
         double scores[] = new double[seqLen * 3];
@@ -1718,8 +1715,7 @@ public final class PromoterViewPanel extends JPanel {
             updateProgressBar(progress, "Computing Null Hypothesis");
             DSSequence sequence = rg.getRandomSequence(seqLen +
                     pattern.getLength());
-            overT +=
-                    pattern.getMatrix().collectSequenceScores(sequence, scores);
+            pattern.getMatrix().collectSequenceScores(sequence, scores);
         }
         int x = scores.length - 101;
         while ((x < scores.length) && scores[x - 1] == scores[x]) {
