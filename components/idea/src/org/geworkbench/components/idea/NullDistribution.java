@@ -138,7 +138,7 @@ public class NullDistribution {
 												// edge
 					int t=bins.get(i).getMinP() + j;
 					
-					if(t<sortedCorr.length){
+					if((t<sortedCorr.length)&&(t>=0)){
 						currentEdge = MI_Edge.get(sortedCorr[t]);
 					}
 					
@@ -197,7 +197,7 @@ public class NullDistribution {
 				KernelEstimator kernel = new KernelEstimator(K_PRECISION);
 				/* 0.0072 may be reasonable, not sure, the parameter impact a lot */
 				for (Integer a : binsPoints) {
-					if(a<sortedCorr.length){
+					if((a<sortedCorr.length)&&(a>=0)){
 						double[] nullDeltaI = MI_Edge.get(sortedCorr[a]).getNullData();
 						for (int i = 0; i < nullDeltaI.length; i++) {
 							kernel.addValue(nullDeltaI[i], K_WEIGHT);
