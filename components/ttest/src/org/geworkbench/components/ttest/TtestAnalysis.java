@@ -552,8 +552,6 @@ public class TtestAnalysis extends AbstractAnalysis implements
 		int numbValidValuesA = 0;
 		int numbValidValuesB = 0;
 
-		int groupACounter = 0;
-		int groupBCounter = 0;
 		int groupedExptsCounter = 0;
 
 		for (int i = 0; i < groupAssignments.length; i++) {
@@ -561,14 +559,12 @@ public class TtestAnalysis extends AbstractAnalysis implements
 				if (!Float.isNaN(geneValues[i])) {
 					numbValidValuesA++;
 				}
-				groupACounter++;
 				groupedExpts[groupedExptsCounter] = i;
 				groupedExptsCounter++;
 			} else if (groupAssignments[i] == GROUP_B) {
 				if (!Float.isNaN(geneValues[i])) {
 					numbValidValuesB++;
 				}
-				groupBCounter++;
 				groupedExpts[groupedExptsCounter] = i;
 				groupedExptsCounter++;
 			}
