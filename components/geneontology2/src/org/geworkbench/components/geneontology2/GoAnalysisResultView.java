@@ -584,12 +584,10 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		StringBuffer sb = new StringBuffer("Term GO ID: "+goId+"\nGenes annotated:\n");
 	
 		// here are the genes annotated to this term only, not to descendants.
-		int i=0;
 		for(String gene: getAnnotatedGenes(goId)) {
 			sb.append(gene).append("\n   Gene title: ").append(
 					AnnotationManager.getGeneDetail(dataSet, gene))
 					.append("\n\n");
-			i++;
 		}
 		
 		geneDetails.setText(sb.toString());
