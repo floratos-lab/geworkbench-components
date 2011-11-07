@@ -135,18 +135,20 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 			if(list==null) return 0;
 			return list.size();
 		}
+		
 		@Override
-		public Class getColumnClass(int column) {
-			if ((column == 3)||(column == 5)||(column == 6)||(column == 9)
-			||(column == 10)){ // n is column concerned
-			return Integer.class;
-			}		
-			if ((column == 4)||(column == 7)||(column == 8)||(column == 11)
-					||(column == 12)){ // n is column concerned
-					return Double.class;
-					}		
+		public Class<?> getColumnClass(int column) {
+			if ((column == 3) || (column == 5) || (column == 6)
+					|| (column == 9) || (column == 10)) {
+				return Integer.class;
+			}
+			if ((column == 4) || (column == 7) || (column == 8)
+					|| (column == 11) || (column == 12)) {
+				return Double.class;
+			}
 			return String.class;
 		}
+		
 		@Override
 		public Object getValueAt(int rowIndex, int columnIndex) {
 			if (ideaResult == null)
@@ -401,14 +403,11 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 		String edgeStr = "";
 
 		edgeStr += "Probe1\tGene1\tProbe2\tGene2\tMI\tDeltaMI\tZ-score";
-		int output1Row = 0;
 		for (IdeaGLoc e : list) {
 			edgeStr += "\n" + e.getProbe1() + "\t"
 					+ e.getGene1() + "\t" + e.getProbe2()
 					+ "\t" + e.getGene2() + "\t" + e.getMi()
 					+ "\t" + e.getDeltaMi() + "\t" + e.getzScore();
-
-			output1Row++;
 		}
 
 		PrintWriter out = null;
@@ -427,7 +426,6 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 			DSItemList<DSGeneMarker> markers) {
 		String nodeStr = "";
 		nodeStr += "Probe\tGene\tChrBand\tConn\tNes\tLoc\tLoCHits\tLoCEs\tLoCNes\tGoc\tGoCHits\tGoCEs\tGoCNes";
-		int row = 0;
 		for (IdeaNode p : nodeList) {// present significant nodes			
 
 			nodeStr += "\n" + p.getProbe() + "\t" + p.getGene() + "\t";
@@ -435,8 +433,6 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 					+ p.getNes() + "\t" + p.getLoc() + "\t" + p.getLoCHits() + "\t"
 					+ p.getLoCEs() + "\t" + p.getLoCEs() + "\t" + p.getGoc() + "\t"
 					+ p.getGoCHits() + "\t" + p.getGoCEs() + "\t" + p.getGoCNes();
-
-			row++;
 		}
 
 		PrintWriter out = null;
