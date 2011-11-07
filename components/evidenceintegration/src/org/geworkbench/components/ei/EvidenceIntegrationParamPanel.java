@@ -43,7 +43,7 @@ import edu.columbia.c2b2.evidenceinegration.Evidence;
 
 /**
  * @author mhall
- * @version $Id: EvidenceIntegrationParamPanel.java,v 1.10 2009-06-19 19:20:36 jiz Exp $
+ * @version $Id$
  */
 public class EvidenceIntegrationParamPanel extends AbstractSaveableParameterPanel {
 
@@ -148,25 +148,18 @@ public class EvidenceIntegrationParamPanel extends AbstractSaveableParameterPane
             });
             removeEvidenceButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent actionEvent) {
-                    int canRemovedEvidenceNumber = 0;
                     int currentEvidenceNumber = 0;
                     arrayList = new ArrayList<JCheckBox>();
                     for (Evidence evidence : evidenceSet) {
 
                         if (evidence.isLoadedFromFile()) {
-                            canRemovedEvidenceNumber++;
                             arrayList.add(new JCheckBox(evidence.getName()));
                             evidenceCandidates.add(currentEvidenceNumber);
                         }
                         currentEvidenceNumber++;
                     }
 
-
                     jCenterPanel.removeAll();
-
-//                    GridLayout gridLayout2 = new GridLayout(canRemovedEvidenceNumber, 1);
-//                    jCenterPanel.setLayout(gridLayout2);
-
 
                     for (JCheckBox jcheckbox : arrayList) {
                         jcheckbox.setPreferredSize(new Dimension(60, 22));
@@ -248,7 +241,6 @@ public class EvidenceIntegrationParamPanel extends AbstractSaveableParameterPane
                         if (evidence != null) {
                             loadedPriors.add(evidence);
                             setBooleanRenderers(loadedTable);
-//        evidenceTableModel.fireTableDataChanged();
                         }
                     } catch (IOException e) {
                         log.error(e);
