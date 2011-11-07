@@ -67,9 +67,15 @@ public class Phenotype implements Serializable {
 		for(int i:newColumnIncluded){
 			phenotypeAsString[INCLUDE_LINE_NUMBER]+=Integer.toString(i)+"\t";
 		}
+		String s=phenotypeAsString[INCLUDE_LINE_NUMBER].substring(0,phenotypeAsString[INCLUDE_LINE_NUMBER].length()-1);
+		phenotypeAsString[INCLUDE_LINE_NUMBER]=s;	//remove the last one which is tab
+		
 		for(int i:columnExcluded){
 			phenotypeAsString[EXCLUDE_LINE_NUMBER]+=Integer.toString(i)+"\t";
 		}
+		s=phenotypeAsString[EXCLUDE_LINE_NUMBER].substring(0,phenotypeAsString[EXCLUDE_LINE_NUMBER].length()-1);
+		phenotypeAsString[EXCLUDE_LINE_NUMBER]=s;	//remove the last one
+		
 		return phenotypeAsString;
 	}
 	public void setIncludeList(Set<Integer> includeSet){
