@@ -515,7 +515,6 @@ public class TTestUtil {
 		double[] sortedAdjPValues = new double[numGenes];
 		double[][] pMatrix = new double[numGenes][numCombs];
 
-		int currentGeneCounter = 0;
 		for (int i = numGenes - 1; i >= 0; i--) {
 			if (this.stopAlgorithm) {
 				pbTtest.dispose();
@@ -549,7 +548,6 @@ public class TTestUtil {
 			}
 
 			sortedAdjPValues[i] = (double) adjPCounter / (double) numCombs;
-			currentGeneCounter++;
 		}
 
 		for (int i = 1; i < sortedAdjPValues.length; i++) {
