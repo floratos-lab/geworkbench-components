@@ -1,8 +1,14 @@
 package org.geworkbench.components.masterregulator;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
@@ -24,7 +30,11 @@ import java.util.zip.GZIPOutputStream;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.ListModel;
@@ -44,8 +54,10 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.events.listeners.ParameterActionListener;
+import org.geworkbench.parsers.AdjacencyMatrixFileFormat;
 import org.geworkbench.parsers.InputFileFormatException;
 import org.geworkbench.util.FilePathnameUtils;
+import org.geworkbench.util.Util;
 
 import com.jgoodies.binding.adapter.BasicComponentFactory;
 import com.jgoodies.binding.list.ArrayListModel;
@@ -314,6 +326,7 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 					if ((lastDir = getLastDir()) != null) {
 						chooser.setCurrentDirectory(new File(lastDir));
 					}
+					chooser.setFileFilter(new AdjacencyMatrixFileFormat().getFileFilter());
 					chooser.showOpenDialog(MasterRegulatorPanel.this);
 					if (chooser.getSelectedFile() != null) {
 						File selectedFile = chooser.getSelectedFile();
@@ -321,18 +334,27 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 						networkTextField.setText(adjMatrixFileStr);
 						networkFilename = selectedFile.getName();
 						saveLastDir(selectedFile.getParent());
-						if (!is5colnetwork(adjMatrixFileStr, 10)){
+
+						if (!openDialog()) return;
+
+						//no need to generate adjmatrix for 5col network file
+						//because 5col network format is used only by grid mra as a file
+						if (!selectedFormat.equals(marina5colformat)){
 							try {
-								AdjacencyMatrixDataSet adjMatrix = new AdjacencyMatrixDataSet(
-										0, adjMatrixFileStr, adjMatrixFileStr,
-										maSet, adjMatrixFileStr);
+								AdjacencyMatrix matrix = AdjacencyMatrixDataSet
+								.parseAdjacencyMatrix(adjMatrixFileStr, maSet,
+										interactionTypeMap, selectedFormat,
+										selectedRepresentedBy, isRestrict);
+
+								AdjacencyMatrixDataSet adjMatrix = new AdjacencyMatrixDataSet(matrix, 
+										0, adjMatrixFileStr, adjMatrixFileStr, maSet);
 								this.adjMatrixHolder.remove("adjMatrix");
 								this.adjMatrixHolder.put("adjMatrix", adjMatrix);
 							} catch (InputFileFormatException e1) {
 								log.error(e1.getMessage());
 								e1.printStackTrace();
 							}
-						}
+						} else  this.adjMatrixHolder.remove("adjMatrix");
 					} else {
 						// user canceled
 					}
@@ -829,8 +851,8 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		}
 	}
 	
-	public boolean is5colnetwork(){
-		return is5colnetwork(networkTextField.getText(), 10);
+	boolean use5colnetwork(){
+		return !networkMatrix.isEnabled() && selectedFormat.equals(marina5colformat);
 	}
 
 	private boolean isDouble(String s){
@@ -925,7 +947,7 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 	/*get zipped network file in byte[]*/
 	public byte[] getNetwork(){
 		if (!networkFrom.isEnabled()) return null;
-		if (!networkMatrix.isEnabled())
+		if (use5colnetwork())
 			return getNetworkFromFile();
 		else return getNetworkFromAdjMatrix();
 	}
@@ -1035,4 +1057,214 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		}
 		return hash;
 	}
+
+	private String[] representedByList;
+	private String selectedRepresentedBy = AdjacencyMatrixDataSet.PROBESET_ID;
+	private HashMap<String, String> interactionTypeMap = null;
+	private boolean isRestrict = true;
+	private boolean isCancel = false;
+	String selectedFormat = AdjacencyMatrixDataSet.ADJ_FORMART;
+	String marina5colformat = "marina 5-column format";
+
+	private class LoadInteractionNetworkPanel extends JPanel {
+
+		static final long serialVersionUID = -1855255412334333328L;
+
+		final JDialog parent;
+
+		private JComboBox formatJcb;
+		private JComboBox presentJcb;
+
+		public LoadInteractionNetworkPanel(JDialog parent) {
+
+			setLayout(new BorderLayout());
+			this.parent = parent;
+			init();
+
+		}
+
+		private void init() {
+
+			JPanel panel1 = new JPanel(new GridLayout(3, 2));
+			JPanel panel3 = new JPanel(new GridLayout(0, 3));
+			JLabel label1 = new JLabel("File Format:    ");
+
+			formatJcb = new JComboBox();
+			formatJcb.addItem(AdjacencyMatrixDataSet.ADJ_FORMART);
+			formatJcb.addItem(AdjacencyMatrixDataSet.SIF_FORMART);
+			formatJcb.addItem(marina5colformat);
+			JLabel label2 = new JLabel("Node Represented By:   ");
+
+			representedByList = new String[4];
+			representedByList[0] = AdjacencyMatrixDataSet.PROBESET_ID;
+			representedByList[1] = AdjacencyMatrixDataSet.GENE_NAME;
+			representedByList[2] = AdjacencyMatrixDataSet.ENTREZ_ID;
+			representedByList[3] = AdjacencyMatrixDataSet.OTHER;
+			presentJcb = new JComboBox(representedByList);
+
+			JButton continueButton = new JButton("Continue");
+			JButton cancelButton = new JButton("Cancel");
+			formatJcb.addItemListener(new ItemListener() {
+				public void itemStateChanged(ItemEvent evt) {
+					if (formatJcb.getSelectedItem().toString().equals(
+							AdjacencyMatrixDataSet.ADJ_FORMART)) {
+						representedByList = new String[4];
+						representedByList[0] = AdjacencyMatrixDataSet.PROBESET_ID;
+						representedByList[1] = AdjacencyMatrixDataSet.GENE_NAME;
+						representedByList[2] = AdjacencyMatrixDataSet.ENTREZ_ID;
+						representedByList[3] = AdjacencyMatrixDataSet.OTHER;
+						presentJcb.setModel(new DefaultComboBoxModel(
+								representedByList));
+					} else if (formatJcb.getSelectedItem().toString().equals(
+							marina5colformat)) {
+						representedByList = new String[1];
+						representedByList[0] = AdjacencyMatrixDataSet.PROBESET_ID;
+						presentJcb.setModel(new DefaultComboBoxModel(
+								representedByList));
+					} else {
+						representedByList = new String[3];
+						representedByList[0] = AdjacencyMatrixDataSet.GENE_NAME;
+						representedByList[1] = AdjacencyMatrixDataSet.ENTREZ_ID;
+						representedByList[2] = AdjacencyMatrixDataSet.OTHER;
+						presentJcb.setModel(new DefaultComboBoxModel(
+								representedByList));
+					}
+				}
+			});
+
+			if (networkFilename.toLowerCase().endsWith(".sif"))
+				formatJcb.setSelectedItem(AdjacencyMatrixDataSet.SIF_FORMART);
+			else if (networkFilename.toLowerCase().contains("5col"))
+				formatJcb.setSelectedItem(marina5colformat);
+			else
+				formatJcb.setSelectedItem(AdjacencyMatrixDataSet.ADJ_FORMART);
+			continueButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					continueButtonActionPerformed();
+					parent.dispose();
+					isCancel = false;
+				}
+			});
+			cancelButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					parent.dispose();
+					isCancel = true;
+				}
+			});
+
+			panel1.add(label1);
+			panel1.add(formatJcb);
+
+			panel1.add(label2);
+			panel1.add(presentJcb);
+
+			panel3.add(cancelButton);
+			panel3.add(new JLabel("  "));
+			panel3.add(continueButton);
+			
+			this.add(panel1, BorderLayout.CENTER);
+			this.add(panel3, BorderLayout.SOUTH);
+			parent.getRootPane().setDefaultButton(continueButton);
+		}
+
+		private void continueButtonActionPerformed() {
+			selectedFormat = formatJcb.getSelectedItem().toString();
+			selectedRepresentedBy = presentJcb.getSelectedItem().toString();
+		}
+
+	}
+	private boolean openDialog(){
+		JDialog loadDialog = new JDialog();
+
+		loadDialog.addWindowListener(new WindowAdapter() {
+
+			public void windowClosing(WindowEvent e) {
+				isCancel = true;
+			}
+		});
+
+		isCancel = false;
+		loadDialog.setTitle("Load Interaction Network");
+		LoadInteractionNetworkPanel loadPanel = new LoadInteractionNetworkPanel(
+				loadDialog);
+
+		loadDialog.add(loadPanel);
+		loadDialog.setModal(true);
+		loadDialog.pack();
+		Util.centerWindow(loadDialog);
+		loadDialog.setVisible(true);
+
+		if (isCancel)
+			return false;
+
+		if ((selectedFormat
+				.equalsIgnoreCase(AdjacencyMatrixDataSet.SIF_FORMART) && !networkFilename
+				.toLowerCase().endsWith(".sif"))
+				|| (networkFilename.toLowerCase().endsWith(".sif") && !selectedFormat
+						.equalsIgnoreCase(AdjacencyMatrixDataSet.SIF_FORMART))) {
+			String theMessage = "The network format selected may not match that of the file.  \nClick \"Cancel\" to terminate this process.";
+			Object[] optionChoices = { "Continue", "Cancel"};
+			int result = JOptionPane.showOptionDialog(
+				(Component) null, theMessage, "Warning",
+				JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE,
+				null, optionChoices, optionChoices[1]);
+			if (result == JOptionPane.NO_OPTION)
+				return false;
+
+		} else if (selectedFormat.equals(marina5colformat) && !is5colnetwork(networkTextField.getText(), 10)){
+			JOptionPane.showMessageDialog(null,  "The network format selected does not match that of the file.",
+					"Format Error", JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
+
+		if (selectedFormat
+				.equalsIgnoreCase(AdjacencyMatrixDataSet.SIF_FORMART)) {
+			interactionTypeMap = new org.geworkbench.parsers.AdjacencyMatrixFileFormat().getInteractionTypeMap();
+		}
+		return true;
+	}
+	
+	String validateNetwork(){
+		 if (use5colnetwork()) {
+			 if (!is5colnetwork(networkTextField.getText(), 10)) return "Network file format error";
+			 BufferedReader br = null;
+				try{
+					br = new BufferedReader(new FileReader(networkTextField.getText()));
+					String line = null;
+					while( (line = br.readLine()) != null) {
+						String[] toks = line.split("\t");
+						if (maSet.getMarkers().get(toks[0])!=null &&
+								maSet.getMarkers().get(toks[1])!=null)
+							return "Valid";
+					}
+					return "No matching markers";
+				}catch(IOException e){
+					e.printStackTrace();
+					return "Network file IO exception";
+				}finally{
+					try{ 
+						if (br!=null) br.close(); 
+					}catch(IOException e){
+						e.printStackTrace();
+					}
+				} 
+		 } else {
+			 AdjacencyMatrixDataSet amSet = getAdjMatrixDataSet();
+			 if (amSet==null) return "Network (Adjacency Matrix) has not been loaded yet.";
+			 AdjacencyMatrix matrix  = amSet.getMatrix();
+			 if (matrix==null) return "Network (Adjacency Matrix) has not been loaded yet.";
+
+			 for (AdjacencyMatrix.Node node1 : matrix.getNodes()) {
+				 String marker1 = getMarkerInNode(node1, matrix);
+				 if (marker1 != null) {
+					 for (AdjacencyMatrix.Edge edge : matrix.getEdges(node1)) {
+						 String marker2 = getMarkerInNode(edge.node2, matrix);
+						 if (marker2 != null) return "Valid";
+					 }
+				 }
+			 }
+		 }
+		 return "No matching markers";
+	}
+
 }
