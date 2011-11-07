@@ -535,12 +535,10 @@ public class SOMAnalysis extends AbstractGridAnalysis implements
 		}
 
 		int k = number_of_samples;
-		int n = 0;
 		double sum = 0.0;
 		for (int i = 0; i < k && !stopAlgorithm; i++) {
 			if ((!Float.isNaN(matrix[g1][i])) && (!Float.isNaN(M[g2][i]))) {
 				sum += Math.pow((matrix[g1][i] - M[g2][i]), 2);
-				n++;
 			}
 		}
 		return (float) (Math.sqrt(sum) * factor);
