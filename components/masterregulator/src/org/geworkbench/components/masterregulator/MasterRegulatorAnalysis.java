@@ -82,6 +82,10 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
 		if (mraAnalysisPanel.getResultid() != null)
 			return new AlgorithmExecutionResults(false,
 					"Retrieving prior result is not supported by local MRA.", null);
+		if (mraAnalysisPanel.use5colnetwork()){
+			return new AlgorithmExecutionResults(false,
+					"Local MRA does not use network in "+mraAnalysisPanel.marina5colformat, null);
+		}
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> view = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
 		DSMicroarraySet maSet = view.getMicroarraySet();
 		AdjacencyMatrixDataSet amSet = mraAnalysisPanel.getAdjMatrixDataSet();
@@ -456,8 +460,9 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
 			else
 				return new ParamValidationResults(true, "No Error");
 		}
-		if (mraAnalysisPanel.is5colnetwork() && mraAnalysisPanel.getNetwork() == null)
-			return new ParamValidationResults(false, "Network is invalid.");
+		String vn = mraAnalysisPanel.validateNetwork();
+		if (!vn.equals("Valid"))
+			return new ParamValidationResults(false, "Invalid network: "+vn);
 		
 		if (mraAnalysisPanel.getMintg() <= 0)
 			return new ParamValidationResults(false, "Min targets should be a positive integer.");
