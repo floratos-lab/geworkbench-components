@@ -55,8 +55,6 @@ public final class RetrievedSequenceDisplayPanel extends JPanel {
 	private JTable table;
 	private int selected = 0;
 
-	private String displayInfo = "";
-
 	private DSSequenceSet<DSSequence> sequenceDB = null;
 	private HashMap<CSSequence, PatternSequenceDisplayUtil> sequencePatternmatches;
 	private HashMap<String, RetrievedSequenceView> retrievedMap = new HashMap<String, RetrievedSequenceView>();
@@ -231,20 +229,9 @@ public final class RetrievedSequenceDisplayPanel extends JPanel {
 			mouseSelectedSequence = null;
 		}
 		if (mouseSelectedSequence != null) {
-			displayInfo = "For sequence " + mouseSelectedSequence.getLabel()
-					+ ", total length: " + mouseSelectedSequence.length();
-			if (sequencePatternmatches != null) {
-				PatternSequenceDisplayUtil psu = sequencePatternmatches
-						.get(mouseSelectedSequence);
-				if (psu != null && psu.getTreeSet() != null) {
-					displayInfo += ", pattern number: "
-							+ psu.getTreeSet().size();
-				}
-			}
 			if ((mouseMovePoint <= mouseSelectedSequence.length())
 					&& (mouseMovePoint > 0)) {
 				this.setToolTipText("" + mouseMovePoint);
-				displayInfo += ". Current location: " + mouseMovePoint;
 			}
 		}
 		{
@@ -361,8 +348,6 @@ public final class RetrievedSequenceDisplayPanel extends JPanel {
 			}
 			DSSequence sequence = sequenceDB.getSequence(selected);
 			String asc = sequence.getSequence();
-			displayInfo = "Length of " + sequence.getLabel() + ": "
-					+ sequence.length();
 			Rectangle2D r2d = fm.getStringBounds(asc, g);
 			double xscale = (r2d.getWidth() + 3) / (double) (asc.length());
 			double yscale = 1.3 * r2d.getHeight();
@@ -380,7 +365,6 @@ public final class RetrievedSequenceDisplayPanel extends JPanel {
 
 					// this.setToolTipText("" + dis);
 				}
-				displayInfo += ". Current location: " + dis;
 			}
 		}
 
