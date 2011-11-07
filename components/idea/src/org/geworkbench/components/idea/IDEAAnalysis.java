@@ -102,13 +102,13 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 					"P-value is invalid.", null);
 		}
 		
-		DSMicroarraySetView<DSGeneMarker, DSMicroarray> view = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
-		DSMicroarraySet maSet = view.getMicroarraySet();
+		DSMicroarraySetView<DSGeneMarker, DSMicroarray> datasetView = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
+		DSMicroarraySet maSet = datasetView.getMicroarraySet();
 		if(maSet.getAnnotationFileName()==null){
 			return new AlgorithmExecutionResults(false,
 					"IDEA analysis needs annotation file. Please load it first.", null);
 		}		
-		int numGenes = view.markers().size();
+		int numGenes = maSet.getMarkers().size();
 		
 		pbIdea = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
 		pbIdea.addObserver(this);
@@ -213,7 +213,7 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 		}
 
 
-		int columnCountOverall = view.items().size(); 
+		int columnCountOverall = maSet.size(); 
 		int columnCount = columnCountOverall - phenotype.getExcludedCount();
 
 		// this 2-d array hold the expression values except those are excluded by phenotype file
@@ -223,7 +223,7 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 		while(columnIndexOverall<columnCountOverall) {
 			if(!phenotype.isExcluded(columnIndexOverall)) {
 				for (int i = 0; i < numGenes; i++) {
-					expressionData[i][columnIndex] = view.getValue(i, columnIndexOverall);
+					expressionData[i][columnIndex] = maSet.getValue(i, columnIndexOverall);
 				}
 				columnIndex++;
 			}
