@@ -64,16 +64,6 @@ class ColumnHeaderListener extends MouseAdapter {
 		} else {
 			headerRect.grow(-3, 0); // Hard-coded constant
 		}
-		if (!headerRect.contains(evt.getX(), evt.getY())) {
-			// Mouse was clicked between column heads
-			// vColIndex is the column head closest to the click
-
-			// vLeftColIndex is the column head to the left of the click
-			int vLeftColIndex = vColIndex;
-			if (evt.getX() < headerRect.x) {
-				vLeftColIndex--;
-			}
-		}
 
 		if (model instanceof ModulatorModel) {
 			// sort
