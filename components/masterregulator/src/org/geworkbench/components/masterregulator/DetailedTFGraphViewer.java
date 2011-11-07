@@ -33,7 +33,6 @@ public class DetailedTFGraphViewer extends JPanel {
 
 	private double minTValue = 0;
 	private double maxTValue = 0;
-	private int numOfPositiveTValues = 0; // included 0
 
 	public void setTFA(DSMasterRagulatorResultSet<DSGeneMarker> mraResultSet,
 			DSGeneMarker tfA) {
@@ -46,7 +45,6 @@ public class DetailedTFGraphViewer extends JPanel {
 			mSet = null;
 			numberOfMarkers = 0;
 		}
-		numOfPositiveTValues = 0;
 		Hashtable<Double, DSGeneMarker> hash = new Hashtable<Double, DSGeneMarker>();
 		for (int cx = 0; cx < numberOfMarkers; cx++) {
 			DSGeneMarker marker = (DSGeneMarker) mSet.getMarkers().get(cx);
@@ -59,8 +57,6 @@ public class DetailedTFGraphViewer extends JPanel {
 				minTValue = tValue;
 			if (maxTValue < tValue)
 				maxTValue = tValue;
-			if (tValue >= 0)
-				numOfPositiveTValues++;
 		}
 		Double[] keys = (Double[]) hash.keySet().toArray(new Double[0]);
 		Arrays.sort(keys);
