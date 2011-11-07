@@ -202,19 +202,13 @@ public class MultipleProbesetFilter extends FilteringAnalysis {
 		if (maSet == null || index < 0 || index >= maSet.getMarkers().size())
 			return null;
 		int arrayCount = maSet.size();
-		// Compute the profile average (using non-missing values).
-		double average = 0.0;
+
 		int nonMissing = 0;
 		for (int i = 0; i < arrayCount; i++) {
 			DSMarkerValue mv = maSet.get(i).getMarkerValue(index);
 			if (!mv.isMissing()) {
-				average += mv.getValue();
 				++nonMissing;
 			}
-		}
-
-		if (nonMissing > 0) {
-			average /= nonMissing;
 		}
 
 		double[] profile = new double[nonMissing];
