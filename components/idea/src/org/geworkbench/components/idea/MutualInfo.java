@@ -24,14 +24,16 @@ public class MutualInfo {
 	private double[] normTable1D = null;
 	private double[][] normTable2D = null;
 	private double TWO_H_H = 0;
+	private double MUTUAL_A=0.364119;
+	private double MUTUAL_B=-0.151931;
 
 	private MutualInfo(int n) throws MathException {
 		this.n = n;
 		normTable1D = new double[n];
 		normTable2D = new double[n][n];
 
-		double a = 0.52477;
-		double b = -0.24;
+		double a = MUTUAL_A;
+		double b = MUTUAL_B;
 		double h = a * Math.pow(n, b);
 		TWO_H_H = 2. * h * h;
 
