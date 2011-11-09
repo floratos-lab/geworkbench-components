@@ -91,11 +91,11 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 			case 3:
 				return e.getGene2();
 			case 4:
-				return e.getMi();
+				return Double.toString((((int) (e.getMi()*1000))/1000.0));
 			case 5:
-				return e.getDeltaMi();			
-			case 6:
-				return e.getzScore();
+				return Double.toString((((int) (e.getDeltaMi()*1000))/1000.0));
+				case 6:
+				return Double.toString((((int) (e.getzScore()*1000))/1000.0));
 			}
 			return 0;
 		}
@@ -166,7 +166,7 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 			case 3:
 				return node.getConn();
 			case 4:
-				return node.getNes();
+				return Math.abs(node.getNes());
 			case 5:
 				return node.getLoc();
 			case 6:
@@ -174,7 +174,7 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 			case 7:
 				return node.getLoCEs();
 			case 8:
-				return node.getLoCNes();
+				return Math.abs(node.getLoCNes());
 			case 9:
 				return node.getGoc();
 			case 10:
@@ -182,7 +182,7 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 			case 11:
 				return node.getGoCEs();
 			case 12:
-				return node.getGoCNes();
+				return Math.abs(node.getGoCNes());
 			}
 			return 0;
 		}
