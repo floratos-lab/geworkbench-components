@@ -18,12 +18,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.Set;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -77,15 +75,11 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 	private JTextField pValueTextField = new JTextField(20);	
 	private JPanel selectionPanel = null;	
 	private JTextField networkField = new JTextField(20);	
-	private JTextField nullDataField = new JTextField(20);
-	private JButton networkLoadButton = new JButton("Load");
-	
+	private JButton networkLoadButton = new JButton("Load");	
 	private JButton includeLoadButton = new JButton("Load");
-	private JButton excludeLoadButton = new JButton("Load");
-	private JButton nullDataLoadButton = new JButton("Load");
-	private JCheckBox nullDataCheckbox = new JCheckBox("Use the existing null data", false);
+	private JButton excludeLoadButton = new JButton("Load");	
 	private JLabel pvalueLabel=new JLabel("P-value");
-	private JLabel loadNullDataLabel=new JLabel("      Load null data      ");
+	
 	
 	private JComboBox networkMatrix = new JComboBox();	
 	private JComboBox networkFrom = new JComboBox(NETWORK_FROM);	
@@ -130,10 +124,6 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 		return ideaNetwork;
 	}	
 	
-	public String getNullFileName() {
-		return nullDataField.getText();
-	}	
-	
 	public Phenotype getPhenotype() {
 			return phenotype;
 	}
@@ -165,10 +155,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 			networkField.setEditable(false);
 			networkLoadButton.setEnabled(true);		
 			includeLoadButton.setEnabled(false);
-			excludeLoadButton.setEnabled(false);
-			nullDataField.setEnabled(false);
-			nullDataField.setEditable(false);
-			nullDataLoadButton.setEnabled(false);		
+			excludeLoadButton.setEnabled(false);			
 			
 			FormLayout layout = new FormLayout(
 					"left:max(100dlu;pref), 10dlu, 100dlu, 10dlu, "
@@ -199,16 +186,6 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 			builder.append(excludeSets);
 			builder.append(excludeField);
 			builder.append(excludeLoadButton);
-			builder.nextLine();		
-			
-			nullDataCheckbox.setToolTipText("Only when gene expression, annotation, network, phenotype input data set are the same.");
-			builder.append(nullDataCheckbox);
-			nullDataCheckbox.addActionListener(new NullData_actionAdapter());
-			builder.nextLine();			
-			
-			nullDataField.setEditable(false);			
-			builder.append(loadNullDataLabel,
-					nullDataField, nullDataLoadButton);
 			builder.nextLine();			
 			
 			//builder.appendSeparator("Significance Threshold");	//pvalue is temporarily off	on GUI
@@ -284,16 +261,6 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 			}
 		});
 		
-
-		nullDataLoadButton.addActionListener(new ActionListener(){
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				nullDataLoadPressed();
-			}	
-			
-		});
-
 		networkMatrix.addActionListener(new ActionListener() {
     		public void actionPerformed(ActionEvent actionEvent) {
     			String selectedLabel = (String) networkMatrix.getSelectedItem();
@@ -330,25 +297,9 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 		ParameterActionListener parameterActionListener = new ParameterActionListener(
 				this);
 		networkField.addActionListener(parameterActionListener);		
-		nullDataField.addActionListener(parameterActionListener);
 		includeField.addActionListener(parameterActionListener);
 		excludeField.addActionListener(parameterActionListener);
-	}
-	
-	private class NullData_actionAdapter implements	
-		java.awt.event.ActionListener {
-			public void actionPerformed(ActionEvent e) {
-				boolean nullDataOn=nullDataCheckbox.isSelected();
-				if(nullDataOn){
-					nullDataField.setEnabled(true);					
-					nullDataLoadButton.setEnabled(true);
-				}
-				else{
-					nullDataField.setEnabled(false);					
-					nullDataLoadButton.setEnabled(false);
-				}
-		}
-	}
+	}	
 	
 	public void setMicroarraySet(DSMicroarraySet maSet){
 		this.maSet = maSet;		
@@ -392,19 +343,11 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 				excludeField.setText((String)value);
 				Set<Integer> excludeSet=preparePhenoSet(excludeField.getText());
 				phenotype.setExcludeList(excludeSet);
-			}
+			}	
 		
-			if (key.equals("nullDataText")) {
-				nullDataField.setText((String)value);
-			}
 			if (key.equals("pValueText")) {
 				pValueTextField.setText((String)value);
-			}
-			if (key.equals("nullDataCheckbox")) {
-				nullDataCheckbox.setSelected((Boolean)value);
-				nullDataField.setEnabled((Boolean)value);
-			}	
-					
+			}					
 		}
 		
 	}
@@ -424,11 +367,8 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 		parameters.put("", (String) this.includeSets.getSelectedItem());
 		parameters.put("includeText",includeField.getText());
 		parameters.put("", (String) this.excludeSets.getSelectedItem());
-		parameters.put("excludeText", excludeField.getText());
-		parameters.put("nullDataText", nullDataField.getText());
-		parameters.put("pValueText", pValueTextField.getText());
-		parameters.put("nullDataCheckbox", nullDataCheckbox.isSelected());	
-		
+		parameters.put("excludeText", excludeField.getText());		
+		parameters.put("pValueText", pValueTextField.getText());		
 		return parameters;
 	}	
 
@@ -457,9 +397,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 		String includeStr=phenotype.getPhenotypeAsString()[0];		
 		histStr.append("\n"+includeStr);
 		String excludeStr=phenotype.getPhenotypeAsString()[1];
-		histStr.append("\n"+excludeStr);
-		if(nullDataCheckbox.isSelected())
-				histStr.append("\nNull file: "+nullDataField.getText());
+		histStr.append("\n"+excludeStr);		
 		//histStr.append("\np-value: "+pValueTextField.getText());
 		histStr.append("\n");
 		return histStr.toString();
@@ -467,12 +405,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 
 	public String getPvalue(){
 		return pValueTextField.getText();
-	}
-	
-	public boolean getUseNullData(){
-		return nullDataCheckbox.isSelected();
-	}
-	
+	}	
 	public void networkLoadPressed(){
 
 		JFileChooser fc = new JFileChooser(this.getLastDirectory());
@@ -678,34 +611,6 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 		}
 	
 		return false;
-	}
-	public void nullDataLoadPressed(){
-		JFileChooser fc = new JFileChooser(this.getLastDirectory());
-		int returnVal = fc.showOpenDialog(IDEAPanel.this);
-		if (returnVal == JFileChooser.APPROVE_OPTION) {					
-			try {
-				String filename = fc.getSelectedFile().getAbsolutePath();			
-				String filepath = fc.getCurrentDirectory().getCanonicalPath();
-                setLastDirectory(filepath);                
-				nullDataField.setText(filename);				
-				
-				FileReader filereader;				
-				filereader = new FileReader(filename);			
-				Scanner in = new Scanner(filereader);
-				nullDataList =new ArrayList<String>();				
-				while (in.hasNextLine()) {
-					String line = in.nextLine();
-					nullDataList.add(line+"\n");					
-				}				
-				
-			} catch (FileNotFoundException e1) {
-				e1.printStackTrace();
-				nullDataField.setText("");
-			} catch (IOException e2) {
-				e2.printStackTrace();
-				nullDataField.setText("");
-			}					
-		}	
 	}	
 	
 	public String getLastDirectory() {

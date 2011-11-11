@@ -286,15 +286,11 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 		JButton saveGocButton = new JButton();
 		saveGocButton.setText("save Goc edges");
 		JButton saveNodesButton = new JButton("save significant nodes");
-		JButton saveNullButton = new JButton();
-		saveNullButton.setText("save null distribution data");
-		
 
 		bottomPanel.add(saveSigGeneButton);
 		bottomPanel.add(saveLocButton);
 		bottomPanel.add(saveGocButton);
-		bottomPanel.add(saveNodesButton);
-		bottomPanel.add(saveNullButton);		
+		bottomPanel.add(saveNodesButton);		
 		add(bottomPanel, BorderLayout.SOUTH);
 
 		saveNodesButton.addActionListener(new ActionListener() {
@@ -344,32 +340,6 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 				int returnVal = fc.showSaveDialog(IDEAViewer.this);
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
 					saveAsFile(fc.getSelectedFile(), ideaResult.getGocList());
-				}
-			}
-		});
-
-		saveNullButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				JFileChooser fc = new JFileChooser();
-				int returnVal = fc.showSaveDialog(IDEAViewer.this);
-				if (returnVal == JFileChooser.APPROVE_OPTION) {
-					File outputFile = fc.getSelectedFile();
-					// This is where to save the file.
-					File inputFile = new File(System.getProperty("user.dir")
-							+ "\\data\\null.dat");
-					try {
-						InputStream in = new FileInputStream(inputFile);
-						OutputStream out = new FileOutputStream(outputFile);
-						int c;
-						while ((c = in.read()) != -1)
-							out.write((byte) c);
-
-						in.close();
-						out.close();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
 				}
 			}
 		});
