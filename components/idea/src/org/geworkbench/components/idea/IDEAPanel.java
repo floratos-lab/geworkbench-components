@@ -240,10 +240,14 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 		 includeSets.addActionListener(new ActionListener() {
 	    		public void actionPerformed(ActionEvent actionEvent) {
 	    			String selectedLabel = (String) includeSets.getSelectedItem();
-	    			if ((!StringUtils.isEmpty(selectedLabel))&&(!selectedLabel.equals(""))&&(!selectedLabel.equals(" ")))	//!StringUtils.isEmpty(selectedLabel)
+	    			if ((!StringUtils.isEmpty(selectedLabel))&&(!selectedLabel.equals(""))
+	    					&&(!selectedLabel.equals(" "))){	//!StringUtils.isEmpty(selectedLabel)
 	    				if (!chooseArraysFromSet(selectedLabel, includeField)) {
 	    					includeSets.setSelectedIndex(0);	    					
 	    				}
+	    			}
+	    			else
+						includeField.setText("");
 	    		}
 	    	});
 		
