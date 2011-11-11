@@ -1,9 +1,7 @@
 package org.geworkbench.components.idea;
 
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,10 +30,7 @@ public class NullDistribution {
 
 	private final int columnCountOverall;
 	private int columnCountWithoutExclude;	
-	private ArrayList<IdeaEdge> edgeIndex = null;
-
-	private boolean useExistNull;
-	private String nullFileName;
+	private ArrayList<IdeaEdge> edgeIndex = null;	
 	private double incre;
 	private static final double K_WEIGHT = 1;
 	private static final double K_PRECISION = 0.0072;// the precision to which numeric
@@ -56,13 +51,9 @@ public class NullDistribution {
 	private static DSMicroarraySet maSet;
 
 	public NullDistribution(DSMicroarraySet maSet, ArrayList<IdeaEdge> edgeIndex,
-			Boolean useExistNull, String nullFileName,
 			final Phenotype phenotype, IDEAAnalysis analysis) {
 		NullDistribution.maSet=maSet;
-		this.edgeIndex = edgeIndex;		
-		this.useExistNull = useExistNull;
-		this.nullFileName = nullFileName;
-
+		this.edgeIndex = edgeIndex;
 		this.columnCountOverall = maSet.size();
 		this.phenotype = phenotype;
 		this.analysis=analysis;
@@ -96,21 +87,7 @@ public class NullDistribution {
 		Arrays.sort(noExcludeList);
 	
 		String dir = System.getProperty("user.dir");
-		String nullOutputFile = dir + "\\data\\null.dat";
-		if (useExistNull) {
-
-			FileInputStream fileIn = new FileInputStream(nullFileName);
-			ObjectInputStream in1 = new ObjectInputStream(fileIn);			
-			
-			edgeIndex = (ArrayList<IdeaEdge>) in1.readObject();
-			System.out.println("nullFile exist.");		
-
-			//prepareBins();
-			in1.close();
-			fileIn.close();
-
-		}// end of read null data, is going to be removed.
-		else {
+		String nullOutputFile = dir + "\\data\\null.dat";		
 			// calcu MI for each edge in edgeIndex
 			for (IdeaEdge ideaEdge : edgeIndex) {
 				
@@ -180,7 +157,8 @@ public class NullDistribution {
 			int halfWindow = (int) (0.025 / incre) + 1;
 	
 			for (IdeaEdge anEdge : edgeIndex) {
-				int baseBin = (int) ((anEdge.getMI() - sortedCorr[0]) / incre);
+				double t=anEdge.getMI() - sortedCorr[0];
+				int baseBin = (int) (t / incre);
 				if ((baseBin - halfWindow) <= 0) {
 					binMin = 0;
 					binMax = 2 * halfWindow;
@@ -191,7 +169,9 @@ public class NullDistribution {
 					binMin = baseBin - halfWindow;
 					binMax = baseBin + halfWindow;
 				}
-	
+				if (binMin<0) binMin=0;
+				if (binMax>100) binMax=100;
+				
 				Set<Integer> binsPoints = new TreeSet<Integer>(); // binsPoints have
 																	// the points in
 																	// sortedCorr
@@ -246,8 +226,7 @@ public class NullDistribution {
 	
 			out.writeObject(edgeIndex);
 			out.close();
-			fileOut.close();
-		}// end of else, there is no pre null dat, so compute it
+			fileOut.close();		
 		
 		return 1;
 	}

@@ -219,8 +219,7 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 
 		try {
 			// ************Key process********************
-			NullDistribution nullDist = new NullDistribution(maSet, edgeIndex, 
-					IDEAAnalysisPanel.getUseNullData(),	IDEAAnalysisPanel.getNullFileName(), 
+			NullDistribution nullDist = new NullDistribution(maSet, edgeIndex,					 
 					phenotype, this);
 			nullDist.calcNullDist();
 			if (this.stopAlgorithm) {
@@ -540,9 +539,7 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 		Map<Serializable, Serializable> bisonParameters = new HashMap<Serializable, Serializable>();
 		IDEAPanel paramPanel = (IDEAPanel) this.aspp;
 		float pvalue=Float.parseFloat(paramPanel.getPvalue());
-		bisonParameters.put("pvalue", pvalue);
-		boolean useNullData=paramPanel.getUseNullData();
-		bisonParameters.put("useNullData", useNullData);				
+		bisonParameters.put("pvalue", pvalue);				
 		String[] phenotype= paramPanel.getPhenotypeAsString();
 		bisonParameters.put("phenotype", phenotype);
 		String[] network= paramPanel.getNetworkAsString();
