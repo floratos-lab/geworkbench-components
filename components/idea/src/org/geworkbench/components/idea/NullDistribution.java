@@ -16,6 +16,7 @@ import java.util.TreeSet;
 
 import org.apache.commons.math.MathException;
 import org.apache.commons.math.stat.descriptive.moment.StandardDeviation;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.IdeaEdge;
 import weka.estimators.KernelEstimator;
 
@@ -29,8 +30,8 @@ import weka.estimators.KernelEstimator;
  */
 public class NullDistribution {
 
-	private final int columnCount;
-	private final double[][] expData;
+	private final int columnCountOverall;
+	private int columnCountWithoutExclude;	
 	private ArrayList<IdeaEdge> edgeIndex = null;
 
 	private boolean useExistNull;
@@ -52,17 +53,17 @@ public class NullDistribution {
 									// there are 100 bins totally
 	private final Phenotype phenotype;
 	IDEAAnalysis analysis;
+	private static DSMicroarraySet maSet;
 
-	public NullDistribution(ArrayList<IdeaEdge> edgeIndex, final double[][] expData,
+	public NullDistribution(DSMicroarraySet maSet, ArrayList<IdeaEdge> edgeIndex,
 			Boolean useExistNull, String nullFileName,
-			int columnCount, final Phenotype phenotype, IDEAAnalysis analysis) {
-		
-		this.edgeIndex = edgeIndex;
-		this.expData = expData;
+			final Phenotype phenotype, IDEAAnalysis analysis) {
+		NullDistribution.maSet=maSet;
+		this.edgeIndex = edgeIndex;		
 		this.useExistNull = useExistNull;
 		this.nullFileName = nullFileName;
 
-		this.columnCount = columnCount;
+		this.columnCountOverall = maSet.size();
 		this.phenotype = phenotype;
 		this.analysis=analysis;
 	}
@@ -79,7 +80,21 @@ public class NullDistribution {
 										// samplePoint
 		binPositions = new int[100];
 		bins = new ArrayList<Bin>();
-
+		
+		columnCountWithoutExclude = columnCountOverall - phenotype.getExcludedCount();
+		Set<Integer> includePheno=new HashSet<Integer>();
+		for(int i=0;i<columnCountOverall;i++)
+			includePheno.add(i);
+		Set<Integer> excludePheno=phenotype.getExcludeList();
+		includePheno.removeAll(excludePheno);
+		int[] noExcludeList=new int[includePheno.size()];
+		int jj=0;
+		for(Integer i:includePheno){
+			noExcludeList[jj]=i;
+			jj++;
+		}
+		Arrays.sort(noExcludeList);
+	
 		String dir = System.getProperty("user.dir");
 		String nullOutputFile = dir + "\\data\\null.dat";
 		if (useExistNull) {
@@ -94,31 +109,28 @@ public class NullDistribution {
 			in1.close();
 			fileIn.close();
 
-		}// end of read null data
+		}// end of read null data, is going to be removed.
 		else {
 			// calcu MI for each edge in edgeIndex
 			for (IdeaEdge ideaEdge : edgeIndex) {
-				int rowx = ideaEdge.getExpRowNoG1();
-				int rowy = ideaEdge.getExpRowNoG2();
-				double[] x = new double[columnCount];
-				double[] y = new double[columnCount];
-
-				for (int j = 0; j < columnCount; j++) {
-					x[j] = expData[rowx][j];
-					y[j] = expData[rowy][j];
+				
+				double[] x=maSet.getRow(ideaEdge.getMarker1());
+				double[] y=maSet.getRow(ideaEdge.getMarker2());	
+				/*
+				double[] xx=new double[noExcludeList.length];
+				double[] yy=new double[noExcludeList.length];
+				for(int i=0;i<noExcludeList.length;i++)	{
+						xx[i]=x[noExcludeList[i]];
+					}
+				for(int i=0;i<noExcludeList.length;i++)	{
+					yy[i]=y[noExcludeList[i]];
 				}
+				*/
 				MutualInfo mutual = MutualInfo.getInstance(x.length);
 				// save MI value to the edge
 				ideaEdge.setMI(mutual.cacuMutualInfo(x, y)); 
-				double deltaCorr = getDeltaCorr(ideaEdge, expData, phenotype, columnCount);
-				ideaEdge.setDeltaCorr(deltaCorr);// save
-													// deltaCorr
-													// value to
-													// the edge
-				// deltaCorr[i]=delta.getDeltaCorr();//deltaCorr[] can be
-				// removed after test.
-				//System.out.println("deltaMI of edge's delta corr is "
-				//		+ ideaEdge.getDeltaCorr());
+				double deltaCorr = getDeltaCorr(ideaEdge,phenotype, columnCountWithoutExclude);
+				ideaEdge.setDeltaCorr(deltaCorr);// save deltaCorr value to the edge				
 			}
 			if (analysis.stopAlgorithm) {
 				 analysis.stop();
@@ -148,9 +160,9 @@ public class NullDistribution {
 
 						for (int k = 0; k < 100; k++) {
 							Set<Integer> nullPhenoCols = getRandomNullPhenoNos(
-									phenotype.getIncludedCount(), columnCount);
-							nullData[k] = getDeltaCorr(currentEdge, expData,
-									new Phenotype(nullPhenoCols), columnCount);
+									phenotype.getIncludedCount(), columnCountWithoutExclude);
+							nullData[k] = getDeltaCorr(currentEdge,	new Phenotype(nullPhenoCols), 
+									columnCountWithoutExclude);
 						}
 						// save null data to edge
 						currentEdge.setNullData(nullData); 
@@ -187,7 +199,7 @@ public class NullDistribution {
 																	// evaluating
 																	// significance
 																	// of the anEdge
-				for (int i = binMin; i < binMax + 1; i++) {
+				for (int i = binMin; i < binMax; i++) {//i < binMax + 1;
 					for (int j = bins.get(i).getMinP(); j < bins.get(i).getMaxP() + 1; j++) {
 						binsPoints.add(j);
 					}
@@ -247,9 +259,7 @@ public class NullDistribution {
 			sortedCorr[index++] = ideaEdge.getMI();
 			MI_Edge.put(ideaEdge.getMI(), ideaEdge);
 		}
-		Arrays.sort(sortedCorr); // check if edgeIndex is changed!
-		// for(int i=0;i<edgeSize;i++)
-		// System.out.println("get MI "+sortedCorr[i]+"-->"+MI_Edge.get(sortedCorr[i]).getGeneNo1()+" "+MI_Edge.get(sortedCorr[i]).getGeneNo2()+" "+MI_Edge.get(sortedCorr[i]).getExpRowNoG1()+" "+MI_Edge.get(sortedCorr[i]).getExpRowNoG2());
+		Arrays.sort(sortedCorr); // check if edgeIndex is changed!		
 		incre = (sortedCorr[sortedCorr.length - 1] - sortedCorr[0]) / 100;
 		samplePoints[0] = sortedCorr[0];
 		for (int i = 0; i < 100; i++) {
@@ -264,16 +274,18 @@ public class NullDistribution {
 			int j = 0;
 			while (!find && j < edgeSize) {
 				j++;
-				if (sortedCorr[j - 1] <= binPoints[i]
-						&& sortedCorr[j] > binPoints[i]) {
-					binPoints[i] = sortedCorr[j - 1];
-					binPositions[i] = j - 1;
-					find = true;
-				} else if (sortedCorr[j - 1] < binPoints[i]
-						&& sortedCorr[j] >= binPoints[i]) {
-					binPoints[i] = sortedCorr[j];
-					binPositions[i] = j;
-					find = true;
+				if(j<sortedCorr.length){
+					if (sortedCorr[j - 1] <= binPoints[i]
+							&& sortedCorr[j] > binPoints[i]) {
+						binPoints[i] = sortedCorr[j - 1];
+						binPositions[i] = j - 1;
+						find = true;
+					} else if (sortedCorr[j - 1] < binPoints[i]
+							&& sortedCorr[j] >= binPoints[i]) {
+						binPoints[i] = sortedCorr[j];
+						binPositions[i] = j;
+						find = true;
+					}
 				}
 			}// end of while
 
@@ -320,39 +332,40 @@ public class NullDistribution {
 
 	private static Random randomGenerator = new Random();
 	
-	private static Set<Integer> getRandomNullPhenoNos(int phenoSize, int columnCount) {
+	private static Set<Integer> getRandomNullPhenoNos(int phenoSize, int columnCountWithoutExclude) {
 		// the random columns generated may have columns of phenotype
 		Set<Integer> nullPhenoNos = new HashSet<Integer>();
 		while (nullPhenoNos.size() < phenoSize) {
-			nullPhenoNos.add( randomGenerator.nextInt(columnCount) );
+			nullPhenoNos.add( randomGenerator.nextInt(columnCountWithoutExclude) );
 		}
 
 		return nullPhenoNos;
 	}
-
-	// deltaCorr=anEdge.getMI()-removalMI.getMI()
+	
 	private static double getDeltaCorr(final IdeaEdge anEdge,
-			final double[][] expData, final Phenotype phenotype, int columnCount) throws MathException {
+			final Phenotype phenotype, int columnCountWithoutExclude
+			) throws MathException {
 
-		int smallerColumnCount = columnCount - phenotype.getIncludedCount();
+		int smallerColumnCount = columnCountWithoutExclude - phenotype.getIncludedCount();
 		int[] exceptPhenoCols = new int[smallerColumnCount];
 
 		int j = 0;
-		for (int i = 0; i < exceptPhenoCols.length; i++) {
-			while ( phenotype.isIncluded(j)
-					&& (j < columnCount))
+		for (int i = 0; i < exceptPhenoCols.length; i++) {			
+			while ( (phenotype.isIncluded(j)||(phenotype.isExcluded(j)))
+					&& (j < columnCountWithoutExclude))
 				j++;
-			exceptPhenoCols[i] = j;
+			exceptPhenoCols[i] = j;			
 			j++;
 		}
+		double[] x=maSet.getRow(anEdge.getMarker1());
+		double[] y=maSet.getRow(anEdge.getMarker2());
 		double[] excPhenoG1 = new double[smallerColumnCount];
-		double[] excPhenoG2 = new double[smallerColumnCount];
-		int row1 = anEdge.getExpRowNoG1();
-		int row2 = anEdge.getExpRowNoG2();
+		double[] excPhenoG2 = new double[smallerColumnCount];		
 		for (int i = 0; i < smallerColumnCount; i++) {
 			int col = exceptPhenoCols[i];
-			excPhenoG1[i] = expData[row1][col];
-			excPhenoG2[i] = expData[row2][col];
+				
+			excPhenoG1[i] = x[col];//expData[row1][col]
+			excPhenoG2[i] = y[col];
 		}
 		MutualInfo removalMI = MutualInfo.getInstance(excPhenoG1.length);
 		double d = removalMI.cacuMutualInfo(excPhenoG1, excPhenoG2);

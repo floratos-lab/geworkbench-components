@@ -461,6 +461,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 		if(nullDataCheckbox.isSelected())
 				histStr.append("\nNull file: "+nullDataField.getText());
 		//histStr.append("\np-value: "+pValueTextField.getText());
+		histStr.append("\n");
 		return histStr.toString();
 	}
 
@@ -511,8 +512,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 	
 	//prepare networkList and ideaNetwork from project adjacencyMatrix
 	private void getNetworkFromProject(AdjacencyMatrixDataSet adjDataSet){
-		ideaNetwork = new ArrayList<IdeaNetworkEdge>();
-		int edgeNo=0;
+		ideaNetwork = new ArrayList<IdeaNetworkEdge>();		
 		NodeType nt=adjDataSet.getMatrix().getEdges().get(0).node1.getNodeType();
 		if(nt.equals(NodeType.PROBESET_ID)||nt.equals(NodeType.MARKER)){
 			for(Edge ed:adjDataSet.getMatrix().getEdges()){
@@ -528,12 +528,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 					}				
 				}
 				if (newEdge){
-					ideaNetwork.add(anEdge);
-					edgeNo++;
-					if(edgeNo>100) break;	//FIXME:only for debug
-					//String s1=ed.node1.getMarker().getLabel();
-					//String s2=ed.node2.getMarker().getLabel();
-					//System.out.println(i1+":"+i2+"\tnode1: "+s1+"\tnode2: "+s2);
+					ideaNetwork.add(anEdge);					
 				}				
 			}
 		}
@@ -601,8 +596,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 							}
 						}
 						if (newEdge) {
-							ideaNetwork.add(anEdge);
-							edgeNo++;
+							ideaNetwork.add(anEdge);							
 						}
 
 					}
@@ -795,8 +789,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 	
 	public void removeAdjMatrixToCombobox(AdjacencyMatrixDataSet adjDataSet) {
 		try {
-			adjacencymatrixDataSets.remove(adjDataSet);
-			// adjModel.remove(adjDataSet.getDataSetName());
+			adjacencymatrixDataSets.remove(adjDataSet);			
 			adjModel.remove(adjModel.indexOf(adjDataSet.getDataSetName()));
 			refreshNetworkMatrixs();			
 			
@@ -843,8 +836,6 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 		targetComboModel.addElement(" ");
 		target2ComboModel.removeAllElements();
 		target2ComboModel.addElement(" ");		
-		//includeField.setText("");
-		//excludeField.setText("");
 		for (DSPanel<DSMicroarray> panel : selectorPanelOfArrays.panels()) {
 			String label = panel.getLabel().trim();
 			targetComboModel.addElement(label);
