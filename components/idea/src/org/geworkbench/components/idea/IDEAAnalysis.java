@@ -102,7 +102,7 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 					"P-value is invalid.", null);
 		}
 		
-		DSMicroarraySetView<DSGeneMarker, DSMicroarray> datasetView = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
+		DSMicroarraySetView<DSGeneMarker, DSMicroarray> datasetView = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;	
 		DSMicroarraySet maSet = datasetView.getMicroarraySet();
 		if(maSet.getAnnotationFileName()==null){
 			return new AlgorithmExecutionResults(false,
@@ -134,8 +134,8 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 			preGeneList.add(new Gene(edge.geneId1));
 			preGeneList.add(new Gene(edge.geneId2));
 		}
-
-		for (DSGeneMarker marker : maSet.getMarkers()) {
+		
+		for (DSGeneMarker marker : datasetView.markers()) {
 			int id = marker.getGeneId();
 
 			for (Gene g : preGeneList) {
@@ -211,24 +211,7 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 			return new AlgorithmExecutionResults(false,
 					"phenotype data is invalid.", null);
 		}
-
-
-		int columnCountOverall = maSet.size(); 
-		int columnCount = columnCountOverall - phenotype.getExcludedCount();
-
-		// this 2-d array hold the expression values except those are excluded by phenotype file
-		double[][] expressionData = new double[numGenes][columnCount];
-		int columnIndex = 0;
-		int columnIndexOverall = 0;
-		while(columnIndexOverall<columnCountOverall) {
-			if(!phenotype.isExcluded(columnIndexOverall)) {
-				for (int i = 0; i < numGenes; i++) {
-					expressionData[i][columnIndex] = maSet.getValue(i, columnIndexOverall);
-				}
-				columnIndex++;
-			}
-			columnIndexOverall++;
-		}
+		
 		if (this.stopAlgorithm) {
 			pbIdea.dispose();
 			return null;
@@ -236,9 +219,9 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 
 		try {
 			// ************Key process********************
-			NullDistribution nullDist = new NullDistribution(edgeIndex,
-					expressionData, IDEAAnalysisPanel.getUseNullData(),
-					IDEAAnalysisPanel.getNullFileName(), columnCount, phenotype, this);
+			NullDistribution nullDist = new NullDistribution(maSet, edgeIndex, 
+					IDEAAnalysisPanel.getUseNullData(),	IDEAAnalysisPanel.getNullFileName(), 
+					phenotype, this);
 			nullDist.calcNullDist();
 			if (this.stopAlgorithm) {
 				pbIdea.dispose();
@@ -512,7 +495,7 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 		//IdeaResultDataSet analysisResult = new IdeaResultDataSet(maSet,
 		//		"IDEA Analysis Result",null, null, null, null,pvalue);
 		String stemp = generateHistoryString();
-		HistoryPanel.addToHistory(analysisResult, stemp);
+		HistoryPanel.addToHistory(analysisResult, stemp+GenerateMarkerString(datasetView));
 
 		AlgorithmExecutionResults results = new AlgorithmExecutionResults(true,
 				"Idea Analysis", analysisResult);
@@ -525,6 +508,21 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 		histStr.append(IDEAAnalysisPanel.getDataSetHistory());
 		return histStr.toString();
 	}
+	
+	String GenerateMarkerString(
+			DSMicroarraySetView<? extends DSGeneMarker, ? extends DSMicroarray> view) {
+		String histStr = null;
+		histStr = view.markers().size() + " markers analyzed:\n";
+		for (DSGeneMarker marker : view.markers()) {
+			histStr += "\t" + marker.getLabel() + "\n";
+		}
+		//histStr+=view.items().size() +" microarray analyzed:\n";		
+		//for (DSMicroarray microarray : view.items()){
+		//	histStr+="\t"+microarray.getLabel()+"\n";
+		//}		
+		return histStr;
+	}	
+	
 	
 	public void stop(){
 		pbIdea.dispose();
