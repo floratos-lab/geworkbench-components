@@ -1,6 +1,5 @@
 package org.geworkbench.components.filtering;
 
-import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.io.Serializable;
 import java.util.HashMap;
@@ -9,9 +8,9 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.swing.JComboBox;
-import javax.swing.JTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,7 +22,7 @@ import org.geworkbench.events.listeners.ParameterActionListener;
  * <p>Copyright: Copyright (c) 2003</p>
  * <p>Company: First Genetic Trust Inc.</p>
  * @author First Genetic Trust
- * @version 1.0
+ * @version $Id$
  */
 
 /**
@@ -39,9 +38,6 @@ public class DeviationBasedFilterPanel extends AbstractSaveableParameterPanel {
     final String MICROARRAY_OPTION = "Microarray average";
     final String IGNORE_OPTION = "Ignore";
 
-    private GridLayout gridLayout1 = new GridLayout();
-    private JLabel deviationLabel = new JLabel(" Std. Deviation bound");
-    private JLabel missingValuesLabel = new JLabel("Missing values");
     private JTextField deviationCutoff = new JTextField();
     private JComboBox missingValuesSelection = new JComboBox(new String[]{MARKER_OPTION, MICROARRAY_OPTION, IGNORE_OPTION});
     private ParameterActionListener parameterActionListener = null;
@@ -90,16 +86,16 @@ public class DeviationBasedFilterPanel extends AbstractSaveableParameterPanel {
 
     private void jbInit() throws Exception {
         JPanel container = new JPanel();
+        GridLayout gridLayout1 = new GridLayout();
         gridLayout1.setColumns(2);
         gridLayout1.setHgap(10);
         gridLayout1.setRows(2);
         gridLayout1.setVgap(10);
         container.setLayout(gridLayout1);
-        container.add(deviationLabel);
+        container.add(new JLabel("Standard Deviation Bound"));
         container.add(deviationCutoff);
-        container.add(missingValuesLabel);
+        container.add(new JLabel("Missing values"));
         container.add(missingValuesSelection);
-        container.setPreferredSize(new Dimension(250, 55));
         this.add(container);
         deviationCutoff.setText("0.0");       
         ParameterActionListener parameterActionListener = new ParameterActionListener(this);
