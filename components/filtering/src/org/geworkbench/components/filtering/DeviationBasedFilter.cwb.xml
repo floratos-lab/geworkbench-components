@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
-	<component  name="Deviation Based Filter"
+	<component  name="Standard Deviation Filter"
 				class="org.geworkbench.components.filtering.DeviationBasedFilter"
 				version="1.0"
 				author="geWorkbench Development Team"
@@ -23,6 +23,6 @@
 
 	</component>
 
-	<plugin id="deviationbasedfilter" name="Deviation Filter" class="org.geworkbench.components.filtering.DeviationBasedFilter" source="filtering"/>
+	<plugin id="deviationbasedfilter" name="Standard Deviation Filter" class="org.geworkbench.components.filtering.DeviationBasedFilter" source="filtering"/>
 	
 </component-descriptor>
