@@ -109,7 +109,7 @@ public class TAnalysis {
 	}
 	
 	// the display value is based on p-value and the sign of t-value 
-	Map<DSGeneMarker, Double> calculateTValues() {
+	Map<DSGeneMarker, Double> calculateDisplayValues() {
 
 		Map<DSGeneMarker, Double> v = new HashMap<DSGeneMarker, Double>();
 		for (int i = 0; i < numGenes; i++) {
@@ -147,6 +147,8 @@ public class TAnalysis {
 		}
 
 		getGroupValues(gene);
+		float tValue = calculateTValue(groupCaseValues, groupControlValues);
+		
 		double[] doubleA = new double[groupCaseValues.length];
 		double[] doubleB = new double[groupControlValues.length];;
 		for (int i = 0; i < groupCaseValues.length; i++) {
@@ -162,7 +164,6 @@ public class TAnalysis {
 		} catch (org.apache.commons.math.MathException e) {
 		   log.error("MathException in calcaulating p-value");
 		} 
-		float tValue = getTValue(gene);
 		return Math.copySign(-Math.log10( pValue ), tValue);
 	}
 
@@ -242,36 +243,6 @@ public class TAnalysis {
 				+ (varB / kB)));
 
 		return tValue;
-	}
-
-	private float getTValue(int gene) {
-
-		float[] geneValues = new float[numExps];
-		for (int i = 0; i < numExps; i++) {
-			geneValues[i] = expMatrix[gene][i];
-		}
-
-		int numbValidValuesA = 0;
-		int numbValidValuesB = 0;
-
-		for (int i = 0; i < groupAssignments.length; i++) {
-			if (groupAssignments[i] == Group.CASE) {
-				if (!Float.isNaN(geneValues[i])) {
-					numbValidValuesA++;
-				}
-			} else if (groupAssignments[i] == Group.CONTROL) {
-				if (!Float.isNaN(geneValues[i])) {
-					numbValidValuesB++;
-				}
-			}
-		}
-
-		if ((numbValidValuesA < 2) || (numbValidValuesB < 2)) {
-			return Float.NaN; // failed case. what to do ? TODO
-		}
-
-		getGroupValues(gene);
-		return calculateTValue(groupCaseValues, groupControlValues);
 	}
 
 	private transient float[] groupCaseValues = null;
