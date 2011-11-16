@@ -113,19 +113,19 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
 				maSet, analysisName, view.markers().size());		
 		//t-analysis
 		log.info("Executing T Analysis");
-		Map<DSGeneMarker, Double> tValues = null;
+		Map<DSGeneMarker, Double> values = null;
 		try {
 			TAnalysis tTestAnalysis= new TAnalysis(view);
-			tValues = tTestAnalysis.calculateTValues();
+			values = tTestAnalysis.calculateDisplayValues();
 		} catch (TAnalysisException e1) {
 			return new AlgorithmExecutionResults(false,
 					e1.getMessage(), 
 					null);
 		}
-		if (tValues==null) return new AlgorithmExecutionResults(false,
-				"The set of t values is set null.", 
+		if (values==null) return new AlgorithmExecutionResults(false,
+				"The set of display values is set null.", 
 				null);
-		mraResultSet.setTValues(tValues);
+		mraResultSet.setValues(values);
 	 
 		//get TFs
 		ArrayList<DSGeneMarker> transcriptionFactors=new ArrayList<DSGeneMarker>();
@@ -191,7 +191,7 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
 			for (DSGeneMarker marker: signatureMarkers){
 				if (nA.contains(marker)){
 					genesInTargetList.add(marker);				 
-					log.debug(tfA.getShortName()+"\t"+ marker.getShortName()+"\tT:"+tValues.get(marker));
+					log.debug(tfA.getShortName()+"\t"+ marker.getShortName()+"\tT:"+values.get(marker));
 				}
 			}
 			

@@ -176,7 +176,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 								str = "";
 								str += marker.getLabel() + ", "
 									+ marker.getShortName() + ", ";
-								str += new Float(MRAResultSet.getTValue(
+								str += new Float(MRAResultSet.getValue(
 									marker)).toString();
 								writer.write(str);
 								writer.newLine();
@@ -239,7 +239,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 
 										str += new Float(
 												MRAResultSet
-														.getTValue(marker))
+														.getValue(marker))
 												.toString();
 										writer.write(str);
 										writer.newLine();
@@ -458,7 +458,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 			else
 				data[cx][0] = geneInTargetList.getLabel();
 
-			data[cx][1] = mraResultSet.getTValue(geneInTargetList);
+			data[cx][1] = mraResultSet.getValue(geneInTargetList);
 			cx++;
 		}
 		// myTableModel.updateData(data);
