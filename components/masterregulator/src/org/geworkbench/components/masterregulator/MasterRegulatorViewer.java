@@ -67,8 +67,8 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 	TableViewer tv2;
 	String[] columnNames = { "Master Regulator", "FET P-Value", "Genes in regulon",
 			"Genes in intersection set" };
-	String[] detailColumnNames = { "Genes in intersection set", /*"P-Value",*/
-			"T-value" };
+	String[] detailColumnNames = { "Genes in intersection set",
+			"-log10(P-value) * sign of t-value" };
 	DSMasterRagulatorResultSet<DSGeneMarker> MRAResultSet;
 	DetailedTFGraphViewer detailedTFGraphViewer;
 	boolean useSymbol = true;

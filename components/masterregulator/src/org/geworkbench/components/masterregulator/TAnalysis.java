@@ -108,30 +108,19 @@ public class TAnalysis {
 		
 	}
 	
+	// the display value is based on p-value and the sign of t-value 
 	Map<DSGeneMarker, Double> calculateTValues() {
 
-		Map<DSGeneMarker, Double> tValues = new HashMap<DSGeneMarker, Double>();
+		Map<DSGeneMarker, Double> v = new HashMap<DSGeneMarker, Double>();
 		for (int i = 0; i < numGenes; i++) {
 			DSGeneMarker m = datasetView.markers().get(i);
-			tValues.put(m, new Double(getTValue(i)) );
+			v.put(m, getDisplayValue(i) );
 		}
 
-		return tValues;
-	} // end of method calculate
-
-	// TODO this method is not used by anybody as for now
-	Map<DSGeneMarker, Double> calculatePValues() {
-
-		Map<DSGeneMarker, Double> tValues = new HashMap<DSGeneMarker, Double>();
-		for (int i = 0; i < numGenes; i++) {
-			DSGeneMarker m = datasetView.markers().get(i);
-			tValues.put(m, getPValue(i) );
-		}
-
-		return tValues;
+		return v;
 	} 
 
-	private double getPValue(int gene) {
+	private double getDisplayValue(int gene) {
 
 		float[] geneValues = new float[numExps];
 		for (int i = 0; i < numExps; i++) {
@@ -173,7 +162,8 @@ public class TAnalysis {
 		} catch (org.apache.commons.math.MathException e) {
 		   log.error("MathException in calcaulating p-value");
 		} 
-		return pValue;
+		float tValue = getTValue(gene);
+		return Math.copySign(-Math.log10( pValue ), tValue);
 	}
 
 	static private float getMean(float[] group) {
