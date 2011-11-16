@@ -45,7 +45,7 @@ public class MultipleEntrezGeneIDFilter extends FilteringAnalysis {
 	public List<Integer> getMarkersToBeRemoved(DSMicroarraySet input) {
 		maSet = (DSMicroarraySet) input;
 		if(maSet.getAnnotationFileName()==null){
-			JOptionPane.showMessageDialog(null, "The filter needs annotation file. Please load it first.",
+			JOptionPane.showMessageDialog(null, "This filter requires that an annotation file be loaded. You must reload the data file to add an annotation file.",
 					"Multiple Gene ID Filter Error", JOptionPane.ERROR_MESSAGE);
 			return null;
 		}
