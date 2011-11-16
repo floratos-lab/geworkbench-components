@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.math.stat.inference.TestUtils;
 import org.geworkbench.bison.annotation.CSAnnotationContext;
 import org.geworkbench.bison.annotation.CSAnnotationContextManager;
 import org.geworkbench.bison.annotation.DSAnnotationContext;
@@ -117,6 +118,63 @@ public class TAnalysis {
 
 		return tValues;
 	} // end of method calculate
+
+	// TODO this method is not used by anybody as for now
+	Map<DSGeneMarker, Double> calculatePValues() {
+
+		Map<DSGeneMarker, Double> tValues = new HashMap<DSGeneMarker, Double>();
+		for (int i = 0; i < numGenes; i++) {
+			DSGeneMarker m = datasetView.markers().get(i);
+			tValues.put(m, getPValue(i) );
+		}
+
+		return tValues;
+	} 
+
+	private double getPValue(int gene) {
+
+		float[] geneValues = new float[numExps];
+		for (int i = 0; i < numExps; i++) {
+			geneValues[i] = expMatrix[gene][i];
+		}
+
+		int numbValidValuesA = 0;
+		int numbValidValuesB = 0;
+
+		for (int i = 0; i < groupAssignments.length; i++) {
+			if (groupAssignments[i] == Group.CASE) {
+				if (!Float.isNaN(geneValues[i])) {
+					numbValidValuesA++;
+				}
+			} else if (groupAssignments[i] == Group.CONTROL) {
+				if (!Float.isNaN(geneValues[i])) {
+					numbValidValuesB++;
+				}
+			}
+		}
+
+		if ((numbValidValuesA < 2) || (numbValidValuesB < 2)) {
+			return Double.NaN;
+		}
+
+		getGroupValues(gene);
+		double[] doubleA = new double[groupCaseValues.length];
+		double[] doubleB = new double[groupControlValues.length];;
+		for (int i = 0; i < groupCaseValues.length; i++) {
+		    doubleA[i] = groupCaseValues[i];
+		}
+		for (int i = 0; i < groupControlValues.length; i++) {
+		    doubleB[i] = groupControlValues[i];
+		}
+
+		double pValue = 0;
+		try {
+		    pValue = TestUtils.tTest(doubleA, doubleB);
+		} catch (org.apache.commons.math.MathException e) {
+		   log.error("MathException in calcaulating p-value");
+		} 
+		return pValue;
+	}
 
 	static private float getMean(float[] group) {
 		float sum = 0;
