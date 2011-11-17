@@ -7,11 +7,17 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
@@ -57,6 +63,9 @@ public class MindyTableTab extends JSplitPane {
 	private JCheckBox selectionEnabledCheckBoxTarget;
 
 	private JTable targetTable;
+	
+	private final int TARGET_COL=1;
+	private final int M_COL=2;
 
 	/**
 	 * this part of action is taken out of constructor so they are caried out after mindyPlugin is proper constructed.
@@ -104,6 +113,13 @@ public class MindyTableTab extends JSplitPane {
 								.getUniqueCheckedTargetsAndModulators());
 					}
 				});
+		
+		exportTabTable.addActionListener(
+				new ActionListener() {
+					public void actionPerformed(ActionEvent actionEvent) {
+						exportTabTablePressed();
+					}
+				});
 
 		JPanel taskContainer = new JPanel();
 		taskContainer.setLayout(new GridLayout(18, 1, 10, 10));
@@ -136,6 +152,7 @@ public class MindyTableTab extends JSplitPane {
 		tbtarget.add(clearAllTargetsButton);
 		taskContainer.add(tbtarget);
 		taskContainer.add(addToSetButtonTarget);
+		taskContainer.add(exportTabTable);
 
 		JPanel p = new JPanel(new BorderLayout());
 		p.add(taskContainer, BorderLayout.NORTH);
@@ -180,6 +197,7 @@ public class MindyTableTab extends JSplitPane {
 	private final JCheckBox scoreCheck = new JCheckBox("Score View");
 	private final ColorGradient gradient = new ColorGradient(Color.blue, Color.red);
 	private JButton addToSetButtonTarget = new JButton("Add To Set");
+	private JButton exportTabTable= new JButton("Export");
 	private JLabel ld = new JLabel("Display Options", SwingConstants.LEFT);
 	private JLabel lm = new JLabel("Modulator Limits", SwingConstants.LEFT);
 	private JLabel lmp = new JLabel("Marker Selection  ", SwingConstants.LEFT);
@@ -466,5 +484,66 @@ public class MindyTableTab extends JSplitPane {
 			setFirstColumnWidth(0);
 		}
 	}
+	
+	private void exportTabTablePressed(){
 
+		AggregateTableModel model = (AggregateTableModel) targetTable
+		.getModel();				
+		int row=model.getRowCount();
+		String s="";
+		s+=model.getColumnName(TARGET_COL)+ ","
+			+model.getColumnName(M_COL)+ "\n";		
+		for(int i=0;i<row;i++){						
+			s+=model.getValueAt(i,TARGET_COL)+","
+				+model.getValueAt(i,M_COL);						
+			s+="\n";
+		}
+		JFileChooser fc = new JFileChooser(MindyPlugin.getLastDirectory());
+		MindyPlugin.CSVFileFilter filter = new MindyPlugin.CSVFileFilter();
+		fc.setFileFilter(filter);
+		fc.setDialogTitle("Save Mindy Modulator Results");
+		int returnVal = fc.showSaveDialog(MindyTableTab.this);
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			File selectedFile=fc.getSelectedFile();
+			if (!selectedFile.getName().endsWith(".csv")) {
+				selectedFile = new File(selectedFile.getAbsolutePath() + ".csv");
+			}
+			
+			if (selectedFile.exists()) {
+				int n = JOptionPane.showConfirmDialog(
+						null,
+						"Are you sure you want to overwrite this csv file?",
+						"Overwrite?", JOptionPane.YES_NO_OPTION);
+				if (n == JOptionPane.NO_OPTION || n == JOptionPane.CLOSED_OPTION) {
+					JOptionPane.showMessageDialog(null, "Save cancelled.");
+					return;
+				}
+			}
+			
+			try {
+				PrintWriter out = null;
+				String filepath = fc.getCurrentDirectory().getCanonicalPath();
+	            MindyPlugin.setLastDirectory(filepath);						
+				out = new PrintWriter(selectedFile);
+				out.println(s);
+				out.close();
+			} catch (FileNotFoundException e) {
+				log.error(e);
+				JOptionPane.showMessageDialog(
+						null,
+						"The file is not ready. It may be opened by other applications.",
+						"Error",
+						JOptionPane.ERROR_MESSAGE);
+			} catch (IOException e) {										
+				log.error(e);
+				JOptionPane.showMessageDialog(
+						null,
+						"IOException on setting current directory.",
+						"Error",
+						JOptionPane.ERROR_MESSAGE);
+			}			
+		}	
+	}	
+
+	
 }
