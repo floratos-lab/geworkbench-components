@@ -10,6 +10,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -22,6 +30,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -39,6 +48,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 
@@ -49,6 +59,7 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.events.SubpanelChangedEvent;
+import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyData;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyResultRow;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.ModulatorInfo;
@@ -89,6 +100,10 @@ public class MindyPlugin extends JPanel {
 	static final String ENABLE_SELECTION = "Enable Selection";
 
 	private static final String WARNING = "Warning";
+	
+	static final int MODULATOR_COL=1;
+	static final int TARGET_COL=3;
+	static final int SCORE_COL=4;
 
 	static enum ModulatorSort {
 		Aggregate, Enhancing, Negative;
@@ -131,6 +146,7 @@ public class MindyPlugin extends JPanel {
 	JCheckBox selectAllTargetsCheckBox;
 
 	private JButton addToSetButton /* list tab */, addToSetButtonMod;
+	private JButton exportTabList, exportTabModulator;
 
 	private JLabel numModSelectedInModTab;
 
@@ -260,6 +276,13 @@ public class MindyPlugin extends JPanel {
 				}
 			});
 
+			exportTabModulator =new JButton("Export");
+			exportTabModulator.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent actionEvent) {
+					exportTabModulatorPressed();
+				}
+			});
+			
 			JLabel ll = new JLabel("List Selections  ", SwingConstants.LEFT);
 			ll.setFont(new Font(ll.getFont().getName(), Font.BOLD, 12));
 			ll.setForeground(Color.BLUE);
@@ -303,7 +326,7 @@ public class MindyPlugin extends JPanel {
 			else
 				modShowProbeName.setSelected(true);
 
-			JPanel taskContainer = new JPanel(new GridLayout(7, 1, 10, 10));
+			JPanel taskContainer = new JPanel(new GridLayout(8, 1, 10, 10));
 			taskContainer.add(dl);
 			taskContainer.add(modShowSymbol);
 			taskContainer.add(modShowProbeName);
@@ -311,6 +334,7 @@ public class MindyPlugin extends JPanel {
 			taskContainer.add(selectAll);
 			taskContainer.add(numModSelectedInModTab);
 			taskContainer.add(addToSetButtonMod);
+			taskContainer.add(exportTabModulator);
 			JPanel p = new JPanel(new BorderLayout());
 			p.add(taskContainer, BorderLayout.NORTH);
 			JScrollPane sp = new JScrollPane(p);
@@ -446,6 +470,15 @@ public class MindyPlugin extends JPanel {
 					addToSet(model.getUniqueSelectedMarkers());
 				}
 			});
+			
+			exportTabList = new JButton("Export");
+			exportTabList.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent actionEvent) {
+					exportTabListPressed();
+				}					
+			});
+			
+			
 			setListControlVisibility(true);
 
 			l = new JLabel("Marker Selection", SwingConstants.LEFT);
@@ -466,6 +499,7 @@ public class MindyPlugin extends JPanel {
 			p.add(selectAllModsCheckBox);
 			p.add(selectAllTargetsCheckBox);
 			p.add(addToSetButton);
+			p.add(exportTabList);
 
 			JPanel taskContainer = new JPanel();
 			taskContainer.setLayout(new BorderLayout(10, 10));
@@ -779,6 +813,190 @@ public class MindyPlugin extends JPanel {
 	
 	}
 
+	private void exportTabModulatorPressed(){
+
+		ModulatorModel model = (ModulatorModel) modTable.getModel();							
+		int row=model.getRowCount();
+		int col=model.getColumnCount();
+		String str="";
+		for(int k=1;k<col;k++){
+			str+=model.getColumnName(k)+",";
+		}
+		str=str.substring(0, str.length()-1);
+		str+="\n";
+		for(int i=0;i<row;i++){
+			for(int j=1;j<col;j++){
+				String ss=model.getValueAt(i,j).toString();
+				String[] tokens = ss.split(",");
+				ss="";
+				for(String s:tokens ){
+					ss+=s+";";		//replace , with ;
+				}
+				ss=ss.substring(0,ss.length()-1);	
+				str+=ss+",";
+			}
+			str=str.substring(0, str.length()-1);	//remove the last ,
+			str+="\n";
+		}
+		JFileChooser fc = new JFileChooser(MindyPlugin.getLastDirectory());
+		CSVFileFilter filter = new CSVFileFilter();
+		fc.setFileFilter(filter);
+		fc.setDialogTitle("Save Mindy Modulator Results");
+		int returnVal = fc.showSaveDialog(MindyPlugin.this);
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			File selectedFile=fc.getSelectedFile();
+			if (!selectedFile.getName().endsWith(".csv")) {
+				selectedFile = new File(selectedFile.getAbsolutePath() + ".csv");
+			}
+			
+			if (selectedFile.exists()) {
+				int n = JOptionPane.showConfirmDialog(
+						null,
+						"Are you sure you want to overwrite this csv file?",
+						"Overwrite?", JOptionPane.YES_NO_OPTION);
+				if (n == JOptionPane.NO_OPTION || n == JOptionPane.CLOSED_OPTION) {
+					JOptionPane.showMessageDialog(null, "Save cancelled.");
+					return;
+				}
+			}
+						
+			try {
+				PrintWriter out = null;
+				String filepath = fc.getCurrentDirectory().getCanonicalPath();
+	            setLastDirectory(filepath);						
+				out = new PrintWriter(selectedFile);
+				out.println(str);
+				out.close();
+			} catch (FileNotFoundException e) {
+				log.error(e);
+				JOptionPane.showMessageDialog(
+						null,
+						"The file is not ready. It may be opened by other applications.",
+						"Error",
+						JOptionPane.ERROR_MESSAGE);
+			} catch (IOException e) {										
+				log.error(e);
+				JOptionPane.showMessageDialog(
+						null,
+						"saving encountered an error.",
+						"Error",
+						JOptionPane.ERROR_MESSAGE);
+			}			
+		}	
+	}
+	
+	private void exportTabListPressed(){
+
+		ModulatorTargetModel model = (ModulatorTargetModel) listTable
+		.getModel();					
+		int row=model.getRowCount();
+		String s="";
+		s+=model.getColumnName(MODULATOR_COL)+ ","
+			+model.getColumnName(TARGET_COL)+ ","
+			+model.getColumnName(SCORE_COL)+ "\n";		
+		for(int i=0;i<row;i++){						
+			s+=model.getValueAt(i,MODULATOR_COL)+","+model.getValueAt(i,TARGET_COL)+","
+				+model.getValueAt(i,SCORE_COL);						
+			s+="\n";
+		}
+		JFileChooser fc = new JFileChooser(MindyPlugin.getLastDirectory());
+		CSVFileFilter filter = new CSVFileFilter();
+		fc.setFileFilter(filter);
+		fc.setDialogTitle("Save Mindy List Results");
+		int returnVal = fc.showSaveDialog(MindyPlugin.this);
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			File selectedFile=fc.getSelectedFile();
+			if (!selectedFile.getName().endsWith(".csv")) {
+				selectedFile = new File(selectedFile.getAbsolutePath() + ".csv");
+			}
+			
+			if (selectedFile.exists()) {
+				int n = JOptionPane.showConfirmDialog(
+						null,
+						"Are you sure you want to overwrite this csv file?",
+						"Overwrite?", JOptionPane.YES_NO_OPTION);
+				if (n == JOptionPane.NO_OPTION || n == JOptionPane.CLOSED_OPTION) {
+					JOptionPane.showMessageDialog(null, "Save cancelled.");
+					return;
+				}
+			}	
+			
+			PrintWriter out = null;
+			try {
+				String filepath = fc.getCurrentDirectory().getCanonicalPath();
+	            setLastDirectory(filepath);						
+				out = new PrintWriter(selectedFile);
+				out.println(s);
+				out.close();
+			} catch (FileNotFoundException e) {
+				log.error(e);
+				JOptionPane.showMessageDialog(
+						null,
+						"The file is not ready. It may be opened by other applications.",
+						"Error",
+						JOptionPane.ERROR_MESSAGE);
+			} catch (IOException e) {										
+				log.error(e);
+				JOptionPane.showMessageDialog(
+						null,
+						"saving encountered an error.",
+						"Error",
+						JOptionPane.ERROR_MESSAGE);
+			}			
+		}	
+	}
+	
+	static String getLastDirectory() {
+        String dir = ".";
+        try {
+            String filename = FilePathnameUtils.getIDEASettingsPath();
+
+            File file = new File(filename);
+            if (file.exists()) {
+                BufferedReader br = new BufferedReader(new FileReader(file));
+
+                dir = br.readLine();
+                br.close();
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        if (dir == null) {
+            dir = ".";
+        }
+        return dir;
+    }
+	
+	static void setLastDirectory(String dir) {
+        try { //save current settings.
+            String outputfile = FilePathnameUtils.getIDEASettingsPath();
+            BufferedWriter br = new BufferedWriter(new FileWriter(
+                    outputfile));
+            br.write(dir);
+            br.close();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+	
+	static class CSVFileFilter extends FileFilter {
+		private static final String fileExt = ".csv";
+
+		public String getDescription() {
+			return "CSV Files";
+		}
+
+		public boolean accept(File f) {
+			boolean returnVal = false;
+			if (f.isDirectory() || f.getName().endsWith(fileExt)) {
+				return true;
+			}
+
+			return returnVal;
+		}
+
+	}
+	
 
 	private void doResizeAndRepaint() {
 		revalidate();
