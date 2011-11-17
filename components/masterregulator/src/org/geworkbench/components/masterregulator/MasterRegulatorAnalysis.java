@@ -101,6 +101,11 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
 					"Transcription Factor has not been entered yet.", 
 					null);
 		};
+		if (signatureMarkersSTr.equals("")){
+			return new AlgorithmExecutionResults(false,
+					"Signature Marker has not been entered yet.", 
+					null);
+		};
 		 
 		// validate data and parameters.
 		ParamValidationResults validation = validateParameters();
