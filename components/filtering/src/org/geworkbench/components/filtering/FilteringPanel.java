@@ -2,8 +2,10 @@ package org.geworkbench.components.filtering;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Frame;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -238,6 +240,14 @@ public class FilteringPanel extends CommandBase implements VisualPlugin, ReHighl
 		dialog.setVisible(true);
 	}
 
+	// this is only necessary for preview window
+	Frame getFrame() {
+		Container container = getComponent().getParent();
+		while(!(container instanceof Frame)) {
+			container = container.getParent();
+		}
+		return (Frame)container;
+	}
 	/**
 	 * Listener invoked when the "Delete Settings" button is pressed
 	 * 
@@ -486,7 +496,6 @@ public class FilteringPanel extends CommandBase implements VisualPlugin, ReHighl
 	 * 
 	 */
 	void filtering_actionPerformed() {
-		hideDialog();
 		
 		if (selectedFilter == null || maSet == null)
 			return;
@@ -524,6 +533,8 @@ public class FilteringPanel extends CommandBase implements VisualPlugin, ReHighl
 		/* Invoke the selected filter */
 		FilterWorker worker = new FilterWorker();
 		worker.execute();
+		
+		hideDialog();
 	}
 	
 	final private ProgressBar progressBar = ProgressBar
