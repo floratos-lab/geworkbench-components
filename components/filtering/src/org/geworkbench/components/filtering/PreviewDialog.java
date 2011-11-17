@@ -3,8 +3,10 @@
  */
 package org.geworkbench.components.filtering;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.GridBagLayout;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -12,8 +14,6 @@ import java.text.NumberFormat;
 import java.util.List;
 
 import javax.swing.BorderFactory;
-import java.awt.BorderLayout;
-import java.awt.GridBagLayout;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -27,7 +27,6 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.engine.skin.Skin;
 
 /**
  * @author zji
@@ -48,8 +47,8 @@ public class PreviewDialog extends JDialog {
 	
 	private FilteringPanel filteringPanel = null;
 
-	PreviewDialog(final List<DSGeneMarker> list, int total, FilteringPanel filteringPanel) {
-		super(Skin.getFrame(), "Filtering Preview", true);
+	PreviewDialog(final List<DSGeneMarker> list, int total, final FilteringPanel filteringPanel) {
+		super( filteringPanel.getFrame(), "Filtering Preview", true);
 		
 		this.filteringPanel = filteringPanel;
 		
