@@ -29,6 +29,7 @@ import java.util.zip.GZIPOutputStream;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
@@ -113,7 +114,7 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 	private JTextField pvshadow = new JTextField("0.01"); //Significance threshold for shadow analysis
 	private JTextField pvsynergy = new JTextField("0.01"); //Significance threshold for synergy analysis
 	private JTextField resultid = new JTextField("mra0001"); //mra result id for retrieving prior result
-	private JComboBox priorBox = new JComboBox(new String[]{"Don't retrieve prior result with ID", "Retrieve prior MRA result with ID"});
+	private JCheckBox priorBox = new JCheckBox("Retrieve prior result with ID: ");
 	private static final String lastDirConf = FilePathnameUtils.getUserSettingDirectoryPath()
 					+ "masterregulator" + FilePathnameUtils.FILE_SEPARATOR + "lastDir.conf";
 	boolean allpos = true;
@@ -144,8 +145,8 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		builder.append(loadNetworkButton);
 		builder.nextLine();
 
-		builder.appendSeparator("Fisher's Exact Test Threshold");
-		builder.append("GSEA P-value ");
+		builder.appendSeparator("Enrichment Threshold");
+		builder.append("FET/GSEA p-value ");
 		if (pValueTextField == null)
 			pValueTextField = new JTextField();
 		pValueTextField.setText(Float.toString(PValueThresholdDefault));
@@ -208,9 +209,9 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 
 		builder.append(priorBox, resultid);
 		resultid.setEnabled(false);
-		priorBox.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent actionEvent) {
-				if (priorBox.getSelectedIndex()==1) {
+		priorBox.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				if (priorBox.isSelected()) {
 					mintg.setEnabled(false);
 					minsp.setEnabled(false);
 					nperm.setEnabled(false);
@@ -711,7 +712,7 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		if (parameters.get("resultid") != null)
 			setResultid((String)parameters.get("resultid"));
 		if (parameters.get("priorid") != null)
-			setPriorid((Integer)parameters.get("priorid"));
+			setPriorid((Boolean)parameters.get("priorid"));
 
 		stopNotifyAnalysisPanelTemporary(false);
 	}
@@ -928,17 +929,17 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		pvsynergy.setText(Double.toString(d));
 	}
 	public String getResultid(){
-		if (priorBox.getSelectedIndex() == 0) return null;
+		if (!priorBox.isSelected()) return null;
 		return resultid.getText().toLowerCase();
 	}
 	public void setResultid(String id){
 		resultid.setText(id);
 	}
-	public int getPriorid(){
-		return priorBox.getSelectedIndex();
+	public boolean getPriorid(){
+		return priorBox.isSelected();
 	}
-	public void setPriorid(int i){
-		priorBox.setSelectedIndex(i);
+	public void setPriorid(boolean i){
+		priorBox.setSelected(i);
 	}
 
 	private String networkFilename = "";
