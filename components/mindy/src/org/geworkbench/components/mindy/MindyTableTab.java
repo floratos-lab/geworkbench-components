@@ -64,9 +64,6 @@ public class MindyTableTab extends JSplitPane {
 
 	private JTable targetTable;
 	
-	private final int TARGET_COL=1;
-	private final int M_COL=2;
-
 	/**
 	 * this part of action is taken out of constructor so they are caried out after mindyPlugin is proper constructed.
 	 */
@@ -488,16 +485,25 @@ public class MindyTableTab extends JSplitPane {
 	private void exportTabTablePressed(){
 
 		AggregateTableModel model = (AggregateTableModel) targetTable
-		.getModel();				
+		.getModel();
+		int col=model.getColumnCount();
 		int row=model.getRowCount();
-		String s="";
-		s+=model.getColumnName(TARGET_COL)+ ","
-			+model.getColumnName(M_COL)+ "\n";		
-		for(int i=0;i<row;i++){						
-			s+=model.getValueAt(i,TARGET_COL)+","
-				+model.getValueAt(i,M_COL);						
-			s+="\n";
+		String str="";		
+		for(int k=1;k<col;k++){
+			str+=model.getColumnName(k)+",";
 		}
+		str=str.substring(0, str.length()-1);
+		str+="\n";
+		
+		for(int i=0;i<row;i++){
+			for(int j=1;j<col;j++){
+				String ss=model.getValueAt(i,j).toString();				
+				str+=ss+",";
+			}
+			str=str.substring(0, str.length()-1);	//remove the last ,
+			str+="\n";
+		}
+		
 		JFileChooser fc = new JFileChooser(MindyPlugin.getLastDirectory());
 		MindyPlugin.CSVFileFilter filter = new MindyPlugin.CSVFileFilter();
 		fc.setFileFilter(filter);
@@ -525,7 +531,7 @@ public class MindyTableTab extends JSplitPane {
 				String filepath = fc.getCurrentDirectory().getCanonicalPath();
 	            MindyPlugin.setLastDirectory(filepath);						
 				out = new PrintWriter(selectedFile);
-				out.println(s);
+				out.println(str);
 				out.close();
 			} catch (FileNotFoundException e) {
 				log.error(e);
