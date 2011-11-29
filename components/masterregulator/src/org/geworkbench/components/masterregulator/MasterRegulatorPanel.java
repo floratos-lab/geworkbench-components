@@ -42,6 +42,9 @@ import javax.swing.ListModel;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.math.linear.RealMatrix;
+import org.apache.commons.math.stat.correlation.PearsonsCorrelation;
+import org.apache.commons.math.stat.correlation.SpearmansCorrelation;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.bison.annotation.CSAnnotationContextManager;
 import org.geworkbench.bison.annotation.DSAnnotationContext;
@@ -990,23 +993,38 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		AdjacencyMatrix matrix  = amSet.getMatrix();
 		if (matrix==null) return null;
 		boolean goodNetwork = false;
+		allpos = true;
 		GZIPOutputStream zipout = null;
 		try{
 			ByteArrayOutputStream bo = new ByteArrayOutputStream();
 			zipout = new GZIPOutputStream(bo);
 
 			for (AdjacencyMatrix.Node node1 : matrix.getNodes()) {
-				String marker1 = getMarkerInNode(node1, matrix);
-				if (marker1 != null) {
+				DSGeneMarker marker1 = getMarkerInNode(node1, matrix);
+				if (marker1 != null && marker1.getLabel() != null) {
 					StringBuilder builder = new StringBuilder();
 					for (AdjacencyMatrix.Edge edge : matrix.getEdges(node1)) {
-						String marker2 = getMarkerInNode(edge.node2, matrix);
-						if (marker2 != null) {
-							builder.append(marker1 + "\t");
-							builder.append(marker2 + "\t"
+						DSGeneMarker marker2 = getMarkerInNode(edge.node2, matrix);
+						if (marker2 != null && marker2.getLabel() != null) {
+							double rho = 1, pvalue = 0;
+							double[] v1 = maSet.getRow(marker1);
+							double[] v2 = maSet.getRow(marker2);
+							if (v1 != null && v1.length > 0 && v2 != null && v2.length > 0){
+								double[][] arrayData = new double[][]{v1, v2};
+								RealMatrix rm = new SpearmansCorrelation().computeCorrelationMatrix(transpose(arrayData));
+								if (rm.getColumnDimension() > 1)  rho = rm.getEntry(0, 1);
+								if (allpos && rho < 0)  allpos = false;
+								try{
+									pvalue = new PearsonsCorrelation(rm, v1.length).getCorrelationPValues().getEntry(0, 1);
+								}catch(Exception e){
+									e.printStackTrace();
+								}
+							}
+							builder.append(marker1.getLabel() + "\t");
+							builder.append(marker2.getLabel() + "\t"
 									+ edge.info.value +"\t"  // Mutual information
-									+ "1\t"   // Spearman's correlation = 1
-									+ "0\n"); // P-value for Spearman's correlation = 0
+									+ rho+ "\t"   // Spearman's correlation = 1
+									+ pvalue +"\n"); // P-value for Spearman's correlation = 0
 						}
 					}
 					if (!goodNetwork && builder.length() > 0) goodNetwork = true;
@@ -1030,16 +1048,26 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		}
 	}
 
-	private String getMarkerInNode(AdjacencyMatrix.Node node, AdjacencyMatrix matrix){
+	private double[][] transpose(double[][] in){
+		if (in==null || in.length==0 || in[0].length==0)
+			return null;
+		int row = in.length;
+		int col = in[0].length;
+		double[][] out = new double[col][row];
+		for(int i=0; i<row; i++)
+			for (int j=0; j<col; j++)
+				out[j][i] = in[i][j];
+		return out;
+	}
+
+	private DSGeneMarker getMarkerInNode(AdjacencyMatrix.Node node, AdjacencyMatrix matrix){
 		if (node == null || matrix == null) return null;
 		DSGeneMarker marker = null;
 		if (node.type == NodeType.MARKER) 
 			marker = node.getMarker();
 		else 
 			marker = matrix.getMicroarraySet().getMarkers().get(node.stringId);
-		if (marker != null) 
-			return marker.getLabel();
-		return null;
+		return marker;
 	}
 
 	HashSet<String> getIxClass(String contextClass){
@@ -1255,11 +1283,11 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 			 if (matrix==null) return "Network (Adjacency Matrix) has not been loaded yet.";
 
 			 for (AdjacencyMatrix.Node node1 : matrix.getNodes()) {
-				 String marker1 = getMarkerInNode(node1, matrix);
-				 if (marker1 != null) {
+				 DSGeneMarker marker1 = getMarkerInNode(node1, matrix);
+				 if (marker1 != null && marker1.getLabel() != null) {
 					 for (AdjacencyMatrix.Edge edge : matrix.getEdges(node1)) {
-						 String marker2 = getMarkerInNode(edge.node2, matrix);
-						 if (marker2 != null) return "Valid";
+						 DSGeneMarker marker2 = getMarkerInNode(edge.node2, matrix);
+						 if (marker2 != null && marker2.getLabel() != null) return "Valid";
 					 }
 				 }
 			 }
