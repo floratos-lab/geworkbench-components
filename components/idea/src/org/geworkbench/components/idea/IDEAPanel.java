@@ -69,7 +69,8 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 	private static final String FROM_SETS = "From Set";
 	private static final String FROM_PROJECT = "From Project";
 	private static final String[] NETWORK_FROM = { FROM_FILE_LAB, FROM_PROJECT};
-	private static final String[] PHENOTYPE_FROM = { FROM_SETS, FROM_FILE};	
+	private static final String[] PHENOTYPE_FROM = { FROM_SETS, FROM_FILE};
+	private static final String[] EXCLUDE_FROM = { FROM_SETS, FROM_FILE};
 	static final String[] DEFAULT_SET = { " " };	
 	
 	private JTextField pValueTextField = new JTextField(20);	
@@ -83,13 +84,14 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 	
 	private JComboBox networkMatrix = new JComboBox();	
 	private JComboBox networkFrom = new JComboBox(NETWORK_FROM);	
-	private JComboBox phenotypeFrom = new JComboBox(PHENOTYPE_FROM);	
+	private JComboBox phenotypeFrom = new JComboBox(PHENOTYPE_FROM);
+	private JComboBox excludeFrom = new JComboBox(EXCLUDE_FROM);
 	private JComboBox includeSets = new JComboBox(new DefaultComboBoxModel(
 			DEFAULT_SET));
 	private JComboBox excludeSets = new JComboBox(new DefaultComboBoxModel(
 			DEFAULT_SET));
-	private JLabel includeLabel=new JLabel("                   Include");
-	private JLabel excludeLabel=new JLabel("                  Exclude");
+	
+	private JLabel excludeLabel=new JLabel("Exclude (optional)");
 	private JTextField includeField = new JTextField();
 	private JTextField excludeField = new JTextField();
 	
@@ -137,11 +139,6 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 		excludeField.setText("");
 		networkField.setText("");	
 		
-		//nullDataCheckbox.setVisible(false);
-		//nullDataField.setVisible(false);
-		//nullDataLoadButton.setVisible(false);
-		//loadNullDataLabel.setVisible(false);
-		
 		pvalueLabel.setVisible(false);			//pvalue is temporarily off on GUI
 		pValueTextField.setVisible(false);
 		
@@ -166,23 +163,21 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 			builder.appendSeparator("Inputs required");			
 			builder.append("Load Network");
 			builder.append(networkFrom);			
-			builder.append(networkField);
 			networkMatrix.setEnabled(false);
 			builder.append(networkMatrix);
+			builder.append(networkField);
 			builder.append(networkLoadButton);						
 			builder.nextLine();			
 			
 			builder.append("Define Phenotype");
-			builder.append(phenotypeFrom);			
-			builder.nextLine();			
-			
-			builder.append(includeLabel);
+			builder.append(phenotypeFrom);						
 			builder.append(includeSets);
 			builder.append(includeField);
 			builder.append(includeLoadButton);
 			builder.nextLine();			
 			
 			builder.append(excludeLabel);
+			builder.append(excludeFrom);
 			builder.append(excludeSets);
 			builder.append(excludeField);
 			builder.append(excludeLoadButton);
@@ -201,20 +196,29 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 		
 		phenotypeFrom.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent actionEvent) {				
-				includeField.setText("");
-				excludeField.setText("");
-				includeSets.setSelectedIndex(0);
-				excludeSets.setSelectedIndex(0);
+				includeField.setText("");				
+				includeSets.setSelectedIndex(0);				
 				String selected = (String) phenotypeFrom.getSelectedItem();
 				if (StringUtils.equals(selected, FROM_SETS)) {					
-					includeLoadButton.setEnabled(false);
+					includeLoadButton.setEnabled(false);									
+					includeSets.setEnabled(true);					
+				} else {					
+					includeLoadButton.setEnabled(true);					
+					includeSets.setEnabled(false);					
+				}
+			}
+		});
+		
+		excludeFrom.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent actionEvent) {				
+				excludeField.setText("");				
+				excludeSets.setSelectedIndex(0);
+				String selected = (String) excludeFrom.getSelectedItem();
+				if (StringUtils.equals(selected, FROM_SETS)) {					
 					excludeLoadButton.setEnabled(false);					
-					includeSets.setEnabled(true);
 					excludeSets.setEnabled(true);
 				} else {					
-					includeLoadButton.setEnabled(true);
-					excludeLoadButton.setEnabled(true);
-					includeSets.setEnabled(false);
+					excludeLoadButton.setEnabled(true);				
 					excludeSets.setEnabled(false);
 				}
 			}
