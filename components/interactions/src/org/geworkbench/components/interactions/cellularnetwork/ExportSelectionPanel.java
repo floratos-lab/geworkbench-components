@@ -172,7 +172,6 @@ public class ExportSelectionPanel extends JPanel {
 			pb.toFront();
 
 			try {
-
 				File file = new File(fileName);
 				file.createNewFile();
 				if (!file.canWrite()) {
@@ -180,43 +179,50 @@ public class ExportSelectionPanel extends JPanel {
 							"Cannot write to specified file.");
 					return null;
 				}
-
 				BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+				
+				try {
 
-				String selectedFormart = formatJcb.getSelectedItem().toString();
-				String selectedPresent = presentJcb.getSelectedItem()
-						.toString();
+					String selectedFormart = formatJcb.getSelectedItem()
+							.toString();
+					String selectedPresent = presentJcb.getSelectedItem()
+							.toString();
 
-				InteractionsConnectionImpl interactionsConnection = new InteractionsConnectionImpl();
+					InteractionsConnectionImpl interactionsConnection = new InteractionsConnectionImpl();
 
-				for (String interactionType : interactionTypes) {
-					if (isCancelled())
-						break;
-					List<String> lines = new ArrayList<String>();
-
-					if (selectedFormart.equalsIgnoreCase(Constants.SIF_FORMART))
-						lines = interactionsConnection
-								.getInteractionsSifFormat(context, version,
-										interactionType, selectedPresent);
-					else if ((selectedFormart
-							.equalsIgnoreCase(Constants.ADJ_FORMART)))
-						lines = interactionsConnection
-								.getInteractionsAdjFormat(context, version,
-										interactionType, selectedPresent);
-
-					for (String line : lines) {
+					for (String interactionType : interactionTypes) {
 						if (isCancelled())
 							break;
-						writer.write(line);
-						writer.write("\n");
+						List<String> lines = new ArrayList<String>();
+
+						if (selectedFormart
+								.equalsIgnoreCase(Constants.SIF_FORMART))
+							lines = interactionsConnection
+									.getInteractionsSifFormat(context, version,
+											interactionType, selectedPresent);
+						else if ((selectedFormart
+								.equalsIgnoreCase(Constants.ADJ_FORMART)))
+							lines = interactionsConnection
+									.getInteractionsAdjFormat(context, version,
+											interactionType, selectedPresent);
+
+						for (String line : lines) {
+							if (isCancelled())
+								break;
+							writer.write(line);
+							writer.write("\n");
+
+						}
+						writer.flush();
+						if (isCancelled())
+							file.delete();
 
 					}
-					writer.flush();
+				} catch (Exception ex) {
+					throw ex;
+				} finally {
+					writer.close();
 				}
-
-				writer.close();
-				if (isCancelled())
-					file.delete();
 
 			} catch (Exception ex) {
 				System.out.println(ex.getMessage());
