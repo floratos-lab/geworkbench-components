@@ -356,6 +356,7 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel {
 			jLabel1.setText("P-value Corrections");
 			jPanel1 = new JPanel();
 			jPanel1.setLayout(new BoxLayout(getJPanel1(), BoxLayout.X_AXIS));
+			jPanel1.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
 			jPanel1.add(jLabel1, null);
 			JSeparator Separator = new JSeparator(SwingConstants.HORIZONTAL);
 			Separator.setUI(new BasicSeparatorUI() {
@@ -383,6 +384,7 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel {
 		if (jPanel2 == null) {
 			jPanel2 = new JPanel();
 			jPanel2.setLayout(new BoxLayout(getJPanel2(), BoxLayout.Y_AXIS));
+			jPanel2.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
 			jPanel2.add(getJRadioButton(), null);
 			jPanel2.add(getJRadioButton1(), null);
 			jPanel2.add(getJRadioButton2(), null);
@@ -526,6 +528,7 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel {
 			jLabel3.setText("False Discovery Control (permutations only)");
 			jPanel5 = new JPanel();
 			jPanel5.setLayout(new BoxLayout(getJPanel5(), BoxLayout.X_AXIS));
+			jPanel5.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
 			jPanel5.add(jLabel3, null);
 		}
 		return jPanel5;
@@ -643,6 +646,7 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel {
 			flowLayout1.setAlignment(java.awt.FlowLayout.LEFT);
 			jPanel = new JPanel();
 			jPanel.setLayout(flowLayout1);
+			jPanel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
 			jPanel.add(getJRadioButton4(), null);
 			jPanel.add(getJTextFieldNFSG(), null);
 		}
@@ -660,6 +664,7 @@ public class AnovaAnalysisPanel extends AbstractSaveableParameterPanel {
 			flowLayout2.setAlignment(java.awt.FlowLayout.LEFT);
 			jPanel8 = new JPanel();
 			jPanel8.setLayout(flowLayout2);
+			jPanel8.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
 			jPanel8.add(getJRadioButton5(), null);
 			jPanel8.add(getJTextFieldPFSG(), null);
 		}
