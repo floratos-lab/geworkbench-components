@@ -91,7 +91,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 	private JComboBox excludeSets = new JComboBox(new DefaultComboBoxModel(
 			DEFAULT_SET));
 	
-	private JLabel excludeLabel=new JLabel("Exclude (optional)");
+	private JLabel excludeLabel=new JLabel("Arrays to Exclude (optional)");
 	private JTextField includeField = new JTextField();
 	private JTextField excludeField = new JTextField();
 	
@@ -169,7 +169,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 			builder.append(networkLoadButton);						
 			builder.nextLine();			
 			
-			builder.append("Define Phenotype");
+			builder.append("Arrays Defining Phenotype");
 			builder.append(phenotypeFrom);						
 			builder.append(includeSets);
 			builder.append(includeField);
