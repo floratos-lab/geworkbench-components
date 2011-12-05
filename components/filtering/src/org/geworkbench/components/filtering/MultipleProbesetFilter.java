@@ -50,7 +50,7 @@ public class MultipleProbesetFilter extends FilteringAnalysis {
 
 		if(maSet.getAnnotationFileName()==null) {
 			JOptionPane.showMessageDialog(null,
-				    "Filtering aborted because no annotation is loaded.",
+				    "This filter requires that an annotation file be loaded. You must reload the data file to add an annotation file.",
 				    "No annotation warning",
 				    JOptionPane.WARNING_MESSAGE);
 			return null;
