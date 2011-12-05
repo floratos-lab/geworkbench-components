@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
-	<component  name="Multiple Gene ID Filter"
+	<component  name="Entrez Gene ID Filter"
 				class="org.geworkbench.components.filtering.MultipleEntrezGeneIDFilter"
 				version="1.0"
 				author="geWorkbench Development Team"
@@ -22,6 +22,6 @@
 
 	</component>
                 
-	<plugin id="multipleentrezgeneidfilter" name="Multiple Gene ID Filter" class="org.geworkbench.components.filtering.MultipleEntrezGeneIDFilter" source="filtering"/>
+	<plugin id="multipleentrezgeneidfilter" name="Entrez Gene ID Filter" class="org.geworkbench.components.filtering.MultipleEntrezGeneIDFilter" source="filtering"/>
 
 </component-descriptor>
