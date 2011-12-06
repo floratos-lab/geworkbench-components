@@ -1,8 +1,12 @@
 package org.geworkbench.components.sequenceretriever;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.util.HashMap;
+
+import javax.swing.JCheckBox;
 
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
@@ -26,6 +30,8 @@ public final class RetrievedSequencesPanel extends SequenceViewWidget {
 
     private DSSequence selectedSequence = null;
 
+	private JCheckBox checkBoxHideDuplicate = new JCheckBox("Show only unique Tx start sites", true);
+
     public RetrievedSequencesPanel() {
         try {
             jbInit();
@@ -35,6 +41,15 @@ public final class RetrievedSequencesPanel extends SequenceViewWidget {
     }
 
     private void jbInit() throws Exception {
+    	jToolBar1.add(checkBoxHideDuplicate );
+    	checkBoxHideDuplicate.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				sequenceRetrieverNewLineView.refreshSequenceNameList(checkBoxHideDuplicate.isSelected());
+			}
+    		
+    	});
         
         sequenceRetrieverNewLineView.setRetrievedSequencesPanel(this);
 
@@ -163,7 +178,7 @@ public final class RetrievedSequencesPanel extends SequenceViewWidget {
         //updatePatternSeqMatches();
         isLineView = jViewComboBox.getSelectedItem().equals(LINEVIEW);
         if (isLineView) {
-            sequenceRetrieverNewLineView.initialize(sequenceDB, true);
+            sequenceRetrieverNewLineView.initialize(sequenceDB, true, checkBoxHideDuplicate.isSelected());
             flapToNewView(true);
         } else {
             seqScrollPane.getViewport().removeAll();

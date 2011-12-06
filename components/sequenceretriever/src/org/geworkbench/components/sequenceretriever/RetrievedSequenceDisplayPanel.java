@@ -11,7 +11,9 @@ import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.TreeSet;
 
 import javax.swing.JPanel;
@@ -77,8 +79,10 @@ public final class RetrievedSequenceDisplayPanel extends JPanel {
 		}
 	}
 
+	private RetrievedSequenceTableModel model = new RetrievedSequenceTableModel();
+	
 	private void jbInit() throws Exception {
-		table = new JTable(new RetrievedSequenceTableModel());
+		table = new JTable(model);
 
 		table.setDefaultRenderer(RetrievedSequenceView.class,
 				new DefaultTableCellRenderer() {
@@ -160,8 +164,9 @@ public final class RetrievedSequenceDisplayPanel extends JPanel {
 	}
 
 	// called only from RetreivedSequencesPanel.initPanelView
-	void initialize(DSSequenceSet<DSSequence> seqDB, boolean isLineView) {
+	void initialize(DSSequenceSet<DSSequence> seqDB, boolean isLineView, boolean hideDuplicate) {
 		sequenceDB = seqDB;
+		refreshSequenceNameList(hideDuplicate);
 		lineView = isLineView;
 		try {
 			this.removeAll();
@@ -193,7 +198,7 @@ public final class RetrievedSequenceDisplayPanel extends JPanel {
 	}
 
 	/**
-	 * Set up the coresponding parameters when mouse moves.
+	 * Set up the corresponding parameters when mouse moves.
 	 * 
 	 * @param e
 	 *            MouseEvent
@@ -415,6 +420,35 @@ public final class RetrievedSequenceDisplayPanel extends JPanel {
 	private class RetrievedSequenceTableModel extends AbstractTableModel {
 		private static final long serialVersionUID = -6009654606398029902L;
 
+		private List<String> sequenceNames;
+		
+		RetrievedSequenceTableModel() {
+			resetNameList(false);
+		}
+		
+		private void resetNameList(boolean hideDuplicate) {
+			if(sequenceDB==null)return;
+			
+			sequenceNames = new ArrayList<String>();
+			List<String> startingSites = new ArrayList<String>();
+			
+			for(DSSequence sequence: sequenceDB) {
+				String n = sequence.toString();
+				int i = n.lastIndexOf("_");
+				i = n.lastIndexOf("_", i);
+				String startingSite = n.substring(i);
+				if(!hideDuplicate || !startingSites.contains(startingSite)) {
+					sequenceNames.add(n);
+					startingSites.add(startingSite);
+				}
+			}
+		}
+		
+		public void refreshSequenceNameList(boolean hideDuplicate) {
+			resetNameList(hideDuplicate);
+			this.fireTableDataChanged();
+		}
+		
 		@Override
 		public String getColumnName(int column) {
 			switch (column) {
@@ -431,16 +465,16 @@ public final class RetrievedSequenceDisplayPanel extends JPanel {
 
 		@Override
 		public int getRowCount() {
-			if (sequenceDB == null) {
+			if (sequenceNames == null) {
 				return 0;
 			} else {
-				return sequenceDB.size();
+				return sequenceNames.size();
 			}
 		}
 
 		@Override
 		public int getColumnCount() {
-			if (sequenceDB == null) {
+			if (sequenceNames == null) {
 				return 0;
 			} else {
 				return 3;
@@ -449,9 +483,9 @@ public final class RetrievedSequenceDisplayPanel extends JPanel {
 
 		@Override
 		public Object getValueAt(int rowIndex, int columnIndex) {
-			Object sequence = sequenceDB.get(rowIndex);
+			String sequenceName = sequenceNames.get(rowIndex);
 			RetrievedSequenceView retrievedSequenceView = retrievedMap
-					.get(sequence.toString());
+					.get(sequenceName);
 			if (retrievedSequenceView == null) {
 				return null;
 			}
@@ -460,15 +494,15 @@ public final class RetrievedSequenceDisplayPanel extends JPanel {
 				return retrievedSequenceView.isIncluded();
 			case 1:
 				if (sequenceDB.isDNA()) {
-					return sequence.toString();
+					return sequenceName;
 				} else {
 					return "<html><<font  color=\"#0000FF\"><u>"
-							+ sequence.toString() + "</u></font>";
+							+ sequenceName + "</u></font>";
 				}
 			case 2:
 				return retrievedSequenceView;
 			default:
-				return sequence.toString();
+				return sequenceName;
 			}
 		}
 
@@ -499,10 +533,10 @@ public final class RetrievedSequenceDisplayPanel extends JPanel {
 		 */
 		@Override
 		public void setValueAt(Object value, int row, int col) {
-			Object sequence = sequenceDB.get(row);
-			if (sequence != null) {
+			String sequenceName = sequenceNames.get(row);
+			if (sequenceName != null) {
 				RetrievedSequenceView retrievedSequenceView = retrievedMap
-						.get(sequence.toString());
+						.get(sequenceName);
 				if (value != null) {
 					retrievedSequenceView.setIncluded(((Boolean) value)
 							.booleanValue());
@@ -511,5 +545,9 @@ public final class RetrievedSequenceDisplayPanel extends JPanel {
 			fireTableCellUpdated(row, col);
 		}
 
+	}
+
+	public void refreshSequenceNameList(boolean hideDuplicate) {
+		model.refreshSequenceNameList(hideDuplicate);
 	}
 }
