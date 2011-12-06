@@ -73,9 +73,13 @@ public class Constants  {
 	
 	public static final String  PHOSPHATASE= "Phosphatase";
 
-	public static final String SIF_FORMART = "sif format";
-	public static final String ADJ_FORMART = "adj format";
-	public static final String GENE_NAME = "gene name";
-	public static final String GENE_ID = "gene id";
-
+	public static final String SIF_FORMAT = "sif format";
+	public static final String ADJ_FORMAT = "adj format";	 
+	public static final String GENE_SYMBOL_ONLY = "Gene Symbol Only";
+	public static final String GENE_SYMBOL_PREFERRED = "Gene Symbol Preferred";
+	public static final String ENTREZ_ID_ONLY = "Entrez ID Only";
+	public static final String ENTREZ_ID_PREFERRED = "Entrez ID Preferred";
+	public static final String PROJECT = "project ";
+	public static final String FILE = "file";
+	
 }
