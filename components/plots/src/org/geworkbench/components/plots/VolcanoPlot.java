@@ -10,6 +10,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -136,6 +137,10 @@ public class VolcanoPlot implements VisualPlugin {
             	return unknown;
             }
         }
+
+		public void sort() {
+			Collections.sort(markers);
+		}
     }
 
     private JPanel mainPanel;
@@ -324,6 +329,7 @@ public class VolcanoPlot implements VisualPlugin {
                 worker.setCurrentProgress(numMarkers + i);
             }
         }
+        toolTipGenerator.sort();
 
         // Fix underflow values
         for (Integer fixIndex : underflowLocations) {
