@@ -1038,7 +1038,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 		
 		JDialog exportDialog = new JDialog();
 		exportDialog.setTitle("Export selected interactome");
-		ExportSelectionPanel exportPanel = new ExportSelectionPanel(exportDialog, context, version, networkSelectedInteractionTypes);
+		ExportSelectionPanel exportPanel = new ExportSelectionPanel(c,  exportDialog, context, version, networkSelectedInteractionTypes, isNetworkJCheckBox1Selected());
 		 
 		exportDialog.add(exportPanel);
 		exportDialog.setModal(true);
