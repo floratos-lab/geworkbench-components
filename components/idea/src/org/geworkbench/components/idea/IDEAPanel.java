@@ -97,9 +97,12 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 	
 	private DSPanel<DSMicroarray> selectorPanelOfArrays;
 	private DSMicroarraySet maSet=null;
-	private boolean firstRunFlag;	
+	private boolean firstRunFlag;
+	private AdjacencyMatrixDataSet selectedAdjSet=null;
+	private IDEAAnalysis analysis;
 	
-	public IDEAPanel() {
+	public IDEAPanel(IDEAAnalysis analysis) {
+		this.analysis= analysis;
 		try {
 			init();
 		} catch (Exception e) {
@@ -452,7 +455,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 	}
 	
 	//prepare networkList and ideaNetwork from project adjacencyMatrix
-	private void getNetworkFromProject(AdjacencyMatrixDataSet adjDataSet){
+	public boolean getNetworkFromProject(AdjacencyMatrixDataSet adjDataSet){
 		ideaNetwork = new ArrayList<IdeaNetworkEdge>();		
 		NodeType nt=adjDataSet.getMatrix().getEdges().get(0).node1.getNodeType();
 		if(nt.equals(NodeType.PROBESET_ID)||nt.equals(NodeType.MARKER)){
@@ -470,7 +473,13 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 				}
 				if (newEdge){
 					ideaNetwork.add(anEdge);					
-				}				
+				}
+				if (analysis.stopAlgorithm) {
+					analysis.stop();
+					return false;
+				}
+				
+				
 			}
 		}
 		else if(nt.equals(NodeType.STRING)){
@@ -546,7 +555,9 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 		log.debug("network size is "+ideaNetwork.size());
 		for(IdeaNetworkEdge ie:ideaNetwork){			
 			networkList.add(ie.getGene1()+"\t"+ie.getGene2()+"\t1"+"\t0"+"\t0");
-		}		
+		}
+		
+		return true;
 	}
 	
 	public void includeLoadPressed(){
@@ -730,6 +741,10 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 		   return (String)networkMatrix.getSelectedItem();
 	}
 	
+	public AdjacencyMatrixDataSet getSelectedAdjSet(){
+		return selectedAdjSet;
+	}
+	
 	public void setSelectedAdjMatrix(String datasetName)
 	{		 
 		networkMatrix.getModel().setSelectedItem(datasetName);
@@ -769,8 +784,8 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 	
 	public boolean chooseNetworkFromSet(String setLabel){
 		for (AdjacencyMatrixDataSet adjSet : adjacencymatrixDataSets) {
-			if (adjSet.getLabel() == setLabel){				
-				getNetworkFromProject(adjSet);
+			if (adjSet.getLabel() == setLabel){
+				selectedAdjSet=adjSet;				
 				return true;
 			}
 		}

@@ -60,7 +60,7 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 
 	private static Log log = LogFactory.getLog(IDEAAnalysis.class);
 
-	private IDEAPanel IDEAAnalysisPanel = new IDEAPanel();	
+	private IDEAPanel IDEAAnalysisPanel = new IDEAPanel(this);	
 	
 	private String[] nullDataAsString;
 	
@@ -69,6 +69,7 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 	private static final String CHROMO_LOCATION="Chromosomal Location";
 	private static final String ENTREZ_GENE="Entrez Gene";	
 	private ProgressBar pbIdea = null;
+	private ProgressBar pbPrepare = null;
 	
 	public IDEAAnalysis() {
 		setDefaultPanel(IDEAAnalysisPanel);
@@ -524,7 +525,10 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 	
 	
 	public void stop(){
-		pbIdea.dispose();
+		if (pbIdea!=null)
+			pbIdea.dispose();
+		if (pbPrepare!=null)
+			pbPrepare.dispose();
 	}
 
 	@Override
@@ -579,10 +583,6 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 		IDEAPanel params = (IDEAPanel) aspp;
 		Phenotype phenotype = params.getPhenotype();		
 		
-		if (params.getNetwork()== null) {
-			return new ParamValidationResults(false,
-					"Please load networks.");
-		}
 		if ((params.getIncludeString().equals(""))||(params.getIncludeString().equals(" "))) {
 			return new ParamValidationResults(false,
 					"Phenotype include text field is required.");
@@ -611,13 +611,29 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 					"IDEA analysis needs annotation file. Please load it first.");
 		}
 		
-		ProgressBar pbPrepare = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
+		pbPrepare = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
 		pbPrepare.addObserver(this);
 		pbPrepare.setTitle("Data Preparation");		
 		pbPrepare.setMessage("Preparing data for calculation...");
 		pbPrepare.start();
 		
 		this.stopAlgorithm = false;
+		
+		AdjacencyMatrixDataSet selectedAdjSet=IDEAAnalysisPanel.getSelectedAdjSet();
+		if ((selectedAdjSet!=null)&&(IDEAAnalysisPanel.getSelectedAdjMatrix()!=" ")){
+		  if(!IDEAAnalysisPanel.getNetworkFromProject(selectedAdjSet)){
+			  pbPrepare.dispose();
+			  return new ParamValidationResults(false,
+				"Preparing data aborted.");
+		  }
+		}
+		
+		if (params.getNetwork()== null) {
+			pbPrepare.dispose();
+			return new ParamValidationResults(false,
+					"Please load networks.");
+		}		
+		
 		String annoFile=maSet.getAnnotationFileName();
 		ArrayList<String> nullDataList;		
 			FileReader filereader;				
