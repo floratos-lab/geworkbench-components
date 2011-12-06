@@ -99,10 +99,8 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 	private DSMicroarraySet maSet=null;
 	private boolean firstRunFlag;
 	private AdjacencyMatrixDataSet selectedAdjSet=null;
-	private IDEAAnalysis analysis;
 	
-	public IDEAPanel(IDEAAnalysis analysis) {
-		this.analysis= analysis;
+	public IDEAPanel() {
 		try {
 			init();
 		} catch (Exception e) {
@@ -459,27 +457,17 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 		ideaNetwork = new ArrayList<IdeaNetworkEdge>();		
 		NodeType nt=adjDataSet.getMatrix().getEdges().get(0).node1.getNodeType();
 		if(nt.equals(NodeType.PROBESET_ID)||nt.equals(NodeType.MARKER)){
-			for(Edge ed:adjDataSet.getMatrix().getEdges()){
-				
+			Set<IdeaNetworkEdge> set = new HashSet<IdeaNetworkEdge>();
+			for(Edge ed:adjDataSet.getMatrix().getEdges()) {
 				int i1=ed.node1.getMarker().getGeneId();
 				int i2=ed.node2.getMarker().getGeneId();
 				IdeaNetworkEdge anEdge=new IdeaNetworkEdge(i1,i2);
-				boolean newEdge=true;
-				for(IdeaNetworkEdge ie:ideaNetwork){
-					if(ie.compareTo(anEdge)==0){
-						newEdge=false;
-						break;
-					}				
+				if(!set.contains(anEdge)) {
+					set.add(anEdge);
 				}
-				if (newEdge){
-					ideaNetwork.add(anEdge);					
-				}
-				if (analysis.stopAlgorithm) {
-					analysis.stop();
-					return false;
-				}
-				
-				
+			}
+			for(IdeaNetworkEdge anEdge : set) {
+				ideaNetwork.add(anEdge);					
 			}
 		}
 		else if(nt.equals(NodeType.STRING)){
@@ -540,7 +528,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 								entrez1.get(i), entrez2.get(j));
 						boolean newEdge = true;
 						for (IdeaNetworkEdge ie : ideaNetwork) {
-							if (ie.compareTo(anEdge) == 0) {
+							if (ie.equals(anEdge)) {
 								newEdge = false;
 								break;
 							}

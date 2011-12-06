@@ -60,7 +60,7 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 
 	private static Log log = LogFactory.getLog(IDEAAnalysis.class);
 
-	private IDEAPanel IDEAAnalysisPanel = new IDEAPanel(this);	
+	private IDEAPanel IDEAAnalysisPanel = new IDEAPanel();	
 	
 	private String[] nullDataAsString;
 	

@@ -10,7 +10,7 @@ import org.geworkbench.bison.datastructure.bioobjects.IdeaEdge.InteractionType;
  * @author zji
  * @version $Id$
  */
-public class IdeaNetworkEdge implements Serializable, Comparable<IdeaNetworkEdge>{
+public class IdeaNetworkEdge implements Serializable {
 	
 	private static final long serialVersionUID = -5741396026577511626L;
 	final int geneId1;
@@ -51,12 +51,26 @@ public class IdeaNetworkEdge implements Serializable, Comparable<IdeaNetworkEdge
 	}
 
 	@Override
-	public int compareTo(IdeaNetworkEdge o) {
-		if(((this.geneId1==o.getGene1())&&(this.geneId2==o.getGene2()))||((this.geneId1==o.getGene2())&&(this.geneId2==o.getGene1()))){
-			return 0;
+	public boolean equals(Object obj) {
+		if(! (obj instanceof IdeaNetworkEdge) ) {
+			return false;
 		}
-		else return 1;
+		IdeaNetworkEdge edge = (IdeaNetworkEdge)obj;
+		if(geneId1==edge.getGene1() && geneId2==edge.getGene2()) {
+			return true;
+		} else if(geneId1==edge.getGene1() && geneId2==edge.getGene2()) {
+			return true;
+		} else {
+			return false;
+		}
+		
 	}
 
-	
+	@Override
+	public int hashCode() {
+		int hash = 17;
+		hash = 31 * hash + geneId1;
+		hash = 31 * hash + geneId1;
+		return hash;
+	}
 }
