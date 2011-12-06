@@ -30,7 +30,7 @@ public final class RetrievedSequencesPanel extends SequenceViewWidget {
 
     private DSSequence selectedSequence = null;
 
-	private JCheckBox checkBoxHideDuplicate = new JCheckBox("Show only unique Tx start sites", true);
+	private JCheckBox checkBoxHideDuplicate = new JCheckBox("Show only unique transcript-start sites", true);
 
     public RetrievedSequencesPanel() {
         try {
