@@ -93,16 +93,7 @@ public class NullDistribution {
 				
 				double[] x=maSet.getRow(ideaEdge.getMarker1());
 				double[] y=maSet.getRow(ideaEdge.getMarker2());	
-				/*
-				double[] xx=new double[noExcludeList.length];
-				double[] yy=new double[noExcludeList.length];
-				for(int i=0;i<noExcludeList.length;i++)	{
-						xx[i]=x[noExcludeList[i]];
-					}
-				for(int i=0;i<noExcludeList.length;i++)	{
-					yy[i]=y[noExcludeList[i]];
-				}
-				*/
+				
 				MutualInfo mutual = MutualInfo.getInstance(x.length);
 				// save MI value to the edge
 				ideaEdge.setMI(mutual.cacuMutualInfo(x, y)); 
