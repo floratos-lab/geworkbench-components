@@ -8,15 +8,11 @@ package org.geworkbench.components.masterregulator;
  * @version $Id$
  * 
  */
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.Expression;
@@ -28,12 +24,12 @@ import java.util.Arrays;
 import java.util.Enumeration;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -83,7 +79,7 @@ public class TableViewer extends JPanel {
 		table = new JTable(model);
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.getTableHeader().addMouseListener(new TableHeaderMouseListener());
-		table.addMouseListener(new TableMouseListener());
+
 		// table.getColumnModel().getColumn(0).setCellRenderer(new
 		// CellRenderer());
 		// table.getColumnModel().getColumn(1).setCellRenderer(new
@@ -93,12 +89,22 @@ public class TableViewer extends JPanel {
 			columns.nextElement().setCellRenderer(new CellRenderer());
 			Thread.yield();
 		}
-		pane = new JScrollPane(table);
 
-		this.setLayout(new GridBagLayout());
-		add(pane, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0,
-				GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(
-						0, 0, 0, 0), 0, 0));
+		pane = new JScrollPane(table);
+		JButton exportButton = new JButton("Export table");
+		exportButton.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				if (table.getRowCount() > 0)
+					exportTableData();
+			}
+		});
+
+		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+		add(exportButton);
+		add(pane);
+		this.setAlignmentX(LEFT_ALIGNMENT);
+
 	}
 
 	public Expression getExpression() {
@@ -389,7 +395,8 @@ public class TableViewer extends JPanel {
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @see javax.swing.table.DefaultTableCellRenderer#setValue(java.lang.Object)
+		 * @see
+		 * javax.swing.table.DefaultTableCellRenderer#setValue(java.lang.Object)
 		 */
 		public void setValue(Object value) {
 			if ((value != null)
@@ -426,100 +433,69 @@ public class TableViewer extends JPanel {
 		}
 	}
 
-	public class TableMouseListener extends MouseAdapter {
+	private void exportTableData() {
 
-		 
-		public void mouseReleased(MouseEvent e) {
-			showPopup(e);
-		}
+		try {
+			String exportFileStr = "exportTable.csv";
+			PropertiesManager properties = PropertiesManager.getInstance();
+			String exportDir = properties.getProperty(this.getClass(),
+					EXPORTDIR, exportFileStr);
+			File exportFile = new File(exportDir);
+			OWFileChooser chooser = new OWFileChooser(exportFile);
+			CSVFileFilter filter = new CSVFileFilter();
+			chooser.setFileFilter(filter);
+			chooser.setDialogTitle("Export MRA Table Results");
+			String extension = filter.getExtension();
+			int c = chooser.showSaveDialog(table);
+			if (c == OWFileChooser.APPROVE_OPTION
+					&& chooser.getSelectedFile() != null) {
+				exportFileStr = chooser.getSelectedFile().getPath();
+				properties.setProperty(this.getClass(), EXPORTDIR, chooser
+						.getSelectedFile().getParent());
+				if (!exportFileStr.endsWith(extension))
+					exportFileStr += extension;
+				BufferedWriter out = new BufferedWriter(new FileWriter(
+						exportFileStr));
+				// foreach tfA
+				TableModel model = table.getModel();
 
-		private void showPopup(MouseEvent e) {
+				for (int i = 0; i < model.getColumnCount(); i++) {
+					out.write(model.getColumnName(i) + ",");
+				}
+				out.write("\n");
 
-			if (e.isPopupTrigger()) {
+				for (int i = 0; i < model.getRowCount(); i++) {
+					for (int j = 0; j < model.getColumnCount(); j++) {
+						Object obj = model.getValueAt(i, j);
+						if (obj instanceof JRadioButton)
+							obj = ((JRadioButton) obj).getText();
+						else if (obj instanceof JLabel)
+							obj = ((JLabel) (obj)).getText();
+						else if ((obj instanceof Double)
+								|| (obj instanceof Float)) {
+							if (((Number) obj).doubleValue() < 0.1)
+								obj = String.format("%.2E", obj);
+							else
+								obj = String.format("%.2f", obj);
 
-				if (table != null && table.getRowCount() > 0) {
-					// create popup menu...
-					Point p = new Point(e.getX(), e.getY());
-					JPopupMenu contextMenu = new JPopupMenu();
-					JMenuItem itemMenu = new JMenuItem();
-					itemMenu.setText("Export Table");
-					itemMenu.addActionListener(new ActionListener() {
-						public void actionPerformed(ActionEvent e) {
-							exportTableData();
+						} else if (obj instanceof Integer) {
+							obj = String.valueOf(obj);
 						}
 
-					});
-					contextMenu.add(itemMenu);
-					contextMenu.show(table, p.x, p.y);
-
-				}
-			}
-		}
-
-		private void exportTableData() {
-
-			try {
-				String exportFileStr = "exportTable.csv";
-				PropertiesManager properties = PropertiesManager.getInstance();
-				String exportDir = properties.getProperty(this.getClass(),
-						EXPORTDIR, exportFileStr);
-				File exportFile = new File(exportDir);
-				OWFileChooser chooser = new OWFileChooser(exportFile);
-				CSVFileFilter filter = new CSVFileFilter();
-				chooser.setFileFilter(filter);
-				chooser.setDialogTitle("Export MRA Table Results");
-				String extension = filter.getExtension();
-				int c = chooser.showSaveDialog(table);
-				if (c == OWFileChooser.APPROVE_OPTION
-						&& chooser.getSelectedFile() != null) {
-					exportFileStr = chooser.getSelectedFile().getPath();
-					properties.setProperty(this.getClass(), EXPORTDIR, chooser
-							.getSelectedFile().getParent());
-					if (!exportFileStr.endsWith(extension))
-						exportFileStr += extension;
-					BufferedWriter out = new BufferedWriter(new FileWriter(
-							exportFileStr));
-					// foreach tfA
-					TableModel model = table.getModel();
-
-					for (int i = 0; i < model.getColumnCount(); i++) {
-						out.write(model.getColumnName(i) + ",");
+						out.write(obj.toString() + ",");
 					}
 					out.write("\n");
-
-					for (int i = 0; i < model.getRowCount(); i++) {
-						for (int j = 0; j < model.getColumnCount(); j++) {
-							Object obj = model.getValueAt(i, j);
-							if (obj instanceof JRadioButton)
-								obj = ((JRadioButton) obj).getText();
-							else if (obj instanceof JLabel) 
-							   obj = ((JLabel) (obj)).getText();
-							else if ((obj instanceof Double) || (obj instanceof Float)) {
-								if (((Number) obj).doubleValue() < 0.1)
-									obj = String.format("%.2E", obj);
-								else
-									obj = String.format("%.2f", obj);
-								
-							} else if (obj instanceof Integer) {
-								obj = String.valueOf(obj);
-							}
-							 
-							out.write(obj.toString() + ",");
-						}
-						out.write("\n");
-					}
-
-					out.close();
-					JOptionPane.showMessageDialog(null, "File " + exportFileStr
-							+ " has been saved.", "File saved.",
-							JOptionPane.INFORMATION_MESSAGE);
-				} else {
-					// user canceled
 				}
-			} catch (IOException ioe) {
-				log.error(ioe);
-			}
 
+				out.close();
+				JOptionPane.showMessageDialog(null, "File " + exportFileStr
+						+ " has been saved.", "File saved.",
+						JOptionPane.INFORMATION_MESSAGE);
+			} else {
+				// user canceled
+			}
+		} catch (IOException ioe) {
+			log.error(ioe);
 		}
 
 	}
