@@ -469,15 +469,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 			for(IdeaNetworkEdge anEdge : set) {
 				ideaNetwork.add(anEdge);					
 			}
-		}
-		else if(nt.equals(NodeType.STRING)){
-			for(Edge ed:adjDataSet.getMatrix().getEdges()){
-				String s=ed.node1.getStringId();				
-				int i1=Integer.parseInt(s);
-				int i2=Integer.parseInt(ed.node2.getStringId());
-				System.out.println(i1+":"+i2);
-			}
-		}
+		}		
 		else if (nt.equals(NodeType.GENE_SYMBOL)) {
 		// FIXME this is a temporary solution to make the gene symbol node works
 		// both the design and the implementation should be carefully reviewed and probably redone later

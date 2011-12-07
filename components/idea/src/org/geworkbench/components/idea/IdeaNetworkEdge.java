@@ -58,7 +58,7 @@ public class IdeaNetworkEdge implements Serializable {
 		IdeaNetworkEdge edge = (IdeaNetworkEdge)obj;
 		if(geneId1==edge.getGene1() && geneId2==edge.getGene2()) {
 			return true;
-		} else if(geneId1==edge.getGene1() && geneId2==edge.getGene2()) {
+		} else if(geneId1==edge.getGene2() && geneId2==edge.getGene1()) {
 			return true;
 		} else {
 			return false;
@@ -69,8 +69,7 @@ public class IdeaNetworkEdge implements Serializable {
 	@Override
 	public int hashCode() {
 		int hash = 17;
-		hash = 31 * hash + geneId1;
-		hash = 31 * hash + geneId1;
+		hash = 31 * hash + geneId1;		
 		return hash;
 	}
 }
