@@ -1,14 +1,20 @@
 package org.geworkbench.components.matrixreduce;
 
-import org.geworkbench.bison.datastructure.complex.pattern.matrix.DSPositionSpecificAffintyMatrix;
-
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import java.awt.font.FontRenderContext;
 import java.awt.font.LineMetrics;
 import java.awt.geom.Line2D;
-import java.awt.geom.Rectangle2D;
+
+import javax.swing.JPanel;
+
+import org.geworkbench.bison.datastructure.complex.pattern.matrix.DSPositionSpecificAffintyMatrix;
 
 /**
  * @author John Watkinson
@@ -51,7 +57,7 @@ public class SequenceGraph extends JPanel {
     private int toolTipLength;
     private MatrixReduceViewer viewer;
 
-    public SequenceGraph(String seq, String label, int maxLength, MatrixReduceViewer viewer) {
+    public SequenceGraph(final String seq, final String label, final int maxLength, final MatrixReduceViewer viewer) {
         super(true);
         this.label = label;
         this.viewer = viewer;
@@ -74,33 +80,9 @@ public class SequenceGraph extends JPanel {
             }
         }
         this.maxLength = maxLength;
-        n = sequence.length;
+
         posScores = new float[n];
         negScores = new float[n];
-    }
-
-    public static Font getSizedFont(FontRenderContext context, Font template, double width, double maxHeight) {
-        Rectangle2D bounds = template.getMaxCharBounds(context);
-        double ratio = width / bounds.getWidth();
-        float originalSize = template.getSize2D();
-        float newSize = (float) (originalSize * ratio);
-        // return template.deriveFont(Font.PLAIN, (int)newSize);
-        Font result = template.deriveFont(template.getStyle(), newSize);
-        if (result.getMaxCharBounds(context).getHeight() > maxHeight) {
-            ratio = maxHeight / bounds.getHeight();
-            newSize = (float) (originalSize * ratio);
-            return template.deriveFont(template.getStyle(), newSize);
-        } else {
-            return result;
-        }
-    }
-
-    public void clearScores(boolean forward) {
-        if (forward) {
-            posScores = new float[n];
-        } else {
-            negScores = new float[n];
-        }
     }
 
     public void createScores(DSPositionSpecificAffintyMatrix psam, boolean forward) {
@@ -184,17 +166,14 @@ public class SequenceGraph extends JPanel {
     public void paint(Graphics g1d) {
         Graphics2D g = (Graphics2D) g1d;
         g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-//        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
         int width = getWidth() - LABEL_WIDTH - 4;
         componentWidth = width;
         float charWidth = ((float) width) / maxLength;
         FontRenderContext fontRenderContext = g.getFontRenderContext();
-//        Font font = getSizedFont(fontRenderContext, DEFAULT_FONT, charWidth, MAX_FONT_SIZE);
-//        font = DEFAULT_FONT.deriveFont(5f);
-//        g.setFont(font);
-//        float fontHeight = (float) font.getMaxCharBounds(fontRenderContext).getHeight() + 1;
+
         int centerLine = HEIGHT / 2;
-        // todo - size font appropriately
+
         Font font = DEFAULT_FONT;
         LineMetrics line = font.getLineMetrics(label, fontRenderContext);
         float textWidth = (float) font.getStringBounds(label, fontRenderContext).getWidth();
@@ -257,8 +236,32 @@ public class SequenceGraph extends JPanel {
                 }
             }
         }
-//        g.setColor(Color.GRAY);
-//        g.draw(new Line2D.Float(0, centerLine - halfHeight - 1, width, centerLine - halfHeight - 1));
-//        g.draw(new Line2D.Float(0, centerLine + halfHeight + 1, width, centerLine + halfHeight + 1));
     }
+
+	public void updateSequence(final String seq, final String label,
+			final int maxLength) {
+		this.label = label;
+		// Convert sequence in to indices
+		n = seq.length();
+		sequence = new int[n];
+		for (int i = 0; i < n; i++) {
+			switch (seq.charAt(i)) {
+			case 'A':
+				sequence[i] = 0;
+				break;
+			case 'C':
+				sequence[i] = 1;
+				break;
+			case 'G':
+				sequence[i] = 2;
+				break;
+			default:
+				sequence[i] = 3;
+			}
+		}
+		this.maxLength = maxLength;
+
+		posScores = new float[n];
+		negScores = new float[n];
+	}
 }
