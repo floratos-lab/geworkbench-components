@@ -79,15 +79,15 @@ public class MatrixReduceViewer implements VisualPlugin {
 		FORWARD, BACKWARD, BOTH
 	}
 
-	public static final int IMAGE_HEIGHT = 100;
+	private static final int IMAGE_HEIGHT = 100;
 
-	public static final int IMAGE_WIDTH = 200;
+	private static final int IMAGE_WIDTH = 200;
 
 	private static final int TAB_SEQUENCE = 1;
 
 	private JTabbedPane tabPane;
 
-	private JPanel psamPanel, sequencePanel;
+	private JPanel sequencePanel;
 
 	private DSMatrixReduceSet dataSet = null;
 
@@ -95,9 +95,9 @@ public class MatrixReduceViewer implements VisualPlugin {
 
 	private boolean imageMode = true;
 
-	private TableModel model;
+	private final TableModel model;
 
-	private ExpTableModel expModel;
+	private final ExpTableModel expModel;
 
 	private JTable table, expsTable;
 
@@ -113,13 +113,10 @@ public class MatrixReduceViewer implements VisualPlugin {
 
 	private ArrayList<String> selectedSequences, consensusSequences;
 
-	private ListModel sequenceModel;
+	private final ListModel sequenceModel;
 
-	private ConsensusModel consensusModel;
+	private final ConsensusModel consensusModel;
 
-	private int maxSequenceLength = 1;
-
-	// todo - map from string -> graph
 	private HashMap<String, SequenceGraph> graphs = null;
 
 	private boolean showForward = true;
@@ -134,7 +131,7 @@ public class MatrixReduceViewer implements VisualPlugin {
 
 	private JList sequenceList;
 
-	private JComboBox psamList;
+	private final JComboBox psamList;
 
 	private class ListModel extends AbstractListModel {
 		private static final long serialVersionUID = -2759392322276667038L;
@@ -365,7 +362,7 @@ public class MatrixReduceViewer implements VisualPlugin {
 
 	public MatrixReduceViewer() {
 		tabPane = new JTabbedPane();
-		psamPanel = new JPanel(new BorderLayout());
+		JPanel psamPanel = new JPanel(new BorderLayout());
 		sequencePanel = new JPanel(new BorderLayout());
 		tabPane.add("PSAM Detail", psamPanel);
 		tabPane.add("Sequence", sequencePanel);
@@ -593,12 +590,6 @@ public class MatrixReduceViewer implements VisualPlugin {
 	
 	private static int MAX_PIXEL_MB = 100;
 
-	/*
-	 * public void createImageSnapshot(){ System.out.println("blaa;dlfjk");
-	 * SequenceGraph sg = graphs.get(selectedSequences.get(0));
-	 * java.awt.Dimension dim = sg.getMaximumSize(); System.out.print(
-	 * dim.height); for (int i = 0; i < selectedSequences.size(); i++){ }
-	 */
 	@Publish
 	public org.geworkbench.events.ImageSnapshotEvent createImageSnapshot() {
 		org.geworkbench.events.ImageSnapshotEvent event = null;
@@ -745,58 +736,67 @@ public class MatrixReduceViewer implements VisualPlugin {
 	@Subscribe
 	public void receive(ProjectEvent projectEvent, Object source) {
 		DSDataSet<?> data = projectEvent.getDataSet();
-		if ((data != null) && (data instanceof DSMatrixReduceSet)) {
-			dataSet = ((DSMatrixReduceSet) data);
-			model.fireTableStructureChanged();
-			exps = dataSet.getMatrixReduceExperiments();
-			if ((dataSet.size() > 0) && (exps != null) && (exps.size() > 0)) {
-				currentPSAM = 0;
-				table.setRowSelectionInterval(0, 0);
-				expModel.fireTableStructureChanged();
-			}
-			sequences = dataSet.getSequences();
-			int n = sequences.size();
-			maxSequenceLength = 1;
-			for (String s : ((Collection<String>) sequences.values())) {
-				if (s.length() > maxSequenceLength) {
-					maxSequenceLength = s.length();
-				}
-			}
-			// Unregister tooltips
-			if (graphs != null) {
-				for (SequenceGraph graph : graphs.values()) {
-					if (graph != null) {
-						ToolTipManager.sharedInstance().unregisterComponent(
-								graph);
-					}
-				}
-			}
-			graphs = new HashMap<String, SequenceGraph>();
-			for (int i = 0; i < n; i++) {
-				String label = sequences.get(i);
-				String sequence = sequences.get(label);
-				SequenceGraph graph = new SequenceGraph(sequence, label,
-						maxSequenceLength, this);
-				ToolTipManager.sharedInstance().registerComponent(graph);
-				graphs.put(label, graph);
-			}
-			selectedPSAM = 0;
-			updateGraphs();
-			doFilter();
-			sequenceModel.fireContentsChanged();
+		if (!(data instanceof DSMatrixReduceSet)) {
+			return;
+		}
 
-			consensusSequences = new ArrayList<String>(dataSet.size());
-			for (int i = 0; i < dataSet.size(); i++) {
-				consensusSequences.add(dataSet.get(i).getConsensusSequence());
+		dataSet = ((DSMatrixReduceSet) data);
+		model.fireTableStructureChanged();
+		exps = dataSet.getMatrixReduceExperiments();
+		if ((dataSet.size() > 0) && (exps != null) && (exps.size() > 0)) {
+			currentPSAM = 0;
+			table.setRowSelectionInterval(0, 0);
+			expModel.fireTableStructureChanged();
+		}
+		sequences = dataSet.getSequences();
+		int n = sequences.size();
+		int maxSequenceLength = 1;
+		for (String s : ((Collection<String>) sequences.values())) {
+			if (s.length() > maxSequenceLength) {
+				maxSequenceLength = s.length();
 			}
-			if (consensusSequences.size() > 0) {
-				consensusModel.fireContentsChanged();
-				psamList.setSelectedIndex(0);
+		}
+		// Unregister tooltips
+		if (graphs != null) {
+			for (SequenceGraph graph : graphs.values()) {
+				if (graph != null) {
+					ToolTipManager.sharedInstance().unregisterComponent(graph);
+				}
 			}
+		} else {
+			graphs = new HashMap<String, SequenceGraph>();
+		}
+
+		for (int i = 0; i < n; i++) {
+			String label = sequences.get(i);
+			String sequence = sequences.get(label);
+			SequenceGraph graph = graphs.get(label);
+			if(graph==null) {
+				graph = new SequenceGraph(sequence, label,
+						maxSequenceLength, this);
+				graphs.put(label, graph);
+			} else {
+				graph.updateSequence(sequence, label,
+						maxSequenceLength);
+			}
+			ToolTipManager.sharedInstance().registerComponent(graph);
+		}
+		selectedPSAM = 0;
+		updateGraphs();
+		doFilter();
+		sequenceModel.fireContentsChanged();
+
+		consensusSequences = new ArrayList<String>(dataSet.size());
+		for (int i = 0; i < dataSet.size(); i++) {
+			consensusSequences.add(dataSet.get(i).getConsensusSequence());
+		}
+		if (consensusSequences.size() > 0) {
+			consensusModel.fireContentsChanged();
+			psamList.setSelectedIndex(0);
 		}
 	}
 
-	private ImageIcon getPsamImage(double[][] scores){
+	private static ImageIcon getPsamImage(double[][] scores){
 		PSAMPlot psamPlot = new PSAMPlot(
 				convertScoresToWeights(scores));
 		psamPlot.setMaintainProportions(false);
