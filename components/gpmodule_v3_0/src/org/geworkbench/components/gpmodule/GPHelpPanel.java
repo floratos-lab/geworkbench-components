@@ -141,7 +141,7 @@ public class GPHelpPanel extends JSplitPane
         this.setBorder(BorderFactory.createEmptyBorder());
     }
 
-    protected void initParamDescPanel()
+    private void initParamDescPanel()
     {
         paramDescPanel = new JScrollPane();
 
