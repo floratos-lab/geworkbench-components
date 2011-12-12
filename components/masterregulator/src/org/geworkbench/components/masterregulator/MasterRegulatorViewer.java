@@ -67,8 +67,10 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 	TableViewer tv2;
 	String[] columnNames = { "Master Regulator", "FET P-Value", "Genes in regulon",
 			"Genes in intersection set" };
+	// for label with -log10 etc, need to do something so Excel does not interpret it as a formula...
+	// Here use leading space.
 	String[] detailColumnNames = { "Genes in intersection set",
-			"-log10(P-value) * sign of t-value" };
+			" -log10(P-value) * sign of t-value" };
 	DSMasterRagulatorResultSet<DSGeneMarker> MRAResultSet;
 	DetailedTFGraphViewer detailedTFGraphViewer;
 	boolean useSymbol = true;
@@ -140,7 +142,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		// end of symbol and probe set
 
 		// export part
-		JButton exportAllButton = new JButton("Export all");
+		JButton exportAllButton = new JButton("Export all targets");
 		exportAllButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -152,7 +154,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 					OWFileChooser chooser = new OWFileChooser(exportFile);
 					CSVFileFilter filter = new CSVFileFilter();
 					chooser.setFileFilter(filter);
-					chooser.setDialogTitle("Export All MRA Results");
+					chooser.setDialogTitle("Export All MRA Target Results");
 					String extension = filter.getExtension();
 					int c = chooser.showSaveDialog(MasterRegulatorViewer.this);
 					if (c == OWFileChooser.APPROVE_OPTION && chooser.getSelectedFile() != null) {
@@ -199,7 +201,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		headerBuilder.append(exportAllButton);
 
 		// export selected button and function
-		JButton exportSelectedButton = new JButton("Export selected");
+		JButton exportSelectedButton = new JButton("Export selected targets ");
 		exportSelectedButton
 				.addActionListener(new java.awt.event.ActionListener() {
 					public void actionPerformed(ActionEvent e) {
@@ -213,7 +215,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 										exportFile);
 								CSVFileFilter filter = new CSVFileFilter();
 								chooser.setFileFilter(filter);
-								chooser.setDialogTitle("Export Selected MRA Results");
+								chooser.setDialogTitle("Export Selected MRA Target Results");
 								String extension = filter.getExtension();
 								int c = chooser
 										.showSaveDialog(MasterRegulatorViewer.this);
@@ -269,7 +271,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		headerBuilder.append(exportSelectedButton);
 
 		// add to set button and function
-		JButton addToSetButton = new JButton("Add to set");
+		JButton addToSetButton = new JButton("Add targets to set");
 		addToSetButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (detailedTFGraphViewer.tfA == null)
