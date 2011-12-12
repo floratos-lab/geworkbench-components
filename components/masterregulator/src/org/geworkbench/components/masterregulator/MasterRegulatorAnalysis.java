@@ -269,6 +269,7 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
 				"MRA Genes", "MRA");
 		
 		selectedMarkers.addAll(mraResultSet.getTFs());
+		mraResultSet.setDescription("# of master regulators (MRA): "+selectedMarkers.size());
 
 		publishSubpanelChangedEvent(new SubpanelChangedEvent<DSGeneMarker>(
 				DSGeneMarker.class, selectedMarkers,
