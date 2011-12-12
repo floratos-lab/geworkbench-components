@@ -106,7 +106,6 @@ public class SkyBaseViewer implements VisualPlugin {
 	private static String strScript = "wireframe off; spacefill off; cartoons; color structure;";
 	private JmolPanel jmolPanel = new JmolPanel();
 	private JmolSimpleViewer viewer = jmolPanel.getViewer();
-	private Dimension prefsize1 = new Dimension(800, 200);
 	private Dimension prefsize = new Dimension(770, 210);
 	JLabel seqlb;
 	int cnt = 0;
@@ -337,7 +336,6 @@ public class SkyBaseViewer implements VisualPlugin {
 				table.setModel(ts);
 
 				table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-				table.setPreferredScrollableViewportSize(prefsize1);
 				table.getSelectionModel().addListSelectionListener(
 						new MyListSelectionListener());
 				table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -366,9 +364,6 @@ public class SkyBaseViewer implements VisualPlugin {
 					.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 			sp
 					.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-			sp.setPreferredSize(prefsize1);
-
-			mPanel.add(sp);
 
 			JScrollPane sp2 = new JScrollPane(cp);
 			jp.add(sp2);
@@ -417,6 +412,7 @@ public class SkyBaseViewer implements VisualPlugin {
 			jp.add(jp2);
 
 			mPanel.add(jp);
+			mPanel.add(sp);
 			mPanel.revalidate();
 			mPanel.repaint();
 		}
