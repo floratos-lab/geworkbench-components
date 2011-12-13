@@ -26,7 +26,7 @@ public class SimpleTTest {
     private float[][] expMatrix;
     private int numGenes, numExps;
     private int[] groupAssignments;
-    private DSItemList<? extends DSGeneMarker> item;
+    private DSItemList<DSGeneMarker> item;
 
     public SimpleTTest() {
         maxT = -100;
@@ -48,8 +48,8 @@ public class SimpleTTest {
 
         assert input instanceof DSMicroarraySetView;
 
-		DSMicroarraySetView<? extends DSGeneMarker, ? extends DSMicroarray> data 
-			= (DSMicroarraySetView<? extends DSGeneMarker, ? extends DSMicroarray>) input;
+		DSMicroarraySetView<DSGeneMarker, ? extends DSMicroarray> data 
+			= (DSMicroarraySetView<DSGeneMarker, ? extends DSMicroarray>) input;
 		DSMicroarraySet set = (DSMicroarraySet) data
 				.getDataSet();
 		DSPanel<DSGeneMarker> genes = new CSPanel<DSGeneMarker>("");
@@ -236,8 +236,7 @@ public class SimpleTTest {
         return minT;
     }
 
-    @SuppressWarnings("rawtypes")
-	public DSItemList getItem() {
+	public DSItemList<DSGeneMarker> getItem() {
         return item;
     }
 
