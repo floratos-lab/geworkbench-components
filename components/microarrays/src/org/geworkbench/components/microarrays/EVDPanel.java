@@ -5,8 +5,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.GridLayout;
-import java.awt.Rectangle;
-import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
@@ -30,9 +28,7 @@ import javax.swing.event.ChangeEvent;
 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.engine.management.AcceptTypes;
@@ -74,82 +70,51 @@ import org.jfree.ui.RectangleInsets;
 @AcceptTypes({DSMicroarraySet.class})
 public class EVDPanel extends MicroarrayViewEventBase {
 
+	// constants
+    private final static int DEFAULTBASKETNUM = 99;
+    private final static DecimalFormat myFormatter = new DecimalFormat("0.000");
+    private final static int MAXBINNUM = 200;
+    
+    // jfree.chart
+    private final ChartPanel graph;
     private JFreeChart chart;
-    public static int EVDMODE = 1;
-    public static int TTESTMODE = -1;
+    
+    // Swing
+    private final JToggleButton jTTestBttn;
+    private final JToggleButton jEnabledBox = new JToggleButton();
+
+    private final JSlider jLeftBoundarySlider;
+    private final JSlider jRightBoundarySlider;
+    private final JSlider jBinSizeSlider;
+    
+    private final JLabel jBinSizeLabel = new JLabel("Total bins: 100");
+    private final JCheckBox colorCheck = new JCheckBox("One color per array");
+
+    private final JLabel leftBoundary;
+    private final JLabel rightBoundary;
+    private final JLabel selectedGeneNum;
+    private final JLabel binNumLabel;
+    
+    private JSlider jMASlider;
+
+    // properties
     private double lowValue = 0.0d;
     private double highValue = 0.0d;
     private double maxValue = 0.0d;
     private double minValue = 0.0d;
 
-    private JButton jPrintBttn = new JButton();
+    private int basketNum = DEFAULTBASKETNUM;
+    
+    private double binSize = 0.1d;
+    
+    // others
     private ArrayList<PanelVisualProperties> propertiesList = new ArrayList<
             PanelVisualProperties>();
-    private HistogramPanel hs;
-    private JButton jAddBttn = new JButton();
-    private JToggleButton jTTestBttn;
-
-    private JPanel markerSelectionPanel;
-    private JSlider jLeftBoundarySlider;
-    private JSlider jRightBoundarySlider;
-    private JSlider jBinSizeSlider;
-    private JLabel jBinSizeLabel = new JLabel("100");
-    private JCheckBox colorCheck = new JCheckBox("One color per array");
-
-    private JLabel leftBoundary;
-    private JLabel rightBoundary;
-    private JLabel selectedGeneNum;
-    private JLabel binNumLabel;
-    public final static Shape baseShape = new Rectangle(-6, -6, 6, 6);
-    public final static Color baseColor = Color.ORANGE;
-    private JSlider jMASlider;
-
-    private JToggleButton jEnabledBox;
-    private static int DEFAULTBASKETNUM = 99;
-    private int basketNum = DEFAULTBASKETNUM;
-    private double binSize = 0.1d;
-    private boolean isToolTipEnabled = true;
-    private boolean isColorChecked = false;
-    private JButton imageSnapshotButton;
-    private DecimalFormat myFormatter = new DecimalFormat("0.000");
-    private static int MAXBINNUM = 200;
-    private static int RANGE = 2; //the left and right edge size beyound the min/max values.
-    private ChartPanel graph;
-    private int maxOccurrenceNum = 0;
-
+    private Histogram hs;
+   
     public EVDPanel() {
-        try {
-            jbInit();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
-    private void jbInit() throws Exception {
-        setupGUI();
-        jLeftBoundarySlider.setToolTipText(
-                "Move the slider to change the lower boundary of selected genes expression.");
-        markerSelectionPanel.setBorder(BorderFactory.createLineBorder(Color.
-                black));
-        colorCheck.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				colorCheck_actionPerformed();
-			}
-        	
-        });
-    }
-
-    /**
-     * Add more components to the GUI.
-     */
-
-    public void setupGUI() {
-
-        colorCheck = new JCheckBox("One color per array");
-        jBinSizeLabel = new JLabel("Total bins: 100");
-        jPrintBttn = new JButton();
+        JButton jPrintBttn = new JButton();
         jPrintBttn.setText("Print");
         jPrintBttn.setToolTipText("Print The Chart.");
         jPrintBttn.addActionListener(new ActionListener() {
@@ -162,10 +127,11 @@ public class EVDPanel extends MicroarrayViewEventBase {
         jTTestBttn.setToolTipText("Two-sample TTest Only.");
         jTTestBttn.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                jTTestBttn_actionPerformed(e);
+            	refresh();
             }
         });
-        jAddBttn = new JButton();
+        
+        JButton jAddBttn = new JButton();
         jAddBttn.setText("Add to Set ");
         jAddBttn.setToolTipText("Add to Set.");
         jAddBttn.addActionListener(new java.awt.event.ActionListener() {
@@ -174,7 +140,6 @@ public class EVDPanel extends MicroarrayViewEventBase {
             }
         });
 
-        jEnabledBox = new JToggleButton();
         jEnabledBox.setIcon(new ImageIcon(this.getClass().getResource(
                 "bulb_icon_grey.gif")));
         jEnabledBox.setSelectedIcon(new ImageIcon(this.getClass().getResource(
@@ -184,7 +149,6 @@ public class EVDPanel extends MicroarrayViewEventBase {
                 "Push down to view above graph details with mouse moveover");
         jEnabledBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                isToolTipEnabled = jEnabledBox.isSelected();
                 refresh();
             }
         });
@@ -202,12 +166,12 @@ public class EVDPanel extends MicroarrayViewEventBase {
         jMASlider.setToolTipText("Move the slider to change base microarray");
         jMASlider.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(ChangeEvent e) {
-                chipSlider_stateChanged(e);
+            	refresh();
             }
         });
+        
         jLeftBoundarySlider = new JSlider();
         jLeftBoundarySlider.setValue(0);
-
         jLeftBoundarySlider.setSnapToTicks(true);
         jLeftBoundarySlider.setPaintTicks(true);
         jLeftBoundarySlider.setMinorTickSpacing(1);
@@ -221,11 +185,10 @@ public class EVDPanel extends MicroarrayViewEventBase {
             }
         });
         jLeftBoundarySlider.setToolTipText(
-                "Move the slider to change the low boundary of selected genes");
+                "Move the slider to change the lower boundary of selected genes expression.");
 
         jRightBoundarySlider = new JSlider();
         jRightBoundarySlider.setValue(0);
-
         jRightBoundarySlider.setSnapToTicks(true);
         jRightBoundarySlider.setPaintTicks(true);
         jRightBoundarySlider.setMinorTickSpacing(1);
@@ -256,12 +219,13 @@ public class EVDPanel extends MicroarrayViewEventBase {
             }
         });
         controlPanel.add(jBinSizeSlider);
-       //leftBoundary = new JTextField("0.00");
+        
         leftBoundary = new JLabel("0.00");
         rightBoundary = new JLabel("0.00");
         selectedGeneNum = new JLabel("Selected genes: 0");
         binNumLabel = new JLabel("Bin size:   0.1");
-        markerSelectionPanel = new JPanel();
+        
+        JPanel markerSelectionPanel = new JPanel();
         JPanel leftTopPanel = new JPanel();
         leftTopPanel.setLayout(new GridLayout(2, 1));
         JPanel middleTopPanel = new JPanel(new GridLayout(2, 3));
@@ -292,12 +256,14 @@ public class EVDPanel extends MicroarrayViewEventBase {
         mainPane.setOneTouchExpandable(true);
         mainPanel.add(controlPanel, BorderLayout.WEST);
         mainPanel.add(markerSelectionPanel, BorderLayout.NORTH);
-        imageSnapshotButton = new JButton("Image Snapshot");
+        JButton imageSnapshotButton = new JButton("Image Snapshot");
         imageSnapshotButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 createImageSnapshot();
             }
         });
+        
+        // the bottom toolbar
         jToolBar3.add(colorCheck);
         jToolBar3.add(jMASlider);
         jToolBar3.add(jEnabledBox);
@@ -307,7 +273,7 @@ public class EVDPanel extends MicroarrayViewEventBase {
 
         chart = ChartFactory.createXYLineChart("EVD", "Value", "Occurrences", null,
                 PlotOrientation.VERTICAL, true,
-                isToolTipEnabled, true); // Title,  X-Axis label,  Y-Axis label,  Dataset,  Show legend, show ToolTips
+                true, true); // Title,  X-Axis label,  Y-Axis label,  Dataset,  orientation, Show legend, show ToolTips, urls
 
         graph = new ChartPanel(chart, true);
         XYPlot newPlot = (XYPlot) chart.getPlot();
@@ -318,17 +284,32 @@ public class EVDPanel extends MicroarrayViewEventBase {
         mainPanel.add(graph, BorderLayout.CENTER);
         chkAllMarkers.setSelected(false);
         chkAllArrays.setSelected(false);
+
+        markerSelectionPanel.setBorder(BorderFactory.createLineBorder(Color.
+                black));
+        colorCheck.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+		        refresh();
+			}
+        	
+        });
+
     }
 
-    void jLeftBoundarySlider_stateChanged(ChangeEvent e) {
+    private void jLeftBoundarySlider_stateChanged(ChangeEvent e) {
         int value = jLeftBoundarySlider.getValue();
         XYPlot plot = this.chart.getXYPlot();
-        //        double c = domainAxis.getLowerBound()
-        //                   + (value / maxValue) * range.getLength();
+
         lowValue = minValue + value * binSize;
         plot.setDomainCrosshairValue(lowValue - 0.5 * binSize);
         String s = myFormatter.format(lowValue);
         leftBoundary.setText(s);
+        /* TODO hs may be re-used multiple times and the last one is retained (see
+         * createCollection(double min, double max, int selectedId, boolean active),
+		 * so using it this way is not a good idea.
+         */
         if (hs != null) {
             selectedGeneNum.setText("Selected genes: " +
                     hs.getGeneNumbers(lowValue, highValue));
@@ -336,15 +317,18 @@ public class EVDPanel extends MicroarrayViewEventBase {
 
     }
 
-    void jRightBoundarySlider_stateChanged(ChangeEvent e) {
+    private void jRightBoundarySlider_stateChanged(ChangeEvent e) {
         int value = jRightBoundarySlider.getValue();
         XYPlot plot = this.chart.getXYPlot();
-        //        double c = domainAxis.getLowerBound()
-        //                   + (value / maxValue) * range.getLength();
+
         highValue = minValue + value * binSize;
         plot.setDomainCrosshairValue(highValue - 0.5 * binSize);
         String highStr = myFormatter.format(highValue); //String.format("Bin size: %1$.2d", new Double(binSize));
         rightBoundary.setText(highStr);
+        /* TODO hs may be re-used multiple times and the last one is retained (see
+         * createCollection(double min, double max, int selectedId, boolean active),
+		 * so using it this way is not a good idea.
+         */
         if (hs != null) {
             selectedGeneNum.setText("Selected genes: " +
                     hs.getGeneNumbers(lowValue, highValue));
@@ -352,12 +336,8 @@ public class EVDPanel extends MicroarrayViewEventBase {
 
     }
 
-
-    void chipSlider_stateChanged(ChangeEvent e) {
-        refresh();
-    }
-
-    void jBinSlider_stateChanged(ChangeEvent e) {
+    // this is the only place where basketNum could be changed. It is called "Bin size" on GUI though.
+    private void jBinSlider_stateChanged(ChangeEvent e) {
         basketNum = MAXBINNUM - jBinSizeSlider.getValue();
         jBinSizeLabel.setText("Total bins: " + (basketNum + 1));
         if (basketNum == 0) {
@@ -372,27 +352,53 @@ public class EVDPanel extends MicroarrayViewEventBase {
         jLeftBoundarySlider.setValue(0);
         jRightBoundarySlider.setMaximum(basketNum + 1);
         jRightBoundarySlider.setValue(0);
-        maxOccurrenceNum = maxOccurrence();
+//        maxOccurrenceNum = maxOccurrence();
         refresh();
     }
 
-    @Override
+    private double minExpressionValue = 0;
+    private double maxExpressionValue = 0;
+    private int maxOccurrence = 0;
+    
+	@Override
 	protected void fireModelChangedEvent() {
-        if (refMASet == null) {
-            // mainPanel.remove(graph);
+		if (refMASet == null || maSetView.markers() == null) {
+			return;
+		}
 
-            chart = ChartFactory.createXYLineChart("EVD", "Value", "Occurrences", null,
-                    PlotOrientation.VERTICAL, true,
-                    isToolTipEnabled, true);
-            graph.setChart(chart);
-            //graph = new ChartPanel(chart, true);
-            //mainPanel.add(graph, BorderLayout.CENTER);
+		// using 0 instead of the actual minimum value is what the system test deems to be 'correct' behavior
+		minExpressionValue = 0; //Double.MAX_VALUE;
+		maxExpressionValue = Double.MIN_VALUE;
+		maxOccurrence = 0;
 
+		// FIXME there may be some more efficient way
+		int numGenes = maSetView.markers().size();
+		for (int geneCtr = 0; geneCtr < numGenes; geneCtr++) {
+			for (int maCtr = 0; maCtr < refMASet.size(); maCtr++) {
+				double value = refMASet.getValue(geneCtr, maCtr);
+				if (Double.isNaN(value)) {
+					value = 0;
+				} else if (value > maxExpressionValue) {
+					maxExpressionValue = value;
+				} else if (value < minExpressionValue) {
+					minExpressionValue = value;
+				}
+			}
+		}
+		for(DSMicroarray currentMicroarray : maSetView.items()) {
+            hs = new Histogram(basketNum, currentMicroarray, minExpressionValue, maxExpressionValue, maSetView.markers());
+            int[] basketValues = hs.getBasketvalues();
+            for (int i = 0; i <= basketNum; i++) {
+                if (basketValues[i] > 0) {
+                    if (basketValues[i] > maxOccurrence)
+                    	maxOccurrence = basketValues[i];
+                }
+            }
+		}
 
-        }
-        maxOccurrenceNum = maxOccurrence();
-        refresh();
-    }
+		jMASlider.setMaximum(refMASet.size()-1);
+		refresh();
+	}
 
     @Publish
     public org.geworkbench.events.ImageSnapshotEvent
@@ -411,53 +417,8 @@ public class EVDPanel extends MicroarrayViewEventBase {
         return event;
     }
 
-    private void createNewChart(final int selectedArrayId,
-                                  final boolean showActive) {
-
-        double max[] = getBoundaryValue();
-        drawPlot(createCollection(max[0], max[1], selectedArrayId, showActive),
-                "EVD");
-
-    }
-
-    /**
-     * Following the user case, the boundary is set up from all microarrayset not only activated set.
-     * So it will not change between different base array.
-     *
-     * @return double[]
-     */
-
-    public double[] getBoundaryValue() {
-        double max = 0.0d;
-        double min = 0.0d;
-        if (maSetView != null){
-        	maSet = (DSMicroarraySet) maSetView.getDataSet();
-        if (maSet != null && maSetView.markers() != null) {
-            int numGenes = maSetView.markers().size();
-            for (int geneCtr = 0; geneCtr < numGenes; geneCtr++) {
-                for (int maCtr = 0; maCtr < maSet.size(); maCtr++) {
-                    double value = maSet.getValue(geneCtr, maCtr);
-                    if (Double.isNaN(value)) {
-                        value = 0;
-                    } else if (value > max) {
-                        max = value;
-                    } else if (value < min) {
-                        min = value;
-                    }
-                }
-            }
-        }
-        }
-        double values[] = {min, max};
-        lowValue = highValue = min;
-        leftBoundary.setText(myFormatter.format(min));
-        rightBoundary.setText(myFormatter.format(min));
-        jLeftBoundarySlider.setValue(0);
-        jRightBoundarySlider.setValue(0);
-        return values;
-    }
-
-    public XYSeriesCollection createCollection(double min, double max,
+    // this is for t-test case. maybe we should separate the shared variable to avoid confusion
+    private XYSeriesCollection createCollection(double min, double max,
                                                double[] tValues,
                                                DSItemList<DSGeneMarker> item) {
         int[] basketValues = new int[basketNum + 1];
@@ -470,8 +431,7 @@ public class EVDPanel extends MicroarrayViewEventBase {
         if (tValues == null) {
             return null;
         }
-        hs = new HistogramPanel(basketNum);
-        hs.process(min, max, tValues, item);
+        hs = new Histogram(basketNum, min, max, tValues, item);
         basketValues = hs.getBasketvalues();
         XYSeries dataSeries = new XYSeries("Two-Sample TTest");
         if (basketNum == 0) {
@@ -495,8 +455,7 @@ public class EVDPanel extends MicroarrayViewEventBase {
 
     }
 
-    private DSMicroarraySet maSet = null;
-    public XYSeriesCollection createCollection(double min, double max,
+    private XYSeriesCollection createCollection(double min, double max,
                                                int selectedId, boolean active) {
         PanelVisualPropertiesManager propertiesManager =
                 PanelVisualPropertiesManager.getInstance();
@@ -507,14 +466,13 @@ public class EVDPanel extends MicroarrayViewEventBase {
         String bin = myFormatter.format(binSize);
         binNumLabel.setText("Bin size:  " + bin);
         XYSeriesCollection plots = new XYSeriesCollection();
-        maSet = (DSMicroarraySet) maSetView.getDataSet();
-        if (maSet == null) {
+        if (refMASet == null) {
             return null;
         }
         try {
 
             //draw base array.
-            DSMicroarray ma = maSet.get(selectedId);
+            DSMicroarray ma = refMASet.get(selectedId);
             XYSeries dataSeries = new XYSeries(ma.getLabel() + "(base)");
             int[] basketValues = new int[basketNum + 1];
             for (int i = 0; i < basketNum; i++) {
@@ -523,8 +481,7 @@ public class EVDPanel extends MicroarrayViewEventBase {
             if (maSetView.markers() == null) {
                 return null;
             }
-            hs = new HistogramPanel(basketNum);
-            hs.process(ma, minValue, maxValue);
+            hs = new Histogram(basketNum, ma, minValue, maxValue, maSetView.markers());
 
             basketValues = hs.getBasketvalues();
 
@@ -538,22 +495,6 @@ public class EVDPanel extends MicroarrayViewEventBase {
             if (basketNum == 0) {
                 dataSeries.add(minValue, basketValues[0]);
             } else {
-                //            for (int zeroSpot = basketNum; zeroSpot > 0; zeroSpot--) {
-                //                if (basketValues[zeroSpot] > 0) {
-                //                    maxIndex = zeroSpot;
-                //                    break;
-                //
-                //                }
-                //
-                //            }
-                //            for (int zeroSpot = 0; zeroSpot <= maxIndex; zeroSpot++) {
-                //                if (basketValues[zeroSpot] > 0) {
-                //                    minIndex = zeroSpot;
-                //                    break;
-                //
-                //                }
-
-                //            }
 
                 for (int i = minIndex; i <= maxIndex; i++) {
 
@@ -585,94 +526,40 @@ public class EVDPanel extends MicroarrayViewEventBase {
                                 getDefaultVisualProperties(panelIndex);
                     }
 
-                    int itemNo = panel.size();
-                    if (itemNo > 0) {
-                        for (int k = 0; k < itemNo; k++) {
+                    /* after the loop, hs will retain the last instance. not likely to be intended */ 
+					for (int k = 0; k < panel.size(); k++) {
 
-                            DSMicroarray currentMicroarray = panel.get(k);
-                            propertiesList.add(properties);
+						DSMicroarray currentMicroarray = panel.get(k);
+						propertiesList.add(properties);
 
-                            hs = new HistogramPanel(basketNum);
-                            hs.process(currentMicroarray, minValue, maxValue);
+						hs = new Histogram(basketNum, currentMicroarray,
+								minValue, maxValue, maSetView.markers());
 
-                            basketValues = hs.getBasketvalues();
+						basketValues = hs.getBasketvalues();
 
-//                            basketValues = new int[basketNum + 1];
-//                            for (int i = 0; i < basketNum; i++) {
-//                                basketValues[i] = 0;
-//                            }
-                            dataSeries = new XYSeries(currentMicroarray.
-                                    getLabel());
+						dataSeries = new XYSeries(currentMicroarray.getLabel());
 
-//                            numGenes = maSetView.markers().size();
-//                            for (int geneCtr = 0; geneCtr < numGenes; geneCtr++) {
-//                                DSGeneMarker marker = maSetView.markers().get(
-//                                        geneCtr);
-//
-//                                double value = currentMicroarray.getMarkerValue(
-//                                        marker).getValue();
-//
-//                                if (Double.isNaN(value)) {
-//                                    value = 0;
-//                                } else {
-//                                    int count = (int) ((value - minValue) /
-//                                            ((maxValue - minValue) / basketNum));
-//                                    if (count >= 0 && count <= basketNum) {
-//                                        basketValues[(int) ((value - minValue) /
-//                                                ((maxValue - minValue) /
-//                                                 basketNum))]++;
-//                                    } else {
-//                                        System.err.println(value + " " +
-//                                                geneCtr +
-//                                                maSetView.markers().get(geneCtr).
-//                                                getLabel());
-//                                    }
-//
-//                                }
-//
-//                            }
+						maxIndex = basketNum;
+						minIndex = 0;
+						if (basketNum == 0) {
+							dataSeries.add(minValue, basketValues[0]);
+						} else {
 
-                            maxIndex = basketNum;
-                            minIndex = 0;
-                            if (basketNum == 0) {
-                                dataSeries.add(minValue, basketValues[0]);
-                            } else {
-                                //
-                                //                            for (int zeroSpot = basketNum; zeroSpot > 0;
-                                //                                                zeroSpot--) {
-                                //                                if (basketValues[zeroSpot] > 0) {
-                                //                                    maxIndex = zeroSpot;
-                                //                                    break;
-                                //
-                                //                                }
-                                //
-                                //                            }
-                                //                            for (int zeroSpot = 0; zeroSpot <= maxIndex;
-                                //                                                zeroSpot++) {
-                                //                                if (basketValues[zeroSpot] > 0) {
-                                //                                    minIndex = zeroSpot;
-                                //                                    break;
-                                //
-                                //                                }
-                                //
-                                //                            }
+							for (int i = minIndex; i <= maxIndex; i++) {
+								if (basketValues[i] > 0) {
+									dataSeries
+											.add(i
+													* ((maxValue - minValue) / basketNum)
+													+ minValue, basketValues[i]);
 
-                                for (int i = minIndex; i <= maxIndex; i++) {
-                                    if (basketValues[i] > 0) {
-                                        dataSeries.add(i *
-                                                ((maxValue - minValue) /
-                                                        basketNum) + minValue,
-                                                basketValues[i]);
+								}
 
-                                    }
+							}
 
-                                }
+							plots.addSeries(dataSeries);
 
-                                plots.addSeries(dataSeries);
-
-                            }
-                        }
-                    }
+						}
+					}
                 }
 
             }
@@ -682,13 +569,17 @@ public class EVDPanel extends MicroarrayViewEventBase {
         return plots;
     }
 
-    public void drawPlot(final XYSeriesCollection plots, String title) {
+    private void drawPlot(final XYSeriesCollection plots, String title) {
         if (plots == null) {
             return;
         }
+        boolean tooltipEnabled = jEnabledBox.isSelected();
         chart = ChartFactory.createXYLineChart(title, "Value", "Occurrences",
-                plots, PlotOrientation.VERTICAL, true,
-                isToolTipEnabled, true); // Title,  X-Axis label,  Y-Axis label,  Dataset,  Show legend
+                plots, PlotOrientation.VERTICAL, 
+                true, // show legend
+                tooltipEnabled, 
+                true  // urls
+                );
 
         // NOW DO SOME OPTIONAL CUSTOMISATION OF THE CHART...
         chart.setBackgroundPaint(Color.white);
@@ -696,9 +587,7 @@ public class EVDPanel extends MicroarrayViewEventBase {
         // get a reference to the plot for further customisation...
         XYPlot newPlot = (XYPlot) chart.getPlot();
         Color c = UIManager.getColor("Panel.background");
-        if (c != null) {
-            newPlot.setBackgroundPaint(c);
-        } else {
+        if (c == null) {
             c = Color.white;
         }
         newPlot.setBackgroundPaint(c);
@@ -707,39 +596,33 @@ public class EVDPanel extends MicroarrayViewEventBase {
         newPlot.setRangeGridlinePaint(Color.white);
         newPlot.setDomainCrosshairVisible(true);
         newPlot.setDomainCrosshairLockedOnData(true);
-        //Set up fixed ranges.
-        //        ValueAxis xaxis = new NumberAxis();
-        //        xaxis.setRange(minValue, maxValue);
-        //        newPlot.setRangeAxis(xaxis);
+
         XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) newPlot.
                 getRenderer();
         renderer.setShapesVisible(true);
         renderer.setShapesFilled(true);
-        if (isToolTipEnabled) {
+        if (tooltipEnabled) {
 
-            renderer.setToolTipGenerator(new XYToolTipGenerator() {
+			renderer.setToolTipGenerator(new XYToolTipGenerator() {
 
+				public String generateToolTip(XYDataset dataset, int series,
+						int item) {
+					double x = dataset.getXValue(series, item);
+					if (Double.isNaN(x) && dataset.getX(series, item) == null) {
+						return "";
+					}
 
-                public String generateToolTip(XYDataset dataset, int series,
-                                              int item) {
-                    String resultStr = "";
-                    String label = (String) (plots.getSeries(series).getKey());
-                    double x = dataset.getXValue(series, item);
-                    if (Double.isNaN(x) && dataset.getX(series, item) == null) {
-                        return resultStr;
-                    }
+					double y = dataset.getYValue(series, item);
+					if (Double.isNaN(y) && dataset.getX(series, item) == null) {
+						return "";
+					}
 
-                    double y = dataset.getYValue(series, item);
-                    if (Double.isNaN(y) && dataset.getX(series, item) == null) {
-                        return resultStr;
-                    }
-                    String xStr = myFormatter.format(x);
-
-                    return resultStr = label + ": ([" + xStr + ", " +
-                            myFormatter.format(x + binSize) + "), " +
-                            (int) y + ")";
-                }
-            });
+					String label = (String) (plots.getSeries(series).getKey());
+					return label + ": ([" + myFormatter.format(x) + ", "
+							+ myFormatter.format(x + binSize) + "), " + (int) y
+							+ ")";
+				}
+			});
         }
         renderer.setSeriesLinesVisible(0, false);
         for (int i = 1; i < newPlot.getDatasetCount(); i++) {
@@ -747,10 +630,7 @@ public class EVDPanel extends MicroarrayViewEventBase {
         }
 
         //base color & shape
-        // renderer.setSeriesPaint(0, baseColor);
-        //        renderer.setSeriesShape(0, baseShape);
-
-        if (!isColorChecked) {
+        if (!colorCheck.isSelected()) {
 
             for (int i = 0; i < propertiesList.size(); i++) {
                 PanelVisualProperties panelVisualProperties = propertiesList.
@@ -768,20 +648,17 @@ public class EVDPanel extends MicroarrayViewEventBase {
 
         // change the auto tick unit selection to integer units only...
         NumberAxis rangeAxis = (NumberAxis) newPlot.getRangeAxis();
-        rangeAxis.setUpperBound(maxOccurrenceNum);
+        rangeAxis.setUpperBound(maxOccurrence);
         rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
 
         ValueAxis xAxis = newPlot.getDomainAxis();
-
-        //     xAxis.setAutoRange(false);
-        //       xAxis.setRange(dateRange);
+        final int MARGIN = 2; //the left and right edge size beyond the min/max values.
         if (minValue < maxValue) {
-            xAxis.setRange(minValue - RANGE * binSize,
-                    maxValue + RANGE * binSize);
+            xAxis.setRange(minValue - MARGIN * binSize,
+                    maxValue + MARGIN * binSize);
         }
 
         // OPTIONAL CUSTOMISATION COMPLETED.
-
 
         graph.setChart(chart);
         graph.addChartMouseListener(new ChartMouseListener() {
@@ -820,10 +697,14 @@ public class EVDPanel extends MicroarrayViewEventBase {
             highValue = lowValue;
             lowValue = temp;
         }
+        /* TODO hs may be re-used multiple times and the last one is retained (see
+         * createCollection(double min, double max, int selectedId, boolean active),
+		 * so using it this way is not a good idea.
+         */
         DSPanel<DSGeneMarker> panel = hs.getPanel(lowValue, highValue);
         selectedGeneNum.setText("Selected genes: " +
                     hs.getGeneNumbers(lowValue, highValue));
-        if (panel != null) {
+        if (panel != null && panel.size()>0) {
             publishSubpanelChangedEvent(new SubpanelChangedEvent<DSGeneMarker>(DSGeneMarker.class, panel, org.geworkbench.events.SubpanelChangedEvent.NEW));
         } else {
             JOptionPane.showMessageDialog(null, "No gene is selected",
@@ -841,11 +722,11 @@ public class EVDPanel extends MicroarrayViewEventBase {
 	}
 
     private void setSlider(String selected) {
-    	String currentBase = maSet.get(jMASlider.getValue()).getLabel();
+    	String currentBase = refMASet.get(jMASlider.getValue()).getLabel();
     	if (!currentBase.equals(selected)){
     		int newBaseId = 0;
-    		for (int i = 0; i < maSet.size(); i++) {
-    			if (maSet.get(i).getLabel().equals(selected)) {
+    		for (int i = 0; i < refMASet.size(); i++) {
+    			if (refMASet.get(i).getLabel().equals(selected)) {
     				newBaseId = i;
     				break;
     			}
@@ -854,15 +735,18 @@ public class EVDPanel extends MicroarrayViewEventBase {
     		refresh();
     	}
     }
-    public void refresh(int mode) {
+    
+    private void refresh() {
 
-        if (mode == EVDMODE) {
-            jMASlider.setMaximum(refMASet != null ? refMASet.size() - 1 : 1);
-            jMASlider.setEnabled(true);
+        if (!jTTestBttn.isSelected() ) { // mode == EVDMODE) {
+
             if (refMASet == null) {
                 chart = ChartFactory.createXYLineChart("EVD", "Value",
-                        "Occurrences", null, PlotOrientation.VERTICAL, true,
-                        isToolTipEnabled, true); // Title,  X-Axis label,  Y-Axis label,  Dataset,  Show legend, show ToolTips
+                        "Occurrences", null, PlotOrientation.VERTICAL, 
+                        true, // legend
+                        jEnabledBox.isSelected(), 
+                        true // urls
+                        );
 
                 graph.setChart(chart);
                 mainPanel.repaint();
@@ -870,242 +754,43 @@ public class EVDPanel extends MicroarrayViewEventBase {
                 return;
             }
 
+            jMASlider.setEnabled(true);
+
             int mArrayId = jMASlider.getValue();
             if (mArrayId >= 0) {
-                createNewChart(mArrayId, !chkAllArrays.isSelected());
+            	double max = 0;
+            	double min = 0;
+                // create New Chart
+                lowValue = highValue = minExpressionValue;
+                
+//                leftBoundary.setText(myFormatter.format(minExpressionValue));
+//                rightBoundary.setText(myFormatter.format(maxExpressionValue));
+                // the rationale behind the following logic is not obvious 
+                // but let's keep it because it is what current system test describes as 'correct'
+                if(minExpressionValue<min) min = minExpressionValue;
+                if(maxExpressionValue>max) max = maxExpressionValue;
+                
+                leftBoundary.setText(myFormatter.format(min));
+                rightBoundary.setText(myFormatter.format(min));
+                jLeftBoundarySlider.setValue(0);
+                jRightBoundarySlider.setValue(0);
+                
+                drawPlot(createCollection(minExpressionValue, maxExpressionValue, mArrayId, !chkAllArrays.isSelected()),
+                        "EVD");
                 mainPanel.repaint();
             }
 
-        } else if (mode == TTESTMODE) {
+        } else { // if (mode == TTESTMODE) { // jTTestBttn.isSelected()
             jMASlider.setEnabled(false);
-            doTTest();
+            SimpleTTest simpleTTest = new SimpleTTest();
 
+            double values[] = simpleTTest.execute(maSetView, !chkAllMarkers.isSelected());
+            double minT = simpleTTest.getMinT();
+            double maxT = simpleTTest.getMaxT();
+            DSItemList<DSGeneMarker> item = simpleTTest.getItem();
+            drawPlot(createCollection(minT, maxT, values, item), "T-Test");
         }
 
-    }
-
-    public void refresh() {
-        int mode = jTTestBttn.isSelected() ? -1 : 1;
-        refresh(mode);
-    }
-
-    /**
-     * doTTest
-     */
-    @SuppressWarnings("unchecked")
-	public void doTTest() {
-        SimpleTTest simpleTTest = new SimpleTTest();
-        //  int num = maSetView
-        double values[] = simpleTTest.execute(maSetView, !chkAllMarkers.isSelected());
-        double minT = simpleTTest.getMinT();
-        double maxT = simpleTTest.getMaxT();
-        DSItemList<DSGeneMarker> item = simpleTTest.getItem();
-        drawPlot(createCollection(minT, maxT, values, item), "T-Test");
-    }
-
-    private void jTTestBttn_actionPerformed(ActionEvent e) {
-
-        refresh();
-
-    }
-
-    /**
-     * Check whether allow one color per array.
-     *
-     * @param e ActionEvent
-     */
-    private void colorCheck_actionPerformed() {
-        isColorChecked = colorCheck.isSelected();
-        refresh();
-    }
-
-    /**
-     * Inner class to represent histogram.
-     */
-    private class HistogramPanel {
-        private int nbins; // number of bins.
-
-        int[] basketValues; //the bin values
-        ArrayList<DSGeneMarker> al[]; //associated gene markers.
-        private double maxValue;
-        private double minValue;
-
-        public HistogramPanel(int size) {
-            nbins = size;
-            clear();
-
-        }
-
-        /**
-         * clear
-         */
-		@SuppressWarnings("unchecked")
-		private void clear() {
-            al = new ArrayList[nbins + 1];
-            for (int i = 0; i < nbins + 1; i++) {
-                al[i] = new ArrayList<DSGeneMarker>();
-            }
-            basketValues = new int[nbins + 1];
-
-        }
-
-        /**
-         * process data to create histogram. Result is saved at basketValues.
-         *
-         * @param min     double
-         * @param max     double
-         * @param tValues double[]
-         * @param item    DSItemList
-         */
-        public void process(double min, double max, double[] tValues,
-                            DSItemList<DSGeneMarker> item) {
-            maxValue = max;
-            minValue = min;
-            for (int geneCtr = 0; geneCtr < tValues.length; geneCtr++) {
-
-                double value = tValues[geneCtr];
-                DSGeneMarker marker = item.get(geneCtr);
-                if (Double.isNaN(value)) {
-                    value = 0;
-                } else {
-
-                    int count = (int) ((value - minValue) /
-                            ((maxValue - minValue) / nbins));
-                    if (count >= 0 && count <= nbins) {
-                        basketValues[count]++;
-                        al[count].add(marker);
-                    } else {
-                        System.err.println(value + " " + geneCtr +
-                                maSetView.markers().get(geneCtr).
-                                        getLabel());
-                    }
-
-                }
-
-            }
-
-        }
-
-        public void process(DSMicroarray ma, double min, double max) {
-        	if(ma==null)return;
-
-            maxValue = max;
-            minValue = min;
-
-            for (int i = 0; i < nbins + 1; i++) {
-                basketValues[i] = 0;
-            }
-
-            DSPanel<DSGeneMarker> genes = new CSPanel<DSGeneMarker>("");
-            genes.addAll(maSetView.markers());
-
-            int numGenes = genes.size();
-            for (int geneCtr = 0; geneCtr < numGenes; geneCtr++) {
-
-                DSGeneMarker marker = genes.get(geneCtr);
-
-                DSMarkerValue markerValue = ma.getMarkerValue(marker);
-                if(markerValue==null)continue;
-                
-                double value = markerValue.getValue();
-                if (Double.isNaN(value) || value < minValue || value > maxValue) {
-                    value = 0;
-                } else {
-                    int column = (int) ((value - minValue) /
-                            ((maxValue - minValue) / nbins));
-                    if (column >= 0 && column < nbins + 1) {
-                        basketValues[column]++;
-                        al[column].add(marker);
-
-                    } else {
-                        System.err.println("IN  process " + marker + value +
-                                "Column=" + column);
-
-                    }
-
-                }
-            }
-
-        }
-
-        public int[] getBasketvalues() {
-            return basketValues;
-        }
-
-        private int getBinPosition(double cuValue) {
-            if (cuValue > maxValue) {
-                return nbins + 1;
-            }
-            if (cuValue < minValue) {
-                return 0;
-            }
-
-            return (int) Math.round((cuValue - minValue) /
-                    ((maxValue - minValue) / nbins));
-        }
-
-        DSPanel<DSGeneMarker> getPanel(double leftValue, double rightValue) {
-            int leftBin = getBinPosition(leftValue);
-            int rightBin = getBinPosition(rightValue);
-            DSPanel<DSGeneMarker>
-                    panel = new CSPanel<DSGeneMarker>("Selected from EVD");
-            if (leftBin < 0 || rightBin < 0) {
-
-                return null;
-            } else {
-                for (int i = leftBin; i < rightBin; i++) {
-                    for (int k = 0; k < al[i].size(); k++) {
-                        panel.add((DSGeneMarker) (al[i].get(k)));
-                    }
-                }
-            }
-            return panel;
-        }
-
-        int getGeneNumbers(double leftValue, double rightValue) {
-            int leftBin = getBinPosition(leftValue);
-            int rightBin = getBinPosition(rightValue);
-            int total = 0;
-            if (leftBin < 0 || rightBin < 0) {
-
-                return 0;
-            } else {
-                for (int i = leftBin; i < rightBin; i++) {
-                    total += al[i].size();
-                }
-            }
-            return total;
-
-        }
-    }
-
-    private int maxOccurrence(){ //though out all arrays
-        int[] basketValues = new int[basketNum + 1];
-        int maxIndex = 0;
-        int minIndex = 0;
-        int answer = 0; //maxOccurrence = max basketValues
-        double max[] = getBoundaryValue();
-        double minValue = max[0];
-        double maxValue = max[1];
-        if ((maSetView != null) && (maSetView.size() > 0)) {
-            for (int pId = 0; pId < maSetView.items().size();
-                 pId++) {
-                DSMicroarray currentMicroarray = maSetView.items().get(pId);
-                hs = new HistogramPanel(basketNum);
-                hs.process(currentMicroarray, minValue, maxValue);
-                basketValues = hs.getBasketvalues();
-                maxIndex = basketNum;
-                minIndex = 0;
-                for (int i = minIndex; i <= maxIndex; i++) {
-                    if (basketValues[i] > 0) {
-                        if (basketValues[i] > answer)
-                        	answer = basketValues[i];
-                    }
-
-                }
-            }
-        }
-    	return answer;
     }
 
 }
