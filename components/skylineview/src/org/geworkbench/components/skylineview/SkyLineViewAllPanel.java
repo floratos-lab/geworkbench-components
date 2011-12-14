@@ -73,6 +73,9 @@ public class SkyLineViewAllPanel implements VisualPlugin, ActionListener {
 
 	private void showResults(DSProteinStructure proteinData) {
 		pname = proteinData.getLabel();
+        int index = pname.lastIndexOf('.');
+        if (index != -1)
+            pname = pname.substring(0, index);
 		resultdir = rootdir + "/" + pname + "/";
 
 		try {

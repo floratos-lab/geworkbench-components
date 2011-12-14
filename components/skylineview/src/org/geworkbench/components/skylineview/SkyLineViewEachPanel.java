@@ -104,6 +104,9 @@ public class SkyLineViewEachPanel extends JPanel implements VisualPlugin,
 
 	private void showResults(DSProteinStructure proteinData) {
 		pname = proteinData.getLabel();
+        int index = pname.lastIndexOf('.');
+        if (index != -1)
+            pname = pname.substring(0, index);
 		resultdir = rootdir + "/" + pname + "/";
 
 		try {
