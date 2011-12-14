@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
-	<component name="BLAST Results Viewer"
+	<component name="Pattern Viewer"
 		class="org.geworkbench.components.discovery.PatternViewComponent"
 		version="1.0" 
 		author="geWorkbench Development Team"
@@ -24,7 +24,7 @@
 		<online-help helpSet="org/geworkbench/components/discovery/help/patternDiscoveryHelpSet.hs"/>
 
 	</component>
-	<plugin id="PatternViewComponent" name="Pattern Discovery Results"
+	<plugin id="PatternViewComponent" name="Pattern Viewer"
 		class="org.geworkbench.components.discovery.PatternViewComponent"
 		source="discovery">
 		<gui-area name="VisualArea" />
