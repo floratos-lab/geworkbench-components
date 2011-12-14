@@ -198,17 +198,6 @@ public class PreviewSearchTable extends JPanel {
             findNext(true);
         } else if (event.getKeyCode() == KeyEvent.VK_ESCAPE) { // ESC key
             searchField.setText("");
-        } else if (event.getKeyCode() == KeyEvent.VK_BACK_SPACE) { // Backspace key
-            if (searchField.getText().length() == 1) {
-                list.setSelectedIndex(0);
-                list.scrollRectToVisible(list.getCellBounds(0, 0));
-                int row = markers.convertRowIndexToView(0);
-				Rectangle r = markers.getCellRect(row, 0, false);  
-				markers.scrollRectToVisible(r);
-				markers.setRowSelectionInterval(row, row);
-                
-                lastSearchFailed = false;               
-            }
         } else if (event.getKeyCode() == KeyEvent.VK_DOWN) {
             int index = list.getSelectedIndex();
             index++;            
