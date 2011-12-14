@@ -59,7 +59,6 @@ public class NullDistribution {
 		this.analysis=analysis;
 	}
 
-	@SuppressWarnings("unchecked")
 	public int calcNullDist() throws MathException, IOException,
 			ClassNotFoundException {
 
