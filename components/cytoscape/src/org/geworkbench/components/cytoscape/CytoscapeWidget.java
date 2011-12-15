@@ -94,8 +94,8 @@ import cytoscape.visual.VisualStyle;
 import cytoscape.visual.calculators.Calculator;
 import cytoscape.visual.mappings.DiscreteMapping;
 import cytoscape.visual.mappings.ObjectMapping;
-import cytoscape.visual.mappings.PassThroughMapping;
-import cytoscape.visual.parsers.ObjectToString;
+import cytoscape.visual.mappings.PassThroughMapping; 
+import cytoscape.visual.converter.ValueToStringConverterManager;
 import ding.view.DNodeView;
 
 /**
@@ -329,8 +329,8 @@ public class CytoscapeWidget implements VisualPlugin {
 			log.debug("Check if " + selected + " contains " + displayedName);
 			if (selected.contains(displayedName.toUpperCase())&& geneId != null && !geneId.toString().trim().equals("")) {
 				if (e.getType() == GeneTaggedEvent.USE_VISUAL_PROPERTY) {
-					attrs.setAttribute(id, NODE_FILL_COLOR, ObjectToString
-							.getStringValue(color));
+					attrs.setAttribute(id, NODE_FILL_COLOR, ValueToStringConverterManager.manager.toString(color));
+						 
 
 					nodeView.setUnselectedPaint(color);
 					// nodeView.setSelectedPaint(color);
@@ -1052,7 +1052,7 @@ public class CytoscapeWidget implements VisualPlugin {
 				EdgeView edgeView = (EdgeView) edgeIter.next();
 				view.showGraphObject(edgeView);
 			}
-
+			Cytoscape.getDesktop().getCytoPanel(SwingConstants.WEST).setSelectedIndex(0);
 			Cytoscape.getCurrentNetworkView().redrawGraph(false, true);
 		}
 	}

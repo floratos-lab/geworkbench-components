@@ -42,7 +42,7 @@ import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import cytoscape.Cytoscape;
 import cytoscape.data.CyAttributes;
 import cytoscape.view.CyNetworkView;
-import cytoscape.visual.parsers.ObjectToString;
+import cytoscape.visual.converter.ValueToStringConverterManager; 
 
 public class TTestResultSelectionPanel extends JPanel {
 	 
@@ -122,7 +122,7 @@ public class TTestResultSelectionPanel extends JPanel {
 			 
 				if (tTestResultSetColorMap.containsKey(displayedName)) {												 
 						Color c = (Color)tTestResultSetColorMap.get(displayedName).get(1);						 
-						attrs.setAttribute(id, CytoscapeWidget.NODE_FILL_COLOR, ObjectToString.getStringValue(c));
+						attrs.setAttribute(id, CytoscapeWidget.NODE_FILL_COLOR, ValueToStringConverterManager.manager.toString(c));
 						 
 						//nodeView.setUnselectedPaint(c);
 						//nodeView.setSelectedPaint(c);

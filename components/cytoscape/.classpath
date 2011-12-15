@@ -4,11 +4,7 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/geworkbench-core"/>
 	<classpathentry kind="lib" path="lib/cytoscape.jar"/>
-	<classpathentry kind="lib" path="lib/giny.jar"/>
-	<classpathentry kind="lib" path="lib/looks-2.1.4.jar"/>
-	<classpathentry kind="lib" path="lib/cytoscape-task.jar"/>
-	<classpathentry kind="lib" path="lib/ding.jar"/>
-	<classpathentry kind="lib" path="lib/fing.jar"/>
-	<classpathentry kind="lib" path="lib/AutomaticLayout.jar"/>
+	<classpathentry kind="lib" path="lib/automatic-layout-2.8.2-jar-with-dependencies.jar"/>
+	<classpathentry kind="lib" path="lib/xercesImpl-jwsdp.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
