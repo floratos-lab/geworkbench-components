@@ -62,6 +62,7 @@ import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.datastructure.properties.DSSequential;
 import org.geworkbench.engine.config.MenuListener;
 import org.geworkbench.engine.config.VisualPlugin;
+import org.geworkbench.engine.management.Asynchronous;
 import org.geworkbench.engine.management.Overflow;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.ProjectEvent;
@@ -950,17 +951,22 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 	/**
 	 * Called when a data set is selected or cleared in the project panel.
 	 */
-	@Subscribe
+	@Subscribe(Asynchronous.class)
 	public void receive(ProjectEvent projectEvent, Object source) {
 		if (projectEvent.getMessage().equals(ProjectEvent.CLEARED)) {
 			dataSetCleared();
 		}
 		DSDataSet<?> dataSet = projectEvent.getDataSet();
-		boolean processed = processDataSet(dataSet);
+		boolean processed = false;
+		if (dataSet != null) {
+			processed = dataSetChanged(dataSet);
+		} else {
+			dataSetCleared();
+		}
 		if (!processed) {
 			dataSet = projectEvent.getParent();
 			if (dataSet != null) {
-				processDataSet(dataSet);
+				dataSetChanged(dataSet);
 				itemAutoList.getList().clearSelection();
 			}
 		} else {
@@ -1023,15 +1029,6 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 				throw new RuntimeException(
 						"Unknown subpanel changed event mode: " + spe.getMode());
 			}
-		}
-	}
-
-	protected boolean processDataSet(DSDataSet<? extends DSBioObject> dataSet) {
-		if (dataSet != null) {
-			return dataSetChanged(dataSet);
-		} else {
-			dataSetCleared();
-			return false;
 		}
 	}
 
@@ -1117,21 +1114,27 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 			filterItems = new ArrayList<T>();
 		}
 		public int getSize() {
-			if (itemList == null)     return 0;
-			if (searchText.length()==0)  return itemList.size();
-			return filterItems.size();
+			synchronized(filterItems) {
+				if (itemList == null)     return 0;
+				if (searchText.length()==0)  return itemList.size();
+				return filterItems.size();
+			}
 		}
 		public Object getElementAt(int index) {
-			if (itemList == null)      return null;
-			if (searchText.length()==0)   return itemList.get(index);
-			if (index<filterItems.size())  return filterItems.get(index);
-			return null;
+			synchronized(filterItems) {
+				if (itemList == null)      return null;
+				if (searchText.length()==0)   return itemList.get(index);
+				if (index<filterItems.size())  return filterItems.get(index);
+				return null;
+			}
 		}
 		public T getItem(int index) {
-			if (itemList == null)      return null;
-			if (searchText.length()==0)   return itemList.get(index);
-			if (index<filterItems.size())  return filterItems.get(index);
-			return null;
+			synchronized(filterItems) {
+				if (itemList == null)      return null;
+				if (searchText.length()==0)   return itemList.get(index);
+				if (index<filterItems.size())  return filterItems.get(index);
+				return null;
+			}
 		}
 
 		/**
@@ -1151,15 +1154,17 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 		}
 		
 		private void refilter() {
-			filterItems.clear();
-			searchText = itemAutoList.getFilterString();
-
-			for (int i = 0; i < itemList.size(); i++){
-				if (itemList.get(i).toString().toLowerCase().indexOf(searchText, 0) != -1){
-					filterItems.add(itemList.get(i));
+			synchronized(filterItems) {
+				filterItems.clear();
+				searchText = itemAutoList.getFilterString();
+	
+				for (T item : itemList) {
+					if (item.toString().toLowerCase().indexOf(searchText, 0) != -1) {
+						filterItems.add(item);
+					}
 				}
+				fireContentsChanged(this, 0, getSize());
 			}
-			fireContentsChanged(this, 0, getSize());
 		}
 	}
 
@@ -1216,7 +1221,7 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 			filterField.setText("");
 		}
 
-		public void setList(ListModel model) {
+		private void setList(ListModel model) {
 			list = new JList(model) {
 				private static final long serialVersionUID = 7273196340245426337L;
 				public String getToolTipText(MouseEvent e) {
