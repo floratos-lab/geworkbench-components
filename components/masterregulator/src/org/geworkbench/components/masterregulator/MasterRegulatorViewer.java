@@ -199,77 +199,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		});
 
 		headerBuilder.append(exportAllButton);
-
-		// export selected button and function
-		JButton exportSelectedButton = new JButton("Export selected targets ");
-		exportSelectedButton
-				.addActionListener(new java.awt.event.ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						if (detailedTFGraphViewer.tfA != null) {
-							try {
-								String exportFileStr = "exportTGs.csv";
-								PropertiesManager properties = PropertiesManager.getInstance();
-								String exportDir = properties.getProperty(this.getClass(), EXPORTDIR, exportFileStr);
-								File exportFile = new File(exportDir);
-								OWFileChooser chooser = new OWFileChooser(
-										exportFile);
-								CSVFileFilter filter = new CSVFileFilter();
-								chooser.setFileFilter(filter);
-								chooser.setDialogTitle("Export Selected MRA Target Results");
-								String extension = filter.getExtension();
-								int c = chooser
-										.showSaveDialog(MasterRegulatorViewer.this);
-								if (c == OWFileChooser.APPROVE_OPTION && chooser.getSelectedFile() != null) {
-									exportFileStr = chooser.getSelectedFile()
-											.getPath();
-									properties.setProperty(this.getClass(), EXPORTDIR, chooser.getSelectedFile().getParent());
-									if (!exportFileStr.endsWith(extension))
-										exportFileStr += extension;
-									BufferedWriter writer = new BufferedWriter(
-											new FileWriter(exportFileStr));
-									String str = "";
-									str += detailedTFGraphViewer.tfA.getLabel()
-											+ ", "
-											+ detailedTFGraphViewer.tfA
-													.getShortName() + "\n";
-									writer.write(str);
-									for (DSGeneMarker marker : MRAResultSet
-											.getGenesInTargetList(detailedTFGraphViewer.tfA)) {
-										str = "";
-										str += marker.getLabel() + ", "
-												+ marker.getShortName() + ", ";
-
-										str += new Float(
-												MRAResultSet
-														.getValue(marker))
-												.toString();
-										writer.write(str);
-										writer.newLine();
-									}
-									writer.close();
-									JOptionPane.showMessageDialog(null, "File "
-											+ exportFileStr
-											+ " has been saved.",
-											"File saved.",
-											JOptionPane.INFORMATION_MESSAGE);
-								} else {
-									// user canceled
-								}
-							} catch (IOException ioe) {
-								log.error(ioe);
-							}
-						} else {
-							JOptionPane
-									.showMessageDialog(
-											null,
-											"Please select a Transcription Factor first.",
-											"Please try again.",
-											JOptionPane.INFORMATION_MESSAGE);
-						}
-					}
-				});
-		headerBuilder.append(exportSelectedButton);
-
+	 
 		// add to set button and function
 		JButton addToSetButton = new JButton("Add targets to set");
 		addToSetButton.addActionListener(new java.awt.event.ActionListener() {
