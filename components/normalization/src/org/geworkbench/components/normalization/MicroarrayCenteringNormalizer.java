@@ -25,12 +25,12 @@ import org.geworkbench.builtin.projects.history.HistoryPanel;
  * The normalizer also offers options for handling missing
  * values. In particular, the available choices are:
  * <UL>
- * <LI>“Min? replace with the smallest microarray value resulting after the
+ * <LI>Min: replace with the smallest microarray value resulting after the
  * mean/median subtraction),</LI>
- * <LI>“Max? replace with the largest microarray value resulting after the
+ * <LI>Max: replace with the largest microarray value resulting after the
  * mean/median subtraction),</LI>
- * <LI>“Zero? replace with 0,</LI>
- * <LI>“Ignore? No change.</LI>.
+ * <LI>Zero: replace with 0,</LI>
+ * <LI>Ignore: No change.</LI>.
  * </UL>
  */
 public class MicroarrayCenteringNormalizer extends AbstractAnalysis implements NormalizingAnalysis {

@@ -106,7 +106,7 @@ public class DynamicTree extends JPanel implements ActionListener,
 		// first add all folders
 		// Whenever a folder was added in the ADD function the list of folders
 		// is ordered by name
-		// so we don't worry about it here.Å
+		// so we don't worry about it here.
 		
 		ArrayList<WorkflowFolder> flders = new ArrayList<WorkflowFolder>();
 		flders.add(r);
