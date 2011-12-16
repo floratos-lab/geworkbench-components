@@ -11,10 +11,11 @@
 				description="Front-end control and display for the SPLASH algorithm for pattern discovery
  								in a set of sequences."
 				analysis="true" loadByDefault="true">
-	 <required-component
+		<required-component
 			class="org.geworkbench.components.discovery.PatternViewComponent" />
-	 <required-component class="org.geworkbench.components.sequences.SequenceViewAppComponent" />
-	 <related-component class="org.geworkbench.components.promoter.PromoterView" />
+		<required-component class="org.geworkbench.components.sequences.SequenceViewAppComponent" />
+		<required-component class="org.geworkbench.components.poshistogram.PositionHistogramAppComponent" />
+		<related-component class="org.geworkbench.components.promoter.PromoterView" />
 		<license><![CDATA[
 			<html><head><meta http-equiv=Content-Type content="text/html; charset=windows-1252"></head>
 				<body>----</body>
