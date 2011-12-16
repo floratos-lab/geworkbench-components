@@ -6,7 +6,6 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.Serializable;
-import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -32,8 +31,6 @@ import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.util.RegularExpressionVerifier;
-
-import polgara.soapPD_wsdl.Parameters;
 
 /**
  * @author Nikhil
@@ -531,40 +528,6 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel{
 		return jUseHMMBox.isSelected();
 	}
 	
-	public void setParams(Parameters parms) {
-		final DecimalFormat format = new DecimalFormat("####.##");
-
-		jMinSupportMenu.setSelectedItem(currentSupportMenuStr);
-		if (currentSupportMenuStr.equalsIgnoreCase(SUPPORT_PERCENT_1_100)) {
-			String support = format.format(parms.getMinPer100Support() * 100);
-			jMinSupportBox.setText(support);
-		} else {
-			jMinSupportBox.setText(format.format(parms.getMinSupport()));
-		}
-
-		jMinTokensBox.setText(Integer.toString(parms.getMinTokens()));
-		jWindowBox.setText(Integer.toString(parms.getWindow()));
-		jMinWTokensBox.setText(Integer.toString(parms.getMinWTokens()));
-
-		// Parsing the ADVANCED panel
-		jExactOnlyBox.setSelected((parms.getExact() == 1) ? true : false);
-
-		jMatrixBox.setSelectedItem(parms.getSimilarityMatrix());
-		jSimThresholdBox.setText(format.format(parms.getSimilarityThreshold()));
-
-		// Parsing the HIERARCHICAL panel
-		if (parms != null && parms.getHierarchical() != null)
-			jMinClusterSizeBox.setText(Integer.toString(parms.getHierarchical()
-					.getClusterSize()));
-
-		jMinPatternNoBox.setText(Integer.toString(parms.getMinPatternNo()));
-
-		// Parsing the LIMITS panel
-		jMaxPatternNoBox.setText(Integer.toString(parms.getMaxPatternNo()));
-		jMaxRunTimeBox.setText(Integer.toString(parms.getMaxRunTime()));
-
-	}
-		
 	public void setParameters(Map<Serializable, Serializable> parameters) {
 		//TODO
 	}

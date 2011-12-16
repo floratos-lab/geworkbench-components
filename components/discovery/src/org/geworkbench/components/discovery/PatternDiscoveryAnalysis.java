@@ -80,24 +80,26 @@ public class PatternDiscoveryAnalysis extends AbstractAnalysis implements
 		sequenceDB = (DSSequenceSet) input;
 		
 		String selectedAlgo = getAlgorithmName();
-		boolean activateMarkers = ((CSSequenceSet) sequenceDB).useMarkerPanel();
-		DSAnnotationContextManager manager = CSAnnotationContextManager
-				.getInstance();
-		DSAnnotationContext context = manager.getCurrentContext(sequenceDB
-				.getMarkerList());
+		boolean activateMarkers = false;
+		DSPanel<? extends DSGeneMarker> activatedMarkers = null;
+		if(sequenceDB!=null) {
+			activateMarkers = ((CSSequenceSet) sequenceDB).useMarkerPanel();
 
-		DSPanel<? extends DSGeneMarker> activatedMarkers = context
-				.getActiveItems().activeSubset();
+			DSAnnotationContextManager manager = CSAnnotationContextManager
+					.getInstance();
+			DSAnnotationContext context = manager.getCurrentContext(sequenceDB
+					.getMarkerList());
+			activatedMarkers = context
+					.getActiveItems().activeSubset();
+		}
 
 		if (activateMarkers) {
 			if (activatedMarkers != null && activatedMarkers.size() > 0) {
 				activeSequenceDB = (CSSequenceSet) ((CSSequenceSet) sequenceDB)
 						.getActiveSequenceSet(activatedMarkers);
-			} else if (sequenceDB != null) {
-
+			} else {
 				activeSequenceDB = (CSSequenceSet) sequenceDB;
 			}
-
 		} else {
 			activeSequenceDB = (CSSequenceSet) sequenceDB;
 		}
@@ -109,6 +111,10 @@ public class PatternDiscoveryAnalysis extends AbstractAnalysis implements
 			algorithmName = EXHAUSTIVE;
 		}
 
+		if(activeSequenceDB==null) {
+			return new AlgorithmExecutionResults(false, "Active Sequence Set is null.", null);
+		}
+		
 		try {
 			parms = readParameter(patternPanel, activeSequenceDB.getSequenceNo(), exhaustive);
 		} catch (Exception e1) {
@@ -481,7 +487,7 @@ public class PatternDiscoveryAnalysis extends AbstractAnalysis implements
 		try {
 			soapPDPortType = new SoapPDLocator().getsoapPD(url);
 		} catch (ServiceException ex) {
-			new SessionCreationException(
+			throw new SessionCreationException(
 			"Could not connect to the server.");
 		}
 		
