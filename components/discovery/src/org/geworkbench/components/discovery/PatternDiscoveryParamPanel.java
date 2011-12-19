@@ -39,12 +39,12 @@ import org.geworkbench.util.RegularExpressionVerifier;
 @AcceptTypes( { CSSequenceSet.class })
 public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel{
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 7792584092654744039L;
+	
 	private static Log log = LogFactory.getLog(PatternDiscoveryParamPanel.class);	
 	static final String SUPPORT_OCCURRENCES = "Support # Occurrences";
 	static final String SUPPORT_SEQUENCES = "Support # Sequences";
 	static final String SUPPORT_PERCENT_1_100 = "Support Percent %(1-100)";
-	private JTabbedPane jTabbedPane1 = new JTabbedPane();
 
 	private JTextField jMinPatternNoBox = new JTextField();
 	private JLabel jMinClusterSizeLabel = new JLabel();
@@ -64,7 +64,6 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel{
 	private JTextField jSimThresholdBox = new JTextField();
 
 	// Limits Panel
-	private JPanel limitPanel = new JPanel();
 	private JTextField jMaxPatternNoBox = new JTextField();
 	private JTextField jMaxRunTimeBox = new JTextField();
 
@@ -276,6 +275,7 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel{
 		advancedRightPanel.add(similarityThresholdPanel);
 		advancedPanel.add(advancedRightPanel);
 		
+		JPanel limitPanel = new JPanel();
 		limitPanel.setLayout(new BoxLayout(limitPanel, BoxLayout.PAGE_AXIS));
 		limitPanel.setBorder(emptyBorder);
 		JPanel limitTopPanel = new JPanel();
@@ -335,12 +335,15 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel{
 		exhaustivePanel.add(exhaustiveOccurrencePanel);
 		exhaustivePanel.add(exhaustiveSequencePanel);
 
+		JTabbedPane jTabbedPane1 = new JTabbedPane();
 		jTabbedPane1.add(basicPanel, "Basic");
 		jTabbedPane1.add(exhaustivePanel, "Exhaustive");
 		jTabbedPane1.add(limitPanel, "Limits");
 		jTabbedPane1.add(advancedPanel, "Advanced");
-		this.add(jTabbedPane1, BorderLayout.NORTH);
 		jTabbedPane1.setSelectedIndex(0);
+		
+		this.setPreferredSize(new Dimension(300, 200));
+		this.add(jTabbedPane1, BorderLayout.CENTER);
 	} 
 	
 	// this class is used for the parametorPanel for verification of input.
