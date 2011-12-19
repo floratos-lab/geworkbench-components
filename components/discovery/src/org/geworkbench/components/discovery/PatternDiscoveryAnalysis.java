@@ -4,9 +4,7 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import javax.swing.JOptionPane;
 import javax.xml.rpc.ServiceException;
@@ -23,7 +21,6 @@ import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.datastructure.complex.pattern.PatternDiscoveryParameters;
 import org.geworkbench.bison.datastructure.complex.pattern.PatternResult;
-import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSMatchedSeqPattern;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ProteinSequenceAnalysis;
 import org.geworkbench.builtin.projects.history.HistoryPanel;
@@ -61,7 +58,7 @@ public class PatternDiscoveryAnalysis extends AbstractAnalysis implements
 	//algorithm names
     public static final String DISCOVER = "discovery";
     public ProgressBar progressBar;
-    private List<DSMatchedSeqPattern> pattern = new ArrayList<DSMatchedSeqPattern>();
+
 	// login data parameters are stored here
 	private LoginPanelModel loginPanelModel = new LoginPanelModel();
 	
@@ -120,9 +117,6 @@ public class PatternDiscoveryAnalysis extends AbstractAnalysis implements
 		} catch (Exception e1) {
 			return new AlgorithmExecutionResults(false, "Invalid parameters supplied ", null);
 		}
-		// fire a parameter change to the application
-		PatternDiscoveryParameters pp = ParameterTranslation.translate(parms);
-		PatternResult patternResult = new PatternResult(pp, "Pattern Discovery", activeSequenceDB);
 		
 		DiscoverySession discoverySession = getSession();
 		//Check for the discovery session
@@ -205,6 +199,8 @@ public class PatternDiscoveryAnalysis extends AbstractAnalysis implements
         }
         
         int totalPatternNum;
+		PatternDiscoveryParameters pp = ParameterTranslation.translate(parms);
+		PatternResult patternResult = new PatternResult(pp, "Pattern Discovery", activeSequenceDB);
 		try {
 			totalPatternNum = discoverySession.getPatternNo();
 			if(totalPatternNum == 0) {
@@ -216,8 +212,14 @@ public class PatternDiscoveryAnalysis extends AbstractAnalysis implements
 				return new AlgorithmExecutionResults(true, "No patterns found", null);
 			}else {
 				for (int i = 0; i < totalPatternNum; i++) {
-					DSMatchedSeqPattern patternData = getPattern(i, discoverySession);
-					PatternOperations.fill(patternData, discoverySession.getSequenceDB());
+		            CSMatchedSeqPattern patternData = new CSMatchedSeqPattern(discoverySession.getSequenceDB());
+		            try {
+		            	discoverySession.getPattern(i, patternData);
+		            } catch (SessionOperationException ext) {
+		                throw new PatternFetchException(ext.getMessage());
+		            }
+		            PatternOperations.fill(patternData, discoverySession.getSequenceDB());
+		            
 					patternResult.add(patternData);
 				}
 			}
@@ -232,24 +234,6 @@ public class PatternDiscoveryAnalysis extends AbstractAnalysis implements
 		return new AlgorithmExecutionResults(true, "Pattern Discovery Done", patternResult);
 	}
 
-	public synchronized DSMatchedSeqPattern getPattern(int index, DiscoverySession session) {
-        if (index >= pattern.size() || pattern.get(index) == null) {
-            CSMatchedSeqPattern pat = new org.geworkbench.util.patterns.CSMatchedSeqPattern(session.getSequenceDB());
-            try {
-                session.getPattern(index, pat);
-            } catch (SessionOperationException ext) {
-                throw new PatternFetchException(ext.getMessage());
-            }
-            while (pattern.size() < index) {
-                pattern.add(null);
-            }
-            org.geworkbench.util.patterns.PatternOperations.fill(pat, session.getSequenceDB());
-            pattern.add(index, pat);
-        }
-        return pattern.get(index);
-    }
-	
-	
 	private final static String REGULAR = "regular";
     private final static String EXHAUSTIVE = "exhaustive";
 
