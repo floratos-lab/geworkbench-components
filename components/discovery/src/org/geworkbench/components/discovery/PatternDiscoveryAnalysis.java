@@ -19,7 +19,6 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
-import org.geworkbench.bison.datastructure.complex.pattern.PatternDiscoveryParameters;
 import org.geworkbench.bison.datastructure.complex.pattern.PatternResult;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ProteinSequenceAnalysis;
@@ -199,8 +198,8 @@ public class PatternDiscoveryAnalysis extends AbstractAnalysis implements
         }
         
         int totalPatternNum;
-		PatternDiscoveryParameters pp = ParameterTranslation.translate(parms);
-		PatternResult patternResult = new PatternResult(pp, "Pattern Discovery", activeSequenceDB);
+		PatternResult patternResult = new PatternResult("Pattern Discovery", activeSequenceDB,
+				parms.getMinSupport(), parms.getMinTokens(), parms.getMinWTokens(), parms.getWindow());
 		try {
 			totalPatternNum = discoverySession.getPatternNo();
 			if(totalPatternNum == 0) {
