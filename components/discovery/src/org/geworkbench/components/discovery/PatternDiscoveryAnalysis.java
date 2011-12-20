@@ -75,7 +75,7 @@ public class PatternDiscoveryAnalysis extends AbstractAnalysis implements
 		}
 		sequenceDB = (DSSequenceSet) input;
 		
-		String selectedAlgo = getAlgorithmName();
+		String selectedAlgo = patternPanel.getSelectedAlgorithmName();
 		boolean activateMarkers = false;
 		DSPanel<? extends DSGeneMarker> activatedMarkers = null;
 		if(sequenceDB!=null) {
@@ -238,14 +238,6 @@ public class PatternDiscoveryAnalysis extends AbstractAnalysis implements
 	private final static String REGULAR = "regular";
     private final static String EXHAUSTIVE = "exhaustive";
 
-	private String getAlgorithmName() {
-		if(patternPanel.getSelectedAlgorithmName().equalsIgnoreCase("normal")) {
-			return PatternResult.DISCOVER;
-		} else {
-			return PatternResult.EXHAUSTIVE;
-		}
-	}
-
 	public int getAnalysisType() {
 		return AbstractAnalysis.BLAST_TYPE;
 	}
@@ -383,13 +375,13 @@ public class PatternDiscoveryAnalysis extends AbstractAnalysis implements
     		histStr += "Pattern Discovery run with the following parameters:\n";
 			histStr += "----------------------------------------\n";
 			
-			histStr += "Algorithm Type: " + getAlgorithmName() + "\n";						
+			histStr += "Algorithm Type: " + patternPanel.getSelectedAlgorithmName() + "\n";						
 			histStr += "Support: " + params.getMinSupport() + "\n";
 			histStr += "Minimum Tokens: " + params.getMinTokens() + "\n";
 			histStr += "Density Window: " + params.getWindow() + "\n";
 			histStr += "Density Window Min. Tokens: " + params.getMinWTokens() + "\n";
 			
-			if(getAlgorithmName().equalsIgnoreCase(EXHAUSTIVE)) {
+			if(patternPanel.getSelectedAlgorithmName().equalsIgnoreCase(EXHAUSTIVE)) {
 				histStr += "Decrease Support(%): " + params.getExhaustive().getDecrease() + "\n";
 				histStr += "Minimum Support(%): " + params.getExhaustive().getMinSupport() + "\n";
 			}
