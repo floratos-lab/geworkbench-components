@@ -18,11 +18,10 @@ import org.geworkbench.util.sequences.SequenceViewWidget;
 public class PatternViewPanel extends JPanel implements PropertyChangeListener {
 
 	private static final long serialVersionUID = -7717226801492350199L;
-	@SuppressWarnings("unused")
-	private PatternViewComponent patternViewComponent;
+
 	private SequenceViewWidget seqWidget;
 	private JSplitPane mainPanel = new JSplitPane();
-	private PatternTableModelWrapper model = new PatternTableModelWrapper();
+
 	private JPanel view = new JPanel();
 	private DSSequenceSet<? extends DSSequence> sequenceDB;
 	private PatternResult patternResult; 
@@ -47,38 +46,22 @@ public class PatternViewPanel extends JPanel implements PropertyChangeListener {
 		this.add(mainPanel, BorderLayout.CENTER);
 	}
 	
-	private void setResults() {
-		seqWidget = new SequenceViewWidget();
-		seqWidget.setSequenceDB(sequenceDB);
-		mainPanel.setTopComponent(seqWidget);
-		repaint();
-		revalidate();
-	}
-
-	public void setPatternViewComponent(PatternViewComponent pc) {
-		patternViewComponent = pc;
-		
-	}
-
 	public DSSequenceSet<? extends DSSequence> getSequenceDB() {
 		return sequenceDB;
 	}
 	
-	public void setSequenceDB(DSSequenceSet<? extends DSSequence> sDB) {
-		this.sequenceDB = sDB;
-		setResults();
-	}
-	
 	public void setPatternResults(PatternResult pr) {
-		this.patternResult = pr;
-		setTableResults();
-	}
 
-	private void setTableResults() {
+		this.sequenceDB = pr.getActiveDataSet();
+		seqWidget = new SequenceViewWidget();
+		seqWidget.setSequenceDB(sequenceDB);
+		mainPanel.setTopComponent(seqWidget);
 	
-		model = new PatternTableModelWrapper();
-		PatternDataSource data = new PatternDataSource(patternResult);
-		model.attach(data);
+		this.patternResult = pr;
+	
+		PatternTableModelWrapper model = new PatternTableModelWrapper();
+		PatternDataSource patternDataSource = new PatternDataSource(patternResult);
+		model.attach(patternDataSource);
 		view = new PatternTableView(model, this);
 		view.addPropertyChangeListener(this);
 		mainPanel.setBottomComponent(view);
