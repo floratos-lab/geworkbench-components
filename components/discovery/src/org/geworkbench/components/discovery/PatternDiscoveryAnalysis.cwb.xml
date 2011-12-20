@@ -10,7 +10,8 @@
 				tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Pattern_Discovery"
 				description="Front-end control and display for the SPLASH algorithm for pattern discovery
  								in a set of sequences."
-				analysis="true" loadByDefault="true">
+				category="analysis"
+				loadByDefault="true">
 		<required-component
 			class="org.geworkbench.components.discovery.PatternViewComponent" />
 		<required-component class="org.geworkbench.components.sequences.SequenceViewAppComponent" />
