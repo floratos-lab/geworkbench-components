@@ -34,20 +34,17 @@ public class PatternViewPanel extends JPanel {
 		}
 	}
 
-	public void setPatternResults(PatternResult pr) {
+	// TODO variables like patternResult probably should be a field eventually
+	// keep it local for now to simplify the dependency
+	public void setPatternResults(PatternResult patternResult) {
 
-		DSSequenceSet<? extends DSSequence> sequenceSet = pr.getActiveDataSet();
+		DSSequenceSet<? extends DSSequence> sequenceSet = patternResult.getParentSequenceSet();
 		seqWidget = new SequenceViewWidget();
 		seqWidget.setSequenceDB(sequenceSet);
 		mainPanel.setTopComponent(seqWidget);
 	
-		// TODO variables like this probably should be a field eventually
-		// keep it local for now to simplify the dependency
-		PatternResult patternResult = pr;
 	
-		PatternDataSource patternDataSource = new PatternDataSource(patternResult);
-		PatternTableModel model = new PatternTableModel(patternDataSource);
-		model.setRowCount(patternDataSource.getPatternSourceSize());
+		PatternTableModel model = new PatternTableModel(patternResult);
 		model.fireTableDataChanged();
 
 		JPanel view = new PatternTableView(model, sequenceSet);

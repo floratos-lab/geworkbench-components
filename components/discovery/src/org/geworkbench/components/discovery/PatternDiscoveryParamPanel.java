@@ -28,8 +28,11 @@ import javax.swing.border.Border;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
+import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.engine.management.AcceptTypes;
+import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.util.RegularExpressionVerifier;
 
 /**
@@ -79,7 +82,7 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel{
 	private JTextField jMinClusterSizeBox = new JTextField();
 	private JCheckBox jUseHMMBox = new JCheckBox();
 	private String currentSupportMenuStr = SUPPORT_PERCENT_1_100;
-	private int maxSeqNumber;
+	private int maxSeqNumber = Integer.MAX_VALUE;
 	
 	public PatternDiscoveryParamPanel() {
 		this.setLayout(new BorderLayout());
@@ -342,7 +345,7 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel{
 		jTabbedPane1.add(advancedPanel, "Advanced");
 		jTabbedPane1.setSelectedIndex(0);
 		
-		this.setPreferredSize(new Dimension(300, 200));
+		this.setPreferredSize(new Dimension(400, 200));
 		this.add(jTabbedPane1, BorderLayout.CENTER);
 	} 
 	
@@ -445,21 +448,6 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel{
 		return (Integer.parseInt(jWindowBox.getText()));
 	}
 
-	/**
-	 * @return the maxSeqNumber
-	 */
-	public int getMaxSeqNumber() {
-		return maxSeqNumber;
-	}
-
-	/**
-	 * @param maxSeqNumber
-	 *            the maxSeqNumber to set
-	 */
-	public void setMaxSeqNumber(int maxSeqNumber) {
-		this.maxSeqNumber = maxSeqNumber;
-	}
-
 	// Parsing ADVANCED Panel
 	public int getExactOnlySelected() {
 		return (jExactOnlyBox.isSelected() ? 1 : 0);
@@ -553,6 +541,17 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel{
 	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	// TODO such refreshing should be replaced by getting the triggering dataset directly
+	@Subscribe public void receive(org.geworkbench.events.ProjectEvent e,
+            Object source) { 	
+
+		DSDataSet<?> data = e.getDataSet();
+		if (data instanceof DSSequenceSet) {
+			DSSequenceSet<?> d = (DSSequenceSet<?>)data;
+			maxSeqNumber = d.size();
+		}
 	}
 
 }

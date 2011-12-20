@@ -178,6 +178,7 @@ public class PatternDiscoveryAnalysis extends AbstractAnalysis implements
             ex.printStackTrace();
 		}
         boolean done = false;
+        // TODO ideally, PatternResult should be able to handle unfinished result
         while (!done) {
             try {
             	if(this.stopAlgorithm) {
@@ -524,8 +525,4 @@ public class PatternDiscoveryAnalysis extends AbstractAnalysis implements
         return databaseName;
     }
     
-    public synchronized DSSequenceSet<? extends DSSequence> getSequenceDB() {
-		 return activeSequenceDB;
-	}
-	
 }
