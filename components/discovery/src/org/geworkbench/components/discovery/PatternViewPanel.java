@@ -56,9 +56,14 @@ public class PatternViewPanel extends JPanel {
 	
 		this.patternResult = pr;
 	
-		PatternTableModelWrapper model = new PatternTableModelWrapper();
+		PatternTableModel model = new PatternTableModel();
 		PatternDataSource patternDataSource = new PatternDataSource(patternResult);
-		model.attach(patternDataSource);
+//		model.attach(patternDataSource);
+		model.clear();
+		model.setPatternSource(patternDataSource);
+		model.setRowCount(patternDataSource.getPatternSourceSize());
+		model.fireTableDataChanged();
+
 		JPanel view = new PatternTableView(model, this);
 		mainPanel.setBottomComponent(view);
 		repaint();
