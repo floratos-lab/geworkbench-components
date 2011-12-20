@@ -18,53 +18,39 @@ public class PatternViewPanel extends JPanel {
 	private static final long serialVersionUID = -7717226801492350199L;
 
 	private SequenceViewWidget seqWidget;
-	private JSplitPane mainPanel = new JSplitPane();
+	private final JSplitPane mainPanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 
-	private DSSequenceSet<? extends DSSequence> sequenceDB;
-	private PatternResult patternResult; 
-	public static final String TABLE_EVENT = "tableEvent"; 
-	
 	/**
 	 * No public constructor because it is used only by this package.
 	 */
 	PatternViewPanel() {
 		try {
-			jbInit();
+			setLayout(new BorderLayout());
+			mainPanel.setOneTouchExpandable(true);
+			mainPanel.setResizeWeight(.5d);
+			add(mainPanel, BorderLayout.CENTER);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	private void jbInit() { 
-		this.setLayout(new BorderLayout());
-		mainPanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-		mainPanel.setOneTouchExpandable(true);
-		mainPanel.setResizeWeight(.5d);
-		this.add(mainPanel, BorderLayout.CENTER);
-	}
-	
-	public DSSequenceSet<? extends DSSequence> getSequenceDB() {
-		return sequenceDB;
-	}
-	
 	public void setPatternResults(PatternResult pr) {
 
-		this.sequenceDB = pr.getActiveDataSet();
+		DSSequenceSet<? extends DSSequence> sequenceSet = pr.getActiveDataSet();
 		seqWidget = new SequenceViewWidget();
-		seqWidget.setSequenceDB(sequenceDB);
+		seqWidget.setSequenceDB(sequenceSet);
 		mainPanel.setTopComponent(seqWidget);
 	
-		this.patternResult = pr;
+		// TODO variables like this probably should be a field eventually
+		// keep it local for now to simplify the dependency
+		PatternResult patternResult = pr;
 	
-		PatternTableModel model = new PatternTableModel();
 		PatternDataSource patternDataSource = new PatternDataSource(patternResult);
-//		model.attach(patternDataSource);
-		model.clear();
-		model.setPatternSource(patternDataSource);
+		PatternTableModel model = new PatternTableModel(patternDataSource);
 		model.setRowCount(patternDataSource.getPatternSourceSize());
 		model.fireTableDataChanged();
 
-		JPanel view = new PatternTableView(model, this);
+		JPanel view = new PatternTableView(model, sequenceSet);
 		mainPanel.setBottomComponent(view);
 		repaint();
 		revalidate();

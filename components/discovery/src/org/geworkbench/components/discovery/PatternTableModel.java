@@ -29,7 +29,7 @@ public class PatternTableModel extends AbstractTableModel {
     public static final int PTMTokNo = 2;
     public static final int PTMZScore = 3;
     public static final int PTMPattern = 4;
-    static final String[] headerName = {"Hits", "Sequences Hit", "# of Tokens", "ZScore", "Motif"};
+    private static final String[] headerName = {"Hits", "Sequences Hit", "# of Tokens", "ZScore", "Motif"};
     /**
      * Pattern array - contains the patterns.
      */
@@ -38,7 +38,7 @@ public class PatternTableModel extends AbstractTableModel {
     /**
      * Used to format the pValue/zScore field.
      */
-    static private DecimalFormat fmt = new DecimalFormat("0.#E0##");
+    static final private DecimalFormat fmt = new DecimalFormat("0.#E0##");
 
     /**
      * Maximum extension of all the patterns in the model.
@@ -48,7 +48,7 @@ public class PatternTableModel extends AbstractTableModel {
     /**
      * The patterns for this model will come from this source.
      */
-    private org.geworkbench.util.patterns.SequentialPatternSource patternSource = null;
+    private PatternDataSource patternSource = null;
 
     /**
      * Number of rows in the model.
@@ -63,23 +63,16 @@ public class PatternTableModel extends AbstractTableModel {
      */
     private PatternTableModelWorker worker = null;
 
-    /**
-     * Set the pattern source for this model.
-     *
-     * @param source
-     */
-    public synchronized void setPatternSource(org.geworkbench.util.patterns.SequentialPatternSource source) {
-        patternSource = source;
-    }
+    public PatternTableModel(PatternDataSource patternDataSource) {
+        patternSource = patternDataSource;
+	}
 
     /**
      * Sort the patterns in the model on field
      */
     public void sort(int field) {
         if (patternSource != null) {
-            //we are sorting outside the model
-            //clear what patterns we have now in the model
-            clear();
+            pattern.clear();
             patternSource.sort(field);
         }
     }
@@ -91,7 +84,7 @@ public class PatternTableModel extends AbstractTableModel {
      * @param mask    operation
      */
     public void mask(int[] index, boolean maskOperation) {
-        patternSource.mask(index, maskOperation);
+        // TODO nothing implemented yet
     }
 
     /**
@@ -110,13 +103,6 @@ public class PatternTableModel extends AbstractTableModel {
      */
     public synchronized int getRowCount() {
         return rowCount;
-    }
-
-    /**
-     * Removes all existing patterns from the model
-     */
-    public synchronized void clear() {
-        pattern.clear();
     }
 
     /**
@@ -169,7 +155,7 @@ public class PatternTableModel extends AbstractTableModel {
 
     /**
      * Get the pattern at the index row. This method will block until
-     * the pattern is retrived from the underline source. See setPatternSource.
+     * the pattern is retrieved from the underline source. See setPatternSource.
      *
      * @param row
      * @return
