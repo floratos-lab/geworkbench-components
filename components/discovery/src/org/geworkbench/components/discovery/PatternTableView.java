@@ -43,7 +43,6 @@ public class PatternTableView extends JPanel {
 	
 	//For property changes
     static final public String ROWSELECTION = "rowselection";
-    static final public String PATTERN_ADDTO_PROJECT = "patternAddToProject";
 
     private PatternTableModel model = null;
     
@@ -57,8 +56,6 @@ public class PatternTableView extends JPanel {
     private JMenuItem jSavePatternsWInfoItem = new JMenuItem();
     private JMenuItem jSaveSelectedPatternsWInfoItem = new JMenuItem();
     private boolean saveAllPatterns;
-
-    private PatternViewPanel widget = null;
 
     private static class JPTable extends JTable {
 		private static final long serialVersionUID = -8375106946681259570L;
@@ -88,9 +85,11 @@ public class PatternTableView extends JPanel {
 
     private JPTable patternTable = new JPTable();
 
-    public PatternTableView(PatternTableModel model, PatternViewPanel widget) {
+	private DSSequenceSet<? extends DSSequence> sequenceSet;
+
+    public PatternTableView(PatternTableModel model, DSSequenceSet<? extends DSSequence> sequenceSet) {
         this.model = model;
-        this.widget = widget;
+        this.sequenceSet = sequenceSet;
         try {
             jbInit();
         } catch (Exception e) {
@@ -292,7 +291,7 @@ public class PatternTableView extends JPanel {
     }
 
     private PatternResult getPatternDB() {
-        DSSequenceSet<? extends DSSequence> db = widget.getSequenceDB();
+        DSSequenceSet<? extends DSSequence> db = sequenceSet;
         PatternResult patternDB = new PatternResult(db.getFile(), null);
 
         for (int i = 0; i < model.getRowCount(); i++) {
@@ -304,7 +303,7 @@ public class PatternTableView extends JPanel {
     }
 
     private PatternResult getPatternDB(int[] rows) {
-        DSSequenceSet<? extends DSSequence> db = widget.getSequenceDB();
+        DSSequenceSet<? extends DSSequence> db = sequenceSet;
         PatternResult patternDB = new PatternResult(db.getFile(), null);
 
         for (int i = 0; i < rows.length; i++) {

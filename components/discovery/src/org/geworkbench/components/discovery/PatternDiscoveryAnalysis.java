@@ -197,7 +197,7 @@ public class PatternDiscoveryAnalysis extends AbstractAnalysis implements
 			}
         }
         
-        int totalPatternNum;
+        int totalPatternNum = -1;
 		PatternResult patternResult = new PatternResult("Pattern Discovery", activeSequenceDB,
 				parms.getMinSupport(), parms.getMinTokens(), parms.getMinWTokens(), parms.getWindow());
 		try {
@@ -225,6 +225,7 @@ public class PatternDiscoveryAnalysis extends AbstractAnalysis implements
 		} catch (SessionOperationException e) {
 			e.printStackTrace();
 		}
+		patternResult.setDescription("Number of Patterns found:" + totalPatternNum);
 
 		String historyStr = generateHistoryStr(activeSequenceDB,
 				parms);

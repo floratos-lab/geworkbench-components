@@ -5,12 +5,11 @@ import java.util.Arrays;
 import org.geworkbench.bison.datastructure.complex.pattern.PatternResult;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSMatchedSeqPattern;
 import org.geworkbench.util.patterns.PatternSorter;
-import org.geworkbench.util.patterns.SequentialPatternSource;
 
 /**
  * An adapter class for showing patterns.
  */
-public class PatternDataSource implements SequentialPatternSource {
+public class PatternDataSource {
 
     private DSMatchedSeqPattern[] pattern = null;
 
@@ -35,9 +34,5 @@ public class PatternDataSource implements SequentialPatternSource {
     public void sort(int field) {
         sorter.setMode(field);
         Arrays.sort(pattern, sorter);
-    }
-
-    public void mask(int[] index, boolean mask) {
-        //does nothing for local patterns
     }
 }
