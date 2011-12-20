@@ -1,8 +1,6 @@
 package org.geworkbench.components.discovery;
 
 import java.awt.BorderLayout;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
@@ -15,14 +13,13 @@ import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.util.sequences.SequenceViewWidget;
 
-public class PatternViewPanel extends JPanel implements PropertyChangeListener {
+public class PatternViewPanel extends JPanel {
 
 	private static final long serialVersionUID = -7717226801492350199L;
 
 	private SequenceViewWidget seqWidget;
 	private JSplitPane mainPanel = new JSplitPane();
 
-	private JPanel view = new JPanel();
 	private DSSequenceSet<? extends DSSequence> sequenceDB;
 	private PatternResult patternResult; 
 	public static final String TABLE_EVENT = "tableEvent"; 
@@ -62,8 +59,7 @@ public class PatternViewPanel extends JPanel implements PropertyChangeListener {
 		PatternTableModelWrapper model = new PatternTableModelWrapper();
 		PatternDataSource patternDataSource = new PatternDataSource(patternResult);
 		model.attach(patternDataSource);
-		view = new PatternTableView(model, this);
-		view.addPropertyChangeListener(this);
+		JPanel view = new PatternTableView(model, this);
 		mainPanel.setBottomComponent(view);
 		repaint();
 		revalidate();
@@ -85,15 +81,6 @@ public class PatternViewPanel extends JPanel implements PropertyChangeListener {
 	@Subscribe(Asynchronous.class)
 	public void receive(GeneSelectorEvent e, Object source) {
 		seqWidget.sequenceDBUpdate(e);
-	}
-
-	@Override
-	public void propertyChange(PropertyChangeEvent evt) {
-		String property = evt.getPropertyName();
-		if(property.equalsIgnoreCase(PatternTableView.ROWSELECTION)) {
-			firePropertyChange(TABLE_EVENT, null, evt.getNewValue());
-		}
-		
 	}
 	
 }
