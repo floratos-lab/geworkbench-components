@@ -148,6 +148,7 @@ public class DiscoverySession {
 		}
 	}
 
+	// TODO document what this method return before the session is done
 	/**
 	 * Get the number of patterns found.
 	 * 

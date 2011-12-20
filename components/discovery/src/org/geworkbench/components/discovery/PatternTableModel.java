@@ -2,11 +2,14 @@ package org.geworkbench.components.discovery;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
-import javax.swing.SwingWorker;
 import javax.swing.table.AbstractTableModel;
 
+import org.geworkbench.bison.datastructure.complex.pattern.PatternResult;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSMatchedSeqPattern;
+import org.geworkbench.util.patterns.PatternSorter;
 
 /**
  * <p>Title: Sequence and Pattern Plugin</p>
@@ -30,52 +33,34 @@ public class PatternTableModel extends AbstractTableModel {
     public static final int PTMZScore = 3;
     public static final int PTMPattern = 4;
     private static final String[] headerName = {"Hits", "Sequences Hit", "# of Tokens", "ZScore", "Motif"};
-    /**
-     * Pattern array - contains the patterns.
-     */
-    private ArrayList<DSMatchedSeqPattern> pattern = new ArrayList<DSMatchedSeqPattern>();
+
+    // TODO this is only an artifact to implement sorting. It may not be necessary.
+    private List<DSMatchedSeqPattern> pattern = new ArrayList<DSMatchedSeqPattern>();
 
     /**
      * Used to format the pValue/zScore field.
      */
     static final private DecimalFormat fmt = new DecimalFormat("0.#E0##");
 
-    /**
-     * Maximum extension of all the patterns in the model.
-     */
-    private int maxLen = 0;
+    private final int rowCount;
 
-    /**
-     * The patterns for this model will come from this source.
-     */
-    private PatternDataSource patternSource = null;
+    public PatternTableModel(PatternResult patternResult) {
+    	// convert to a List. this may not be necessary except to implement sorting
+        rowCount = patternResult.getPatternNo();
 
-    /**
-     * Number of rows in the model.
-     * Note: the actual number of patterns may be smaller than rowCount.
-     * This is done so we do no need to get all patterns if they are not "used",
-     * i.e. requested from the model.
-     */
-    private int rowCount;
-
-    /**
-     * Will retrieve patterns from a Patterns Source.
-     */
-    private PatternTableModelWorker worker = null;
-
-    public PatternTableModel(PatternDataSource patternDataSource) {
-        patternSource = patternDataSource;
+        for (int i = 0; i < rowCount; ++i) {
+            pattern.add( patternResult.getPattern(i) );
+        }
 	}
 
     /**
      * Sort the patterns in the model on field
      */
-    public void sort(int field) {
-        if (patternSource != null) {
-            pattern.clear();
-            patternSource.sort(field);
-        }
-    }
+	public void sort(int field) {
+		PatternSorter sorter = new PatternSorter();
+		sorter.setMode(field);
+		Collections.sort(pattern, sorter);
+	}
 
     /**
      * Mask the patterns of this model
@@ -118,7 +103,7 @@ public class PatternTableModel extends AbstractTableModel {
     public synchronized Object getValueAt(int row, int col) {
         DSMatchedSeqPattern pattern = null;
         Object cell = null;
-        pattern = getPatternNoBlock(row);
+        pattern = getPattern(row);
         if (pattern != null) {
             switch (col) {
                 case PTMSupport:
@@ -145,15 +130,6 @@ public class PatternTableModel extends AbstractTableModel {
     }
 
     /**
-     * Set the number of rows for the model.
-     *
-     * @param rowNum number of rows.
-     */
-    public synchronized void setRowCount(int rowNum) {
-        rowCount = rowNum;
-    }
-
-    /**
      * Get the pattern at the index row. This method will block until
      * the pattern is retrieved from the underline source. See setPatternSource.
      *
@@ -166,64 +142,7 @@ public class PatternTableModel extends AbstractTableModel {
             throw new IndexOutOfBoundsException("[row=" + row + ", rowCount=" + rowCount + "]");
         }
 
-        if ((pattern.size() <= row) || (pattern.get(row) == null)) {
-            org.geworkbench.util.patterns.CSMatchedSeqPattern p = (org.geworkbench.util.patterns.CSMatchedSeqPattern) patternSource.getPattern(row);
-            while (pattern.size() < row) {
-                pattern.add(null);
-            }
-            pattern.add(row, p);
-            computeMaxLength(p);
-        }
-        return (DSMatchedSeqPattern) pattern.get(row);
-    }
-
-    private DSMatchedSeqPattern getPatternNoBlock(int row) {
-        org.geworkbench.util.patterns.CSMatchedSeqPattern pat = null;
-        if (row < pattern.size()) {
-            pat = (org.geworkbench.util.patterns.CSMatchedSeqPattern) pattern.get(row);
-        }
-
-        if (pat == null) {
-            if ((worker == null) || worker.isDone()) {
-                //if the initial condition where no patterns are available
-                //create a subclass of SwingWorker and let it retrieve the pattern.
-                worker = new PatternTableModelWorker(row);
-                worker.execute();
-            }
-        }
-        return pat;
-    }
-
-    private void computeMaxLength(DSMatchedSeqPattern pattern) {
-        maxLen = Math.max(maxLen, pattern.getMaxLength());
-    }
-
-    private class PatternTableModelWorker extends SwingWorker<Void, Void> {
-        int row;
-
-        public PatternTableModelWorker(int row) {
-            this.row = row;
-        }
-
-        /**
-         * Main work of the SwingWorker is in this method
-         * SwingWorker retrieves a new Pattern from the server.
-         * new Pattern is also set with the ASCII value of the pattern
-         */
-    	@Override
-    	protected Void doInBackground() throws Exception {
-    		getPattern(row);
-    		return null;
-        }
-
-        /**
-         * PatternTableModelWorker will fireTableDataChanged when everything finished
-         */
-    	@Override
-        public void done() {
-            fireTableDataChanged();
-        }
-
+        return pattern.get(row);
     }
 
 }

@@ -43,8 +43,6 @@ public class PatternViewComponent implements
     		log.debug("ProjectEvent received");
     		PatternResult patterResult = ((PatternResult) data);
     		patternViewPanel.setPatternResults(patterResult);
-    		String summary = "Number of Patterns found:" + patterResult.getPatternNo();
-    		patterResult.setDescription(summary);
     	}
     }
 }
