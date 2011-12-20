@@ -5,6 +5,7 @@ import javax.swing.SwingUtilities;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSMatchedSeqPattern;
 import org.geworkbench.events.ProgressChangeEvent;
 import org.geworkbench.events.listeners.ProgressChangeListener;
+import org.geworkbench.util.patterns.SequentialPatternSource;
 
 /**
  * <p>Title: Sequence and Pattern Plugin</p>
@@ -35,7 +36,7 @@ public class PatternTableModelWrapper implements ProgressChangeListener {
     }
 
     /**
-     * This methos sets the total number of pattern for the model.
+     * This method sets the total number of pattern for the model.
      *
      * @param numOfPatterns
      */
@@ -53,17 +54,11 @@ public class PatternTableModelWrapper implements ProgressChangeListener {
         firePatternDataModelChanged();
     }
 
-    public boolean attach(org.geworkbench.util.patterns.DataSource data) {
-    	
-        if (data instanceof org.geworkbench.util.patterns.SequentialPatternSource) {
-            clear();
-            org.geworkbench.util.patterns.SequentialPatternSource source = (org.geworkbench.util.patterns.SequentialPatternSource) data;
-            patternModel.setPatternSource(source);
-            patternModel.setRowCount(source.getPatternSourceSize());
-            firePatternDataModelChanged();
-            return true;
-        }
-        return false;
+    public void attach(SequentialPatternSource source) {
+        patternModel.clear();
+		patternModel.setPatternSource(source);
+		patternModel.setRowCount(source.getPatternSourceSize());
+		firePatternDataModelChanged();
     }
 
     /**
