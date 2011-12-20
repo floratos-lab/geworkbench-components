@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.InputVerifier;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -21,6 +22,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.border.Border;
@@ -31,6 +33,7 @@ import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
+import org.geworkbench.bison.datastructure.complex.pattern.PatternResult;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.util.RegularExpressionVerifier;
@@ -62,7 +65,6 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel{
 
 	// Advanced Panel
 	private JCheckBox jExactOnlyBox = new JCheckBox();
-	private JComboBox jAlgoBox = new JComboBox();
 	private JComboBox jMatrixBox = new JComboBox();
 	private JTextField jSimThresholdBox = new JTextField();
 
@@ -84,15 +86,18 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel{
 	private String currentSupportMenuStr = SUPPORT_PERCENT_1_100;
 	private int maxSeqNumber = Integer.MAX_VALUE;
 	
+    private JRadioButton discovery = new JRadioButton("Normal");
+    private JRadioButton exhaustive = new JRadioButton("Exhaustive");
+    
 	public PatternDiscoveryParamPanel() {
 		this.setLayout(new BorderLayout());
 		
 		final Dimension size1 = new Dimension(150, 30);
-		
-		jAlgoBox.addItem("Normal");
-		jAlgoBox.addItem("Exhaustive");
-		jAlgoBox.setMaximumSize(size1);
-		jAlgoBox.setSelectedIndex(0);
+
+		discovery.setSelected(true);
+		ButtonGroup algorithmGroup = new ButtonGroup();
+        algorithmGroup.add(discovery);
+        algorithmGroup.add(exhaustive);
 		
 		jMinSupportMenu.addItem(SUPPORT_PERCENT_1_100);
 		jMinSupportMenu.addItem(SUPPORT_SEQUENCES);
@@ -214,7 +219,8 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel{
 		JLabel label0 = new JLabel("Algorithm Type:");
 		label0.setMaximumSize(size2);
 		basic0.add(label0);
-		basic0.add(jAlgoBox);
+		basic0.add(discovery);
+		basic0.add(exhaustive);
 		
 		JPanel basic1 = new JPanel();
 		basic1.setLayout(new BoxLayout(basic1, BoxLayout.LINE_AXIS));
@@ -429,7 +435,14 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel{
 	
 	// ------------------------BASIC PANEL
 	public String getSelectedAlgorithmName() {
-		return ((String) jAlgoBox.getSelectedItem());
+		if(discovery.isSelected()) {
+			return PatternResult.DISCOVER;
+		} else if(exhaustive.isSelected()) {
+			return PatternResult.EXHAUSTIVE;
+		} else {
+			log.error("Unexpected choice");
+			return null;
+		}
 	}
 	
 	public String getMinSupport() {
