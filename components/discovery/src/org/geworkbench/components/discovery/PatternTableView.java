@@ -26,7 +26,6 @@ import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSe
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.datastructure.complex.pattern.PatternResult;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSMatchedSeqPattern;
-import org.geworkbench.events.listeners.ProgressChangeListener;
 import org.geworkbench.util.patterns.PatternOperations;
 
 /**
@@ -45,8 +44,9 @@ public class PatternTableView extends JPanel {
 	//For property changes
     static final public String ROWSELECTION = "rowselection";
     static final public String PATTERN_ADDTO_PROJECT = "patternAddToProject";
-    //the model for this table
-    private PatternTableModelWrapper model = null;
+
+    private PatternTableModel model = null;
+    
     BorderLayout borderLayout1 = new BorderLayout();
     private JScrollPane jScrollPane = new JScrollPane();
     //popup menu
@@ -88,8 +88,8 @@ public class PatternTableView extends JPanel {
 
     private JPTable patternTable = new JPTable();
 
-    public PatternTableView(ProgressChangeListener model, PatternViewPanel widget) {
-        this.model = (PatternTableModelWrapper) model;
+    public PatternTableView(PatternTableModel model, PatternViewPanel widget) {
+        this.model = model;
         this.widget = widget;
         try {
             jbInit();
@@ -102,7 +102,7 @@ public class PatternTableView extends JPanel {
         this.setLayout(borderLayout1);
         patternTable.setBackground(Color.pink);
         patternTable.setEnabled(true);
-        patternTable.setModel(model.getPatternTableModel());
+        patternTable.setModel(model);
         add(jScrollPane, BorderLayout.CENTER);
         jScrollPane.getViewport().add(patternTable, null);
         addMouseListener();
@@ -295,7 +295,7 @@ public class PatternTableView extends JPanel {
         DSSequenceSet<? extends DSSequence> db = widget.getSequenceDB();
         PatternResult patternDB = new PatternResult(db.getFile(), null);
 
-        for (int i = 0; i < model.size(); i++) {
+        for (int i = 0; i < model.getRowCount(); i++) {
             DSMatchedSeqPattern pattern = model.getPattern(i);
             PatternOperations.fill(pattern, db);
             patternDB.add(pattern);
