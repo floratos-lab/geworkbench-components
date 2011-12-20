@@ -39,7 +39,7 @@ public class PatternViewComponent implements
                                    Object source) { 	
 
     	DSDataSet<?> data = e.getDataSet();
-    	if ((data != null) && (data instanceof PatternResult)) {
+    	if (data instanceof PatternResult) {
     		log.debug("ProjectEvent received");
     		PatternResult patterResult = ((PatternResult) data);
     		patternViewPanel.setPatternResults(patterResult);
