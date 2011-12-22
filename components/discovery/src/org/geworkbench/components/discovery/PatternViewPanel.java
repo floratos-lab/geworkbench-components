@@ -16,6 +16,8 @@ import org.geworkbench.bison.datastructure.complex.pattern.sequence.CSSeqRegistr
 import org.geworkbench.engine.management.Asynchronous;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.GeneSelectorEvent;
+import org.geworkbench.util.sequences.PatternTableModel;
+import org.geworkbench.util.sequences.PatternTableView;
 import org.geworkbench.util.sequences.SequenceViewWidget;
 
 public class PatternViewPanel extends JPanel implements PropertyChangeListener {
