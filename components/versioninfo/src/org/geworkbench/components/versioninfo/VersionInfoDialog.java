@@ -21,7 +21,6 @@ import javax.swing.JLabel;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
 
@@ -33,6 +32,8 @@ import com.jgoodies.forms.layout.FormLayout;
  */
 public class VersionInfoDialog extends JDialog implements ActionListener {
 	private static final long serialVersionUID = 4152518674720567787L;
+	
+	static final String VERSION = System.getProperty("application.version");
 
 	static Log log = LogFactory.getLog(VersionInfoDialog.class);
 
@@ -43,10 +44,9 @@ public class VersionInfoDialog extends JDialog implements ActionListener {
 		this(null);
 	}
 
-	private static Properties properties = new Properties();
+	private static Properties properties = new Properties();	
 	private JButton okButton = new JButton();
-
-	private static String version = "Version 1.0";
+	
 	private static String buildTime = (new Date()).toString();
 
 	public VersionInfoDialog(Frame parent) {
@@ -55,15 +55,15 @@ public class VersionInfoDialog extends JDialog implements ActionListener {
 		enableEvents(AWTEvent.WINDOW_EVENT_MASK);
 
 		try {
-			properties.load(VersionInfoDialog.class.getResource("version.txt")
-					.openStream());
+			properties.load(VersionInfoDialog.class.getResource(VERSION_INFO_FILENAME)
+					.openStream());		
+			
 		} catch (IOException ex1) {
 			log.warn("VersionInfo reading error" + ex1.toString());
 		}
 
-		version = properties.getProperty("version");
 		buildTime = properties.getProperty("buildTime");
-
+		
 		try {
 			jbInit();
 		} catch (Exception e) {
@@ -91,7 +91,7 @@ public class VersionInfoDialog extends JDialog implements ActionListener {
 			builder.nextLine();
 			builder.append(new JLabel("geWorkbench"));
 			builder.nextLine();
-			builder.append(new JLabel(version));
+			builder.append(new JLabel(VERSION));
 			builder.nextLine();
 			if (!StringUtils.isEmpty(buildTime)) {
 				builder.append(new JLabel("Updated on " + buildTime));
@@ -138,7 +138,7 @@ public class VersionInfoDialog extends JDialog implements ActionListener {
 	 * 
 	 */
 	public static void main(String[] args) {
-		if (args.length != 2) {
+		if (args.length != 1) {
 			System.out
 					.println("VersionInfoDialog is invoked with wrong number of arguments.");
 			System.exit(1);
@@ -147,10 +147,9 @@ public class VersionInfoDialog extends JDialog implements ActionListener {
 		DateFormat df = new SimpleDateFormat("EEEE MMMM d HH:mm:ss zzz yyyy");
 
 		try {
-			PrintWriter pw = new PrintWriter(new FileWriter(args[1]
+			PrintWriter pw = new PrintWriter(new FileWriter(args[0]
 					+ VERSION_INFO_FILENAME));
-			pw.println("#Version Information:");
-			pw.println("version=Version " + args[0]);
+			pw.println("#Version Information:");			
 			pw.println("buildTime=" + df.format(new java.util.Date()));
 			pw.close();
 		} catch (IOException e) {
