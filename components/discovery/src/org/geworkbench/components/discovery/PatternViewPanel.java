@@ -1,19 +1,24 @@
 package org.geworkbench.components.discovery;
 
 import java.awt.BorderLayout;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.List;
 
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
+import org.geworkbench.bison.datastructure.complex.pattern.DSMatchedPattern;
 import org.geworkbench.bison.datastructure.complex.pattern.PatternResult;
+import org.geworkbench.bison.datastructure.complex.pattern.sequence.CSSeqRegistration;
 import org.geworkbench.engine.management.Asynchronous;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.util.sequences.SequenceViewWidget;
 
-public class PatternViewPanel extends JPanel {
+public class PatternViewPanel extends JPanel implements PropertyChangeListener {
 
 	private static final long serialVersionUID = -7717226801492350199L;
 
@@ -48,18 +53,12 @@ public class PatternViewPanel extends JPanel {
 		model.fireTableDataChanged();
 
 		JPanel view = new PatternTableView(model, sequenceSet);
+		view.addPropertyChangeListener(this);
 		mainPanel.setBottomComponent(view);
 		repaint();
 		revalidate();
 	}
 	
-	@Subscribe
-	public void sequenceDiscoveryTableRowSelected(
-			org.geworkbench.events.SequenceDiscoveryTableEvent e,
-			Object publisher) {
-		seqWidget.patternSelectionHasChanged(e);
-	}
-
 	/**
 	 * geneSelectorAction
 	 * 
@@ -69,6 +68,16 @@ public class PatternViewPanel extends JPanel {
 	@Subscribe(Asynchronous.class)
 	public void receive(GeneSelectorEvent e, Object source) {
 		seqWidget.sequenceDBUpdate(e);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void propertyChange(PropertyChangeEvent evt) {
+		Object object = evt.getNewValue();
+		if(object instanceof List) {
+			List<DSMatchedPattern<DSSequence, CSSeqRegistration>> selected = (List<DSMatchedPattern<DSSequence, CSSeqRegistration>>)object;
+			seqWidget.patternSelectionHasChanged(selected);
+		}
 	}
 	
 }

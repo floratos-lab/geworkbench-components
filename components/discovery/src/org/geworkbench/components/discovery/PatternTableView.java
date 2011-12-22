@@ -11,6 +11,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JFileChooser;
 import javax.swing.JMenuItem;
@@ -24,7 +26,9 @@ import javax.swing.table.TableColumnModel;
 
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
+import org.geworkbench.bison.datastructure.complex.pattern.DSMatchedPattern;
 import org.geworkbench.bison.datastructure.complex.pattern.PatternResult;
+import org.geworkbench.bison.datastructure.complex.pattern.sequence.CSSeqRegistration;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSMatchedSeqPattern;
 import org.geworkbench.util.patterns.PatternOperations;
 
@@ -161,10 +165,27 @@ public class PatternTableView extends JPanel {
         addPopupMenuItem();
     }
 
+    static private List<DSMatchedPattern<DSSequence, CSSeqRegistration>> getSelectedPatterns(JPTable patternTable) {
+		List<DSMatchedPattern<DSSequence, CSSeqRegistration>> patternMatches = new ArrayList<DSMatchedPattern<DSSequence, CSSeqRegistration>>();
+		if (patternTable != null) {
+			PatternTableModel model = (PatternTableModel) (patternTable)
+					.getModel();
+			int[] rows = patternTable.getSelectedRows();
+			for (int i = 0; i < rows.length; i++) {
+				DSMatchedPattern<DSSequence, CSSeqRegistration> pattern = model
+						.getPattern(rows[i]);
+				patternMatches.add(pattern);
+			}
+		}
+    	return patternMatches;
+    }
+    
     private void addMouseListener() {
         patternTable.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
-                firePropertyChange(ROWSELECTION, null, patternTable);
+            	List<DSMatchedPattern<DSSequence, CSSeqRegistration>> selected = 
+            			getSelectedPatterns(patternTable);
+                firePropertyChange(ROWSELECTION, null, selected);
             }
         });
 
