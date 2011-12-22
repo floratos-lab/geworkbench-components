@@ -18,6 +18,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Date;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -70,6 +71,7 @@ import org.geworkbench.bison.model.analysis.ParameterPanelIncludingNormalized;
 import org.geworkbench.bison.model.analysis.ProteinSequenceAnalysis;
 import org.geworkbench.bison.model.analysis.ProteinStructureAnalysis;
 import org.geworkbench.builtin.projects.ProjectPanel;
+import org.geworkbench.builtin.projects.history.HistoryPanel;
 import org.geworkbench.components.cagrid.gui.GridServicePanel;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
@@ -928,7 +930,7 @@ public class AnalysisPanel extends CommandBase implements
 					/* check if we are dealing with a grid analysis */
 					if (isGridAnalysis()) {
 						submitAsCaGridService();
-					} else {
+					} else {						
 						executeLocally();
 					}
 					analyze.setEnabled(true);
@@ -942,6 +944,9 @@ public class AnalysisPanel extends CommandBase implements
 
 	private void submitAsCaGridService() {
 
+		Date startDate = new Date();
+		Long startTime =startDate.getTime();
+		
 		AbstractGridAnalysis selectedGridAnalysis = (AbstractGridAnalysis) selectedAnalysis;
 
 		ParamValidationResults validResult = ((AbstractGridAnalysis) selectedAnalysis)
@@ -1011,8 +1016,8 @@ public class AnalysisPanel extends CommandBase implements
 			pBar.stop();
 		}
 
-		/* generate history for grid analysis */
-		String history = "";
+		/* generate history for grid analysis */	
+		String history = "Grid service started at: " + Util.formatDateStandard(startDate) + ", milliseconds=" + startTime + FileTools.NEWLINE;
 		history += "Grid service information:" + FileTools.NEWLINE;
 		history += FileTools.TAB + "Index server url: "
 				+ jGridServicePanel.getIndexServerUrl() + FileTools.NEWLINE;
@@ -1020,7 +1025,9 @@ public class AnalysisPanel extends CommandBase implements
 				+ FileTools.NEWLINE;
 		history += FileTools.TAB + "Service url: " + url + FileTools.NEWLINE
 				+ FileTools.NEWLINE;
-		history += selectedAnalysis.createHistory();
+		history += selectedAnalysis.createHistory()
+	            + FileTools.NEWLINE;
+		
 		if (refOtherSet != null) {
 			history += generateHistoryStringForGeneralDataSet(refOtherSet);
 		} else if (maSetView != null && refMASet != null) {
@@ -1039,6 +1046,10 @@ public class AnalysisPanel extends CommandBase implements
 	// this method is only invoked form background thread
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void executeLocally() {
+		
+		Date startDate = new Date();
+		Long startTime =startDate.getTime();
+		
 		AlgorithmExecutionResults results = null;
 		if (refOtherSet != null) {
 			// first case: analysis that does not take in microarray data set
@@ -1081,7 +1092,20 @@ public class AnalysisPanel extends CommandBase implements
 		}
 		Object resultObject = results.getResults();
 		if (resultObject instanceof DSAncillaryDataSet) {
-			DSAncillaryDataSet<DSBioObject> dataSet = (DSAncillaryDataSet<DSBioObject>) resultObject;
+			DSAncillaryDataSet<DSBioObject> dataSet = (DSAncillaryDataSet<DSBioObject>) resultObject;		
+			
+			//add start/end time to history
+			String history = "Analysis process started at: " + Util.formatDateStandard(startDate) + ", milliseconds=" + startTime + FileTools.NEWLINE;
+			HistoryPanel.addBeforeToHistory(dataSet, history);
+			Date endDate = new Date();
+			long endTime = endDate.getTime();
+			history = "\nAnalysis process finished at: "
+					+ Util.formatDateStandard(endDate) + ", milliseconds=" + endTime + FileTools.NEWLINE;			 
+			long elspedTime = endTime - startTime;
+			history += "\nTotal elsped time: "
+					+ Util.convertLongToTimeStr(elspedTime);
+			HistoryPanel.addToHistory(dataSet, history);
+			
 			ProjectPanel.getInstance().addProjectNode(null, dataSet);
 			return;
 		}
