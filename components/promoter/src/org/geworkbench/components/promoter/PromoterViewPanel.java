@@ -1594,6 +1594,28 @@ public final class PromoterViewPanel extends JPanel {
         }
     }
 
+    // new version to replace the above one
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	void setPatterns(List<DSMatchedPattern<DSSequence, CSSeqRegistration>> patterns) {
+        updateParameters();
+        seqDisPanel.patternSelectionHasChanged(patterns);
+
+        //add the new patterns into seqPatterns
+        seqPatterns.clear();
+        seqPatterns = new ArrayList(patterns); // TODO check the usage of seqPatterns to confirm whether this is necessary
+        for (DSMatchedPattern<DSSequence, CSSeqRegistration> pattern : patterns) {
+            PatternOperations.getPatternColor(pattern.hashCode());
+            DSPattern<DSSequence, CSSeqRegistration> p = pattern.getPattern();
+
+            List<DSPatternMatch<DSSequence,
+                    CSSeqRegistration>> matches = pattern.matches();
+            
+            if(p==null) continue;
+
+            seqPatternMatches.put(p, matches);
+        }
+    }
+
     private void updateParameters() {
         seqDisPanel.setDisplaySeqPattern(showSeqPattern.isSelected());
         seqDisPanel.setDisplayTF(showTF.isSelected());
