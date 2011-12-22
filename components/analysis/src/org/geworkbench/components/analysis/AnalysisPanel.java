@@ -383,7 +383,7 @@ public class AnalysisPanel extends CommandBase implements
 	 * @return
 	 */
 	private String generateHistoryString(DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView) {
-		StringBuilder ans = new StringBuilder("=The MicroarraySetView used for analysis contains following data=");
+		StringBuilder ans = new StringBuilder("=The MicroarraySetView used for analysis contains the following data: ");
 		/* Generate text for microarrays/groups */
 		ans .append( FileTools.NEWLINE );
 		try {
@@ -678,7 +678,7 @@ public class AnalysisPanel extends CommandBase implements
 		}
 		if (selectedAnalysis
 				.parameterSetExist(selectedAnalysis.getParameters())) {
-			JOptionPane.showMessageDialog(null, "ParameterSet already exist.",
+			JOptionPane.showMessageDialog(null, "ParameterSet already exists.",
 					"Canceled", JOptionPane.OK_OPTION);
 		} else {
 			/*
@@ -730,11 +730,11 @@ public class AnalysisPanel extends CommandBase implements
 		if (selectedAnalysis != null
 				&& this.parameterComboBox.getSelectedIndex() <= 0) {
 			JOptionPane.showMessageDialog(null,
-					"You have to select a setting before you can delete it.",
+					"You must select a setting before you can delete it.",
 					"Canceled", JOptionPane.OK_OPTION);
 		} else {
 			int choice = JOptionPane.showConfirmDialog(null,
-					"Are you sure you want to delete saved parameters?",
+					"Are you sure you want to delete the saved parameters?",
 					"Deleting Saved Parameters", JOptionPane.YES_NO_OPTION,
 					JOptionPane.WARNING_MESSAGE);
 
@@ -888,7 +888,7 @@ public class AnalysisPanel extends CommandBase implements
 			if (isLogNormalizedFromGuess != null
 					&& isLogNormalizedFromGuess.booleanValue() != isLogNormalized
 							.booleanValue()) {
-				String theMessage = "We have detected that the checkbox 'Data is log2-tranformed' may not be correctly set. Do you want to proceed anyway?";
+				String theMessage = "The checkbox 'Data is log2-tranformed' may not be set correctly. Do you want to proceed anyway?";
 				int result = JOptionPane.showConfirmDialog((Component) null,
 						theMessage, "alert", JOptionPane.YES_NO_OPTION);
 				if (result == JOptionPane.NO_OPTION)
@@ -967,7 +967,7 @@ public class AnalysisPanel extends CommandBase implements
 				JOptionPane
 						.showMessageDialog(
 								null,
-								"Please make sure you entered valid username and password",
+								"Please make sure you entered a valid username and password",
 								"Invalid User Account",
 								JOptionPane.ERROR_MESSAGE);
 				return;
@@ -1095,15 +1095,15 @@ public class AnalysisPanel extends CommandBase implements
 			DSAncillaryDataSet<DSBioObject> dataSet = (DSAncillaryDataSet<DSBioObject>) resultObject;		
 			
 			//add start/end time to history
-			String history = "Analysis process started at: " + Util.formatDateStandard(startDate) + ", milliseconds=" + startTime + FileTools.NEWLINE;
+			String history = "Analysis started at: " + Util.formatDateStandard(startDate) +  FileTools.NEWLINE;
 			HistoryPanel.addBeforeToHistory(dataSet, history);
 			Date endDate = new Date();
 			long endTime = endDate.getTime();
-			history = "\nAnalysis process finished at: "
-					+ Util.formatDateStandard(endDate) + ", milliseconds=" + endTime + FileTools.NEWLINE;			 
-			long elspedTime = endTime - startTime;
-			history += "\nTotal elsped time: "
-					+ Util.convertLongToTimeStr(elspedTime);
+			history = "\nAnalysis finished at: "
+					+ Util.formatDateStandard(endDate) + FileTools.NEWLINE;			 
+			long elapsedTime = endTime - startTime;
+			history += "\nTotal elapsed time: "
+					+ Util.convertLongToTimeStr(elapsedTime);
 			HistoryPanel.addToHistory(dataSet, history);
 			
 			ProjectPanel.getInstance().addProjectNode(null, dataSet);
