@@ -226,6 +226,7 @@ public class PatternDiscoveryAnalysis extends AbstractAnalysis implements
 		} catch (SessionOperationException e) {
 			e.printStackTrace();
 		}
+		
 		patternResult.setDescription("Number of Patterns found:" + totalPatternNum);
 
 		String historyStr = generateHistoryStr(activeSequenceDB,
