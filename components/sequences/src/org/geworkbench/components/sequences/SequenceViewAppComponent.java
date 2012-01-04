@@ -38,13 +38,6 @@ public class SequenceViewAppComponent implements VisualPlugin {
 		sViewWidget = new SequenceViewWidget();
 	}
 
-	@Subscribe
-	public void sequenceDiscoveryTableRowSelected(
-			org.geworkbench.events.SequenceDiscoveryTableEvent e,
-			Object publisher) {
-		sViewWidget.patternSelectionHasChanged(e);
-	}
-
 	/**
 	 * geneSelectorAction
 	 * 

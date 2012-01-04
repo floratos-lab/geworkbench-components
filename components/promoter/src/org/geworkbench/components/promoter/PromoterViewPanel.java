@@ -75,7 +75,6 @@ import org.geworkbench.bison.datastructure.complex.pattern.DSPattern;
 import org.geworkbench.bison.datastructure.complex.pattern.DSPatternMatch;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.CSSeqRegistration;
 import org.geworkbench.events.GeneSelectorEvent;
-import org.geworkbench.events.SequenceDiscoveryTableEvent;
 import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbench.util.RandomSequenceGenerator;
 import org.geworkbench.util.associationdiscovery.statistics.ClusterStatistics;
@@ -1559,42 +1558,7 @@ public final class PromoterViewPanel extends JPanel {
         }
     }
 
-    /**
-     * sequenceDiscoveryTableRowSelected
-     * 
-     *	This method is invoked from PromoterView.
-     *
-     * @param e SequenceDiscoveryTableEvent
-     */
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-	void sequenceDiscoveryTableRowSelected(SequenceDiscoveryTableEvent e) {
-        updateParameters();
-        seqDisPanel.patternSelectionHasChanged(e);
-
-        //clear previously selected discovered patterns
-        for (DSPattern<DSSequence, CSSeqRegistration> p : seqPatterns) {
-            seqDisPanel.removePattern(p);
-        }
-
-        //add the new patterns into seqPatterns
-        seqPatterns.clear();
-        List<DSMatchedPattern<DSSequence,
-                CSSeqRegistration>> patterns = e.getPatternMatchCollection();
-        seqPatterns = new ArrayList(patterns);
-        for (DSMatchedPattern<DSSequence, CSSeqRegistration> pattern : patterns) {
-            PatternOperations.getPatternColor(pattern.hashCode());
-            DSPattern<DSSequence, CSSeqRegistration> p = pattern.getPattern();
-
-            List<DSPatternMatch<DSSequence,
-                    CSSeqRegistration>> matches = pattern.matches();
-            
-            if(p==null) continue;
-
-            seqPatternMatches.put(p, matches);
-        }
-    }
-
-    // new version to replace the above one
+    /* show the patterns over sequence viewer */
     @SuppressWarnings({ "rawtypes", "unchecked" })
 	void setPatterns(List<DSMatchedPattern<DSSequence, CSSeqRegistration>> patterns) {
         updateParameters();

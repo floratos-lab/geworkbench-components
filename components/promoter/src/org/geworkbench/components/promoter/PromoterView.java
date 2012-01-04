@@ -100,19 +100,6 @@ public class PromoterView implements VisualPlugin, PropertyChangeListener {
 	}
 
 	/**
-	 * sequenceDiscoveryTableRowSelected receives signal from sequence discovery
-	 * panel
-	 * 
-	 * @param e
-	 *            SequenceDiscoveryTableEvent
-	 */
-	@Subscribe
-	public void receive(org.geworkbench.events.SequenceDiscoveryTableEvent e,
-			Object publisher) {
-		main.sequenceDiscoveryTableRowSelected(e);
-	}
-
-	/**
 	 * Publish the image of the result
 	 * 
 	 * @return ImageSnapshotEvent
@@ -124,6 +111,7 @@ public class PromoterView implements VisualPlugin, PropertyChangeListener {
 		return event;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
 		Object object = evt.getNewValue();
