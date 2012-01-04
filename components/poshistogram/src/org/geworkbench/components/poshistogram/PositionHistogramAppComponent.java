@@ -25,7 +25,6 @@ import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.ImageSnapshotEvent;
 import org.geworkbench.events.ProjectEvent;
-import org.geworkbench.events.SequenceDiscoveryTableEvent;
 import org.geworkbench.util.sequences.PatternTableModel;
 import org.geworkbench.util.sequences.PatternTableView;
 
@@ -57,12 +56,6 @@ public class PositionHistogramAppComponent implements VisualPlugin, MenuListener
 
 		mainPanel.setOneTouchExpandable(true);
 		mainPanel.setResizeWeight(.5d);
-    }
-
-    @Subscribe
-    public void sequenceDiscoveryTableRowSelected(SequenceDiscoveryTableEvent e, Object publisher) {
-        /** TODO Fix patterns */
-        pHistogramWidget.setPatterns(e.getPatternMatchCollection());
     }
 
     @Override
