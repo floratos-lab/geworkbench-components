@@ -597,9 +597,13 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 	protected void showGeneDetail(String geneSymbol) {
 		int geneId = AnnotationManager.getEntrezId(dataSet, geneSymbol);
 		geneDetails.setContentType("text/html");
-		geneDetails.setText("Details of Gene " + geneSymbol
+		if(geneId!=-1) {
+			geneDetails.setText("Details of Gene " + geneSymbol
 				+ "<p>Entrez ID: "+geneId+" <a href=http://www.ncbi.nlm.nih.gov/gene/" + geneId
 				+ ">Link to Entrez Gene Database</a>");
+		} else {
+			geneDetails.setText( geneSymbol+" is not a gene symbol" );
+		}
 	}
 	
 	/* (non-Javadoc)
