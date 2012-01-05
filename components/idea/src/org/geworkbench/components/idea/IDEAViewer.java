@@ -2,20 +2,28 @@ package org.geworkbench.components.idea;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.table.AbstractTableModel;
 
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
@@ -30,6 +38,7 @@ import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.ProjectEvent;
+import org.geworkbench.util.FilePathnameUtils;
 
 /**
  * IDEAViewer of IDEA analysis component
@@ -264,35 +273,65 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 		significantGeneTable.setAutoCreateRowSorter(true);
 		
 		// significantGeneTable.setPreferredSize(new Dimension(700, 50));
-		tabbedPane.addTab("Genes of Significance", new JScrollPane(
-				significantGeneTable));
-		tabbedPane.addTab("Edges of LOC", new JScrollPane(locTable));
-		tabbedPane.addTab("Edges of GOC", new JScrollPane(gocTable));
-		tabbedPane.addTab("Module in Nodes", new JScrollPane(nodeTable));
+		JScrollPane scrollSignificantGeneTable= new JScrollPane(significantGeneTable);
+		JPanel sigPane=new JPanel();
+		sigPane.setLayout(new BorderLayout());
+		sigPane.add(scrollSignificantGeneTable, BorderLayout.CENTER);
+		JButton saveSigGeneButton=new JButton();
+		saveSigGeneButton.setText("Export Table");
+		JPanel bottom1=new JPanel();
+		bottom1.setLayout(new GridLayout(0,3));
+		bottom1.add(new JLabel());
+		bottom1.add(saveSigGeneButton);
+		sigPane.add(bottom1, BorderLayout.SOUTH);
+		tabbedPane.addTab("Significant Genes", sigPane);
+		
+		JPanel locPane=new JPanel();
+		locPane.setLayout(new BorderLayout());
+		locPane.add(locTable, BorderLayout.CENTER);
+		JButton saveLocButton=new JButton();
+		saveLocButton.setText("Export Table");
+		JPanel bottom2=new JPanel();
+		bottom2.setLayout(new GridLayout(0,3));
+		bottom2.add(new JLabel());
+		bottom2.add(saveLocButton);
+		locPane.add(bottom2, BorderLayout.SOUTH);		
+		tabbedPane.addTab("LOC Edges", locPane);
+		
+		JPanel gocPane=new JPanel();
+		gocPane.setLayout(new BorderLayout());
+		gocPane.add(gocTable, BorderLayout.CENTER);
+		JButton saveGocButton=new JButton();
+		saveGocButton.setText("Export Table");
+		JPanel bottom3=new JPanel();
+		bottom3.setLayout(new GridLayout(0,3));
+		bottom3.add(new JLabel());
+		bottom3.add(saveGocButton);
+		gocPane.add(bottom3, BorderLayout.SOUTH);		
+		tabbedPane.addTab("GOC Edges", gocPane);		
+		
+		JPanel nodesPane=new JPanel();
+		nodesPane.setLayout(new BorderLayout());
+		nodesPane.add(nodeTable, BorderLayout.CENTER);
+		JButton saveNodesButton=new JButton();
+		saveNodesButton.setText("Export Table");
+		JPanel bottom4=new JPanel();
+		bottom4.setLayout(new GridLayout(0,3));
+		bottom4.add(new JLabel());
+		bottom4.add(saveNodesButton);
+		nodesPane.add(bottom4, BorderLayout.SOUTH);	
+		tabbedPane.addTab("Module in Nodes", nodesPane);
 
 		setLayout(new BorderLayout());
-		add(tabbedPane, BorderLayout.CENTER);
-
-		JPanel bottomPanel = new JPanel();
-		JButton saveSigGeneButton = new JButton();
-		saveSigGeneButton.setText("save significant genes");
-		JButton saveLocButton = new JButton();
-		saveLocButton.setText("save Loc egdes");
-		JButton saveGocButton = new JButton();
-		saveGocButton.setText("save Goc edges");
-		JButton saveNodesButton = new JButton("save significant nodes");
-
-		bottomPanel.add(saveSigGeneButton);
-		bottomPanel.add(saveLocButton);
-		bottomPanel.add(saveGocButton);
-		bottomPanel.add(saveNodesButton);		
-		add(bottomPanel, BorderLayout.SOUTH);
+		add(tabbedPane, BorderLayout.CENTER);		
 
 		saveNodesButton.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				JFileChooser fc = new JFileChooser();
+				fc.addChoosableFileFilter(new TXTFilter());
+		        fc.setAcceptAllFileFilterUsed(false);
 				int returnVal = fc.showSaveDialog(IDEAViewer.this);
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
 					saveModuleInformation(fc.getSelectedFile(),
@@ -306,6 +345,8 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				JFileChooser fc = new JFileChooser();
+				fc.addChoosableFileFilter(new TXTFilter());
+		        fc.setAcceptAllFileFilterUsed(false);
 				int returnVal = fc.showSaveDialog(IDEAViewer.this);
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
 					DSMicroarraySet maSet = (DSMicroarraySet) ideaResult
@@ -321,6 +362,8 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				JFileChooser fc = new JFileChooser();
+				fc.addChoosableFileFilter(new TXTFilter());
+		        fc.setAcceptAllFileFilterUsed(false);
 				int returnVal = fc.showSaveDialog(IDEAViewer.this);
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
 					saveAsFile(fc.getSelectedFile(), ideaResult.getLocList());
@@ -332,6 +375,8 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				JFileChooser fc = new JFileChooser();
+				fc.addChoosableFileFilter(new TXTFilter());
+		        fc.setAcceptAllFileFilterUsed(false);
 				int returnVal = fc.showSaveDialog(IDEAViewer.this);
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
 					saveAsFile(fc.getSelectedFile(), ideaResult.getGocList());
@@ -434,5 +479,39 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 	public Component getComponent() {
 		return this;
 	}
+
+	private class TXTFilter extends FileFilter {
+	    //Accept all directories and csv files.
+	    public boolean accept(File f) {
+	        if (f.isDirectory()) {
+	            return true;
+	        }
+	        String extension = getExtension(f);
+	        if (extension != null) {
+	            if (extension.equals("txt")) {
+	                    return true;
+	            } else {
+	                return false;
+	            }
+	        }
+	        return false;
+	    }
+	    public String getExtension(File f) {
+	        String ext = null;
+	        String s = f.getName();
+	        int i = s.lastIndexOf('.');
+	        if (i > 0 &&  i < s.length() - 1) {
+	            ext = s.substring(i+1).toLowerCase();
+	        }
+	        return ext;
+	    }
+	    //The description of this filter
+	    public String getDescription() {
+	        return "Tab-Delimited Data Files (*.txt)";
+	    }
+	}
+	
+	
+	
 
 }
