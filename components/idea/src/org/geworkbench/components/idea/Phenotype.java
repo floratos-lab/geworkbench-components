@@ -1,8 +1,12 @@
 package org.geworkbench.components.idea;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 
 /**
  * Data structure to hold the phenotype information from parameter panel. 
@@ -16,10 +20,11 @@ public class Phenotype implements Serializable {
 
 	private static final int INCLUDE_LINE_NUMBER=0;
 	private static final int EXCLUDE_LINE_NUMBER=1;
-	private Set<Integer> newColumnIncluded;	
+	private Set<Integer> columnIncluded;	
 	private Set<Integer> columnExcluded;
 	
 	private String[] phenotypeAsString=new String[2];
+	private DSMicroarraySet maSet=null;
 	
 	public Phenotype(){
 		
@@ -31,7 +36,7 @@ public class Phenotype implements Serializable {
 	 */
 	public Phenotype(Set<Integer> nullPhenoCols)  {
 		columnExcluded = new HashSet<Integer>();
-		newColumnIncluded = nullPhenoCols;
+		columnIncluded = nullPhenoCols;
 	}
 
 	/**
@@ -40,7 +45,7 @@ public class Phenotype implements Serializable {
 	 * 
 	 */
 	boolean isIncluded(int columnIndexAfterExclusion) {
-		if(newColumnIncluded.contains(columnIndexAfterExclusion))return true;
+		if(columnIncluded.contains(columnIndexAfterExclusion))return true;
 		else return false;
 	}
 
@@ -55,7 +60,7 @@ public class Phenotype implements Serializable {
 	}
 
 	public int getIncludedCount() {
-		return newColumnIncluded.size();
+		return columnIncluded.size();
 	}
 
 	public int getExcludedCount() {
@@ -64,7 +69,7 @@ public class Phenotype implements Serializable {
 	public String[] getPhenotypeAsString(){
 		phenotypeAsString[INCLUDE_LINE_NUMBER]="Include"+"\t";
 		phenotypeAsString[EXCLUDE_LINE_NUMBER]="Exclude"+"\t";
-		for(int i:newColumnIncluded){
+		for(int i:columnIncluded){
 			phenotypeAsString[INCLUDE_LINE_NUMBER]+=Integer.toString(i)+"\t";
 		}
 		String s=phenotypeAsString[INCLUDE_LINE_NUMBER].substring(0,phenotypeAsString[INCLUDE_LINE_NUMBER].length()-1);
@@ -78,12 +83,50 @@ public class Phenotype implements Serializable {
 		
 		return phenotypeAsString;
 	}
+	
+	public void setMicroarraySet(DSMicroarraySet maSet){
+		this.maSet = maSet;
+	}
+	
+	public String getPhenotypeInArrayNames(){
+		String s="Phenotype:"+"\n";
+		ArrayList list=new ArrayList(columnIncluded);
+		Collections.sort(list);
+		for(int i=0;i<list.size();i++){
+			s+=maSet.get((Integer)list.get(i)-1)+"\t";
+		}
+		/*
+		for(int i:columnIncluded){
+			s+=maSet.get(i-1).getLabel()+"("+(i-1)+")"+"\t";
+		}
+		*/
+		s=s.substring(0,s.length()-1);
+		return s;
+	}
+	
+	public String getExcludeInArrayNames(){
+		String s="Exclude:"+"\n";
+		ArrayList list=new ArrayList(columnExcluded);
+		Collections.sort(list);
+		for(int i=0;i<list.size();i++){
+			s+=maSet.get((Integer)list.get(i)-1)+"\t";
+		}
+		/*
+		for(int i:columnExcluded){
+			s+=maSet.get(i-1).getLabel()+"("+(i-1)+")"+"\t";
+		}
+		*/
+		s=s.substring(0,s.length()-1);
+		return s;
+	}
+	
+	
 	public void setIncludeList(Set<Integer> includeSet){
-		this.newColumnIncluded=includeSet;		
+		this.columnIncluded=includeSet;		
 	}
 	
 	public Set<Integer> getIncludeList(){
-		return newColumnIncluded;
+		return columnIncluded;
 	}
 	
 	public void setExcludeList(Set<Integer> excludeSet){

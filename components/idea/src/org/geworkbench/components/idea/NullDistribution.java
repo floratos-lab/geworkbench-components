@@ -85,6 +85,10 @@ public class NullDistribution {
 		}
 		Arrays.sort(noExcludeList);
 	
+		if (analysis.stopAlgorithm) {
+			 analysis.stop();
+			return -1;
+		}
 		String dir = System.getProperty("user.dir");
 		String nullOutputFile = dir + "\\data\\null.dat";		
 			// calcu MI for each edge in edgeIndex
@@ -97,17 +101,18 @@ public class NullDistribution {
 				// save MI value to the edge
 				ideaEdge.setMI(mutual.cacuMutualInfo(x, y)); 
 				double deltaCorr = getDeltaCorr(ideaEdge,phenotype, columnCountWithoutExclude);
-				ideaEdge.setDeltaCorr(deltaCorr);// save deltaCorr value to the edge				
+				ideaEdge.setDeltaCorr(deltaCorr);// save deltaCorr value to the edge
+				if (analysis.stopAlgorithm) {
+					 analysis.stop();
+					return -1;
+				}
 			}
-			if (analysis.stopAlgorithm) {
-				 analysis.stop();
+			
+			if (!prepareBins()){
+				analysis.stop();	//prepareBins failed
 				return -1;
 			}
-			prepareBins();
-			if (analysis.stopAlgorithm) {
-				 analysis.stop();
-				return -1;
-			}
+			
 			IdeaEdge currentEdge=MI_Edge.get(0);//usually sortedCorr.length always >t except in test environment.
 			// compute 100X100X100 null delta Corrs
 			for (int i = 0; i < 100; i++) {// set 100 bins, get MI positions in
@@ -130,16 +135,18 @@ public class NullDistribution {
 									phenotype.getIncludedCount(), columnCountWithoutExclude);
 							nullData[k] = getDeltaCorr(currentEdge,	new Phenotype(nullPhenoCols), 
 									columnCountWithoutExclude);
+							if (analysis.stopAlgorithm) {
+								 analysis.stop();
+								return -1;
+							}
 						}
 						// save null data to edge
 						currentEdge.setNullData(nullData); 
 					}
+					
 				}// end of each bin
 				System.out.println("bin " + i);
-				if (analysis.stopAlgorithm) {
-					 analysis.stop();
-					return -1;
-				}
+				
 			}// end of 100 bins			
 		
 			int binMin = 0;
@@ -172,6 +179,10 @@ public class NullDistribution {
 				for (int i = binMin; i < binMax; i++) {//i < binMax + 1;
 					for (int j = bins.get(i).getMinP(); j < bins.get(i).getMaxP() + 1; j++) {
 						binsPoints.add(j);
+						if (analysis.stopAlgorithm) {
+							 analysis.stop();
+							return -1;
+						}
 					}
 				}
 	
@@ -187,13 +198,16 @@ public class NullDistribution {
 								zNullI.add(nullDeltaI[i]);
 							else if (anEdge.getDeltaCorr() < 0 && nullDeltaI[i] < 0) {
 								zNullI.add(nullDeltaI[i]);
+								if (analysis.stopAlgorithm) {
+									 analysis.stop();
+									return -1;
+								}
 							}
 						}
 					}
 				}
 	
-				double normCorr = kernel.getProbability(anEdge.getDeltaCorr());// compute
-																				// norm
+				double normCorr = kernel.getProbability(anEdge.getDeltaCorr());// compute																				// norm
 																				// delta
 																				// correlation
 				anEdge.setNormCorr(normCorr); // save it in edgeIndex
@@ -203,6 +217,10 @@ public class NullDistribution {
 				for (int i = 0; i < zNullI.size(); i++) {
 					values[i] = zNullI.get(i);
 					values[i + zNullI.size()] = -values[i];
+					if (analysis.stopAlgorithm) {
+						 analysis.stop();
+						return -1;
+					}
 				}
 				double zDeltaCorr = anEdge.getDeltaCorr() / std.evaluate(values);
 				anEdge.setzDeltaCorr(zDeltaCorr);
@@ -210,7 +228,10 @@ public class NullDistribution {
 			}// end of edges loop
 	
 			
-			
+			if (analysis.stopAlgorithm) {
+				 analysis.stop();
+				return -1;
+			}
 			FileOutputStream fileOut = new FileOutputStream(nullOutputFile);
 			ObjectOutputStream out = new ObjectOutputStream(fileOut);
 	
@@ -221,7 +242,7 @@ public class NullDistribution {
 		return 1;
 	}
 
-	private void prepareBins() {
+	private boolean prepareBins() {
 		// setup MI value-->edge map
 		int index = 0;
 		for (IdeaEdge ideaEdge : edgeIndex) {
@@ -256,6 +277,10 @@ public class NullDistribution {
 						find = true;
 					}
 				}
+				if (analysis.stopAlgorithm) {
+					 analysis.stop();
+					return false;
+				}
 			}// end of while
 
 		}// end of for 100 loops
@@ -274,6 +299,12 @@ public class NullDistribution {
 			bins.add(aBin); // each bin knows its start and end positions in
 							// sortedCorr array.
 		}
+		if (analysis.stopAlgorithm) {
+			 analysis.stop();
+			return false;
+		}
+		
+		return true;
 
 	}
 

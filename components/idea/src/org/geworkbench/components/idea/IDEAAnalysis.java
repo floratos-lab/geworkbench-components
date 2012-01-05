@@ -492,8 +492,6 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 		}		
 		IdeaResultDataSet analysisResult = new IdeaResultDataSet(maSet,
 				"IDEA Analysis Result",locResultList, gocResultList, nodeResultList, moduleResultList,pvalue);
-		//IdeaResultDataSet analysisResult = new IdeaResultDataSet(maSet,
-		//		"IDEA Analysis Result",null, null, null, null,pvalue);
 		String stemp = generateHistoryString();
 		HistoryPanel.addToHistory(analysisResult, stemp+GenerateMarkerString(datasetView));
 
@@ -669,6 +667,12 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 						String oneLine=token0s[1]+"\t"+tokens[geneSymbolCol]+"\t"+tokens[chromoCol]+"\t"+tokens[entrezCol]+"\t";
 						nullDataList.add(oneLine);
 					}
+					if (this.stopAlgorithm) {
+						pbPrepare.dispose();
+						return new ParamValidationResults(false,
+						"Analysis aborted!");
+					}	
+					
 				}
 				
 				nullDataAsString=new String[nullDataList.size()];

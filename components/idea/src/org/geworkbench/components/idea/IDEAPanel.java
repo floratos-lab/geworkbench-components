@@ -311,7 +311,9 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 	}	
 	
 	public void setMicroarraySet(DSMicroarraySet maSet){
-		this.maSet = maSet;		
+		this.maSet = maSet;
+		if(phenotype!=null)
+			phenotype.setMicroarraySet(maSet);
 	}	
 	
 	public void setParameters(Map<Serializable, Serializable> parameters) {		
@@ -402,10 +404,10 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 		}
 		else
 			histStr.append("\nNetwork: "+networkField.getText());
-		histStr.append("\nPhenotype:");
-		String includeStr=phenotype.getPhenotypeAsString()[0];		
+		//histStr.append("\nPhenotype:");
+		String includeStr=phenotype.getPhenotypeInArrayNames();		
 		histStr.append("\n"+includeStr);
-		String excludeStr=phenotype.getPhenotypeAsString()[1];
+		String excludeStr=phenotype.getExcludeInArrayNames();
 		histStr.append("\n"+excludeStr);		
 		//histStr.append("\np-value: "+pValueTextField.getText());
 		histStr.append("\n");
