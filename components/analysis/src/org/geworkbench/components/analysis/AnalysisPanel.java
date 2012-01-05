@@ -945,7 +945,6 @@ public class AnalysisPanel extends CommandBase implements
 	private void submitAsCaGridService() {
 
 		Date startDate = new Date();
-		Long startTime =startDate.getTime();
 		
 		AbstractGridAnalysis selectedGridAnalysis = (AbstractGridAnalysis) selectedAnalysis;
 
@@ -1017,7 +1016,7 @@ public class AnalysisPanel extends CommandBase implements
 		}
 
 		/* generate history for grid analysis */	
-		String history = "Grid service started at: " + Util.formatDateStandard(startDate) + ", milliseconds=" + startTime + FileTools.NEWLINE;
+		String history = "Grid service started at: " + Util.formatDateStandard(startDate) + FileTools.NEWLINE;
 		history += "Grid service information:" + FileTools.NEWLINE;
 		history += FileTools.TAB + "Index server url: "
 				+ jGridServicePanel.getIndexServerUrl() + FileTools.NEWLINE;
