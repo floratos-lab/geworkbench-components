@@ -396,7 +396,9 @@ public class EVDPanel extends MicroarrayViewEventBase {
             }
 		}
 
-		jMASlider.setMaximum(refMASet.size()-1);
+		if(jMASlider!=null)
+			jMASlider.setMaximum(refMASet.size()-1);
+		
 		refresh();
 	}
 
