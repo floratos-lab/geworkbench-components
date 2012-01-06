@@ -6,6 +6,7 @@ import java.util.concurrent.ExecutionException;
 import javax.swing.SwingWorker;
 
 import org.geworkbench.components.genspace.GenSpace;
+import org.geworkbench.components.genspace.GenSpaceServerFactory;
 import org.geworkbench.components.genspace.RuntimeEnvironmentSettings;
 import org.geworkbench.components.genspace.ui.chat.ChatWindow;
 import org.geworkbench.components.genspace.ui.chat.RosterFrame;
@@ -87,7 +88,7 @@ public class ChatReceiver implements MessageListener, ChatManagerListener {
 					connection.login(u, p);
 
 				} catch (XMPPException e) {
-					GenSpace.logger.warn("Unable to connect to chat server",e);
+					GenSpaceServerFactory.handleExecutionException("Unable to connect to chat server. genSpace chat will be unavailable", e);
 					return false;
 				}
 				return true;
