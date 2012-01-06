@@ -107,8 +107,13 @@ public class ObjectLogger {
 								t.setTool(RuntimeEnvironmentSettings.tools.get(t.getTool().getId()));
 							}
 							f.delete();
-							RealTimeWorkFlowSuggestion.cwfUpdated(done.getWorkflow());
-							curTransaction = done;
+							Calendar recentTime = Calendar.getInstance();
+							recentTime.add(Calendar.MINUTE, -20);
+							if(pending.get(pending.size()).getCreatedAt().toGregorianCalendar().after(recentTime))
+							{
+								RealTimeWorkFlowSuggestion.cwfUpdated(done.getWorkflow());
+								curTransaction = done;
+							}
 						}
 					}
 					AnalysisEvent e = new AnalysisEvent();
@@ -117,7 +122,7 @@ public class ObjectLogger {
 						e.setCreatedAt(DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar()));
 					} catch (DatatypeConfigurationException e2) {
 						e2.printStackTrace();
-					} //TODO verify
+					} 
 					e.setTransaction(curTransaction);
 					HashSet<AnalysisEventParameter> params = new HashSet<AnalysisEventParameter>();
 					for(Object key : parameters.keySet())
