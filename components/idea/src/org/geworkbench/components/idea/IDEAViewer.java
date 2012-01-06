@@ -286,9 +286,10 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 		sigPane.add(bottom1, BorderLayout.SOUTH);
 		tabbedPane.addTab("Significant Genes", sigPane);
 		
+		JScrollPane scrollLocTable= new JScrollPane(locTable);
 		JPanel locPane=new JPanel();
 		locPane.setLayout(new BorderLayout());
-		locPane.add(locTable, BorderLayout.CENTER);
+		locPane.add(scrollLocTable, BorderLayout.CENTER);
 		JButton saveLocButton=new JButton();
 		saveLocButton.setText("Export Table");
 		JPanel bottom2=new JPanel();
@@ -298,9 +299,10 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 		locPane.add(bottom2, BorderLayout.SOUTH);		
 		tabbedPane.addTab("LOC Edges", locPane);
 		
+		JScrollPane scrollGocTable= new JScrollPane(gocTable);
 		JPanel gocPane=new JPanel();
 		gocPane.setLayout(new BorderLayout());
-		gocPane.add(gocTable, BorderLayout.CENTER);
+		gocPane.add(scrollGocTable, BorderLayout.CENTER);
 		JButton saveGocButton=new JButton();
 		saveGocButton.setText("Export Table");
 		JPanel bottom3=new JPanel();
@@ -310,9 +312,10 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 		gocPane.add(bottom3, BorderLayout.SOUTH);		
 		tabbedPane.addTab("GOC Edges", gocPane);		
 		
+		JScrollPane scrollNodeTable= new JScrollPane(nodeTable);
 		JPanel nodesPane=new JPanel();
 		nodesPane.setLayout(new BorderLayout());
-		nodesPane.add(nodeTable, BorderLayout.CENTER);
+		nodesPane.add(scrollNodeTable, BorderLayout.CENTER);
 		JButton saveNodesButton=new JButton();
 		saveNodesButton.setText("Export Table");
 		JPanel bottom4=new JPanel();
