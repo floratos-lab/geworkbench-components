@@ -202,6 +202,10 @@ public class GenSpaceRegistration extends JPanel implements VisualPlugin,
 							}
 							else
 							{
+								if(errMsg.toString().equals(""))
+								{
+									errMsg.append("Error: This username is already in use");
+								}
 								JOptionPane.showMessageDialog(null,
 										errMsg.toString(), "Error Information",
 										JOptionPane.INFORMATION_MESSAGE);
