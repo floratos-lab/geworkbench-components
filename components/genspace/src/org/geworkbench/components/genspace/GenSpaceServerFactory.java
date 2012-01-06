@@ -68,6 +68,14 @@ public class GenSpaceServerFactory {
 				}
 		}
 	}
+	
+	public static void handleExecutionException(String msg, Exception e)
+	{
+//		e.printStackTrace();
+		GenSpaceServerFactory.clearCache();
+		JOptionPane.showMessageDialog(null, "There was an error communicating with the genSpace server:\n"+msg, "Error communicating with server", JOptionPane.ERROR_MESSAGE);
+	}
+	
 	public static void handleExecutionException(Exception e)
 	{
 //		e.printStackTrace();
