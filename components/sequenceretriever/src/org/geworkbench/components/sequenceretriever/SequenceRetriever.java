@@ -5,11 +5,8 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
-import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.rmi.RemoteException;
 import java.sql.SQLException;
@@ -24,32 +21,23 @@ import java.util.Vector;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JTextField;
 import javax.swing.JToolBar;
-import javax.swing.ListCellRenderer;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -57,11 +45,11 @@ import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
+import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
-import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.util.RandomNumberGenerator;
@@ -92,25 +80,17 @@ public class SequenceRetriever implements VisualPlugin {
 	private static final String EBI = "EBI";
 
 	private final static String NORMAL = "normal";
-	private final static String STOP = "stop";
+	final static String STOP = "stop";
 	private final static String CLEAR = "clear";
 	private final static String RUNNING = "running";
 	private final static String PROTEINVIEW = "Protein";
 	private final static String DNAVIEW = "DNA";
 
-	volatile private String status = NORMAL;
-
-	private DSPanel<DSGeneMarker> markers = null;
-
-	private DSPanel<DSGeneMarker> activeMarkers = null;
-
-	private CSSequenceSet<DSSequence> sequenceDB = new CSSequenceSet<DSSequence>();
+	volatile String status = NORMAL;
 
 	private CSSequenceSet<DSSequence> dnaSequenceDB = new CSSequenceSet<DSSequence>();
 
 	private CSSequenceSet<DSSequence> proteinSequenceDB = new CSSequenceSet<DSSequence>();
-
-	private DSItemList<DSGeneMarker> markerList;
 
 	private static final String NOANNOTATION = "---";
 
@@ -148,13 +128,7 @@ public class SequenceRetriever implements VisualPlugin {
 	// Layouts,Panels and Panes
 	private JPanel main = new JPanel();
 
-	private JToolBar jToolbar2 = new JToolBar();
-
-	private JScrollPane seqScrollPane = new JScrollPane();
-
 	private RetrievedSequencesPanel seqDisPanel = new RetrievedSequencesPanel();
-
-	private JPanel jPanel2 = new JPanel();
 
 	final static private SpinnerNumberModel upstreamSpinnerModel = new SpinnerNumberModel(2000, 0, 98000, 100);
 
@@ -164,42 +138,11 @@ public class SequenceRetriever implements VisualPlugin {
 
 	private JSpinner afterText = new JSpinner();
 
-	private JLabel jLabel1 = new JLabel();
-
-	private JLabel jLabel2 = new JLabel();
-
-	private JPopupMenu jpopMenu = new JPopupMenu();
-
-	private JMenuItem jClearUnselectedItem = new JMenuItem();
-
-	private JMenuItem jClearAllItem = new JMenuItem();
-
-	private JSplitPane rightPanel = new JSplitPane();
-
-	private JPanel jPanel3 = new JPanel();
-
-	private GridLayout gridLayout1 = new GridLayout();
-
-	private JButton jActivateBttn = new JButton();
-
-	private JButton jButton2 = new JButton();
-
 	private JButton stopButton = new JButton();
 
-	private JButton clearButton = new JButton();
+	private DefaultListModel listModel = new DefaultListModel();
 
-	private JPanel jPanel1 = new JPanel();
-
-	private JScrollPane jScrollPane2 = new JScrollPane();
-
-	private JPanel jPanel4 = new JPanel();
-
-	private BorderLayout borderLayout5 = new BorderLayout();
-
-	private JLabel jLabel4 = new JLabel();
-
-	private DefaultListModel ls2 = new DefaultListModel();
-
+	// TODO check if it is necessary to directly manipulate list on GUI
 	private JList jSelectedList = new JList();
 
 	private JComboBox jComboCategory = new JComboBox();
@@ -208,13 +151,9 @@ public class SequenceRetriever implements VisualPlugin {
 
 	private JProgressBar jProgressBar1 = new JProgressBar();
 
-	private JLabel jLabel6 = new JLabel();
-
-	private JTabbedPane tabPane = new JTabbedPane();
-
-	private JPanel markerPanel = new JPanel();
-
-	private FlowLayout flowLayout1 = new FlowLayout();
+	DefaultListModel getListModel() {
+		return listModel;
+	}
 
 	public SequenceRetriever() {
 		try {
@@ -224,79 +163,46 @@ public class SequenceRetriever implements VisualPlugin {
 		}
 	}
 
-	private class SequenceListRenderer extends JLabel implements
-			ListCellRenderer {
-		private static final long serialVersionUID = 1764773552579977347L;
-
-		public Component getListCellRendererComponent(JList list, Object value, // value
-				// to
-				// display
-				int index, // cell index
-				boolean isSelected, // is the cell selected
-				boolean cellHasFocus) // the list and the cell have the focus
-		{
-			String s = value.toString();
-
-			if (isSelected) {
-				setBackground(list.getSelectionBackground());
-				setForeground(list.getSelectionForeground());
-				setText("<html><font color=RED>" + s + "</font></html>");
-			} else {
-				setBackground(list.getBackground());
-				setForeground(list.getForeground());
-				if (currentRetrievedSequences.containsKey(s)) {
-					setText("<html><font color=blue>" + s + "</font></html>");
-				} else {
-					setText(s);
-				}
-			}
-			setEnabled(list.isEnabled());
-			setFont(list.getFont());
-			return this;
-		}
+	TreeMap<String, ArrayList<String>> getCurrentRetrievedSequences() {
+		return currentRetrievedSequences;
 	}
-
-	@SuppressWarnings("serial")
+	
 	private void jbInit() throws Exception {
-		// jProgressBar1.setForeground(Color.green);
+
 		jProgressBar1.setMinimumSize(new Dimension(10, 16));
 		jProgressBar1.setBorderPainted(true);
+
+		JLabel jLabel6 = new JLabel("Type");
 		jLabel6.setHorizontalAlignment(SwingConstants.LEFT);
-		jLabel6.setText("Type");
+
+		JSplitPane rightPanel = new JSplitPane();
 		rightPanel = new JSplitPane();
 		rightPanel.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
-		jPanel1.setLayout(flowLayout1);
-		// jComboCategory.setPreferredSize(new Dimension(46, 21));
-		jpopMenu.add(jClearUnselectedItem);
-		jpopMenu.add(jClearAllItem);
 
 		seqDisPanel.setBorder(null);
 		seqDisPanel.setMinimumSize(new Dimension(10, 10));
-		jPanel3.setBorder(null);
 
 		main.setLayout(new BorderLayout());
-		jToolbar2.setBorder(BorderFactory.createEtchedBorder());
 
+		JScrollPane seqScrollPane = new JScrollPane();
 		seqScrollPane.setBorder(BorderFactory.createEtchedBorder());
 		seqScrollPane.setMaximumSize(new Dimension(32767, 32767));
 		seqScrollPane.setMinimumSize(new Dimension(24, 24));
 		seqScrollPane.setPreferredSize(new Dimension(250, 250));
 
-		jPanel2.setLayout(new BorderLayout());
 		beforeText.setModel(upstreamSpinnerModel);
 		afterText.setModel(downstreamSpinnerModel);
 
+		JLabel jLabel1 = new JLabel();
 		jLabel1.setToolTipText("Downstream");
 		jLabel1.setText("+");
+		JLabel jLabel2 = new JLabel();
 		jLabel2.setToolTipText("Upstream");
 		jLabel2.setText("-");
 		seqDisPanel.setMaximumSize(new Dimension(32767, 32767));
 		seqDisPanel.setPreferredSize(new Dimension(216, 40));
 
-		jPanel3.setLayout(gridLayout1);
-		jPanel3.setPreferredSize(new Dimension(160, 240));
-		gridLayout1.setColumns(1);
-
+		JButton jActivateBttn = new JButton();
 		jActivateBttn.setToolTipText("Add a data node to current project");
 		jActivateBttn.setText("Add To Project");
 		jActivateBttn.addActionListener(new java.awt.event.ActionListener() {
@@ -304,6 +210,8 @@ public class SequenceRetriever implements VisualPlugin {
 				jActivateBttn_actionPerformed(e);
 			}
 		});
+
+		JButton jButton2 = new JButton();
 		jButton2.setToolTipText("Get sequence of selected markers");
 		jButton2.setHorizontalTextPosition(SwingConstants.TRAILING);
 		jButton2.setText("Get Sequence");
@@ -319,6 +227,8 @@ public class SequenceRetriever implements VisualPlugin {
 				stopButton.setEnabled(false);
 			}
 		});
+
+		JButton clearButton = new JButton();
 		clearButton.setText(CLEAR);
 		clearButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -326,9 +236,10 @@ public class SequenceRetriever implements VisualPlugin {
 				cleanUpAll();
 			}
 		});
-		jPanel4.setLayout(borderLayout5);
-		jLabel4.setText("Selected Microarray Markers");
-		jSelectedList = new JList(ls2) {
+
+		jSelectedList = new JList(listModel) {
+			private static final long serialVersionUID = 7249432162980526455L;
+
 			public String getToolTipText(MouseEvent e) {
 				int index = locationToIndex(e.getPoint());
 				if (-1 < index) {
@@ -348,9 +259,9 @@ public class SequenceRetriever implements VisualPlugin {
 				return null;
 			}
 		};
-		jSelectedList.setCellRenderer(new SequenceListRenderer());
+		jSelectedList.setCellRenderer(new SequenceListRenderer(this));
 		jSelectedList
-				.addListSelectionListener(new SequenceListSelectionListener());
+				.addListSelectionListener(new SequenceListSelectionListener(this));
 		jComboCategory.setSelectedItem(DNAVIEW);
 		jComboCategory.addActionListener(new java.awt.event.ActionListener() {
 
@@ -359,7 +270,8 @@ public class SequenceRetriever implements VisualPlugin {
 			}
 		});
 
-		main.add(jToolbar2, BorderLayout.SOUTH);
+		JToolBar jToolbar2 = new JToolBar();
+		jToolbar2.setBorder(BorderFactory.createEtchedBorder());
 		jToolbar2.add(jLabel2, null);
 		jToolbar2.add(beforeText, null);
 		jToolbar2.add(jLabel1, null);
@@ -368,16 +280,27 @@ public class SequenceRetriever implements VisualPlugin {
 		jToolbar2.add(clearButton, null);
 		jToolbar2.add(jButton2, null);
 		jToolbar2.add(jActivateBttn, null);
+		main.add(jToolbar2, BorderLayout.SOUTH);
+		
+		JPanel jPanel1 = new JPanel();
+		jPanel1.setLayout(new FlowLayout());
+
+		JPanel jPanel2 = new JPanel();
+		jPanel2.setLayout(new BorderLayout());
 		jPanel2.add(rightPanel, BorderLayout.CENTER);
-		tabPane = new JTabbedPane();
-		markerPanel = new TFListPanel();
-		String markTab = "Marker";
-		tabPane.add(markTab, jPanel3);
-		String findTab = "Find a Marker";
-		tabPane.add(findTab, markerPanel);
+		
+		JPanel jPanel4 = new JPanel();
+		jPanel4.setLayout(new BorderLayout());
+		
+		JScrollPane jScrollPane2 = new JScrollPane();
+
+		JTabbedPane tabPane = new JTabbedPane();
+
+		JPanel markerPanel = new MarkerPanel(this);
+		tabPane.add("Marker", jPanel4);
+		tabPane.add("Find a Marker", markerPanel);
 		rightPanel.add(seqScrollPane, JSplitPane.RIGHT);
 		rightPanel.add(tabPane, JSplitPane.LEFT);
-		jPanel3.add(jPanel4, null);
 		jPanel4.add(jScrollPane2, BorderLayout.CENTER);
 		jScrollPane2.getViewport().add(jSelectedList, null);
 		jPanel2.add(jPanel1, BorderLayout.NORTH);
@@ -392,7 +315,7 @@ public class SequenceRetriever implements VisualPlugin {
 	}
 
 	private void changeSequenceCategory() {
-
+		CSSequenceSet<DSSequence> sequenceDB = null;
 		String sequenceType = (String) jComboCategory.getSelectedItem();
 		if (sequenceType.equalsIgnoreCase(PROTEINVIEW)) {
 			beforeText.setEnabled(false);
@@ -419,47 +342,8 @@ public class SequenceRetriever implements VisualPlugin {
 
 	}
 
-	/**
-	 * Handle the selections at the MarkerList table.
-	 * 
-	 * @param indices
-	 */
-	private void updateSelectedSequenceDB(int[] indices) {
-		seqDisPanel.initialize();
-
-		CSSequenceSet<CSSequence> displaySequenceDB = new CSSequenceSet<CSSequence>();
-		for (int i = 0; i < indices.length; i++) {
-			int index = indices[i];
-
-			if (ls2 != null && ls2.size() > index && index > -1) {
-
-				DSGeneMarker marker = (DSGeneMarker) ls2.get(index);
-
-				ArrayList<String> values = currentRetrievedSequences.get(marker
-						.toString());
-				if (values == null) {
-					continue;
-				} else {
-
-					for (String o : values) {
-						RetrievedSequenceView retrievedSequenceView = currentRetrievedMap
-								.get(o);
-						if (retrievedSequenceView != null
-								&& retrievedSequenceView.getSequence() != null) {
-							displaySequenceDB
-									.addASequence(retrievedSequenceView
-											.getSequence());
-						}
-					}
-					displaySequenceDB.parseMarkers();
-					seqDisPanel.setDisplaySequenceDB(displaySequenceDB);
-				}
-			}
-		}
-	}
-
 	/* only call this from EDT */
-	private void updateProgressBar(final double percent, final String text) {
+	void updateProgressBar(final double percent, final String text) {
 		jProgressBar1.setForeground(Color.GREEN);
 		jProgressBar1.setString(text);
 		jProgressBar1.setValue((int) (percent * 100));
@@ -484,7 +368,6 @@ public class SequenceRetriever implements VisualPlugin {
 	 */
 	private void cleanUpAll() {
 		// FIXME are these 'current' things all necessary?
-		sequenceDB = new CSSequenceSet<DSSequence>();
 		currentRetrievedMap = new HashMap<String, RetrievedSequenceView>();
 		currentRetrievedSequences = new TreeMap<String, ArrayList<String>>();
 
@@ -507,7 +390,7 @@ public class SequenceRetriever implements VisualPlugin {
 	/**
 	 * Clean up the current view;
 	 */
-	private void cleanUpCurrentView() {
+	void cleanUpCurrentView() {
 		String sequenceType = (String) jComboCategory.getSelectedItem();
 		if (sequenceType.endsWith(DNAVIEW)) {
 			dnaSequenceDB = new CSSequenceSet<DSSequence>();
@@ -539,7 +422,7 @@ public class SequenceRetriever implements VisualPlugin {
 		status = RUNNING;
 		stopButton.setEnabled(true);
 
-		if (ls2.getSize() == 0)
+		if (listModel.getSize() == 0)
 			JOptionPane.showMessageDialog(null,
 					"Please select gene(s) or marker(s).");
 
@@ -549,9 +432,6 @@ public class SequenceRetriever implements VisualPlugin {
 		jProgressBar1.setMaximum(100);
 		jProgressBar1.setStringPainted(true);
 		updateProgressBar(0, "");
-		if (sequenceDB != null) {
-			sequenceDB = new CSSequenceSet<DSSequence>();
-		}
 
 		String annotationFileName = ((CSMicroarraySet) refMASet)
 				.getAnnotationFileName();
@@ -566,10 +446,10 @@ public class SequenceRetriever implements VisualPlugin {
 
 			@Override
 			protected Void doInBackground() throws Exception {
-				int size = ls2.getSize();
+				int size = listModel.getSize();
 				Vector<DSGeneMarker> list = new Vector<DSGeneMarker>();
 				for (int x = 0; x < size; ++x) {
-					DSGeneMarker marker = (DSGeneMarker) ls2.get(x);
+					DSGeneMarker marker = (DSGeneMarker) listModel.get(x);
 					list.addElement(marker);
 				}
 
@@ -582,7 +462,6 @@ public class SequenceRetriever implements VisualPlugin {
 			@Override
 			public void done() {
 				if (status.equalsIgnoreCase(STOP)) {
-					sequenceDB = new CSSequenceSet<DSSequence>();
 					updateProgressBar(100, "Stopped on " + new Date());
 				} else {
 					updateProgressBar(100, "Finished on " + new Date());
@@ -598,7 +477,31 @@ public class SequenceRetriever implements VisualPlugin {
 		t.execute();
 	}
 
+	void initializeRetrievedSequencesPanel() {
+		seqDisPanel.initialize();
+	}
+	
+	void updateRetrievedSequencesPanel() {
+		seqDisPanel.setRetrievedMap(currentRetrievedMap);
+	}
+	
 	void jActivateBttn_actionPerformed(ActionEvent e) {
+		CSSequenceSet<DSSequence> sequenceDB = null;
+		String sequenceType = (String) jComboCategory.getSelectedItem(); 
+		if (sequenceType.equalsIgnoreCase(DNAVIEW)) {
+			sequenceDB = dnaSequenceDB;
+			currentRetrievedMap = retrievedDNAMap;
+			currentRetrievedSequences = retrievedDNASequences;
+			if (cachedRetrievedDNAMap == null) {
+				cachedRetrievedDNAMap = currentRetrievedMap;
+				cachedRetrievedDNASequences = retrievedDNASequences;
+			} else {
+				cachedRetrievedDNAMap.putAll(currentRetrievedMap);
+				cachedRetrievedDNASequences.putAll(currentRetrievedSequences);
+			}
+		} else {
+			sequenceDB = proteinSequenceDB;
+		}
 		if ((sequenceDB != null) && (sequenceDB.getSequenceNo() >= 1)) {
 
 			CSSequenceSet<DSSequence> selectedSequenceDB = new CSSequenceSet<DSSequence>();
@@ -822,7 +725,7 @@ public class SequenceRetriever implements VisualPlugin {
 	/**
 	 * return true if there is no error/exception
 	 */
-	private boolean getSequences(Vector<DSGeneMarker> selectedList) {
+	boolean getSequences(Vector<DSGeneMarker> selectedList) {
 		if (selectedList == null)
 			return true;
 
@@ -837,6 +740,7 @@ public class SequenceRetriever implements VisualPlugin {
 		}
 
 		// post-processing
+		final CSSequenceSet<DSSequence> sequenceDB;
 		if (sequenceType.equalsIgnoreCase(DNAVIEW)) {
 			sequenceDB = dnaSequenceDB;
 			currentRetrievedMap = retrievedDNAMap;
@@ -881,8 +785,6 @@ public class SequenceRetriever implements VisualPlugin {
 		}
 		if (sequenceDB.getSequenceNo() != 0) {
 			sequenceDB.writeToFile(fileName);
-			sequenceDB = new CSSequenceSet<DSSequence>();
-			sequenceDB.readFASTAFile(new File(fileName));
 
 			SwingUtilities.invokeLater(new Runnable() {
 
@@ -904,8 +806,9 @@ public class SequenceRetriever implements VisualPlugin {
 			cleanUpCurrentView();
 			return;
 		}
+		seqDisPanel.setSequenceDB(selectedSet);
 		seqDisPanel.setRetrievedMap(newMap);
-		seqDisPanel.initialize(selectedSet);
+//		seqDisPanel.initialize(selectedSet);
 		main.revalidate();
 		main.repaint();
 	}
@@ -938,8 +841,6 @@ public class SequenceRetriever implements VisualPlugin {
 				if (refMASet != dataSet) {
 					this.refMASet = (DSMicroarraySet) dataSet;
 					cleanUpAll();
-					sequenceDB = new CSSequenceSet<DSSequence>();
-					markerList = refMASet.getMarkers();
 				}
 			}
 
@@ -956,13 +857,12 @@ public class SequenceRetriever implements VisualPlugin {
 	public void receive(GeneSelectorEvent e, Object publisher) {
 		log.debug("received GeneSelectorEvent::source="
 				+ publisher.getClass().getName());
-		markers = e.getPanel();
+		final DSPanel<DSGeneMarker> markers = e.getPanel();
 		
-		activeMarkers = new CSPanel<DSGeneMarker>();
 		if (markers == null)
 			return;
 
-		ls2.clear();
+		listModel.clear();
 
 		if (markers.size() == 0) {
 			cleanUpCurrentView();
@@ -976,22 +876,25 @@ public class SequenceRetriever implements VisualPlugin {
 
 			@Override
 			protected Boolean doInBackground() throws Exception {
-				boolean atLeastOneActive = processEvent(sequenceType);
+				boolean atLeastOneActive = processGeneSelectorEvent(sequenceType, markers);
 				return atLeastOneActive;
 			}
 			
 			@Override
 			public void done() {
+				CSSequenceSet<DSSequence> sequenceDB;
+				if (sequenceType.equalsIgnoreCase(DNAVIEW)) {
+					sequenceDB = dnaSequenceDB;
+				} else {
+					sequenceDB = proteinSequenceDB;
+				}
 				updateDisplay(sequenceDB, currentRetrievedMap);
-				markers = activeMarkers;
 
 				try {
 					boolean atLeastOneActive = get();
 					if (!atLeastOneActive) {
 						cleanUpCurrentView();
 					}
-					log.debug("Active markers / markers: " + activeMarkers.size() + " / "
-							+ markers.size());
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				} catch (ExecutionException e) {
@@ -1006,10 +909,8 @@ public class SequenceRetriever implements VisualPlugin {
 	/**
 	 * background thread triggered by geneSelectorAction
 	 * 
-	 * @param e
-	 *            GeneSelectorEvent
 	 */
-	private boolean processEvent(String sequenceType) {
+	private boolean processGeneSelectorEvent(String sequenceType, final DSPanel<DSGeneMarker> markers) {
 		boolean atLeastOneActive = false;
 
 		CSSequenceSet<DSSequence> tempSequenceDB = new CSSequenceSet<DSSequence>();
@@ -1022,7 +923,6 @@ public class SequenceRetriever implements VisualPlugin {
 				atLeastOneActive = true;
 				for (int i = 0; i < mrk.size(); i++) {
 					set.add(mrk.get(i));
-					activeMarkers.add(mrk.get(i));
 				}
 			}
 		}
@@ -1030,7 +930,7 @@ public class SequenceRetriever implements VisualPlugin {
 		for (Iterator<DSGeneMarker> markerIter = set.iterator(); markerIter
 				.hasNext();) {
 			DSGeneMarker mrk = markerIter.next();
-			ls2.addElement(mrk);
+			listModel.addElement(mrk);
 			ArrayList<String> values = null;
 			if (sequenceType.equalsIgnoreCase(DNAVIEW)) {
 				values = cachedRetrievedDNASequences.get(mrk.toString());
@@ -1065,8 +965,12 @@ public class SequenceRetriever implements VisualPlugin {
 
 		currentRetrievedMap = tempMap;
 		currentRetrievedSequences = tempSequencesList;
-		sequenceDB = tempSequenceDB;
-		
+		if (sequenceType.equalsIgnoreCase(DNAVIEW)) {
+			dnaSequenceDB = tempSequenceDB;
+		} else {
+			proteinSequenceDB = tempSequenceDB;
+		}
+
 		return atLeastOneActive;
 	}
 
@@ -1087,169 +991,9 @@ public class SequenceRetriever implements VisualPlugin {
 		return fileName;
 	}
 
-	private class TFListPanel extends JPanel {
-		private static final long serialVersionUID = 8681983607024585608L;
-
-		public static final String NEXT_BUTTON_TEXT = "Find";
-
-		public static final String SEARCH_LABEL_TEXT = "Search:";
-
-		private JList list;
-
-		private JButton nextButton;
-
-		private JTextField searchField;
-
-		private DefaultListModel model;
-
-		private JScrollPane scrollPane;
-
-		public TFListPanel() {
-			super();
-			model = new DefaultListModel();
-			setLayout(new BorderLayout());
-			JPanel topPanel = new JPanel();
-			topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.X_AXIS));
-			JLabel searchLabel = new JLabel(SEARCH_LABEL_TEXT);
-			nextButton = new JButton(NEXT_BUTTON_TEXT);
-			searchField = new JTextField();
-			list = new JList(model);
-			scrollPane = new JScrollPane();
-			// Compose components
-			topPanel.add(searchLabel);
-			topPanel.add(searchField);
-			topPanel.add(nextButton);
-			add(topPanel, BorderLayout.NORTH);
-			scrollPane.getViewport().setView(list);
-			add(scrollPane, BorderLayout.CENTER);
-			// Add appropriate listeners
-			nextButton.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					findNext();
-				}
-			});
-
-			searchField.getDocument().addDocumentListener(
-					new DocumentListener() {
-						public void insertUpdate(DocumentEvent e) {
-							searchFieldChanged();
-						}
-
-						public void removeUpdate(DocumentEvent e) {
-							searchFieldChanged();
-						}
-
-						public void changedUpdate(DocumentEvent e) {
-							searchFieldChanged();
-						}
-					});
-
-		}
-
-		/**
-		 * Override to customize the result of the 'next' button being clicked
-		 * (or ENTER being pressed in text field).
-		 */
-		private void findNext() {
-			searchField.setForeground(Color.black);
-
-			String text = searchField.getText().toLowerCase();
-			findNext(text);
-
-			int confirm = JOptionPane.showConfirmDialog(this,
-					"Use the markers to retrieve sequences?");
-			if (confirm == JOptionPane.YES_OPTION) {
-				cleanUpCurrentView();
-				if (model.getSize() > 0) {
-					seqDisPanel.initialize();
-					jProgressBar1.setIndeterminate(false);
-					jProgressBar1.setMinimum(0);
-					jProgressBar1.setMaximum(100);
-					jProgressBar1.setStringPainted(true);
-					updateProgressBar(0, "");
-					if (sequenceDB != null) {
-						sequenceDB = new CSSequenceSet<DSSequence>();
-					}
-					SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-
-						@Override
-						protected Void doInBackground() throws Exception {
-							int size = model.getSize();
-							Vector<DSGeneMarker> list = new Vector<DSGeneMarker>();
-							for (int x = 0; x < size; ++x) {
-								DSGeneMarker marker = (DSGeneMarker) model
-										.get(x);
-								list.addElement(marker);
-							}
-							getSequences(list);
-
-							return null;
-						}
-
-						@Override
-						protected void done() {
-							if (status.equalsIgnoreCase(STOP)) {
-								sequenceDB = new CSSequenceSet<DSSequence>();
-								updateProgressBar(100,
-										"Stopped on " + new Date());
-							} else {
-								updateProgressBar(100,
-										"Finished on " + new Date());
-								jSelectedList.updateUI();
-								seqDisPanel
-										.setRetrievedMap(currentRetrievedMap);
-							}
-							stopButton.setEnabled(false);
-							
-						}
-					};
-					worker.execute();
-				}
-
-			}
-		}
-
-		/**
-		 * Search the markerList to get the matched markers.
-		 */
-		private void findNext(String query) {
-			model.removeAllElements();
-			if (markerList != null) {
-				Object theOne = markerList.get(query);
-				if (theOne != null) {
-					model.addElement(theOne);
-
-				}
-				for (Object o : markerList) {
-					String element = o.toString().toLowerCase();
-					if (element.contains(query)) {
-						model.addElement(o);
-					}
-				}
-			}
-		}
-
-		private void searchFieldChanged() {
-			searchField.setForeground(Color.black);
-		}
-
-	}
-
-	private class SequenceListSelectionListener implements
-			ListSelectionListener {
-
-		public void valueChanged(ListSelectionEvent e) {
-			// Ignore extra messages.
-			if (e.getValueIsAdjusting()) {
-				return;
-			}
-			JList lsm = (JList) e.getSource();
-
-			int[] selectedRows = lsm.getSelectedIndices();
-			updateSelectedSequenceDB(selectedRows);
-
-		}
-
+	// TODO this can be made less general
+	void setDisplaySequenceDB(DSSequenceSet<?> displaySequenceDB) {
+		seqDisPanel.setDisplaySequenceDB(displaySequenceDB);
 	}
 
 	private String generateHistStr() {
@@ -1270,6 +1014,31 @@ public class SequenceRetriever implements VisualPlugin {
 
 		histStr += "------------------------------------\n";
 		return histStr;
+	}
+
+	public HashMap<String, RetrievedSequenceView> getCurrentRetrievedMap() {
+		return currentRetrievedMap;
+	}
+
+	public DSItemList<DSGeneMarker> getMarkerList() {
+		return refMASet.getMarkers();
+	}
+
+	public void disableStopButton() {
+		stopButton.setEnabled(false);
+	}
+
+	// TODO check if this is really necessary
+	public void updateSelectedListUI() {
+		jSelectedList.updateUI();
+	}
+
+	public void resetProgressBar() {
+		jProgressBar1.setIndeterminate(false);
+		jProgressBar1.setMinimum(0);
+		jProgressBar1.setMaximum(100);
+		jProgressBar1.setStringPainted(true);
+		updateProgressBar(0, "");
 	}
 
 }
