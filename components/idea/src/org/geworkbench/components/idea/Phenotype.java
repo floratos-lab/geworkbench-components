@@ -94,12 +94,7 @@ public class Phenotype implements Serializable {
 		Collections.sort(list);
 		for(int i=0;i<list.size();i++){
 			s+=maSet.get((Integer)list.get(i)-1)+"\t";
-		}
-		/*
-		for(int i:columnIncluded){
-			s+=maSet.get(i-1).getLabel()+"("+(i-1)+")"+"\t";
-		}
-		*/
+		}		
 		s=s.substring(0,s.length()-1);
 		return s;
 	}
@@ -110,12 +105,7 @@ public class Phenotype implements Serializable {
 		Collections.sort(list);
 		for(int i=0;i<list.size();i++){
 			s+=maSet.get((Integer)list.get(i)-1)+"\t";
-		}
-		/*
-		for(int i:columnExcluded){
-			s+=maSet.get(i-1).getLabel()+"("+(i-1)+")"+"\t";
-		}
-		*/
+		}		
 		s=s.substring(0,s.length()-1);
 		return s;
 	}
