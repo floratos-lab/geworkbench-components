@@ -85,10 +85,6 @@ public class NullDistribution {
 		}
 		Arrays.sort(noExcludeList);
 	
-		if (analysis.stopAlgorithm) {
-			 analysis.stop();
-			return -1;
-		}
 		String dir = System.getProperty("user.dir");
 		String nullOutputFile = dir + "\\data\\null.dat";		
 			// calcu MI for each edge in edgeIndex
@@ -112,7 +108,6 @@ public class NullDistribution {
 				analysis.stop();	//prepareBins failed
 				return -1;
 			}
-			
 			IdeaEdge currentEdge=MI_Edge.get(0);//usually sortedCorr.length always >t except in test environment.
 			// compute 100X100X100 null delta Corrs
 			for (int i = 0; i < 100; i++) {// set 100 bins, get MI positions in
@@ -226,12 +221,7 @@ public class NullDistribution {
 				anEdge.setzDeltaCorr(zDeltaCorr);
 	
 			}// end of edges loop
-	
 			
-			if (analysis.stopAlgorithm) {
-				 analysis.stop();
-				return -1;
-			}
 			FileOutputStream fileOut = new FileOutputStream(nullOutputFile);
 			ObjectOutputStream out = new ObjectOutputStream(fileOut);
 	
