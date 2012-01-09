@@ -2,6 +2,7 @@ package org.geworkbench.components.alignment.blast;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -229,7 +230,7 @@ public class RemoteBlast {
 	}
 
 	enum Status {READY, WAITING, ERROR}
-	Status retrieveResult(String resultURLString) {
+	Status retrieveResult(String resultURLString) {			 
 		HttpClient client = new HttpClient();
 		DefaultHttpMethodRetryHandler retryhandler = new DefaultHttpMethodRetryHandler(
 				10, true);
@@ -278,16 +279,41 @@ public class RemoteBlast {
 					LOG.debug("... blast response does not have proper status");
 					return Status.ERROR;
 				}
-			} else {
+			} else {				
 				LOG.error("retrieve failed for " + resultURLString);
 				LOG.error("status code=" + statusCode);
+				String s = "Error: retrieve failed, status code=" + statusCode;
+				PrintWriter pw = new PrintWriter(new File(filename));
+				pw.println(s);
+				pw.close();
 				return Status.ERROR;
 			}
 		} catch (HttpException e) {
 			e.printStackTrace();
+			String s = "Error: " + e.getClass().getName() + ":" + e.getMessage();
+			PrintWriter pw;
+			try {
+				pw = new PrintWriter(new File(filename));
+				pw.println(s);
+				pw.close();
+			} catch (FileNotFoundException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			
 			return Status.ERROR;
 		} catch (IOException e) {
 			e.printStackTrace();
+			String s = "Error: " + e.getClass().getName() + ":" + e.getMessage();
+			PrintWriter pw;
+			try {
+				pw = new PrintWriter(new File(filename));
+				pw.println(s);
+				pw.close();
+			} catch (FileNotFoundException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}			
 			return Status.ERROR;
 		} finally {
 			getMethod.releaseConnection();

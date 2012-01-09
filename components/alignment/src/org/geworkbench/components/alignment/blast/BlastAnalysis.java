@@ -260,9 +260,8 @@ public class BlastAnalysis extends AbstractAnalysis implements
 				HistoryPanel.addToHistory(blastResult, historyStr);
 				return new AlgorithmExecutionResults(true, "Blast", blastResult);
 
-			} catch (Exception e) {
+			} catch (Exception e) {				
 				e.printStackTrace();
-
 				return new AlgorithmExecutionResults(false, e.getMessage(),
 						null);
 
@@ -284,10 +283,13 @@ public class BlastAnalysis extends AbstractAnalysis implements
 			br = new BufferedReader(new FileReader(outputFile));
 			String line = br.readLine();
 			while (line != null) {
-				int index = line.indexOf("Error: ");
-				if (index >= 0) {
-					int index2 = line.indexOf("</font>", index);
-					return line.substring(index, index2);
+				int index = line.indexOf("Error: ");				 
+				if (index >= 0) {					 
+					int index2 = line.indexOf("<", index);
+					if (index2 > 0 )
+					  return line.substring(index, index2);
+					else
+					  return line.substring(index);
 				}
 				line = br.readLine();
 			}
@@ -301,6 +303,7 @@ public class BlastAnalysis extends AbstractAnalysis implements
 			return "IOException in parsing error";
 		} finally {
 			try {
+				if (br != null)
 				br.close();
 			} catch (IOException e) {
 			}
