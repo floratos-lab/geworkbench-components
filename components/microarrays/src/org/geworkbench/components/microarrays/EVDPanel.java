@@ -373,8 +373,9 @@ public class EVDPanel extends MicroarrayViewEventBase {
 
 		// FIXME there may be some more efficient way
 		int numGenes = maSetView.markers().size();
+		int numArraySets = refMASet.size();
 		for (int geneCtr = 0; geneCtr < numGenes; geneCtr++) {
-			for (int maCtr = 0; maCtr < refMASet.size(); maCtr++) {
+			for (int maCtr = 0; maCtr < numArraySets ; maCtr++) {
 				double value = refMASet.getValue(geneCtr, maCtr);
 				if (Double.isNaN(value)) {
 					value = 0;
@@ -397,7 +398,7 @@ public class EVDPanel extends MicroarrayViewEventBase {
 		}
 
 		if(jMASlider!=null)
-			jMASlider.setMaximum(refMASet.size()-1);
+			jMASlider.setMaximum(numArraySets-1);
 		
 		refresh();
 	}
