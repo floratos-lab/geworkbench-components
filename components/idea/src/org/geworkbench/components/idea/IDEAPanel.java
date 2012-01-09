@@ -463,9 +463,11 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 			for(Edge ed:adjDataSet.getMatrix().getEdges()) {
 				int i1=ed.node1.getMarker().getGeneId();
 				int i2=ed.node2.getMarker().getGeneId();
-				IdeaNetworkEdge anEdge=new IdeaNetworkEdge(i1,i2);
-				if(!set.contains(anEdge)) {
-					set.add(anEdge);
+				if((i1!=0)&&(i2!=0)){
+					IdeaNetworkEdge anEdge=new IdeaNetworkEdge(i1,i2);				
+					if(!set.contains(anEdge)) {
+						set.add(anEdge);
+					}
 				}
 			}
 			for(IdeaNetworkEdge anEdge : set) {
