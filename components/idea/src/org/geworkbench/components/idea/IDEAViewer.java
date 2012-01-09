@@ -280,7 +280,8 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 		JButton saveSigGeneButton=new JButton();
 		saveSigGeneButton.setText("Export Table");
 		JPanel bottom1=new JPanel();
-		bottom1.setLayout(new GridLayout(0,3));
+		bottom1.setLayout(new GridLayout(0,5));
+		bottom1.add(new JLabel());
 		bottom1.add(new JLabel());
 		bottom1.add(saveSigGeneButton);
 		sigPane.add(bottom1, BorderLayout.SOUTH);
@@ -293,7 +294,8 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 		JButton saveLocButton=new JButton();
 		saveLocButton.setText("Export Table");
 		JPanel bottom2=new JPanel();
-		bottom2.setLayout(new GridLayout(0,3));
+		bottom2.setLayout(new GridLayout(0,5));
+		bottom2.add(new JLabel());
 		bottom2.add(new JLabel());
 		bottom2.add(saveLocButton);
 		locPane.add(bottom2, BorderLayout.SOUTH);		
@@ -306,7 +308,8 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 		JButton saveGocButton=new JButton();
 		saveGocButton.setText("Export Table");
 		JPanel bottom3=new JPanel();
-		bottom3.setLayout(new GridLayout(0,3));
+		bottom3.setLayout(new GridLayout(0,5));
+		bottom3.add(new JLabel());
 		bottom3.add(new JLabel());
 		bottom3.add(saveGocButton);
 		gocPane.add(bottom3, BorderLayout.SOUTH);		
@@ -319,7 +322,8 @@ public class IDEAViewer extends JPanel implements VisualPlugin {
 		JButton saveNodesButton=new JButton();
 		saveNodesButton.setText("Export Table");
 		JPanel bottom4=new JPanel();
-		bottom4.setLayout(new GridLayout(0,3));
+		bottom4.setLayout(new GridLayout(0,5));
+		bottom4.add(new JLabel());
 		bottom4.add(new JLabel());
 		bottom4.add(saveNodesButton);
 		nodesPane.add(bottom4, BorderLayout.SOUTH);	
