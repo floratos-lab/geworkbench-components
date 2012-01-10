@@ -328,11 +328,12 @@ public class WorkflowVisualizationPanel extends JPanel implements VisualPlugin {
 		layout.setWrap((int) this.getSize().getWidth() + drawOffset);
 		layout.setResizeParent(true);
 		layout.execute(parent);
-		
+		if(swimlanes.get(w) != null)
+		{
 		layout.setWrap((int) swimlanes.get(w).getGeometry().getWidth());
 		layout.setResizeParent(true);
 		layout.execute(parent);
-		
+		}
 		wkflTails.put(w, ((mxICell) lastCell));
 
 
