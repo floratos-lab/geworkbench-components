@@ -49,7 +49,7 @@ public class WorkflowVisualizationPanel extends JPanel implements VisualPlugin {
 	 */
 	private static final long serialVersionUID = -3300246926475166675L;
 	private WorkflowVisualizationPopup popup = new WorkflowVisualizationPopup();
-	
+
 	private myGraph graph;
 	private mxGraphComponent graphComponent;
 	private JScrollPane scroller = new JScrollPane();;
@@ -60,39 +60,39 @@ public class WorkflowVisualizationPanel extends JPanel implements VisualPlugin {
 		new Timer();
 		add(scroller, BorderLayout.CENTER);
 		this.addComponentListener(new ComponentListener() {
-			
+
 			@Override
 			public void componentShown(ComponentEvent e) {				
 			}
-			
+
 			@Override
 			public void componentResized(ComponentEvent e) {
-				if(graphComponent != null)
-					graphComponent.setPreferredSize(getSize());
 				if(!redrawing)
 				{
 					redrawing = true;
+					if(graphComponent != null)
+						graphComponent.setPreferredSize(getSize());
 					SwingWorker<Void,Void> wrkr = new SwingWorker<Void, Void>()
-					{
+							{
 						int evt;
 						protected void done() {
 							GenSpace.getStatusBar().stop(evt);
+							redrawing = false;
 						};
-						protected Void doInBackground() throws Exception {
+						protected Void doInBackground(){
 							evt = GenSpace.getStatusBar().start("Resizing graph");
 							refreshLayout();
-							redrawing = false;
 							return null;
 						};
-					};
-					wrkr.execute();
-				}			
+							};
+							wrkr.execute();
+				}
 			}
-			
+
 			@Override
 			public void componentMoved(ComponentEvent e) {				
 			}
-			
+
 			@Override
 			public void componentHidden(ComponentEvent e) {
 			}
@@ -122,41 +122,45 @@ public class WorkflowVisualizationPanel extends JPanel implements VisualPlugin {
 			myStackLayout layout = new myStackLayout(graph,false,20,10,10);
 			layout.setResizeParent(true);
 			layout.execute(pool);
-	
+
 			layout = new myStackLayout(graph,swimlanes.size() == 0,40,10,0);
 			if(swimlanes.size() == 0)
 			{
-				layout.setWrap((int) this.getSize().getWidth());
+				layout.setWrap((int) this.getSize().getWidth() - 60);
 			}
 			layout.setResizeParent(true);
 			layout.execute(parent);
-			
+
 			if(swimlanesBack.size() > 0)
-			for(mxICell i : swimlanes.values())
-			{
-				WorkflowWrapper parentW = wkflwCache.get(swimlanesBack.get(i).getCachedParentId());
-				int drawOffset = 0;
-				if(parentW != null)
+				for(mxICell i : swimlanes.values())
 				{
-					if(wkflTails.get(parentW) != null)
+					WorkflowWrapper parentW = wkflwCache.get(swimlanesBack.get(i).getCachedParentId());
+					int drawOffset = 0;
+					if(parentW != null)
 					{
-					drawOffset = (int) (wkflTails.get(parentW).getGeometry().getX()+wkflTails.get(parentW).getGeometry().getWidth());
-					Object[] es = graph.getEdgesBetween(wkflTails.get(parentW),i.getChildAt(0));
-					if(es.length == 1)
-					{
-					mxICell edge = (mxICell) es[0];
-					ArrayList<mxPoint> pts = new ArrayList<mxPoint>();
-					pts.add(new mxPoint(wkflTails.get(parentW).getGeometry().getCenterX() +((mxICell) parent).getGeometry().getX(), (i.getChildAt(0)).getGeometry().getCenterY() + i.getGeometry().getY()));
-					edge.getGeometry().setPoints(pts);
+						if(wkflTails.get(parentW) != null)
+						{
+							drawOffset = (int) (wkflTails.get(parentW).getGeometry().getX()+wkflTails.get(parentW).getGeometry().getWidth());
+							Object[] es = graph.getEdgesBetween(wkflTails.get(parentW),i.getChildAt(0));
+							if(es.length == 1)
+							{
+								mxICell edge = (mxICell) es[0];
+								ArrayList<mxPoint> pts = new ArrayList<mxPoint>();
+								pts.add(new mxPoint(wkflTails.get(parentW).getGeometry().getCenterX() +((mxICell) parent).getGeometry().getX(), (i.getChildAt(0)).getGeometry().getCenterY() + i.getGeometry().getY()));
+								edge.getGeometry().setPoints(pts);
+							}
+						}
 					}
-					}
+					layout = new myStackLayout(graph,true,10,drawOffset,0);
+					layout.setWrap((int) this.getSize().getWidth() + drawOffset - 60);
+					layout.setResizeParent(true);
+					layout.execute(i);
+					layout.setWrap((int) i.getGeometry().getWidth());
+					layout.setResizeParent(true);
+					layout.execute(i);
+					
 				}
-				layout = new myStackLayout(graph,true,10,drawOffset,0);
-				layout.setWrap((int) this.getSize().getWidth() + drawOffset);
-				layout.setResizeParent(true);
-				layout.execute(i);
-			}
-			
+
 			this.removeAll();
 			add(graphComponent, BorderLayout.CENTER);
 			graphComponent.setVisible(true);
@@ -166,34 +170,34 @@ public class WorkflowVisualizationPanel extends JPanel implements VisualPlugin {
 		}
 	}
 	private void layoutAndShowGraph() {
-		
-			graph.getModel().endUpdate();
-		
-			graphComponent = new mxGraphComponent(graph);
-			graphComponent.getGraphControl().addMouseListener(new MouseAdapter()
+
+		graph.getModel().endUpdate();
+
+		graphComponent = new mxGraphComponent(graph);
+		graphComponent.getGraphControl().addMouseListener(new MouseAdapter()
+		{
+
+			public void mouseReleased(MouseEvent e)
 			{
-			
-				public void mouseReleased(MouseEvent e)
+				Object cell = graphComponent.getCellAt(e.getX(), e.getY());
+
+				if (cell != null)
 				{
-					Object cell = graphComponent.getCellAt(e.getX(), e.getY());
-					
-					if (cell != null)
+					if(cell instanceof mxCell)
 					{
-						if(cell instanceof mxCell)
-						{
-							mxCell mx = (mxCell) cell;
-							cell = mx.getValue();
-						}
-						if(cell.getClass().equals(WorkflowToolHolder.class))
-						{
-							WorkflowToolHolder selected = (WorkflowToolHolder) cell;
-							popup.initialize(selected.getTool(), (Workflow) selected.getWorkflow());
-							popup.show(WorkflowVisualizationPanel.this, (int) e.getX(),
-									(int) e.getY());
-						}
+						mxCell mx = (mxCell) cell;
+						cell = mx.getValue();
+					}
+					if(cell.getClass().equals(WorkflowToolHolder.class))
+					{
+						WorkflowToolHolder selected = (WorkflowToolHolder) cell;
+						popup.initialize(selected.getTool(), (Workflow) selected.getWorkflow());
+						popup.show(WorkflowVisualizationPanel.this, (int) e.getX(),
+								(int) e.getY());
 					}
 				}
-			});
+			}
+		});
 		refreshLayout();
 	}
 	@Override
@@ -224,7 +228,7 @@ public class WorkflowVisualizationPanel extends JPanel implements VisualPlugin {
 		pool = graph.insertVertex(graph.getDefaultParent(), null, "", 0, 0, 10, 10,"POOL");
 		renderAsSubs(ret,selected,false,null);
 		layoutAndShowGraph();
-		
+
 	}
 	private HashMap<Integer,WorkflowWrapper> wkflwCache;
 	private HashMap<WorkflowWrapper, mxICell> wkflTails;
@@ -244,7 +248,6 @@ public class WorkflowVisualizationPanel extends JPanel implements VisualPlugin {
 						Object lane = graph.insertVertex(pool, null, "", 0, 0, this.getWidth(), 10,"SWIMLANE");
 						swimlanes.put(w, (mxICell) lane);
 						renderSingleWorkflow(w,selected,lane);
-						
 						renderAsSubs(ret, selected, true, w);
 					}
 				}
@@ -271,7 +274,7 @@ public class WorkflowVisualizationPanel extends JPanel implements VisualPlugin {
 			drawOffset = 10;
 		else
 			drawOffset = (int) (drawFrom.getGeometry().getX() + drawFrom.getGeometry().getWidth());
-		
+
 		if(parent == null)
 			parent = graph.getDefaultParent();
 
@@ -282,7 +285,6 @@ public class WorkflowVisualizationPanel extends JPanel implements VisualPlugin {
 		{
 			if(to == null || to.getTool() == null)
 			{
-				System.out.println("Null tool");
 				continue;
 			}
 			if(i < toolOffset)
@@ -295,10 +297,10 @@ public class WorkflowVisualizationPanel extends JPanel implements VisualPlugin {
 				styl = "WORKFLOW;fillColor=#e8f2dd";
 			else
 				styl = "WORKFLOW";
-			
+
 			Rectangle2D r = f.getStringBounds(to.getTool().getName(), ((Graphics2D) this.getGraphics()).getFontRenderContext());
 			Object v1 = graph.insertVertex(parent, null, new WorkflowToolHolder(to), 10, 10, r.getWidth()+10, r.getHeight()+10,styl);
-			
+
 			if(lastCell != null)
 				graph.insertEdge(parent, null, "", lastCell, v1,"editable=0");
 			else if(drawFrom != null)
@@ -306,13 +308,13 @@ public class WorkflowVisualizationPanel extends JPanel implements VisualPlugin {
 				myStackLayout layout = new myStackLayout(graph,false,20,10,10);
 				layout.setResizeParent(true);
 				layout.execute(pool);
-				
+
 				layout = new myStackLayout(graph,true,20,0,0);
 				layout.setWrap((int) this.getSize().getWidth());
 				layout.setResizeParent(true);
 				layout.execute(parent);
 
-				
+
 				mxICell e = (mxICell) graph.insertEdge(graph.getDefaultParent(), null, "", drawFrom, v1,"CROSSOVER;editable=0");
 				ArrayList<mxPoint> pts = new ArrayList<mxPoint>();
 				pts.add(new mxPoint(drawFrom.getGeometry().getCenterX() +((mxICell) parent).getGeometry().getX(), ((mxICell) v1).getGeometry().getCenterY() + ((mxICell) parent).getGeometry().getY()));
@@ -326,10 +328,15 @@ public class WorkflowVisualizationPanel extends JPanel implements VisualPlugin {
 		layout.setWrap((int) this.getSize().getWidth() + drawOffset);
 		layout.setResizeParent(true);
 		layout.execute(parent);
+		
+		layout.setWrap((int) swimlanes.get(w).getGeometry().getWidth());
+		layout.setResizeParent(true);
+		layout.execute(parent);
+		
 		wkflTails.put(w, ((mxICell) lastCell));
 
 
-		
+
 	}
 	private void renderSingleWorkflow(WorkflowWrapper w, Tool selected,Object parent) {
 		renderSingleWorkflow(w, selected, parent,0,null);	
@@ -340,7 +347,7 @@ public class WorkflowVisualizationPanel extends JPanel implements VisualPlugin {
 
 
 		graph.getModel().beginUpdate();
-		
+
 
 		Hashtable<String, Object> style = new Hashtable<String, Object>();
 		style.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_RECTANGLE);
@@ -357,21 +364,21 @@ public class WorkflowVisualizationPanel extends JPanel implements VisualPlugin {
 		style2.put(mxConstants.STYLE_BENDABLE, true);
 		style2.put(mxConstants.STYLE_ELBOW, mxConstants.ELBOW_HORIZONTAL);
 		graph.getStylesheet().putCellStyle("CROSSOVER", style2);
-		
-		
+
+
 		Hashtable<String, Object> style3 = new Hashtable<String, Object>();
 		style3.put(mxConstants.STYLE_FILLCOLOR, "#E1E2E6");
 		style3.put(mxConstants.STYLE_STROKECOLOR, "#000000");
 		style3.put(mxConstants.STYLE_STROKEWIDTH, .5);
 		style3.put(mxConstants.STYLE_VERTICAL_ALIGN, mxConstants.ALIGN_CENTER);
-//		style3.put(mxConstants.STYLE_OPACITY, "0");
+		//		style3.put(mxConstants.STYLE_OPACITY, "0");
 		graph.getStylesheet().putCellStyle("SWIMLANE", style3);
-		
+
 		Hashtable<String, Object> style4 = new Hashtable<String, Object>();
 		style4.put(mxConstants.STYLE_OPACITY, 0);
 		graph.getStylesheet().putCellStyle("POOL", style4);
-		
-		
+
+
 		graph.setConnectableEdges(false);
 		graph.setAllowDanglingEdges(false);
 		graph.setCellsEditable(false);
@@ -380,12 +387,12 @@ public class WorkflowVisualizationPanel extends JPanel implements VisualPlugin {
 		graph.setCellsResizable(false);
 		graph.setConnectableEdges(false);
 		graph.setEnabled(false);
-		
+
 		wkflTails = new HashMap<WorkflowWrapper, mxICell>();
 		swimlanes = new HashMap<WorkflowWrapper, mxICell>();
 		swimlanesBack = new HashMap<mxICell, WorkflowWrapper>();
 	}
-	
+
 
 }
 
