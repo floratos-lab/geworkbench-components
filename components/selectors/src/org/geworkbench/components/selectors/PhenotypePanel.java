@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -199,8 +200,9 @@ public class PhenotypePanel extends SelectorPanel<DSMicroarray> {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			DSPanel<DSMicroarray> panel = getPanelFromSet(fc.getSelectedFile());
-			addPanel(panel);
+			ArrayList<DSPanel<DSMicroarray>> panels = getPanelFromSet(fc.getSelectedFile());
+			for(DSPanel<DSMicroarray> panel: panels)
+				addPanel(panel);
 			throwLabelEvent();
 		}
 	}
@@ -225,15 +227,17 @@ public class PhenotypePanel extends SelectorPanel<DSMicroarray> {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			DSPanel<DSMicroarray> panel = getPanelFromSet(fc.getSelectedFile());
-			addPanel(panel);
-			if (!classname.equals(context.getDefaultClass()))
-				context.assignClassToLabel(panel.getLabel(), classname);
+			ArrayList<DSPanel<DSMicroarray>> panels = getPanelFromSet(fc.getSelectedFile());
+			for (DSPanel<DSMicroarray> panel : panels){
+				addPanel(panel);
+				if (!classname.equals(context.getDefaultClass()))
+					context.assignClassToLabel(panel.getLabel(), classname);
+			}
 			throwLabelEvent();
 		}
     }
 
-	private DSPanel<DSMicroarray> getPanelFromSet(final File file) {
+	private ArrayList<DSPanel<DSMicroarray>> getPanelFromSet(final File file) {
 		FileInputStream inputStream = null;
 		String filename = file.getName();
 		if (filename.toLowerCase().endsWith(".csv")) {
@@ -245,10 +249,9 @@ public class PhenotypePanel extends SelectorPanel<DSMicroarray> {
 		for (int i = 0; i < n; i++) {
 			nameSet.add(context.getLabel(i));
 		}
-		filename = Util.getUniqueName(filename, nameSet);
-		DSPanel<DSMicroarray> panel = new CSPanel<DSMicroarray>(filename);
-		 
-		List<String> selectedNames = new ArrayList<String>();
+		ArrayList<DSPanel<DSMicroarray>> panels = new ArrayList<DSPanel<DSMicroarray>>();
+
+		HashMap<String, List<String>> map = new HashMap<String, List<String>>();
 		try {
 			inputStream = new FileInputStream(file);
 			ExcelCSVParser parser = new ExcelCSVParser(inputStream);
@@ -256,6 +259,13 @@ public class PhenotypePanel extends SelectorPanel<DSMicroarray> {
 			for (int i = 0; i < data.length; i++) {
 				String[] line = data[i];
 				if (line.length > 0) {
+					String setname = (line.length > 1 && line[1].trim().length() > 0)?
+									  line[1].trim() : filename;
+					List<String> selectedNames = map.get(setname);
+					if (selectedNames == null){
+						selectedNames = new ArrayList<String>();
+						map.put(setname, selectedNames);
+					}
 					selectedNames.add(line[0]);
 				}
 			}
@@ -271,18 +281,29 @@ public class PhenotypePanel extends SelectorPanel<DSMicroarray> {
 			}
 		}
 		
-		for(DSMicroarray array: itemList) {
-			if(selectedNames.contains(array.getLabel())) 
-				panel.add(array);
+		int missing = 0;
+		for (String setname : map.keySet()){
+			List<String> selectedNames = map.get(setname);
+			setname = Util.getUniqueName(setname, nameSet);
+			nameSet.add(setname);
+			DSPanel<DSMicroarray> panel = new CSPanel<DSMicroarray>(setname);
+            if (context.getClassForLabel(setname) != null)
+                context.removeClassFromLabel(setname);
+			for(DSMicroarray array: itemList) {
+				if(selectedNames.contains(array.getLabel())) 
+					panel.add(array);
+			}
+			if(panel.size() != selectedNames.size())
+				missing += selectedNames.size() - panel.size();
+			panels.add(panel);
 		}
-		if(panel.size() != selectedNames.size()) {
-			int missing = selectedNames.size() - panel.size();
+		if(missing > 0) {
 			if (missing == 1)
 				JOptionPane.showMessageDialog(null, missing + " array listed in the CSV file is not present in the dataset.  Skipped.", "Array Not Found", JOptionPane.WARNING_MESSAGE );
 			else 
 				JOptionPane.showMessageDialog(null, missing + " arrays listed in the CSV file are not present in the dataset.  Skipped.", "Arrays Not Found", JOptionPane.WARNING_MESSAGE );
 		}
-		return panel;
+		return panels;
 	}
 
     protected void setSelectorLastDirConf() {

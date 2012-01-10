@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -270,8 +271,9 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			DSPanel<DSGeneMarker> panel = deserializePanel(fc.getSelectedFile());
-			addPanel(panel);
+			ArrayList<DSPanel<DSGeneMarker>> panels = deserializePanel(fc.getSelectedFile());
+			for (DSPanel<DSGeneMarker> panel : panels)
+				addPanel(panel);
 			throwLabelEvent();
 		}
 	}
@@ -318,8 +320,9 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			DSPanel<DSGeneMarker> panel = getPanelFromSymbols(fc.getSelectedFile());
-			addPanel(panel);
+			ArrayList<DSPanel<DSGeneMarker>> panels = getPanelFromSymbols(fc.getSelectedFile());
+			for (DSPanel<DSGeneMarker> panel : panels)
+				addPanel(panel);
 			throwLabelEvent();
 		}
 	}
@@ -364,46 +367,8 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 	 * @param file
 	 *            file which contains the stored panel set
 	 */
-	private DSPanel<DSGeneMarker> deserializePanel(final File file) {
-		FileInputStream inputStream = null;
-		String filename = file.getName();
-		if (filename.toLowerCase().endsWith(".csv")) {
-			filename = filename.substring(0, filename.length() - 4);
-		}
-		// Ensure loaded file has unique name
-		Set<String> nameSet = new HashSet<String>();
-		int n = context.getNumberOfLabels();
-		for (int i = 0; i < n; i++) {
-			nameSet.add(context.getLabel(i));
-		}
-		filename = Util.getUniqueName(filename, nameSet);
-		DSPanel<DSGeneMarker> panel = new CSPanel<DSGeneMarker>(filename);
-		try {
-			inputStream = new FileInputStream(file);
-			ExcelCSVParser parser = new ExcelCSVParser(inputStream);
-			String[][] data = parser.getAllValues();
-			for (int i = 0; i < data.length; i++) {
-				String[] line = data[i];
-				if (line.length > 0) {
-					String label = line[0];
-					DSGeneMarker marker = itemList.get(label);
-					if (marker != null) {
-						panel.add(marker);
-					}
-				}
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			if (inputStream != null) {
-				try {
-					inputStream.close();
-				} catch (IOException e) {
-					// Lost cause
-				}
-			}
-		}
-		return panel;
+	private ArrayList<DSPanel<DSGeneMarker>> deserializePanel(final File file) {
+		return getPanelFromSet(file, false);
 	}
 
 	/**
@@ -412,7 +377,16 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 	 * @param file
 	 * @return
 	 */
-	private DSPanel<DSGeneMarker> getPanelFromSymbols(final File file) {
+	private ArrayList<DSPanel<DSGeneMarker>> getPanelFromSymbols(final File file) {
+		return getPanelFromSet(file, true);
+	}
+	
+	/**
+	 * Get DSPanel of gene markers based a file of marker names (isGene=false) or gene names (isGene=true).
+	 * @param file
+	 * @return
+	 */
+	private ArrayList<DSPanel<DSGeneMarker>> getPanelFromSet(final File file, boolean isGene) {
 		FileInputStream inputStream = null;
 		String filename = file.getName();
 		if (filename.toLowerCase().endsWith(".csv")) {
@@ -424,10 +398,9 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 		for (int i = 0; i < n; i++) {
 			nameSet.add(context.getLabel(i));
 		}
-		filename = Util.getUniqueName(filename, nameSet);
-		DSPanel<DSGeneMarker> panel = new CSPanel<DSGeneMarker>(filename);
-		
-		List<String> selectedNames = new ArrayList<String>();
+		ArrayList<DSPanel<DSGeneMarker>> panels = new ArrayList<DSPanel<DSGeneMarker>>();
+
+		HashMap<String, List<String>> map = new HashMap<String, List<String>>();
 		try {
 			inputStream = new FileInputStream(file);
 			ExcelCSVParser parser = new ExcelCSVParser(inputStream);
@@ -435,6 +408,13 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 			for (int i = 0; i < data.length; i++) {
 				String[] line = data[i];
 				if (line.length > 0) {
+					String setname = (line.length > 1 && line[1].trim().length() > 0)?
+							line[1].trim() : filename;
+					List<String> selectedNames = map.get(setname);
+					if (selectedNames == null){
+						selectedNames = new ArrayList<String>();
+						map.put(setname, selectedNames);
+					}
 					selectedNames.add(line[0]);
 				}
 			}
@@ -449,12 +429,36 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 				}
 			}
 		}
-		for(DSGeneMarker marker: itemList) {
-			if(selectedNames.contains(marker.getGeneName()))
-				panel.add(marker);
-		}
 
-		return panel;
+		int missing = 0;
+		for (String setname : map.keySet()){
+			List<String> selectedNames = map.get(setname);
+			setname = Util.getUniqueName(setname, nameSet);
+			nameSet.add(setname);
+			DSPanel<DSGeneMarker> panel = new CSPanel<DSGeneMarker>(setname);
+            if (isGene){
+        		for(DSGeneMarker marker: itemList) {
+        			if(selectedNames.contains(marker.getGeneName()))
+        				panel.add(marker);
+        		}
+            } else {
+                for(String label : selectedNames){
+        			DSGeneMarker marker = itemList.get(label);
+        			if (marker != null)
+        				panel.add(marker);
+                }
+            }
+			if(panel.size() != selectedNames.size())
+				missing += selectedNames.size() - panel.size();
+			panels.add(panel);
+		}
+		if(missing > 0) {
+			if (missing == 1)
+				JOptionPane.showMessageDialog(null, missing + " markers listed in the CSV file is not present in the dataset.  Skipped.", "Marker Not Found", JOptionPane.WARNING_MESSAGE );
+			else 
+				JOptionPane.showMessageDialog(null, missing + " markers listed in the CSV file are not present in the dataset.  Skipped.", "Marker Not Found", JOptionPane.WARNING_MESSAGE );
+		}
+		return panels;
 	}
 
 	private DSMicroarraySet maSet = null;
