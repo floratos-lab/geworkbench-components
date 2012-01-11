@@ -16,8 +16,7 @@
 			<body>----</body>
 			</html>
 		]]></license>
- 	        <menu-item path="File.Image snapshot" mode="always" var="File.Image snapshot"/>
-
+ 	        
 	</component>
 	
 	<plugin id="somdisplay" name="SOM Clusters" class="org.geworkbench.components.somclustering.SOMDisplay" source="somclustering">

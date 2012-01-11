@@ -16,8 +16,6 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
-
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -230,10 +228,7 @@ public class HierClusterViewWidget extends JPanel implements HierClusterModelEve
         }
     };
 
-    /**
-     * Application menu listeners returned by this component
-     */
-    private HashMap<String, ActionListener> listeners = new HashMap<String, ActionListener>();
+   
 
     /**
      * Visual widget
@@ -302,15 +297,7 @@ public class HierClusterViewWidget extends JPanel implements HierClusterModelEve
             e.printStackTrace();
         }
     }
-
-    /**
-     * Returns application menu listeners that this component handles
-     *
-     * @return listeners
-     */
-    HashMap<String, ActionListener> getListeners() {
-        return listeners;
-    }
+  
 
     /**
      * <code>HierClusterModelEventListener</code> interface method that notifies
@@ -508,7 +495,6 @@ public class HierClusterViewWidget extends JPanel implements HierClusterModelEve
         };
 
         imageSnapShot.addActionListener(listener);
-        listeners.put("File.Image snapshot", listener);
         addToPanel.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 addToPanel_actionPerformed(e);

@@ -20,8 +20,6 @@
 			</html>
 		]]></license>
 
-		<menu-item path="File.Image snapshot" mode="onFocus"
-			var="File.Image snapshot" />
 		<online-help
 			helpSet="org/geworkbench/components/colormosaic/help/colorMosaicHelpSet.hs" />
 
