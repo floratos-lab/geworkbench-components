@@ -138,6 +138,8 @@ public class NCBIBlastParser {
 						description = tagSeparated[2].trim();
 						score = tagSeparated[3].trim();
 						evalue = tagSeparated[4].trim();
+						String[] tokens=evalue.split("\\s");
+						evalue=tokens[0];
 					} else if(tagSeparated.length==3) { // for database alu (without HTML links)
 						String[] fields = tagSeparated[0].split("\\|");
 						id = fields[0];
@@ -282,7 +284,7 @@ public class NCBIBlastParser {
 					each.setDetailedAlignment(detaillines.toString());
 
 					index++;
-					if (endofResult) {
+					if (endofResult || index>=hits.size()) {
 						endofResult = false;
 						break;
 					}
