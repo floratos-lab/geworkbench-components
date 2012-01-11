@@ -12,6 +12,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -34,6 +35,7 @@ import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.DefaultListCellRenderer;
+import javax.swing.SwingUtilities;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -866,17 +868,31 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 
 	}
 
-	void setSelectorPanel(GoAnalysisParameterPanel aspp,
-			DSPanel<DSGeneMarker> ap) {
-		aspp.selectorPanel = ap;
-		if (changedListSource.getSelectedIndex() == 0) // from set
-			modifyListSets(aspp, changedListSets, changedList);
-		if (referenceListSource.getSelectedIndex() == 1) // from set
-			modifyListSets(aspp, referenceListSets, referenceList);
+	/* This method is invoked from non-EDT */
+	void setSelectorPanel(final GoAnalysisParameterPanel aspp,
+			final DSPanel<DSGeneMarker> ap) {
+		try {
+			SwingUtilities.invokeAndWait(new Runnable() {
+
+				@Override
+				public void run() {
+					aspp.selectorPanel = ap;
+					if (changedListSource.getSelectedIndex() == 0) // from set
+						modifyListSets(aspp, changedListSets, changedList);
+					if (referenceListSource.getSelectedIndex() == 1) // from set
+						modifyListSets(aspp, referenceListSets, referenceList);
+				}
+				
+			});
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		}
 
 	}
 
-	void modifyListSets(GoAnalysisParameterPanel aspp, JComboBox setListSets,
+	private void modifyListSets(GoAnalysisParameterPanel aspp, JComboBox setListSets,
 			JTextField setList) {
 		String currentTargetSet = (String) setListSets.getSelectedItem();
 		DefaultComboBoxModel targetComboModel = (DefaultComboBoxModel) setListSets
