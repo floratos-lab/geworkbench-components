@@ -12,12 +12,14 @@
 package org.geworkbench.components.gpmodule.classification;
 
 import java.awt.BorderLayout;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.SwingUtilities;
 
 import org.geworkbench.bison.model.analysis.ParameterPanel;
 import org.geworkbench.components.gpmodule.GPConfigPanel;
@@ -70,8 +72,32 @@ public abstract class GPTrainingPanel extends AbstractTrainingPanel
         return label;
     }
     
-    protected void addParameters(DefaultFormBuilder builder)
+    // FIXME it is a design problem to allow this method to be invoked from both EDT and non-EDT.
+    // It is actually invoked both ways.
+    // For now, let's keep it safe first.
+    protected void addParameters(final DefaultFormBuilder builder)
     {
+    	if(SwingUtilities.isEventDispatchThread()) {
+    		addParameterFromEDT(builder);
+    	} else {
+    		try {
+				SwingUtilities.invokeAndWait(new Runnable() {
+
+					@Override
+					public void run() {
+						addParameterFromEDT(builder);
+					}
+					
+				});
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				e.printStackTrace();
+			}
+    	}
+    }
+    
+    private void addParameterFromEDT(DefaultFormBuilder builder) {
         gpTabbedPane.removeAll();
 
         JPanel parameterPanel = getParameterPanel();
