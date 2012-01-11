@@ -488,54 +488,71 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 				List<Integer> entrez1 = new ArrayList<Integer>();
 				List<Integer> entrez2 = new ArrayList<Integer>();
 
-				// for now add only one match
 				if(markers1!=null && markers1.size()>0) {
 					Integer index = markers1.iterator().next();
 					DSGeneMarker m = (DSGeneMarker) dataset.getMarkers().get(index);
 					Set<String> entrezIds = AffyAnnotationUtil.getGeneIDs(m.getLabel());
 					if(entrezIds!=null && entrezIds.size()>0) {
 						try {
-							int ent = Integer.parseInt(entrezIds.iterator().next());
-							entrez1.add(ent);
+							Iterator<String> itr=entrezIds.iterator();
+							while(itr.hasNext()){
+								int ent = Integer.parseInt(itr.next());
+								entrez1.add(ent);
+							}
 						} catch (NumberFormatException e) {
 							log.error(e);
 						}
 					}
 				}
-
-				// for now add only on match
+				
 				if(markers2!=null && markers2.size()>0) {
 					Integer index = markers2.iterator().next();
 					DSGeneMarker m = (DSGeneMarker) dataset.getMarkers().get(index);
 					Set<String> entrezIds = AffyAnnotationUtil.getGeneIDs(m.getLabel());
 					if(entrezIds!=null && entrezIds.size()>0) {
 						try {
-							int ent = Integer.parseInt(entrezIds.iterator().next());
-							entrez2.add(ent);
+							Iterator<String> itr=entrezIds.iterator();
+							while(itr.hasNext()){
+								int ent = Integer.parseInt(itr.next());
+								entrez2.add(ent);
+							}
 						} catch (NumberFormatException e) {
 							log.error(e);
 						}
 					}
 				}
 
-				for (int i = 0; i < entrez1.size(); i++)
+				Set<IdeaNetworkEdge> set = new HashSet<IdeaNetworkEdge>();
+				for (int i = 0; i < entrez1.size(); i++){
 					for (int j = 0; j < entrez2.size(); j++) {
 						IdeaNetworkEdge anEdge = new IdeaNetworkEdge(
 								entrez1.get(i), entrez2.get(j));
-						boolean newEdge = true;
-						for (IdeaNetworkEdge ie : ideaNetwork) {
-							if (ie.equals(anEdge)) {
-								newEdge = false;
-								break;
-							}
+						if(!set.contains(anEdge)) {
+							set.add(anEdge);
 						}
-						if (newEdge) {
-							ideaNetwork.add(anEdge);							
-						}
-
-					}
+					}//inner for
+				}//outer for
+				for(IdeaNetworkEdge anEdge : set) {
+					ideaNetwork.add(anEdge);					
+				}
+				
 			}
 		}
+		else if(nt.equals(NodeType.STRING)){
+			for(Edge ed:adjDataSet.getMatrix().getEdges()){
+				String s=ed.node1.getStringId();
+				try{
+					int i1=Integer.parseInt(s);
+					int i2=Integer.parseInt(ed.node2.getStringId());
+					IdeaNetworkEdge anEdge = new IdeaNetworkEdge(i1,i2);
+					ideaNetwork.add(anEdge);
+				}
+				catch(NumberFormatException e) {
+					log.error(e);
+				}
+			}
+		}
+		
 		log.debug("network size is "+ideaNetwork.size());
 		for(IdeaNetworkEdge ie:ideaNetwork){			
 			networkList.add(ie.getGene1()+"\t"+ie.getGene2()+"\t1"+"\t0"+"\t0");
