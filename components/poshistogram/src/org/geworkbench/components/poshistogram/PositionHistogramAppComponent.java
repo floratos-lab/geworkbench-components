@@ -46,15 +46,7 @@ public class PositionHistogramAppComponent implements VisualPlugin, MenuListener
     
     public PositionHistogramAppComponent() {
         pHistogramWidget = new PositionHistogramWidget(this);
-        ActionListener listener = new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                pHistogramWidget.imageSnapshotAction(e);
-            }
-        };
-
-        listeners.put("File.Image snapshot", listener);
-
-		mainPanel.setOneTouchExpandable(true);
+        mainPanel.setOneTouchExpandable(true);
 		mainPanel.setResizeWeight(.5d);
     }
 

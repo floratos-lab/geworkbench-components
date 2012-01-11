@@ -99,7 +99,7 @@ public class HierClusterViewAppComponent implements VisualPlugin, MenuListener, 
     }
 
     public ActionListener getActionListener(String var) {
-        return (ActionListener) hclWidget.getListeners().get(var);
+        return null;
     }
 
     private void fireModelChanged(HierClusterModelEvent event) {

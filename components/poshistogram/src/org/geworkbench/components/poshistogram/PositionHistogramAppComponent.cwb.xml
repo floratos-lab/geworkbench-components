@@ -18,7 +18,6 @@
 				<body>----</body>
 			</html>
 		]]></license>
-	        <menu-item path="File.Image snapshot" mode="onFocus" var="File.Image snapshot"/>
 	        <online-help helpSet="org/geworkbench/components/poshistogram/help/posHistogramHelpSet.hs"/>
 
 	</component>
