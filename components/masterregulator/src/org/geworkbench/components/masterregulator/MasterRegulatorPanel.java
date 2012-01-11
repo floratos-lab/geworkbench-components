@@ -20,6 +20,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,6 +40,7 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.ListModel;
+import javax.swing.SwingUtilities;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -762,35 +764,48 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 
 	}
 
-	void setSelectorPanel(MasterRegulatorPanel aspp, DSPanel<DSGeneMarker> ap) {
-		aspp.selectorPanel = ap;
-		String currentTargetSet = (String) aspp.tfGroups.getSelectedItem();
-		DefaultComboBoxModel targetComboModel = (DefaultComboBoxModel) aspp.tfGroups
-				.getModel();
-		targetComboModel.removeAllElements();
-		targetComboModel.addElement(" ");
-		for (DSPanel<DSGeneMarker> panel : selectorPanel.panels()) {
-			String label = panel.getLabel().trim();
-			targetComboModel.addElement(label);
-			if (StringUtils.equals(label, currentTargetSet.trim())) {
-				targetComboModel.setSelectedItem(label);
-			}
-		}
+	/* this method is called from non-EDT */
+	void setSelectorPanel(final MasterRegulatorPanel aspp, final DSPanel<DSGeneMarker> ap) {
+		try {
+			SwingUtilities.invokeAndWait(new Runnable() {
 
-		String currentSigSet = (String) aspp.sigGroups.getSelectedItem();
-		DefaultComboBoxModel sigComboModel = (DefaultComboBoxModel) aspp.sigGroups
-				.getModel();
-		sigComboModel.removeAllElements();
-		sigComboModel.addElement(" ");
-		sigGeneListTextField.setText("");
-		for (DSPanel<DSGeneMarker> panel : selectorPanel.panels()) {
-			String label = panel.getLabel().trim();
-			sigComboModel.addElement(label);
-			if (StringUtils.equals(label, currentSigSet.trim())) {
-				sigComboModel.setSelectedItem(label);
-			}
-		}
+				@Override
+				public void run() {
+					aspp.selectorPanel = ap;
+					String currentTargetSet = (String) aspp.tfGroups.getSelectedItem();
+					DefaultComboBoxModel targetComboModel = (DefaultComboBoxModel) aspp.tfGroups
+							.getModel();
+					targetComboModel.removeAllElements();
+					targetComboModel.addElement(" ");
+					for (DSPanel<DSGeneMarker> panel : selectorPanel.panels()) {
+						String label = panel.getLabel().trim();
+						targetComboModel.addElement(label);
+						if (StringUtils.equals(label, currentTargetSet.trim())) {
+							targetComboModel.setSelectedItem(label);
+						}
+					}
 
+					String currentSigSet = (String) aspp.sigGroups.getSelectedItem();
+					DefaultComboBoxModel sigComboModel = (DefaultComboBoxModel) aspp.sigGroups
+							.getModel();
+					sigComboModel.removeAllElements();
+					sigComboModel.addElement(" ");
+					sigGeneListTextField.setText("");
+					for (DSPanel<DSGeneMarker> panel : selectorPanel.panels()) {
+						String label = panel.getLabel().trim();
+						sigComboModel.addElement(label);
+						if (StringUtils.equals(label, currentSigSet.trim())) {
+							sigComboModel.setSelectedItem(label);
+						}
+					}
+				}
+				
+			});
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private String getLastDir(){
