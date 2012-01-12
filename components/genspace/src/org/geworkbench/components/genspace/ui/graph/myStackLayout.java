@@ -123,7 +123,6 @@ public class myStackLayout extends mxStackLayout {
 												+ geo.getHeight() + 2 * spacing > wrap))
 								{
 									last = null;
-
 									if (horizontal)
 									{
 										y0 += tmp + spacing;

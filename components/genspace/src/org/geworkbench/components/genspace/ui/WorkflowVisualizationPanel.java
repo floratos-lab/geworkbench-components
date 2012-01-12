@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Timer;
@@ -217,19 +218,21 @@ public class WorkflowVisualizationPanel extends JPanel implements VisualPlugin {
 			@Override
 			public int compare(WorkflowWrapper o1, WorkflowWrapper o2) {
 				if(o1.getCachedChildrenCount() < o2.getCachedChildrenCount())
-					return -1;
-				else if(o1.getCachedChildrenCount() > o2.getCachedChildrenCount())
 					return 1;
+				else if(o1.getCachedChildrenCount() > o2.getCachedChildrenCount())
+					return -1;
 				else
 					return 0;
 			}
 		});
 		initGraph();
 		pool = graph.insertVertex(graph.getDefaultParent(), null, "", 0, 0, 10, 10,"POOL");
+		renderedWfs = new HashSet<Integer>();
 		renderAsSubs(ret,selected,false,null);
 		layoutAndShowGraph();
 
 	}
+	private HashSet<Integer> renderedWfs;
 	private HashMap<Integer,WorkflowWrapper> wkflwCache;
 	private HashMap<WorkflowWrapper, mxICell> wkflTails;
 	private HashMap<WorkflowWrapper, mxICell> swimlanes;
@@ -239,6 +242,8 @@ public class WorkflowVisualizationPanel extends JPanel implements VisualPlugin {
 			return;
 		for(WorkflowWrapper w: ret)
 		{
+			if(renderedWfs.contains(w.getId()))
+				continue;
 			if(parent == null)
 			{
 				if(!ret.contains(wkflwCache.get(w.getCachedParentId())))
@@ -247,6 +252,7 @@ public class WorkflowVisualizationPanel extends JPanel implements VisualPlugin {
 					{
 						Object lane = graph.insertVertex(pool, null, "", 0, 0, this.getWidth(), 10,"SWIMLANE");
 						swimlanes.put(w, (mxICell) lane);
+						renderedWfs.add(w.getId());
 						renderSingleWorkflow(w,selected,lane);
 						renderAsSubs(ret, selected, true, w);
 					}
@@ -258,6 +264,7 @@ public class WorkflowVisualizationPanel extends JPanel implements VisualPlugin {
 				{
 					Object lane = graph.insertVertex(pool, null, "", 0, 0, this.getWidth(), 10,"SWIMLANE");
 					swimlanes.put(w, (mxICell) lane);
+					renderedWfs.add(w.getId());
 					renderSingleWorkflow(w,selected,lane,wkflwCache.get(w.getCachedParentId()).getTools().size(),wkflTails.get(wkflwCache.get(w.getCachedParentId())));
 					renderAsSubs(ret, selected, true, w);
 				}
