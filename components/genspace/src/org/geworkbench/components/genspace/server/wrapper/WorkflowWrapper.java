@@ -31,7 +31,11 @@ public class WorkflowWrapper {
 	}
 
 	public boolean equals(Object obj) {
-		return delegate.equals(obj);
+		if(obj instanceof Workflow)
+		{
+			return ((Workflow) obj).getId() == getId();
+		}
+		return false;
 	}
 	public List<Workflow> getChildren() {
 		return delegate.getChildren();
