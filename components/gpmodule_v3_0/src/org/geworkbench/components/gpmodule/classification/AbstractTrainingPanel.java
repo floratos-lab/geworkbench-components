@@ -3,12 +3,14 @@ package org.geworkbench.components.gpmodule.classification;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
 import org.apache.commons.logging.Log;
@@ -113,6 +115,27 @@ public abstract class AbstractTrainingPanel extends AbstractSaveableParameterPan
     }
 
     public void rebuildForm() {
+    	if(SwingUtilities.isEventDispatchThread()) {
+    		rebuildFormFromEDT();
+    	} else {
+    		try {
+				SwingUtilities.invokeAndWait(new Runnable() {
+
+					@Override
+					public void run() {
+						rebuildFormFromEDT();
+					}
+					
+				});
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				e.printStackTrace();
+			}
+    	}
+    }
+    
+    private void rebuildFormFromEDT() {
         removeAll();
         FormLayout layout = new FormLayout(
                 "right:max(80dlu;pref), 3dlu, max(70dlu;pref), 3dlu, right:max(70dlu;pref), 3dlu, max(70dlu;pref)",
