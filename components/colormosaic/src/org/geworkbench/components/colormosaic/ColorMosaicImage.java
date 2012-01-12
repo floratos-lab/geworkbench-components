@@ -24,6 +24,8 @@ import javax.swing.JPopupMenu;
 import javax.swing.Scrollable;
 import javax.swing.SwingConstants;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.annotation.CSAnnotationContext;
 import org.geworkbench.bison.annotation.CSAnnotationContextManager;
 import org.geworkbench.bison.annotation.DSAnnotationContext;
@@ -50,6 +52,8 @@ import org.geworkbench.util.associationdiscovery.cluster.DSMatrixPattern;
 public class ColorMosaicImage extends JPanel implements Scrollable {
 	private static final long serialVersionUID = -1651298591477619917L;
 
+	private static Log log = LogFactory.getLog(ColorMosaicImage.class);
+	
 	// Static Variables
 	private static Font labelFont = null;
 	final static int gutter = 4;
@@ -308,17 +312,22 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 		return cluster.getMarkerNo();
 	}
 
+	/* The behavior of this class is basically asynchronous and not thread safe.
+	 * A synchronous design is preferred. TODO */
 	protected DSMicroarray getPhenoLabel(int j) {
 		DSMicroarray mArray = null;
-		if ((showAllMArrays || (microarrayPanel == null)
-				|| (microarrayPanel.size() == 0)) && microarraySet!=null) {
-			mArray = microarraySet.get(j);
-		} else {
-			if (j >= 0 && j < microarrayPanel.size()) {
-				mArray = microarrayPanel.get(j);
+		// the exceptions are expected because these fields are not synchronous
+		try {
+			if ((showAllMArrays || (microarrayPanel == null) || (microarrayPanel
+					.size() == 0)) && microarraySet != null) {
+				mArray = microarraySet.get(j);
 			} else {
-				System.out.println("What's up!");
+				mArray = microarrayPanel.get(j);
 			}
+		} catch (IndexOutOfBoundsException e) {
+			log.debug(e);
+		} catch (NullPointerException e) {
+			log.debug(e);
 		}
 		return mArray;
 	}
@@ -713,15 +722,6 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 		repaint();
 	}
 
-	// FIXME
-	/* This method's original purpose is lost. It is not doing what it appears doing. 
-	 * The parameter passed in does not affect anything. It should be removed. 
-	 * It is called in ColorMosaicPanel by a toggle button that is not used any more. 
-	 */
-	void setAbsDisplay(boolean isAbsModel) {
-		repaint();
-	}
-
 	private void print(Graphics g, int x, int y, DSGeneMarker stats, boolean selectedAccession, boolean selectedLabel) {
 		if (isPrintLabels) {
 			g.setColor(Color.black);
@@ -903,11 +903,6 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 						(int) ((width - textSize - labelGutter) * 1.0 / (double) chipNo));
 		geneHeight = 30;
 		recomputeDimensions();
-	}
-
-	// FIXME this method is invoked by notifyComponent in ColorMosaicOPanel,
-	// which is not invoked by anybody. Both should be removed.
-	void notifyComponent(Object subscriber, Class<?> anInterface) {
 	}
 
 	void setParent(ColorMosaicPanel parent) {
