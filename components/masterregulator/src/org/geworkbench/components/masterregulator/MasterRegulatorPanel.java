@@ -59,6 +59,7 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.events.listeners.ParameterActionListener;
 import org.geworkbench.parsers.AdjacencyMatrixFileFormat;
 import org.geworkbench.parsers.InputFileFormatException;
@@ -1097,6 +1098,8 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 
 	HashSet<String> getIxClass(String contextClass){
 		DSAnnotationContextManager manager = CSAnnotationContextManager.getInstance();
+		if (maSet == null && ProjectPanel.getInstance().getDataSet() instanceof DSMicroarraySet)
+			maSet = (DSMicroarraySet)ProjectPanel.getInstance().getDataSet();
 		DSAnnotationContext<DSMicroarray> context = manager.getCurrentContext(maSet);
 		String[] groups = context.getLabelsForClass(contextClass);
 		HashSet<String> hash = new HashSet<String>();
