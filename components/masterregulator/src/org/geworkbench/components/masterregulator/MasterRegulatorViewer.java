@@ -152,7 +152,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 					String exportDir = properties.getProperty(this.getClass(), EXPORTDIR, exportFileStr);
 					File exportFile = new File(exportDir);
 					OWFileChooser chooser = new OWFileChooser(exportFile);
-					CSVFileFilter filter = new CSVFileFilter();
+					ExportFileFilter filter = new ExportFileFilter("csv", "Comma Separated Value Files", ",");
 					chooser.setFileFilter(filter);
 					chooser.setDialogTitle("Export All MRA Target Results");
 					String extension = filter.getExtension();

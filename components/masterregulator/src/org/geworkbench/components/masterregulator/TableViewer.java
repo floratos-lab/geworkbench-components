@@ -35,6 +35,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
@@ -442,13 +443,21 @@ public class TableViewer extends JPanel {
 					EXPORTDIR, exportFileStr);
 			File exportFile = new File(exportDir);
 			OWFileChooser chooser = new OWFileChooser(exportFile);
-			CSVFileFilter filter = new CSVFileFilter();
-			chooser.setFileFilter(filter);
+			chooser.addChoosableFileFilter(new ExportFileFilter(".csv", "Comma Separated Value Files", ","));
+			chooser.addChoosableFileFilter(new ExportFileFilter(".tsv", "TAB Separated Value Files", "\t"));
 			chooser.setDialogTitle("Export MRA Table Results");
-			String extension = filter.getExtension();
 			int c = chooser.showSaveDialog(table);
 			if (c == OWFileChooser.APPROVE_OPTION
 					&& chooser.getSelectedFile() != null) {
+				String extension = ".csv"; // default
+				String delimiter = ","; // default
+				FileFilter chosenFilter = chooser.getFileFilter();
+				if(chosenFilter instanceof ExportFileFilter) {
+					ExportFileFilter exportFileFilter = (ExportFileFilter)chosenFilter;
+					extension = exportFileFilter.getExtension();
+					delimiter = exportFileFilter.getDelimiter();
+				}
+				
 				exportFileStr = chooser.getSelectedFile().getPath();
 				properties.setProperty(this.getClass(), EXPORTDIR, chooser
 						.getSelectedFile().getParent());
@@ -460,7 +469,7 @@ public class TableViewer extends JPanel {
 				TableModel model = table.getModel();
 
 				for (int i = 0; i < model.getColumnCount(); i++) {
-					out.write(model.getColumnName(i) + ",");
+					out.write(model.getColumnName(i) + delimiter);
 				}
 				out.write("\n");
 
@@ -482,7 +491,7 @@ public class TableViewer extends JPanel {
 							obj = String.valueOf(obj);
 						}
 
-						out.write(obj.toString() + ",");
+						out.write(obj.toString() + delimiter);
 					}
 					out.write("\n");
 				}
