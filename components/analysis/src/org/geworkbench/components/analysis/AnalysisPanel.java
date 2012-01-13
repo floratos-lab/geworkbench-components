@@ -248,8 +248,9 @@ public class AnalysisPanel extends CommandBase implements
 
 		analyze.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				analyze_actionPerformed(e);
-				hideDialog();
+				if(startAnalysis()) {
+					hideDialog();
+				}
 			}
 
 		});
@@ -871,9 +872,10 @@ public class AnalysisPanel extends CommandBase implements
 	 * Listener invoked when the "Analyze" button is pressed.
 	 * 
 	 * @param e
+	 * @return true if the analysis is actual started instead abort, e.g. for invalid input
 	 */
 	@SuppressWarnings("unchecked")
-	private void analyze_actionPerformed(ActionEvent e) {
+	private boolean startAnalysis() {
 		maSetView = getDataSetView();
 
 		boolean onlyActivatedArrays = false;
@@ -892,7 +894,7 @@ public class AnalysisPanel extends CommandBase implements
 				int result = JOptionPane.showConfirmDialog((Component) null,
 						theMessage, "alert", JOptionPane.YES_NO_OPTION);
 				if (result == JOptionPane.NO_OPTION)
-					return;
+					return false;
 			}
 		} else {
 			onlyActivatedArrays = !chkAllArrays.isSelected();
@@ -900,7 +902,7 @@ public class AnalysisPanel extends CommandBase implements
 
 		if (selectedAnalysis == null
 				|| ((refMASet == null) && (refOtherSet == null))) {
-			return;
+			return false;
 		}
 
 		if (refOtherSet != null) { /*
@@ -921,6 +923,7 @@ public class AnalysisPanel extends CommandBase implements
 		if (!pvr.isValid()) {
 			JOptionPane.showMessageDialog(null, pvr.getMessage(),
 					"Parameter Validation Error", JOptionPane.ERROR_MESSAGE);
+			return false;
 		} else {
 			analyze.setEnabled(false);
 			maSetView.useMarkerPanel(!chkAllMarkers.isSelected());
@@ -939,6 +942,7 @@ public class AnalysisPanel extends CommandBase implements
 			});
 			t.setPriority(Thread.MIN_PRIORITY);
 			t.start();
+			return true;
 		}
 	}
 
