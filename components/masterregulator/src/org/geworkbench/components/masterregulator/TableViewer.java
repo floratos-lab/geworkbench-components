@@ -444,7 +444,7 @@ public class TableViewer extends JPanel {
 			File exportFile = new File(exportDir);
 			OWFileChooser chooser = new OWFileChooser(exportFile);
 			chooser.addChoosableFileFilter(new ExportFileFilter(".csv", "Comma Separated Value Files", ","));
-			chooser.addChoosableFileFilter(new ExportFileFilter(".tsv", "TAB Separated Value Files", "\t"));
+			chooser.addChoosableFileFilter(new ExportFileFilter(".txt", "Tab Separated Value Files", "\t"));
 			chooser.setDialogTitle("Export MRA Table Results");
 			int c = chooser.showSaveDialog(table);
 			if (c == OWFileChooser.APPROVE_OPTION
