@@ -12,7 +12,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.InputVerifier;
@@ -48,9 +47,9 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel{
 	private static final long serialVersionUID = 7792584092654744039L;
 	
 	private static Log log = LogFactory.getLog(PatternDiscoveryParamPanel.class);	
-	static final String SUPPORT_OCCURRENCES = "Support # Occurrences";
-	static final String SUPPORT_SEQUENCES = "Support # Sequences";
-	static final String SUPPORT_PERCENT_1_100 = "Support Percent %(1-100)";
+	static final String SUPPORT_OCCURRENCES = "Support Number of Occurences";
+	static final String SUPPORT_SEQUENCES = "Support Number of Sequences";
+	static final String SUPPORT_PERCENT_1_100 = "Support in Percent";
 
 	private JTextField jMinPatternNoBox = new JTextField();
 	private JLabel jMinClusterSizeLabel = new JLabel();
@@ -70,7 +69,6 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel{
 
 	// Limits Panel
 	private JTextField jMaxPatternNoBox = new JTextField();
-	private JTextField jMaxRunTimeBox = new JTextField();
 
 	private JTextField jDecreaseSupportBox = new JTextField();
 
@@ -172,13 +170,9 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel{
 		// Limits Panel
 		jMaxPatternNoBox.setMaximumSize(size1);
 		jMaxPatternNoBox.setText("100000");
-		jMaxRunTimeBox.setEnabled(false);
-		jMaxRunTimeBox.setMaximumSize(size1);
-		jMaxRunTimeBox.setText("0");
+
 		// input verifier
 		jMaxPatternNoBox.setInputVerifier(new RegularExpressionVerifier(
-				"(\\d){1,9}"));
-		jMaxRunTimeBox.setInputVerifier(new RegularExpressionVerifier(
 				"(\\d){1,9}"));
 
 		// Exhaustive Panel
@@ -231,7 +225,7 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel{
 		JPanel basic2 = new JPanel();
 		basic2.setLayout(new BoxLayout(basic2, BoxLayout.LINE_AXIS));
 		basic2.setAlignmentX(Component.LEFT_ALIGNMENT);
-		JLabel label1 = new JLabel("Min. Tokens:");
+		JLabel label1 = new JLabel("Minimum Tokens:");
 		label1.setMaximumSize(size2);
 		basic2.add(label1);
 		basic2.add(jMinTokensBox);
@@ -261,28 +255,40 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel{
 		basicPanel.add(basic3);
 		basicPanel.add(basic4);
 		
+		JPanel advancedPanel1 = new JPanel();
+		advancedPanel1.setLayout(new BoxLayout(advancedPanel1, BoxLayout.LINE_AXIS));
+		JLabel advLabel1 = new JLabel("Substitution Matrix:");
+		advLabel1.setMaximumSize(size1);
+		advancedPanel1.add(advLabel1);
+		jExactOnlyBox.setMaximumSize(size1);
+		advancedPanel1.add(jExactOnlyBox);
 
-		jExactOnlyBox.setAlignmentY(Component.TOP_ALIGNMENT);
-		JPanel advancedPanel = new JPanel();
-		advancedPanel.setLayout(new BoxLayout(advancedPanel, BoxLayout.LINE_AXIS));
-		advancedPanel.setBorder(emptyBorder);
-		advancedPanel.add(Box.createRigidArea(new Dimension(5,0)));
-		advancedPanel.add(jExactOnlyBox);
-		advancedPanel.add(Box.createRigidArea(new Dimension(5,0)));
+		JPanel advancedPanel2 = new JPanel();
+		advancedPanel2.setLayout(new BoxLayout(advancedPanel2, BoxLayout.LINE_AXIS));
+		JLabel advLabel2 = new JLabel("Similarity Matrix:");
+		advLabel2.setMaximumSize(size1);
+		advancedPanel2.add(advLabel2);
+		jMatrixBox.setMaximumSize(size1);
+		advancedPanel2.add(jMatrixBox);
 
-		JPanel advancedRightPanel = new JPanel();
-		advancedRightPanel.setAlignmentY(Component.TOP_ALIGNMENT);
-		advancedRightPanel.setLayout(new BoxLayout(advancedRightPanel, BoxLayout.PAGE_AXIS));
-		jMatrixBox.setMaximumSize(new Dimension(200, 30));
-		advancedRightPanel.add(jMatrixBox);
-		advancedRightPanel.add(Box.createRigidArea(new Dimension(0,5)));
 		JPanel similarityThresholdPanel = new JPanel();
 		similarityThresholdPanel.setLayout(new BoxLayout(similarityThresholdPanel, BoxLayout.LINE_AXIS));
-		similarityThresholdPanel.setMaximumSize(new Dimension(200, 30));
-		similarityThresholdPanel.add(new JLabel("Similarity Threshold:"));
+		JLabel advLabel3 = new JLabel("Similarity Threshold:");
+		advLabel3.setMaximumSize(size1);
+		similarityThresholdPanel.add(advLabel3);
+		jSimThresholdBox.setMaximumSize(size1);
 		similarityThresholdPanel.add(jSimThresholdBox);
-		advancedRightPanel.add(similarityThresholdPanel);
-		advancedPanel.add(advancedRightPanel);
+
+		JPanel advancedPanel = new JPanel();
+		advancedPanel.setLayout(new BoxLayout(advancedPanel, BoxLayout.PAGE_AXIS));
+		advancedPanel.setBorder(emptyBorder);
+		
+		advancedPanel1.setAlignmentX(Component.LEFT_ALIGNMENT);
+		advancedPanel2.setAlignmentX(Component.LEFT_ALIGNMENT);
+		similarityThresholdPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		advancedPanel.add(advancedPanel1);
+		advancedPanel.add(advancedPanel2);
+		advancedPanel.add(similarityThresholdPanel);
 		
 		JPanel limitPanel = new JPanel();
 		limitPanel.setLayout(new BoxLayout(limitPanel, BoxLayout.PAGE_AXIS));
@@ -290,29 +296,32 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel{
 		JPanel limitTopPanel = new JPanel();
 		limitTopPanel.setLayout(new BoxLayout(limitTopPanel, BoxLayout.LINE_AXIS));
 		limitTopPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-		limitTopPanel.add(new JLabel("Max. Pattern Number: "));
+		limitTopPanel.add(new JLabel("Maximum Pattern Number: "));
 		limitTopPanel.add(jMaxPatternNoBox);
+		limitPanel.add(limitTopPanel);
+		/* no longer used for now */
+		/*
 		JPanel limitBottomPanel = new JPanel();
 		limitBottomPanel.setLayout(new BoxLayout(limitBottomPanel, BoxLayout.LINE_AXIS));
 		limitBottomPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-		limitBottomPanel.add(new JLabel("Max. Run Time (sec.):"));
+		limitBottomPanel.add(new JLabel("Maximum Run Time (sec.):"));
 		limitBottomPanel.add(jMaxRunTimeBox);
-		limitPanel.add(limitTopPanel);
 		limitPanel.add(limitBottomPanel);
+		*/
 
 		JPanel exhaustive1 = new JPanel();
 		exhaustive1.setLayout(new BoxLayout(exhaustive1, BoxLayout.LINE_AXIS));
 		exhaustive1.setBorder(emptyBorder);
-		JLabel label4 = new JLabel("Decrease Support (%):");
-		label4.setMaximumSize(size1);
+		JLabel label4 = new JLabel("Decrement Support in Percent:");
+		label4.setMaximumSize(size2);
 		exhaustive1.add(label4);
 		exhaustive1.add(jDecreaseSupportBox);
 
 		JPanel exhaustive2 = new JPanel();
 		exhaustive2.setLayout(new BoxLayout(exhaustive2, BoxLayout.LINE_AXIS));
 		exhaustive2.setBorder(emptyBorder);
-		JLabel label5 = new JLabel("Minimum Support (%):");
-		label5.setMaximumSize(size1);
+		JLabel label5 = new JLabel("Minimum Support in Percent:");
+		label5.setMaximumSize(size2);
 		exhaustive2.add(label5);
 		exhaustive2.add(jMinSupportExhaustive);
 
@@ -320,7 +329,7 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel{
 		exhaustive3.setLayout(new BoxLayout(exhaustive3, BoxLayout.LINE_AXIS));
 		exhaustive3.setBorder(emptyBorder);
 		JLabel label6 = new JLabel("Minimum Pattern Number:");
-		label6.setMaximumSize(size1);
+		label6.setMaximumSize(size2);
 		exhaustive3.add(label6);
 		exhaustive3.add(minPatternNumberField);
 		
@@ -498,9 +507,9 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel{
 		// parms.setGroupingType(groupType);
 	}
 
+	// not implemented. It was from jMaxRunTimeBox before.
 	public int getMaxRunTime() {
-		return (Integer.parseInt(jMaxRunTimeBox.getText()));
-		// parms.setGroupingType(groupType);
+		return 0;
 	}
 
 	// parsing HIEARCHICAL panel
