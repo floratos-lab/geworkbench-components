@@ -336,6 +336,9 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 		Object[][] data = new Object[0][3]; // empty data at initialization
 		geneListTableModel = new DefaultTableModel(data, geneListHeaders);
 		geneListTable = new JTable(geneListTableModel);
+		TableRowSorter<DefaultTableModel> geneTableSorter = new TableRowSorter<DefaultTableModel>(geneListTableModel);
+		geneListTable.setRowSorter(geneTableSorter);
+
 		prepareCopyToSet();
 		ListSelectionModel geneListModel = geneListTable.getSelectionModel();
 		geneListModel.addListSelectionListener(new ListSelectionListener() {
