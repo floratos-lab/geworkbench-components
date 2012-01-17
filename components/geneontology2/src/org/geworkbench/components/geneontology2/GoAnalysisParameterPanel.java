@@ -868,28 +868,36 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 
 	}
 
-	/* This method is invoked from non-EDT */
+	/* This method is invoked from both EDT and non-EDT. TODO */
 	void setSelectorPanel(final GoAnalysisParameterPanel aspp,
 			final DSPanel<DSGeneMarker> ap) {
-		try {
-			SwingUtilities.invokeAndWait(new Runnable() {
+		if (SwingUtilities.isEventDispatchThread()) {
+			setSelectorPanelFromEDT(aspp, ap);
+		} else {
+			try {
+				SwingUtilities.invokeAndWait(new Runnable() {
 
-				@Override
-				public void run() {
-					aspp.selectorPanel = ap;
-					if (changedListSource.getSelectedIndex() == 0) // from set
-						modifyListSets(aspp, changedListSets, changedList);
-					if (referenceListSource.getSelectedIndex() == 1) // from set
-						modifyListSets(aspp, referenceListSets, referenceList);
-				}
-				
-			});
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			e.printStackTrace();
+					@Override
+					public void run() {
+						setSelectorPanelFromEDT(aspp, ap);
+					}
+
+				});
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				e.printStackTrace();
+			}
 		}
+	}
 
+	private void setSelectorPanelFromEDT(final GoAnalysisParameterPanel aspp,
+			final DSPanel<DSGeneMarker> ap) {
+		aspp.selectorPanel = ap;
+		if (changedListSource.getSelectedIndex() == 0) // from set
+			modifyListSets(aspp, changedListSets, changedList);
+		if (referenceListSource.getSelectedIndex() == 1) // from set
+			modifyListSets(aspp, referenceListSets, referenceList);
 	}
 
 	private void modifyListSets(GoAnalysisParameterPanel aspp, JComboBox setListSets,
