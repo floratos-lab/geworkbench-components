@@ -1123,15 +1123,15 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 		public Object getElementAt(int index) {
 			synchronized(filterItems) {
 				if (itemList == null)      return null;
-				if (searchText.length()==0)   return itemList.get(index);
+				if (searchText.length()==0 && index<itemList.size())   return itemList.get(index);
 				if (index<filterItems.size())  return filterItems.get(index);
 				return null;
 			}
 		}
-		public T getItem(int index) {
+		private T getItem(int index) {
 			synchronized(filterItems) {
 				if (itemList == null)      return null;
-				if (searchText.length()==0)   return itemList.get(index);
+				if (searchText.length()==0 && index<itemList.size())   return itemList.get(index);
 				if (index<filterItems.size())  return filterItems.get(index);
 				return null;
 			}
