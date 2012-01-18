@@ -47,9 +47,9 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel{
 	private static final long serialVersionUID = 7792584092654744039L;
 	
 	private static Log log = LogFactory.getLog(PatternDiscoveryParamPanel.class);	
-	static final String SUPPORT_OCCURRENCES = "Support Number of Occurences";
-	static final String SUPPORT_SEQUENCES = "Support Number of Sequences";
-	static final String SUPPORT_PERCENT_1_100 = "Support in Percent";
+	static final String SUPPORT_OCCURRENCES = "Support (Number of Occurrences)";
+	static final String SUPPORT_SEQUENCES = "Support (Number of Sequences)";
+	static final String SUPPORT_PERCENT_1_100 = "Support (Percent of Sequences)";
 
 	private JTextField jMinPatternNoBox = new JTextField();
 	private JLabel jMinClusterSizeLabel = new JLabel();
@@ -108,7 +108,7 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel{
 				jSupportMenu_actionPerformed();
 			}
 		});
-		Dimension size2 = new Dimension(200, 30);
+		Dimension size2 = new Dimension(220, 30);
 		jMinSupportMenu.setMaximumSize(size2);
 		jMinSupportBox.setMaximumSize(size1);
 		jMinSupportBox.setText("70");
@@ -312,7 +312,7 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel{
 		JPanel exhaustive1 = new JPanel();
 		exhaustive1.setLayout(new BoxLayout(exhaustive1, BoxLayout.LINE_AXIS));
 		exhaustive1.setBorder(emptyBorder);
-		JLabel label4 = new JLabel("Decrement Support in Percent:");
+		JLabel label4 = new JLabel("Decrement Support (%):");
 		label4.setMaximumSize(size2);
 		exhaustive1.add(label4);
 		exhaustive1.add(jDecreaseSupportBox);
@@ -320,7 +320,7 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel{
 		JPanel exhaustive2 = new JPanel();
 		exhaustive2.setLayout(new BoxLayout(exhaustive2, BoxLayout.LINE_AXIS));
 		exhaustive2.setBorder(emptyBorder);
-		JLabel label5 = new JLabel("Minimum Support in Percent:");
+		JLabel label5 = new JLabel("Minimum Support (%):");
 		label5.setMaximumSize(size2);
 		exhaustive2.add(label5);
 		exhaustive2.add(jMinSupportExhaustive);
