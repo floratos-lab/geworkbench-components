@@ -170,7 +170,7 @@ public class BlastAnalysis extends AbstractAnalysis implements
 					pbTtest.setMessage("The Request ID is : " + BLAST_rid);
 			 
 					String resultURLString = "http://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Get&FORMAT_TYPE=HTML&RID="
-							+ BLAST_rid;
+							+ BLAST_rid+"&ALIGNMENTS="+parameterSetting.getMaxTargetNumber();
 					Status status = blast.retrieveResult(resultURLString);
 					while (status == Status.WAITING && !this.stopAlgorithm) {
 					 

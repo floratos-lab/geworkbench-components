@@ -912,6 +912,11 @@ public class BlastAnalysisPanel extends AbstractSaveableParameterPanel {
 			} else {
 				lowComplexFilterBox.setSelected(true);
 			}
+			if (selectedProgramName.equalsIgnoreCase("tblastx")){
+				jGapcostsBox.setVisible(false);
+				jGapcostsLabel.setVisible(false);
+			}
+			
 		}
 	}
 
