@@ -58,7 +58,9 @@ public final class RetrievedSequencesPanel extends SequenceViewWidget {
                 seqViewWPanel.this_mouseClicked(e);
                 if (e.getClickCount() == 2) {
                     if (isLineView) {
-                        flapToNewView(true);
+                        seqScrollPane.setViewportView(sequenceRetrieverNewLineView);
+                        revalidate();
+                        repaint();
                     }
                 }
                 xStartPoint = seqViewWPanel.getSeqXclickPoint();
@@ -85,7 +87,7 @@ public final class RetrievedSequencesPanel extends SequenceViewWidget {
             sequenceRetrieverNewLineView.setMaxSeqLen(sequenceDB.getMaxLength());
         }
         //  seqViewWPanel.initialize(selectedPatterns, sequenceDB);
-        seqScrollPane.getViewport().add(sequenceRetrieverNewLineView, null);
+        seqScrollPane.setViewportView(sequenceRetrieverNewLineView);
     }
 
     void setRetrievedMap(HashMap<String, RetrievedSequenceView> retrievedMap) {
@@ -107,25 +109,17 @@ public final class RetrievedSequencesPanel extends SequenceViewWidget {
         }
     }
 
-    void flapToNewView(boolean newView) {
-        if (!newView) {
-            seqScrollPane.getViewport().removeAll();
-            seqScrollPane.getViewport().add(seqViewWPanel);
-            seqViewWPanel.setSelectedSequence(sequenceRetrieverNewLineView.getSelectedSequence());
-            seqViewWPanel.setSequenceDB(sequenceDB);
-            seqViewWPanel.setSingleSequenceView(true);
-            seqViewWPanel.setLineView(true);
-            seqViewWPanel.repaint();
-            revalidate();
-            repaint();
-        } else {
-            seqScrollPane.getViewport().removeAll();
-            seqScrollPane.getViewport().add(sequenceRetrieverNewLineView, null);
-            revalidate();
-            repaint();
-        }
-
-    }
+	void switchToBaseView() {
+		seqScrollPane.setViewportView(seqViewWPanel);
+		seqViewWPanel.setSelectedSequence(sequenceRetrieverNewLineView
+				.getSelectedSequence());
+		seqViewWPanel.setSequenceDB(sequenceDB);
+		seqViewWPanel.setSingleSequenceView(true);
+		seqViewWPanel.setLineView(true);
+		seqViewWPanel.repaint();
+		revalidate();
+		repaint();
+	}
 
     // only called from SequenceRetriever.updateDisplay
     void initialize(DSSequenceSet<DSSequence> seqDB) {
@@ -179,10 +173,9 @@ public final class RetrievedSequencesPanel extends SequenceViewWidget {
         isLineView = jViewComboBox.getSelectedItem().equals(LINEVIEW);
         if (isLineView) {
             sequenceRetrieverNewLineView.initialize(sequenceDB, true, checkBoxHideDuplicate.isSelected());
-            flapToNewView(true);
+            seqScrollPane.setViewportView(sequenceRetrieverNewLineView);
         } else {
-            seqScrollPane.getViewport().removeAll();
-            seqScrollPane.getViewport().add(seqViewWPanel);
+            seqScrollPane.setViewportView(seqViewWPanel);
             seqViewWPanel.setSelectedSequence(sequenceRetrieverNewLineView.getSelectedSequence());
             seqViewWPanel.setSequenceDB(sequenceDB);
             seqViewWPanel.setSingleSequenceView(true);

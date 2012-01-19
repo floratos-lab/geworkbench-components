@@ -135,7 +135,7 @@ public final class RetrievedSequenceDisplayPanel extends JPanel {
 							}
 						} else if (column == 2) {
 							if (retrievedSequencesPanel != null) {
-								retrievedSequencesPanel.flapToNewView(false);
+								retrievedSequencesPanel.switchToBaseView();
 							}
 						}
 					}
