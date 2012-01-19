@@ -225,22 +225,21 @@ public class NCBIBlastParser {
 							each.setLength(new Integer(lengthVal[1].trim())
 									.intValue());
 						}
-						if (line.startsWith("Identities = ")) {
-							/*
-							 * TODO use Match pattern later.
-							 */
-							String alignmentLengthString = line.substring("Identities = ".length(), line.indexOf("/"));
-							int alignmentLength = Integer.parseInt(alignmentLengthString);
-							if(0==each.getAlignmentLength())
+						final Pattern p = Pattern
+								.compile("Identities\\s*=\\s*\\d+/(\\d+)\\s*.\\((\\d+)%\\).+");
+						Matcher m = p.matcher(line);
+						if (m.matches()) {
+							if (0 == each.getAlignmentLength()) {
+								String alignmentLengthString = m.group(1);
+								int alignmentLength = Integer
+										.parseInt(alignmentLengthString);
 								each.setAlignmentLength(alignmentLength);
-							StringTokenizer st1 = new StringTokenizer(line, "(");
-							st1.nextToken();
-							String identity = st1.nextToken();
-							String[] s = identity.split("%");
-							if(0==each.getPercentAligned())
-								each
-									.setPercentAligned(new Integer(s[0])
-											.intValue());
+							}
+							if (0 == each.getPercentAligned()) {
+								String percentString = m.group(2);
+								each.setPercentAligned(new Integer(
+										percentString).intValue());
+							}
 
 						}
 						// get the start point, end point and length
