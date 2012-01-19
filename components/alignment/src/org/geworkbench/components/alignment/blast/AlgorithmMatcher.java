@@ -506,24 +506,7 @@ public class AlgorithmMatcher {
             } else {
                 String dbName = ps.getDbName();
                 cmd="";
-                /*
-                String[] list = dbName.split("/");
-                if (list.length > 1) {
-                    String[] dbNameWithSuffix = list[list.length - 1].split(" ");
-                    dbName = dbNameWithSuffix[0];
-                }
-                */ //why split with "/"? , for bug 2019, it is commented out
-                ///cmd +="&db=nucleotide&stype=protein&GENETIC_CODE=1&DBTYPE=nr&NUM_ORG=1&HSP_RANGE_MAX=0";//debug
-                ///cmd +="&UNGAPPED_ALIGNMENT=no&BLAST_PROGRAMS=blastx&SELECTED_PROG_TYPE=blastx";
-                //cmd +="&SHOW_OVERVIEW=true&SHOW_LINKOUT=true&GET_SEQUENCE=true&FORMAT_OBJECT=Alignment";
-                //cmd +="&FORMAT_TYPE=HTML&ALIGNMENT_VIEW=Pairwise&MASK_CHAR=2&MASK_COLOR=1&DESCRIPTIONS=100&ALIGNMENTS=100&NEW_VIEW=true&OLD_BLAST=false&NCBI_GI=false&SHOW_CDS_FEATURE=false&NUM_OVERVIEW=100";                
-                ///cmd +="&CLIENT=web&SERVICE=plain&CMD=request&SAVED_SEARCH=true";
-                //cmd +="&NUM_DIFFS=0&NUM_OPTS_DIFFS=0&UNIQ_DEFAULTS_NAME=A_SearchDefaults_1OjY85_zDC_DRGnXTKy2N7_23ttSh_c9WM6&PAGE_TYPE=BlastSearch&USER_DEFAULT_PROG_TYPE=megaBlast&USER_DEFAULT_MATCH_SCORES=0";
-                //cmd +="&DB_ABBR=Human20%G+T";
-                //cmd +="&SELECTED_PROG_TYPE=megaBlast";                
-                ///cmd +="USER_DEFAULT_PROG_TYPE=blastx";
-                //above are some arguments may need in the future
-                
+               
                 cmd += "&DATABASE=" + dbName + "&PROGRAM=" +ps.getProgramName();
                 if (ps.isLowComplexityFilterOn()) {
                     cmd += "&FILTER=L";
@@ -591,7 +574,12 @@ public class AlgorithmMatcher {
                 if (ps.getProgramName().equalsIgnoreCase("blastp")||ps.getProgramName().equalsIgnoreCase("tblastn")){
                 	cmd +="&COMPOSITION_BASED_STATISTICS="+ compositional2number.get(ps.getCompositionalAdjustment());                	
                 }
-                
+                  
+                if(ps.getMaxTargetNumber()!=null){
+                	cmd+="&MAX_NUM_SEQ=" + ps.getMaxTargetNumber();
+                	//cmd+="&NUM_DIFFS=3&NUM_OPTS_DIFFS=2&NUM_ORG=1&NUM_OVERVIEW=100&OLD_BLAST=false";
+                }
+              
                 if (ps.getProgramName().equalsIgnoreCase("blastp")||ps.getProgramName().equalsIgnoreCase("blastn")){
 	                if (ps.isShortQueriesOn()){
 	                	cmd += "&SHORT_QUERY_ADJUST=yes";
@@ -614,7 +602,7 @@ public class AlgorithmMatcher {
                 }
                 cmd+="&HSP_RANGE_MAX=" + ps.getHspRange().trim();	
                 String gapCost = ps.getGapCost();
-                if (gapCost != null) {
+                if ((gapCost != null)&&!(ps.getProgramName().equalsIgnoreCase("tblastx"))) {
                 	if(gapCost.equalsIgnoreCase("Linear")) gapCost="Existence: 0 Extension: 0";
                     String[] s = gapCost.split(" ");
                     if (s.length > 3) {
@@ -648,11 +636,7 @@ public class AlgorithmMatcher {
                 if((ps.getSpeciesRepeat()!=null)&&(ps.isHumanRepeatFilterOn())){                	
                 		cmd+="&REPEATS=" + specie_repeat.get(ps.getSpeciesRepeat());                
                 }
-                
-                if(ps.getMaxTargetNumber()!=null){
-                	cmd+="&MAX_NUM_SEQ=" + ps.getMaxTargetNumber();
-                }
-                
+             
                 if (ps.getProgramName().equals("blastp")||ps.getProgramName().equals("tblastn"))	//COMPOSITION only applies to blastp and tblastn
                 	cmd += "&EXPECT=" + ps.getExpect() + "&AUTO_FORMAT=Semiauto&CDD_SEARCH=on&SHOW_OVERVIEW=on&SERVICE=plain\r\n\r\n";
                 else
@@ -660,7 +644,8 @@ public class AlgorithmMatcher {
             }
 
         }
-
+        //cmd="&ALIGNMENT_VIEW=Pairwise&ALIGNMENTS=250&BLAST_PROGRAMS=blastp&BLAST_SPEC=&CDD_SEARCH=on&CLIENT=web&CMD=request&COMPOSITION_BASED_STATISTICS=2&DATABASE=swissprot&db=protein&DB_DIR_PREFIX=&DESCRIPTIONS=500&EQ_MENU=&EQ_TEXT=&EXPECT=10&EXPECT_HIGH=&EXPECT_LOW=&FILTER=m&FORMAT_EQ_TEXT=&FORMAT_NUM_ORG=1&FORMAT_OBJECT=Alignment&FORMAT_ORGANISM=&FORMAT_TYPE=HTML&GAPCOSTS=11%201&GENETIC_CODE=1&GET_SEQUENCE=on&HSP_RANGE_MAX=0&I_THRESH=&ID_FOR_PSSM=&JOB_TITLE=&MASK_CHAR=2&MASK_COLOR=1&MATCH_SCORES=&MATRIX_NAME=BLOSUM62&MAX_NUM_SEQ=500&MEGABLAST=&MIXED_DATABASE=&NCBI_GI=&NEW_VIEW=on&NO_COMMON=&NUM_DIFFS=3&NUM_OPTS_DIFFS=2&NUM_ORG=1&NUM_OVERVIEW=100&OLD_BLAST=FALSE&PAGE=Proteins&PAGE_TYPE=BlastSearch&PERC_IDENT_HIGH=&PERC_IDENT_LOW=&PHI_PATTERN=&PROGRAM=blastp&PSI_PSEUDOCOUNT=&PSSM=&QUERY=&QUERY_BELIEVE_DEFLINE=&QUERY_FROM=&QUERY_INDEX=0&QUERY_TO=&REPEATS=repeat_7165&RUN_PSIBLAST=&SAVED_PSSM=&SAVED_SEARCH=&SELECTED_PROG_TYPE=blastp&SERVICE=plain&SHORT_QUERY_ADJUST=on&SHOW_CDS_FEATURE=&SHOW_LINKOUT=on&SHOW_OVERVIEW=on&stype=protein&SUBJECTFILE=&SUBJECTS=&SUBJECTS_FROM=&SUBJECTS_TO=&TEMPLATE_LENGTH=0&TEMPLATE_TYPE=0&TWO_HITS=&UNIQ_DEFAULTS_NAME=&USER_DATABASE=&USER_DEFAULT_MATRIX=3&USER_DEFAULT_PROG_TYPE=blastp&USER_FORMAT_DEFAULTS=&USER_MATCH_SCORES=&USER_WORD_SIZE=&WORD_SIZE=3&WWW_BLAST_TYPE=";
+        //System.out.println(cmd);
         return cmd;
     }
 }
