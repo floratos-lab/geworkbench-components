@@ -808,7 +808,7 @@ public class SequenceRetriever implements VisualPlugin {
 		}
 		seqDisPanel.setSequenceDB(selectedSet);
 		seqDisPanel.setRetrievedMap(newMap);
-//		seqDisPanel.initialize(selectedSet);
+		seqDisPanel.initialize(selectedSet);
 		main.revalidate();
 		main.repaint();
 	}
