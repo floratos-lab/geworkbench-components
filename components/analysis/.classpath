@@ -44,5 +44,8 @@
 	<classpathentry kind="lib" path="lib/caGrid-ServiceSecurityProvider-stubs-1.4.jar"/>
 	<classpathentry kind="lib" path="lib/Dispatcher-common.jar"/>
 	<classpathentry kind="lib" path="lib/Dispatcher-stubs.jar"/>
+	<classpathentry kind="lib" path="lib/caGrid-Transfer-client-1.4.jar"/>
+	<classpathentry kind="lib" path="lib/caGrid-Transfer-common-1.4.jar"/>
+	<classpathentry kind="lib" path="lib/caGrid-Transfer-stubs-1.4.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
