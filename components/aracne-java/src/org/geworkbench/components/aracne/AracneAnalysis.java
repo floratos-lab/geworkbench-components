@@ -4,13 +4,12 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
+ 
 import java.util.Map;
 import java.util.Vector;
 
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractAnalysis;
@@ -18,14 +17,11 @@ import org.geworkbench.analysis.AbstractGridAnalysis;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet; 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
-import org.geworkbench.bison.datastructure.bioobjects.markers.CSExpressionMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
@@ -36,8 +32,7 @@ import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.ProjectNodeAddedEvent;
-import org.ginkgo.labs.util.FileTools;
-
+ 
 import wb.data.Marker;
 import wb.data.MarkerSet;
 import wb.data.Microarray;
@@ -349,7 +344,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 								.getMicroarraySet());
 				StringBuilder paramDescB = new StringBuilder(
 						"Generated with ARACNE run with data:\n");
-				paramDescB.append(generateHistoryString(this.mSetView));
+				paramDescB.append(generateHistoryForMaSetView(this.mSetView, useMarkersFromSelector()));
 				String s=prune?"yes":"no";
 				HistoryPanel.addToHistory(dataSet,
 						"Generated with ARACNE run with paramters:\n"
@@ -746,74 +741,6 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 						+ "consider relaxing your thresholds.");
 	}
 
-	@SuppressWarnings({ "unchecked" })
-	private String generateHistoryString(DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView) {
-		StringBuilder ans = new StringBuilder(
-				"=The MicroarraySetView used for analysis contains following data=\n");
-		try {
-			log.debug("We got a "+maSetView.items().getClass().toString());
-			if (maSetView.items().getClass() == CSPanel.class){
-				log.debug("situation 1: microarraySets selected");
-				DSItemList<DSPanel<DSMicroarray>> paneltest = ((DSPanel<DSMicroarray>) maSetView.items()).panels();
-
-				ans .append( "==Microarray Sets [" ).append( paneltest.size() ).append( "]==\n" );
-				for (Object obj : paneltest) {
-					DSPanel<DSMicroarray> temp = (DSPanel<DSMicroarray>) obj;
-					ans .append( "\t" ).append( temp.toString() ).append( "\n" );
-					// microarrays in the group
-					for (Object temp2 : temp) {
-						ans .append( "\t\t" ).append( temp2.toString() ).append( "\n" );
-					}
-				}
-			}else if (maSetView.items().getClass() == CSMicroarraySet.class){
-				log.debug("situation 2: microarraySets not selected");
-				CSMicroarraySet exprSet = (CSMicroarraySet)maSetView.items();
-				ans .append( "==Used Microarrays [" ).append( exprSet.size() ).append( "]==\n" );
-				for (Iterator<DSMicroarray> iterator = exprSet.iterator(); iterator.hasNext();) {
-					DSMicroarray array = iterator.next();
-					ans .append( "\t"+ array.getLabel()).append("\n");
-				}
-			}
-			ans .append( "==End of Microarray Sets==\n" );
-			// generate text for markers; iterations over markers could be refactored into one
-			DSPanel<DSGeneMarker> paneltest = maSetView.getMarkerPanel();
-
-			if (maSetView.useMarkerPanel()) {
-				if ((paneltest!=null) && (paneltest.size()>0)){
-					log.debug("situation 3: markers selected");
-
-					ans .append( "==Used Markers [" ).append( paneltest.size() ).append( "]==\n" );
-					for (Object obj : paneltest) {
-						CSExpressionMarker temp = (CSExpressionMarker) obj;
-						ans .append( "\t" ).append( temp.getLabel() ).append( "\n" );
-					}
-				}else{
-					log.debug("situation 4: no markers selected.");
-					DSItemList<DSGeneMarker> markers = maSetView.markers();
-					ans .append( "==Used Markers [" ).append( markers.size() ).append( "]==\n" );
-					for (DSGeneMarker marker : markers) {
-						ans .append( "\t" ).append( marker.getLabel() ).append( "\n" );
-					}
-				}
-			} else {
-				log.debug("situation 5: All Markers selected.");
-				DSItemList<DSGeneMarker> markers = maSetView.allMarkers();
-				ans .append( "==Used Markers [" ).append( markers.size() ).append( "]==" )
-						.append( FileTools.NEWLINE );
-				for (DSGeneMarker marker : markers) {
-					ans .append( FileTools.TAB ).append( marker.getLabel()
-					).append( FileTools.NEWLINE );
-				}
-			}
-
-
-			ans .append( "==End of Used Markers==\n" );
-		} catch (ClassCastException cce) {
-			// it's not a DSPanel, we generate nothing for panel part
-			log.error(cce);
-		}
-		ans .append( "=End of MicroarraySetView data=" );
-		return ans.toString();
-	}
+	 
 
 }
