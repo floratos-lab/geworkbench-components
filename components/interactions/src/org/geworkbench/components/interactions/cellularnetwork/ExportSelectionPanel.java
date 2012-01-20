@@ -389,7 +389,7 @@ public class ExportSelectionPanel extends JPanel {
 							      matrix = new AdjacencyMatrix(null, dataset,
 							    		  CellularNetworkPreferencePanel.interactionTypeSifMap);
 						AdjacencyMatrixDataSet adjacencyMatrixdataSet = new AdjacencyMatrixDataSet(
-								matrix, 0.5f, "Adjacency Matrix",
+								matrix, 0.5f, "export_" + context + "_" + version,
 								dataset.getLabel(), dataset);
 
 						c.publishProjectNodeAddedEvent(new ProjectNodeAddedEvent(
