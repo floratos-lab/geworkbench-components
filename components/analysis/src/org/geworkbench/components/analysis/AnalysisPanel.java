@@ -47,20 +47,17 @@ import org.geworkbench.analysis.HighlightCurrentParameterThread;
 import org.geworkbench.analysis.ParameterKey;
 import org.geworkbench.analysis.ReHighlightable;
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet; 
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
-import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
-import org.geworkbench.bison.datastructure.bioobjects.markers.CSExpressionMarker;
+import org.geworkbench.bison.datastructure.bioobjects.DSBioObject; 
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.structure.CSProteinStructure;
-import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
-import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
+import org.geworkbench.bison.datastructure.complex.panels.CSPanel; 
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.Analysis;
@@ -378,87 +375,7 @@ public class AnalysisPanel extends CommandBase implements
 
 	}
 
-	/**
-	 * 
-	 * @param maSetView
-	 * @return
-	 */
-	private String generateHistoryString(DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView) {
-		StringBuilder ans = new StringBuilder("=The MicroarraySetView used for analysis contains the following data: ");
-		/* Generate text for microarrays/groups */
-		ans .append( FileTools.NEWLINE );
-		try {
-			log.debug("We got a " + maSetView.items().getClass().toString());
-			if (maSetView.items().getClass() == CSPanel.class) {
-				log.debug("situation 1: microarraySets selected");
-				DSItemList<DSPanel<DSMicroarray>> paneltest = ((DSPanel<DSMicroarray>) maSetView.items()).panels();
-
-				ans .append( "==Microarray Sets [" ).append( paneltest.size() + "]==" ).append(
-						 FileTools.NEWLINE );
-				for(DSPanel<DSMicroarray> temp: paneltest) {
-					ans .append( FileTools.TAB + temp.toString() ).append( FileTools.NEWLINE );
-					for (DSMicroarray temp2: temp) {
-						ans .append( FileTools.TAB ).append( FileTools.TAB ).append( temp2.toString() )
-								.append( FileTools.NEWLINE );
-					}
-				}
-			} else if (maSetView.items().getClass() == CSMicroarraySet.class) {
-				log.debug("situation 2: microarraySets not selected");
-				CSMicroarraySet exprSet = (CSMicroarraySet) maSetView
-						.items();
-				ans .append( "==Used Microarrays [" ).append( exprSet.size() ).append( "]==" )
-						.append( FileTools.NEWLINE );
-				for (Iterator<DSMicroarray> iterator = exprSet.iterator(); iterator
-						.hasNext();) {
-					DSMicroarray array = iterator.next();
-					ans .append( FileTools.TAB ).append( array.getLabel() ).append( FileTools.NEWLINE );
-				}
-			}
-			ans .append( "==End of Microarray Sets==" ).append( FileTools.NEWLINE );
-			/* Generate text for markers */
-			DSPanel<DSGeneMarker> paneltest = maSetView.getMarkerPanel();
-			if ((paneltest != null) && (paneltest.size() > 0)) {
-				log.debug("situation 3: markers selected");
-
-				ans .append( "==Used Markers [" ).append( paneltest.size() + "]==" )
-						.append( FileTools.NEWLINE );
-				for (DSGeneMarker obj: paneltest) {
-					CSExpressionMarker temp = (CSExpressionMarker) obj;
-					ans .append( FileTools.TAB ).append( temp.getLabel() ).append( FileTools.NEWLINE );
-				}
-			} else {
-				log.debug("situation 4: no markers selected.");
-				DSItemList<DSGeneMarker> markers = maSetView.markers();
-				ans .append( "==Used Markers [" ).append( markers.size() ).append( "]==" )
-						.append( FileTools.NEWLINE );
-				for (DSGeneMarker marker : markers) {
-					ans .append( FileTools.TAB ).append( marker.getLabel() )
-							.append( FileTools.NEWLINE );
-				}
-			}
-			ans .append( "==End of Used Markers==" ).append( FileTools.NEWLINE );
-		} catch (ClassCastException cce) {
-			/* it's not a DSPanel, we generate nothing for panel part */
-			log.error(cce);
-		}
-		ans .append( "=End of MicroarraySetView data=");
-		return ans.toString();
-	}
-
-	@SuppressWarnings("rawtypes")
-	private String generateHistoryStringForGeneralDataSet(DSDataSet dataset) {
-		if (dataset == null) {
-			return "No information on the data set." + FileTools.NEWLINE;
-		} else {
-			StringBuilder sb = new StringBuilder();
-			sb.append("The data set used for analysis is [ ");
-			sb.append(dataset.getDataSetName());
-			sb.append(" ] from file [ ");
-			sb.append(dataset.getFile());
-			sb.append(" ]." + FileTools.NEWLINE);
-			return sb.toString();
-		}
-	}
+	 
 
 	@Subscribe
 	public void receive(org.geworkbench.events.PendingNodeCancelledEvent e,
@@ -1029,13 +946,13 @@ public class AnalysisPanel extends CommandBase implements
 				+ FileTools.NEWLINE;
 		history += FileTools.TAB + "Service url: " + url + FileTools.NEWLINE
 				+ FileTools.NEWLINE;
-		history += selectedAnalysis.createHistory()
+		history += selectedGridAnalysis.createHistory()
 	            + FileTools.NEWLINE;
 		
 		if (refOtherSet != null) {
-			history += generateHistoryStringForGeneralDataSet(refOtherSet);
+			history += selectedGridAnalysis.generateHistoryStringForGeneralDataSet(refOtherSet);
 		} else if (maSetView != null && refMASet != null) {
-			history += generateHistoryString(maSetView);
+			history += selectedGridAnalysis.generateHistoryForMaSetView(maSetView, selectedGridAnalysis.useMarkersFromSelector());
 		}
 
 		ProjectPanel.getInstance().addPendingNode(gridEpr,
