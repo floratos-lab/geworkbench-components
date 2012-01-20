@@ -32,17 +32,19 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker; 
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.util.ValidationUtils;
+
+import wb.data.Marker;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
 
 /**
  * MINDY analysis GUI. Allows the user to enter parameters to analyze.
- *
+ * 
  * @author mhall, ch2514, yc2480
  * @author oshteynb
  * @version $Id: MindyParamPanel.java,v 1.31 2009-06-19 19:22:55 jiz Exp $
@@ -56,7 +58,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 
 	static Log log = LogFactory.getLog(MindyParamPanel.class);
 
-	private static final String FROM_ALL = "All Markers";
+	static final String FROM_ALL = "All Markers";
 
 	private static final String FROM_FILE = "From File";
 
@@ -78,15 +80,14 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 	static final String[] DEFAULT_SET = { " " };
 
 	private static final String[] CONDITIONAL = { MI, P_VALUE };
-	private static final String[] UNCONDITIONAL = { MI , P_VALUE };
+	private static final String[] UNCONDITIONAL = { MI, P_VALUE };
 
 	private static final String[] CONDITIONAL_DEFAULT_VALUES = {
-		MI_DEFAULT_VALUE, P_VALUE_DEFAULT_VALUE  };
+			MI_DEFAULT_VALUE, P_VALUE_DEFAULT_VALUE };
 	private static final String[] UNCONDITIONAL_DEFAULT_VALUES = {
-		MI_DEFAULT_VALUE, P_VALUE_DEFAULT_VALUE  };
+			MI_DEFAULT_VALUE, P_VALUE_DEFAULT_VALUE };
 
 	private static final String[] CORRECTIONS = { NONE, BONFERRONI };
-
 
 	private static final int MAX_ERROR_MESSAGE_LENGTH = 100;
 
@@ -131,15 +132,15 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 	private JSpinner dpiTolerance = new JSpinner(new SpinnerNumberModel(0.1d,
 			0d, 1d, 0.1d));
 
-	private JComboBox conditionalCombo = new JComboBox(
-			CONDITIONAL);
+	private JComboBox conditionalCombo = new JComboBox(CONDITIONAL);
 
-	private JComboBox unconditionalCombo = new JComboBox(
-			UNCONDITIONAL);
+	private JComboBox unconditionalCombo = new JComboBox(UNCONDITIONAL);
 
-	private JTextField conditional = new JTextField(CONDITIONAL_DEFAULT_VALUES[0]);
+	private JTextField conditional = new JTextField(
+			CONDITIONAL_DEFAULT_VALUES[0]);
 
-	private JTextField unconditional = new JTextField(UNCONDITIONAL_DEFAULT_VALUES[0]);
+	private JTextField unconditional = new JTextField(
+			UNCONDITIONAL_DEFAULT_VALUES[0]);
 
 	private JComboBox conditionalCorrection = new JComboBox(CORRECTIONS);
 
@@ -147,13 +148,13 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 
 	private JTabbedPane tabs;
 
-	private DSDataSet<?> dataSet;	
+	private DSDataSet<?> dataSet;
 
 	private boolean calledFromProgram = false;
 
 	/**
 	 * Constructor. Creates the parameter panel GUI.
-	 *
+	 * 
 	 */
 	public MindyParamPanel() {
 		super();
@@ -171,6 +172,10 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 
 	public JComboBox getTargetsSets() {
 		return targetsSets;
+	}
+
+	public JComboBox getTargetsFrom() {
+		return targetsFrom;
 	}
 
 	void setDataSet(DSDataSet<?> ds) {
@@ -228,14 +233,14 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 				if (StringUtils.equals(selected, FROM_FILE)) {
 					modulatorsSets.setSelectedIndex(0);
 					modulatorsSets.setEnabled(false);
-					if (!calledFromProgram){
-					modulatorList.setText("");
+					if (!calledFromProgram) {
+						modulatorList.setText("");
 					}
 					loadModulatorsFile.setEnabled(true);
 				} else {
 					modulatorsSets.setEnabled(true);
-					if (!calledFromProgram){
-					modulatorList.setText("");
+					if (!calledFromProgram) {
+						modulatorList.setText("");
 					}
 					loadModulatorsFile.setEnabled(false);
 				}
@@ -270,14 +275,15 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 
 		modulatorsSets.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent actionEvent) {
-				if(!modulatorsSets.isEnabled())return;
+				if (!modulatorsSets.isEnabled())
+					return;
 				String selectedLabel = (String) modulatorsSets
 						.getSelectedItem();
 				if (!StringUtils.isEmpty(selectedLabel))
 					if (!chooseMarkersFromSet(selectedLabel, modulatorList)) {
 						modulatorsSets.setSelectedIndex(0);
-						if (!calledFromProgram){
-						modulatorList.setText("");
+						if (!calledFromProgram) {
+							modulatorList.setText("");
 						}
 					}
 			}
@@ -414,7 +420,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 		builder.append(this.unconditional);
 		builder.append("Correction", this.unconditionalCorrection, 3);
 		builder.append(new JLabel(""));
-		
+
 		unconditionalCombo.setEnabled(false);
 		unconditional.setEnabled(false);
 		unconditionalCorrection.setEnabled(false);
@@ -442,15 +448,14 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 		this.unconditionalCombo.setSelectedIndex(0);
 		this.unconditionalCorrection.setSelectedIndex(0);
 
-// Have to set this to default off.
+		// Have to set this to default off.
 		conditionalCorrection.setEnabled(false);
 
 		this.conditionalCombo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent actionEvent) {
-				conditional
-						.setText(""
-								+ CONDITIONAL_DEFAULT_VALUES[conditionalCombo
-										.getSelectedIndex()]);
+				conditional.setText(""
+						+ CONDITIONAL_DEFAULT_VALUES[conditionalCombo
+								.getSelectedIndex()]);
 				if (getConditional().trim().equals(P_VALUE)) {
 					conditionalCorrection.setEnabled(true);
 				} else {
@@ -511,7 +516,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 
 	/**
 	 * Sets the transcription factor
-	 *
+	 * 
 	 * @param label
 	 */
 	public void setTranscriptionFactor(String label) {
@@ -520,7 +525,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 
 	/**
 	 * Gets the candidate modulator file name.
-	 *
+	 * 
 	 * @return candidate modulator file name.
 	 */
 	public String getCandidateModulatorsFile() {
@@ -529,7 +534,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 
 	/**
 	 * Gets the set fraction.
-	 *
+	 * 
 	 * @return the set fraction
 	 */
 	public int getSetFraction() {
@@ -538,7 +543,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 
 	/**
 	 * Gets the DPI tolerance.
-	 *
+	 * 
 	 * @return the DPI tolerance
 	 */
 	public float getDPITolerance() {
@@ -567,7 +572,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 
 	/**
 	 * Gets the transcription factor.
-	 *
+	 * 
 	 * @return the transcription factor
 	 */
 	public String getTranscriptionFactor() {
@@ -576,7 +581,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 
 	/**
 	 * Gets the modulator gene list.
-	 *
+	 * 
 	 * @return the modulator gene list
 	 */
 	public ArrayList<String> getModulatorGeneList() {
@@ -587,7 +592,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 
 	/**
 	 * Gets the target gene list.
-	 *
+	 * 
 	 * @return the target gene list
 	 */
 	public ArrayList<String> getTargetGeneList() {
@@ -598,7 +603,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 
 	/**
 	 * Gets the DPI annotated gene list.
-	 *
+	 * 
 	 * @return the DPI annotated gene list
 	 */
 	public ArrayList<String> getDPIAnnotatedGeneList() {
@@ -643,102 +648,186 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 		}
 	}
 
-	
 	/*
 	 * (non-Javadoc)
-	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
-	 * Set inputed parameters to GUI.
+	 * 
+	 * @see
+	 * org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters
+	 * (java.util.Map) Set inputed parameters to GUI.
 	 */
-    public void setParameters(Map<Serializable, Serializable> parameters){
-        Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
-        for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set.iterator(); iterator.hasNext();) {
-        	Map.Entry<Serializable, Serializable> parameter = iterator.next();
+	public void setParameters(Map<Serializable, Serializable> parameters) {
+		Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
+		for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set
+				.iterator(); iterator.hasNext();) {
+			Map.Entry<Serializable, Serializable> parameter = iterator.next();
 			Object key = parameter.getKey();
 			Object value = parameter.getValue();
 			calledFromProgram = true;
-			if (key.equals("modulators")){
-				this.modulatorList.setText((String)value);
+			if (key.equals("modulators")) {
+				this.modulatorList.setText((String) value);
 			}
-			if (key.equals("modulatorFromType")){
-				this.modulatorsFrom.setSelectedIndex((Integer)value);
+			if (key.equals("modulatorFromType")) {
+				this.modulatorsFrom.setSelectedIndex((Integer) value);
 			}
-			if (key.equals("targets")){
-				this.targetList.setText((String)value);
+			if (key.equals("targets")) {
+				this.targetList.setText((String) value);
 			}
-			if (key.equals("targetFromType")){
-				this.targetsFrom.setSelectedIndex((Integer)value);
+			if (key.equals("targetFromType")) {
+				this.targetsFrom.setSelectedIndex((Integer) value);
 			}
-			if (key.equals("annotations")){
-				this.dpiAnnotationList.setText((String)value);
+			if (key.equals("annotations")) {
+				this.dpiAnnotationList.setText((String) value);
 			}
-			if (key.equals("tf")){
-				this.transcriptionFactor.setText((String)value);
+			if (key.equals("tf")) {
+				this.transcriptionFactor.setText((String) value);
 			}
-			if (key.equals("fraction")){
+			if (key.equals("fraction")) {
 				this.setFraction.setValue(value);
 			}
-			if (key.equals("conditionalType")){
-				int conditionalType = (Integer)value;
+			if (key.equals("conditionalType")) {
+				int conditionalType = (Integer) value;
 				if ((conditionalType >= 0)
-						&& (conditionalType < this.conditionalCombo
-								.getModel().getSize()))
+						&& (conditionalType < this.conditionalCombo.getModel()
+								.getSize()))
 					this.conditionalCombo.setSelectedIndex(conditionalType);
 			}
-			if (key.equals("conditionalValue")){
-				this.conditional.setText((String)value);
+			if (key.equals("conditionalValue")) {
+				this.conditional.setText((String) value);
 			}
-			if (key.equals("conditionalCorrection")){
-				int conditionalCorrection = (Integer)value;
+			if (key.equals("conditionalCorrection")) {
+				int conditionalCorrection = (Integer) value;
 				if ((conditionalCorrection >= 0)
 						&& (conditionalCorrection < this.conditionalCorrection
 								.getModel().getSize()))
 					this.conditionalCorrection
 							.setSelectedIndex(conditionalCorrection);
 			}
-			if (key.equals("dpitargets")){
-				this.dpiAnnotationList.setText((String)value);
+			if (key.equals("dpitargets")) {
+				this.dpiAnnotationList.setText((String) value);
 			}
-			if (key.equals("dpitolerance")){
+			if (key.equals("dpitolerance")) {
 				this.dpiTolerance.setValue(value);
 			}
 			calledFromProgram = false;
 		}
-        notifyAnalysisPanel();
-    }
+		notifyAnalysisPanel();
+	}
 
-    /*
+	/*
 	 * (non-Javadoc)
-	 *
-	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
+	 * 
+	 * @see
+	 * org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
 	 */
-    public Map<Serializable, Serializable> getParameters() {
+	public Map<Serializable, Serializable> getParameters() {
 		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
 		parameters.put("modulators", this.modulatorList.getText());
-		parameters.put("modulatorFromType", this.modulatorsFrom.getSelectedIndex());
-		//from previous code, it seems like the modulatorsSets is unused.
-		//parameters.put("", (String) this.modulatorsSets.getSelectedItem()
+		parameters.put("modulatorFromType",
+				this.modulatorsFrom.getSelectedIndex());
+		// from previous code, it seems like the modulatorsSets is unused.
+		// parameters.put("", (String) this.modulatorsSets.getSelectedItem()
 		parameters.put("targets", this.targetList.getText());
 		parameters.put("targetFromType", this.targetsFrom.getSelectedIndex());
-		//from previous code, it seems like the targetsSets is unused.
-		//parameters.put("", (String) this.targetsSets.getSelectedItem());
+		// from previous code, it seems like the targetsSets is unused.
+		// parameters.put("", (String) this.targetsSets.getSelectedItem());
 		parameters.put("annotations", this.dpiAnnotationList.getText());
-		parameters.put("tf", this.transcriptionFactor
-				.getText());
-		parameters.put("fraction", (Integer)this.setFraction.getValue());
-		parameters.put("conditionalType", this.conditionalCombo.getSelectedIndex());
-		parameters.put("conditionalValue", this.conditional
-				.getText());
-		parameters.put("conditionalCorrection", this.conditionalCorrection
-				.getSelectedIndex());
+		parameters.put("tf", this.transcriptionFactor.getText());
+		parameters.put("fraction", (Integer) this.setFraction.getValue());
+		parameters.put("conditionalType",
+				this.conditionalCombo.getSelectedIndex());
+		parameters.put("conditionalValue", this.conditional.getText());
+		parameters.put("conditionalCorrection",
+				this.conditionalCorrection.getSelectedIndex());
 		parameters.put("dpitargets", this.dpiAnnotationList.getText());
-		parameters.put("dpitolerance", (Double)this.dpiTolerance.getValue());
+		parameters.put("dpitolerance", (Double) this.dpiTolerance.getValue());
 		return parameters;
+	}
+
+	@Override
+	public String getDataSetHistory() {
+		StringBuilder paramDescB = new StringBuilder(
+				"Generated by MINDY run with paramters: \n");
+
+		paramDescB.append("[PARA] Modulator list: ");
+		ArrayList<Marker> modulators = new ArrayList<Marker>();
+		ArrayList<String> modulatorGeneList = getModulatorGeneList();
+		if ((modulatorGeneList != null) && (modulatorGeneList.size() > 0)) {
+			for (String modGene : modulatorGeneList) {
+				paramDescB.append(modGene);
+				paramDescB.append(" ");
+				modulators.add(new Marker(modGene));
+
+			}
+			paramDescB.append("\n");
+		}
+
+		ArrayList<Marker> targets = new ArrayList<Marker>();
+		ArrayList<String> targetGeneList = getTargetGeneList();
+
+		paramDescB.append("[PARA] Target list: ");
+
+		if ((targetGeneList != null) && (targetGeneList.size() > 0)) {
+			for (String modGene : targetGeneList) {
+
+				paramDescB.append(modGene);
+				paramDescB.append(" ");
+				targets.add(new Marker(modGene));
+
+			}
+		} else {
+			if (getTargetsFrom().getSelectedItem().toString()
+					.equals(MindyParamPanel.FROM_ALL))
+				paramDescB.append("All Markers");
+		}
+		paramDescB.append("\n");
+
+		String transcriptionFactor = getTranscriptionFactor();
+
+		if (!transcriptionFactor.trim().equals("")) {
+
+			paramDescB.append("[PARA] Hub Marker: ");
+			paramDescB.append(transcriptionFactor);
+			paramDescB.append("\n");
+
+		}
+
+		float setFraction = getSetFraction() / 100f;
+		paramDescB.append("[PARA] Sample per Condition(%): ");
+		paramDescB.append((int) (setFraction * 100f));
+		paramDescB.append("\n");
+
+		paramDescB.append("[PARA] Conditional:\t");
+		paramDescB.append(getConditional());
+		paramDescB.append(" at ");
+		paramDescB.append(getConditionalValue());
+		paramDescB.append("\tCorrection: ");
+		paramDescB.append(getConditionalCorrection());
+		paramDescB.append("\n");
+
+		paramDescB.append("[PARA] DPI Target List: ");
+		ArrayList<Marker> dpiAnnots = new ArrayList<Marker>();
+		ArrayList<String> dpiAnnotList = getDPIAnnotatedGeneList();
+		for (String modGene : dpiAnnotList) {
+			paramDescB.append(modGene);
+			paramDescB.append(" ");
+			dpiAnnots.add(new Marker(modGene));
+
+		}
+		paramDescB.append("\n");
+
+		paramDescB.append("[PARA] DPI Tolerance: ");
+		paramDescB.append(getDPITolerance());
+		paramDescB.append("\n");
+		
+		
+		return paramDescB.toString();
+
 	}
 
 	@Override
 	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override

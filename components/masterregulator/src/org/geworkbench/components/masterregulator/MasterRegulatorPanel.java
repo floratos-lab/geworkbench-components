@@ -55,7 +55,7 @@ import org.geworkbench.bison.annotation.DSAnnotationContextManager;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet; 
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
@@ -110,7 +110,7 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 	private JComboBox networkFrom = null;
 	private JComboBox tfFrom = null;
 	private JComboBox sigFrom = null;
-	private JTextField mintg = new JTextField("20");  //minimum number of targets to run GSEA
+	private JTextField mintg = new JTextField("20");  // number of targets minimumto run GSEA
 	private JTextField minsp = new JTextField("6");  //minimum number of samples for label shuffling
 	private JTextField nperm = new JTextField("1000"); //number of permutations
 	private JTextField tail = new JTextField("2");   //tail: If the Spearman's correlation value is not known, use tail = 1. Otherwise tail = 2. 2 for GSEA2, 1 for GSEA
@@ -1278,6 +1278,28 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 			interactionTypeMap = new org.geworkbench.parsers.AdjacencyMatrixFileFormat().getInteractionTypeMap();
 		}
 		return true;
+	}
+	
+	
+	@Override
+	public String getDataSetHistory() {			 
+		StringBuffer histStr = new StringBuffer("Generated with MRA run with parameters:\n");
+		 
+		histStr .append( "\n[PARA] Load Network: " +getAdjMatrixDataSet().getDataSetName()  ).append("\n");
+		histStr .append( "[PARA] FET/GSEA p-value : " + pValueTextField.getText() ).append("\n");
+		histStr .append( "[PARA] Minimum number of Targets : " + mintg.getText() ).append("\n");
+		histStr .append( "[PARA] GSEA Tail : " + tail.getText() ).append("\n");
+		histStr .append( "[PARA] Minimum number of Samples : " + minsp.getText() ).append("\n");
+		histStr .append( "[PARA] Shadow P-value : " + pvshadow.getText() ).append("\n");
+		histStr .append( "[PARA] Number of GSEA Permutations : " + nperm.getText() ).append("\n");
+		
+		histStr .append( "[PARA] Synergy P-value: " )
+				.append( pvsynergy.getText() )
+						.append( "\n\n\n" );
+
+	 
+		
+		return histStr.toString();
 	}
 	
 	String validateNetwork(){

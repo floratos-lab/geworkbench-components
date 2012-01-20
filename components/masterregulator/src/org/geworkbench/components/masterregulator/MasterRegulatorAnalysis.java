@@ -17,10 +17,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractGridAnalysis;
-import org.geworkbench.bison.annotation.CSAnnotationContext;
-import org.geworkbench.bison.annotation.CSAnnotationContextManager;
-import org.geworkbench.bison.annotation.DSAnnotationContext;
-import org.geworkbench.bison.annotation.DSAnnotationContextManager;
+import org.geworkbench.bison.annotation.CSAnnotationContext; 
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
@@ -229,7 +226,7 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
 		// generate result
 		String historyStr = generateHistoryString(view);
 
-		String groupAndChipsString = "Groups analyzed:\n";
+		/*String groupAndChipsString = "Groups analyzed:\n";
 		{//generate group information
 			DSAnnotationContextManager manager = CSAnnotationContextManager
 			.getInstance();
@@ -261,7 +258,7 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
 				}
 			}
 		}
-		historyStr += groupAndChipsString;
+		historyStr += groupAndChipsString;*/
 
 		HistoryPanel.addToHistory(mraResultSet, historyStr);
 		
@@ -298,18 +295,13 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
 
 	private String generateHistoryString(
 			DSMicroarraySetView<DSGeneMarker, DSMicroarray> view) {
-		StringBuffer histStr = new StringBuffer("Generated with MRA run with parameters:\n");
-		histStr .append( "----------------------------------------\n" );
-		histStr .append( "Transcription Factor: " + mraAnalysisPanel.getTranscriptionFactor() ).append("\n");
-		histStr .append( "Signature Markers: " + mraAnalysisPanel.getSigMarkers() ).append("\n");
-		histStr .append( "adjMatrix: " )
-				.append( mraAnalysisPanel.getAdjMatrixDataSet().getDataSetName() )
-						.append( "\n\n\n" );
-
-		histStr .append( view.markers().size()+" markers analyzed:\n" );
-		for (DSGeneMarker marker : view.markers()) {
-			histStr.append( "\t" ).append( marker.getLabel() ).append( "\n" );
-		}
+		StringBuffer histStr = new StringBuffer("Generated with MRA run with parameters:\n");	 
+		histStr .append( "\n [PARA] Load Network " + mraAnalysisPanel.getSelectedAdjMatrix() + ":  " + mraAnalysisPanel.getAdjMatrixDataSet().getDataSetName()  ).append("\n");
+		histStr .append( "[PARA] FET/GSEA p-value : " + mraAnalysisPanel.getPValue() ).append("\n");		
+		histStr .append( "Master Regulators: " + mraAnalysisPanel.getTranscriptionFactor() ).append("\n");
+		histStr .append( "Signature Markers: " + mraAnalysisPanel.getSigMarkers() ).append("\n\n\n");
+		 
+		histStr.append(generateHistoryForMaSetView(view, useMarkersFromSelector()));
 		
 		return histStr.toString();
 	}
@@ -384,23 +376,8 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
 	public org.geworkbench.events.SubpanelChangedEvent<DSGeneMarker> publishSubpanelChangedEvent(
 			org.geworkbench.events.SubpanelChangedEvent<DSGeneMarker> event) {
 		return event;
-	}
-	
-	
-	private String GenerateGroupAndChipsString(DSPanel<DSMicroarray> panel) {
-		String histStr = null;
-
-		histStr = "\t     " + panel.getLabel() + " (" + panel.size()
-				+ " chips)" + ":\n";
-		;
-
-		int aSize = panel.size();
-		for (int aIndex = 0; aIndex < aSize; aIndex++)
-			histStr += "\t\t" + panel.get(aIndex) + "\n";
-
-		return histStr;
-	}
-
+	}	
+	 
 	@Override
 	public String getAnalysisName() {
 		return analysisName;
