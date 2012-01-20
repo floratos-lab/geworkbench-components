@@ -6,9 +6,12 @@ package org.geworkbench.components.interactions.cellularnetwork;
  */
 
 //import java.io.BufferedReader;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.BufferedWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
@@ -48,6 +51,7 @@ import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.parsers.InputFileFormatException;
+import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbench.util.ProgressBar;
 
 public class ExportSelectionPanel extends JPanel {
@@ -55,6 +59,9 @@ public class ExportSelectionPanel extends JPanel {
 	private static final long serialVersionUID = 8300065011440745717L;
 
 	private Log log = LogFactory.getLog(ExportSelectionPanel.class);
+	
+	private static final String lastDirConf = FilePathnameUtils.getUserSettingDirectoryPath()
+	+ "interactions" + FilePathnameUtils.FILE_SEPARATOR + "lastDir.conf";
 
 	private final JDialog parent;
 
@@ -192,16 +199,25 @@ public class ExportSelectionPanel extends JPanel {
 			String selectedFormart = formatJcb.getSelectedItem().toString();
 			if (selectedFormart.equals(Constants.ADJ_FORMAT))
 				f = new File("export_" + context + "_" + version + ".adj");
+			
 			JFileChooser jFileChooser1 = new JFileChooser(f);
-			jFileChooser1.setSelectedFile(f);
-			String newFileName = null;
+			String lastDir = null;
+			if ((lastDir = getLastDir()) != null) {
+				jFileChooser1.setCurrentDirectory(new File(lastDir));
+			}			
+		 
+			jFileChooser1.setSelectedFile(f);			
+			String newFileName = null;			
 			if (JFileChooser.APPROVE_OPTION == jFileChooser1
 					.showSaveDialog(null)) {
-				newFileName = jFileChooser1.getSelectedFile().getPath();
+				newFileName = jFileChooser1.getSelectedFile().getPath();				
 			} else {
 				return;
 			}
 
+
+			saveLastDir(jFileChooser1.getSelectedFile().getParent());
+			
 			if (new File(newFileName).exists()) {
 				int o = JOptionPane.showConfirmDialog(null,
 
@@ -237,6 +253,32 @@ public class ExportSelectionPanel extends JPanel {
 		else
 			return "unknown";
 	}
+	
+	private String getLastDir(){
+		String dir = null;
+		try {
+			File file = new File(lastDirConf);
+			if (file.exists()) {
+				BufferedReader br = new BufferedReader(new FileReader(file));
+				dir = br.readLine();
+				br.close();
+			}
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
+		return dir;
+	}
+	private void saveLastDir(String dir){
+		//save as last used dir
+		try {
+			BufferedWriter br = new BufferedWriter(new FileWriter(lastDirConf));
+			br.write(dir);
+			br.close();
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
+	}
+	
 
 	private class ComboboxToolTipRenderer extends DefaultListCellRenderer {
 
