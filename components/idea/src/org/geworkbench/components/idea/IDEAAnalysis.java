@@ -493,8 +493,8 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 		}		
 		IdeaResultDataSet analysisResult = new IdeaResultDataSet(maSet,
 				"IDEA Analysis Result",locResultList, gocResultList, nodeResultList, moduleResultList,pvalue);
-		String stemp = generateHistoryString();
-		HistoryPanel.addToHistory(analysisResult, stemp+GenerateMarkerString(datasetView));
+		String stemp = generateHistoryString()+"\n";
+		HistoryPanel.addToHistory(analysisResult, stemp+ this.generateHistoryForMaSetView(datasetView,true));
 
 		AlgorithmExecutionResults results = new AlgorithmExecutionResults(true,
 				"Idea Analysis", analysisResult);
@@ -507,18 +507,7 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 		histStr.append(IDEAAnalysisPanel.getDataSetHistory());
 		return histStr.toString();
 	}
-	
-	String GenerateMarkerString(
-			DSMicroarraySetView<? extends DSGeneMarker, ? extends DSMicroarray> view) {
-		String histStr = null;
-		histStr = view.markers().size() + " markers analyzed:\n";
-		for (DSGeneMarker marker : view.markers()) {
-			histStr += "\t" + marker.getLabel() + "\n";
-		}
-			
-		return histStr;
-	}	
-	
+
 	
 	public void stop(){
 		if (pbIdea!=null)
