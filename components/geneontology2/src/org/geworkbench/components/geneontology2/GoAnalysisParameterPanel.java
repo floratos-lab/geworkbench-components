@@ -370,10 +370,8 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 			geneOntologyRadioButton.setSelected(true);
 			geneOntologyRadioButton.setEnabled(false);
 
-			OboSourcePreference pref = OboSourcePreference.getInstance();
-
 			ontologyFileNameField = new JTextField(20);
-			ontologyFileNameField.setText(pref.getSourceLocation());
+			ontologyFileNameField.setText(GeneOntologyTree.getInstanceUntilAvailable().getActualSource());
 			ontologyFileNameField.setEnabled(false); // this is always
 														// disabled even in the
 														// future version with
@@ -788,7 +786,7 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 		histStr.append("\nChanged Gene List: ");
 		histStr.append(getChangedGeneListAsString());
 		histStr.append("\nGene Ontology: ");
-		histStr.append(OboSourcePreference.getInstance().getSourceLocation());
+		histStr.append(GeneOntologyTree.getInstance().getActualSource());
 		histStr.append("\nAnnotations: ");
 		histStr.append(getAssociationFile());
 		histStr.append("\nEnrichment Method: ");
