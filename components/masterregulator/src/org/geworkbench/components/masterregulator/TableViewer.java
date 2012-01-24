@@ -444,8 +444,8 @@ public class TableViewer extends JPanel {
 			File exportFile = new File(exportDir);
 			OWFileChooser chooser = new OWFileChooser(exportFile);
 			chooser.setAcceptAllFileFilterUsed(false);
-			chooser.addChoosableFileFilter(new ExportFileFilter(".csv", "Comma Separated Value Files", ","));
-			chooser.addChoosableFileFilter(new ExportFileFilter(".txt", "Tab Separated Value Files", "\t"));
+			chooser.addChoosableFileFilter(new ExportFileFilter(".csv", "Comma Separated Value Files (.csv)", ","));
+			chooser.addChoosableFileFilter(new ExportFileFilter(".txt", "Tab Separated Value Files (.txt)", "\t"));
 			chooser.setDialogTitle("Export MRA Table Results");
 			int c = chooser.showSaveDialog(table);
 			if (c == OWFileChooser.APPROVE_OPTION
@@ -493,7 +493,7 @@ public class TableViewer extends JPanel {
 							obj = String.valueOf(obj);
 						}
 
-						if(i<model.getRowCount()-1) {
+						if(j<model.getRowCount()-1) {
 							out.write(obj.toString() + delimiter);
 						} else {
 							out.write(obj.toString());
