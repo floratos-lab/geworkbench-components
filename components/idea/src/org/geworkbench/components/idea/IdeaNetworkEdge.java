@@ -2,6 +2,8 @@ package org.geworkbench.components.idea;
 
 import java.io.Serializable;
 
+import javax.swing.JOptionPane;
+
 import org.geworkbench.bison.datastructure.bioobjects.IdeaEdge.InteractionType;
 
 /**
@@ -13,23 +15,39 @@ import org.geworkbench.bison.datastructure.bioobjects.IdeaEdge.InteractionType;
 public class IdeaNetworkEdge implements Serializable {
 	
 	private static final long serialVersionUID = -5741396026577511626L;
-	final int geneId1;
-	final int geneId2;
-	final InteractionType interactionType;
+	private int geneId1;
+	private int geneId2;
+	private InteractionType interactionType;
 	
-	IdeaNetworkEdge(String line) {
-		String[] tokens = line.split("\\s");
-		geneId1 = Integer.parseInt(tokens[0]);
-		geneId2 = Integer.parseInt(tokens[1]);
-		interactionType = stringToInteractionType(tokens[3]);
-	}
+	IdeaNetworkEdge(){
+		
+	}	
 	
 	IdeaNetworkEdge(int node1, int node2){
 		geneId1=node1;
 		geneId2=node2;
-		interactionType =InteractionType.PROTEIN_DNA;	//defaut setting
+		setInteractionType(InteractionType.PROTEIN_DNA);	//defaut setting
 	}
 
+	public boolean parseIdeaNetworkEdge(String line) {
+		String[] tokens = line.split("\\s");
+		try{
+			geneId1 = Integer.parseInt(tokens[0]);
+			geneId2 = Integer.parseInt(tokens[1]);
+			setInteractionType(stringToInteractionType(tokens[3]));
+		}
+		catch(Exception e){
+			JOptionPane.showMessageDialog(
+					null,
+					"network format error!",
+					"Parsing Error",
+					JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
+		return true;
+	}
+	
+	
 	private static InteractionType stringToInteractionType(String str) {
 		int ppiId = Integer.parseInt(str);
 
@@ -71,5 +89,13 @@ public class IdeaNetworkEdge implements Serializable {
 		int hash = 17;
 		hash = 31 * hash + geneId1;		
 		return hash;
+	}
+
+	public void setInteractionType(InteractionType interactionType) {
+		this.interactionType = interactionType;
+	}
+
+	public InteractionType getInteractionType() {
+		return interactionType;
 	}
 }
