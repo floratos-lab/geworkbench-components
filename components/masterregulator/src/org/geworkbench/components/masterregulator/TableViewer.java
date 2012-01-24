@@ -493,7 +493,7 @@ public class TableViewer extends JPanel {
 							obj = String.valueOf(obj);
 						}
 
-						if(j<model.getRowCount()-1) {
+						if(j<model.getColumnCount()-1) {
 							out.write(obj.toString() + delimiter);
 						} else {
 							out.write(obj.toString());
