@@ -461,10 +461,23 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 	
 								AdjacencyMatrixDataSet adjMatrix = new AdjacencyMatrixDataSet(matrix, 
 										0, adjMatrixFileStr, adjMatrixFileStr, maSet);
-								this.adjMatrixHolder.remove("adjMatrix");
-								this.adjMatrixHolder.put("adjMatrix", adjMatrix);
-								getNetworkFromProject(adjMatrix);
 								
+								if(adjMatrix.getMatrix().getEdges().size()!=0){
+									this.adjMatrixHolder.remove("adjMatrix");
+									this.adjMatrixHolder.put("adjMatrix", adjMatrix);
+									getNetworkFromProject(adjMatrix);
+								}
+								else{
+									networkField.setText("");
+									JOptionPane.showMessageDialog(
+											null,
+											"No valid network edge loaded",
+											"Parsing Error",
+											JOptionPane.ERROR_MESSAGE);
+								}
+
+								
+						
 							} catch (InputFileFormatException e1) {
 								log.error(e1.getMessage());
 								e1.printStackTrace();
@@ -672,9 +685,9 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 			try {
 				String filename = fc.getSelectedFile().getAbsolutePath();			
 				String filepath = fc.getCurrentDirectory().getCanonicalPath();
-                setLastDirectory(filepath);			
-                getNetworkFromLabFile(filename);				
-				networkField.setText(filename);			
+                setLastDirectory(filepath);
+                networkField.setText(filename);		
+                getNetworkFromLabFile(filename);					
 			} catch (FileNotFoundException e1) {
 				e1.printStackTrace();
 				ideaNetwork = null;
@@ -693,11 +706,17 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 		line = br.readLine();
 		networkList.add(line);
 		ideaNetwork = new ArrayList<IdeaNetworkEdge>();
-		while(line!=null && line.trim().length()>0) {
-			IdeaNetworkEdge edge = new IdeaNetworkEdge(line);
-			ideaNetwork.add(edge);
-			line = br.readLine();
-			networkList.add(line);
+		IdeaNetworkEdge edge = new IdeaNetworkEdge();
+		while(line!=null && line.trim().length()>0) {			
+			if(edge.parseIdeaNetworkEdge(line)){
+				ideaNetwork.add(edge);
+				line = br.readLine();
+				networkList.add(line);
+			}
+			else{
+				networkField.setText("");
+				break;
+			}
 		}
 	}
 	
