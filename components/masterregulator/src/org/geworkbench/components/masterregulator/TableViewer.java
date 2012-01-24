@@ -443,6 +443,7 @@ public class TableViewer extends JPanel {
 					EXPORTDIR, exportFileStr);
 			File exportFile = new File(exportDir);
 			OWFileChooser chooser = new OWFileChooser(exportFile);
+			chooser.setAcceptAllFileFilterUsed(false);
 			chooser.addChoosableFileFilter(new ExportFileFilter(".csv", "Comma Separated Value Files", ","));
 			chooser.addChoosableFileFilter(new ExportFileFilter(".txt", "Tab Separated Value Files", "\t"));
 			chooser.setDialogTitle("Export MRA Table Results");
@@ -468,9 +469,10 @@ public class TableViewer extends JPanel {
 				// foreach tfA
 				TableModel model = table.getModel();
 
-				for (int i = 0; i < model.getColumnCount(); i++) {
+				for (int i = 0; i < model.getColumnCount()-1; i++) {
 					out.write(model.getColumnName(i) + delimiter);
 				}
+				out.write( model.getColumnName(model.getColumnCount()-1) );
 				out.write("\n");
 
 				for (int i = 0; i < model.getRowCount(); i++) {
@@ -491,7 +493,11 @@ public class TableViewer extends JPanel {
 							obj = String.valueOf(obj);
 						}
 
-						out.write(obj.toString() + delimiter);
+						if(i<model.getRowCount()-1) {
+							out.write(obj.toString() + delimiter);
+						} else {
+							out.write(obj.toString());
+						}
 					}
 					out.write("\n");
 				}
