@@ -365,7 +365,10 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 			geneOntologyRadioButton.setEnabled(false);
 
 			ontologyFileNameField = new JTextField(20);
-			ontologyFileNameField.setText(GeneOntologyTree.getInstanceUntilAvailable().getActualSource());
+			GeneOntologyTree goTree = GeneOntologyTree.getInstance();
+			if(goTree!=null) {
+				ontologyFileNameField.setText(goTree.getActualSource());
+			}
 			ontologyFileNameField.setEnabled(false); // this is always
 														// disabled even in the
 														// future version with
