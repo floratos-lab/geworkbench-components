@@ -294,7 +294,7 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 	}
 
 	public String getOntologyFile() {
-		return GeneOntologyTree.getInstance().getActualSource();
+		return GeneOntologyTree.getInstance().getActualFile();
 	}
 
 	public String getAssociationFile() {
