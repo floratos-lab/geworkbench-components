@@ -26,6 +26,8 @@ import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
@@ -69,6 +71,7 @@ import org.jfree.ui.RectangleInsets;
  */
 @AcceptTypes({DSMicroarraySet.class})
 public class EVDPanel extends MicroarrayViewEventBase {
+	private static Log log = LogFactory.getLog(EVDPanel.class);
 
 	// constants
     private final static int DEFAULTBASKETNUM = 99;
@@ -372,6 +375,9 @@ public class EVDPanel extends MicroarrayViewEventBase {
 		maxOccurrence = 0;
 
 		// FIXME there may be some more efficient way
+		// two exceptions are checked here because refMASet is not used synchronously
+		// TODO I think synchronous model is preferred
+		try {
 		int numGenes = maSetView.markers().size();
 		int numArraySets = refMASet.size();
 		for (int geneCtr = 0; geneCtr < numGenes; geneCtr++) {
@@ -399,6 +405,12 @@ public class EVDPanel extends MicroarrayViewEventBase {
 
 		if(jMASlider!=null)
 			jMASlider.setMaximum(numArraySets-1);
+
+		} catch (NullPointerException e) {
+			log.debug(e);
+		} catch (IndexOutOfBoundsException e) {
+			log.debug(e);			
+		}
 		
 		refresh();
 	}
