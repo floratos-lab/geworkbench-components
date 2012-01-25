@@ -570,7 +570,7 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 		
 		if ((params.getIncludeString().equals(""))||(params.getIncludeString().equals(" "))) {
 			return new ParamValidationResults(false,
-					"Phenotype include text field is required.");
+					"Arrays defining phenotype are required.");
 		}
 		double pvalue;
 		try{
