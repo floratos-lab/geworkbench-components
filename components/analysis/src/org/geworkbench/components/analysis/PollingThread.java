@@ -47,22 +47,26 @@ public class PollingThread extends Thread {
 					return;
 				try {
 					result = dispatcherClient.getResults(gridEPR);
-				} catch (Exception e) {
+				} catch (Throwable e) {
 					result = e;
 				}
 			}
 			DSAncillaryDataSet<? extends DSBioObject> ancillaryDataSet = null;
-			if (result instanceof Exception) {
+			if (result instanceof Throwable) {
 				/*
 				 * Generate user understandable messages. Detailed information
 				 * is located on dispatcher server's log.debug
 				 */
 				String errorMessage = "";
-				errorMessage += ((Exception) result).getMessage();
+				errorMessage += ((Throwable) result).getMessage();
 
 				/* This filters out some messages */
 				errorMessage = org.geworkbench.util.Util.filter(
 						errorMessage, "java.rmi.RemoteException: ");
+
+				if (result instanceof OutOfMemoryError){
+					errorMessage += "\nPlease increase max heap size then try it again.";
+				}
 
 				JOptionPane.showMessageDialog(null, errorMessage,
 						"Your analysis has been canceled.",
