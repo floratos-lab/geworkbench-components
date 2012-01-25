@@ -1023,7 +1023,24 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         Dimension topDim = colRuler.getPreferredSize();
         Dimension leftDim = rowRuler.getPreferredSize();
         Dimension dim = new Dimension(mainDim.width + leftDim.width, mainDim.height + topDim.height);
-        BufferedImage image = new BufferedImage(dim.width, dim.height, BufferedImage.TYPE_INT_RGB);
+        int w = dim.width;
+        int h = dim.height;
+		long size = w*h;
+		final long MAX_SIZE = 100*1024*1024;
+		if(size > MAX_SIZE) {
+			JOptionPane.showMessageDialog(this.getComponent(),
+			"The requested snapshot is "+w+" X "+h+" pixels, or about "+size/1000000+" megapixels. Cannot create.");
+			return null;
+		}
+        BufferedImage image;
+		try {
+	        image = new BufferedImage(dim.width, dim.height, BufferedImage.TYPE_INT_RGB);
+		} catch (OutOfMemoryError e) {
+			JOptionPane.showMessageDialog(this.getComponent(),
+					"OutOfMemoryError when the image's size is "+w+"X"+h);
+			return null;
+		}
+
         Graphics2D g = (Graphics2D) image.getGraphics();
         g.setBackground(Color.WHITE);
         g.clearRect(0, 0, dim.width, dim.height);
@@ -1046,6 +1063,8 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
 
     public void createImageSnapshot() {
         Image currentImage = getColorMosaicAsImage();
+        if(currentImage==null)return;
+        
         ImageIcon newIcon = new ImageIcon(currentImage, "Color Mosaic View");
         org.geworkbench.events.ImageSnapshotEvent event = new org.geworkbench.events.ImageSnapshotEvent("Color Mosaic View", newIcon, org.geworkbench.events.ImageSnapshotEvent.Action.SAVE);
         publishImageSnapshotEvent(event);
