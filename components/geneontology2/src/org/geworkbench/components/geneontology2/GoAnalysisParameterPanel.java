@@ -294,13 +294,7 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 	}
 
 	public String getOntologyFile() {
-		// return ontologyFileNameField.getText();
-		OboSourcePreference pref = OboSourcePreference.getInstance();
-		if (pref.getSourceType() == OboSourcePreference.Source.REMOTE) {
-			return GeneOntologyTree.OBO_FILENAME;
-		} else {
-			return pref.getSourceLocation();
-		}
+		return GeneOntologyTree.getInstance().getActualSource();
 	}
 
 	public String getAssociationFile() {
