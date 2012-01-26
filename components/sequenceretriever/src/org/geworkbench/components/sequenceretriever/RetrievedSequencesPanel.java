@@ -172,7 +172,7 @@ public final class RetrievedSequencesPanel extends SequenceViewWidget {
         //updatePatternSeqMatches();
         isLineView = jViewComboBox.getSelectedItem().equals(LINEVIEW);
         if (isLineView) {
-            sequenceRetrieverNewLineView.initialize(sequenceDB, true, checkBoxHideDuplicate.isSelected());
+            sequenceRetrieverNewLineView.initializeLineView(sequenceDB, checkBoxHideDuplicate.isSelected());
             seqScrollPane.setViewportView(sequenceRetrieverNewLineView);
         } else {
             seqScrollPane.setViewportView(seqViewWPanel);
@@ -193,4 +193,13 @@ public final class RetrievedSequencesPanel extends SequenceViewWidget {
 		return selectedSequence;
 	}
 
+	boolean isDNA = true;
+	
+	public boolean isDNA() {
+		return isDNA;
+	}
+
+	public void setDNA(boolean isDNA) {
+		this.isDNA = isDNA;
+	}
 }

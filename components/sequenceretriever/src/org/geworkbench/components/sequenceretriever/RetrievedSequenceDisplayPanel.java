@@ -11,15 +11,13 @@ import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Set;
 import java.util.TreeSet;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
@@ -57,7 +55,7 @@ public final class RetrievedSequenceDisplayPanel extends JPanel {
 	private JTable table;
 	private int selected = 0;
 
-	private DSSequenceSet<DSSequence> sequenceDB = null;
+	DSSequenceSet<DSSequence> sequenceDB = null;
 	private HashMap<CSSequence, PatternSequenceDisplayUtil> sequencePatternmatches;
 	private HashMap<String, RetrievedSequenceView> retrievedMap = new HashMap<String, RetrievedSequenceView>();
 	private boolean lineView;
@@ -65,7 +63,7 @@ public final class RetrievedSequenceDisplayPanel extends JPanel {
 
 	private double yBasescale;
 	private int xBaseCols;
-	private int[] eachSeqStartRowNum;
+//	private int[] eachSeqStartRowNum;
 	private double xBasescale;
 	private int seqXclickPoint = 0;
 	private DSSequence selectedSequence;
@@ -79,7 +77,7 @@ public final class RetrievedSequenceDisplayPanel extends JPanel {
 		}
 	}
 
-	private RetrievedSequenceTableModel model = new RetrievedSequenceTableModel();
+	private RetrievedSequenceTableModel model = new RetrievedSequenceTableModel(this);
 	
 	private void jbInit() throws Exception {
 		table = new JTable(model);
@@ -101,7 +99,7 @@ public final class RetrievedSequenceDisplayPanel extends JPanel {
 			public void mouseClicked(MouseEvent e) {
 				int row = table.rowAtPoint(e.getPoint());
 				if (row != -1) {
-					selectedSequence = (DSSequence) sequenceDB.get(row);
+					selectedSequence = (DSSequence) sequenceDB.get(row); // FIXME java.lang.NullPointerException
 					int column = table.columnAtPoint(e.getPoint());
 					if (column == 2) {
 						Object sequence = sequenceDB.get(row);
@@ -164,10 +162,10 @@ public final class RetrievedSequenceDisplayPanel extends JPanel {
 	}
 
 	// called only from RetreivedSequencesPanel.initPanelView
-	void initialize(DSSequenceSet<DSSequence> seqDB, boolean isLineView, boolean hideDuplicate) {
+	void initializeLineView(DSSequenceSet<DSSequence> seqDB, boolean hideDuplicate) {
 		sequenceDB = seqDB;
-		refreshSequenceNameList(hideDuplicate);
-		lineView = isLineView;
+		model.resetNameList(hideDuplicate);
+		lineView = true;
 		try {
 			this.removeAll();
 			this.jbInit();
@@ -211,12 +209,12 @@ public final class RetrievedSequenceDisplayPanel extends JPanel {
 		DSSequence mouseSelectedSequence;
 		if (!lineView) {
 			mouseSelected = getSeqIdInFullView(y);
-			if (eachSeqStartRowNum != null
-					&& mouseSelected < eachSeqStartRowNum.length) {
-				mouseMovePoint = (int) ((int) ((y - yOff - 1 - ((double) eachSeqStartRowNum[mouseSelected])
-						* yBasescale) / yBasescale)
-						* xBaseCols + x / xBasescale - 5);
-			}
+//			if (eachSeqStartRowNum != null
+//					&& mouseSelected < eachSeqStartRowNum.length) {
+//				mouseMovePoint = (int) ((int) ((y - yOff - 1 - ((double) eachSeqStartRowNum[mouseSelected])
+//						* yBasescale) / yBasescale)
+//						* xBaseCols + x / xBasescale - 5);
+//			}
 		} else {
 			if (!singleSequenceView) {
 				mouseSelected = getSeqId(y);
@@ -253,16 +251,16 @@ public final class RetrievedSequenceDisplayPanel extends JPanel {
 	 * @return int
 	 */
 	private int getSeqIdInFullView(int y) {
-		double yBase = (y - yOff - 3) / yBasescale + 1;
-		if (eachSeqStartRowNum != null) {
-			for (int i = 0; i < eachSeqStartRowNum.length; i++) {
-				if (eachSeqStartRowNum[i] > yBase) {
-					return Math.max(0, i - 1);
-				}
-
-			}
-			return Math.max(0, eachSeqStartRowNum.length - 1);
-		}
+//		double yBase = (y - yOff - 3) / yBasescale + 1;
+//		if (eachSeqStartRowNum != null) {
+//			for (int i = 0; i < eachSeqStartRowNum.length; i++) {
+//				if (eachSeqStartRowNum[i] > yBase) {
+//					return Math.max(0, i - 1);
+//				}
+//
+//			}
+//			return Math.max(0, eachSeqStartRowNum.length - 1);
+//		}
 		return 0;
 	}
 
@@ -417,137 +415,19 @@ public final class RetrievedSequenceDisplayPanel extends JPanel {
 		return tip;
 	}
 
-	private class RetrievedSequenceTableModel extends AbstractTableModel {
-		private static final long serialVersionUID = -6009654606398029902L;
-
-		private List<String> sequenceNames;
-		
-		RetrievedSequenceTableModel() {
-			resetNameList(false);
-		}
-		
-		private void resetNameList(boolean hideDuplicate) {
-			if(sequenceDB==null)return;
-			
-			sequenceNames = new ArrayList<String>();
-			List<String> startingSites = new ArrayList<String>();
-			
-			for(DSSequence sequence: sequenceDB) {
-				String n = sequence.toString();
-				int i = n.lastIndexOf("_");
-				i = n.lastIndexOf("_", i);
-				String startingSite = n.substring(i);
-				if(!hideDuplicate || !startingSites.contains(startingSite)) {
-					sequenceNames.add(n);
-					startingSites.add(startingSite);
-				}
-			}
-		}
-		
-		public void refreshSequenceNameList(boolean hideDuplicate) {
-			resetNameList(hideDuplicate);
-			this.fireTableDataChanged();
-		}
-		
-		@Override
-		public String getColumnName(int column) {
-			switch (column) {
-			case 0:
-				return "Include";
-			case 1:
-				return "Name";
-			case 2:
-				return "Sequence Detail";
-			default:
-				return "Sequence Detail";
-			}
-		}
-
-		@Override
-		public int getRowCount() {
-			if (sequenceNames == null) {
-				return 0;
-			} else {
-				return sequenceNames.size();
-			}
-		}
-
-		@Override
-		public int getColumnCount() {
-			if (sequenceNames == null) {
-				return 0;
-			} else {
-				return 3;
-			}
-		}
-
-		@Override
-		public Object getValueAt(int rowIndex, int columnIndex) {
-			String sequenceName = sequenceNames.get(rowIndex);
-			RetrievedSequenceView retrievedSequenceView = retrievedMap
-					.get(sequenceName);
-			if (retrievedSequenceView == null) {
-				return null;
-			}
-			switch (columnIndex) {
-			case 0:
-				return retrievedSequenceView.isIncluded();
-			case 1:
-				if (sequenceDB.isDNA()) {
-					return sequenceName;
-				} else {
-					return "<html><<font  color=\"#0000FF\"><u>"
-							+ sequenceName + "</u></font>";
-				}
-			case 2:
-				return retrievedSequenceView;
-			default:
-				return sequenceName;
-			}
-		}
-
-		@Override
-		public Class<?> getColumnClass(int columnIndex) {
-			switch (columnIndex) {
-			case 0:
-				return Boolean.class;
-			case 2:
-				return RetrievedSequenceView.class;
-			default:
-				return String.class;
-			}
-		}
-
-		/*
-		 * returns if the cell is editable; returns false for all cells in
-		 * columns except the first column (check box)
-		 */
-		@Override
-		public boolean isCellEditable(int row, int col) {
-			return col == 0;
-		}
-
-		/*
-		 * detect change in cell at (row, col); set cell to value; update the
-		 * table
-		 */
-		@Override
-		public void setValueAt(Object value, int row, int col) {
-			String sequenceName = sequenceNames.get(row);
-			if (sequenceName != null) {
-				RetrievedSequenceView retrievedSequenceView = retrievedMap
-						.get(sequenceName);
-				if (value != null) {
-					retrievedSequenceView.setIncluded(((Boolean) value)
-							.booleanValue());
-				}
-			}
-			fireTableCellUpdated(row, col);
-		}
-
+	public void refreshSequenceNameList(boolean hideDuplicate) {
+		model.resetNameList(hideDuplicate);
 	}
 
-	public void refreshSequenceNameList(boolean hideDuplicate) {
-		model.refreshSequenceNameList(hideDuplicate);
+	public RetrievedSequenceView getRetrievedSequenceView(String sequenceName) {
+		return retrievedMap.get(sequenceName);
+	}
+
+	public Set<String> getSequencesNames() {
+		return retrievedMap.keySet();
+	}
+
+	public boolean isDNA() {
+		return retrievedSequencesPanel.isDNA();
 	}
 }
