@@ -360,7 +360,7 @@ public class CaArray2Component implements VisualPlugin {
 			}
 
 			microarraySet.add(microarray);
-			desc += experimentName + "_" + hybridizationName + " ";
+			desc = experimentName;
 			
 			publishCaArraySuccessEvent(caArraySuccessEvent);
 			number++;
