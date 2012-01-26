@@ -336,8 +336,7 @@ public class CaArray2Component implements VisualPlugin {
 			throws Exception {
 		CSMicroarraySet microarraySet = null;
 
-		String desc = "";
-		if(hybridzations.size()>1)desc = "Merged DataSet: ";
+		String desc = "";		
 
 		int number = 0;
 		CaArraySuccessEvent caArraySuccessEvent = new CaArraySuccessEvent(hybridzations.size());
