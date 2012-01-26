@@ -1284,8 +1284,8 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 	@Override
 	public String getDataSetHistory() {			 
 		StringBuffer histStr = new StringBuffer("Generated with MRA run with parameters:\n");
-		 
-		histStr .append( "\n[PARA] Load Network: " +getAdjMatrixDataSet().getDataSetName()  ).append("\n");
+		AdjacencyMatrixDataSet adjset = getAdjMatrixDataSet();
+		histStr .append( "\n[PARA] Load Network: " +(adjset==null?networkFilename:adjset.getDataSetName())  ).append("\n");
 		histStr .append( "[PARA] FET/GSEA p-value : " + pValueTextField.getText() ).append("\n");
 		histStr .append( "[PARA] Minimum number of Targets : " + mintg.getText() ).append("\n");
 		histStr .append( "[PARA] GSEA Tail : " + tail.getText() ).append("\n");
