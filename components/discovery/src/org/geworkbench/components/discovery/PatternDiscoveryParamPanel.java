@@ -53,7 +53,6 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel {
 	static final String SUPPORT_SEQUENCES = "Support (Number of Sequences)";
 	static final String SUPPORT_PERCENT_1_100 = "Support (Percent of Sequences)";
 
-	private JTextField jMinPatternNoBox = new JTextField();
 	private JLabel jMinClusterSizeLabel = new JLabel();
 	private JLabel jMinPatternNoLabel = new JLabel();
 
@@ -189,10 +188,8 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel {
 		jConsRegionExtBox.setEnabled(false);
 		jConsRegionExtBox.setText("");
 
-		jMinPatternNoBox.setPreferredSize(new Dimension(20, 20));
-
 		minPatternNumberField.setMaximumSize(size1);
-		minPatternNumberField.setText("");
+		minPatternNumberField.setText("10");
 		minPatternNumberField.setInputVerifier(new RegularExpressionVerifier(
 		"((\\d){1,10})?"));
 		jMinClusterSizeBox.setPreferredSize(new Dimension(20, 20));
@@ -207,10 +204,9 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel {
 				"((\\d){1,10}(.))?(\\d){1,10}"));
 
 		jMinPatternNoLabel.setText("Min. Pattern Number:");
-		jMinPatternNoBox.setText("10");
 		jMinClusterSizeLabel.setText("Min. Cluster Size:");
 
-		jMinPatternNoBox.setInputVerifier(new RegularExpressionVerifier(
+		minPatternNumberField.setInputVerifier(new RegularExpressionVerifier(
 				"(\\d){1,9}"));
 
 		Border emptyBorder = BorderFactory.createEmptyBorder(5, 5, 5, 5);
@@ -587,7 +583,7 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel {
 	}
 
 	public int getMinPatternNo() {
-		return (Integer.parseInt(jMinPatternNoBox.getText()));
+		return (Integer.parseInt(minPatternNumberField.getText()));
 	}
 
 	/**
