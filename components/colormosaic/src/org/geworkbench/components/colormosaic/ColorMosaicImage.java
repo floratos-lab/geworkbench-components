@@ -820,12 +820,13 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 		setFont();
 		for (int patId = 0; patId < clusterNo; patId++) {
 			EisenBlock cl = cluster[patId];
+			if(cl==null) continue; // necessary only because of asynchronous behavior
 			int geneNumber = cl.getMarkerNo();
 
 			geneNo += geneNumber;
 			for (int i = 0; i < geneNumber; i++) {
 				DSGeneMarker stats = cl.getGeneLabel(i);
-				if(stats==null) return; // necessary only because of asynchronous behavior
+				if(stats==null) continue; // necessary only because of asynchronous behavior
 
 				String label = stats.getShortName();
 				String accession = stats.getLabel();
