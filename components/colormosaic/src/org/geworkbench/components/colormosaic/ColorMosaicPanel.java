@@ -22,6 +22,7 @@ import java.awt.print.PageFormat;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -45,6 +46,7 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -542,7 +544,12 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
     private void jHideMaskedBtn_actionPerformed(ActionEvent e) {
         if (colorMosaicImage.isDisplayable()) {
             if (jHideMaskedBtn.isSelected()) {
-                displayMosaic();
+            	if(significanceMode) {
+            		refreshSignificanceResultView();
+            		return;
+            	} else {
+            		displayMosaic();
+            	}
             } else {
                 clearMosaic();
             } 
@@ -869,10 +876,64 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         colorMosaicImage.setSignal(showSignal);
     }
 
+	// this should be called only from EDT
+	private void refreshSignificanceResultView() {
+		significance = sigSet;
+		DSMicroarraySet set = sigSet.getParentDataSet();
+		jToggleSortButton.setEnabled(true);
+		exportButton.setEnabled(true);
+		jExportItem.setEnabled(true);
+
+		// by default color mosaic displays unsorted markers
+		jToggleSortButton.setSelected(false);
+		if (colorMosaicImage.getChips() != set) {
+			colorMosaicImage.setChips(set);
+		}
+		// // Make panels from the significance data and display only that
+		// Pheno
+		CSPanel<DSMicroarray> phenoPanel = new CSPanel<DSMicroarray>(
+				"Phenotypes");
+		DSItemList<DSPanel<DSMicroarray>> list = phenoPanel.panels();
+		list.clear();
+		DSAnnotationContext<DSMicroarray> context = CSAnnotationContextManager
+				.getInstance().getCurrentContext(set);
+		for (int i = 0; i < 2; i++) {
+			String[] labels = sigSet.getLabels(i);
+			for (int j = 0; j < labels.length; j++) {
+				DSPanel<DSMicroarray> p = new CSPanel<DSMicroarray>(
+						context.getItemsWithLabel(labels[j]));
+				if (p != null) {
+					p.setActive(true);
+					phenoPanel.panels().add(p);
+				}
+			}
+		}
+
+		setMicroarrayPanel(phenoPanel);
+		// Markers
+		CSPanel<DSGeneMarker> genePanel = new CSPanel<DSGeneMarker>("Markers");
+		sigSet.getSignificantMarkers().setActive(true);
+		genePanel.panels().add(sigSet.getSignificantMarkers());
+		setMarkerPanel(genePanel);
+		sortByTValue(genePanel);
+		// Force all arrays and all markers off
+		jAllMArrays.setSelected(false);
+		colorMosaicImage.showAllMArrays(jAllMArrays.isSelected());
+		jAllMarkers.setSelected(false);
+		colorMosaicImage.showAllMarkers(jAllMarkers.isSelected());
+		jHideMaskedBtn.setSelected(true);
+		jAllMArrays.setEnabled(false);
+		jAllMarkers.setEnabled(false);
+
+		setSignificance(sigSet);
+		displayMosaic();
+		revalidate();
+		mainPanel.repaint();
+	}
     
     @SuppressWarnings("unchecked")
     @Subscribe public void receive(ProjectEvent projectEvent, Object source) {
-        DSDataSet<?> dataFile = projectEvent.getDataSet();
+        final DSDataSet<?> dataFile = projectEvent.getDataSet();
         significanceMode = false;
         jAllMArrays.setEnabled(true);
         jAllMarkers.setEnabled(true);
@@ -911,55 +972,27 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
 
             } else if (dataFile instanceof DSSignificanceResultSet) {          
                 significanceMode = true;
-                sigSet = (DSSignificanceResultSet<DSGeneMarker>) dataFile;                
-                significance = sigSet;         
-                DSMicroarraySet set = sigSet.getParentDataSet();             
-                jToggleSortButton.setEnabled(true);
-                exportButton.setEnabled(true);
-                jExportItem.setEnabled(true);
+        		sigSet = (DSSignificanceResultSet<DSGeneMarker>) dataFile;
+                if(SwingUtilities.isEventDispatchThread()) {
+                	refreshSignificanceResultView();
+                } else {
+                	log.debug("non-EDT");
+                	try {
+						SwingUtilities.invokeAndWait(new Runnable() {
 
-                // by default color mosaic displays unsorted markers
-                jToggleSortButton.setSelected(false);
-                if (colorMosaicImage.getChips() != set) {
-                    colorMosaicImage.setChips(set);
+							@Override
+							public void run() {
+								refreshSignificanceResultView();
+							}
+							
+						});
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					} catch (InvocationTargetException e) {
+						e.printStackTrace();
+					}
+                	
                 }
-                //// Make panels from the significance data and display only that
-                // Pheno
-                CSPanel<DSMicroarray> phenoPanel = new CSPanel<DSMicroarray>("Phenotypes");
-                DSItemList<DSPanel<DSMicroarray>> list = phenoPanel.panels();
-           		list.clear(); 
-                DSAnnotationContext<DSMicroarray> context = CSAnnotationContextManager.getInstance().getCurrentContext(set);
-                for (int i = 0; i < 2; i++) {
-                    String[] labels = sigSet.getLabels(i);
-                    for (int j = 0; j < labels.length; j++) {
-                        DSPanel<DSMicroarray> p = new CSPanel<DSMicroarray>(context.getItemsWithLabel(labels[j]));
-                        if (p != null) {
-                            p.setActive(true);
-                            phenoPanel.panels().add(p);
-                        }
-                    }
-                }
-
-                setMicroarrayPanel(phenoPanel);
-                // Markers
-                CSPanel<DSGeneMarker> genePanel = new CSPanel<DSGeneMarker>("Markers");
-                sigSet.getSignificantMarkers().setActive(true);
-                genePanel.panels().add(sigSet.getSignificantMarkers());
-                setMarkerPanel(genePanel);
-                sortByTValue(genePanel);
-                // Force all arrays and all markers off
-                jAllMArrays.setSelected(false);
-                colorMosaicImage.showAllMArrays(jAllMArrays.isSelected());
-                jAllMarkers.setSelected(false);
-                colorMosaicImage.showAllMarkers(jAllMarkers.isSelected());
-                jHideMaskedBtn.setSelected(true);
-                jAllMArrays.setEnabled(false);
-               jAllMarkers.setEnabled(false);
-
-                setSignificance(sigSet);
-                displayMosaic();
-                revalidate();
-                mainPanel.repaint();
             }
         } else {
             jHideMaskedBtn.setSelected(false);
