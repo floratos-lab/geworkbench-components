@@ -90,7 +90,7 @@ public class Phenotype implements Serializable {
 	
 	public String getPhenotypeInArrayNames(){
 		String s="Phenotype:"+"\n";
-		ArrayList list=new ArrayList(columnIncluded);
+		ArrayList<Integer> list=new ArrayList<Integer>(columnIncluded);
 		Collections.sort(list);
 		for(int i=0;i<list.size();i++){
 			s+=maSet.get((Integer)list.get(i)-1)+"\t";
@@ -101,7 +101,7 @@ public class Phenotype implements Serializable {
 	
 	public String getExcludeInArrayNames(){
 		String s="Exclude:"+"\n";
-		ArrayList list=new ArrayList(columnExcluded);
+		ArrayList<Integer> list=new ArrayList<Integer>(columnExcluded);
 		Collections.sort(list);
 		for(int i=0;i<list.size();i++){
 			s+=maSet.get((Integer)list.get(i)-1)+"\t";
