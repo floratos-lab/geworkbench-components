@@ -825,6 +825,7 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 			geneNo += geneNumber;
 			for (int i = 0; i < geneNumber; i++) {
 				DSGeneMarker stats = cl.getGeneLabel(i);
+				if(stats==null) return; // necessary only because of asynchronous behavior
 
 				String label = stats.getShortName();
 				String accession = stats.getLabel();
