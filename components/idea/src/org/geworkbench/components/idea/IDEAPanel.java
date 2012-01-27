@@ -77,7 +77,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 	private ArrayList<String> adjModel=new ArrayList<String>();
 	private static final String FROM_FILE = "From File";
 	private static final String FROM_FILE_LAB = "From File (Lab Format)";
-	private static final String FROM_FILE_ADJ = "From File (ADJ Format)";
+	private static final String FROM_FILE_ADJ = "From File";
 	private static final String FROM_SETS = "From Set";
 	private static final String FROM_PROJECT = "From Project";
 	private static final String[] NETWORK_FROM = { FROM_PROJECT, FROM_FILE_ADJ, FROM_FILE_LAB};
