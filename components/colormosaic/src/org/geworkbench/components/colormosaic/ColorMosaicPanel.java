@@ -22,7 +22,6 @@ import java.awt.print.PageFormat;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -270,7 +269,7 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
 
         jHideMaskedBtn.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                jHideMaskedBtn_actionPerformed(e);
+                jHideMaskedBtn_actionPerformed();
             }
         });
 
@@ -541,7 +540,8 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
 		}
     }
 
-    private void jHideMaskedBtn_actionPerformed(ActionEvent e) {
+    /* invoke from EDT only */
+    private void jHideMaskedBtn_actionPerformed() {
         if (colorMosaicImage.isDisplayable()) {
             if (jHideMaskedBtn.isSelected()) {
             	if(significanceMode) {
@@ -950,7 +950,7 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
                     colorMosaicImage.clearSignificanceResultSet();
                     colorMosaicImage.showAllMArrays(true); 
                     colorMosaicImage.showAllMarkers(true);
-                    if (jHideMaskedBtn.isSelected())  jHideMaskedBtn_actionPerformed(null);
+                    if (jHideMaskedBtn.isSelected())  jHideMaskedBtn_actionPerformed();
                 } else{
                 	colorMosaicImage.clearSignificanceResultSet();
                     colorMosaicImage.showAllMArrays(true); 
@@ -977,8 +977,8 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
                 	refreshSignificanceResultView();
                 } else {
                 	log.debug("non-EDT");
-                	try {
-						SwingUtilities.invokeAndWait(new Runnable() {
+
+                	SwingUtilities.invokeLater(new Runnable() {
 
 							@Override
 							public void run() {
@@ -986,12 +986,6 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
 							}
 							
 						});
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					} catch (InvocationTargetException e) {
-						e.printStackTrace();
-					}
-                	
                 }
             }
         } else {
@@ -1020,7 +1014,7 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         	setMarkerPanel(null);
         DSPanel<DSMicroarray> pl = e.getTaggedItemSetTree();
         setMicroarrayPanel(pl);    
-        jHideMaskedBtn_actionPerformed(null); 
+        jHideMaskedBtn_actionPerformed(); 
     }
 
     private GeneSelectorEvent gse = null;
@@ -1034,7 +1028,19 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
 			colorMosaicImage.pValueWidth = 18;
 			colorMosaicImage.isPrintPValue = true;
 			setMarkerPanel(panel);
-			jHideMaskedBtn_actionPerformed(null);
+			if(SwingUtilities.isEventDispatchThread()) {
+				jHideMaskedBtn_actionPerformed();
+			} else {
+            	log.debug("non-EDT");
+				SwingUtilities.invokeLater(new Runnable() {
+
+						@Override
+						public void run() {
+							jHideMaskedBtn_actionPerformed();
+						}
+						
+					});
+			}
         } 
     }   
     
