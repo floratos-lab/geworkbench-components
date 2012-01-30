@@ -77,6 +77,7 @@ import cytoscape.giny.FingCyNetwork;
 import cytoscape.init.CyInitParams;
 import cytoscape.layout.AbstractLayout;
 import cytoscape.layout.LayoutTask;
+import cytoscape.task.ui.JTaskConfig;
 import cytoscape.task.util.TaskManager;
 import cytoscape.util.CytoscapeToolBar;
 import cytoscape.view.CyNetworkView;
@@ -994,10 +995,15 @@ public class CytoscapeWidget implements VisualPlugin {
 			return;
 		}
 
-		AbstractLayout layout = new ForceDirectedLayout();
-		TaskManager.executeTask(new LayoutTask(layout, Cytoscape
-				.getCurrentNetworkView()), LayoutTask.getDefaultTaskConfig());
-
+	 
+		
+	   AbstractLayout layout = new ForceDirectedLayout();
+	   TaskManager.executeTask(new LayoutTask(layout, Cytoscape
+				.getCurrentNetworkView()),  getDefaultTaskConfig());
+				//.getCurrentNetworkView()), LayoutTask.getDefaultTaskConfig());
+		 
+	 
+		
 		if (cancelList.contains(adjMatrixId)) {
 			log.info("got cancel action");
 			return;
@@ -1015,6 +1021,21 @@ public class CytoscapeWidget implements VisualPlugin {
 
 	}
 
+	private JTaskConfig getDefaultTaskConfig() {
+		JTaskConfig result = new JTaskConfig();
+
+		result.displayCancelButton(true);
+		result.displayCloseButton(false);
+		result.displayStatus(true);
+		result.displayTimeElapsed(false);
+		result.setAutoDispose(true);
+		result.setModal(true);
+		result.setOwner(null);
+
+		return result;
+	}
+	
+	
 	public void setNodeSelectColorToDefault() {
 		Color c = Cytoscape.getVisualMappingManager().getVisualStyle()
 				.getGlobalAppearanceCalculator().getDefaultNodeSelectionColor();
