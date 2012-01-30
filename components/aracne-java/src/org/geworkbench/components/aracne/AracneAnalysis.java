@@ -708,8 +708,26 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 	@Subscribe
 	public void receive(GeneSelectorEvent e, Object source) {
 		if (e.getPanel() != null) {
-			DSPanel<DSGeneMarker> selectorPanel = e.getPanel();
-			((AracneParamPanel) aspp).setSelectorPanel(selectorPanel);
+			final DSPanel<DSGeneMarker> selectorPanel = e.getPanel();
+			if (SwingUtilities.isEventDispatchThread()) {
+				((AracneParamPanel) aspp).setSelectorPanel(selectorPanel);
+			} else {
+				try {
+					SwingUtilities.invokeAndWait(new Runnable() {
+
+						@Override
+						public void run() {
+							((AracneParamPanel) aspp)
+									.setSelectorPanel(selectorPanel);
+						}
+
+					});
+				} catch (InterruptedException e1) {
+					e1.printStackTrace();
+				} catch (InvocationTargetException e1) {
+					e1.printStackTrace();
+				}
+			}
 		} else
 			log.debug("Aracne Received Gene Selector Event: Selection panel sent was null");
 	}
