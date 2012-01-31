@@ -265,7 +265,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 
 		DSSignificanceResultSet<DSGeneMarker> sigSet = new CSTTestResultSet<DSGeneMarker>(
 				maSet, "T-Test", caseSet.toArray(new String[0]), controlSet
-						.toArray(new String[0]), criticalPValue
+						.toArray(new String[0]), criticalPValue, isLogNormalized
 
 		);
 

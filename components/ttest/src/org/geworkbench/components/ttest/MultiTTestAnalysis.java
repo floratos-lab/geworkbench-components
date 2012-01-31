@@ -149,7 +149,7 @@ public class MultiTTestAnalysis extends AbstractAnalysis implements
 							panels[testIndex] = new CSPanel<DSGeneMarker>(label);
 							sigSets[testIndex] = new CSTTestResultSet<DSGeneMarker>(
 									maSet, label, new String[] { labelA },
-									new String[] { labelB }, alpha);
+									new String[] { labelB }, alpha, isLogNormalized);
 
 							groupAndChipsStringSets[testIndex] = label + "\n"
 									+ GenerateGroupAndChipsString(panelA)
