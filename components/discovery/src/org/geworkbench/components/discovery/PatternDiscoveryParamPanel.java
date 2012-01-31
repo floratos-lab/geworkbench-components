@@ -12,6 +12,9 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.swing.DefaultSingleSelectionModel;
+import java.awt.KeyboardFocusManager;
+
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
@@ -82,13 +85,13 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel {
 	private JTextField minPatternNumberField = new JTextField();
 	private JTextField jMinClusterSizeBox = new JTextField();
 	private JCheckBox jUseHMMBox = new JCheckBox();
-	
+
 	private String currentSupportMenuStr = SUPPORT_PERCENT_1_100;
 	private int maxSeqNumber = Integer.MAX_VALUE;
 
 	private JRadioButton discovery = new JRadioButton("Normal");
 	private JRadioButton exhaustive = new JRadioButton("Exhaustive");
-
+	
 	public PatternDiscoveryParamPanel() {
 		this.setLayout(new BorderLayout());
 
@@ -191,7 +194,7 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel {
 		minPatternNumberField.setMaximumSize(size1);
 		minPatternNumberField.setText("10");
 		minPatternNumberField.setInputVerifier(new RegularExpressionVerifier(
-		"((\\d){1,10})?"));
+				"((\\d){1,10})?"));
 		jMinClusterSizeBox.setPreferredSize(new Dimension(20, 20));
 		jMinClusterSizeBox.setText("10");
 		jMinClusterSizeBox.setInputVerifier(new RegularExpressionVerifier(
@@ -366,12 +369,38 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel {
 		exhaustivePanel.add(exhaustiveOccurrencePanel);
 		exhaustivePanel.add(exhaustiveSequencePanel);
 
-		JTabbedPane jTabbedPane1 = new JTabbedPane();
+	    JTabbedPane jTabbedPane1;jTabbedPane1 = new JTabbedPane();
 		jTabbedPane1.add(basicPanel, "Basic");
 		jTabbedPane1.add(exhaustivePanel, "Exhaustive");
 		jTabbedPane1.add(limitPanel, "Limits");
-		jTabbedPane1.add(advancedPanel, "Advanced");
-		jTabbedPane1.setSelectedIndex(0);
+		jTabbedPane1.add(advancedPanel, "Advanced");		
+		jTabbedPane1.setSelectedIndex(0);	
+		
+		// set a new model with a custom setSelectedIndex method
+		jTabbedPane1.setModel(new DefaultSingleSelectionModel() {
+			 
+			public void setSelectedIndex(int index) {
+				Component compWithFocus = KeyboardFocusManager
+						.getCurrentKeyboardFocusManager().getFocusOwner();
+
+				if (   compWithFocus != null && compWithFocus instanceof JTextField) {
+					JTextField tf = (JTextField)compWithFocus;
+					if (tf.getInputVerifier() != null)
+					{
+						if (!tf.getInputVerifier().verify(tf))
+						{	   String message = "Data input is not valid, please check and input correct data ";
+						   JOptionPane.showMessageDialog(null, message, "Invalid value",
+								JOptionPane.WARNING_MESSAGE); 
+							return;}
+					}
+					
+				}   
+				super.setSelectedIndex(index);
+			}
+
+		}); 
+		
+		
 
 		this.setPreferredSize(new Dimension(400, 200));
 		this.add(jTabbedPane1, BorderLayout.CENTER);
@@ -402,11 +431,13 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel {
 			// side effects. So temporarily remove the input verifier on the
 			// text
 			// field.
-			input.setInputVerifier(null);
-			// Pop up the message dialog.
+			 input.setInputVerifier(null);
+				
+				
+			// Pop up the message dialog.		   
 			String message = "Data input is not valid, please check and input correct data ";
 			JOptionPane.showMessageDialog(null, message, "Invalid value",
-					JOptionPane.WARNING_MESSAGE);
+					JOptionPane.WARNING_MESSAGE);		 
 
 			// Reinstall the input verifier.
 			input.setInputVerifier(this);
@@ -465,10 +496,11 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel {
 				return true;
 			}
 			input.setInputVerifier(null);
-			// Pop up the message dialog.
+		 
+			// Pop up the message dialog.		  
 			String message = "Data input is not valid, please check and input correct data ";
 			JOptionPane.showMessageDialog(null, message, "Invalid value",
-					JOptionPane.WARNING_MESSAGE);
+					JOptionPane.WARNING_MESSAGE); 
 
 			// Reinstall the input verifier.
 			input.setInputVerifier(this);
@@ -476,6 +508,9 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel {
 			return false;
 		}
 
+		
+		
+		
 		public boolean verify(JComponent input) {
 			JTextField tf = (JTextField) input;
 			Matcher m = p.matcher(tf.getText());
@@ -494,7 +529,7 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel {
 
 			return match;
 		}// end of verify()
-	}
+	} 
 
 	private void jSupportMenu_actionPerformed() {
 		String selectedSupportStr = (String) jMinSupportMenu.getSelectedItem();
