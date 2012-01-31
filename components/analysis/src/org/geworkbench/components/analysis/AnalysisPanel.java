@@ -625,7 +625,7 @@ public class AnalysisPanel extends CommandBase implements
 					return;
 				}
 			}
-			if (selectedAnalysis != null && paramName != null) {
+			if (paramName != null) {
 
 				selectedAnalysis.saveParameters(paramName);
 
@@ -800,13 +800,11 @@ public class AnalysisPanel extends CommandBase implements
 			onlyActivatedArrays = true;
 
 			ParameterPanelIncludingNormalized p = (ParameterPanelIncludingNormalized)currentParameterPanel;
-			Boolean isLogNormalized = p.isLogNormalized();
+			boolean isLogNormalized = p.isLogNormalized();
 
-			Boolean isLogNormalizedFromGuess = guessLogNormalized(maSetView);
+			boolean isLogNormalizedFromGuess = guessLogNormalized(maSetView);
 
-			if (isLogNormalizedFromGuess != null
-					&& isLogNormalizedFromGuess.booleanValue() != isLogNormalized
-							.booleanValue()) {
+			if (isLogNormalizedFromGuess != isLogNormalized) {
 				String theMessage = "The checkbox 'Data is log2-tranformed' may not be set correctly. Do you want to proceed anyway?";
 				int result = JOptionPane.showConfirmDialog((Component) null,
 						theMessage, "alert", JOptionPane.YES_NO_OPTION);
@@ -1123,12 +1121,12 @@ public class AnalysisPanel extends CommandBase implements
 		Arrays.sort(availableCommands, comparator);
 	}
 	
-	private Boolean guessLogNormalized(DSMicroarraySetView<DSGeneMarker, DSMicroarray> data) {
+	private boolean guessLogNormalized(DSMicroarraySetView<DSGeneMarker, DSMicroarray> data) {
 		if (data == null) {
-			return null;
+			return false;
 		}
 		
-		Boolean isLogNormalized = null;
+		boolean isLogNormalized = false;
 		try {
 			DSDataSet<DSMicroarray> set = data.getDataSet();
 			if (set instanceof DSMicroarraySet) {
