@@ -3,6 +3,9 @@ package edu.columbia.geworkbench.cagrid.discovery.client;
 import gov.nih.nci.cagrid.discovery.client.DiscoveryClient;
 import gov.nih.nci.cagrid.metadata.MetadataUtils;
 import gov.nih.nci.cagrid.metadata.ServiceMetadata;
+import gov.nih.nci.cagrid.metadata.exceptions.QueryInvalidException;
+import gov.nih.nci.cagrid.metadata.exceptions.RemoteResourcePropertyRetrievalException;
+import gov.nih.nci.cagrid.metadata.exceptions.ResourcePropertyRetrievalException;
 
 import org.apache.axis.message.addressing.EndpointReferenceType;
 import org.apache.axis.types.URI.MalformedURIException;
@@ -43,38 +46,25 @@ public class AnalyticalServiceDiscoveryClient extends DiscoveryClient {
 	 * Get all the services from the Index service running on the localhost.
 	 * 
 	 * @return EndpointReferenceType[]
+	 * @throws ResourcePropertyRetrievalException 
+	 * @throws QueryInvalidException 
+	 * @throws RemoteResourcePropertyRetrievalException 
 	 */
-	public EndpointReferenceType[] getAllServices() {
-		return getAllServices(url);
-	}
-
-	/**
-	 * Get all the services from the Index service running on a server at the
-	 * supplied url.
-	 * 
-	 * @param url
-	 * @return EndpointReferenceType[]
-	 */
-	public EndpointReferenceType[] getAllServices(String url) {
+	public EndpointReferenceType[] getAllServices()
+			throws MalformedURIException,
+			RemoteResourcePropertyRetrievalException, QueryInvalidException,
+			ResourcePropertyRetrievalException {
 		AnalyticalServiceDiscoveryClient client = null;
-		try {
-			if (url != null) {
-				client = new AnalyticalServiceDiscoveryClient(url);
-			} else {
-				client = new AnalyticalServiceDiscoveryClient();
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
+
+		if (url != null) {
+			client = new AnalyticalServiceDiscoveryClient(url);
+		} else {
+			client = new AnalyticalServiceDiscoveryClient();
 		}
 
-		EndpointReferenceType[] allServices = null;
-		try {
-			/* If true, returns only services with standard metadata. */
-			// allServices = client.getAllServices( true );
-			allServices = client.getAllServices(false);
-		} catch (Exception e1) {
-			e1.printStackTrace();
-		}
+		/* If true, returns only services with standard metadata. */
+		// allServices = client.getAllServices( true );
+		 EndpointReferenceType[] allServices = client.getAllServices(false);
 
 		if (allServices != null) {
 			for (int i = 0; i < allServices.length; i++) {
@@ -83,8 +73,6 @@ public class AnalyticalServiceDiscoveryClient extends DiscoveryClient {
 				try {
 					ServiceMetadata commonMetadata = MetadataUtils
 							.getServiceMetadata(service);
-					log.info(commonMetadata.getServiceDescription()
-							.getService().getDescription());
 					if (commonMetadata != null
 							&& commonMetadata.getHostingResearchCenter() != null
 							&& commonMetadata.getHostingResearchCenter()
@@ -107,57 +95,4 @@ public class AnalyticalServiceDiscoveryClient extends DiscoveryClient {
 		return allServices;
 	}
 
-	/**
-	 * Tests the discovery of analytical services.
-	 */
-	public static void main(String[] args) {
-
-		AnalyticalServiceDiscoveryClient client = null;
-		try {
-			if (args.length == 1) {
-				client = new AnalyticalServiceDiscoveryClient(args[0]);
-			} else {
-				client = new AnalyticalServiceDiscoveryClient();
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		EndpointReferenceType[] allServices = null;
-		try {
-			// allServices = client.getAllServices( true );
-			allServices = client.getAllServices(false);
-		} catch (Exception e1) {
-			e1.printStackTrace();
-		}
-
-		if (allServices != null) {
-			for (int i = 0; i < allServices.length; i++) {
-				EndpointReferenceType service = allServices[i];
-				log.info(service.getAddress());
-				try {
-					ServiceMetadata commonMetadata = MetadataUtils
-							.getServiceMetadata(service);
-					log.info(commonMetadata.getServiceDescription()
-							.getService().getDescription());
-					if (commonMetadata != null
-							&& commonMetadata.getHostingResearchCenter() != null
-							&& commonMetadata.getHostingResearchCenter()
-									.getResearchCenter() != null) {
-						log.info("Service is from:"
-								+ commonMetadata.getHostingResearchCenter()
-										.getResearchCenter().getDisplayName());
-					}
-				} catch (Exception e) {
-					// e.printStackTrace();
-					log
-							.error("Unable to access service's standard resource properties: "
-									+ e.getMessage());
-				}
-			}
-		} else {
-			log.warn("No services found.");
-
-		}
-	}
 }
