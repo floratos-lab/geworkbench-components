@@ -186,7 +186,7 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
                             out.close();
                         }
                     }
-                    catch(Exception e){}
+                    catch(IOException e){}
                 }
             }
         }
