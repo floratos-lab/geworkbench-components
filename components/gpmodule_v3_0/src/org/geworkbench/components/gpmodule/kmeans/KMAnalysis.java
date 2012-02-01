@@ -1,7 +1,9 @@
 package org.geworkbench.components.gpmodule.kmeans;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -71,22 +73,17 @@ public class KMAnalysis extends GPAnalysis{
 		return localAnalysisType;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public AlgorithmExecutionResults execute(Object input) {
-		return calculate(input, false);
-	}
-
-	@SuppressWarnings("unchecked")
-	AlgorithmExecutionResults calculate(Object input,
-			boolean calledFromOtherComponent) {
+		
+		if ( !(input instanceof DSMicroarraySetView)) {
+			return new AlgorithmExecutionResults(false, "Invalid input.", null);
+		}
 		
 		DSMicroarraySetView<? extends DSGeneMarker, ? extends DSMicroarray> data = (DSMicroarraySetView<? extends DSGeneMarker, ? extends DSMicroarray>) input;
 		boolean allArrays = !data.useItemPanel();
-		log.info("All arrays: " + allArrays);
-
-		if (input == null || !(input instanceof DSMicroarraySetView)) {
-			return new AlgorithmExecutionResults(false, "Invalid input.", null);
-		}
+		log.debug("All arrays: " + allArrays);
 		
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> view = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
 		
@@ -219,8 +216,10 @@ public class KMAnalysis extends GPAnalysis{
 			in.close();
 			reader.close();			
 		}
-		catch(Exception e){
-			return new AlgorithmExecutionResults(false, "No invalid output.", null);
+		catch(FileNotFoundException e){
+			return new AlgorithmExecutionResults(false, "FileNotFoundException: "+e.getMessage(), null);
+		} catch (IOException e) {
+			return new AlgorithmExecutionResults(false, "IOException: "+e.getMessage(), null);
 		}
 		
 		int dimension;
