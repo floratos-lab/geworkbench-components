@@ -108,7 +108,7 @@ public class GSEABrowser implements VisualPlugin
                 {
 		            tb = new TabBrowser(new URL(gseaURL), useIE);
 				    tb.addWebBrowserListener(new WebTabListener());
-				    tb.setMainBrowser(this);
+				    TabBrowser.setMainBrowser(this);
 				    jp.removeAll();
 				    jp.add(tb, BorderLayout.CENTER);
 				    jtp.addTab(tabtitle, jp);
@@ -199,7 +199,7 @@ public class GSEABrowser implements VisualPlugin
 					// tb.setDebug(true);
 					tb = new org.geworkbench.components.gpmodule.gsea.browser.TabBrowser(new URL(gseaURL), useIE);
 					tb.addWebBrowserListener(new WebTabListener());
-					tb.setMainBrowser(this);
+					TabBrowser.setMainBrowser(this);
 
 					jp.removeAll();
 					jp.add(tb, BorderLayout.CENTER);

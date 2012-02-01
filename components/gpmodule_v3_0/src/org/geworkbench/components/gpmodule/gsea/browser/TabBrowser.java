@@ -51,14 +51,9 @@ public class TabBrowser extends WebBrowser
         return rc;
     }
 
-    public void setMainBrowser(GSEABrowser mainbrowser)
+    public static void setMainBrowser(GSEABrowser mainbrowser)
     {
         gb = mainbrowser;
-    }
-
-    public GSEABrowser getMainBrowser()
-    {
-        return gb;
     }
 
     /**
