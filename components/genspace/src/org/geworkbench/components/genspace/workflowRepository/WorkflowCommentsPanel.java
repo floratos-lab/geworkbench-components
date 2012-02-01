@@ -140,7 +140,7 @@ ActionListener {
 
 	private void removeComment(final WorkflowComment wc,
 			final MyTableModel model) {
-		if (!wc.getCreator().equals(GenSpaceServerFactory.getUser())) {
+		if (wc.getCreator().getId() != GenSpaceServerFactory.getUser().getId()) {
 			JOptionPane.showMessageDialog(null, "You can only delete your own comments.");
 		}
 		
@@ -149,6 +149,12 @@ ActionListener {
 				Boolean ret = GenSpaceServerFactory.getWorkflowOps()
 						.removeComment(wc.getId());
 				GenSpaceServerFactory.updateCachedUser();
+				if(GenSpaceServerFactory.isLoggedIn())
+				{
+					GenSpace.getInstance().getWorkflowRepository().repositoryPanel.tree.root = (GenSpaceServerFactory.getUserOps().getRootFolder());
+					GenSpace.getInstance().getWorkflowRepository().repositoryPanel.tree.recalculateAndReload();
+				}
+//				GenSpace.getInstance().getWorkflowRepository().updateFormFieldsBG();
 				return ret;
 			};
 
@@ -156,7 +162,15 @@ ActionListener {
 				try {
 					if (get()) {
 						model.removeComment(wc);
-					}
+						for(UserWorkflow w : GenSpace.getInstance().getWorkflowRepository().repositoryPanel.tree.root.getWorkflows())
+						{
+							if(w.getWorkflow().getId() == workflow.getId())
+							{
+								GenSpace.getInstance().getWorkflowRepository().workflowCommentsPanel.setData(w.getWorkflow());
+								GenSpace.getInstance().getWorkflowRepository().workflowCommentsPanel.repaint();
+							}
+						}
+				}
 				} catch (InterruptedException e) {
 					GenSpace.logger.warn("Unable to talk to server", e);
 				} catch (ExecutionException e) {
@@ -181,9 +195,8 @@ ActionListener {
 					wc.setComment(comment);
 					wc.setCreatedAt(DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar()));
 					wc.setCreator(GenSpaceServerFactory.getUser());
-					wc.setWorkflow(workflow);
 					WorkflowComment ret =GenSpaceServerFactory.getWorkflowOps()
-							.addComment(wc);
+							.addCommentToWf(wc, workflow);
 					GenSpaceServerFactory.updateCachedUser();
 					if(GenSpaceServerFactory.isLoggedIn())
 					{
