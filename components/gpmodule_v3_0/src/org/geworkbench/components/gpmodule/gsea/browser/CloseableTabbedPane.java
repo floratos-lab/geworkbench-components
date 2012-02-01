@@ -395,7 +395,10 @@ public class CloseableTabbedPane extends JTabbedPane implements MouseListener,
         if ((prop = curPanel.getClientProperty("isClosable")) != null) {
           doPaintCloseIcon = (Boolean) prop;
         }
-      } catch (Exception ignored) {/*Could probably be a ClassCastException*/}
+      } catch (Exception ignored) {
+    	  /*Could probably be a ClassCastException*/
+    	  ignored.printStackTrace();
+      }
       if (doPaintCloseIcon) {
         x_pos = x;
         y_pos = y;
