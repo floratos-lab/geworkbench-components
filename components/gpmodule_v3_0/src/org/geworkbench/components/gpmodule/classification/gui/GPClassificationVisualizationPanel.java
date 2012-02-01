@@ -709,10 +709,10 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
                 {
                     double domainValue = curveChart.getXYPlot().getDomainCrosshairValue();
 
-                    double sliderValue = (domainValue  + 0.01)/0.01;
+                    int sliderValue = (int)Math.round( (domainValue  + 0.01)/0.01 );
 
                     if(confSlider.getValue() != sliderValue)
-                        confSlider.setValue((int)Math.round(sliderValue));
+                        confSlider.setValue(sliderValue);
                 }
             }
         });
