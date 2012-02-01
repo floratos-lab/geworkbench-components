@@ -513,7 +513,13 @@ public class AlgorithmMatcher {
                 }
                 if (ps.isHumanRepeatFilterOn()) {
                     cmd += "&FILTER=R";
+                }               	
+                
+                if (ps.isMaskLookupTable()) {
+                    cmd += "&FILTER=m";
                 }
+                
+                cmd +="&FILTER=F";
                 
                 if (ps.isExcludeModelsOn()){
                 	cmd += "&EXCLUDE_MODELS=yes";
@@ -591,9 +597,7 @@ public class AlgorithmMatcher {
                     cmd += "&LCASE_MASK=yes";
                 }
                 
-                if (ps.isMaskLookupTable()) {
-                    cmd += "&FILTER=m";
-                }
+                
                 if (!ps.getMatrix().startsWith("dna")) {
                     cmd += "&MATRIX_NAME=" + ps.getMatrix().trim();
                 }
@@ -644,8 +648,7 @@ public class AlgorithmMatcher {
             }
 
         }
-        //cmd="&ALIGNMENT_VIEW=Pairwise&ALIGNMENTS=250&BLAST_PROGRAMS=blastp&BLAST_SPEC=&CDD_SEARCH=on&CLIENT=web&CMD=request&COMPOSITION_BASED_STATISTICS=2&DATABASE=swissprot&db=protein&DB_DIR_PREFIX=&DESCRIPTIONS=500&EQ_MENU=&EQ_TEXT=&EXPECT=10&EXPECT_HIGH=&EXPECT_LOW=&FILTER=m&FORMAT_EQ_TEXT=&FORMAT_NUM_ORG=1&FORMAT_OBJECT=Alignment&FORMAT_ORGANISM=&FORMAT_TYPE=HTML&GAPCOSTS=11%201&GENETIC_CODE=1&GET_SEQUENCE=on&HSP_RANGE_MAX=0&I_THRESH=&ID_FOR_PSSM=&JOB_TITLE=&MASK_CHAR=2&MASK_COLOR=1&MATCH_SCORES=&MATRIX_NAME=BLOSUM62&MAX_NUM_SEQ=500&MEGABLAST=&MIXED_DATABASE=&NCBI_GI=&NEW_VIEW=on&NO_COMMON=&NUM_DIFFS=3&NUM_OPTS_DIFFS=2&NUM_ORG=1&NUM_OVERVIEW=100&OLD_BLAST=FALSE&PAGE=Proteins&PAGE_TYPE=BlastSearch&PERC_IDENT_HIGH=&PERC_IDENT_LOW=&PHI_PATTERN=&PROGRAM=blastp&PSI_PSEUDOCOUNT=&PSSM=&QUERY=&QUERY_BELIEVE_DEFLINE=&QUERY_FROM=&QUERY_INDEX=0&QUERY_TO=&REPEATS=repeat_7165&RUN_PSIBLAST=&SAVED_PSSM=&SAVED_SEARCH=&SELECTED_PROG_TYPE=blastp&SERVICE=plain&SHORT_QUERY_ADJUST=on&SHOW_CDS_FEATURE=&SHOW_LINKOUT=on&SHOW_OVERVIEW=on&stype=protein&SUBJECTFILE=&SUBJECTS=&SUBJECTS_FROM=&SUBJECTS_TO=&TEMPLATE_LENGTH=0&TEMPLATE_TYPE=0&TWO_HITS=&UNIQ_DEFAULTS_NAME=&USER_DATABASE=&USER_DEFAULT_MATRIX=3&USER_DEFAULT_PROG_TYPE=blastp&USER_FORMAT_DEFAULTS=&USER_MATCH_SCORES=&USER_WORD_SIZE=&WORD_SIZE=3&WWW_BLAST_TYPE=";
-        //System.out.println(cmd);
+        
         return cmd;
     }
 }
