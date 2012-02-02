@@ -37,6 +37,7 @@ import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.complex.pattern.PatternResult;
+import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.util.RegularExpressionVerifier;
@@ -659,6 +660,79 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel {
 
 		return parameters;
 	}
+	
+	
+	@Override
+	public ParamValidationResults validateParameters() {
+		 
+		if (jMinSupportBox.getInputVerifier().verify(jMinSupportBox) == false)
+		{	 
+			jMinSupportBox.requestFocus();
+			return new ParamValidationResults(false,
+					"Please enter valid data for " + currentSupportMenuStr + "in Basic window.");
+		
+		
+		}  
+	
+		if (jMinTokensBox.getInputVerifier().verify(jMinTokensBox) == false)
+		{	 
+			jMinTokensBox.requestFocus();
+			return new ParamValidationResults(false,
+					"Please enter valid data for Minimum Tokens in Basic window.");
+		}  
+		
+		if (jWindowBox.getInputVerifier().verify(jWindowBox) == false)
+		{	 
+			jWindowBox.requestFocus();
+			return new ParamValidationResults(false,
+					"Please enter valid data for Density Window in Basic window.");
+		}  
+	
+		if (jMinWTokensBox.getInputVerifier().verify(jMinWTokensBox) == false)
+		{	 
+			jMinWTokensBox.requestFocus();
+			return new ParamValidationResults(false,
+					"Please enter valid data for Density Window Min. Tokens in Basic window.");
+		}  
+		
+		if (jDecreaseSupportBox.getInputVerifier().verify(jDecreaseSupportBox) == false)
+		{	 
+			jDecreaseSupportBox.requestFocus();
+			return new ParamValidationResults(false,
+					"Please enter valid data for Decrement Support in Exhaustive window.");
+		}  
+		if (jMinSupportExhaustive.getInputVerifier().verify(jMinSupportExhaustive) == false)
+		{	 
+			jMinSupportExhaustive.requestFocus();
+			return new ParamValidationResults(false,
+					"Please enter valid data for Minimum Support in Exhaustive window.");
+		}  
+		if (minPatternNumberField.getInputVerifier().verify(minPatternNumberField) == false)
+		{	 
+			minPatternNumberField.requestFocus();
+			return new ParamValidationResults(false,
+					"Please enter valid data for Minimum Pattern Support in Exhaustive window.");
+		}  
+	 
+		if (jMaxPatternNoBox.getInputVerifier().verify(jMaxPatternNoBox) == false)
+		{	 
+			jMaxPatternNoBox.requestFocus();
+			return new ParamValidationResults(false,
+					"Please enter valid data for Maximum Pattern Number in Limit window.");
+		}  
+		
+		if (jSimThresholdBox.getInputVerifier().verify(jSimThresholdBox) == false)
+		{	 
+			jSimThresholdBox.requestFocus();
+			return new ParamValidationResults(false,
+					"Please enter valid data for Similarity Threshold in Advanced window.");
+		}  
+		
+		return new ParamValidationResults(true, null);
+	
+	}
+	
+	
 
 	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
 		// TODO Auto-generated method stub
