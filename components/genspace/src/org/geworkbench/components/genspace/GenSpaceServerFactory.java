@@ -2,14 +2,19 @@
 package org.geworkbench.components.genspace;
 
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 
 import javax.swing.JOptionPane;
+import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 
 import org.apache.log4j.Logger;
@@ -40,6 +45,7 @@ public class GenSpaceServerFactory {
 	private static User user;
 	private static String username = null;
 	private static String password = null;
+	private static String SERVER_ADDR = "http://genspace.cs.columbia.edu:8080";
 	
 	public static Logger logger = Logger.getLogger(GenSpaceServerFactory.class);
 //	private static UserFacade userFacade;
@@ -57,6 +63,32 @@ public class GenSpaceServerFactory {
 		loadTools();
 	}
 	
+	public static Object readObject(byte[] data)
+	{
+		ObjectInputStream is;
+		try {
+			is = new ObjectInputStream(new ByteArrayInputStream(data));
+			return is.readObject(); 
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	public static byte[] writeObject(Object o)
+	{
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		ObjectOutputStream oos;
+		try {
+			oos = new ObjectOutputStream(bos);
+			oos.writeObject(o);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return bos.toByteArray();
+	}
 	private static void loadTools()
 	{
 		if(RuntimeEnvironmentSettings.tools == null)
@@ -105,58 +137,92 @@ public class GenSpaceServerFactory {
 	}
 	public synchronized static WorkflowRepository getWorkflowOps()
 	{
-//		if(workflowFacade == null)
-//		{
 		WorkflowRepository workflowFacade;
 			loadTools();
-			workflowFacade = (new WorkflowRepositoryService()).getWorkflowRepositoryPort();
-			addCredentials((BindingProvider) workflowFacade);
-//		}
-		return workflowFacade;
+			try {
+				workflowFacade = (new WorkflowRepositoryService(new URL(SERVER_ADDR+"/WorkflowRepositoryService/WorkflowRepository?wsdl"),  new QName("http://server.genspace.components.geworkbench.org/", "WorkflowRepositoryService"))).getWorkflowRepositoryPort();
+				addCredentials((BindingProvider) workflowFacade);
+				return workflowFacade;
+
+			} catch (MalformedURLException e) {
+				return null;
+			}
 	}
 	public synchronized static ToolUsageInformation getUsageOps()
 	{
 		loadTools();
-		ToolUsageInformation toolUsageFacade = (new ToolUsageInformationService()).getToolUsageInformationPort();
-		return toolUsageFacade;
+		ToolUsageInformation toolUsageFacade;
+		try {
+			toolUsageFacade = (new ToolUsageInformationService(new URL(SERVER_ADDR+"/ToolUsageInformationService/ToolUsageInformation?wsdl"),  new QName("http://server.genspace.components.geworkbench.org/", "ToolUsageInformationService"))).getToolUsageInformationPort();
+			return toolUsageFacade;
+
+		} catch (MalformedURLException e) {
+			return null;
+		}
 	}
 	public synchronized static UserFacade getUserOps()
 	{
 
-		UserFacade userFacade = (new UserFacadeService()).getUserFacadePort();
-		addCredentials((BindingProvider) userFacade);
-		return userFacade;
+		UserFacade userFacade;
+		try {
+			userFacade = (new UserFacadeService(new URL(SERVER_ADDR+"/UserFacadeService/UserFacade?wsdl"),  new QName("http://server.genspace.components.geworkbench.org/", "UserFacadeService"))).getUserFacadePort();
+			addCredentials((BindingProvider) userFacade);
+			return userFacade;
+		} catch (MalformedURLException e) {
+			return null;
+		}
+		
 	}
 	
 	public synchronized static PublicFacade getPublicFacade()
 	{
 		loadTools();
-		PublicFacade publicFacade = (new PublicFacadeService()).getPublicFacadePort();
+		try{
+		PublicFacade publicFacade = (new PublicFacadeService(new URL(SERVER_ADDR+"/PublicFacadeService/PublicFacade?wsdl"),  new QName("http://server.genspace.components.geworkbench.org/", "PublicFacadeService"))).getPublicFacadePort();
 		addCredentials((BindingProvider) publicFacade);
 		return publicFacade;
+		} catch(MalformedURLException e)
+		{
+			return null;
+		}
 	}
 	
 	public synchronized static UsageInformation getPrivUsageFacade()
 	{
 		if(user == null)
 			return null;
-			loadTools();
-		UsageInformation usageFacade = (new UsageInformationService()).getUsageInformationPort();
+		loadTools();
+		try
+		{
+		UsageInformation usageFacade = (new UsageInformationService(new URL(SERVER_ADDR+"/UsageInformationService/UsageInformation?wsdl"),  new QName("http://server.genspace.components.geworkbench.org/", "UsageInformationService"))).getUsageInformationPort();
 			addCredentials((BindingProvider) usageFacade);
 		return usageFacade;
+		} catch (MalformedURLException e)
+		{
+			return null;
+		}
 	}
 	public synchronized static FriendFacade getFriendOps()
 	{
-
-		FriendFacade friendFacade = (new FriendFacadeService()).getFriendFacadePort();
+try{
+		FriendFacade friendFacade = (new FriendFacadeService(new URL(SERVER_ADDR+"/FriendFacadeService/FriendFacade?wsdl"),  new QName("http://server.genspace.components.geworkbench.org/", "FriendFacadeService"))).getFriendFacadePort();
 			addCredentials((BindingProvider) friendFacade);
 		return friendFacade;
+} catch (MalformedURLException e)
+{
+	return null;
+}
 	}
 	public synchronized static NetworkFacade getNetworkOps()
 	{
-		NetworkFacade networkFacade = (new NetworkFacadeService()).getNetworkFacadePort();
+		try{
+		NetworkFacade networkFacade = (new NetworkFacadeService(new URL(SERVER_ADDR+"/NetworkFacadeService/NetworkFacade?wsdl"),  new QName("http://server.genspace.components.geworkbench.org/", "NetworkFacadeService"))).getNetworkFacadePort();
 		addCredentials((BindingProvider) networkFacade);
 		return networkFacade;
+		} catch (MalformedURLException e)
+		{
+			return null;
+		}
 	}
 	
 	
