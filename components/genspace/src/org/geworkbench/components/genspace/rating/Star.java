@@ -10,11 +10,11 @@ public class Star extends JLabel {
 	 */
 	private static final long serialVersionUID = 1764644076700819427L;
 	private static ImageIcon fullStar = new ImageIcon(
-			"components/genspace/src/org/geworkbench/components/genspace/rating/full.png");
+			"components/genspace/classes/org/geworkbench/components/genspace/rating/full.png");
 	private static ImageIcon halfStar = new ImageIcon(
-			"components/genspace/src/org/geworkbench/components/genspace/rating/half.png");
+			"components/genspace/classes/org/geworkbench/components/genspace/rating/half.png");
 	private static ImageIcon emptyStar = new ImageIcon(
-			"components/genspace/src/org/geworkbench/components/genspace/rating/empty.png");
+			"components/genspace/classes/org/geworkbench/components/genspace/rating/empty.png");
 
 	public static final int FULL = 1;
 	public static final int HALF = 2;
