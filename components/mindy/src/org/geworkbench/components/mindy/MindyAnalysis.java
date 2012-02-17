@@ -688,6 +688,14 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 					"Not enough markers in the microarrays. (Need at least 2)\n");
 		}
 
+		List<String> targets = params.getTargetGeneList();
+		String hub = params.getTranscriptionFactor();
+		if (!targets.contains(hub) && !params.getTargetsFrom().getSelectedItem().toString()
+				.equals(MindyParamPanel.FROM_ALL)) {
+			return new ParamValidationResults(false, "Hub marker " + hub
+					+ " is not in the target list.");
+		}
+				
 		ArrayList<String> modulatorGeneList = params.getModulatorGeneList();
 		if ((modulatorGeneList != null) && (modulatorGeneList.size() > 0)) {
 			for (String modGene : modulatorGeneList) {
