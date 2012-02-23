@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.JComboBox;
 import javax.swing.JTextField;
 
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
@@ -30,6 +31,7 @@ public class SkyBaseConfigPanel extends AbstractSaveableParameterPanel {
 	private JTextField mincovEdit = new JTextField();
 	private JTextField minsidEdit = new JTextField();
 	private JTextField rphitsEdit = new JTextField();
+	private JComboBox dbBox = new JComboBox(new String[]{"NESG", "PDB60"});
 
 	private double mincov = 75, minsid = 30; 
 	private int rphits = 10;
@@ -74,6 +76,7 @@ public class SkyBaseConfigPanel extends AbstractSaveableParameterPanel {
 		mincovEdit.addFocusListener(parameterActionListener);
 		minsidEdit.addFocusListener(parameterActionListener);
 		rphitsEdit.addFocusListener(parameterActionListener);
+		dbBox.addActionListener(parameterActionListener);
 	}
 
 	/*
@@ -87,7 +90,8 @@ public class SkyBaseConfigPanel extends AbstractSaveableParameterPanel {
 		builder.appendSeparator("Default SkyBase parameters");
 		builder.append("% minimum alignment coverage", mincovEdit);
 		builder.append("% minimum sequence identity", minsidEdit);
-		builder.append("most similar hits to report", rphitsEdit);
+		builder.append("# most similar hits to report", rphitsEdit);
+		builder.append("Homology Models SkyBase", dbBox);
 
 		this.add(builder.getPanel(), BorderLayout.CENTER);
 		setDefaultParameters();
@@ -106,6 +110,7 @@ public class SkyBaseConfigPanel extends AbstractSaveableParameterPanel {
 		rphitsEdit.setFont(new Font("Sans Serif", Font.BOLD, 14));
 		rphitsEdit.setText(new Integer(rphits).toString());
 		 
+		dbBox.setSelectedIndex(0);
 	}
 
 	public Double getmincovValue() {
@@ -143,6 +148,10 @@ public class SkyBaseConfigPanel extends AbstractSaveableParameterPanel {
 		 
 	}
 
+	public String getdatabase() {
+		return dbBox.getSelectedItem().toString();
+	}
+
 	private void writeObject(java.io.ObjectOutputStream out) throws IOException {
 		out.defaultWriteObject();
 	}
@@ -162,6 +171,7 @@ public class SkyBaseConfigPanel extends AbstractSaveableParameterPanel {
 		parameters.put("mincov", getmincovValue()); // int
 		parameters.put("minsid", getminsidValue()); // int
 		parameters.put("trphits", getrphitsValue()); // int
+		parameters.put("database", getdatabase());
 
 		return parameters;
 	}
@@ -183,6 +193,7 @@ public class SkyBaseConfigPanel extends AbstractSaveableParameterPanel {
 			if(key.equals("mincov"))mincovEdit.setText(value.toString()); // int
 			else if(key.equals("minsid"))minsidEdit.setText(value.toString()); // int
 			else if(key.equals("trphits"))rphitsEdit.setText(value.toString()); // int 
+			else if(key.equals("database")) dbBox.setSelectedItem(value.toString());
 		}
 		stopNotifyAnalysisPanelTemporary(false);
 	}

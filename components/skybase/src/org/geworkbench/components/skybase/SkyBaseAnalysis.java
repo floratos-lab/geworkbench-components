@@ -98,7 +98,7 @@ public class SkyBaseAnalysis extends AbstractGridAnalysis implements
 		Map<Serializable, Serializable> parameterMap = new HashMap<Serializable, Serializable>();
 
 		String cfgcommand = scp.getmincovValue() + " " + scp.getminsidValue()
-				+ " " + scp.getrphitsValue();
+				+ " " + scp.getrphitsValue() + " " + scp.getdatabase();
 		log.info("blastskybaseparam: " + cfgcommand);
 		parameterMap.put("skybaseParameter", cfgcommand);
 
