@@ -114,7 +114,10 @@ public class SkyBaseViewer implements VisualPlugin {
 	JTable table;
 	ChartPanel cp;
 	String pdburl;
-	String pdbroot = "http://skybase.c2b2.columbia.edu/nesg3/skynesg/";
+	String pdbroot = "http://skybase.c2b2.columbia.edu";
+	String[] pdbroots = new String[]{pdbroot + "/nesg3/skynesg/", pdbroot + "/pdb60/sky/"};
+	String dbtype = "";
+	String[] dbtypes = new String[]{"NESG", "PDB60"};
 	String seqid = null;
 	//String blastroot = "http://skyline.c2b2.columbia.edu:8080/SkyBaseData/tmpblast/";
 	String blastroot = "http://cagridnode.c2b2.columbia.edu:8080/v2.0.0/SkyBaseData/tmpblast/";
@@ -233,8 +236,19 @@ public class SkyBaseViewer implements VisualPlugin {
 				Double[] pctid = new Double[linecnt];
 				Hashtable<Integer, Hashtable<Double, Hashtable<Double, Hashtable<Integer, Character>>>> ht = new Hashtable<Integer, Hashtable<Double, Hashtable<Double, Hashtable<Integer, Character>>>>();
 				String[][] second = new String[linecnt][];
+				dbtype = "";
 				while ((line = br.readLine()) != null) {
 					String[] toks = line.split("\t");
+					if (dbtype.equals("") && !toks[32].equals("NA")){
+						if (toks[32].startsWith("pipeline_")){
+							dbtype  = dbtypes[1];
+							pdbroot = pdbroots[1];
+						} else {
+							dbtype  = dbtypes[0];
+							pdbroot = pdbroots[0];
+						}
+					}
+
 					String aln = new String(toks[26]+" - "+toks[27]+"\n\n"+toks[28]+"\n"+toks[29]+" - "+toks[30]+"\n\n"+toks[31]+"\n");
 					second[i] = new String[] { toks[20], toks[10], toks[5],
 							toks[1], toks[13], toks[4], toks[9], toks[6],
@@ -730,7 +744,7 @@ public class SkyBaseViewer implements VisualPlugin {
 		JFreeChart ch = ChartFactory.createBarChart(null, null,
 				"pG / Coverage / Identity", sets[0], PlotOrientation.VERTICAL,
 				false, true, false);
-		ch.setTitle(new TextTitle("SkyBase Models for " + qname, new Font(
+		ch.setTitle(new TextTitle(dbtype + " SkyBase Models for " + qname, new Font(
 				"Arial", Font.BOLD, 12)));
 		ch.setBackgroundPaint(new Color(225, 225, 225));
 
