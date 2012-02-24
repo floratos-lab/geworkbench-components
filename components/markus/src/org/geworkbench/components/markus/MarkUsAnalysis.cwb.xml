@@ -15,7 +15,7 @@
  protein cavities, and calculates the surface electrostatic potentials
  and amino acid conservation profile."
 
-				analysis="true"
+				category="analysis"
 	 >
 		<required-component class="org.geworkbench.components.markus.MarkUsBrowser" />
 		<license><![CDATA[
