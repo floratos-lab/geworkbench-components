@@ -9,7 +9,7 @@
 				tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Classification"
 				description="Visualizes results obtained from classifying
  samples based on SVMs generated using the Gene Pattern v3 SVM service. "
-				visualizer="true"
+				category="visualizer"
 	 >
 		<required-component class="org.geworkbench.components.gpmodule.classification.svm.SVMTraining" />
 

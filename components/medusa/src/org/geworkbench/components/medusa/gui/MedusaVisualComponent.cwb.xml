@@ -7,7 +7,7 @@
 		author="geWorkbench Development Team"
 		authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 		toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
-		description="Not released." visualizer="true">
+		description="Not released." category="visualizer">
 		<required-component class="org.geworkbench.components.medusa.MedusaAnalysis" />
 		<license><![CDATA[
 			<html><head><meta http-equiv=Content-Type content="text/html; charset=windows-1252"></head>
