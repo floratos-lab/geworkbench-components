@@ -9,10 +9,8 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.font.FontRenderContext;
 import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
 import java.util.List;
 
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import org.apache.commons.logging.Log;
@@ -29,10 +27,11 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyResultRow;
  * @author mhall
  * @author ch2514
  * @author oshteynb
- * @version $Id: ModulatorHeatMap.java,v 1.35 2009-04-29 19:55:33 oshteynb Exp $
+ * @version $Id$
  */
-@SuppressWarnings("serial")
 public class ModulatorHeatMap extends JPanel {
+
+	private static final long serialVersionUID = -1571049509507400635L;
 
 	private static Log log = LogFactory.getLog(ModulatorHeatMap.class);
 
@@ -45,47 +44,24 @@ public class ModulatorHeatMap extends JPanel {
 	private static final int BAR_HEIGHT = 12;
 	private static final int PREFERRED_CELL_WIDTH = 3;
 
-	public static final int MAX_MARKER_NAME_CHARS = 30;
-
-	public static final Font BASE_FONT = new Font("SansSerif", Font.BOLD, 12);
-	public static final Color COLOR_TEXT = new Color(0.2f, 0.2f, 0.2f);
+	private static final Font BASE_FONT = new Font("SansSerif", Font.BOLD, 12);
+	private static final Color COLOR_TEXT = new Color(0.2f, 0.2f, 0.2f);
 
 	private int maxGeneNameWidth = -1;
 	private boolean showProbeName = false;
 
-	private float setFractionPercent;
-	private ColorContext colorContext = null;
-
 	private ModulatorHeatMapModel model;
 
-	private BufferedImage offscreen;
-
-	/*
-	 * true if out of memory exception while allocating BufferedImage( set in
-	 * catch block)
-	 */
-	private boolean doNotPaint = false;
-
-	/**
-	 * for now will have simple default constructor.
-	 *
-	 */
+	// FIXME ModulatorHeatMap and ModulatorHeatMapModel have dependency cycle 'by design'
 	public ModulatorHeatMap() {
-		log.debug("\tHeatMap::constructor::start...");
-
-		this.setBackground(Color.white);
-		this.setOpaque(true);
-
-		log.debug("\tHeatMap::constructor::end.");
 	}
 
 	/**
 	 * refactored from MindyPlugin, called from several ActionListener classes
 	 */
+	@Deprecated
 	public void prepareGraphics() {
-		Graphics g = getGraphics();
-		g.setColor(Color.WHITE);
-		g.fillRect(0, 0, getWidth(), getHeight());
+		// TODO remove me
 	}
 
 	/**
@@ -96,15 +72,7 @@ public class ModulatorHeatMap extends JPanel {
 	 * fire repainting
 	 */
 	public void reset() {
-		this.maxGeneNameWidth = calculateMaxGeneNameWidth();
-
-		offscreen = null;
-		doNotPaint = false;
-
-		HeatmapChanged();
-	}
-
-	private int calculateMaxGeneNameWidth() {
+		// calculate Max Gene Name Width
 		List<DSGeneMarker> markers = model.getTargets();
 		FontRenderContext context = new FontRenderContext(null, true, false);
 		for (DSGeneMarker marker : markers) {
@@ -114,9 +82,9 @@ public class ModulatorHeatMap extends JPanel {
 				maxGeneNameWidth = (int) bounds.getWidth() + 1;
 			}
 		}
-		log.debug("Max gene name width: " + maxGeneNameWidth);
 
-		return maxGeneNameWidth;
+		revalidate();
+		repaint();
 	}
 
 	/**
@@ -126,170 +94,112 @@ public class ModulatorHeatMap extends JPanel {
 	 *            - the graphics object representing the heat map.
 	 */
 	public void paint(Graphics graphics) {
-		if (!doNotPaint)
-			doPaint(graphics);
-	}
 
-	public void update(Graphics g) {
-		if (!doNotPaint)
-			paint(g);
-	}
+		Graphics2D g = (Graphics2D)graphics;
 
-	/**
-	 * Print the heat map graphics object.
-	 *
-	 * @param graphics
-	 *            - the graphics object representing the heat map.
-	 */
-	public void print(Graphics graphics) {
-		doPaint(graphics);
-	}
+		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+				RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+		g.setFont(BASE_FONT);
+		g.setColor(Color.WHITE);
+		g.fillRect(0, 0, getWidth(), getHeight());
 
-	/**
-	 * Paint the heat map graphics object.
-	 *
-	 * @param graphics
-	 *            - the graphics object representing the heat map.
-	 * @param print
-	 *            - true if this graphics object is to be printed.
-	 */
-	public void doPaint(Graphics graphics) {
-		log.debug("\t\tdoPaint()::start...");
+		// Draw the modulator expression line
+		g.setColor(COLOR_TEXT);
+		FontMetrics metrics = g.getFontMetrics();
+		String modulatorName = this.getMarkerDisplayName(model.getModulator());
+		int modNameWidth = metrics.stringWidth(modulatorName);
+		g.drawString(modulatorName, (getWidth() / 2) - (modNameWidth / 2),
+				SPACER_TOP);
+		int modBarTopY = SPACER_TOP + metrics.getDescent() + 1;
 
-		Graphics2D g = null;
-		Dimension dim = getSize();
+		// Some variables useful for the next two sections of painting
+		float expressionBarWidth = (getWidth() - (2 * SPACER_SIDE) - (2 * SPACER_SIDE + maxGeneNameWidth)) / 2f;
+		float cellWidth = expressionBarWidth
+				/ ((model.getHalf1().size() + model.getHalf2().size()) / 2f);
+		int transFacStartY = modBarTopY + BAR_HEIGHT + SPACER_TOP;
 
-		int w = (int) dim.getWidth();
-		int h = (int) dim.getHeight();
-		if ((offscreen == null) && (w > 0) && (h > 0)) {
-			log.debug("\t\t\tbuffer processing...");
-			try {
-				offscreen = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
-				g = (Graphics2D) offscreen.getGraphics();
+		// Draw the two transcription factor gradients
+		// TransFac headers
+		g.setColor(COLOR_TEXT);
+		String transFacName = this.getMarkerDisplayName(
+				model.getTranscriptionFactor()).trim();
+		int transFacNameWidth = metrics.stringWidth(transFacName);
+		// Left Side (marker name)
+		g.drawString(transFacName, SPACER_SIDE
+				+ (expressionBarWidth - transFacNameWidth) / 2 + 1,
+				transFacStartY);
+		// Right Side (marker name)
+		g.drawString(
+				transFacName,
+				Math.round((getWidth() - SPACER_SIDE - expressionBarWidth - 1)
+						+ (expressionBarWidth + 1) / 2 - transFacNameWidth / 2),
+				transFacStartY);
 
-				g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
-						RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-				g.setFont(BASE_FONT);
-				g.setColor(Color.WHITE);
-				g.fillRect(0, 0, w, (int) h);
-			} catch (OutOfMemoryError err) {
-				JOptionPane.showMessageDialog(null,
-						"There is not enough memory to display the heatmap.",
-						"Warning", JOptionPane.WARNING_MESSAGE);
-				log.error("Not enough memory to display the heatmap:"
-						+ err.getMessage());
-				doNotPaint = true;
-			}
+		int transFacBarY = transFacStartY + metrics.getDescent() + 1;
 
-			// Draw the modulator expression line
-			log.debug("\t\t\tdrawing modular expression line...");
+		// Drawing line under modulator name
+		int x1 = Math.round(SPACER_SIDE
+				+ (expressionBarWidth - transFacNameWidth) / 2 + 1
+				+ transFacNameWidth / 2);
+		int y1 = modBarTopY;
+		int x2 = Math.round((getWidth() - SPACER_SIDE - expressionBarWidth - 1)
+				+ (expressionBarWidth + 1) / 2);
+		int y2 = y1 + transFacBarY / 4;
+		g.setColor(COLOR_TEXT);
+		g.drawLine(x1, y1, x2, y1); // top line
+		g.drawLine(x1, y1, x1, y2); // left vertical line
+		g.drawLine(x2, y1, x2, y2); // right vertical line
+
+		// Label two ends of the line
+		float setFractionPercent = model.getSetFraction() * 100;
+		g.drawString(LEFT_LABEL + setFractionPercent + PERCENT, x1, SPACER_TOP);
+		String s = RIGHT_LABEL + setFractionPercent + PERCENT;
+		g.drawString(s, x2 - metrics.stringWidth(s), SPACER_TOP);
+
+		// Outlines for trans fac gradients (the triangles)
+		g.setColor(COLOR_TEXT);
+		int xx1 = SPACER_SIDE;
+		int yy1 = transFacBarY;
+		int xx2 = xx1 + (int) expressionBarWidth;
+		int yy2 = yy1 + BAR_HEIGHT;
+		g.drawLine(xx1, yy2, xx2, yy1); // left triangle: diagonal
+		g.drawLine(xx2, yy1, xx2, yy2); // vertical
+		g.drawLine(xx1, yy2, xx2, yy2); // horizontal
+		xx1 = (int) (getWidth() - SPACER_SIDE - expressionBarWidth - 1);
+		xx2 = xx1 + (int) (expressionBarWidth + 1);
+		g.drawLine(xx1, yy2, xx2, yy1); // right triangle: diagonal
+		g.drawLine(xx2, yy1, xx2, yy2); // vertical
+		g.drawLine(xx1, yy2, xx2, yy2); // horizontal
+
+		// Draw the target's expression values
+		int targetStartY = transFacBarY + BAR_HEIGHT + 5;
+		int targetCurrY = targetStartY;
+
+		for (int i = 0; i < model.getTargetRows().size(); i++) {
+			MindyResultRow mindyRow = model.getTargetRows().get(i);
+			DSGeneMarker target = mindyRow.getTarget();
+			paintExpressionBar(cellWidth, expressionBarWidth, g, targetCurrY,
+					target);
+			String targetName = this.getMarkerDisplayName(target);
+
+			int targetNameWidth = metrics.stringWidth(targetName);
 			g.setColor(COLOR_TEXT);
-			FontMetrics metrics = g.getFontMetrics();
-			String modulatorName = this.getMarkerDisplayName(model
-					.getModulator());
-			int modNameWidth = metrics.stringWidth(modulatorName);
-			g.drawString(modulatorName, (getWidth() / 2) - (modNameWidth / 2),
-					SPACER_TOP);
-			int modBarTopY = SPACER_TOP + metrics.getDescent() + 1;
 
-			// Some variables useful for the next two sections of painting
-			log.debug("\t\t\tpainting prep...");
-			float expressionBarWidth = (getWidth() - (2 * SPACER_SIDE) - (2 * SPACER_SIDE + maxGeneNameWidth)) / 2f;
-			float cellWidth = expressionBarWidth
-					/ ((model.getHalf1().size() + model.getHalf2().size()) / 2f);
-			int transFacStartY = modBarTopY + BAR_HEIGHT + SPACER_TOP;
-
-			// Draw the two transcription factor gradients
-			// TransFac headers
-			log.debug("\t\t\tdrawing tf...");
-			g.setColor(COLOR_TEXT);
-			String transFacName = this.getMarkerDisplayName(
-					model.getTranscriptionFactor()).trim();
-			int transFacNameWidth = metrics.stringWidth(transFacName);
-			// Left Side (marker name)
-			g.drawString(transFacName, SPACER_SIDE
-					+ (expressionBarWidth - transFacNameWidth) / 2 + 1,
-					transFacStartY);
-			// Right Side (marker name)
-			g.drawString(transFacName, Math.round((getWidth() - SPACER_SIDE
-					- expressionBarWidth - 1)
-					+ (expressionBarWidth + 1) / 2 - transFacNameWidth / 2),
-					transFacStartY);
-
-			int transFacBarY = transFacStartY + metrics.getDescent() + 1;
-
-			// Drawing line under modulator name
-			log.debug("\t\t\tdrawing line under mod name...");
-			int x1 = Math.round(SPACER_SIDE
-					+ (expressionBarWidth - transFacNameWidth) / 2 + 1
-					+ transFacNameWidth / 2);
-			int y1 = modBarTopY;
-			int x2 = Math
-					.round((getWidth() - SPACER_SIDE - expressionBarWidth - 1)
-							+ (expressionBarWidth + 1) / 2);
-			int y2 = y1 + transFacBarY / 4;
-			g.setColor(COLOR_TEXT);
-			g.drawLine(x1, y1, x2, y1); // top line
-			g.drawLine(x1, y1, x1, y2); // left vertical line
-			g.drawLine(x2, y1, x2, y2); // right vertical line
-
-			// Label two ends of the line
-			g.drawString(LEFT_LABEL + this.setFractionPercent + PERCENT, x1,
-					SPACER_TOP);
-			String s = RIGHT_LABEL + this.setFractionPercent + PERCENT;
-			g.drawString(s, x2 - metrics.stringWidth(s), SPACER_TOP);
-
-			// Outlines for trans fac gradients (the triangles)
-			log.debug("\t\t\tdrawing triangles...");
-			g.setColor(COLOR_TEXT);
-			int xx1 = SPACER_SIDE;
-			int yy1 = transFacBarY;
-			int xx2 = xx1 + (int) expressionBarWidth;
-			int yy2 = yy1 + BAR_HEIGHT;
-			g.drawLine(xx1, yy2, xx2, yy1); // left triangle: diagonal
-			g.drawLine(xx2, yy1, xx2, yy2); // vertical
-			g.drawLine(xx1, yy2, xx2, yy2); // horizontal
-			xx1 = (int) (getWidth() - SPACER_SIDE - expressionBarWidth - 1);
-			xx2 = xx1 + (int) (expressionBarWidth + 1);
-			g.drawLine(xx1, yy2, xx2, yy1); // right triangle: diagonal
-			g.drawLine(xx2, yy1, xx2, yy2); // vertical
-			g.drawLine(xx1, yy2, xx2, yy2); // horizontal
-
-			// Draw the target's expression values
-			int targetStartY = transFacBarY + BAR_HEIGHT + 5;
-			int targetCurrY = targetStartY;
-
-			log.debug("\t\t\tloop start...");
-			for (int i = 0; i < model.getTargetRows().size(); i++) {
-				MindyResultRow mindyRow = model.getTargetRows().get(i);
-				DSGeneMarker target = mindyRow.getTarget();
-				paintExpressionBar(cellWidth, expressionBarWidth, g,
-						targetCurrY, target);
-				String targetName = this.getMarkerDisplayName(target);
-
-				int targetNameWidth = metrics.stringWidth(targetName);
-				g.setColor(COLOR_TEXT);
-
-				g.drawString(targetName, (getWidth() / 2)
-						- (targetNameWidth / 2), targetCurrY + BAR_HEIGHT - 1);
-				targetCurrY += BAR_HEIGHT;
-			}
-			log.debug("\t\t\tloop end.");
-			// Outlines for target gradients
-			g.setColor(Color.GRAY);
-			g.drawRect(SPACER_SIDE, targetStartY, (int) expressionBarWidth,
-					targetCurrY - targetStartY);
-			g.drawRect(
-					(int) (getWidth() - SPACER_SIDE - expressionBarWidth - 1),
-					targetStartY, (int) (expressionBarWidth + 1), targetCurrY
-							- targetStartY);
+			g.drawString(targetName, (getWidth() / 2) - (targetNameWidth / 2),
+					targetCurrY + BAR_HEIGHT - 1);
+			targetCurrY += BAR_HEIGHT;
 		}
-		graphics.drawImage(offscreen, 0, 0, this);
 
-		log.debug(" Cursor ***set finished flag");
+		// Outlines for target gradients
+		g.setColor(Color.GRAY);
+		g.drawRect(SPACER_SIDE, targetStartY, (int) expressionBarWidth,
+				targetCurrY - targetStartY);
+		g.drawRect((int) (getWidth() - SPACER_SIDE - expressionBarWidth - 1),
+				targetStartY, (int) (expressionBarWidth + 1), targetCurrY
+						- targetStartY);
+
 		MindyPlugin.setCursorFinished();
-
-		log.debug("\t\tdoPaint()::end.");
+		log.debug("paint(Graphics graphics) called");
 	}
 
 	private void paintExpressionBar(float cellWidth, float expressionBarWidth,
@@ -308,6 +218,8 @@ public class ModulatorHeatMap extends JPanel {
 				value = ((DSMicroarray) model.getHalf2().get(i - halfArrays))
 						.getMarkerValue(markerToPaint);
 			}
+
+			ColorContext colorContext = model.getColorContext();
 			g.setColor(colorContext.getMarkerValueColor(value, markerToPaint,
 					1.0f));
 			g.fillRect(startX, y, (int) (cellWidth + 1), BAR_HEIGHT);
@@ -343,16 +255,6 @@ public class ModulatorHeatMap extends JPanel {
 	}
 
 	/**
-	 * Check to see if the heat map should display probe names or gene names.
-	 *
-	 * @return If true, the heat map displays probe names. If not, the map
-	 *         displays gene names.
-	 */
-	public boolean isShowProbeName() {
-		return this.showProbeName;
-	}
-
-	/**
 	 * Specify whether or not the heat map should display probe names or gene
 	 * names.
 	 *
@@ -377,18 +279,11 @@ public class ModulatorHeatMap extends JPanel {
 	}
 
 	public void HeatmapChanged() {
-		this.doResizeAndRepaint();
-	}
-
-	private void doResizeAndRepaint() {
 		revalidate();
 		repaint();
 	}
 
-	public ModulatorHeatMapModel getModel() {
-		return model;
-	}
-
+	// FIXME should refactor to constructor because this set is called only right after constructor
 	public void setModel(ModulatorHeatMapModel model) {
 		this.model = model;
 
@@ -396,9 +291,6 @@ public class ModulatorHeatMap extends JPanel {
 		if (!model.isAnnotated()) {
 			showProbeName = true;
 		}
-
-		this.setFractionPercent = model.getSetFraction() * 100;
-		this.colorContext = model.getColorContext();
 
 		reset();
 	}
