@@ -7,6 +7,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.GregorianCalendar;
@@ -25,6 +26,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumn;
+import javax.xml.bind.DatatypeConverter;
 import javax.xml.datatype.DatatypeFactory;
 
 import org.geworkbench.components.genspace.GenSpace;
@@ -84,8 +86,8 @@ ActionListener {
 		columnUser.setPreferredWidth(100);
 		columnUser.setMaxWidth(100);
 		TableColumn columnDate = table.getColumnModel().getColumn(1);
-		columnDate.setPreferredWidth(100);
-		columnDate.setMaxWidth(100);
+		columnDate.setPreferredWidth(120);
+		columnDate.setMaxWidth(120);
 		table.setAutoResizeMode(WIDTH);
 		add(jsp, BorderLayout.CENTER);
 
@@ -299,7 +301,7 @@ class MyTableModel extends AbstractTableModel {
 	public String getColumnName(int col) {
 		return columnNames[col];
 	}
-
+SimpleDateFormat fmt = new SimpleDateFormat("F/M/yy h:mm a");
 	@Override
 	public Object getValueAt(int row, int col) {
 		if (row >= 0 && row < data.size()) {
@@ -307,7 +309,7 @@ class MyTableModel extends AbstractTableModel {
 			if (col == 0)
 				return wi.getCreator().getUsername();
 			else if (col == 1)
-				return wi.getCreatedAt();
+				return fmt.format(DatatypeConverter.parseDateTime(wi.getCreatedAt().toString()).getTime());
 			else
 				return wi.getComment();
 		}

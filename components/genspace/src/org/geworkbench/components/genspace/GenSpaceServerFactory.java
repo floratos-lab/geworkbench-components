@@ -339,6 +339,8 @@ try{
 	 * @return
 	 */
 	public static boolean isVisible(User user2) {
+		if(user2.getUsername().equals(getUser().getUsername()))
+			return true;
 		return user2.isVisible();
 	}
 

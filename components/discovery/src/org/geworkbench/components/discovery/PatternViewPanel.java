@@ -81,5 +81,11 @@ public class PatternViewPanel extends JPanel implements PropertyChangeListener {
 			seqWidget.patternSelectionHasChanged(selected);
 		}
 	}
+
+	// to implement the behavior requested by bug 2943 
+	void sequenceDBUpdate(GeneSelectorEvent e) {
+		if(seqWidget!=null)
+			seqWidget.sequenceDBUpdate(e);
+	}
 	
 }

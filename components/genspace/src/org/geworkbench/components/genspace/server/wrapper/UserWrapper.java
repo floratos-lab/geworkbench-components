@@ -6,6 +6,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.geworkbench.components.genspace.GenSpaceServerFactory;
 import org.geworkbench.components.genspace.server.stubs.User;
+import org.geworkbench.components.genspace.ui.SocialNetworksHome;
 
 public class UserWrapper {
 	private User delegate;
@@ -238,7 +239,12 @@ public class UserWrapper {
 						 na(getAddr1()) + "<br>" + na(getAddr2())
 					+ "<br>" + na(getCity()) + ", "
 					+ na(getState()) + ", " + na(getZipcode()));
-		} else {
+		}
+		else if(SocialNetworksHome.getInstance().pendingFriendRequestTo(this)){
+			r += "This user is not visible to you. They will be visible once they confirm your pending friend request.";
+		}	
+		else {
+		
 			r += "This user is not visible to you. Please add them as a friend or join one of their networks to see their profile.";
 		}
 		r += "</body>";

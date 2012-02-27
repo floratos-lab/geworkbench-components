@@ -30,9 +30,6 @@ public class PromoterView implements VisualPlugin, PropertyChangeListener {
 
 	private final JSplitPane mainPanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 	PromoterViewPanel main = new PromoterViewPanel();
-	private final int SEQUENCE = 3;
-	private final int NONSEQUENCE = 4;
-	private int currentStatus = NONSEQUENCE;
 
 	public PromoterView() {
 		main.setSequenceDB(new CSSequenceSet<DSSequence>());
@@ -61,8 +58,7 @@ public class PromoterView implements VisualPlugin, PropertyChangeListener {
 	@Subscribe
 	public void receive(org.geworkbench.events.GeneSelectorEvent e,
 			Object publisher) {
-		if (currentStatus == SEQUENCE)
-			main.receive(e);
+		main.receive(e);
 	}
 
 	/**
@@ -76,7 +72,6 @@ public class PromoterView implements VisualPlugin, PropertyChangeListener {
 	public void receive(ProjectEvent e, Object source) {
     	DSDataSet<?> data = e.getDataSet();
         if (data instanceof PatternResult) {
-			currentStatus = NONSEQUENCE;
 			
             PatternResult patternResult = ((PatternResult) data);
             
@@ -95,7 +90,6 @@ public class PromoterView implements VisualPlugin, PropertyChangeListener {
 			main.setSequenceDB((DSSequenceSet<DSSequence>) data);
 			main.setPatterns(new ArrayList<DSMatchedPattern<DSSequence, CSSeqRegistration>>());
 			mainPanel.setBottomComponent(null);
-			currentStatus = SEQUENCE;
         }
 	}
 

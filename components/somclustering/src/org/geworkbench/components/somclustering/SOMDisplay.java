@@ -122,7 +122,13 @@ public class SOMDisplay implements VisualPlugin, MenuListener,
 				origX = originalClusters.length;
 				origY = originalClusters[0].length;
 			
-				reset();
+				SwingUtilities.invokeLater(new Runnable() {
+
+					public void run() {
+						reset();
+					}
+					
+				});
 			}
 		}
 	}
@@ -218,6 +224,7 @@ public class SOMDisplay implements VisualPlugin, MenuListener,
 	/**
 	 * Resets clusters and sizes
 	 */
+	// must be invoked from EDT
 	private void reset() {
 		x = originalClusters.length;
 		y = originalClusters[0].length;
@@ -287,19 +294,17 @@ public class SOMDisplay implements VisualPlugin, MenuListener,
 			}
 		}
 		log.debug("Rendering SOMs");
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				display.removeAll();
-				display.setLayout(new GridLayout(x, y));
-				for (int i = 0; i < x; i++) {
-					for (int j = 0; j < y; j++) {
-						display.add(plots[i][j]);
-					}
-				}
-				display.revalidate();
-				display.repaint();
+
+		display.removeAll();
+		display.setLayout(new GridLayout(x, y));
+		for (int i = 0; i < x; i++) {
+			for (int j = 0; j < y; j++) {
+				display.add(plots[i][j]);
 			}
-		});
+		}
+		display.revalidate();
+		display.repaint();
+
 		pb.stop();
 		pb.dispose();
 		currentPlots = plots;

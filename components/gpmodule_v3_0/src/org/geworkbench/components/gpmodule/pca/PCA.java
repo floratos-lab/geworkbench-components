@@ -169,7 +169,7 @@ public class PCA extends MicroarrayViewEventBase
                 }
 
                 CSMicroarraySet pcDataSet = new CSMicroarraySet();
-                pcDataSet.setLabel("PCA_" + dataSet.getFile().getName());
+                pcDataSet.setLabel("PCA_" + dataSet.getLabel());
                 pcDataSet.addObject(ColorContext.class, dataSet.getObject(ColorContext.class));
 
                 FloatMatrix uMatrix = new FloatMatrix(pcaDataSet.getUMatrix());

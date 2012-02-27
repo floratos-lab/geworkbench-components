@@ -230,7 +230,7 @@ public class PatternDiscoveryAnalysis extends AbstractAnalysis implements
 		patternResult.setDescription("Number of Patterns: " + totalPatternNum);
 
 		String historyStr = generateHistoryStr(activeSequenceDB,
-				parms);
+				parms, totalPatternNum);
 		HistoryPanel.addToHistory(patternResult, historyStr);
 		progressBar.stop();
 		return new AlgorithmExecutionResults(true, "Pattern Discovery Done", patternResult);
@@ -369,26 +369,50 @@ public class PatternDiscoveryAnalysis extends AbstractAnalysis implements
 	 */
 	
 	private String generateHistoryStr(
-			CSSequenceSet<CSSequence> activeSequenceDB, Parameters params) {
+			CSSequenceSet<CSSequence> activeSequenceDB, Parameters params, int totalPatternNum) {
     	String histStr = "";
+    	int seqNo = activeSequenceDB.size();
     	if(params != null) {
     		
     		histStr += "Pattern Discovery run with the following parameters:\n";
 			histStr += "----------------------------------------\n";
 			
-			histStr += "Algorithm Type: " + patternPanel.getSelectedAlgorithmName() + "\n";						
-			histStr += "Support: " + params.getMinSupport() + "\n";
-			histStr += "Minimum Tokens: " + params.getMinTokens() + "\n";
-			histStr += "Density Window: " + params.getWindow() + "\n";
-			histStr += "Density Window Min. Tokens: " + params.getMinWTokens() + "\n";
+			histStr += "Algorithm Type: " + patternPanel.getSelectedAlgorithmName() + "\n";	
+			if (patternPanel.getCurrentSupportMenuStr().equalsIgnoreCase(PatternDiscoveryParamPanel.SUPPORT_PERCENT_1_100)) 
+				histStr += patternPanel.getCurrentSupportMenuStr() + ": " + patternPanel.getMinSupport() + "% (" + params.getMinSupport()+ "/" + seqNo + ")\n";
+			else
+				histStr += patternPanel.getCurrentSupportMenuStr() + ": " + patternPanel.getMinSupport() + "(" + params.getMinSupport() + ")\n";
+			histStr += "Minimum Tokens: " + patternPanel.getMinTokens() + "\n";
+			histStr += "Density Window: " + patternPanel.getWindow() + "\n";
+			histStr += "Density Window Min. Tokens: " + patternPanel.getMinWTokens() + "\n";
 			
 			if(patternPanel.getSelectedAlgorithmName().equalsIgnoreCase(EXHAUSTIVE)) {
-				histStr += "Decrease Support(%): " + params.getExhaustive().getDecrease() + "\n";
-				histStr += "Minimum Support(%): " + params.getExhaustive().getMinSupport() + "\n";
+				histStr += "Decrease Support(%): " + patternPanel.getDecSupportExhaustive() + "\n";
+				histStr += "Minimum Support(%): " + patternPanel.getMinSupportExhaustive() + "\n";
+				histStr += "Minimum Support(%): " + patternPanel.getMinPatternNo() + "\n";
 			}
 			
-			histStr += "Max. Pattern Number: " + params.getMaxPatternNo() + "\n";
-			histStr += "Number of Sequences: " + activeSequenceDB.size() + "\n";
+			
+			
+			histStr += "Max. Pattern Number: " + patternPanel.getMaxPatternNo() + "\n";
+			
+    	
+    	    if (patternPanel.getExactOnlySelected() == 1)    	    	
+    	    	histStr += "Substitution Matrix: Exact Only is checked.\n";
+    	    else
+    	    {
+    	    	histStr += "Substitution Matrix: Exact Only is not checked.\n";
+    	    	histStr += "Similarity Matrix: " + patternPanel.getMatrixSelection() + "\n";
+    	    	histStr += "Similarity Threshold: " + patternPanel.getSimilarityThreshold() + "\n";   	    	
+    	    	
+    	    }    	    
+    	    
+    	    histStr += "Number of Sequences: " + activeSequenceDB.size() + "\n";
+    	    
+    	    histStr += "Number of patterns found: " + totalPatternNum  + "\n";
+    	    
+    	    
+    	
     	}
     	
     	return histStr;

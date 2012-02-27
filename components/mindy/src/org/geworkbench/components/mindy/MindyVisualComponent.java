@@ -12,6 +12,7 @@ import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -59,7 +60,7 @@ public class MindyVisualComponent implements VisualPlugin, java.util.Observer {
 
 	private ProgressBar progressBar = null;
 
-	private boolean stopDrawing = false;
+	private volatile boolean stopDrawing = false;
 
 	/**
 	 * Constructor. Includes a place holder for a MINDY result view (i.e. class
@@ -90,102 +91,100 @@ public class MindyVisualComponent implements VisualPlugin, java.util.Observer {
 	 *            source of the ProjectEvent
 	 */
 	@Subscribe(Asynchronous.class)
-	public void receive(ProjectEvent projectEvent, Object source) {
-		/*  added to preconditions checks,
-		 *  until preconditions issue is resolved  */
-        if (projectEvent == null) {
-        	return;
-        }
-
-        if (source == null) {
-        	return;
-        }
-
-		DSDataSet<?> data = projectEvent.getDataSet();
-		if ( data == null || !(data instanceof MindyDataSet) ) 
+	public void receive(ProjectEvent projectEvent, final Object source) {
+		/*
+		 * added to preconditions checks, until preconditions issue is resolved
+		 */
+		if (projectEvent == null) {
 			return;
-		
-        log.debug("MINDY received project event.");
+		}
+
+		if (source == null) {
+			return;
+		}
+
+		final DSDataSet<?> data = projectEvent.getDataSet();
+		if (!(data instanceof MindyDataSet))
+			return;
+
+		SwingUtilities.invokeLater(new Runnable() {
+
+			@Override
+			public void run() {
+				processProjectEvent((MindyDataSet) data, source);
+			}
+
+		});
+	}
+
+	// invoke from EDT
+	private void processProjectEvent(MindyDataSet data, Object source) {
+
+		if (plugin == null) {
+			return;
+		}
+
+		ProjectSelection ps = ((ProjectPanel) source).getSelection();
+		if (ps == null) {
+			return;
+		}
+
+		ProjectTreeNode node = ps.getSelectedNode();
 
 		MindyPlugin mindyPlugin = null;
 
-			/*
-			 * moved some code inside if statement and after checks for preconditions
-			 * to leave code in usable state in case there were null pointers
-			 */
+		// Check to see if the hashtable has a mindy plugin associated with
+		// the selected project tree node
+		if (ht.containsKey(node)) {
+			// if so, set mindyPlugin to the one stored in the hashtable
+			mindyPlugin = ht.get(node);
+			log.debug("plugin already exists for node [" + node.toString()
+					+ "]");
+		} else if (dataSet != data) {
+			// if not, create a brand new mindyPlugin, add to the hashtable
+			// (with key=selected project tree node)
+			dataSet = data;
 
-			if (plugin == null) {
+			log.debug("Creating new mindy plugin for node [" + node.toString()
+					+ "]");
+			// Create mindy gui and display an indeterminate progress
+			// bar in the foreground
+			progressBar = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
+			progressBar.addObserver(this);
+			progressBar.setTitle("MINDY");
+			progressBar.setMessage("Creating Display");
+			progressBar.start();
+
+			MindyData mindyData = dataSet.getData();
+			mindyPlugin = new MindyPlugin(mindyData, this);
+			mindyPlugin.populateTableTab();
+			mindyPlugin.populateModulatorModel();
+
+			// Incorporate selections from marker set selection panel
+			DSMicroarraySetView<DSGeneMarker, DSMicroarray> maView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(
+					dataSet.getData().getArraySet());
+			maView.useMarkerPanel(true);
+
+			// Register the mindy plugin with our hashtable for keeping
+			// track
+			ht.put(node, mindyPlugin);
+
+			if (stopDrawing) {
+				stopDrawing = false;
+				progressBar.stop();
+				log.warn("Cancelling Mindy GUI.");
 				return;
 			}
+		} else {
+			return; // no-op
+		}
 
-			ProjectSelection ps = ((ProjectPanel) source).getSelection();
-			if (ps == null) {
-				return;
-			}
-
-			plugin.removeAll();
-
-			ProjectTreeNode node = ps.getSelectedNode();
-
-			log.debug("event is from node [" + node.toString() + "]");
-			// Check to see if the hashtable has a mindy plugin associated with
-			// the selected project tree node
-			if (ht.containsKey(node)) {
-				// if so, set mindyPlugin to the one stored in the hashtable
-				mindyPlugin = ht.get(node);
-				log.debug("plugin already exists for node ["
-						+ node.toString() + "]");
-			} else {
-				// if not, create a brand new mindyPlugin, add to the hashtable
-				// (with key=selected project tree node)
-				if (dataSet != data) {
-					dataSet = ((MindyDataSet) data);
-
-					log.debug("Creating new mindy plugin for node ["
-							+ node.toString() + "]");
-					// Create mindy gui and display an indeterminate progress
-					// bar in the foreground
-					progressBar = ProgressBar
-							.create(ProgressBar.INDETERMINATE_TYPE);
-					progressBar.addObserver(this);
-					progressBar.setTitle("MINDY");
-					progressBar.setMessage("Creating Display");
-					progressBar.start();
-
-					MindyData mindyData = dataSet.getData();
-					mindyPlugin = new MindyPlugin(mindyData, this);
-					mindyPlugin.populateTableTab();
-					mindyPlugin.populateModulatorModel();
-
-					// Incorporate selections from marker set selection panel
-					DSMicroarraySetView<DSGeneMarker, DSMicroarray> maView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(
-							dataSet.getData().getArraySet());
-					if (stopDrawing) {
-						stopDrawing = false;
-						progressBar.stop();
-						log.warn("Cancelling Mindy GUI.");
-						return;
-					}
-					maView.useMarkerPanel(true);
-
-					// Register the mindy plugin with our hashtable for keeping
-					// track
-					ht.put(node, mindyPlugin);
-					
-					if (stopDrawing) {
-						stopDrawing = false;
-						progressBar.stop();
-						log.warn("Cancelling Mindy GUI.");
-						return;
-					}
-				}
-
-			}
-			// Display the plugin
-			plugin.add(mindyPlugin, BorderLayout.CENTER);
-			progressBar.stop();
-			plugin.revalidate();
-			plugin.repaint();
+		// Display the plugin
+		plugin.removeAll();
+		plugin.add(mindyPlugin, BorderLayout.CENTER);
+		progressBar.stop();
+		plugin.revalidate();
+		plugin.repaint();
 	}
 
 	/**
@@ -199,35 +198,34 @@ public class MindyVisualComponent implements VisualPlugin, java.util.Observer {
 	 */
 	@Subscribe(Asynchronous.class)
 	public void receive(GeneSelectorEvent e, Object source) {
-		if (dataSet != null) {
+		if (dataSet == null)
+			return;
 
-			if (e.getPanel() != null) {
-				log.debug("Received gene selector event ");
-				selectorPanel = e.getPanel();
+		final DSPanel<DSGeneMarker> panel = e.getPanel();
 
-				Iterator<MindyPlugin> it = ht.values().iterator();
-				while (it.hasNext()) {
-					log
-							.debug("***received gene selector event::calling resetTargetSetModel: ");
-					MindyPlugin p = it.next();
-					p.setFilteringSelectorPanel(selectorPanel);
-					p.getTableTab().setFirstColumnWidth(30);
-//					((MindyPlugin) it.next()).resetTargetSetModel(selectorPanel);
-				}
-			} else
-				log
+		if (panel == null)
+			return;
 
-		.debug("Received Gene Selector Event: Selection panel sent was null");
+		SwingUtilities.invokeLater(new Runnable() {
 
-			{
+			@Override
+			public void run() {
+				processGeneSelectorEvent(panel);
+			}
 
+		});
+	}
+
+	// invoke from EDT
+	private void processGeneSelectorEvent(DSPanel<DSGeneMarker> panel) {
+		selectorPanel = panel;
+
+		Iterator<MindyPlugin> it = ht.values().iterator();
+		while (it.hasNext()) {
+			MindyPlugin p = it.next();
+			p.setFilteringSelectorPanel(selectorPanel);
+			p.getTableTab().setFirstColumnWidth(30);
 		}
-
-		} else {
-			log
-					.debug("Received Gene Selector Event: Dataset in this component is null");
-		}
-
 	}
 
 	/**

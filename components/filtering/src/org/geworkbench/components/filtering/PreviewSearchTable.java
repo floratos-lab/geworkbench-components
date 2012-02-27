@@ -233,7 +233,7 @@ public class PreviewSearchTable extends JPanel {
     	
     	markerTableModel.setRowCount(0);
 		
-		String searchText = searchField.getText();
+		String searchText = searchField.getText().toLowerCase();		
 
 		for (int i = 0; i < model.getSize(); i++){
 			if (model.getElementAt(i).toString().toLowerCase().indexOf(searchText, 0) != -1){

@@ -122,7 +122,7 @@ public class StarRatingPanel extends JPanel implements MouseListener {
 				if (rating == null)
 					setClickable(true);
 				else
-					setClickable(false);
+					setClickable(true);
 
 				super.done();
 			}
@@ -201,7 +201,7 @@ public class StarRatingPanel extends JPanel implements MouseListener {
 				if (rating == null)
 					setClickable(true);
 				else
-					setClickable(false);
+					setClickable(true);
 
 				super.done();
 			}
@@ -315,7 +315,7 @@ public class StarRatingPanel extends JPanel implements MouseListener {
 							wrap.getNumRating());
 
 					// user can no longer rate now
-					clickable = false;
+//					clickable = false;
 					setTitle("Thanks!");
 					getThisPanel().repaint();
 				}
@@ -362,7 +362,7 @@ public class StarRatingPanel extends JPanel implements MouseListener {
 					setRatingValue(wrap.getOverallRating(),
 							wrap.getNumRating());
 					// user can no longer rate now
-					clickable = false;
+//					clickable = false;
 					setTitle("Thanks!");
 					getThisPanel().repaint();
 				}

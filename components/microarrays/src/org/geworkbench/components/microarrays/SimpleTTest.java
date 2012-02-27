@@ -41,78 +41,75 @@ public class SimpleTTest {
 
     @SuppressWarnings("unchecked")
 	public double[] execute(Object input, boolean enableActiveMarkers) {
-        reset();
-        if (input == null) {
-            return null;
-        }
+		reset();
+		if (input == null) {
+			return null;
+		}
 
-        assert input instanceof DSMicroarraySetView;
+		assert input instanceof DSMicroarraySetView;
 
-		DSMicroarraySetView<DSGeneMarker, ? extends DSMicroarray> data 
-			= (DSMicroarraySetView<DSGeneMarker, ? extends DSMicroarray>) input;
-		DSMicroarraySet set = (DSMicroarraySet) data
-				.getDataSet();
+		DSMicroarraySetView<DSGeneMarker, ? extends DSMicroarray> data = (DSMicroarraySetView<DSGeneMarker, ? extends DSMicroarray>) input;
+
 		DSPanel<DSGeneMarker> genes = new CSPanel<DSGeneMarker>("");
 
-        genes.addAll(data.markers());
+		genes.addAll(data.markers());
 
-        data.useItemPanel(true);
-        data.useMarkerPanel(enableActiveMarkers);
-        item = data.markers();
+		data.useItemPanel(true);
+		data.useMarkerPanel(enableActiveMarkers);
+		item = data.markers();
 
-        int markers = genes.size();
-        int arrays = data.items().size();
-          groupAssignments = new int[arrays];
+		int markers = genes.size();
+		int arrays = data.items().size();
+		groupAssignments = new int[arrays];
 
-        expMatrix = new float[markers][arrays];
-        originalTValues = new double[markers];
-        for (int j = 0; j < arrays; j++) {
-            DSMicroarray ma = set.get(j);
-            for (int i = 0; i < markers; i++) {
-            DSGeneMarker marker = genes.get(i);
+		expMatrix = new float[markers][arrays];
+		originalTValues = new double[markers];
+		for (int j = 0; j < arrays; j++) {
+			DSMicroarray ma = data.get(j);
+			for (int i = 0; i < markers; i++) {
+				DSGeneMarker marker = genes.get(i);
 
-                expMatrix[i][j] = (float) ma.getMarkerValue(marker).getValue();;
-            }
-        }
+				expMatrix[i][j] = (float) ma.getMarkerValue(marker).getValue();
+			}
+		}
 
-        if (set instanceof DSMicroarraySet) {
-            DSMicroarraySet maSet = (DSMicroarraySet) set;
+		DSMicroarraySet maSet = (DSMicroarraySet) data.getMicroarraySet();
 
-            DSAnnotationContext<DSMicroarray> context = CSAnnotationContextManager.getInstance().getCurrentContext(maSet);
-            for (int i = 0; i < arrays; i++) {
-                DSMicroarray ma = data.items().get(i);
-                if (ma instanceof DSMicroarray) {
-                    String label = context.getClassForItem(ma);
-                    if (label.equals(CSAnnotationContext.CLASS_CASE)) {
-                        groupAssignments[i] = CASES;
-                    } else if (label.equals(CSAnnotationContext.CLASS_CONTROL)) {
-                        groupAssignments[i] = CONTROLS;
-                    } else {
-                        groupAssignments[i] = NEITHER_GROUP;
-                    }
-                } else {
-                    groupAssignments[i] = NEITHER_GROUP;
-                }
-            }
+		DSAnnotationContext<DSMicroarray> context = CSAnnotationContextManager
+				.getInstance().getCurrentContext(maSet);
+		for (int i = 0; i < arrays; i++) {
+			DSMicroarray ma = data.items().get(i);
+			if (ma instanceof DSMicroarray) {
+				String label = context.getClassForItem(ma);
+				if (label.equals(CSAnnotationContext.CLASS_CASE)) {
+					groupAssignments[i] = CASES;
+				} else if (label.equals(CSAnnotationContext.CLASS_CONTROL)) {
+					groupAssignments[i] = CONTROLS;
+				} else {
+					groupAssignments[i] = NEITHER_GROUP;
+				}
+			} else {
+				groupAssignments[i] = NEITHER_GROUP;
+			}
+		}
 
-            numGenes = genes.size();
-            numExps = data.items().size();
+		numGenes = genes.size();
+		numExps = data.items().size();
 
-            for (int i = 0; i < numGenes; i++) {
-                double tValue = getTValue(i);
+		for (int i = 0; i < numGenes; i++) {
+			double tValue = getTValue(i);
 
-                originalTValues[i] = tValue;
-                if (tValue > maxT) {
-                    maxT = tValue;
-                }
-                if (tValue < minT) {
-                    minT = tValue;
-                }
-            }
-            return originalTValues;
-        }
-        return null;
-    }
+			originalTValues[i] = tValue;
+			if (tValue > maxT) {
+				maxT = tValue;
+			}
+			if (tValue < minT) {
+				minT = tValue;
+			}
+		}
+		return originalTValues;
+
+	}
 
     private float getTValue(int gene) {
         float[] geneValues = new float[numExps];

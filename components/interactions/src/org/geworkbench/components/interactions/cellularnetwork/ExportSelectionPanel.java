@@ -478,7 +478,7 @@ public class ExportSelectionPanel extends JPanel {
 		StringBuilder restrictedLine = null;
 
 		DSItemList<DSGeneMarker> markers = dataset.getMarkers();
-		StringTokenizer tr = new StringTokenizer(line, "\t: :");
+		StringTokenizer tr = new StringTokenizer(line, "\t");
 		String node1 = tr.nextToken();
 		if (markers.get(node1) == null)
 			return null;

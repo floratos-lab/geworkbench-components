@@ -19,7 +19,7 @@ import org.geworkbench.components.genspace.ui.chat.RosterFrame;
 public class viewProfileTab extends SocialTab {
 	boolean isFriend;
 	UserWrapper u;
-
+	boolean isPendingRequestTo = false;
 	public viewProfileTab(UserWrapper p) {
 		this.u = p;
 
@@ -36,10 +36,17 @@ public class viewProfileTab extends SocialTab {
 		panel1.add(sep);
 		if (isFriend) {
 			friend.setText("(" + p.getShortName() + " is a friend)");
-		} else {
+		}
+		else if(SocialNetworksHome.getInstance().pendingFriendRequestTo(p))
+		{
+			this.isPendingRequestTo = true;
+			friend.setText("(You have requested " + p.getShortName()
+					+ " to add you as a friend, but they have not responded yet)");
+		}
+		else if(!p.getUsername().equals(GenSpaceServerFactory.getUser().getUsername())){
 			friend.setText("(" + p.getShortName()
 					+ " is not a friend)");
-		}
+		} 
 		panel1.add(friend);
 		if (isFriend) {
 			JButton removeFriend = new JButton("Remove friend");
@@ -67,6 +74,7 @@ public class viewProfileTab extends SocialTab {
 							JOptionPane.showMessageDialog(panel1,
 									"You are no longer friends with "
 											+ u.getShortName() + "");
+							SocialNetworksHome.getInstance().updateFormFields();
 							SocialNetworksHome.getInstance().goToFriends();
 							RosterFrame.removedCache.add(u.getUsername()+"@genspace");
 							GenSpaceLogin.chatHandler.rf.refresh();
@@ -77,7 +85,47 @@ public class viewProfileTab extends SocialTab {
 				}
 			});
 			panel1.add(removeFriend);
-		} else {
+		}
+		else if(SocialNetworksHome.getInstance().pendingFriendRequestTo(p))
+		{
+			JButton removeFriend = new JButton("Cancel friend request");
+			removeFriend.addActionListener(new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+
+					SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+
+						@Override
+						protected Void doInBackground()
+							 {
+							try {
+								GenSpaceServerFactory.getFriendOps().removeFriend(u.getId());
+							} catch (Exception e) {
+							}
+							
+							return null;
+							
+						}
+
+						@Override
+						protected void done() {
+							JOptionPane.showMessageDialog(panel1,
+									"You have canceled your friend request to "
+											+ u.getShortName() + "");
+							SocialNetworksHome.getInstance().updateFormFields();
+							SocialNetworksHome.getInstance().goToFriends();
+							RosterFrame.removedCache.add(u.getUsername()+"@genspace");
+							GenSpaceLogin.chatHandler.rf.refresh();
+						}
+
+					};
+					worker.execute();
+				}
+			});
+			panel1.add(removeFriend);
+		}
+		else if(!p.getUsername().equals(GenSpaceServerFactory.getUser().getUsername())){
 			JButton addFriend = new JButton("Add as friend");
 			addFriend.addActionListener(new ActionListener() {
 
@@ -91,6 +139,7 @@ public class viewProfileTab extends SocialTab {
 								 {
 								try {
 									GenSpaceServerFactory.getFriendOps().addFriend(u.getId());
+									SocialNetworksHome.getInstance().updateFormFields();
 								} catch (Exception e) {
 									GenSpaceServerFactory.handleExecutionException(e);
 								}
@@ -105,6 +154,7 @@ public class viewProfileTab extends SocialTab {
 											"A friend sent for "
 													+ u.getShortName()
 													+ "'s approval. You will not become friends until he or she accepts your request.");
+							SocialNetworksHome.getInstance().bringUpProfile(u.getDelegate());
 						}
 
 					};

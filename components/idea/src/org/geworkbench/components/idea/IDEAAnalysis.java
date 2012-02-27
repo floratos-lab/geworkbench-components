@@ -199,7 +199,7 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 		if(edgeIndex.size()==0){
 			pbIdea.dispose();
 			return new AlgorithmExecutionResults(false,
-					"None of valid network edges loaded, analysis aborted!", null);
+					"No overlap between network edges and data set, analysis aborted!", null);
 		}
 		
 		Phenotype phenotype = IDEAAnalysisPanel.getPhenotype();
