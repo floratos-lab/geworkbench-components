@@ -157,7 +157,7 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		builder.nextLine();
 
 		JTabbedPane jTabbedPane1 = new JTabbedPane();
-		jTabbedPane1.add(builder.getPanel(), "Main");
+		jTabbedPane1.addTab("Main", builder.getPanel());
 
 		layout = new FormLayout(
 				"left:max(100dlu;pref), 10dlu, 100dlu, 10dlu, "
@@ -197,7 +197,7 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		builder.append(loadSigButton);
 		builder.nextLine();
 
-		jTabbedPane1.add(builder.getPanel(), "FET");
+		jTabbedPane1.addTab("FET (local service)", null, builder.getPanel(), "The paremeters on this tab apply to local FET analysis only.");
 
 		builder = new DefaultFormBuilder(new FormLayout(
 				"left:max(60dlu;pref), 10dlu, 100dlu, 80dlu, "
@@ -247,7 +247,7 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 				parameterActionListener.actionPerformed(null);
 			}
 		});
-		jTabbedPane1.add(builder.getPanel(), "MARINa");
+		jTabbedPane1.addTab("MARINa (grid service)", null, builder.getPanel(), "The parameters on this tab apply to the remote MARINa grid service only.");
 		this.add(jTabbedPane1, BorderLayout.CENTER);
 
 		tfGroups.addActionListener(new ActionListener() {

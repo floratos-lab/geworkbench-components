@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Observer;
 
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -176,9 +177,7 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 			errMsgB.append("No modulator specified.\n");
 		}
 
-		if (!params.getTargetsFrom().getSelectedItem().toString()
-				.equals(MindyParamPanel.FROM_ALL)
-				&& (targetGeneList != null) && (targetGeneList.size() > 0)) {
+		if ((targetGeneList != null) && (targetGeneList.size() > 0)) {
 			for (String modGene : targetGeneList) {
 				DSGeneMarker marker = mSet.getMarkers().get(modGene);
 				if (marker == null) {
@@ -227,7 +226,11 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 		if ((!subsetMI)
 				&& (params.getConditionalCorrection()
 						.equals(MindyParamPanel.BONFERRONI))) {
-			subsetThreshold = subsetThreshold / numMarkers;
+			int num = targetGeneList.size();
+			if (num <= 0) { // this is always interpreted as "All Markers"
+				num = numMarkers;
+			}
+			subsetThreshold = subsetThreshold / num;
 		}
 
 		float setFraction = params.getSetFraction() / 100f;
@@ -280,7 +283,23 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 	 * @param source
 	 */
 	@Subscribe
-	public void receive(GeneSelectorEvent e, Object source) {
+	public void receive(final GeneSelectorEvent e, Object source) {
+		if (SwingUtilities.isEventDispatchThread()) {
+			processGeneSelectorEvent(e);
+		} else {
+			SwingUtilities.invokeLater(new Runnable() {
+
+				@Override
+				public void run() {
+					processGeneSelectorEvent(e);
+				}
+
+			});
+		}
+	}
+
+	// invoke only from EDT
+	private void processGeneSelectorEvent(GeneSelectorEvent e) {
 		DSGeneMarker marker = e.getGenericMarker(); // GeneselectorEvent can be
 		// a panel event therefore
 		// won't work here,
@@ -292,8 +311,9 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 			this.selectorPanel = e.getPanel();
 			((MindyParamPanel) aspp).setSelectorPanel(((MindyParamPanel) aspp),
 					this.selectorPanel);
-		} else
+		} else {
 			log.debug("Received Gene Selector Event: Selection panel sent was null");
+		}
 	}
 
 	@Subscribe
@@ -615,7 +635,9 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 		useMarkersFromSelector(true);
 		MindyParamPanel params = (MindyParamPanel) aspp;
 		if (params.getTargetsFrom().getSelectedItem().toString()
-				.equals(MindyParamPanel.FROM_ALL))
+				.equals(MindyParamPanel.FROM_ALL)
+				|| params.getTargetGeneList() == null
+				|| params.getTargetGeneList().size() == 0)
 			maSetView.useMarkerPanel(false);
 		else
 			useMarkersFromSelector(false);
@@ -703,15 +725,6 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 		if (numMarkers < 2) {
 			return new ParamValidationResults(false,
 					"Not enough markers in the microarrays. (Need at least 2)\n");
-		}
-
-		List<String> targets = params.getTargetGeneList();
-		String hub = params.getTranscriptionFactor();
-		if (!targets.contains(hub)
-				&& !params.getTargetsFrom().getSelectedItem().toString()
-						.equals(MindyParamPanel.FROM_ALL)) {
-			return new ParamValidationResults(false, "Hub marker " + hub
-					+ " is not in the target list.");
 		}
 
 		ArrayList<String> modulatorGeneList = params.getModulatorGeneList();

@@ -793,6 +793,18 @@ public class AnalysisPanel extends CommandBase implements
 	 */
 	@SuppressWarnings("unchecked")
 	private boolean startAnalysis() {
+		DSDataSet<? extends DSBioObject> dataset = ProjectPanel.getInstance()
+				.getDataSet();
+		if ((refMASet == null && (refOtherSet == null || refOtherSet != dataset))
+				|| (refMASet !=null && refMASet != dataset) ) {
+			JOptionPane
+					.showMessageDialog(
+							null,
+							"Dataset node is not currently selected. Please try to left click the data node first.",
+							"Data not selected",
+							JOptionPane.INFORMATION_MESSAGE);
+			return false;
+		}
 		maSetView = getDataSetView();
 
 		boolean onlyActivatedArrays = false;
@@ -1072,6 +1084,7 @@ public class AnalysisPanel extends CommandBase implements
 			refOtherSet = null;
 		} else {
 			refOtherSet = dataSet;
+			refMASet = null;
 		}
 		if (event.getParent() == null  && !pendingNodeSelected()) { // if not a sub-node under DataSet node nor a pending node
 			lastDataType = currentDataType;

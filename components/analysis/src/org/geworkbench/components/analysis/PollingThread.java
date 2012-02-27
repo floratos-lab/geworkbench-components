@@ -65,7 +65,9 @@ public class PollingThread extends Thread {
 						errorMessage, "java.rmi.RemoteException: ");
 
 				if (result instanceof OutOfMemoryError){
-					errorMessage += "\nPlease increase max heap size then try it again.";
+					errorMessage = "Out-of-memory error: " + errorMessage
+					+ "\n\nIt is advisable to restart geWorkbench."
+					+ "\n\nYou may also wish to increase the geWorkbench memory size.";
 				}
 
 				JOptionPane.showMessageDialog(null, errorMessage,

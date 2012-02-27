@@ -274,6 +274,8 @@ public class WorkflowVisualizationPanel extends JPanel implements VisualPlugin {
 
 	private void renderSingleWorkflow(WorkflowWrapper w, Tool selected, Object parent,
 			int toolOffset, mxICell drawFrom) {
+		if(this.getGraphics() == null)
+			return;
 		Font f = new Font("Helvetica",Font.PLAIN,11);
 
 		int drawOffset;

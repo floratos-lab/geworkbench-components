@@ -62,6 +62,7 @@ public class ObjectLogger {
 				}
 				@Override
 				protected Transaction doInBackground(){
+//					System.out.println("Background logging "  + analysisName);
 					String hostname = "";
 					try {
 						hostname = InetAddress.getLocalHost().getHostName();
@@ -118,6 +119,7 @@ public class ObjectLogger {
 					}
 					AnalysisEvent e = new AnalysisEvent();
 					e.setToolname(analysisName);
+
 					try {
 						e.setCreatedAt(DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar()));
 					} catch (DatatypeConfigurationException e2) {
@@ -125,13 +127,17 @@ public class ObjectLogger {
 					} 
 					e.setTransaction(curTransaction);
 					HashSet<AnalysisEventParameter> params = new HashSet<AnalysisEventParameter>();
-					for(Object key : parameters.keySet())
-					{
-						AnalysisEventParameter p = new AnalysisEventParameter();
-						p.setParameterKey(key.toString());
-						p.setParameterValue(parameters.get(key).toString());
-						params.add(p);
-					}
+					if(parameters != null)
+						for(Object key : parameters.keySet())
+						{
+							if(!key.equals("referenceListSets"))
+							{
+							AnalysisEventParameter p = new AnalysisEventParameter();
+							p.setParameterKey(key.toString());
+							p.setParameterValue(parameters.get(key).toString());
+							params.add(p);
+							}
+						}
 					e.getParameters().addAll(params);
 					try
 					{
@@ -154,6 +160,7 @@ public class ObjectLogger {
 					}
 					catch(Exception ex)
 					{
+//						ex.printStackTrace();
 						//be silent on errors... if we get them, we'll just log to the file instead
 					}
 					
@@ -191,25 +198,33 @@ public class ObjectLogger {
 						fw.write("\n\t\t\t<second>" + c.get(Calendar.SECOND) + "</second>");
 						fw.write("\n\t\t</time>");
 
-						// log the parameters
-						@SuppressWarnings("rawtypes")
-						Set keys = parameters.keySet();
-
-						fw.write("\n\t\t<parameters count=\"" + keys.size() + "\">");
-						int count = 0;
-
-						for (Object key : keys) {
-							Object value = parameters.get(key);
-							fw.write("\n\t\t\t<parameter id=\"" + count + "\">");
-							fw.write("\n\t\t\t\t<key>" + key.toString() + "</key>");
-							fw.write("\n\t\t\t\t<value>" + value.toString() + "</value>");
-							fw.write("\n\t\t\t</parameter>");
-
-							count++;
+						if(parameters != null)
+						{
+							// log the parameters
+							@SuppressWarnings("rawtypes")
+							Set keys = parameters.keySet();
+	
+							fw.write("\n\t\t<parameters count=\"" + keys.size() + "\">");
+							int count = 0;
+	
+							for (Object key : keys) {
+								Object value = parameters.get(key);
+								fw.write("\n\t\t\t<parameter id=\"" + count + "\">");
+								fw.write("\n\t\t\t\t<key>" + key.toString() + "</key>");
+								fw.write("\n\t\t\t\t<value>" + value.toString() + "</value>");
+								fw.write("\n\t\t\t</parameter>");
+	
+								count++;
+							}
+	
+							fw.write("\n\t\t</parameters>");
 						}
+						else
+						{
+							fw.write("\n\t\t<parameters count=\"0\">");
 
-						fw.write("\n\t\t</parameters>");
-
+							fw.write("\n\t\t</parameters>");
+						}
 						fw.write("\n\t</metric>\n");
 						// fw.write("\n</measurement>\n");
 

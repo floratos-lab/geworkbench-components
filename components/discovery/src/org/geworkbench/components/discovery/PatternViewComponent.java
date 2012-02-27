@@ -45,4 +45,10 @@ public class PatternViewComponent implements
     		patternViewPanel.setPatternResults(patterResult);
     	}
     }
+
+	@Subscribe
+	public void receive(org.geworkbench.events.GeneSelectorEvent e,
+			Object publisher) {
+		patternViewPanel.sequenceDBUpdate(e);
+	}
 }

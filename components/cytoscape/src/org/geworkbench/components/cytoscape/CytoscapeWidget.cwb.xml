@@ -14,6 +14,7 @@
  The component allows selected network nodes (genes) to be
  returned to a geWorkbench project for further analysis."
 		category="visualizer" 
+		loadByDefault="true"
 	>
 
 		<license><![CDATA[
