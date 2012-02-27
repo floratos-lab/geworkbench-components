@@ -252,6 +252,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 				String selected = (String) targetsFrom.getSelectedItem();
 				if (StringUtils.equals(selected, FROM_ALL)) {
 					targetsSets.setEnabled(false);
+					targetsSets.setSelectedIndex(0);
 					targetList.setText("");
 					targetList.setEditable(false);
 					targetList.setEnabled(false);
@@ -766,19 +767,19 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 
 		paramDescB.append("[PARA] Target list: ");
 
-		if ((targetGeneList != null) && (targetGeneList.size() > 0)) {
+		
+		if (getTargetsFrom().getSelectedItem().toString()
+					.equals(MindyParamPanel.FROM_ALL))
+				paramDescB.append("All Markers");
+		 
+	    else if ((targetGeneList != null) && (targetGeneList.size() > 0)) {
 			for (String modGene : targetGeneList) {
-
 				paramDescB.append(modGene);
 				paramDescB.append(" ");
 				targets.add(new Marker(modGene));
 
 			}
-		} else {
-			if (getTargetsFrom().getSelectedItem().toString()
-					.equals(MindyParamPanel.FROM_ALL))
-				paramDescB.append("All Markers");
-		}
+		}  
 		paramDescB.append("\n");
 
 		String transcriptionFactor = getTranscriptionFactor();
