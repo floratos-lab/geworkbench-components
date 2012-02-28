@@ -52,12 +52,10 @@ public class ObjectHandler {
 					}
 				}
 
-
 				incrementTransactionId(dataSetName);
 				ObjectLogger o = null;
 				String analysisName = "";
 				analysisName = ((AbstractAnalysis) analysis).getLabel();
-				@SuppressWarnings("rawtypes")
 				@SuppressWarnings("rawtypes")
 				Map parameters;
 				if(analysis.getParameterPanel() != null)
