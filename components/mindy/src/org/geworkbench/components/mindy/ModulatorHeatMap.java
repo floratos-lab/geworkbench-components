@@ -50,28 +50,27 @@ public class ModulatorHeatMap extends JPanel {
 	private int maxGeneNameWidth = -1;
 	private boolean showProbeName = false;
 
-	private ModulatorHeatMapModel model;
-
-	// FIXME ModulatorHeatMap and ModulatorHeatMapModel have dependency cycle 'by design'
-	public ModulatorHeatMap() {
-	}
+	private final ModulatorHeatMapModel model;
 
 	/**
-	 * refactored from MindyPlugin, called from several ActionListener classes
+	 * The only constructor of ModulatorHeatMap.
+	 * 
+	 * ModulatorHeatMap depends on ModulatorHeatMapModel; not the other way around.
+	 * 
+	 * @param model
 	 */
-	@Deprecated
-	public void prepareGraphics() {
-		// TODO remove me
+	public ModulatorHeatMap(ModulatorHeatMapModel model) {
+		this.model = model;
+
+		// if no symbol names available show probe name
+		if (!model.isAnnotated()) {
+			showProbeName = true;
+		}
+
+		updateMaxGeneNameWidth();
 	}
 
-	/**
-	 * reset variables that are used for painting, for example, modulator is
-	 * different now, instead of discarding the heatMap and recreating it from
-	 * the scratch
-	 *
-	 * fire repainting
-	 */
-	public void reset() {
+	public void updateMaxGeneNameWidth() {
 		// calculate Max Gene Name Width
 		List<DSGeneMarker> markers = model.getTargets();
 		FontRenderContext context = new FontRenderContext(null, true, false);
@@ -82,18 +81,19 @@ public class ModulatorHeatMap extends JPanel {
 				maxGeneNameWidth = (int) bounds.getWidth() + 1;
 			}
 		}
-
+	}
+	
+	/**
+	 * Reset variables that are used for painting and repaint.
+	 */
+	public void reset() {
+		updateMaxGeneNameWidth();
 		revalidate();
 		repaint();
 	}
 
-	/**
-	 * Paint the heat map graphics object.
-	 *
-	 * @param graphics
-	 *            - the graphics object representing the heat map.
-	 */
-	public void paint(Graphics graphics) {
+	@Override
+	public void paintComponent(Graphics graphics) {
 
 		Graphics2D g = (Graphics2D)graphics;
 
@@ -278,20 +278,4 @@ public class ModulatorHeatMap extends JPanel {
 		return MindyPlugin.getMarkerDisplayName(this.showProbeName, marker);
 	}
 
-	public void HeatmapChanged() {
-		revalidate();
-		repaint();
-	}
-
-	// FIXME should refactor to constructor because this set is called only right after constructor
-	public void setModel(ModulatorHeatMapModel model) {
-		this.model = model;
-
-		// if no symbol names available show probe name
-		if (!model.isAnnotated()) {
-			showProbeName = true;
-		}
-
-		reset();
-	}
 }

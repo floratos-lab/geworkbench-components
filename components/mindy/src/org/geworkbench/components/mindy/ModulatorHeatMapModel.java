@@ -33,8 +33,6 @@ public class ModulatorHeatMapModel {
     private ArrayList<DSMicroarray> half1 = null;
     private ArrayList<DSMicroarray> half2 = null;
 
-    private ModulatorHeatMap heatMap;
-
     public ModulatorHeatMapModel(DSGeneMarker modulator, MindyData mindyData) {
 		this.mindyData = mindyData;
 		this.transcriptionFactor = mindyData.getTranscriptionFactor();
@@ -73,8 +71,6 @@ public class ModulatorHeatMapModel {
 
     public void setModulator(DSGeneMarker modulator) {
     	updateModulator(modulator);
-
-    	heatMap.reset();
 	}
 
 	public float getSetFraction() {
@@ -122,26 +118,10 @@ public class ModulatorHeatMapModel {
         return mindyData.isAnnotated();
     }
 
-    // also act as addListner
-    public void setHeatMap(ModulatorHeatMap heatMap) {
-		this.heatMap = heatMap;
-	}
-
     public void limitMarkers(List<DSGeneMarker> limitList) {
-		log.debug("limit markers in heatMap");
-
 		List<MindyResultRow> tmpRows = mindyData.getRows(modulator, limitList);
 		setTargetRows(tmpRows);
-
-		/* to be consistent with other models */
-		heatMap.reset();
 	}
-
-	public void fireHeatmapChanged() {
-		if (this.heatMap != null){
-	    	this.heatMap.HeatmapChanged();
-		}
-    }
 
     /**
      *      create arrays:

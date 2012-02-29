@@ -8,8 +8,6 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.AdjustmentEvent;
-import java.awt.event.AdjustmentListener;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -91,10 +89,6 @@ public class MindyPlugin extends JPanel {
 
 	static final int MIN_SCORE_WIDTH = 66;
 
-	private static final int DATA_SIZE_THRESHOLD = 3000;
-
-	private static final int NUMBER_TARGETS_THRESHOLD = 500;
-
 	static final String NUM_MOD_SELECTED_LABEL = "Modulators Selected: ";
 
 	static final String ENABLE_SELECTION = "Enable Selection";
@@ -126,8 +120,6 @@ public class MindyPlugin extends JPanel {
 
 	JCheckBox selectionEnabledCheckBox;
 
-	private JScrollPane heatMapScrollPane;
-
 	private List<DSGeneMarker> modulators;
 
 	private MindyData mindyData;
@@ -155,8 +147,6 @@ public class MindyPlugin extends JPanel {
 	Cursor normalCursor = new Cursor(Cursor.DEFAULT_CURSOR);
 
 	private JComponent[] cs = new JComponent[6];
-
-	private int dataSize = 0;
 
 	private JButton screenshotButton = new JButton("  Image Snapshot  ");;
 
@@ -213,7 +203,6 @@ public class MindyPlugin extends JPanel {
 		targetsSets.setEditable(false);
 		targetsSets.setEnabled(true);
 
-		this.dataSize = mindyData.getDataSize();
 		modulators = mindyData.getModulators();
 
 		// for heatmap image rendering cursor
@@ -524,23 +513,10 @@ public class MindyPlugin extends JPanel {
 			// map with upon first running
 			DSGeneMarker modulator = modulators.iterator().next();
 
-			heatmap = new ModulatorHeatMap();
 			heatmapModel = new ModulatorHeatMapModel(modulator, mindyData);
-			heatmap.setModel(heatmapModel);
-			heatmapModel.setHeatMap(heatmap);
+			heatmap = new ModulatorHeatMap(heatmapModel);
 
-			heatMapScrollPane = new JScrollPane(heatmap);
-			AdjustmentListener scrollBarListener = new AdjustmentListener() {
-				public void adjustmentValueChanged(AdjustmentEvent e) {
-					if (!e.getValueIsAdjusting()) {
-						heatmap.HeatmapChanged();
-					}
-				}
-			};
-			heatMapScrollPane.getHorizontalScrollBar().addAdjustmentListener(
-					scrollBarListener);
-			heatMapScrollPane.getVerticalScrollBar().addAdjustmentListener(
-					scrollBarListener);
+			final JScrollPane heatMapScrollPane = new JScrollPane(heatmap);
 
 			JPanel transFacPane = new JPanel(new BorderLayout());
 			JLabel l = new JLabel("Transcription Factor", SwingConstants.LEFT);
@@ -586,20 +562,6 @@ public class MindyPlugin extends JPanel {
 								modFilterField.setText(heatMapModNameList
 										.getSelectedValue().toString());
 
-								List<DSGeneMarker> l = mindyVisualComponent
-											.getSelectedMarkers();
-								if (l == null) {
-										if (dataSize > DATA_SIZE_THRESHOLD) {
-											heatmap.prepareGraphics();
-										}
-								} else {
-										if (l.size() > NUMBER_TARGETS_THRESHOLD) {
-											heatmap.prepareGraphics();
-										}
-								}
-								heatmapModel.limitMarkers(l);
-
-								// TODO do we need all of the above?
 								// set selected modulator,
 								heatMapSync();
 
@@ -640,17 +602,7 @@ public class MindyPlugin extends JPanel {
 
 					List<DSGeneMarker> l = mindyVisualComponent
 								.getSelectedMarkers();
-					if (l == null) {
-							if (dataSize > DATA_SIZE_THRESHOLD) {
-								heatmap.prepareGraphics();
-							}
-					} else {
-							if (l.size() > NUMBER_TARGETS_THRESHOLD) {
-								heatmap.prepareGraphics();
-							}
-					}
 					heatmapModel.limitMarkers(l);
-
 					heatmap.reset();
 
 					setCursorFinished();
@@ -682,17 +634,7 @@ public class MindyPlugin extends JPanel {
 
 					List<DSGeneMarker> l = mindyVisualComponent
 								.getSelectedMarkers();
-					if (l == null) {
-							if (dataSize > DATA_SIZE_THRESHOLD) {
-								heatmap.prepareGraphics();
-							}
-					} else {
-							if (l.size() > NUMBER_TARGETS_THRESHOLD) {
-								heatmap.prepareGraphics();
-							}
-						}
 					heatmapModel.limitMarkers(l);
-
 					heatmap.reset();
 
 					setCursorFinished();
@@ -771,7 +713,8 @@ public class MindyPlugin extends JPanel {
 
 				}
 
-				 doResizeAndRepaint();
+				revalidate();
+				repaint();
 			}
 
 		});
@@ -807,10 +750,6 @@ public class MindyPlugin extends JPanel {
 
 		tabs.setVisible(true);
 
-		doResizeAndRepaint();
-	
-
-	
 	}
 
 	private void exportTabModulatorPressed(){
@@ -997,12 +936,6 @@ public class MindyPlugin extends JPanel {
 
 	}
 	
-
-	private void doResizeAndRepaint() {
-		revalidate();
-		repaint();
-	}
-
 	public Cursor getHourglassCursor() {
 		return hourglassCursor;
 	}
@@ -1135,7 +1068,7 @@ public class MindyPlugin extends JPanel {
 	 * @param -
 	 *            list of selected markers
 	 */
-	public void limitMarkers(List<DSGeneMarker> markers) {
+	private void limitMarkers(List<DSGeneMarker> markers) {
 		try{
 			/* stats for filtered markers
 			 * don't need to keep collection of rows, change later   */
@@ -1173,12 +1106,12 @@ public class MindyPlugin extends JPanel {
 			setCursor(hourglassCursor);
 
 			heatmapModel.limitMarkers(markers);
+			heatmap.updateMaxGeneNameWidth();
 
 			setCursor(normalCursor);
 
 			// target table tab
 			tableTab.getAggregateModel().limitMarkers(markers);
-			doResizeAndRepaint();
 
 			// list table tab
 			modTargetModel.limitMarkers(markers);
@@ -1459,13 +1392,6 @@ public class MindyPlugin extends JPanel {
 		resetTargetSetModel(filteringSelectorPanel);
 	}
 
-	private void filterHeatMapMarkersSet(String selectedLabel) {
-		List<DSGeneMarker> markers;
-		markers = getFilteredMarkers(selectedLabel);
-
-		heatmapModel.limitMarkers(markers);
-	}
-
 	private void filterMarkersSet(String selectedLabel) {
 		List<DSGeneMarker> markers;
 		markers = getFilteredMarkers(selectedLabel);
@@ -1477,7 +1403,10 @@ public class MindyPlugin extends JPanel {
 		DSGeneMarker mod = getSelectedModulatorHeatMap();
 		heatmapModel.setModulator(mod);
 
-		filterHeatMapMarkersSet(selectedSetName);
+		List<DSGeneMarker> markers = getFilteredMarkers(selectedSetName);
+
+		heatmapModel.limitMarkers(markers);
+		heatmap.reset();
 	}
 
 	static public void setCursorFinished() {
