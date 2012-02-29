@@ -1068,7 +1068,9 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
 		final long MAX_SIZE = 100*1024*1024;
 		if(size > MAX_SIZE) {
 			JOptionPane.showMessageDialog(this.getComponent(),
-			"The requested snapshot is "+w+" X "+h+" pixels, or about "+size/1000000+" megapixels. Cannot create.");
+			"Cannot create snapshot.\n"+ 
+			"The requested snapshot is "+w+"X"+h+" pixels, or about "+size/1000000+" megapixels.\n"+ 
+			"The upper limit is 100 megapixels.");
 			return null;
 		}
         BufferedImage image;
