@@ -6,7 +6,6 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.DSAnnotatedPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
-import org.geworkbench.util.associationdiscovery.cluster.DSMatrixPattern;
 
 /**
  * <p>Title: Plug And Play</p>

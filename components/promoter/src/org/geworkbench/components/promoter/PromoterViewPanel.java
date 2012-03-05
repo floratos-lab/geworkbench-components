@@ -71,7 +71,6 @@ import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSe
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.datastructure.complex.pattern.DSMatchedPattern;
-import org.geworkbench.bison.datastructure.complex.pattern.DSPattern;
 import org.geworkbench.bison.datastructure.complex.pattern.DSPatternMatch;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.CSSeqRegistration;
 import org.geworkbench.events.GeneSelectorEvent;
@@ -186,18 +185,11 @@ public final class PromoterViewPanel extends JPanel {
     private boolean stop = false;
     private int averageNo = 10;
     private double pValue = 0.05;
-    private ArrayList<DSPattern<DSSequence, CSSeqRegistration>> seqPatterns = new ArrayList<DSPattern<DSSequence, CSSeqRegistration>>();
+
     private ArrayList<TranscriptionFactor> promoterPatterns = new ArrayList<TranscriptionFactor>();
 
-    private Hashtable<DSPattern<DSSequence, CSSeqRegistration>, List<DSPatternMatch<DSSequence, CSSeqRegistration>>>
-            seqPatternMatches = new Hashtable<DSPattern<DSSequence,
-                                CSSeqRegistration>,
-                                List<DSPatternMatch<DSSequence,
-                                CSSeqRegistration>>>();
-
-    private Hashtable<DSPattern<DSSequence, CSSeqRegistration>, List<DSPatternMatch<DSSequence, CSSeqRegistration>>>
-            promoterPatternMatches = new Hashtable<DSPattern<DSSequence,
-                                     CSSeqRegistration>,
+    private Hashtable<TranscriptionFactor, List<DSPatternMatch<DSSequence, CSSeqRegistration>>>
+            promoterPatternMatches = new Hashtable<TranscriptionFactor,
                                      List<DSPatternMatch<DSSequence,
                                      CSSeqRegistration>>>();
 
@@ -865,9 +857,6 @@ public final class PromoterViewPanel extends JPanel {
 
 
     private void clear() {
-        seqPatterns.clear();
-
-        seqPatternMatches.clear();
         promoterPatterns.clear();
 
         promoterPatternMatches.clear();
@@ -999,9 +988,7 @@ public final class PromoterViewPanel extends JPanel {
 			Matrix mx = (Matrix) matrixMap.get(id);
 			mx.initialize(sqrtNSelected, pseduocount);
 			
-			TranscriptionFactor tf = new TranscriptionFactor();
-			tf.setName(fullName);
-			tf.setMatrix(mx);
+			TranscriptionFactor tf = new TranscriptionFactor(fullName, mx);
 			tfMap.put(fullName, tf);
 			tfListModel.addElement(fullName);
 			
@@ -1072,14 +1059,18 @@ public final class PromoterViewPanel extends JPanel {
         final HashMap<CSSequence,
                 PatternSequenceDisplayUtil>
                 tfPatterns = seqDisPanel.getPatternTFMatches();
-        final Set<CSSequence> keySet = tfPatterns.keySet();
-        if (tfPatterns == null || keySet == null || keySet.isEmpty()) {
+        Set<CSSequence> keySet_try = null;
+        if (tfPatterns != null) {
+        	keySet_try = tfPatterns.keySet();
+        }
+        if (tfPatterns == null || keySet_try == null || keySet_try.isEmpty()) {
             JOptionPane.showMessageDialog(null, "No pattern is detected.",
                                           "Please check",
                                           JOptionPane.ERROR_MESSAGE);
             return;
 
         }
+        final Set<CSSequence> keySet = keySet_try;
         fc2 = new JFileChooser();
         fc2.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -1174,10 +1165,18 @@ public final class PromoterViewPanel extends JPanel {
             BufferedReader br = null;
             try {
                 br = new BufferedReader(new FileReader(file));
-                String[] a = br.readLine().trim().split("\t");
-                String[] c = br.readLine().trim().split("\t");
-                String[] g = br.readLine().trim().split("\t");
-                String[] t = br.readLine().trim().split("\t");
+                String line = br.readLine();
+                if(line==null) throw new IOException("Unexpected end of file "+file);
+                String[] a = line.trim().split("\t");
+                line = br.readLine();
+                if(line==null) throw new IOException("Unexpected end of file "+file);
+                String[] c = line.trim().split("\t");
+                line = br.readLine();
+                if(line==null) throw new IOException("Unexpected end of file "+file);
+                String[] g = line.trim().split("\t");
+                line = br.readLine();
+                if(line==null) throw new IOException("Unexpected end of file "+file);
+                String[] t = line.trim().split("\t");
                 br.close();
 
                 for (int indx = 0; indx < a.length; indx++) {
@@ -1199,12 +1198,10 @@ public final class PromoterViewPanel extends JPanel {
             }
 
             // mx.train(sec);
-            TranscriptionFactor tf = new TranscriptionFactor();
             boolean sqrtNSelected = sqrtNCheckBox.isSelected();
             double pseduocount = Double.parseDouble(pseudocountBox.getText());
 			mx.initialize(sqrtNSelected, pseduocount);
-            tf.setMatrix(mx);
-            tf.setName(file.getName());
+            TranscriptionFactor tf = new TranscriptionFactor(file.getName(), mx);
 
             /* TF is in the map */
             if ( tfMap.containsValue(tf)){
@@ -1348,150 +1345,138 @@ public final class PromoterViewPanel extends JPanel {
                     int totalLength = 0;
                     for (Enumeration<?> en = selectedTFModel.elements(); en.hasMoreElements(); ) {
                         TranscriptionFactor pattern = (TranscriptionFactor)en.nextElement();
+                        if (pattern == null) continue;
+                        
                         jProgressBar1.setString("Processing :" + pattern.getName());
 
-                        if (pattern != null) {
-                            ar.add(pattern);
-                            ScoreStats stats = null;
-                            // Load the 13K set if needed
-                            if (set13KCheck.isSelected()) {
-                                load13KBSet();
-                            } else {
-                                background = null;
-                            }
-                            if (useThresholdCheck.isSelected()) {
-                                pValue = 0.05;
-                                threshold = Double.parseDouble(thresholdBox.
-                                        getText());
-                            } else {
-                                if (background != null) {
-                                    // compute the threshold from the required pValue
-                                    // using the predefiedn background database
-                                    stats = getThreshold(pattern,
-                                            background,
-                                            pValue);
-                                } else {
-                                    // compute the threshold from the required pValue
-                                    // using a random generative model
-                                    stats = getThreshold(pattern, rs,
-                                            pValue);
-                                }
-                                // assign the new pValue based on what we could find
-                                if (stats != null) {
-                                    pValue = stats.pValue;
-                                    pValueFieldResult.setText(formatPV.format(pValue));
-                                    threshold = stats.score * 0.99;
-                                } else {
-                                    //stopped.
-                                    updateProgressBar(1,
-                                            "Stopped on " + new Date());
-                                    return;
-                                }
-                            }
-                            pattern.setThreshold(threshold);
-                            // Lengths are in base pairs (BP) and do not include the reverse
-                            // strand. Analysis is the done on both the normal and reverse
-                            // strand.
-                            int partialLength = 0;
-                            List<DSPatternMatch<DSSequence,
-                                    CSSeqRegistration>>
-                                    matches = new ArrayList<DSPatternMatch<
-                                              DSSequence, CSSeqRegistration>>();
-                            for (int seqId = 0; seqId < sequenceDB.size();
-                                             seqId++) {
-                                double progress = (double) seqId /
-                                                  (double) sequenceDB.size();
-                                updateProgressBar(progress,
-                                                  "Discovery: " +
-                                                  pattern.getName());
-                                DSSequence seq = sequenceDB.getSequence(
-                                        seqId);
-                                // Count the valid positions so that we can compute the background matches
-                                // in a meaningful way. E.g. don't count # or stretches that do not contain
-                                // valid sequence data
-                                int positions = countValid(pattern, seq);
-                                if (positions > 10) {
-                                    seqNo++;
-                                    partialLength += positions;
-                                    totalLength += positions;
+						ar.add(pattern);
+						ScoreStats stats = null;
+						// Load the 13K set if needed
+						if (set13KCheck.isSelected()) {
+							load13KBSet();
+						} else {
+							background = null;
+						}
+						if (useThresholdCheck.isSelected()) {
+							pValue = 0.05;
+							threshold = Double.parseDouble(thresholdBox
+									.getText());
+						} else {
+							if (background != null) {
+								// compute the threshold from the required
+								// pValue
+								// using the predefiedn background database
+								stats = getThreshold(pattern, background,
+										pValue);
+							} else {
+								// compute the threshold from the required
+								// pValue
+								// using a random generative model
+								stats = getThreshold(pattern, rs, pValue);
+							}
+							// assign the new pValue based on what we could find
+							if (stats != null) {
+								pValue = stats.pValue;
+								pValueFieldResult.setText(formatPV
+										.format(pValue));
+								threshold = stats.score * 0.99;
+							} else {
+								// stopped.
+								updateProgressBar(1, "Stopped on " + new Date());
+								return;
+							}
+						}
+						pattern.setThreshold(threshold);
+						// Lengths are in base pairs (BP) and do not include the
+						// reverse
+						// strand. Analysis is the done on both the normal and
+						// reverse
+						// strand.
+						int partialLength = 0;
+						List<DSPatternMatch<DSSequence, CSSeqRegistration>> matches = new ArrayList<DSPatternMatch<DSSequence, CSSeqRegistration>>();
+						for (int seqId = 0; seqId < sequenceDB.size(); seqId++) {
+							double progress = (double) seqId
+									/ (double) sequenceDB.size();
+							updateProgressBar(progress,
+									"Discovery: " + pattern.getName());
+							DSSequence seq = sequenceDB.getSequence(seqId);
+							// Count the valid positions so that we can compute
+							// the background matches
+							// in a meaningful way. E.g. don't count # or
+							// stretches that do not contain
+							// valid sequence data
+							int positions = countValid(pattern, seq);
+							if (positions > 10) {
+								seqNo++;
+								partialLength += positions;
+								totalLength += positions;
 
-                                    if (!useThresholdCheck.isSelected()) {
-                                        // This assumes that the pvalue has been correctly estimated
-                                        // the compute the expected matches from the p-value
-                                        int oldMatch = (int) msExpect.
-                                                matchNo;
-                                        msExpect.matchNo += pValue *
-                                                (double) (positions) /
-                                                1000.0;
-                                        msExpect.match5primeNo += pValue *
-                                                (double) (positions) /
-                                                1000.0 /
-                                                2.0;
-                                        msExpect.match3primeNo += pValue *
-                                                (double) (positions) /
-                                                1000.0 /
-                                                2.0;
-                                        if (msExpect.matchNo - oldMatch >=
-                                            1) {
-                                            msExpect.matchSeq++;
-                                        }
-                                    }
-                                    List<DSPatternMatch<DSSequence,
-                                            CSSeqRegistration>>
-                                            seqMatches = pattern.match(seq,
-                                            1.0);
-                                    if (seqMatches.size() > 0) {
-                                        msActual.matchSeq++;
-                                    }
-                                    matches.addAll(seqMatches);
-                                }
-                                if (stop) {
-                                    return;
-                                }
-                            }
-                            updateProgressBar(1,
-                                              "Discovery: " +
-                                              pattern.getName());
-                            if (matches != null) {
-                                for (DSPatternMatch<DSSequence, CSSeqRegistration> match : matches) {
-                                    if (match.getRegistration().strand == 0) {
-                                        msActual.match5primeNo++;
-                                    }
-                                    if (match.getRegistration().strand == 1) {
-                                        msActual.match3primeNo++;
-                                    }
-                                    msActual.matchNo++;
-                                }
+								if (!useThresholdCheck.isSelected()) {
+									// This assumes that the pvalue has been
+									// correctly estimated
+									// the compute the expected matches from the
+									// p-value
+									int oldMatch = (int) msExpect.matchNo;
+									msExpect.matchNo += pValue
+											* (double) (positions) / 1000.0;
+									msExpect.match5primeNo += pValue
+											* (double) (positions) / 1000.0
+											/ 2.0;
+									msExpect.match3primeNo += pValue
+											* (double) (positions) / 1000.0
+											/ 2.0;
+									if (msExpect.matchNo - oldMatch >= 1) {
+										msExpect.matchSeq++;
+									}
+								}
+								List<DSPatternMatch<DSSequence, CSSeqRegistration>> seqMatches = pattern
+										.match(seq);
+								if (seqMatches.size() > 0) {
+									msActual.matchSeq++;
+								}
+								matches.addAll(seqMatches);
+							}
+							if (stop) {
+								return;
+							}
+						}
+						updateProgressBar(1, "Discovery: " + pattern.getName());
+						if (matches != null) {
+							for (DSPatternMatch<DSSequence, CSSeqRegistration> match : matches) {
+								if (match.getRegistration().strand == 0) {
+									msActual.match5primeNo++;
+								}
+								if (match.getRegistration().strand == 1) {
+									msActual.match3primeNo++;
+								}
+								msActual.matchNo++;
+							}
 
-                                PatternOperations.
-                                             getPatternColor(
-                                        pattern.hashCode());
-                                if (showTF.isSelected()) {
-                                    seqDisPanel.addAPattern(pattern,
-                                            matches);
-                                }
+							PatternOperations.getPatternColor(pattern
+									.hashCode());
+							if (showTF.isSelected()) {
+								seqDisPanel.addAPattern(pattern, matches);
+							}
 
-                                promoterPatternMatches.put(pattern, matches);
-                                promoterPatterns.add(pattern);
-                            }
+							promoterPatternMatches.put(pattern, matches);
+							promoterPatterns.add(pattern);
+						}
 
-                            if (useThresholdCheck.isSelected()) {
-                                if (set13KCheck.isSelected()) { // set13KCheck
-                                    // using the length of the current sequences as background, determine an appropriate pvalue
-                                    // from the 13K Set
-                                    getMatchesPerLength(pattern,
-                                            partialLength,
-                                            threshold, background, null,
-                                            msExpect);
-                                } else {
-                                    // using the length of the current sequences as background, determine an appropriate pvalue
-                                    // from random data
-                                    getMatchesPerLength(pattern,
-                                            partialLength,
-                                            threshold, null, rs, msExpect);
-                                }
-                            }
-                        }
+						if (useThresholdCheck.isSelected()) {
+							if (set13KCheck.isSelected()) { // set13KCheck
+								// using the length of the current sequences as
+								// background, determine an appropriate pvalue
+								// from the 13K Set
+								getMatchesPerLength(pattern, partialLength,
+										threshold, background, null, msExpect);
+							} else {
+								// using the length of the current sequences as
+								// background, determine an appropriate pvalue
+								// from random data
+								getMatchesPerLength(pattern, partialLength,
+										threshold, null, rs, msExpect);
+							}
+						}
                     }
 
                     jProgressBar1.setIndeterminate(false);
@@ -1559,25 +1544,14 @@ public final class PromoterViewPanel extends JPanel {
     }
 
     /* show the patterns over sequence viewer */
-    @SuppressWarnings({ "rawtypes", "unchecked" })
 	void setPatterns(List<DSMatchedPattern<DSSequence, CSSeqRegistration>> patterns) {
         updateParameters();
         seqDisPanel.patternSelectionHasChanged(patterns);
 
-        //add the new patterns into seqPatterns
-        seqPatterns.clear();
-        seqPatterns = new ArrayList(patterns); // TODO check the usage of seqPatterns to confirm whether this is necessary
         for (DSMatchedPattern<DSSequence, CSSeqRegistration> pattern : patterns) {
             PatternOperations.getPatternColor(pattern.hashCode());
-            DSPattern<DSSequence, CSSeqRegistration> p = pattern.getPattern();
-
-            List<DSPatternMatch<DSSequence,
-                    CSSeqRegistration>> matches = pattern.matches();
-            
-            if(p==null) continue;
-
-            seqPatternMatches.put(p, matches);
         }
+        /* There used to be more code in this method. It seems that they don't have any effect. */
     }
 
     private void updateParameters() {

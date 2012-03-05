@@ -5,12 +5,11 @@ import java.util.List;
 
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.datastructure.complex.pattern.CSPatternMatch;
-import org.geworkbench.bison.datastructure.complex.pattern.DSPattern;
 import org.geworkbench.bison.datastructure.complex.pattern.DSPatternMatch;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.CSSeqRegistration;
 import org.geworkbench.bison.util.SequenceUtils;
 
-public class TranscriptionFactor implements DSPattern<DSSequence, CSSeqRegistration> {
+public class TranscriptionFactor {
     //need to contain binding site matrix and related  Generic Marker
     private Matrix matrix = null;
     private String name;
@@ -28,14 +27,6 @@ public class TranscriptionFactor implements DSPattern<DSSequence, CSSeqRegistrat
         return matrix;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setMatrix(Matrix matrix) {
-        this.matrix = matrix;
-    }
-
     public int getLength() {
         if (matrix == null) {
             return 0;
@@ -49,12 +40,12 @@ public class TranscriptionFactor implements DSPattern<DSSequence, CSSeqRegistrat
 
     }
 
-    public TranscriptionFactor() {
+    public TranscriptionFactor(String name, Matrix matrix) {
+    	this.name = name;
+    	this.matrix = matrix;
     }
 
-    @Override
-    public List<DSPatternMatch<DSSequence, CSSeqRegistration>> match(DSSequence sequence, double pValue) {
-        //The pvalue is ignored here
+    public List<DSPatternMatch<DSSequence, CSSeqRegistration>> match(DSSequence sequence) {
         List<DSPatternMatch<DSSequence, CSSeqRegistration>> matches = new ArrayList<DSPatternMatch<DSSequence, CSSeqRegistration>>();
         if (SequenceUtils.isValidDNASeqForBLAST(sequence)) {
             for (int offset = 0; offset < sequence.length() - matrix.getLength() + 1; offset++) {
@@ -67,14 +58,6 @@ public class TranscriptionFactor implements DSPattern<DSSequence, CSSeqRegistrat
             }
         }
         return matches;
-    }
-
-    /**
-     * @todo to be implemented
-     */
-    @Override
-    public CSSeqRegistration match(DSSequence seqDB) {
-        return null;
     }
 
     private void evaluate(List<DSPatternMatch<DSSequence, CSSeqRegistration>> matches, int offset, double q, DSSequence sequence, int strand) {
@@ -90,13 +73,6 @@ public class TranscriptionFactor implements DSPattern<DSSequence, CSSeqRegistrat
         }
     }
 
-    // FIXME this is a wrongly designed method from DSPattern
-    // nothing from this class is used
-    @Override
-    public String toString(DSSequence sequence, CSSeqRegistration reg) {
-        return "TF" + sequence.getLabel() + ": " + reg.toString();
-    }
-
     @Override
     public boolean equals (Object object){
     	if(!(object instanceof TranscriptionFactor))
@@ -109,4 +85,11 @@ public class TranscriptionFactor implements DSPattern<DSSequence, CSSeqRegistrat
     	   	return false;
     	}
     }
+
+    @Override
+    public int hashCode() {
+    	if(name==null) return 42; // an arbitrary constant
+    	else return name.hashCode();
+    }
+
 }
