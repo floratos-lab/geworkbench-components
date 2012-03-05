@@ -38,7 +38,6 @@ import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.util.colorcontext.ColorContext;
 import org.geworkbench.events.MarkerSelectedEvent;
 import org.geworkbench.events.PhenotypeSelectedEvent;
-import org.geworkbench.util.associationdiscovery.cluster.DSMatrixPattern;
 
 /**
  * Color mosaic image.

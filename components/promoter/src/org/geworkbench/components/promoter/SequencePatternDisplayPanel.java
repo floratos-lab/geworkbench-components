@@ -1,7 +1,6 @@
 package org.geworkbench.components.promoter;
 
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 
 import javax.swing.AbstractButton;
@@ -10,9 +9,9 @@ import javax.swing.JMenuItem;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
-import org.geworkbench.bison.datastructure.complex.pattern.DSPattern;
 import org.geworkbench.bison.datastructure.complex.pattern.DSPatternMatch;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.CSSeqRegistration;
+import org.geworkbench.util.patterns.PatternLocations;
 import org.geworkbench.util.patterns.PatternOperations;
 import org.geworkbench.util.patterns.PatternSequenceDisplayUtil;
 import org.geworkbench.util.sequences.SequenceViewWidget;
@@ -22,7 +21,6 @@ import org.geworkbench.util.sequences.SequenceViewWidget;
  * @author
  * @version $Id$
  */
-@SuppressWarnings("unchecked")
 public class SequencePatternDisplayPanel extends SequenceViewWidget {
 	private static final long serialVersionUID = -1554529235054789483L;
 	
@@ -31,10 +29,7 @@ public class SequencePatternDisplayPanel extends SequenceViewWidget {
 	private DSSequenceSet<DSSequence> sequenceDB = null;
     @SuppressWarnings("rawtypes")
 	private HashMap patternDisplay = new HashMap();
-    private Hashtable<DSPattern<DSSequence, CSSeqRegistration>, List<DSPatternMatch<DSSequence, CSSeqRegistration>>> patternMatches = new Hashtable<DSPattern<
-                                                  DSSequence, CSSeqRegistration>,
-                                                  List<DSPatternMatch<
-                                                  DSSequence, CSSeqRegistration>>>();
+
     private HashMap<CSSequence,
             PatternSequenceDisplayUtil> patternTFMatches = new HashMap<
             CSSequence,
@@ -87,14 +82,13 @@ public class SequencePatternDisplayPanel extends SequenceViewWidget {
     public void initialize(DSSequenceSet<DSSequence> seqDB) {
         super.setSequenceDB(seqDB);
 
-        patternMatches.clear();
         patternDisplay.clear();
         sequenceDB = seqDB;
         updateBottomPanel();
         repaint();
     }
 
-    public void addAPattern(DSPattern<DSSequence, CSSeqRegistration> pt,
+    public void addAPattern(TranscriptionFactor pt,
                             List<DSPatternMatch<DSSequence, CSSeqRegistration>> matches) {
         if (patternTFMatches == null) {
             patternTFMatches = new HashMap<
@@ -102,21 +96,44 @@ public class SequencePatternDisplayPanel extends SequenceViewWidget {
                                PatternSequenceDisplayUtil>();
 
         }
-        PatternOperations.addTFMatches(patternTFMatches, matches, pt);
+        addTFMatches(patternTFMatches, matches, pt);
         initPanelView();
 
     }
 
-    public void removePattern(DSPattern<DSSequence, CSSeqRegistration> pt) {
-        patternMatches.remove(pt);
-        patternDisplay.remove(pt);
-        repaint();
+    private static void addTFMatches(
+			HashMap<CSSequence, PatternSequenceDisplayUtil> existedPatterns,
+			List<DSPatternMatch<DSSequence, CSSeqRegistration>> matches,
+			TranscriptionFactor tf) {
+		if (matches == null) {
+			return;
+		}
+		if (existedPatterns == null) {
+			existedPatterns = new HashMap<CSSequence, PatternSequenceDisplayUtil>();
 
-    }
+		}
 
-    public Hashtable<DSPattern<DSSequence, CSSeqRegistration>, List<DSPatternMatch<DSSequence, CSSeqRegistration>>> getPatternMatches() {
-        return patternMatches;
-    }
+		for (DSPatternMatch<DSSequence, CSSeqRegistration> sp : matches) {
+			DSSequence hitSeq = sp.getObject();
+			CSSeqRegistration reg = sp.getRegistration();
+			if (existedPatterns.containsKey(hitSeq)) {
+				PatternSequenceDisplayUtil pu = (PatternSequenceDisplayUtil) existedPatterns
+						.get(hitSeq);
+				PatternLocations pl = new PatternLocations(tf.toString(), reg, PatternLocations.TFTYPE);
+				pl.setIDForDisplay(tf.hashCode());
+				pu.addPattern(pl);
+
+			} else {
+				PatternSequenceDisplayUtil pu = new PatternSequenceDisplayUtil(
+						(CSSequence) hitSeq);
+				PatternLocations pl = new PatternLocations(tf.toString(), reg, PatternLocations.TFTYPE);
+				pl.setIDForDisplay(tf.hashCode());
+				pu.addPattern(pl);
+				existedPatterns.put((CSSequence) hitSeq, pu);
+			}
+		}
+
+	}
 
     public HashMap<CSSequence, PatternSequenceDisplayUtil> getPatternTFMatches() {
         return patternTFMatches;
@@ -125,12 +142,6 @@ public class SequencePatternDisplayPanel extends SequenceViewWidget {
     @SuppressWarnings("rawtypes")
     public void setPatternDisplay(HashMap patternDisplay) {
         this.patternDisplay = patternDisplay;
-    }
-
-    @SuppressWarnings("rawtypes")
-	public void setPatternMatches(Hashtable patternMatches) {
-        this.patternMatches = patternMatches;
-        repaint();
     }
 
     public void setDisplaySeqPattern(boolean displaySeqPattern) {

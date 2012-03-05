@@ -73,7 +73,6 @@ import org.geworkbench.events.PhenotypeSelectedEvent;
 import org.geworkbench.events.PhenotypeSelectorEvent;
 import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.util.ColorScale;
-import org.geworkbench.util.associationdiscovery.cluster.CSMatrixPattern;
 
 /**
  * <p>Title: Plug And Play</p>
