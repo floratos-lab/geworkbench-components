@@ -203,7 +203,7 @@ public class CaArrayClient {
 		for (Experiment e : experiments) {
 			CaArrayEntityReference experimentRef = e.getReference();
 			exps.add(new CaArray2Experiment(experimentRef.getId(), e.getTitle(), e
-						.getDescription()));
+						.getDescription(), e.getPublicIdentifier()));
 		}
 
 		CaArray2Experiment[] experimentsArray = new CaArray2Experiment[exps.size()];
