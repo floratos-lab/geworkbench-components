@@ -46,6 +46,7 @@ import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.ProjectSelection;
 import org.geworkbench.builtin.projects.history.HistoryPanel;
 import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.util.FishersExactTest;
 import org.geworkbench.util.ProgressBar;
 
 /**
@@ -357,7 +358,7 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 			return null;
 		}
 		int N = edgeIndex.size();
-		FisherExact fe = new FisherExact(2 * N);
+		FishersExactTest fe = new FishersExactTest(2 * N);
 
 		int Sl = locList.size();
 		int Sg = gocList.size();
@@ -367,13 +368,13 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 			int H = g.getEdges().size();
 			if (g.getLocs() > 0) {
 				int Dl = g.getLocs();
-				double cumulativeP = fe.getCumlativeP(Dl, H - Dl, Sl - Dl, N
+				double cumulativeP = fe.calculateRightSideOneTailedP(Dl, H - Dl, Sl - Dl, N
 						- Sl - H + Dl);
 				g.setCumLoc(cumulativeP);
 			}
 			if (g.getGocs() > 0) {
 				int Dg = g.getGocs();
-				double cumulativeP = fe.getCumlativeP(Dg, H - Dg, Sg - Dg, N
+				double cumulativeP = fe.calculateRightSideOneTailedP(Dg, H - Dg, Sg - Dg, N
 						- Sg - H + Dg);
 				g.setCumGoc(cumulativeP);
 			}
@@ -384,13 +385,13 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 				if (p.getLocs() > 0) { // calculate LOC p-value using fisher
 										// exact test to evaluate probe
 					int Dl = p.getLocs();
-					double cumulativeP = fe.getCumlativeP(Dl, H - Dl, Sl - Dl, N
+					double cumulativeP = fe.calculateRightSideOneTailedP(Dl, H - Dl, Sl - Dl, N
 							- Sl - H + Dl);
 					p.setCumLoc(cumulativeP);
 				}
 				if (p.getGocs() > 0) {
 					int Dg = p.getGocs();
-					double cumulativeP = fe.getCumlativeP(Dg, H - Dg, Sg - Dg, N
+					double cumulativeP = fe.calculateRightSideOneTailedP(Dg, H - Dg, Sg - Dg, N
 							- Sg - H + Dg);
 					p.setCumGoc(cumulativeP);
 				}
