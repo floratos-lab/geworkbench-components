@@ -45,6 +45,7 @@ import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.SubpanelChangedEvent;
+import org.geworkbench.util.FishersExactTest;
 
 /**
  * @author yc2480
@@ -205,7 +206,7 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
 			int b=y-w;
 			int c=z-w;
 			int d=x-z-y+w;
-			double pValue = FishersExactTest.getPValue(a,b,c,d);
+			double pValue = FishersExactTest.getRightSideOneTailedP(a,b,c,d);
 			
 			if ( pValue > mraAnalysisPanel.getPValue())
 				continue;
