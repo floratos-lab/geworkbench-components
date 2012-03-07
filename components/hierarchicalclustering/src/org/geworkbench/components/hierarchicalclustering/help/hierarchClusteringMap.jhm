@@ -5,8 +5,15 @@
          "http://java.sun.com/products/javahelp/map_1_0.dtd">
 
 <map version="1.0">
-
-	<mapID target="overview" url="Hierarchical Clustering.htm"/>
+    
+	<mapID target="Overview" url="Hierarchical_Clustering.htm#Overview"/>
+	<mapID target="Prerequisites" url="Hierarchical_Clustering.htm#Prerequisites"/>
+	<mapID target="Parameters" url="Hierarchical_Clustering.htm#Parameters"/>
+	<mapID target="Analysis_Actions" url="Hierarchical_Clustering.htm#Analysis_Actions"/>
+	<mapID target="Grid_Services" url="Hierarchical_Clustering.htm#Services_.28Grid.29"/>
+	<mapID target="Running_Hierarchical_Clustering" url="Hierarchical_Clustering.htm#Running_Hierarchical_Clustering"/>
+ 	<mapID target="The_Dendrogram_Visual_Component" url="Hierarchical_Clustering.htm#The_Dendrogram_Visual_Component"/>       
+	<mapID target="Working_with_Hierarchical_Clustering_Results" url="Hierarchical_Clustering.htm#Working_with_Hierarchical_Clustering_Results"/>
 
 </map>
 
