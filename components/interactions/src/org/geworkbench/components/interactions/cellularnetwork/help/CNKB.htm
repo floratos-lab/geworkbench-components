@@ -4,17 +4,6 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="generator" content="MediaWiki 1.16.0">
 <meta name="robots" content="noindex,follow">
-<link rel="alternate" type="application/x-wiki" title="Edit" href="http://wiki.c2b2.columbia.edu/workbench/index.php?title=Cellular_Networks_KnowledgeBase&amp;action=edit">
-<link rel="edit" title="Edit" href="http://wiki.c2b2.columbia.edu/workbench/index.php?title=Cellular_Networks_KnowledgeBase&amp;action=edit">
-<link rel="shortcut icon" href="http://wiki.c2b2.columbia.edu/workbench/skins/common/images/favicon.ico">
-<link rel="search" type="application/opensearchdescription+xml" href="http://wiki.c2b2.columbia.edu/workbench/opensearch_desc.php" title="Workbench (en)">
-<link rel="alternate" type="application/atom+xml" title="Workbench Atom feed" href="http://wiki.c2b2.columbia.edu/workbench/index.php?title=Special:RecentChanges&amp;feed=atom">
-<link rel="stylesheet" href="CNKB_files/commonPrint.css" media="">
-<link rel="stylesheet" href="CNKB_files/index_004.css">
-<link rel="stylesheet" href="CNKB_files/index_002.css" media="">
-<link rel="stylesheet" href="CNKB_files/index_003.css">
-<link rel="stylesheet" href="CNKB_files/index.css">
-
 
 </head>
 <body class="mediawiki ltr ns-0 ns-subject page-Cellular_Networks_KnowledgeBase skin-monobook">
@@ -28,10 +17,7 @@
 <p><br>
 </p>
 <a name="Overview"></a><h1> <span class="mw-headline" id="Overview">Overview</span></h1>
-<p>This material describes the graphical interface and functionality of 
-the CNKB component released with geWorkbench 2.1.0.  Significant 
-enhancements have been made with each recent release.
-</p><p>The Cellular Network Knowledge Base (CNKB) is a repository of 
+<p>The Cellular Network Knowledge Base (CNKB) is a repository of 
 molecular interactions, including ones both computationally and 
 experimentally derived.  Sources for interactions include both publicly 
 available databases such as BioGRID and HPRD, as well as 
@@ -61,12 +47,18 @@ based on edge confidence values, a network can be created and placed as a
 visualized in the Cytoscape network viewer.
 </p>
 <a name="Requirements"></a><h1> <span class="mw-headline" id="Requirements">Requirements</span></h1>
-<p>Both queries against the CNKB database, and display of gene 
+<ul><li> To use the CNKB component, first check that it has been loaded in the <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Component_Configuration_Manager" title="Component Configuration Manager"> Component Configuration Manager</a>.
+</li><li> A microarray dataset must be loaded and selected.
+</li><li> Both queries against the CNKB database, and display of gene 
 annotation information require that an annotation file be associated 
 with the microarray dataset at the time that it is loaded.  See <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Local_Data_Files" title="Local Data Files"> Local Data Files</a> and <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/File_Formats#Annotation_Files" title="File Formats"> File Formats</a> for further information.
-</p>
+</li></ul>
 <a name="The_CNKB_graphical_interface"></a><h1> <span class="mw-headline" id="The_CNKB_graphical_interface">The CNKB graphical interface</span></h1>
-<p><img alt="CNKB with markers.png" src="CNKB_files/CNKB_with_markers.png" height="573" width="766">
+<p>The CNKB component appears in the Visual area of the geWorkbench 
+graphical interface when a data node of type microarray is loaded and 
+selected.  
+</p><p><br>
+<img alt="CNKB with markers.png" src="CNKB_files/CNKB_with_markers.png" height="573" width="766">
 </p><p><br>
 The graphical user interface (GUI) of the CNKB component has three areas
  of distinct functionality: The "Activated Marker List", the "Selected 
@@ -282,6 +274,17 @@ right and left triple arrows "&lt;&lt;&lt;", "&gt;&gt;&gt;" located
 between them.
 </p><p><img alt="CNKB Preferences Column Display v2.2.png" src="CNKB_files/CNKB_Preferences_Column_Display_v2.png" height="172" width="782">
 </p>
+<a name="Definition_of_Membership_in_a_Microarray_Dataset"></a><h4> <span class="mw-headline" id="Definition_of_Membership_in_a_Microarray_Dataset">Definition of Membership in a Microarray Dataset</span></h4>
+<p>Whether a gene is considered present in the microarray dataset is determined as follows:
+</p>
+<ol><li> If a CNKB interactor has an Entrez ID, then a direct match on the Entrez ID is required.  
+</li><li> If a CNKB interactor does not have an Entrez ID, then matching is done using gene symbols.
+</li></ol>
+<p>Both of these methods of course require that the appropriate 
+annotation file be loaded along with the microarray dataset, to supply 
+the Entrez IDs and gene symbols for each marker.
+</p><p><br>
+</p>
 <a name="Network_Generation_Preferences"></a><h4> <span class="mw-headline" id="Network_Generation_Preferences">Network Generation Preferences</span></h4>
 <p>This section controls how the interactions returned by the database 
 query will be used in creating a network.  It allows control of display 
@@ -292,9 +295,18 @@ to be separated from that of the query.
 <ul><li> <b>Restrict to genes present in microarray set</b> - queries to
  the CNKB database may return interaction partners that are not members 
 of the microarray dataset from which the original query markers were 
-chosen.  Checking this box will cause such markers NOT to be used in 
-generating a network graph.
+chosen.  Checking this box will cause such markers to NOT be used in 
+generating a network graph or interactome export.  The definition of 
+which genes are counted as being part of the microarray dataset is given
+ above.
+<ul><li> "Restrict" box is NOT checked - if genes not in the microarray 
+dataset are encountered, they will be displayed in Cytoscape, but with 
+type set to "Unknown".
+</li><li> "Restrict" box IS checked - if genes not in the microarray dataset are encountered, they will NOT be displayed in Cytoscape.
 </li></ul>
+</li></ul>
+<p><br>
+</p>
 <ul><li> <b>Use setting from column display preferences</b> 
 <ul><li> If checked, the same interaction types that have been selected 
 in the "Column Display Preferences" control above will be used in 
@@ -305,38 +317,84 @@ graph.
 </li></ul>
 </li></ul>
 <a name="Export_Interactome"></a><h3> <span class="mw-headline" id="Export_Interactome">Export Interactome</span></h3>
-<p>The chosen interactions can be exported to a file on disk.
-</p><p><br>
-<img alt="CNKB Preferences Export Interactome v2.2.png" src="CNKB_files/CNKB_Preferences_Export_Interactome_v2.png" height="178" width="415">
-</p><p><br>
-The interactions can be exported in either of two formats, SIF or ADJ.
+<ul><li> <b>Restrict to genes present in microarray set</b> - The check box <b>Restrict to genes present in microarray set</b>,
+ described above, can also apply to the export of an interactome.  
+However, because of the options offered for interactome export, its 
+effect is somewhat different than for network generation and display as 
+described above.  
+<ul><li> "Restrict" box is NOT checked - genes will be exported based 
+only on the selections described below under "Search Base On" (Choice of
+ Symbol).
+</li><li> "Restrict" box IS checked - this has an effect only when the options for "Search Base On" of <b>Entrez ID Only</b> or <b>Gene Symbol Only</b>
+ are chosen.  In these cases, an exact match is required to a gene in 
+the microarray dataset, based on the Entrez ID or the Gene Symbol, 
+respectively.
+</li></ul>
+</li></ul>
+<p><br>
+</p>
+<a name="Export_to_.28Destination_.29"></a><h4> <span class="mw-headline" id="Export_to_.28Destination_.29">Export to (Destination )</span></h4>
+<p><img alt="CNKB Export to Project.png" src="CNKB_files/CNKB_Export_to_Project.png" height="206" width="505">
+</p><p>There are two choices for the "Export To" menu choice:
+</p>
+<ul><li> <b>Project</b> - export the interactome to the Project Folders component.
+</li><li> <b>File</b> - export the interactome to a file on disk.
+</li></ul>
+<p>If the interactome is exported to the Project, it will be added as a 
+child of the currently active microarray data node.  The interactome 
+data node will be named by prepending the word "export_" to the 
+interactome version name.  
+For example for the "HGi V3" interactome, the name of the data node in 
+the Project will be "export_HGi_3.0". 
+</p><p>If the interactome is exported to file, it will be named in the 
+same way as just described, but in addition it will receive a file type 
+suffix of .adj or .siff to indicate the file format chosen (see further 
+below).
+</p>
+<a name="Search_Based_On_.28Choice_of_Symbol.29"></a><h4> <span class="mw-headline" id="Search_Based_On_.28Choice_of_Symbol.29">Search Based On (Choice of Symbol)</span></h4>
+<p><img alt="CNKB Export Symbols.png" src="CNKB_files/CNKB_Export_Symbols.png" height="136" width="327">
+</p><p>The interactomes are stored in the CNKB Database at Columbia, and must be retrieved through a query.  
+</p><p>The CNKB Database has three columns dedicated to gene identifiers:
+</p>
+<ol><li> <b>primary accession</b> - this is always the Entrez ID, if one is present. Otherwise, null.
+</li><li> <b>secondary accession</b> - if there is no primary accession, the alternate identifier, e.g. miRBase ID or UniProt ID, is placed here.
+</li><li> <b>gene symbol</b> - for any gene with an Entrez ID, there is 
+usually also a gene symbol. Likewise, for genes with UniProt IDs in the 
+secondary accession column, the gene symbol column should contain a gene
+ symbol, but we have seen instances where it actually contains the 
+UniProt ID again.
+</li></ol>
+<p>The choices for symbol to use, and there effects, are as follows:
+</p>
+<ol><li> <b>Gene Symbol Only</b> - omit nodes without a gene symbol.
+</li><li> <b>Entrez ID Only</b> - omit nodes without an Entrez ID.
+</li><li> <b>Gene Symbol Preferred</b> - if a gene symbol is not present, use the primary accession, or if none, use the secondary accession.
+</li><li> <b>Entrez ID Preferred</b> - if Entrez ID not present, use secondary accession.
+</li></ol>
+<a name="File_Format_.28Export.29"></a><h4> <span class="mw-headline" id="File_Format_.28Export.29">File Format (Export)</span></h4>
+<p>When exported to file, the interactions can be represented in either of two formats, SIF or ADJ.
+</p><p>(These formats are also described at <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/File_Formats#Network_Formats" title="File Formats"> File Formats</a>).
+</p><p>The chosen format is written as a tab-delimited file to disk.
 </p><p><br>
 </p>
-<a name="SIF_format"></a><h4> <span class="mw-headline" id="SIF_format">SIF format</span></h4>
+<a name="SIF_format"></a><h5> <span class="mw-headline" id="SIF_format">SIF format</span></h5>
 <p>The Simple Interaction Format (SIF) was developed for Cytoscape.
 </p><p>For a full definition see the <a href="http://www.cytoscape.org/" class="external text" rel="nofollow">Cytoscape</a> manual, for example <a href="http://cytoscape.org/manual/Cytoscape2_8Manual.html#SIF%20Format" class="external text" rel="nofollow">Ctyoscape manual v2.8</a>
 </p><p>Each line contains interactions of a particular type for the first node with one or more target nodes:
 </p><p>node1 interaction-type-code node2 node3 node4 etc.
 </p><p>Some interaction-type-codes used in the CNKB are
 </p>
-<ul><li> pp protein-protein
-</li><li> pd protein-DNA
-</li><li> tm modulator-TF
+<ul><li> <b>pp</b> protein-protein
+</li><li> <b>pd</b> protein-DNA
+</li><li> <b>tm</b> modulator-TF
 </li></ul>
-<a name="ADJ_format"></a><h4> <span class="mw-headline" id="ADJ_format">ADJ format</span></h4>
+<a name="ADJ_format"></a><h5> <span class="mw-headline" id="ADJ_format">ADJ format</span></h5>
 <p>For each of the interactions in which node1 takes part,
 </p>
 <ul><li> node1 node2 value2 node3 value3 node4 value4 etc....
 </li></ul>
 <p>where <i>valueN</i> can be for example the mutual information, a confidence value etc.
 </p>
-<a name="Node_Identifier"></a><h3> <span class="mw-headline" id="Node_Identifier">Node Identifier</span></h3>
-<ul><li> <b>Gene Name</b> - If available, the standard gene name associated with the gene id.
-</li><li> <b>Gene ID</b> - the specific gene id that was used to 
-represent the interactor in the original data.  Depending on the type of
- interaction, the identifiers used may be the EntrezID, a miRBase or 
-others.
-</li></ul>
 <a name="Throttle_Graph"></a><h2> <span class="mw-headline" id="Throttle_Graph">Throttle Graph</span></h2>
 <p>This interactive graph allows users to "throttle" (for the genes in 
 the Selected Markers table) which interactions to work with, using as a 
@@ -373,8 +431,7 @@ Below, the likelihood cutoff is set to a value of 0.75.
 <ul><li> right- or left-click in the graph and draw a selection box around the area you wish to zoom in on.
 </li><li> To zoom back out, right- or left-click in the graph and move the mouse to the left.
 </li></ul>
-<a name="Example_-_Creating_an_interaction_network_and_viewing_it_in_Cytoscape">
-<h1> <span class="mw-headline" id="Example_-_Creating_an_interaction_network_and_viewing_it_in_Cytoscape">Example - Creating an interaction network and viewing it in Cytoscape</span></h1>
+<a name="Example_-_Creating_an_interaction_network_and_viewing_it_in_Cytoscape"></a><h1> <span class="mw-headline" id="Example_-_Creating_an_interaction_network_and_viewing_it_in_Cytoscape">Example - Creating an interaction network and viewing it in Cytoscape</span></h1>
 <p>Once the desired set of markers is present and its interaction data 
 has been retrieved from the database, an adjacency matrix can be 
 computed by clicking the "<b>Create Network</b>" button.  The resulting 
@@ -384,6 +441,14 @@ microarray dataset.  The adjacency matrix is visualized in the <a href="http://w
  include markers/genes not present in the active microarray dataset, 
 then whether those markers will be used in creating the network graph in
  Cytoscape is determined by the setting of the "<b>Restrict to genes present in microarray set</b>" checkbox under "<b>Network Generation Preferences</b>" on the CNKB <b>Preferences</b> tab.
+</p><p>In addition, the display of gene type in Cytoscape (using shape) 
+is controlled by whether the CNKB component determined that the gene was
+ part of the microarray dataset or not.  CNKB may choose to display a 
+hit gene in Cytoscape but mark it as not part of the microarray dataset,
+ for example if it has an Entrez ID that is not found in the microarray 
+dataset.  The gene name may match a name in the microarray dataset, but 
+the non-match of EntrezIDs takes precedence, and the gene type will not 
+be displayed.
 </p><p>The Cytoscape Viewer maintains a list of networks which it has 
 currently loaded.  It allows individual loaded networks to be deleted.  
 However, the network can be reloaded by clicking on its entry in the 
@@ -402,7 +467,7 @@ analyzed.  Thus it explores a potentially wide variety of expression
 phenotypes. 
 </li></ul>
 <ul><li> <b>Annotation File:</b> Obtain the annotation file for the HG-U95Av2 array type from the Affymetrix NetAffx website (<a href="http://www.affymetrix.com/analysis/index.affx" class="external free" rel="nofollow">http://www.affymetrix.com/analysis/index.affx</a>).
- The name will be similar to "HG_U95Av2.na31.annot.csv", where "na31" is
+ The name will be similar to "HG_U95Av2.na32.annot.csv", where "na32" is
  the version number. Loading the annotation file associates gene names 
 and Gene Ontology information with the Affymetrix probeset IDs (see the 
 geWorkbench FAQ for details on obtaining these files).
@@ -418,7 +483,7 @@ interactions these genes have in B-cell lines.
 </li><li> Create and activate a set of markers in the Markers component.  For this example, save the file <a href="http://wiki.c2b2.columbia.edu/workbench/images/f/fa/GBM_MR_Markers.csv" class="internal" title="GBM MR Markers.csv"> GBM_MR_Markers</a> to disk and then load it directly into the Markers component by pushing its "<b>Load Set</b>" button and browsing to the file located in the geWorkbench directory data/public_data.
 </li></ol>
 <p><br>
-<img alt="CNKB marker setup.png" src="CNKB_files/CNKB_marker_setup.png" height="518" width="231">
+<img alt="CNKB marker setup.png" src="CNKB_files/CNKB_marker_setup.png" height="534" width="266">
 </p><p><br>
 When the set is activated by checking the box to the left of its name, 
 the transcription factor markers will appear in the "Activated Markers" 
@@ -463,7 +528,7 @@ After enlarging the image, three node shapes can be seen, as well as the edges c
 which however does not have a gene symbol.  In the Affymetrix annotation
  file, these are indicated with a gene symbol of "---".  These results 
 are included in the CNKB results table.
-</p><p>
+</p><p><br>
 </p>
 <a name="Data_Sources"></a><h1> <span class="mw-headline" id="Data_Sources">Data Sources</span></h1>
 <p>Please see the <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/CNKB_Data" title="CNKB Data"> CNKB data </a> page for a list of currently available data sources and types of interactions.
@@ -477,13 +542,13 @@ Biology 4:169, 2008.  <a href="http://www.ncbi.nlm.nih.gov/pubmed/18277385" clas
 
 <!-- 
 NewPP limit report
-Preprocessor node count: 170/1000000
-Post-expand include size: 1889/2097152 bytes
+Preprocessor node count: 182/1000000
+Post-expand include size: 1907/2097152 bytes
 Template argument size: 0/2097152 bytes
 Expensive parser function count: 0/100
 -->
 
-<!-- Saved in parser cache with key workbench:pcache:idhash:1743-0!1!0!!en!2!printable=1 and timestamp 20110728225733 -->
+<!-- Saved in parser cache with key workbench:pcache:idhash:1743-0!1!0!!en!2!printable=1 and timestamp 20120306232246 -->
 <div class="printfooter">
 Retrieved from "<a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Cellular_Networks_KnowledgeBase">http://wiki.c2b2.columbia.edu/workbench/index.php/Cellular_Networks_KnowledgeBase</a>"</div>
 		<div id="catlinks" class="catlinks catlinks-allhidden"></div>		<!-- end content -->
@@ -492,10 +557,10 @@ Retrieved from "<a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Cellu
 </div></div>
 <div class="visualClear"></div>
 <div id="footer">
-This page was last modified on 21 July 2011, at 17:38.
-
+	<div id="f-poweredbyico"><img src="CNKB_files/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" height="31" width="88"></div>
+	<ul id="f-list">
+		<li id="lastmod"> This page was last modified on 6 March 2012, at 18:22.</li>
+	</ul>
 </div>
 </div>
 
-<!-- Served in 0.396 secs. -->
-</body></html>
