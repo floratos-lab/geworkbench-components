@@ -4,15 +4,6 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="generator" content="MediaWiki 1.16.0">
 <meta name="robots" content="noindex,follow">
-<link rel="shortcut icon" href="http://wiki.c2b2.columbia.edu/workbench/skins/common/images/favicon.ico">
-<link rel="search" type="application/opensearchdescription+xml" href="http://wiki.c2b2.columbia.edu/workbench/opensearch_desc.php" title="Workbench (en)">
-<link rel="alternate" type="application/atom+xml" title="Workbench Atom feed" href="http://wiki.c2b2.columbia.edu/workbench/index.php?title=Special:RecentChanges&amp;feed=atom">
-<link rel="stylesheet" href="anova_files/commonPrint.css" media="">
-<link rel="stylesheet" href="anova_files/index_003.css">
-<link rel="stylesheet" href="anova_files/index.css" media="">
-<link rel="stylesheet" href="anova_files/index_002.css">
-<link rel="stylesheet" href="anova_files/index_004.css">
-
 
 </head>
 <body class="mediawiki ltr ns-0 ns-subject page-ANOVA skin-monobook">
@@ -21,9 +12,10 @@
 	<a id="top"></a>
 	
 	<h1 id="firstHeading" class="firstHeading">ANOVA</h1>
-
+	<div id="bodyContent">
+		
 		<!-- start content -->
-<p>
+<p><br>
 </p>
 <a name="Overview"></a><h1> <span class="mw-headline" id="Overview">Overview</span></h1>
 <p>The ANOVA (ANalysis of VAriance) algorithm (Zar, 1999) is used to 
@@ -49,10 +41,10 @@ component.
 </li><li> ANOVA is found in the list of loaded analysis routines in the lower-right <b>Commands</b> quadrant of geWorkbench. 
 </li></ul>
 <p><br>
-<img alt="ANOVA Parameters.png" src="anova_files/ANOVA_Parameters.png" height="434" width="809">
+<img alt="ANOVA Parameters.png" src="anova_files/ANOVA_Parameters.png" height="520" width="689">
 </p>
 <a name="ANOVA_Parameters_and_Settings"></a><h2> <span class="mw-headline" id="ANOVA_Parameters_and_Settings">ANOVA Parameters and Settings</span></h2>
-<h3> <span class="mw-headline" id="P-Value_Estimation">P-Value Estimation</span></h3>
+<a name="P-Value_Estimation"></a><h3> <span class="mw-headline" id="P-Value_Estimation">P-Value Estimation</span></h3>
 <p>The P-value represents, for any one test (one marker), the 
 probability of falsely rejecting the null hypothesis - that is, calling a
  difference real when it is not. It is the probability that an 
@@ -73,7 +65,7 @@ entered.  The default number of permutations is 100.
 critical p-value, for judging whether the null hypothesis can be 
 rejected - that is, whether a difference is regarded as significant.
 </li></ul>
-<h3> <span class="mw-headline" id="P-value_corrections">P-value corrections</span></h3>
+<a name="P-value_corrections"></a><h3> <span class="mw-headline" id="P-value_corrections">P-value corrections</span></h3>
 <p>Several  methods for correcting for the effects of performing 
 multiple tests are offered, including Bonferroni and False Discovery 
 Rate control.  They differ in how they compare the calculated p-value to
@@ -121,8 +113,7 @@ time, and hence only at most one of those fields will be saved in any
 one parameter set.
 </li></ul>
 </li></ul>
-<a name="Services_.28Grid.29"></a>
-<h1> <span class="mw-headline" id="Services_.28Grid.29">Services (Grid)</span></h1>
+<a name="Services_.28Grid.29"></a><h1> <span class="mw-headline" id="Services_.28Grid.29">Services (Grid)</span></h1>
 <p>ANOVA can be run either locally within geWorkbench, or remotely as a grid job on caGrid.  See the <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_Grid_Services" title="Tutorial - Grid Services" class="mw-redirect"> Grid Services</a> section for further details on setting up a grid job.
 </p><p><br>
 </p>
@@ -184,7 +175,7 @@ significant to least significant).
 </li><li> <b>F-statistic</b> - the raw ANOVA score for each marker.
 </li><li> <b>P-value</b> - the probability of observing an F-statistic 
 this large by chance alone, assuming the null hypothesis of no actual 
-differences between sets of arrays.
+differences between sets of arrays.  <i>If a multiple testing correction (e.g. Bonferroni) was used, the corrected p-value is reported.</i>
 </li><li> <b>Mean</b> - the mean expression value for each group of arrays.
 </li><li> <b>Std</b> - the standard deviation for each group of arrays.
 </li></ul>
@@ -259,7 +250,7 @@ geWorkbench GUI), choose the group in the pulldown menu called "Class".
 </li><li> Push the <b>Analyze</b> button.
 </li></ol>
 <p><br>
-<img alt="ANOVA Parameters Example.png" src="anova_files/ANOVA_Parameters_Example.png" height="436" width="803">
+<img alt="ANOVA Parameters Example.png" src="anova_files/ANOVA_Parameters_Example.png" height="483" width="675">
 </p><p><br>
 </p>
 <a name="Results"></a><h2> <span class="mw-headline" id="Results">Results</span></h2>
@@ -295,21 +286,22 @@ Feb;34(2):374-8. <a href="http://www.tigr.org/software/tm4/menu/TM4_Biotechnique
 <!-- 
 NewPP limit report
 Preprocessor node count: 102/1000000
-Post-expand include size: 1889/2097152 bytes
+Post-expand include size: 1907/2097152 bytes
 Template argument size: 0/2097152 bytes
 Expensive parser function count: 0/100
 -->
 
-<!-- Saved in parser cache with key workbench:pcache:idhash:1855-0!1!0!!en!2!edit=0!printable=1 and timestamp 20110728195930 -->
-
-</div><!-- end of the left (by default at least) column -->
+<!-- Saved in parser cache with key workbench:pcache:idhash:1855-0!1!0!!en!2!printable=1 and timestamp 20120306165340 -->
 <div class="visualClear"></div>
 <div id="footer">
-	
-		 This page was last modified on 17 June 2011, at 16:44.
+	<div id="f-poweredbyico"><img src="anova_files/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" height="31" width="88"></div>
+	<ul id="f-list">
+		<li id="lastmod"> This page was last modified on 17 February 2012, at 18:31.</li>
+
 	</ul>
 </div>
 </div>
 
-<!-- Served in 0.250 secs. -->
+<script>if (window.runOnloadHook) runOnloadHook();</script>
+<!-- Served in 0.369 secs. -->
 </body></html>
