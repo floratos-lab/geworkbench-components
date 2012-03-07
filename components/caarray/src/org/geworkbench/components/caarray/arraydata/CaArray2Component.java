@@ -63,6 +63,7 @@ import org.geworkbench.util.AffyAnnotationUtil;
 public class CaArray2Component implements VisualPlugin {
 
 	private static Log log = LogFactory.getLog(CaArray2Component.class);
+	private volatile boolean isCancelled;
 
 	// process two types of queries: (1) the list of experiments; and (2) the
 	// actual data
@@ -74,7 +75,9 @@ public class CaArray2Component implements VisualPlugin {
 	@Subscribe
 	public void receive(CaArrayRequestEvent ce, Object source) {
 
-		if (ce == null) {
+		if (ce.getRequestItem().equalsIgnoreCase(
+			CaArrayRequestEvent.CANCEL)) {
+			isCancelled = true;
 			return;
 		}
 
@@ -83,7 +86,7 @@ public class CaArray2Component implements VisualPlugin {
 		String username = ce.getUsername();
 		String password = ce.getPassword();
 
-		CaARRAYPanel.isCancelled = false;
+		isCancelled = false;
 
 		String currentConnectionInfo = CaARRAYPanel.createConnectonInfo(url, port, username,
 				password);
@@ -126,7 +129,7 @@ public class CaArray2Component implements VisualPlugin {
 									+ url + ":" + port);
 				}
 
-				if (CaARRAYPanel.isCancelled
+				if (isCancelled
 						&& CaARRAYPanel.cancelledConnectionInfo != null
 						&& CaARRAYPanel.cancelledConnectionInfo
 								.equalsIgnoreCase(currentConnectionInfo)) {
@@ -157,7 +160,7 @@ public class CaArray2Component implements VisualPlugin {
 				event.setPopulated(true);
 				event.setInfoType(CaArrayEvent.BIOASSAY); // this only disposes
 															// caARRAYPanel
-				if (CaARRAYPanel.isCancelled
+				if (isCancelled
 						&& CaARRAYPanel.cancelledConnectionInfo != null
 						&& CaARRAYPanel.cancelledConnectionInfo
 								.equalsIgnoreCase(currentConnectionInfo)) {
@@ -171,7 +174,7 @@ public class CaArray2Component implements VisualPlugin {
 			CaArrayEvent event = new CaArrayEvent(url, port);
 			event.setPopulated(false);
 			event.setSucceed(false);
-			if (CaARRAYPanel.isCancelled
+			if (isCancelled
 					&& CaARRAYPanel.cancelledConnectionInfo != null
 					&& CaARRAYPanel.cancelledConnectionInfo
 							.equalsIgnoreCase(currentConnectionInfo)) {
@@ -187,7 +190,7 @@ public class CaArray2Component implements VisualPlugin {
 
 			event
 					.setErrorMessage("Either username or password is incorrect. Please check your login credentials. ");
-			if (CaARRAYPanel.isCancelled
+			if (isCancelled
 					&& CaARRAYPanel.cancelledConnectionInfo != null
 					&& CaARRAYPanel.cancelledConnectionInfo
 							.equalsIgnoreCase(currentConnectionInfo)) {
@@ -332,11 +335,9 @@ public class CaArray2Component implements VisualPlugin {
 	
 	private void getData(CaArrayClient client,
 			SortedMap<String, String> hybridzations, String qType,
-			String experimentName, String currentConnectionInfo, String chipType)
+			final String experimentName, String currentConnectionInfo, String chipType)
 			throws Exception {
 		CSMicroarraySet microarraySet = null;
-
-		String desc = "";		
 
 		int number = 0;
 		CaArraySuccessEvent caArraySuccessEvent = new CaArraySuccessEvent(hybridzations.size());
@@ -352,7 +353,7 @@ public class CaArray2Component implements VisualPlugin {
 			List<Double> values = getValues(dataset, qType);
 			DSMicroarray microarray = createMicroarray(values, hybridizationName, microarraySet);
 
-			if (CaARRAYPanel.isCancelled
+			if (isCancelled
 					&& CaARRAYPanel.cancelledConnectionInfo != null
 					&& CaARRAYPanel.cancelledConnectionInfo
 							.equalsIgnoreCase(currentConnectionInfo)) {
@@ -360,13 +361,12 @@ public class CaArray2Component implements VisualPlugin {
 			}
 
 			microarraySet.add(microarray);
-			desc = experimentName;
 			
 			publishCaArraySuccessEvent(caArraySuccessEvent);
 			number++;
 		} // loop of all hybridizations
 
-		microarraySet.setLabel(desc);
+		microarraySet.setLabel(experimentName);
 		ProjectPanel.getInstance().addProjectNode(microarraySet, null);
 	}
 
