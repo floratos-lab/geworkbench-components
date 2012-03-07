@@ -4,7 +4,14 @@
 
 	<tocitem text="Hierarchical Clustering">
 
-		<tocitem target="overview" text="Hierarchical Clustering Overview"/>
+		<tocitem target="Overview" text="Overview"/>
+		<tocitem target="Prerequisites" text="Prerequisites"/>
+		<tocitem target="Parameters" text="Parameters"/>
+		<tocitem target="Analysis_Actions" text="Analysis Actions"/>
+		<tocitem target="Grid_Services" text="Services (Grid)"/>
+		<tocitem target="Running_Hierarchical_Clustering" text="Running_Hierarchical_Clustering"/>
+ 		<tocitem target="The_Dendrogram_Visual_Component" text="The Dendrogram Visual Component"/>       
+		<tocitem target="Working_with_Hierarchical_Clustering_Results" text="Working with Hierarchical Clustering Results"/>
 
 	</tocitem>
 
