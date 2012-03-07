@@ -4,15 +4,6 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="generator" content="MediaWiki 1.16.0">
 <meta name="robots" content="noindex,follow">
-<link rel="shortcut icon" href="http://wiki.c2b2.columbia.edu/workbench/skins/common/images/favicon.ico">
-<link rel="search" type="application/opensearchdescription+xml" href="http://wiki.c2b2.columbia.edu/workbench/opensearch_desc.php" title="Workbench (en)">
-<link rel="alternate" type="application/atom+xml" title="Workbench Atom feed" href="http://wiki.c2b2.columbia.edu/workbench/index.php?title=Special:RecentChanges&amp;feed=atom">
-<link rel="stylesheet" href="aracne_files/commonPrint.css" media="">
-<link rel="stylesheet" href="aracne_files/index_003.css">
-<link rel="stylesheet" href="aracne_files/index.css" media="">
-<link rel="stylesheet" href="aracne_files/index_002.css">
-<link rel="stylesheet" href="aracne_files/index_004.css">
-
 
 </head>
 <body class="mediawiki ltr ns-0 ns-subject page-ARACNe skin-monobook">
@@ -22,12 +13,12 @@
 	
 	<h1 id="firstHeading" class="firstHeading">ARACNe</h1>
 	<div id="bodyContent">
-		<div id="contentSub"></div>
 		<!-- start content -->
-		<a name="Overview"></a>
-		<h1> <span class="mw-headline" id="Overview">Overview</span></h1>
-
-</p><p>ARACNe (Algorithm for the Reconstruction of Accurate Cellular 
+<p><br>
+</p><p><br>
+</p>
+<a name="Overview"></a><h1> <span class="mw-headline" id="Overview">Overview</span></h1>
+<p>ARACNe (Algorithm for the Reconstruction of Accurate Cellular 
 Networks) (Basso 2005, Margolin 2006a, 2006b) is an 
 information-theoretic algorithm used to identify transcriptional 
 interactions between gene products using microarray gene expression 
@@ -98,7 +89,7 @@ than 100 microarrays is submitted for ARACNe analysis, a warning message
  will appear notifying the user of the suggested minimum of 100 arrays.
 </li></ul>
 <a name="Parameters_and_Settings"></a><h2> <span class="mw-headline" id="Parameters_and_Settings">Parameters and Settings</span></h2>
-<p><img alt="ARACNe Parameters.png" src="aracne_files/ARACNe_Parameters.png" height="425" width="1054">
+<p><img alt="ARACNe Parameters.png" src="aracne_files/ARACNe_Parameters.png" height="439" width="1082">
 </p>
 <a name="Algorithm"></a><h3> <span class="mw-headline" id="Algorithm">Algorithm</span></h3>
 <p>Two algorithms are offered with which to calculate the pairwise mutual information between markers:
@@ -126,26 +117,51 @@ kernel-width parameter for a Gaussian function used to calculate the MI.
 </li><li> <b>DISCOVERY</b> - The ARACNe mutual information calculation is run.  Uses pre-calculated parameter files as needed if they are present.
 </li><li> <b>COMPLETE</b> - Preprocessing and Discovery runs are combined into a single step.
 </li></ul>
-<a name="PREPROCESSING"></a><h4> <span class="mw-headline" id="PREPROCESSING">PREPROCESSING</span></h4>
+<a name="Preprocessing"></a><h4> <span class="mw-headline" id="Preprocessing">Preprocessing</span></h4>
 <p>In this mode, runtime parameters are calculated, but no MI 
 calculation is performed.    Preprocessing for a given combination of 
 dataset and algorithm need be run only once.  The results are written to
  one or two files in the geWorkbench root directory.  The names used for
- these files incorporate both the name of the dataset and the name of 
-the algorithm, and thus are specific to the particular combination.  
-Each time ARACNe is run in Discovery mode, it will look for the 
+ these files incorporate both the name of the dataset (taken from the 
+name shown in the Project Folders component) and the name of the 
+algorithm, and thus are specific to the particular combination.  Each 
+time ARACNe is run in Discovery mode, it will look for the 
 dataset-specific parameter files in its root directory.  If the files 
 are not found (Preprocessing has not been run), default parameter values
  will be used.
 </p>
-<ul><li> Fixed Bandwidth (FBW) algorithm - two files are written to the 
-geWorkbench root directory, one containing parameters for calculating 
-the kernel width, and the other containing parameters for calculating a 
-MI threshold from a specified P-value.
-</li><li> Adaptive Partitioning (AP) algorithm - only the parameter file
- for calculating a MI threshold from a specified P-value is written.  No
- kernel-width parameter is used.
+<ul><li> <b>Fixed Bandwidth (FBW) algorithm</b> - two files are written 
+to the geWorkbench root directory, one containing parameters for 
+calculating the kernel width, and the other containing parameters for 
+calculating a MI threshold from a specified P-value.
+</li><li> <b>Adaptive Partitioning (AP) algorithm</b> - only the 
+parameter file for calculating a MI threshold from a specified P-value 
+is written.  No kernel-width parameter is used.
 </li></ul>
+<p>Note - if the name of the expression dataset in the Project Folders 
+component is changed after ARACNe preprocessing has been run, the 
+corresponding parameter file(s) that was/were created will not be found 
+when the discovery run is performed.  Please do not alter the expression
+ dataset name after ARACNe preprocessing has been run.
+</p>
+<a name="Preprocessing_File_Naming"></a><h4> <span class="mw-headline" id="Preprocessing_File_Naming">Preprocessing File Naming</span></h4>
+<p>As described just above, ARACNe preprocessing creates new parameter files in the geWorkbench installation directory.
+</p><p>Preprocessing parameter file names are formed by appending the following to the dataset name:
+</p>
+<ul><li> <b>Fixed Bandwidth</b>
+<ul><li> Kernel width - "_ARACNe_FBW_kernel.txt" 
+</li><li> Threshold - "_ARACNe_FBW_threshold.txt"
+</li></ul>
+</li><li> <b>Adaptive Partitioning</b>
+<ul><li> Threshold - "_ARACNe_AP_threshold.txt"
+</li></ul>
+</li></ul>
+<p>Note - if the name of the expression dataset in the Project Folders 
+component is changed after ARACNe preprocessing has been run, the 
+corresponding parameter file(s) that was/were created will not be found 
+when the discovery run is performed. Please do not alter the expression 
+dataset name after ARACNe preprocessing has been run.
+</p>
 <a name="Preprocessing_files_included_with_geWorkbench"></a><h4> <span class="mw-headline" id="Preprocessing_files_included_with_geWorkbench">Preprocessing files included with geWorkbench</span></h4>
 <p>Preprocessing as described above was run on the Bcell-100.exp dataset
  included with geWorkbench.  The resulting ARACNe parameter files are 
@@ -212,7 +228,7 @@ of a subset of markers that had been activated:
  above the threshold will be included in the final network.  the MI can 
 be any positive value or zero, but not negative.
 </p>
-<h4> <span class="mw-headline" id="P-Value">P-Value</span></h4>
+<a name="P-Value"></a><h4> <span class="mw-headline" id="P-Value">P-Value</span></h4>
 <p>Use a p-value calculated from the MI values as the threshold.  For 
 best results, the preprocessing step must be run first to generate the 
 parameters needed to calculate p-values from MI values for the 
@@ -477,7 +493,7 @@ as described below, or can first be loaded into the Markers component as
 </li><li> <b>Correction</b>: Bonferroni
 </li><li> <b>DPI Tolerance</b>: Do Not Apply
 </li></ul>
-<p><img alt="ARACNe Parameters Example.png" src="aracne_files/ARACNe_Parameters_Example.png" height="426" width="1056">
+<p><img alt="ARACNe Parameters Example.png" src="aracne_files/ARACNe_Parameters_Example.png" height="415" width="1051">
 </p><p>5. Press the "<b>Analyze</b>" button to launch the job. 
 </p><p>6. The resulting network is the one depicted above in the "Viewing ARACNe results" section.
 </p>
@@ -503,6 +519,9 @@ cluster to carry this out.
 using separate Matlab scripts.  These steps have been directly 
 incorporated into the Java version of ARACNe used in geWorkbench, 
 ARACNe2.
+</li><li> Running with too few arrays can cause NaNs in Adaptive 
+partioning preprocessing step, and in a NullPointerException in Fixed 
+Bandwidth (Mantis issue 2030).
 </li></ul>
 <a name="References"></a><h1> <span class="mw-headline" id="References">References</span></h1>
 <ul><li> Basso K, Margolin AA, Stolovitzky G, Klein U, Dalla-Favera R, 
@@ -524,13 +543,13 @@ Protocols 1(2):663-672  (<a href="http://www.nature.com/nprot/journal/v1/n2/abs/
 
 <!-- 
 NewPP limit report
-Preprocessor node count: 162/1000000
-Post-expand include size: 1889/2097152 bytes
+Preprocessor node count: 166/1000000
+Post-expand include size: 1907/2097152 bytes
 Template argument size: 0/2097152 bytes
 Expensive parser function count: 0/100
 -->
 
-<!-- Saved in parser cache with key workbench:pcache:idhash:1680-0!1!0!!en!2!edit=0!printable=1 and timestamp 20110728195636 -->
+<!-- Saved in parser cache with key workbench:pcache:idhash:1680-0!1!0!!en!2!printable=1 and timestamp 20120306191550 -->
 <div class="printfooter">
 Retrieved from "<a href="http://wiki.c2b2.columbia.edu/workbench/index.php/ARACNe">http://wiki.c2b2.columbia.edu/workbench/index.php/ARACNe</a>"</div>
 		<div id="catlinks" class="catlinks catlinks-allhidden"></div>		<!-- end content -->
@@ -539,11 +558,10 @@ Retrieved from "<a href="http://wiki.c2b2.columbia.edu/workbench/index.php/ARACN
 </div></div>
 <div class="visualClear"></div>
 <div id="footer">
-
-This page was last modified on 21 July 2011, at 16:45.
-
+	<div id="f-poweredbyico"><img src="aracne_files/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" height="31" width="88"></div>
+	<ul id="f-list">
+		<li id="lastmod"> This page was last modified on 6 March 2012, at 14:14.</li>
+	</ul>
 </div>
 </div>
 
-<!-- Served in 0.454 secs. -->
-</body></html>
