@@ -1,7 +1,6 @@
 package org.geworkbench.components.hierarchicalclustering;
 
 import java.awt.Component;
-import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -15,7 +14,6 @@ import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.clusters.DSHierClusterDataSet;
 import org.geworkbench.builtin.projects.ProjectPanel;
-import org.geworkbench.engine.config.MenuListener;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
@@ -44,7 +42,7 @@ import org.geworkbench.events.ProjectEvent;
  * data.
  */
 @AcceptTypes({DSHierClusterDataSet.class})
-public class HierClusterViewAppComponent implements VisualPlugin, MenuListener, PropertyChangeListener {
+public class HierClusterViewAppComponent implements VisualPlugin, PropertyChangeListener {
     /**
      * The widget used by the component.
      */
@@ -96,10 +94,6 @@ public class HierClusterViewAppComponent implements VisualPlugin, MenuListener, 
      */
     public Component getComponent() {
         return hclWidget;
-    }
-
-    public ActionListener getActionListener(String var) {
-        return null;
     }
 
     private void fireModelChanged(HierClusterModelEvent event) {
