@@ -64,11 +64,6 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
 		setDefaultPanel(mraAnalysisPanel);
 	}
 
-	@Override
-	public int getAnalysisType() {
-		return AbstractGridAnalysis.MRA_TYPE;
-	}
-
 	@SuppressWarnings("unchecked")
 	public AlgorithmExecutionResults execute(Object input) {
 		// read input data, dataset view, dataset, etc.
