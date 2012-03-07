@@ -68,12 +68,6 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 		setDefaultPanel(anovaAnalysisPanel);
 	}
 
-	// I believe this is useless
-	@Override
-	public int getAnalysisType() {
-		return IGNORE_TYPE;
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 

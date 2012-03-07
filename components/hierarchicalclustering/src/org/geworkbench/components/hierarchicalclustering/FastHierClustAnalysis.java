@@ -161,10 +161,6 @@ public class FastHierClustAnalysis extends AbstractGridAnalysis implements
 		return new AlgorithmExecutionResults(true, "No errors.", dataSet);
 	}
 
-	public int getAnalysisType() {
-		return IGNORE_TYPE;
-	}
-
 	/**
 	 * Check if the argument <code>MicroarraySet</code> contains missing
 	 * values.

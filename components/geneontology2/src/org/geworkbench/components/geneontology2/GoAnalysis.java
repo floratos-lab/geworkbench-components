@@ -68,13 +68,6 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 	private static final long serialVersionUID = 5914151910006536646L;
 	private GoAnalysisParameterPanel parameterPanel;
 
-	@Override
-	public int getAnalysisType() {
-		/* not used, but required by the AbstractAnalysis interface */
-		return  AbstractAnalysis.ZERO_TYPE;
-	}
-
-
 	@SuppressWarnings("unchecked")
 	public AlgorithmExecutionResults execute(Object input) {
 		// ProgressBar code should be as isolated from other code as possible.

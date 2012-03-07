@@ -18,7 +18,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.math.MathException;
-import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.analysis.AbstractGridAnalysis;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
@@ -74,11 +73,6 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 	
 	public IDEAAnalysis() {
 		setDefaultPanel(IDEAAnalysisPanel);
-	}
-
-	@Override
-	public int getAnalysisType() {
-		return AbstractAnalysis.IGNORE_TYPE;
 	}
 
 	@SuppressWarnings("unchecked")
