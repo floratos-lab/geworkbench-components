@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="ISO-8859-1" standalone="yes"?>
-<toc version="1.0">
-	<tocitem text="Pattern Discovery">
-		<tocitem text="Overview" target="discoveryoverview"/>
-		<tocitem text="Setting Parameters" target="parameters"/>
-	</tocitem>
-</toc>
