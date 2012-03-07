@@ -16,7 +16,7 @@
 			<body>----</body>
 			</html>
 		]]></license>
-		
+		<online-help helpSet="org/geworkbench/components/somclustering/help/SOM_HelpSet.hs"/>
 
 	 </component>
 	 
