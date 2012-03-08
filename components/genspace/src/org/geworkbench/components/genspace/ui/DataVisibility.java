@@ -1,17 +1,19 @@
 package org.geworkbench.components.genspace.ui;
 
+import java.awt.Color;
 import java.awt.Component;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 
 import org.geworkbench.components.genspace.GenSpaceServerFactory;
 import org.geworkbench.components.genspace.ObjectHandler;
@@ -88,15 +90,17 @@ public class DataVisibility extends JPanel implements VisualPlugin,
 	}
 
 	private void initComponents() {
+		BoxLayout l = new BoxLayout(this, BoxLayout.Y_AXIS);
+		
+		this.setSize(500, 600);
+
+//		l.
+		this.setLayout(l);
 		if(GenSpaceServerFactory.isLoggedIn())
 		{
-			this.setSize(500, 600);
-
-			GridBagLayout gridbag = new GridBagLayout();
-			this.setLayout(gridbag);
-
-			GridBagConstraints c = new GridBagConstraints();
-			c.ipady = 5;
+			
+			
+			this.removeAll();
 			JLabel blank = new JLabel(" ");
 
 			logPreferences = new JComboBox();
@@ -116,33 +120,42 @@ public class DataVisibility extends JPanel implements VisualPlugin,
 
 			ObjectHandler.setLogStatus(preference);
 
-			c.gridwidth = GridBagConstraints.REMAINDER;
-			gridbag.setConstraints(logPreferences, c);
+//			c.gridwidth = GridBagConstraints.REMAINDER;
+//			gridbag.setConstraints(logPreferences, c);
 			add(logPreferences);
 			logPreferences.addActionListener(this);
 
-			c.gridwidth = GridBagConstraints.REMAINDER;
-			gridbag.setConstraints(blank, c);
-			add(blank);
+//			c.gridwidth = GridBagConstraints.REMAINDER;
+//			gridbag.setConstraints(blank, c);
+//			add(blank);
 
 			dataVisibilityOptions = new JComboBox();
 			dataVisibilityOptions.addItem("-- Select Data Visibility Options --");
-			dataVisibilityOptions.addItem("Data Not Visible At All");
-			dataVisibilityOptions.addItem("Data Visible Within My Network");
-			dataVisibilityOptions.addItem("Data Visible In Networks");
+			dataVisibilityOptions.addItem("Data Visible to None");
+			dataVisibilityOptions.addItem("Data Visible Within My Networks");
+			dataVisibilityOptions.addItem("Data Visible To All");
+			preference = GenSpaceServerFactory.getUser().getDataVisibility();
+			dataVisibilityOptions.setSelectedIndex(preference + 1);
+			add(dataVisibilityOptions);
+//			add(blank);
+			JTextArea info = new JTextArea("Your selection of data visibility will affect its appearance\n" +
+					   "within recommendations of others. It will also affect your\n" +
+					   "ability to see recommendations - if you make your data\n" +
+					   "completely private, then you will not see any recommendations\n" +
+					   "based on other users' data.");
+			info.setEnabled(false);
+			info.setOpaque(false);
+			info.setDisabledTextColor(Color.black);
+			info.setMaximumSize(new Dimension(500, 400));
+
+			add(info);
+			add(blank);
 		}
-		else
-		{
-			logPreferences = new JComboBox();
-			logPreferences.addItem("-- Select Log Preferences --");
-			logPreferences.addItem("Log My Analysis Events");
-			logPreferences.addItem("Log My Analysis Events Anonymously");
-			logPreferences.addItem("Do Not Log My Analysis Events");
-			add(logPreferences);
-			logPreferences.addActionListener(this);
-		}
+
 		save = new JButton("Save");
 		add(save);
+		
+		validate();
 		save.addActionListener(this);
 	}
 
@@ -189,11 +202,6 @@ public class DataVisibility extends JPanel implements VisualPlugin,
 						} catch (Exception ex) {
 						}
 
-
-						// temporary hack to display success at the end
-						// remove the next line when we use the full blown
-						// version of the security module
-						dataVisibilityOptions.setSelectedIndex(2);
 						
 						GenSpaceServerFactory.getUser().setDataVisibility((short) (dataVisibilityOptions
 								.getSelectedIndex() - 1));

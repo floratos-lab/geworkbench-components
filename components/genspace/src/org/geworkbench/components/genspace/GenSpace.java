@@ -67,9 +67,10 @@ public class GenSpace {
 	static java.util.logging.Logger glassfishLogger;
 	static java.util.logging.Logger glassfishLogger2;
 	static java.util.logging.Logger glassfishLogger3;
-	public static void main(String[] args) {
-		
+	public static void main(String[] args) throws Exception {
 		new GenSpace();
+//		Thread.sleep(1500);
+//		GenSpace.getInstance().login.test();
 	}
 
 	public static SocialNetworksHome networksPanels = new SocialNetworksHome();
@@ -87,10 +88,9 @@ public class GenSpace {
 
 				};
 				};
-wk.execute();
-		
-		
+				wk.execute();
 		}
+	
 	public static void bringUpProfile(Object o)
 	{
 		getInstance().jtp.setSelectedComponent(networksPanels.$$$getRootComponent$$$());
@@ -103,17 +103,22 @@ wk.execute();
 	public WorkflowRepository getWorkflowRepository() {
 		return workflowRepository;
 	}
+	
 	JPanel needLoginPanel;
+	
 	public void handleLogin()
 	{
 		jtp.setComponentAt(5, workflowRepository);
+		//mahoutRecommendationPanel.handleLogin();
 	}
+	
 	public void handleLogout()
 	{
 		jtp.setComponentAt(5, needLoginPanel);
+		//mahoutRecommendationPanel.handleLogout();
 	}
 	private StatusBar statusBar;
-	
+	org.geworkbench.components.genspace.ui.GenSpaceLogin login;
 	private void initComponents() {
 		jframe = new JFrame("genSpace");
 
@@ -130,15 +135,19 @@ wk.execute();
 		workflowRepository = new WorkflowRepository(jframe);
 		needLoginPanel = new JPanel();
 		needLoginPanel.add(new JLabel("Please login to genSpace to access this area."));
-		org.geworkbench.components.genspace.ui.GenSpaceLogin login = new org.geworkbench.components.genspace.ui.GenSpaceLogin();
+		login = new org.geworkbench.components.genspace.ui.GenSpaceLogin();
+		login.addMahoutPanel();
 
+//		SequenceAlignmentPanel saPanel = SequenceAlignmentPanel.getInstance();
+		
 		jtp.addTab("genSpace Login", login);
 		jtp.addTab("Workflow Visualization", wv);
 		jtp.addTab("Real Time Workflow Suggestion", rtwfs);
 		jtp.addTab("Workflow Statistics", stats);
 		jtp.addTab("Social Center", networksPanels.$$$getRootComponent$$$());
 		jtp.addTab("Workflow Repository", needLoginPanel);
-
+//		jtp.addTab("MSA Recommender", saPanel);
+		
 		jtp.addChangeListener(new ChangeListener() {
 			
 			@Override
@@ -149,11 +158,14 @@ wk.execute();
 				}
 			}
 		});
+		
 		jframe.setSize(1024,768);
 		jframe.setLocation(200, 0);
 		jframe.getContentPane().setLayout(new BorderLayout());
-		jframe.add(jtp,BorderLayout.CENTER);
-		jframe.add(statusBar,BorderLayout.SOUTH);
+		jframe.add(jtp, BorderLayout.CENTER);
+	
+		//statusBar.setPreferredSize(new Dimension(1024, 50));
+		jframe.add(statusBar, BorderLayout.SOUTH);
 
 		jframe.pack();
 		jframe.setVisible(true);

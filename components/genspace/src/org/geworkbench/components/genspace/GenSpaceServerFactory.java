@@ -45,7 +45,7 @@ public class GenSpaceServerFactory {
 	private static User user;
 	private static String username = null;
 	private static String password = null;
-	private static String SERVER_ADDR = "http://genspace.cs.columbia.edu:8080";
+	private static String SERVER_ADDR = "http://"+RuntimeEnvironmentSettings.SERVER+":8080";
 	
 	public static Logger logger = Logger.getLogger(GenSpaceServerFactory.class);
 //	private static UserFacade userFacade;
