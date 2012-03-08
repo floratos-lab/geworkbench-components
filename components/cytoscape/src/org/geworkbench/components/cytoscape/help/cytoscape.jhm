@@ -6,19 +6,19 @@
 
 <map version="1.0">
 
-		 <mapID target="overview" url="Cytoscape.htm#Overview"/>
-		 <mapID target="Text_Viewer_for_Large_Networks" url="Cytoscape.htm#Text_Viewer_for_Large_Networks"/>
-		 <mapID target="Gene_Level_Summarization_of_Networks" url="Cytoscape.htm#Gene_Level_Summarization_of_Networks"/>
-		 <mapID target="Layout_of_the_Cytoscape_component" url="Cytoscape.htm#Layout_of_the_Cytoscape_component" />
-		 <mapID target="Selecting_Nodes_and_Edges" url="Cytoscape.htm#Selecting_Nodes_and_Edges" />
-		 <mapID target="Options_for_selected_nodes" url="Cytoscape.htm#Options_for_selected_nodes" />
-		 <mapID target="Projecting_marker_sets_onto_Cytoscape" url="Cytoscape.htm#Projecting_marker_sets_onto_Cytoscape" />
-		 <mapID target="Altering_the_view_in_Cytoscape" url="Cytoscape.htm#Altering_the_view_in_Cytoscape" />
-		 <mapID target="Network_commands" url="Cytoscape.htm#Network_commands" />
-		 <mapID target="Edges_colored_by_interaction_type" url="Cytoscape.htm#Edges_colored_by_interaction_type" />
-		 <mapID target="geWorkbench_Network_Operations" url="Cytoscape.htm#geWorkbench_Network_Operations"/>
-		 <mapID target="Cytoscape_VizMapper_tab_-_set_shapes_and_color" url="Cytoscape.htm#Cytoscape_VizMapper_tab_-_set_shapes_and_color" />
-		 <mapID target="References" url="Cytoscape.htm#References" />
+		 <mapID target="overview" url="cytoscape.htm#Overview"/>
+		 <mapID target="Text_Viewer_for_Large_Networks" url="cytoscape.htm#Text_Viewer_for_Large_Networks"/>
+		 <mapID target="Gene_Level_Summarization_of_Networks" url="cytoscape.htm#Gene_Level_Summarization_of_Networks"/>
+		 <mapID target="Layout_of_the_Cytoscape_component" url="cytoscape.htm#Layout_of_the_Cytoscape_component" />
+		 <mapID target="Selecting_Nodes_and_Edges" url="cytoscape.htm#Selecting_Nodes_and_Edges" />
+		 <mapID target="Options_for_selected_nodes" url="cytoscape.htm#Options_for_selected_nodes" />
+		 <mapID target="Projecting_marker_sets_onto_Cytoscape" url="cytoscape.htm#Projecting_marker_sets_onto_Cytoscape" />
+		 <mapID target="Altering_the_view_in_Cytoscape" url="cytoscape.htm#Altering_the_view_in_Cytoscape" />
+		 <mapID target="Network_commands" url="cytoscape.htm#Network_commands" />
+		 <mapID target="Edges_colored_by_interaction_type" url="cytoscape.htm#Edges_colored_by_interaction_type" />
+		 <mapID target="geWorkbench_Network_Operations" url="cytoscape.htm#geWorkbench_Network_Operations"/>
+		 <mapID target="Cytoscape_VizMapper_tab_-_set_shapes_and_color" url="cytoscape.htm#Cytoscape_VizMapper_tab_-_set_shapes_and_color" />
+		 <mapID target="References" url="cytoscape.htm#References" />
 	
 </map>
 

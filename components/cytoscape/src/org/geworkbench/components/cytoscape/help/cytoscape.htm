@@ -1,0 +1,621 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html dir="ltr" lang="en"><head>
+<title>Cytoscape Network Viewer - Workbench</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="generator" content="MediaWiki 1.16.0">
+<meta name="robots" content="noindex,follow">
+
+</head>
+<body class="mediawiki ltr ns-0 ns-subject page-Cytoscape_Network_Viewer skin-monobook">
+<div id="globalWrapper">
+<div id="column-content"><div id="content">
+	<a id="top"></a>
+	
+	<h1 id="firstHeading" class="firstHeading">Cytoscape Network Viewer</h1>
+	<div id="bodyContent">
+		<!-- start content -->
+<p><br>
+</p>
+<a name="Overview"></a><h2> <span class="mw-headline" id="Overview">Overview</span></h2>
+<p>Cytoscape  (www.cytoscape.org) is a sophisticated network and pathway
+ visualization tool that has been incorporated into geWorkbench as a 
+component.  Within geWorkbench, Cytoscape is used to depict putative 
+interaction networks, for example as created from running ARACNe or a 
+Cellular Network Knowledge Base query.  Both of these tools return 
+"adjacency matrices", that is, interaction networks, to the Project 
+Folders component. 
+</p><p>Cytoscape has been integrated into geWorkbench in such a way that
+ it can communicate in both directions with the Markers component.
+</p>
+<ol><li> Nodes in a Cytoscape network can be selected individually or by
+ drawing a selection box around them.  This will result in the selected 
+nodes being placed into the "Cytoscape selection" set in the Markers 
+component.
+</li><li> A set of markers in the Markers component can be labeled with 
+the "tag for visualization" property, which will project that set onto 
+the network depicted in Cytoscape.  Those markers in the intersection of
+ the tagged set and the network display will be highlighted in yellow.
+</li></ol>
+<p>The use of Cytoscape, and its interactions with geWorkbench, are 
+described in the following sections.  The figures shown in this chapter 
+were generated using the query results obtained in the <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Cellular_Networks_KnowledgeBase" title="Cellular Networks KnowledgeBase">Cellular_Networks_KnowledgeBase</a> chapter.
+</p><p>First we will describe the layout of the Cytoscape graphical interface.
+</p>
+<a name="Text_Viewer_for_Large_Networks"></a><h2> <span class="mw-headline" id="Text_Viewer_for_Large_Networks">Text Viewer for Large Networks</span></h2>
+<p>There is a limit to the size of networks that Cytoscape can be used 
+to visualize in geWorkbench.  This limit will depend on the amount of 
+memory allocated to geWorkbench.  Viewing too large a network can cause 
+geWorkbench to run out of memory and stop responding.
+</p><p>As of release 2.2.1, if the user attempts to view a large network
+ in Cytocape, he or she will be offered the option to instead view the 
+network in a text viewer. 
+</p><p><br>
+<img alt="Cytoscape network size message.png" src="cytoscape_files/Cytoscape_network_size_message.png" height="157" width="639">
+</p><p><br>
+The default number for triggering this choice is that the sum of nodes 
+(genes) and edges (interactions) is set to a very conservative value of 
+5000.  This number can be altered by changing a setting in the 
+Tools-&gt;Preferences menu.  The setting is called "Soft Limit on 
+Cytoscape Networks Objects (nodes+edges)".
+</p><p><br>
+Below is an example of a portion of an ARACNe adjacency matrix node displayed using the text viewer.
+</p><p><br>
+<img alt="Cytoscape network text display.png" src="cytoscape_files/Cytoscape_network_text_display.png" height="228" width="799">
+</p><p><br>
+</p>
+<a name="Gene_Level_Summarization_of_Networks"></a><h2> <span class="mw-headline" id="Gene_Level_Summarization_of_Networks">Gene Level Summarization of Networks</span></h2>
+<p>If the network to be viewed is represented by e.g. Affymetrix 
+probesets, and if an appropriate annotation file has been loaded, then 
+geWorkbench will summarize the network at the gene level before 
+displaying it using Cytoscape.  A gene may be represented by more than 
+one probeset. All edges connected to probesets representing one gene are
+ assigned to a single gene node.  This may cause the number of nodes and
+ edges displayed in Cytoscape to be less than those in the original 
+probeset-level network.  You can see the number of nodes and edges in 
+the original network by hovering the mouse cursor over the network data 
+node in the Project Folders component.
+</p>
+<a name="Layout_of_the_Cytoscape_component"></a><h2> <span class="mw-headline" id="Layout_of_the_Cytoscape_component">Layout of the Cytoscape component</span></h2>
+<p>The Cytoscape component has 4 main areas:
+</p><p><br>
+<img alt="Cytoscape Layout v2.2.png" src="cytoscape_files/Cytoscape_Layout_v2.png" height="727" width="756">
+</p><p><br>
+</p>
+<ol><li> At upper left is a list of networks that have been loaded into 
+Cytoscape, showing the network name and the number of nodes and edges.  
+In addition, the numbers in parentheses show the numbers of nodes and 
+edges which have been highlighted (selected) in the network depiction.
+</li><li> At upper right is the main network depiction pane.  Gene or 
+protein symbols/names will be depicted if available.  However, if for 
+example an Affymetrix microarray dataset was read in but no annotation 
+file was associated with it, then only probeset names will appear.  
+Selected nodes are depicted in yellow and are returned to the "Cytoscape
+ selection" set in the Markers component.  Selected edges are depicted 
+in red.
+</li><li> At lower left is a navigation tool which shows the entire 
+network and the location and size (purple rectangle) of the current 
+viewing pane.  The purple viewing pane can be moved about the network as
+ desired. This is done by left-clicking with the mouse in the purple 
+rectangle and moving it.
+</li><li> At lower right, nodes or edges that have been selected in the network display will appear in the Data Panel.
+</li></ol>
+<p><br>
+</p>
+<a name="Changes_in_Cytoscape_2.8"></a><h2> <span class="mw-headline" id="Changes_in_Cytoscape_2.8">Changes in Cytoscape 2.8</span></h2>
+<p>With geWorkbench v2.3.0, the version of Cytoscape was updated to 2.8.
+  There are several differences in the Cytoscape graphical interface, 
+compared with that depicted in the remainder this chapter.  
+</p><p><br>
+</p><p>Control Panel - Editor Pane added.
+</p><p><br>
+<img alt="Cytoscape 2.8 Editor Pane.png" src="cytoscape_files/Cytoscape_2.png" height="777" width="337">
+</p><p><br>
+Toolbar - new tool icons added.
+</p><p><br>
+<img alt="Cytoscape 2.8 Toolbar.png" src="cytoscape_files/Cytoscape_2_002.png" height="49" width="937">
+</p><p><br>
+Data Panel - new tool icons added.
+</p><p><br>
+<img alt="Cytoscape 2.8 Data Panel.png" src="cytoscape_files/Cytoscape_2_003.png" height="182" width="523">
+</p>
+<a name="Selecting_Nodes_and_Edges"></a><h2> <span class="mw-headline" id="Selecting_Nodes_and_Edges">Selecting Nodes and Edges</span></h2>
+<p>This section depicts the network generated in the <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Cellular_Networks_KnowledgeBase" title="Cellular Networks KnowledgeBase">Cellular_Networks_KnowledgeBase</a> chapter.
+</p>
+<a name="Selecting_interactions_.28edges.29"></a><h3> <span class="mw-headline" id="Selecting_interactions_.28edges.29">Selecting interactions (edges)</span></h3>
+<p>Using the mouse, a group of edges can be selected.  Hold down the 
+mouse button while drawing a box on the screen around the desired edges.
+  The box will appear in red.
+</p><p><br>
+<img alt="Cytoscape select edges v2.2.png" src="cytoscape_files/Cytoscape_select_edges_v2.png" height="593" width="468">
+</p><p>The list of selected edges is displayed in a list below the graph, in a tab titled "Edge Attribute Browser".
+</p><p><br>
+<img alt="Cytoscape edges selected v2.2.png" src="cytoscape_files/Cytoscape_edges_selected_v2.png" height="594" width="468">
+</p>
+<a name="Selecting_Markers.2FGenes_.28nodes.29"></a><h3> <span class="mw-headline" id="Selecting_Markers.2FGenes_.28nodes.29">Selecting Markers/Genes (nodes)</span></h3>
+<p>In geWorkbench, the nodes may use as their primary identifier either 
+the gene name or marker id, depending on the origin of the network being
+ displayed.  Aadditional display attributes can be added in the Node 
+Attribute Browser.
+</p><p>Here we click on the leftmost icon, "Select Attributes", and add the Gene Name.
+</p><p><img alt="Cytoscape add node attributes v2.2.png" src="cytoscape_files/Cytoscape_add_node_attributes_v2.png" height="253" width="340">
+</p>
+<ul><li> Individual nodes and/or edges can be selected in Cytoscape by clicking on them with the mouse.  
+</li><li> To select multiple nodes or edges, hold down the <b>Shift</b> key while making the selection.  
+</li><li> Alternatively, a selection box can be drawn around both nodes 
+and edges by left-clicking in the network diagram and selecting the 
+desired targets.
+</li></ul>
+<p><br>
+<img alt="Cytoscape nodes selected v2.2.png" src="cytoscape_files/Cytoscape_nodes_selected_v2.png" height="596" width="470">
+</p><p><br>
+</p>
+<a name="The_.22Cytoscape_Selection.22_marker_set"></a><h4> <span class="mw-headline" id="The_.22Cytoscape_Selection.22_marker_set">The "Cytoscape_Selection" marker set</span></h4>
+<p>Selecting nodes in Cytoscape will cause matching markers to appear in
+ the "Cytoscape_Selection" set in the Markers component.  The exact way 
+in which markers are transfered depends on the origin of the network.  
+The selection is dynamic - changing the selected nodes will change the 
+contents of the "Cytoscape_Selection" set.  
+</p><p>To make a permanent copy of a particular set of dynamically 
+chosen markers in the "Cytoscape Selection" subset, right-click on it 
+and select "Copy".
+</p><p><br>
+</p>
+<ul><li> <b>Network represented by gene symbols</b> - selecting a node 
+will cause all markers annotated to that gene to appear in the 
+"Cytoscape_Selection" set in the Markers component.  This is true even 
+for genes that are not the first associated with a given probeset in the
+ annotation file.
+</li><li> <b>Network represented by marker ids</b> - selecting a node will cause only the selected marker to appear in the Markers component. 
+</li></ul>
+<p><br>
+</p><p><img alt="Cytoscape selection Markers.png" src="cytoscape_files/Cytoscape_selection_Markers.png" height="589" width="309">
+</p>
+<a name="Selecting_both_nodes_and_edges"></a><h3> <span class="mw-headline" id="Selecting_both_nodes_and_edges">Selecting both nodes and edges</span></h3>
+<p>A selection box, described above for selecting edges, can also be drawn to include both nodes and edges at the same time. 
+</p><p><br>
+<img alt="Cytoscape select nodes and edges v2.2.png" src="cytoscape_files/Cytoscape_select_nodes_and_edges_v2.png" height="597" width="469">
+</p><p><br>
+The selected nodes and edges will be listed in the Node Attribute 
+Browser and Edge Attribute Browser lists below the network diagram. 
+</p><p><br>
+<img alt="Cytoscape nodes and edges v2.2.png" src="cytoscape_files/Cytoscape_nodes_and_edges_v2.png" height="592" width="470">
+</p>
+<a name="Options_for_selected_nodes"></a><h2> <span class="mw-headline" id="Options_for_selected_nodes">Options for selected nodes</span></h2>
+<p>Right-clicking on a particular node in the network graph brings up a menu with a number of options describe below.
+</p><p><br>
+</p>
+<a name="Visual_Mapping_Bypass"></a><h4> <span class="mw-headline" id="Visual_Mapping_Bypass">Visual Mapping Bypass</span></h4>
+<p>From the Visual Mapping Bypass menu, any attribute of the node such as color and shape can be altered.
+</p><p><img alt="Cytoscape visual mapping bypass v2.2.png" src="cytoscape_files/Cytoscape_visual_mapping_bypass_v2.png" height="536" width="528">
+</p>
+<a name="Nested_Network"></a><h4> <span class="mw-headline" id="Nested_Network">Nested Network</span></h4>
+<p><img alt="Cytoscape nested network v2.2.png" src="cytoscape_files/Cytoscape_nested_network_v2.png" height="249" width="475">
+</p><p><br>
+</p>
+<a name="Use_Web_Services"></a><h4> <span class="mw-headline" id="Use_Web_Services">Use Web Services</span></h4>
+<p>Please see the Ctyoscape manual.
+</p><p><img alt="Cytoscape use web services v2.2.png" src="cytoscape_files/Cytoscape_use_web_services_v2.png" height="249" width="708">
+</p>
+<a name="Hide_Node"></a><h4> <span class="mw-headline" id="Hide_Node">Hide Node</span></h4>
+<p>Selecting "Hide Node" will cause any selected nodes and all their edges to disappear.
+</p><p><br>
+<img alt="Cytoscape right click options hide node v2.2.png" src="cytoscape_files/Cytoscape_right_click_options_hide_node_v2.png" height="281" width="395">
+</p><p><br>
+Hidden nodes can be made visible again by right-clicking on the background and selecting "Restore network".
+</p><p><br>
+<img alt="Cytoscape right click options restore network v2.2.png" src="cytoscape_files/Cytoscape_right_click_options_restore_network_v2.png" height="297" width="398">
+</p>
+<a name="LinkOut"></a><h4> <span class="mw-headline" id="LinkOut">LinkOut</span></h4>
+<p>This menu option provides hyperlinks to a number of external sources of gene annotation.
+</p><p><br>
+<img alt="Cytoscape LinkOut v2.2.png" src="cytoscape_files/Cytoscape_LinkOut_v2.png" height="566" width="694">
+</p><p><b>Note - UniProt Workaround</b> - The UniProt ID link-outs may 
+not work.  However, you can highlight a node of interest, and then, if 
+present, select its UniProt ID node in the Cytoscape Data Panel.
+</p>
+<a name="Add_to_set"></a><h4> <span class="mw-headline" id="Add_to_set">Add to set</span></h4>
+<p>If one or more graph nodes have been selected (highlighted in yellow 
+in figure below), the markers they directly interact with (via edges) 
+can be copied to the default "<b>Cytoscape selection</b>" subset in the Markers component at lower left in the geWorkbench graphical interface.
+</p><p><br>
+<img alt="Cytoscape Add to set intersection v2.2.png" src="cytoscape_files/Cytoscape_Add_to_set_intersection_v2.png" height="565" width="717">
+</p><p><br>
+Two options are available under "Add to Set".  These are
+</p>
+<ul><li> <b>Intersection</b> - find the set of markers that have 
+interactions (edges) with ALL selected nodes.  Such markers are placed 
+into the Markers component, in the "<b>Cytoscape selection</b>" subset.
+</li></ul>
+<ul><li> <b>Union</b> - find the set of markers that have interactions 
+(edges) with ANY of the selected nodes.  Such markers are placed into 
+the Markers component, in the "<b>Cytoscape selection</b>" subset.
+</li></ul>
+<p><br>
+This image shows the <b>intersection</b> set of markers for the two selected genes.  There are 30 markers in the intersection:
+</p><p><img alt="Cytoscape Add to set intersection Markers v2.2.png" src="cytoscape_files/Cytoscape_Add_to_set_intersection_Markers_v2.png" height="612" width="294">
+</p><p><br>
+This image shows the <b>union</b> set of markers for the two selected genes.  There are 251 markers in the union.
+</p><p><br>
+<img alt="Cytoscape Add to set union Markers v2.2.png" src="cytoscape_files/Cytoscape_Add_to_set_union_Markers_v2.png" height="215" width="288">
+</p><p><br>
+</p><p>Note - For each gene included in the UNION or INTERSECTION, there
+ may be more than one marker associated with it. If so, all markers 
+belonging to a particular gene in a UNION or INTERSECTION result will be
+ returned to to the Markers component "Cytoscape Selection" set.
+</p>
+<a name="Projecting_marker_sets_onto_Cytoscape"></a><h2> <span class="mw-headline" id="Projecting_marker_sets_onto_Cytoscape">Projecting marker sets onto Cytoscape</span></h2>
+<p>The diagram below illustrates projecting a set defined in the Markers
+ component back onto the Cytoscape network diagram.  In this case, the 
+set of transcription factors originally used in to form the CNKB query 
+which generated this example is labeled with "tag for visualization" by 
+right-clicking on it and selecting this menu option.
+</p><p><br>
+<img alt="Markers tag for visualization cytoscape v2.2.png" src="cytoscape_files/Markers_tag_for_visualization_cytoscape_v2.png" height="611" width="435">
+</p><p><br>
+Each gene or marker that is present at least once in the tagged set, and
+ which is also present in the drawn network, is highlighted in yellow in
+ the network display.
+</p><p><br>
+<img alt="Ctyoscape tag for visualization v2.2.png" src="cytoscape_files/Ctyoscape_tag_for_visualization_v2.png" height="874" width="570">
+</p>
+<a name="Altering_the_view_in_Cytoscape"></a><h2> <span class="mw-headline" id="Altering_the_view_in_Cytoscape">Altering the view in Cytoscape</span></h2>
+<p>The use of the sliding viewpane at lower left to navigate about the 
+main drawn network has already been mentioned - it can be grabbed and 
+moved by left-clicking on it with the mouse.
+</p><p>There are several more controls arrayed about the lower edge of the Cytoscape component.  
+</p><p><br>
+<img alt="Cytoscape display control bar v2.2.png" src="cytoscape_files/Cytoscape_display_control_bar_v2.png" height="38" width="742">
+</p><p><br>
+For control the network view:
+</p><p><img alt="Cytoscape control minus.png" src="cytoscape_files/Cytoscape_control_minus.png" height="36" width="54">  <b>Minus</b> - zoom out.
+</p><p><img alt="Cytoscape control plus.png" src="cytoscape_files/Cytoscape_control_plus.png" height="33" width="50">  <b>Plus</b> - zoom in.
+</p><p><img alt="Cytoscape control zoom selected.png" src="cytoscape_files/Cytoscape_control_zoom_selected.png" height="33" width="50">  <b>Open</b> - zoom to display selected region.
+</p><p><img alt="Cytoscape control zoom display all.png" src="cytoscape_files/Cytoscape_control_zoom_display_all.png" height="37" width="53">  <b>1:1</b> - zoom out to display all of current network.
+</p><p><br>
+To illustrate the "display selected" function, below we select several nodes...
+</p><p><br>
+-<img alt="Cytoscape control zoom display all selected.png" src="cytoscape_files/Cytoscape_control_zoom_display_all_selected.png" height="459" width="601">
+</p><p><br>
+...and click <img alt="Cytoscape control zoom selected.png" src="cytoscape_files/Cytoscape_control_zoom_selected.png" height="33" width="50"> to zoom in on this portion of the graph.
+</p><p>-<img alt="Cytoscape control zoom display all selected done.png" src="cytoscape_files/Cytoscape_control_zoom_display_all_selected_done.png" height="458" width="606">
+</p>
+<a name="Network_commands"></a><h2> <span class="mw-headline" id="Network_commands">Network commands</span></h2>
+<p>Right-clicking on a listed network in Cytoscape will bring up a menu with the following choices:
+</p><p><img alt="Cytoscape Network Options full v2.2.png" src="cytoscape_files/Cytoscape_Network_Options_full_v2.png" height="348" width="437">
+</p>
+<a name="Edit_Network_Title"></a><h3> <span class="mw-headline" id="Edit_Network_Title">Edit Network Title</span></h3>
+<p>Edit the title of the network.
+</p>
+<a name="Create_View"></a><h3> <span class="mw-headline" id="Create_View">Create View</span></h3>
+<p>Recreate the network graphics.
+</p>
+<a name="Destroy_View"></a><h3> <span class="mw-headline" id="Destroy_View">Destroy View</span></h3>
+<p>Remove the network graphics.
+</p>
+<a name="Destroy_Network"></a><h3> <span class="mw-headline" id="Destroy_Network">Destroy Network</span></h3>
+<p>Completely remove the network from Cytoscape.  Note that this does 
+not remove the network adjacency matrix from the geWorkbench Project 
+Folders component.  The network can be recreated in Cytoscape by 
+clicking on the appropriate adjacency matrix in the Project Folders 
+component.
+</p>
+<a name="Apply_Visual_Style"></a><h3> <span class="mw-headline" id="Apply_Visual_Style">Apply Visual Style</span></h3>
+<p>The <b>Apply Visual Style</b> feature adds the option to apply 
+user-defined styles to a network diagram, in addition to the various 
+preset styles defined in Cytoscape.   Edge colors are now included in 
+these styles.   Any changes that the user makes to the visual appearance
+ of the network are saved in a new "style" entry with the name of the 
+current dataset.  These saved styles can then be applied to other 
+datasets.
+</p><p>The default style is the "Nested Network Style".
+</p><p>The figure below shows the result of applying the "Universe" style to a network where two nodes are selected (yellow).
+</p><p><img alt="Cytoscape apply visual style v2.2.png" src="cytoscape_files/Cytoscape_apply_visual_style_v2.png" height="372" width="953">
+</p>
+<a name="Edges_colored_by_interaction_type"></a><h2> <span class="mw-headline" id="Edges_colored_by_interaction_type">Edges colored by interaction type</span></h2>
+<p>By default, edges are now colored according to the interaction type, 
+e.g. Protein-DNA.  The figure below shows the result of a query carried 
+out in the <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Cellular_Networks_KnowledgeBase" title="Cellular Networks KnowledgeBase"> Cellular Networks Knowledge Base (CNKB)</a> chapter.
+</p><p><br>
+<img alt="CNKB Result Cytoscape 3types v2.2.png" src="cytoscape_files/CNKB_Result_Cytoscape_3types_v2.png" height="849" width="751">
+</p><p><br>
+The key for the assignment of colors to interaction types is described in the next section.
+</p>
+<a name="Cytoscape_VizMapper_tab_-_set_shapes_and_color"></a><h2> <span class="mw-headline" id="Cytoscape_VizMapper_tab_-_set_shapes_and_color">Cytoscape VizMapper tab - set shapes and color</span></h2>
+<p>geWorkbench assigns shapes to genes in Cytoscape based on their activity, e.g. transcription factor, kinase, phosphatase etc.
+</p><p><br>
+The figure below shows a zoomed-in view of the network generated in the <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Cellular_Networks_KnowledgeBase" title="Cellular Networks KnowledgeBase"> CNKB</a> chapter.  The <b>VizMapper</b> tab has been selected, and the properties list has been opened to the node shape key.
+</p><p><br>
+<img alt="CNKB Cytoscape Results type shapes v2.2.png" src="cytoscape_files/CNKB_Cytoscape_Results_type_shapes_v2.png" height="663" width="1192">
+</p><p><br>
+Clicking on a particular shape in the legend brings up a shape editor, with which the shape assignements can be changed.
+</p><p><br>
+<img alt="Cytoscape VizMapper NodeShapes edit v2.2.png" src="cytoscape_files/Cytoscape_VizMapper_NodeShapes_edit_v2.png" height="240" width="295">
+</p><p><br>
+Similarly, colors are assigned to the lines (termed edges) connecting 
+genes, which represent their interactions.  These edges are colored 
+based on the type of interaction, e.g. Protein-DNA etc.
+</p><p>As currently implemented, colors are assigned randomly to each 
+interaction type when geWorkbench starts up.  There will thus be a 
+different color palate with each invocation of geWorkbench.  Within a 
+single invocation of geWorkbench, the same color palate will be used for
+ each network created.
+</p><p><br>
+The figure below shows the <b>VizMapper</b> edge color key.
+</p><p><br>
+<img alt="Cytoscape VizMapper EdgeColors v2.2.png" src="cytoscape_files/Cytoscape_VizMapper_EdgeColors_v2.png" height="616" width="311">
+</p><p><br>
+The colors assigned to each interaction type can be edited by clicking 
+on a particular color bar in the legend, as shown in the next figure.  
+Two buttons appear, one for editing, labeled with "...", and one to 
+delete the interaction color assignemt, "X".  If color edit is chosen, a
+ color chooser will appear.
+</p><p><br>
+<img alt="Cytoscape VizMapper EdgeColors edit v2.2.png" src="cytoscape_files/Cytoscape_VizMapper_EdgeColors_edit_v2.png" height="343" width="302">
+</p>
+<a name="geWorkbench_Network_Operations"></a><h2> <span class="mw-headline" id="geWorkbench_Network_Operations">geWorkbench Network Operations</span></h2>
+<p>geWorkbench adds four functions to those available in Cytoscape.
+</p>
+<ol><li> Show t-test results
+</li><li> Compute edge correlations.
+</li><li> Create subnetwork.
+</li><li> Restore network.
+</li></ol>
+<p><br>
+<img alt="Cytoscape right click options v2.2.png" src="cytoscape_files/Cytoscape_right_click_options_v2.png" height="351" width="607">
+</p><p><br>
+</p>
+<a name="Show_t-test_results"></a><h3> <span class="mw-headline" id="Show_t-test_results">Show t-test results</span></h3>
+<a name="Description"></a><h4> <span class="mw-headline" id="Description">Description</span></h4>
+<p>When a t-test has been run in geWorkbench, its results are placed in a
+ child data node under the parent dataset in the Project Folders 
+component.  The results (in terms of a p-value calculated from the 
+t-statistic for each marker) can be viewed as a "heat map" using the 
+Color Mosaic component, or as a Volcano plot.  
+</p><p>geWorkbench can also overlay t-test results onto a network 
+displayed in Cytoscape.  Genes which have a significant (above 
+threshold) result in the t-test and which are present as nodes in the 
+network can be colored according to the sign and magnitude of the marker
+ t-statistic. Positive t-statistic values are shaded red, and negative 
+values are shaded blue.  The greater the absolute value of the 
+t-statistic, the greater the intensity (deeper shade) of the color.  
+</p><p>In cases where more than one marker (probeset) represents a gene,
+ the result from the marker with the highest absolute t-value is used.
+</p><p>Note that in the Color Mosaic, the heat map displays the actual 
+expression results for each marker and each array.  Here, Cytoscape 
+displays one summary value, the t-statistic, for each gene.
+</p>
+<a name="Prerequisites"></a><h4> <span class="mw-headline" id="Prerequisites">Prerequisites</span></h4>
+<ul><li> Only t-test result nodes belonging to the same parent 
+microarray expression data node as the adjacency matrix being displayed 
+in Cytoscape can be selected for overlay.
+</li><li> The matching of markers to Cytoscape nodes is done using the 
+Gene Symbol.  For this reason, an annotation file must be loaded along 
+with the microarray expression dataset to provide the gene names.
+</li><li> Before overlaying the t-test results, any previously assigned 
+colors will be cleared from the network display, regardless of their 
+origin.
+</li></ul>
+<a name="t-test_example"></a><h4> <span class="mw-headline" id="t-test_example">t-test example</span></h4>
+<p>Setup:
+</p>
+<ul><li> This example begins with a network created in the <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Cellular_Networks_KnowledgeBase" title="Cellular Networks KnowledgeBase">Cellular_Networks_KnowledgeBase</a>
+ chapter.  It is based on the BCell-100.exp dataset provided with 
+geWorkbench, as well as the Affymetrix HG-U95Av2.na31.csv annotation 
+file.
+</li><li> A set of transcription factors was used to query the CNKB as described in the chapter <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Cellular_Networks_KnowledgeBase" title="Cellular Networks KnowledgeBase">Cellular_Networks_KnowledgeBase</a>.  The resulting network can be seen there and the query results are repeated below.
+</li></ul>
+<p>The data was prepared for the t-test by
+</p>
+<ol><li> The BCell-100 data node was selected in the Project Folders 
+component.  (It should have a child adjacency matrix from the CNKB 
+"create network" step).
+</li><li> Normalization: threshold normalize to a minimum value of 1.0.
+</li><li> Normalization: log2 transform.
+</li><li> Arrays Component: In the sets pulldown menu, select the array grouping "Class".
+</li><li> Arrays Component: activate the sets "GC B-cell" and "GC tumor".
+</li><li> Arrays Component: set the set "GC tumor" to be type "Case".
+</li></ol>
+<p>A t-test was computed on the BCell-100 dataset.  The parameters used were
+</p>
+<ol><li> p-value: 0.01
+</li><li> Alpha Correction: Standard Bonferroni correction
+</li><li> log2-transformed data box: checked.
+</li></ol>
+<p>After the t-test was calculated, the adjacency matrix  from the CNKB 
+query (with parent BCell-100) was selected in the Project Folders 
+component to redisplay the network in Cytoscape.
+</p><p>On the network display, the "Show t-test results" option was chosen.
+</p><p>A dialog allows the t-test result to be displayed to be chosen, 
+should there be more than one.  Only t-test result nodes which belong to
+ the same parent microarray expression dataset as the adjacency matrix 
+being viewed in Cytoscape will be offered:
+</p><p><br>
+<img alt="Cytoscape t-test choose v2.2.png" src="cytoscape_files/Cytoscape_t-test_choose_v2.png" height="232" width="271">
+</p><p><br>
+The t-test results are used to color the network nodes according to the 
+sign and magnitude of their t-statistic.  Positive values are shaded 
+red, and negative values are shaded blue.  The greater the magnitude of 
+the value, positive or negative, the darker the shade of red or blue 
+that is used.  
+</p><p><br>
+<img alt="Cytoscape t-test display full v2.2.png" src="cytoscape_files/Cytoscape_t-test_display_full_v2.png" height="747" width="571">
+</p><p><br>
+These two images show zoomed-in views of the network colored by t-test results.
+</p><p>Here is the network about BHLHE40, which is the one hub node that was colored in by the t-test results:
+</p><p><br>
+<img alt="Cytoscape t-test display detail BHLHE40 v2.2.png" src="cytoscape_files/Cytoscape_t-test_display_detail_BHLHE40_v2.png" height="753" width="717">
+</p><p><br>
+This figure shows all the different colorings of edges (based on interaction type) and nodes (based on t-test result).
+</p><p><br>
+<img alt="Cytoscape t-test display detail v2.2.png" src="cytoscape_files/Cytoscape_t-test_display_detail_v2.png" height="755" width="577">
+</p>
+<a name="Create_subnetwork"></a><h3> <span class="mw-headline" id="Create_subnetwork">Create subnetwork</span></h3>
+<p>The "Create subnetwork" feature intersects a network displayed in 
+Cytoscape with a set of Markers defined in the Markers component.  
+</p>
+<ul><li> A new adjacency matrix is created in the Project Folders 
+component.  The new adjacency matrix is made a child of the same dataset
+ as the network it was created from. 
+</li><li> The new subnetwork contains all nodes in the original network 
+which are also in the selected marker set, regardless of whether they 
+are connected by any edges.
+</li></ul>
+<p><br>
+Here we choose the "Significant Genes[428]" list of genes to intersect with the displayed network.  
+</p><p><br>
+After the new subnetwork is created, it is placed as a new Adjacency matrix in the Project Folders component. 
+</p><p><br>
+<img alt="Cytoscape t-test display subnetwork sig created v2.2.png" src="cytoscape_files/Cytoscape_t-test_display_subnetwork_sig_created_v2.png" height="632" width="891">
+</p>
+<a name="Restore_network"></a><h3> <span class="mw-headline" id="Restore_network">Restore network</span></h3>
+<p>Selecting "restore network" will remove any effects that have been 
+applied to a particular adjacency matrix, such as overlaying t-test or 
+Pearson's correlation results. 
+</p><p>Specifically, it will
+</p>
+<ul><li> restore the network to its original state, 
+</li><li> redraw all network nodes and edges,
+</li><li> remove all node highlights,
+</li><li> restore the original edge colors.
+</li></ul>
+<p><br>
+Note that creating a subnetwork actually creates a new adjacency matrix.
+  If you wish to return to the original adjacency matrix, select it in 
+the Project Folders component.
+</p>
+<a name="Compute_Edge_Correlations"></a><h3> <span class="mw-headline" id="Compute_Edge_Correlations">Compute Edge Correlations</span></h3>
+<a name="Description_2"></a><h4> <span class="mw-headline" id="Description_2">Description</span></h4>
+<p>An adjacency matrix associated with a microarray gene expression 
+dataset in geWorkbench may come from an entirely different source, such 
+as the result of a query on the CNKB.  The user may wish to compare the 
+network represented by the adjacency matrix with the data in the gene 
+expression dataset.
+</p><p>The "Compute Edge Correlations" feature calculates, for pairs of 
+genes/markers that are displayed in Cytoscape and connected by edges, 
+the Pearson correlation coefficients of their gene expression profiles 
+in the microarray dataset.  
+</p><p>For each pair of markers or genes connected by an edge (i.e., an 
+interaction), the Pearson's correlation of the expression profiles of 
+those two genes in the microarray dataset is calculated using:
+</p>
+<ol><li> if no annotation file has been loaded, or for other reasons 
+gene names are not available, then all correlations will be computed at 
+the marker level.
+</li><li> if gene names are available, and if a gene is represented by 
+more than one marker (probeset), the values for each such marker will be
+ averaged by array to create one "average marker" for that gene.  This 
+"average marker" will then be used in the correlation calculation.
+</li></ol>
+<p><br>
+There are two possible ways in which the correlation value can be used:
+</p>
+<ol><li> To create a new subnetwork (represented by a new adjacency 
+matrix in the Project Folders component) which contains only those edges
+ (and the nodes they connect) which met the correlation threshold, or
+</li><li> To display on the original network only those edges which 
+which met the correlation threshold.  All nodes are still displayed.  
+(In this case, the sub-threshold edges are invisible but are still 
+present).
+</li></ol>
+<p>For purposes of this description, we continue working with the dataset described above in the t-test example.
+</p><p>When "Compute edge correlations" is chosen, a dialog appears in which the arrays to be included can be chosen.
+</p><p>The list of array sets shown in this dialog is the same as those 
+currently visible in the Arrays component.  In this case, these sets 
+belong to the "Class" list, which was used to set up the t-test case and
+ control groups.
+</p><p><br>
+In the figure below we select all arrays.
+</p><p><br>
+<img alt="Cytoscape correlation array selection v2.2.png" src="cytoscape_files/Cytoscape_correlation_array_selection_v2.png" height="229" width="279">
+</p><p><br>
+Next, one can choose among the several options:
+</p>
+<ol><li> Graph correlation values
+</li><li> Correlation threshold (slider control)
+</li><li> Redraw network
+</li><li> Create subnetwork
+</li><li> Reset network
+</li></ol>
+<p><br>
+<img alt="Cytoscape correlation controls v2.2.png" src="cytoscape_files/Cytoscape_correlation_controls_v2.png" height="115" width="559">
+</p>
+<a name="Graph_Correlation_Values"></a><h4> <span class="mw-headline" id="Graph_Correlation_Values">Graph Correlation Values</span></h4>
+<p>One can examine a histogram of the correlation values.  This can aid 
+in setting a reasonable cutoff for the correlation threshold used in 
+visualizing the network overlap.
+</p><p><br>
+<img alt="Cytoscape correlation histogram log v2.2.png" src="cytoscape_files/Cytoscape_correlation_histogram_log_v2.png" height="275" width="504">
+</p><p><br>
+</p>
+<a name="Correlation_Threshold"></a><h4> <span class="mw-headline" id="Correlation_Threshold">Correlation Threshold</span></h4>
+<p>This slider allows the threshold for accepting an edge based on its Pearson's correlation coefficient to be set.
+</p><p>In this example we set the slider to a cutoff value of 0.5.
+</p><p><br>
+</p>
+<a name="Redraw_network"></a><h4> <span class="mw-headline" id="Redraw_network">Redraw network</span></h4>
+<p>Only edges that meet the threshold Pearson's correlation value are 
+displayed.  All nodes are retained.  Edges are colored red or blue 
+according to positive or negative correlation, respectively.
+</p><p><br>
+</p><p><img alt="Cytoscape correlation redrawn network displayed log v2.2.png" src="cytoscape_files/Cytoscape_correlation_redrawn_network_displayed_log_v2.png" height="676" width="530">
+</p><p><br>
+The below figure shows the retained edges in more detail.
+</p><p><img alt="Cytoscape correlation redrawn network detail log v2.2.png" src="cytoscape_files/Cytoscape_correlation_redrawn_network_detail_log_v2.png" height="673" width="531">
+</p><p><br>
+</p>
+<a name="Create_subnetwork_2"></a><h4> <span class="mw-headline" id="Create_subnetwork_2">Create subnetwork</span></h4>
+<p>Creates a subnetwork containing only nodes that are connected by above-threshold correlation results.  
+</p><p>This step can either be performed directly after the threshold 
+has been set, or after the "Redraw network" command has been used.
+</p><p>In either case, the subnetwork is represented by a new adjacency 
+matrix in the Project Folders component.  To return to the original 
+network, select its adjacency matrix in that component.
+</p><p>(Note that this diagram was created with an edited set of interaction-type colors).
+</p><p><br>
+<img alt="Cytoscape correlation subnetwork displayed log v2.2.png" src="cytoscape_files/Cytoscape_correlation_subnetwork_displayed_log_v2.png" height="592" width="1091">
+</p><p><br>
+</p>
+<a name="Reset_network"></a><h4> <span class="mw-headline" id="Reset_network">Reset network</span></h4>
+<p>The original network is redrawn, eliminating all correlation filtering of edges. Also, the original edge colors are restored.
+</p>
+<a name="References"></a><h2> <span class="mw-headline" id="References">References</span></h2>
+<p>Melissa S Cline, Michael Smoot, Ethan Cerami, Allan Kuchinsky, Nerius
+ Landys, Chris Workman, Rowan Christmas, Iliana Avila-Campilo, Michael 
+Creech, Benjamin Gross, Kristina Hanspers, Ruth Isserlin, Ryan Kelley, 
+Sarah Killcoyne, Samad Lotia, Steven Maere, John Morris, Keiichiro Ono, 
+Vuk Pavlovic, Alexander R Pico, Aditya Vailaya, Peng-Liang Wang, Annette
+ Adler, Bruce R Conklin, Leroy Hood, Martin Kuiper, Chris Sander, Ilya 
+Schmulevich, Benno Schwikowski, Guy J Warner, Trey Ideker &amp; Gary D 
+Bader.  (2007)
+Integration of biological networks and gene expression data using 
+Cytoscape.  Nature Protocols 2, 2366 - 2382.    Links:  <a href="http://www.nature.com/nprot/journal/v2/n10/full/nprot.2007.324.html" class="external text" rel="nofollow">Article</a>, <a href="http://www.ncbi.nlm.nih.gov/pubmed/17947979" class="external text" rel="nofollow">PubMed</a>
+</p><p><br>
+Shannon P, Markiel A, Ozier O, Baliga NS, Wang JT, Ramage D, Amin N, 
+Schwikowski B, Ideker T. (2003) Cytoscape: a software environment for 
+integrated models of biomolecular interaction networks.  Genome Research
+ 13(11):2498-504.  Links: <a href="http://www.genome.org/cgi/content/full/13/11/2498" class="external text" rel="nofollow">Article</a>,  <a href="http://www.genome.org/cgi/reprint/13/11/2498" class="external text" rel="nofollow">PDF</a>, <a href="http://www.ncbi.nlm.nih.gov/pubmed/14597658" class="external text" rel="nofollow">PubMed</a>.
+</p>
+<!-- 
+NewPP limit report
+Preprocessor node count: 170/1000000
+Post-expand include size: 1907/2097152 bytes
+Template argument size: 0/2097152 bytes
+Expensive parser function count: 0/100
+-->
+
+<!-- Saved in parser cache with key workbench:pcache:idhash:1869-0!1!0!!en!2!printable=1 and timestamp 20120308202259 -->
+<div class="printfooter">
+Retrieved from "<a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Cytoscape_Network_Viewer">http://wiki.c2b2.columbia.edu/workbench/index.php/Cytoscape_Network_Viewer</a>"</div>
+		<div id="catlinks" class="catlinks catlinks-allhidden"></div>		<!-- end content -->
+				<div class="visualClear"></div>
+	</div>
+</div></div>
+<div class="visualClear"></div>
+<div id="footer">
+	<div id="f-poweredbyico"><img src="cytoscape_files/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" height="31" width="88"></div>
+	<ul id="f-list">
+		<li id="lastmod"> This page was last modified on 1 March 2012, at 17:49.</li>
+	</ul>
+</div>
+</div>
+
