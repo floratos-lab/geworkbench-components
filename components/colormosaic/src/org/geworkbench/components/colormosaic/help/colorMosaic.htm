@@ -1,0 +1,184 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html dir="ltr" lang="en"><head>
+<title>Color Mosaic - Workbench</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="generator" content="MediaWiki 1.16.0">
+<meta name="robots" content="noindex,follow">
+
+</head>
+<body class="mediawiki ltr ns-0 ns-subject page-Color_Mosaic skin-monobook">
+<div id="globalWrapper">
+<div id="column-content"><div id="content">
+	<a id="top"></a>
+	
+	<h1 id="firstHeading" class="firstHeading">Color Mosaic</h1>
+	<div id="bodyContent">
+		<!-- start content -->
+<p><br>
+</p>
+<a name="Overview"></a><h2> <span class="mw-headline" id="Overview">Overview</span></h2>
+<p>The Color Mosaic component displays expression values for all active 
+arrays and markers using an "Eisen" plot "heat map" colored by either an
+ absolute or relative color scheme.  It is located in the View Area ( 
+see figure below) in the top-right of the application.
+</p><p>Measurements in the selected microarray dataset are displayed as a
+ two-dimensional matrix with each column representing an array and each 
+row representing a gene/marker. The color spectrum is used to indicate 
+the magnitudes of the measurements. 
+</p><p>When the Color Mosaic component is used to display the results of
+ a t-test or ANOVA, it will display the p-values to the right of each 
+marker.
+</p>
+<a name="Limitations"></a><h2> <span class="mw-headline" id="Limitations">Limitations</span></h2>
+<p>There is a limit of about 100 Megapixels to the size of the Color 
+Mosaic image that can be displayed.  A warning will be issued if this 
+size is exceeded, and the image will not be created.
+</p>
+<a name="Color_Mosaic_Controls"></a><h2> <span class="mw-headline" id="Color_Mosaic_Controls">Color Mosaic Controls</span></h2>
+<p><img alt="T-Test Color Mosaic Control Descriptions.png" src="colorMosaic_files/T-Test_Color_Mosaic_Control_Descriptions.png" height="471" width="1127">
+</p><p><br>
+The figure above shows the Color Mosaic component displaying the results of a t-test, including p-values.
+</p>
+<a name="Display_Controls"></a><h3> <span class="mw-headline" id="Display_Controls">Display Controls</span></h3>
+<ul><li> <b>Display</b> - Toggles on/off the Color Mosaic display.  It is better to leave the display "off" when not being used.
+</li><li> <b>Array Names</b> - Toggles on/off the display of array names above the columns of the color mosaic.
+</li><li> <b>Accession</b> - Toggles on/off the display of the accession
+ number (e.g. Affymetrix probeset name) to the right of each row in the 
+color mosaic.
+</li><li> <b>Label</b> - Toggles on/off the display of the gene symbol(if available) to the right of each row in the color mosaic.
+</li><li> <b>Sort</b> - The "Sort" control is disabled unless the 
+results of an analysis are being displayed.  It toggles between two 
+sorting orders for the t-test results.  These are further described 
+below.  It is not used by other analyses.
+</li><li> <b>Lightbulb</b> <img alt="Color Mosaic Lightbulb.png" src="colorMosaic_files/Color_Mosaic_Lightbulb.png" height="24" width="28">
+ - Activates the tooltip function over the color mosaic display.  When 
+activated, mouse-over (hover) text over any cell in the color mosaic 
+will give the following information:
+<ul><li> Chip - the name of the array
+</li><li> Marker - the marker name/accession number (e.g. Affymetrix probeset id).
+</li><li> Signal - The value of the signal in the dataset for the marker/array pair.
+</li></ul>
+</li></ul>
+<p><img alt="T Color Mosaic Tooltip.png" src="colorMosaic_files/T_Color_Mosaic_Tooltip.png" height="90" width="171">
+</p><p><br>
+</p>
+<ul><li> <b>Intensity</b> - The intensity slider increases or decreases 
+the thresholds used to define the color mappings, as explained in the 
+Color Key section.
+</li><li> <b>Gene Height</b> and <b>Gene Width</b> - Change the size 
+(number of pixels) assigned to each marker (row height) or array (column
+ width) in the color mosaic.  The associated labels scale 
+proportionately.
+</li></ul>
+<a name="Search_Controls"></a><h3> <span class="mw-headline" id="Search_Controls">Search Controls</span></h3>
+<p>There are separate text boxes to search for array names, accession 
+numbers, and labels.  The search fields are enabled by their respective 
+buttons.
+</p><p>Each search field features progressive search.  As each character
+ is typed in, the first match to the entered string will be 
+automatically highlighted in blue. The next match can be found by 
+hitting the "Enter" key.  Typing additional characters further narrows 
+the search.  
+</p>
+<ul><li> <b>Search Array</b> - Toggle on/off searching for array names.
+</li><li> <b>Search Accession</b> - Toggle on/off searching for marker IDs.
+</li><li> <b>Search Label</b> - Toggle on/off searching for Gene Names.
+</li><li> <b>Clear Search</b> - Clear the search result highlights.
+</li></ul>
+<p>The figure below shows the results, with labels highlighted in purple, of searches using all three search fields.
+</p><p><br>
+<img alt="T-Test Color Mosaic Search.png" src="colorMosaic_files/T-Test_Color_Mosaic_Search.png" height="281" width="1006">
+</p>
+<a name="Sort_button"></a><h3> <span class="mw-headline" id="Sort_button">Sort button</span></h3>
+<p>The Sort button toggles between two methods of sorting the markers in
+ the Color Mosaic component.  It is enabled only when displaying results
+ from a t-test. 
+</p>
+<ul><li> By default, sorting is by p-value, with the smallest values at top.  
+</li><li> If the Sort button is pushed, the following alternate sorting method is used:
+</li></ul>
+<ol><li> Divide the markers into groups by positive and negative fold-change.
+</li><li> Sort each group by <b>t-value</b>.
+</li><li> Recombine the groups.
+</li></ol>
+<p>The result of applying this alternate sorting method is that markers 
+with high positive or negative t-values will sort to the middle of the 
+list.
+</p>
+<a name="Other_controls"></a><h3> <span class="mw-headline" id="Other_controls">Other controls</span></h3>
+<ul><li> <b>Export data</b> - This option is only available when displaying results of an analysis, e.g. from ANOVA or t-test.  Export p-values to a file.
+</li><li> <b>All Markers</b> - Overrides any set of markers activated in
+ the Markers component to display all markers.  Disabled in some 
+displays such as ANOVA.
+</li><li> <b>All Arrays</b> - Overrides any set of arrays activated in 
+the Arrays/Phenotypes component to display results from all arrays.  
+Disabled in some displays such as ANOVA.
+</li><li> <b>Printer Icon</b> - Send the heat-map to the printer.
+</li></ul>
+<a name="Mouse-click_actions"></a><h2> <span class="mw-headline" id="Mouse-click_actions">Mouse-click actions</span></h2>
+<a name="Left-click"></a><h3> <span class="mw-headline" id="Left-click">Left-click</span></h3>
+<p>Left-clicking on any location (tile) in the mosaic will highlight the
+ corresponding gene probe in the Markers component, and the 
+corresponding array in the Arrays/Phenotypes component.
+</p>
+<a name="Right-click"></a><h3> <span class="mw-headline" id="Right-click">Right-click</span></h3>
+<p>Right-clicking anywhere on the color mosaic display will bring up a 
+menu with the following entries, as shown in the below figure:
+</p><p><img alt="T Color Mosaic Rightclick.png" src="colorMosaic_files/T_Color_Mosaic_Rightclick.png" height="151" width="204">
+</p>
+<ul><li> <b>Print</b> - Send the heat map to the printer.
+</li><li> <b>Zoom-in/ Zoom-out</b> - Increase/decrease size of color mosaic.
+</li><li> <b>Take Snapshot</b> - Save an image of the heat map to the Project Folders component.
+</li><li> <b>Export significance value</b> - Export p-values from displayed ANOVA / t-test result.  (Disabled when not displaying an analysis result).
+</li></ul>
+<a name="Color_key"></a><h2> <span class="mw-headline" id="Color_key">Color key</span></h2>
+<p>The Color key shows the range of colors available in the currently set <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Preferences#Visualization" title="Preferences"> Visualization preference</a> (Menu-&gt;Tools-&gt;Preferences-&gt;Visualization).  There are two available color schemes:  <b>Absolute</b> and <b>Relative</b>.
+  In each, the lowest and highest expression values correspond to the 
+most saturated colors, and values closer to the middle are indicated by 
+shading into a third color.
+</p><p>See <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Preferences#Visualization" title="Preferences"> Visualization preference</a> for switching between absolute and relative color schemes.
+</p>
+<a name="Absolute"></a><h3> <span class="mw-headline" id="Absolute">Absolute</span></h3>
+<p>Colors are calculated on an absolute scale centered about zero (when 
+the Intensity Slider is in the middle, neutral position).  Values shade 
+between the following:
+</p>
+<ul><li> Black - zero.
+</li><li> Red - positive values.
+</li><li> Green - negative values.
+</li></ul>
+<a name="Relative"></a><h3> <span class="mw-headline" id="Relative">Relative</span></h3>
+<p>Colors are calculated relative to the mean <b>for each marker</b> 
+(when the Intensity Slider is in the middle, neutral position).  
+Expression value colors are directly comparable only within a particular
+ marker.
+</p>
+<ul><li> White - mean value for marker.
+</li><li> Red - values greater than the mean.
+</li><li> Blue - values less than the mean.
+</li></ul>
+
+<!-- 
+NewPP limit report
+Preprocessor node count: 54/1000000
+Post-expand include size: 1907/2097152 bytes
+Template argument size: 0/2097152 bytes
+Expensive parser function count: 0/100
+-->
+
+<!-- Saved in parser cache with key workbench:pcache:idhash:1895-0!1!0!!en!2!printable=1 and timestamp 20120308193334 -->
+<div class="printfooter">
+Retrieved from "<a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Color_Mosaic">http://wiki.c2b2.columbia.edu/workbench/index.php/Color_Mosaic</a>"</div>
+		<div id="catlinks" class="catlinks catlinks-allhidden"></div>		<!-- end content -->
+				<div class="visualClear"></div>
+	</div>
+</div></div>
+<div class="visualClear"></div>
+<div id="footer">
+	<div id="f-poweredbyico"><img src="colorMosaic_files/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" height="31" width="88"></div>
+	<ul id="f-list">
+		<li id="lastmod"> This page was last modified on 21 February 2012, at 18:32.</li>
+	</ul>
+</div>
+</div>
+

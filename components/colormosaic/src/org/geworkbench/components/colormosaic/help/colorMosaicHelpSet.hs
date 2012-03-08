@@ -18,7 +18,7 @@
 
 		<homeID>overview</homeID>
 
-		<mapref location="colorMosaicMap.jhm"/>
+		<mapref location="colorMosaic_Map.jhm"/>
 
 	</maps>
 
@@ -32,7 +32,7 @@
 
 		<type>javax.help.TOCView</type>
 
-		<data>colorMosaictoc.xml</data>
+		<data>colorMosaic_toc.xml</data>
 
 	</view>
 
