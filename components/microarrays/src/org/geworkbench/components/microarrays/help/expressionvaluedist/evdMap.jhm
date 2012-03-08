@@ -6,7 +6,8 @@
 
 <map version="1.0">
 
-	<mapID target="overview" url="evd.HTML"/>
+	<mapID target="overview" url="evd.htm#Overview"/>
+	<mapID target="Controls" url="evd.htm#Controls"/>    
 
 </map>
 
