@@ -3,38 +3,55 @@ package org.geworkbench.components.genspace;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
+import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextPane;
+import javax.swing.SwingWorker;
+import javax.swing.UIManager;
 import javax.swing.border.MatteBorder;
+import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.html.HTMLDocument;
 
 import org.geworkbench.components.genspace.server.stubs.Tool;
 import org.geworkbench.components.genspace.server.stubs.Workflow;
 import org.geworkbench.components.genspace.server.wrapper.WorkflowWrapper;
+import org.geworkbench.components.genspace.ui.NameRenderer;
 import org.geworkbench.components.genspace.ui.WorkflowVisualizationPanel;
 import org.geworkbench.engine.config.VisualPlugin;
 
 public class RealTimeWorkFlowSuggestion extends JPanel implements VisualPlugin,
-		Runnable {
+		ActionListener, Runnable {
 
 	private static final long serialVersionUID = 4806046453151557609L;
 	JRadioButton log, logAnon, noLog;
 	ButtonGroup group;
 	JPanel radioPanel, saveReset;
 	JButton save, reset;
+//	private static ImageIcon arrow = new ImageIcon("components/genspace/classes/org/geworkbench/components/genspace/rating/arrow_right.png");
 
 	public static WorkflowWrapper cwf = null;
-	public static ArrayList<String> usedWorkFlowToday = new ArrayList<String>();
+	public static ArrayList<WorkflowWrapper> usedWorkFlowToday = new ArrayList<WorkflowWrapper>();
 //	private static String currentTid = null;
 
 	private static WorkflowVisualizationPanel workflowVisualizationPanel = new WorkflowVisualizationPanel();
@@ -42,9 +59,16 @@ public class RealTimeWorkFlowSuggestion extends JPanel implements VisualPlugin,
 //	private static JPanel workflowNodePanel = new JPanel(new FlowLayout());
 	private static JPanel workflowInfoPanel = new JPanel(new BorderLayout());
 
+//	private static WorkflowVisualizationPopup popup = new WorkflowVisualizationPopup();
+
 	private static JLabel viewerStatus = new JLabel();
 
 	private static JTextArea infoArea = new JTextArea();
+	
+	private static JList toolListing = new JList();
+	
+	private JButton button = new JButton("Search");
+	private JTextPane wfsPane;
 
 	static final String PROPERTY_KEY = "genSpace_logging_preferences"; // the
 																		// key
@@ -124,6 +148,74 @@ public class RealTimeWorkFlowSuggestion extends JPanel implements VisualPlugin,
 		workflowVisualizationPanel.setSize(workflowViewerPanel.getSize());
 
 		// the info panel
+		JPanel suggestionsPanel = new JPanel();
+		JPanel toolListPanel = new JPanel();
+		/*
+		toolListPanel.setBorder(new MatteBorder(10, 10, 10, 10,
+				new Color(215,217,223)));
+		*/
+		
+		toolListPanel.setBorder(BorderFactory.createEtchedBorder());
+		JLabel label1 = new JLabel("Advanced suggestions");
+		label1.setHorizontalAlignment(JLabel.CENTER);
+		JLabel label2 = new JLabel("Get suggestions for people who use these tools:");
+		label2.setHorizontalAlignment(JLabel.CENTER);
+		
+		JPanel headerPanel = new JPanel(new GridLayout(2,1));
+		JPanel resultsPanel = new JPanel(new BorderLayout());
+		wfsPane = new JTextPane();
+		
+		JLabel resultsLabel = new JLabel("Results:");
+		JPanel toolPanel = new JPanel(new BorderLayout());
+		JPanel buttonPanel = new JPanel();
+		
+		headerPanel.add(label1);
+		headerPanel.add(label2);
+		
+		resultsLabel.setPreferredSize(new Dimension(500, 30));
+		resultsPanel.add(resultsLabel, BorderLayout.NORTH);
+		resultsPanel.add(new JScrollPane(wfsPane), BorderLayout.CENTER);
+		
+		button.addActionListener(this);
+		buttonPanel.add(button);
+		
+		suggestionsPanel.setLayout(new GridLayout(1,2));
+		
+		toolListPanel.setLayout(new BorderLayout());
+	
+		updateAllToolList();
+		
+		JScrollPane sp = new JScrollPane();
+		sp.getViewport().add(toolListing);
+		sp.setPreferredSize(new Dimension (80, 200));
+		
+		toolPanel.add(sp, BorderLayout.CENTER);
+		toolPanel.add(buttonPanel, BorderLayout.EAST);
+		
+		headerPanel.setPreferredSize(new Dimension(500, 60));
+		toolPanel.setPreferredSize(new Dimension(500, 240));
+		resultsPanel.setPreferredSize(new Dimension(500, 210));
+		
+		wfsPane.setContentType("text/html");
+		wfsPane.setEditable(false);
+		wfsPane.setDisabledTextColor(Color.black);
+		wfsPane.setEnabled(false);
+		wfsPane.setBackground(new Color(214,217,223));
+		
+		Font font = UIManager.getFont("Label.font");
+        String bodyRule = "body { font-family: " + font.getFamily() + "; " +
+                "font-size: " + font.getSize() + "pt; padding: 0; margin: 0; background-color: #d6d9df } ";
+        ((HTMLDocument) wfsPane.getDocument()).getStyleSheet().addRule(bodyRule);
+        String liRule = "ol { font-family: " + font.getFamily() + "; " +
+        	"font-size: " + font.getSize() + "pt; padding: 1em; margin: 20px;} ";
+        ((HTMLDocument) wfsPane.getDocument()).getStyleSheet().addRule(liRule);
+		Style newStyle = ((HTMLDocument) wfsPane.getDocument()).addStyle("BGStyle", null);
+		StyleConstants.setBackground(newStyle, new Color(214,217,223));
+		
+		toolListPanel.add(headerPanel, BorderLayout.NORTH);
+		toolListPanel.add(toolPanel, BorderLayout.CENTER);
+		toolListPanel.add(resultsPanel, BorderLayout.SOUTH);
+		
 		workflowInfoPanel.add(new JScrollPane(infoArea));
 		infoArea.setFont(new Font("Verdana", Font.PLAIN, 10));
 		infoArea.append("You haven't used any tools!\n");
@@ -137,12 +229,55 @@ public class RealTimeWorkFlowSuggestion extends JPanel implements VisualPlugin,
 
 //		JScrollPane scroller = new JScrollPane(workflowViewerPanel);
 //		scroller.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+		
+		suggestionsPanel.add(workflowInfoPanel);
+		suggestionsPanel.add(toolListPanel);
+		
 		splitter.add(workflowViewerPanel);
 
-		splitter.add(workflowInfoPanel);
+		splitter.add(suggestionsPanel);
 		add(splitter, BorderLayout.CENTER);
-
+		
 	}
+	
+	private void updateAllToolList() {
+		SwingWorker<List<Tool>, Void> worker = new SwingWorker<List<Tool>, Void>() {
+
+			@Override
+			protected void done() {
+				try {
+					List<Tool>results = get();
+					DefaultComboBoxModel m = new DefaultComboBoxModel();
+					toolListing.setCellRenderer(new NameRenderer());
+					if(results != null)
+					for (Tool s : results) {
+						m.addElement(s);
+					}
+					toolListing.setModel(m);
+				
+				} catch (InterruptedException e) {
+					GenSpace.logger.debug("Error talking to server: ",e);
+				} catch (ExecutionException e) {
+					GenSpaceServerFactory.handleExecutionException(e);
+					return;
+				}
+				super.done();
+			}
+
+			@Override
+			protected List<Tool> doInBackground() {
+				try {
+					return (GenSpaceServerFactory.getUsageOps().getAllTools());
+				} catch (Exception e) {
+					e.printStackTrace();
+					return null;
+				}
+			}
+
+		};
+		worker.execute();
+	}
+
 
 	public static void displayCWF() {
 
@@ -160,10 +295,12 @@ public class RealTimeWorkFlowSuggestion extends JPanel implements VisualPlugin,
 		}
 
 		List<Workflow> suggestions = getRealTimeWorkFlowSuggestion(cwf);
-
+		
+		
 		int curIndexIntoTools = cwf.getTools().size();
-		String nextSteps = "";		
+		String nextSteps = "";
 		Tool nextBestRated = null;
+		
 		HashMap<Tool, Integer> toolRatings = new HashMap<Tool, Integer>();
 		for(Workflow wa : suggestions)
 		{
@@ -194,12 +331,13 @@ public class RealTimeWorkFlowSuggestion extends JPanel implements VisualPlugin,
 			}
 		}
 		
-		infoArea.setText("");
+		infoArea.setText("");		
+		
 		// infoArea.append("\n\n\n\n\n\n\n");
 		infoArea.append("Your current workflow: \n");
 		infoArea.append(cwf + "\n\n");
-		infoArea.append("Previous workflows: \n");
-		infoArea.append(finishedWF + "\n\n\n");
+		//infoArea.append("Previous workflows: \n");
+		//infoArea.append(finishedWF + "\n\n\n");
 		// infoArea.append("Your current workflow activity so far: \n" +
 		// cwfSeparate + "\n\n");
 		// infoArea.append(finishedWF + "\n\n\n");
@@ -212,9 +350,11 @@ public class RealTimeWorkFlowSuggestion extends JPanel implements VisualPlugin,
 				+ " times by genSpace users." + "\n\n");
 		infoArea.append("Next steps:" + "\n");
 		infoArea.append(nextSteps + "\n\n");
+		
 //		infoArea.append("How users have gotten here: " + "\n");
 //		infoArea.append(statBDisplay + "\n\n");
 
+		
 		if (nextBestRated != null)
 			infoArea.append("Next best rated tool to use: " + nextBestRated.getName()
 					+ ".\n\n");
@@ -225,7 +365,7 @@ public class RealTimeWorkFlowSuggestion extends JPanel implements VisualPlugin,
 
 		WorkflowWrapper last = cwf;
 		RealTimeWorkFlowSuggestion.cwf = new WorkflowWrapper(newCWF);
-		viewerStatus.setText("You recently used " + cwf.getTools().get(cwf.getTools().size() -1 ).getTool().getName());
+		//viewerStatus.setText("You recently used " + cwf.getTools().get(cwf.getTools().size() -1 ).getTool().getName());
 		displayCWF();
 		
 		if(emptyPanel)
@@ -235,7 +375,7 @@ public class RealTimeWorkFlowSuggestion extends JPanel implements VisualPlugin,
 		}
 		else //this is a different workflow
 		{
-			usedWorkFlowToday.add(last.toString());
+			usedWorkFlowToday.add(last);
 		}
 		displayCWF();
 		
@@ -246,6 +386,7 @@ public class RealTimeWorkFlowSuggestion extends JPanel implements VisualPlugin,
 		
 		try {
 			return (GenSpaceServerFactory.getUsageOps().getToolSuggestion(cwf.getId()));
+			
 		} catch (Exception e) {
 			return null;
 		}
@@ -280,8 +421,85 @@ public class RealTimeWorkFlowSuggestion extends JPanel implements VisualPlugin,
 		return this;
 	}
 
-	
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		SwingWorker<List<Workflow>, Void> worker = new SwingWorker<List<Workflow>, Void>() {
+			int evt;
+			
+			@Override
+			protected void done() {
+				List<Workflow> reta = null;
+				try {
+					reta = get();
+				} catch (InterruptedException e) {
+					GenSpace.getStatusBar().stop(evt);
+					GenSpace.logger.warn("Unable to talk to server: ", e);
+				} catch (ExecutionException e) {
+					GenSpace.getStatusBar().stop(evt);
+					GenSpaceServerFactory.handleExecutionException(e);
+					return;
+				}
+				// make sure we got some results!
+				if (reta == null || reta.size() == 0) {
+					// no results came back!
+					JOptionPane.showMessageDialog(null,
+							"There are no workflows matching that criteria");
+					wfsPane.setText("No Workflows found");
+				}
+				
+				if (reta != null) {
+					int lim = 10;
+					String wfs = "";
+					for(Workflow zz : reta)
+					{
+						WorkflowWrapper za = new WorkflowWrapper(zz);
+						za.loadToolsFromCache();
+						wfs = wfs + "<li>" + za.toString() + "</li>";
+						lim--;
+						if (lim <= 0)
+							break;
+					}
+					wfsPane.setText("<html><body><ol>"+wfs+"</ol></body></html>");
+				}
+				
+				GenSpace.getStatusBar().stop(evt);
+				super.done();
+			}
+			
+			@Override
+			public List<Workflow> doInBackground() {
 
+				List<Tool> tools = new ArrayList<Tool>();
+				
+				// Get the index of all the selected items
+				int[] selectedIx = toolListing.getSelectedIndices();
+				
+				// Get all the selected items using the indices
+				for (int i=0; i<selectedIx.length; i++) {
+				    Tool tool = (Tool) toolListing.getModel().getElementAt(selectedIx[i]);
+				    tools.add(tool);
+				}
+				
+				// get the name of the selected tool and the action
+				if(selectedIx.length > 0)
+				{
+					evt = GenSpace.getStatusBar().start("Retrieving workflow information");
+					try {
+						return (GenSpaceServerFactory.getUsageOps().getMahoutSimilarWorkflowsSuggestion(tools));
+					}
+					catch(Exception e)
+					{
+						GenSpaceServerFactory.handleExecutionException(e);
+						GenSpace.getStatusBar().stop(evt);
+					}
+				} else {
+					GenSpace.getStatusBar().stop(evt);
+				}
+				return null;
+			}
+		};
+		worker.execute();	
+	}
 }
 
 class WorkflowViewerPanelNode extends JButton {

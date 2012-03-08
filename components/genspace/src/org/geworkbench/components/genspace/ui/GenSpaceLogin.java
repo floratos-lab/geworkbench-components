@@ -1,7 +1,9 @@
 //package genspace.ui;
 package org.geworkbench.components.genspace.ui;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -20,6 +22,7 @@ import javax.swing.JTextField;
 
 import org.geworkbench.components.genspace.GenSpace;
 import org.geworkbench.components.genspace.GenSpaceServerFactory;
+import org.geworkbench.components.genspace.MahoutRecommendationPanel;
 import org.geworkbench.components.genspace.chat.ChatReceiver;
 import org.geworkbench.components.genspace.server.stubs.User;
 import org.geworkbench.engine.config.VisualPlugin;
@@ -50,7 +53,8 @@ public class GenSpaceLogin extends JPanel implements VisualPlugin,
 	private JLabel msgText, msgText1, msgText2, msgText3, msgText4, msgText5,
 			msgText6;
 
-
+	public MahoutRecommendationPanel mahoutRecommendationPanel;
+	
 	// a list of all ActionListeners waiting for login events
 	private ArrayList<ActionListener> listeners = new ArrayList<ActionListener>();
 
@@ -68,6 +72,7 @@ public class GenSpaceLogin extends JPanel implements VisualPlugin,
 
 	public void test()
 	{
+		System.out.println("test");
 		tf.setText("jon");
 		pf.setText("test123");
 		ActionEvent e = new ActionEvent(b1, 1, "foo");
@@ -76,9 +81,10 @@ public class GenSpaceLogin extends JPanel implements VisualPlugin,
 	@Override
 	public void run() {
 
+		setLayout(new BorderLayout());
 		JPanel onePanel = new JPanel();
+		JPanel twoPanel = new JPanel();
 		onePanel.setSize(150, 150);
-
 		onePanel.setLayout(new GridLayout(2, 1));
 
 		JPanel lPanel = new JPanel();
@@ -103,7 +109,7 @@ public class GenSpaceLogin extends JPanel implements VisualPlugin,
 		b1.addActionListener(this);
 		b2.addActionListener(this);
 		b3.addActionListener(this);
-
+		
 		onePanel.add(lPanel);
 
 		JPanel msgPanel = new JPanel();
@@ -126,9 +132,21 @@ public class GenSpaceLogin extends JPanel implements VisualPlugin,
 		msgPanel.add(msgText4);
 		msgPanel.add(msgText5);
 		msgPanel.add(msgText6);
+	
+		
 		onePanel.add(msgPanel);
-		add(onePanel);
+		twoPanel.add(onePanel);
+		
+		twoPanel.setPreferredSize(new Dimension(1024, 400));
+		add(twoPanel, BorderLayout.CENTER);
 
+	}
+	
+	public void addMahoutPanel() {
+		mahoutRecommendationPanel = new MahoutRecommendationPanel();
+		mahoutRecommendationPanel.displayRecommedations();
+		mahoutRecommendationPanel.setPreferredSize(new Dimension(1000, 250));
+		add(mahoutRecommendationPanel, BorderLayout.SOUTH);
 	}
 
 	/**
@@ -147,6 +165,7 @@ public class GenSpaceLogin extends JPanel implements VisualPlugin,
 					{
 						String msg = "User Logged in.";
 						GenSpace.getInstance().handleLogin();
+						mahoutRecommendationPanel.handleLogin();
 						JOptionPane.showMessageDialog(getComponent(),
 								msg);
 						chatHandler.login(tf.getText(),
@@ -154,9 +173,11 @@ public class GenSpaceLogin extends JPanel implements VisualPlugin,
 						GenSpace.networksPanels.updateFormFields();
 						GenSpaceSecurityPanel p = new GenSpaceSecurityPanel(
 								GenSpaceServerFactory.getUsername());
+						p.addMahoutPanel();
+						p.handleLogin();
 						getThisPanel().removeAll();
 						getThisPanel().add(p);
-						// this.setSize(500, 500);
+						//this.setSize(500, 500);
 						getThisPanel().revalidate();
 						GenSpace.getStatusBar().stop(evt);
 					}
