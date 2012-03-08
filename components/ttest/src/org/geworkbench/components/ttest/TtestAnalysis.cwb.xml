@@ -22,7 +22,7 @@
 			</html>
 		]]></license>
 
-		<online-help helpSet="org/geworkbench/components/analysis/help/ttest/ttestHelpSet.hs"/>
+		<online-help helpSet="org/geworkbench/components/ttest/help/ttest_HelpSet.hs"/>
 		
 	</component>
 
