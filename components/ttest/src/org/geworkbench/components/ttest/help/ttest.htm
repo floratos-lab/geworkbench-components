@@ -1,0 +1,216 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html dir="ltr" lang="en"><head>
+<title>Differential Expression - Workbench</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="generator" content="MediaWiki 1.16.0">
+<meta name="robots" content="noindex,follow">
+
+</head>
+<body class="mediawiki ltr ns-0 ns-subject page-Differential_Expression skin-monobook">
+<div id="globalWrapper">
+<div id="column-content"><div id="content">
+	<a id="top"></a>
+	
+	<h1 id="firstHeading" class="firstHeading">Differential Expression</h1>
+	<div id="bodyContent">
+		<!-- start content -->
+<p><br>
+</p><p><br>
+</p>
+<a name="Overview"></a><h1> <span class="mw-headline" id="Overview">Overview</span></h1>
+<p>A t-Test analysis can be used to identify markers with statistically 
+significant differential expression between two sets of microarrays.  In
+ geWorkbench, these groups are specified as the "Case" and "Control" 
+sets.  
+</p><p>There are several steps to setting up a t-test analysis in geWorkbench.
+</p>
+<ol><li> At least two sets of arrays must be available in the <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Data_Subsets_-_Arrays" title="Data Subsets - Arrays"> Arrays</a> component.
+</li><li> The array sets to be used in the analysis must be "activated" by checking the box adjacent to their names in the <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Data_Subsets_-_Arrays" title="Data Subsets - Arrays"> Arrays</a> component.
+</li><li> One or more activated array sets must be designated "Case", and the others "Control" (which is the default classification).
+</li><li> The t-test parameters must be set.
+</li></ol>
+<p><br>
+After the t-test is run, the results will be displayed graphically, and 
+all markers meeting the significance threshold are placed into a new 
+Marker Set called "Significant Genes".
+</p><p>Please see the <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Differential_Expression#Example" title="Differential Expression"> Example</a> section below for instructions on preparing array sets for the t-test analysis.
+</p>
+<a name="t-Test_Parameters"></a><h1> <span class="mw-headline" id="t-Test_Parameters">t-Test Parameters</span></h1>
+<a name="P-value_Parameters"></a><h2> <span class="mw-headline" id="P-value_Parameters">P-value Parameters</span></h2>
+<a name="p-values_based_on"></a><h3> <span class="mw-headline" id="p-values_based_on">p-values based on</span></h3>
+<p>The p-values can be calculated by transforming the t-statistic 
+directly, or by carrying out a permutation analysis.  The permutation 
+analysis measures how often a t-statistic at least as large as that 
+observed occurs by chance after array labels of case and control are 
+permuted.
+</p>
+<ul><li> <b>t-distribution</b> (the default)
+</li><li> <b>Permutation</b> -  If chosen, the number of permutations to carry out must also be specified.
+</li></ul>
+<a name="Overall_alpha_.28Critical_p-value.29"></a><h3> <span class="mw-headline" id="Overall_alpha_.28Critical_p-value.29">Overall alpha (Critical p-value)</span></h3>
+<p>The threshold for a difference in expression between Case and Control
+ sets being called significant.  A value of 0.05 is often used for a 
+single test.  Multiple-testing corrections can be specified in the Alpha
+ Corrections tab.
+</p>
+<a name="Data_is_Log2-transformed"></a><h3> <span class="mw-headline" id="Data_is_Log2-transformed">Data is Log2-transformed</span></h3>
+<p>If the dataset has been Log2 transformed, check this box.  Having 
+this information allows the fold-change displayed in the Volcano Plot to
+ be calculated in a consistent fashion.
+</p><p>The system will examine the current dataset and make a guess as 
+to whether the data has been log2 transformed.  The user can override 
+this guess using the check box. 
+</p><p><br>
+<img alt="T-test Pvalue params.png" src="ttest_files/T-test_Pvalue_params.png" height="303" width="1026">
+</p><p><br>
+</p>
+<a name="Alpha_corrections"></a><h2> <span class="mw-headline" id="Alpha_corrections">Alpha corrections</span></h2>
+<p>For multiple testing (alpha) correction, the following options are offered:
+</p>
+<ul><li> <b>no correction</b>
+</li><li> <b>Standard Bonferonni Correction</b> - the value of alpha is divided by the number of markers included in the analysis.
+</li><li> <b>Adjusted (step down) Bonferonni Correction</b>
+</li><li> Two variants of the Westfall and Young method are available if the p-value is estimated by permuation:
+<ul><li> <b>minP</b>
+</li><li> <b>maxT</b>
+</li></ul>
+</li></ul>
+<p><br>
+<img alt="T-test alpha corrections.png" src="ttest_files/T-test_alpha_corrections.png" height="230" width="1024">
+</p>
+<a name="Degrees_of_Freedom"></a><h2> <span class="mw-headline" id="Degrees_of_Freedom">Degrees of Freedom</span></h2>
+<p>Group variances can be declared as:
+</p>
+<ol><li> unequal (Welch approximation) (default)
+</li><li> Equal.
+</li></ol>
+<p><br>
+<img alt="T-test degrees of freedom.png" src="ttest_files/T-test_degrees_of_freedom.png" height="246" width="1010">
+</p>
+<a name="Example"></a><h1> <span class="mw-headline" id="Example">Example</span></h1>
+<a name="Preparation"></a><h2> <span class="mw-headline" id="Preparation">Preparation</span></h2>
+<p>Obtain the file "BCell-100.exp", which is contained in the 
+data/public_data directory of the geWorkbench distribution, or can be 
+directly downloaded from the tutorial data <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Download_and_Installation#Tutorial_data" title="Download and Installation"> download</a> area.
+</p><p>You may also wish to load the Affymetrix HG-U95Av2 annotation file, although it is not required for this example.  See the <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/FAQ" title="FAQ"> FAQ</a> section for information on downloading this file from Affymetrix.
+</p><p><br>
+For tips on loading data files, see <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Local_Data_Files" title="Local Data Files"> Local Data Files</a> and <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Projects" title="Projects"> Projects</a>.
+</p><p>In this example, we apply two normalization steps to the data set.
+</p>
+<ol><li> <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Normalization#Threshold_Normalizer" title="Normalization"> Threshold Normalizer</a> - set a minimum value of 1.  Any value less than 1 will be set to 1.
+</li><li> <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Normalization#Log2_Transformation" title="Normalization"> Log2 Transformation Normalizer</a> - Log2 transform the data.
+</li></ol>
+<p>For an actual data analysis, you should apply data normalization steps appropriate to your own data and analysis design.
+</p>
+<a name="Array_Classification"></a><h2> <span class="mw-headline" id="Array_Classification">Array Classification</span></h2>
+<p>The t-test in geWorkbench requires that at least two sets of arrays 
+be "activated".  Only such "activated" sets are considered.  In 
+addition, at least one such set must be designated as "Case", and at 
+least one other as "Control" (which is the default classification).   
+Note that more than one set of arrays can be marked as "Case" or 
+control.  
+</p><p>Array set classification is covered in the <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Data_Subsets_-_Arrays" title="Data Subsets - Arrays">Arrays/Phenotypes</a> chapter.  However, for convenience, the steps are illustrated here.
+</p><p>The desired sets of arrays should be activated in the <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Data_Subsets_-_Arrays" title="Data Subsets - Arrays">Arrays/Phenotypes</a> component.  This is done by checking the boxes by the desired Sets.
+</p><p><img alt="T-test Set activation BCell.png" src="ttest_files/T-test_Set_activation_BCell.png" height="433" width="241">
+</p><p><br>
+</p><p>The classification can be made directly by left-clicking on the "thumb-tack" icon adjacent to an array set name.
+</p><p><img alt="T-test Set classification left click Bcell.png" src="ttest_files/T-test_Set_classification_left_click_Bcell.png" height="251" width="239">
+</p><p><br>
+The array classification can also be set by right-clicking on the desired array set and selecting "Classification":
+</p><p><br>
+<img alt="T-test Set classification right click Bcell.png" src="ttest_files/T-test_Set_classification_right_click_Bcell.png" height="393" width="345">
+</p><p><br>
+Using either method, the desired array set can be classified as "Case":
+</p><p><br>
+<img alt="T-test Set selection BCell.png" src="ttest_files/T-test_Set_selection_BCell.png" height="439" width="238">
+</p><p><br>
+The thumbtack image next to activated Array Sets is colored red.
+</p>
+<a name="Seting_the_Analysis_Parameters"></a><h2> <span class="mw-headline" id="Seting_the_Analysis_Parameters">Seting the Analysis Parameters</span></h2>
+<ol><li> The t-test component should be loaded by default in the <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Component_Configuration_Manager" title="Component Configuration Manager">Component Configuration Manager</a>.
+</li><li> From the Analysis Panel, select <b>T-Test Analysis</b>. 
+</li><li> P-value Parameters tab:
+<ol><li> P-values based on t-distribution.
+</li><li> Note that here the default alpha (critical p-value) is set to 0.01.
+</li><li> Check-mark the box "Data is log2 Transformed".
+</li></ol>
+</li><li> Alpha-corrections tab
+<ol><li>  Standard Bonferonni
+</li></ol>
+</li><li> Degree of Freedom tab
+<ol><li> Welch approximation - unequal group variances.
+</li></ol>
+</li></ol>
+<p><br>
+The P-value Parameters tab set for the example analysis:
+</p><p><br>
+<img alt="T-test Example setup.png" src="ttest_files/T-test_Example_setup.png" height="241" width="1008">
+</p>
+<a name="Running_the_t-test_analysis"></a><h2> <span class="mw-headline" id="Running_the_t-test_analysis">Running the t-test analysis</span></h2>
+<ol><li> Click <b>Analyze</b>.  The results will be returned in three locations: The Project Folder, the Markers component, and the Visualization area.
+</li></ol>
+<a name="t-Test_Results"></a><h1> <span class="mw-headline" id="t-Test_Results">t-Test Results</span></h1>
+<a name="Result_Sets"></a><h2> <span class="mw-headline" id="Result_Sets">Result Sets</span></h2>
+<p>A t-test result node is placed into the Projects Folder as a child of the microarray dataset that was analyzed.
+</p><p>The list of significant markers is placed into a new set in the 
+Markers component.  This set is labeled "Significant Genes".  The number
+ in square brackets indicates the number of markers in the set.
+</p>
+<a name="Volcano_Plot_Visualizer"></a><h2> <span class="mw-headline" id="Volcano_Plot_Visualizer">Volcano Plot Visualizer</span></h2>
+<p><img alt="Volcano plot.png" src="ttest_files/Volcano_plot.png" height="585" width="892">
+</p><p><br>
+The Volcano Plot graphically depicts the results of the t-test for 
+differential expression.  It includes only markers which exceeded the 
+threshold for significance in the t-test.  The log2 fold change for each
+ marker is plotted against the -log10 of the P-value.  Finally, the 
+fold-change ratio is plotted on a log2 scale.
+</p><p>See the <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Volcano_Plot" title="Volcano Plot"> Volcano Plot</a>
+ tutorial for details on the calculation of the fold change, and on the 
+color scheme used in the display.   The fold change is calculated in a 
+different fashion depending on whether the data was marked as log2 
+transformed or not.
+</p>
+<a name="Technical_Notes"></a><h3> <span class="mw-headline" id="Technical_Notes">Technical Notes</span></h3>
+<ul><li> If two data points have exactly the same coordinates, only the 
+point which is "on top" will be shown when clicked-on or moused over.
+</li></ul>
+<ul><li> If the graph has only one point, or has several points all with
+ the exact same coordinates, the default JFreeChart graphing behavior 
+may omit a scale on the X or Y axis.  The ranges of the axes and the 
+labels can be manually adjusted.   Right-click on the X or Y axis label 
+area and select Properties-&gt;Range.  Turn off "auto-ranging" and set 
+the desired ranges.
+</li></ul>
+<a name="Color_Mosaic_Visualizer"></a><h2> <span class="mw-headline" id="Color_Mosaic_Visualizer">Color Mosaic Visualizer</span></h2>
+<p>The <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Color_Mosaic" title="Color Mosaic">Color Mosaic</a>
+ tab shows all of the arrays and the p-value calculated for each marker.
+  By default, the markers are sorted by p-value.  The display of each 
+type of annotation can be switched on and off.
+</p><p>Please see the <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Color_Mosaic" title="Color Mosaic">Color Mosaic</a> tutorial for a complete description of all the features and controls of this viewer.
+</p><p><br>
+<img alt="T-Test Color Mosaic Control Descriptions.png" src="ttest_files/T-Test_Color_Mosaic_Control_Descriptions.png" height="471" width="1127">
+</p>
+<!-- 
+NewPP limit report
+Preprocessor node count: 74/1000000
+Post-expand include size: 1907/2097152 bytes
+Template argument size: 0/2097152 bytes
+Expensive parser function count: 0/100
+-->
+
+<!-- Saved in parser cache with key workbench:pcache:idhash:1511-0!1!0!!en!2!printable=1 and timestamp 20120308210123 -->
+<div class="printfooter">
+Retrieved from "<a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Differential_Expression">http://wiki.c2b2.columbia.edu/workbench/index.php/Differential_Expression</a>"</div>
+		<div id="catlinks" class="catlinks catlinks-allhidden"></div>		<!-- end content -->
+				<div class="visualClear"></div>
+	</div>
+</div></div>
+<div class="visualClear"></div>
+<div id="footer">
+	<div id="f-poweredbyico"><img src="ttest_files/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" height="31" width="88"></div>
+	<ul id="f-list">
+		<li id="lastmod"> This page was last modified on 28 February 2012, at 17:09.</li>
+	</ul>
+</div>
+</div>
+
