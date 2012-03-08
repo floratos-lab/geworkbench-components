@@ -5,12 +5,16 @@
          "http://java.sun.com/products/javahelp/map_1_0.dtd">
 
 <map version="1.0">
-
-	<mapID target="genspace" url="genspace.HTML"/>
-	<mapID target="login" url="login.HTML"/>
-	<mapID target="workflow_viz" url="workflow_viz.HTML"/>
-	<mapID target="realtime_suggest" url="realtime_suggest.HTML"/>
-	<mapID target="statistics" url="statistics.HTML"/>
+    <mapID target="Introduction_to_genSpace" url="genSpace.htm#Introduction_to_genSpace"/>
+	<mapID target="Registering_for_an_account_and_logging_in" url="genSpace.htm#Registering_for_an_account_and_logging_in"/>
+	<mapID target="Setting_your_data_privacy_options" url="genSpace.htm#Setting_your_data_privacy_options"/>
+	<mapID target="Defining_Workflows" url="genSpace.htm#Defining_Workflows"/>
+	<mapID target="Viewing_common_workflows" url="genSpace.htm#Viewing_common_workflows"/>
+	<mapID target="Receiving_Real-Time_workflow_suggestions" url="genSpace.htm#Receiving_Real-Time_workflow_suggestions"/>
+	<mapID target="Looking_at_tool_statistics" url="genSpace.htm#Looking_at_tool_statistics"/>
+	<mapID target="Social_Center" url="genSpace.htm#Social_Center"/>
+	<mapID target="Workflow_Repository" url="genSpace.htm#Workflow_Repository"/>
+	<mapID target="genSpace_Web_Portal" url="genSpace.htm#genSpace_Web_Portal"/>
 
 </map>
 
