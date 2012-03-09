@@ -6,9 +6,9 @@
 
 		<tocitem target="Overview" text="Overview"/>
 		<tocitem target="Setting_up_an_MRA_run" text="Setting up an MRA run"/>
-		<tocitem target="Viewing_MRA_analysis_results" text="Viewing MRA analysis results"/>
+		<tocitem target="Viewing_MRA_analysis_results_FET_Method" text="Viewing MRA analysis results (FET_Method)"/>
 		<tocitem target="Dataset_History" text="Dataset History"/>
-		<tocitem target="Example_of_running_MRA" text="Example of running MRA"/>
+		<tocitem target="Example_of_running_MRA_FET_Method" text="Example of running MRA (FET Method)"/>
 		<tocitem target="References" text="References"/>
 
 	</tocitem>
