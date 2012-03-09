@@ -4,16 +4,6 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="generator" content="MediaWiki 1.16.0">
 <meta name="robots" content="noindex,follow">
-<link rel="alternate" type="application/x-wiki" title="Edit" href="http://wiki.c2b2.columbia.edu/workbench/index.php?title=Promoter_Analysis&amp;action=edit">
-<link rel="edit" title="Edit" href="http://wiki.c2b2.columbia.edu/workbench/index.php?title=Promoter_Analysis&amp;action=edit">
-<link rel="shortcut icon" href="http://wiki.c2b2.columbia.edu/workbench/skins/common/images/favicon.ico">
-<link rel="search" type="application/opensearchdescription+xml" href="http://wiki.c2b2.columbia.edu/workbench/opensearch_desc.php" title="Workbench (en)">
-<link rel="alternate" type="application/atom+xml" title="Workbench Atom feed" href="http://wiki.c2b2.columbia.edu/workbench/index.php?title=Special:RecentChanges&amp;feed=atom">
-<link rel="stylesheet" href="promoter_files/commonPrint.css" media="">
-<link rel="stylesheet" href="promoter_files/index_003.css">
-<link rel="stylesheet" href="promoter_files/index.css" media="">
-<link rel="stylesheet" href="promoter_files/index_002.css">
-<link rel="stylesheet" href="promoter_files/index_004.css">
 
 </head>
 <body class="mediawiki ltr ns-0 ns-subject page-Promoter_Analysis skin-monobook">
@@ -35,13 +25,14 @@ user.
 </p><p>The <b>Promoter</b> component will also display the results of hits found in the <b>Pattern Discovery</b> component.
 </p>
 <a name="JASPAR_CORE_database"></a><h1> <span class="mw-headline" id="JASPAR_CORE_database">JASPAR CORE database</span></h1>
-<p>The promoter component of geWorkbench includes version 3.0 of the JASPAR CORE database (<a href="http://jaspar.genereg.net/" class="external free" rel="nofollow">http://jaspar.genereg.net/</a>).
-  It contains 138 curated, non-redundant profiles.  These "profiles are 
-derived from published collections of experimentally defined 
-transcription factor binding sites for multi-cellular eukaryotes. The 
-database represents a curated collection of target sequences"  (<a href="http://jaspar.genereg.net/html/TEMPLATES/help.html" class="external text" rel="nofollow">JASPAR Documentation</a>).
-</p><p>The datafile used "MATRIX_DATA.txt" can be found at <a href="http://jaspar.genereg.net/html/DOWNLOAD/mySQL/JASPAR_CORE_2008/" class="external free" rel="nofollow">http://jaspar.genereg.net/html/DOWNLOAD/mySQL/JASPAR_CORE_2008/</a>.  
-</p><p>The profiles represent counts of how many times each of the four 
+<p>The promoter component of geWorkbench includes the JASPAR CORE database (Bryne 2008, Sandelin 2004) (<a href="http://jaspar.genereg.net/" class="external free" rel="nofollow">http://jaspar.genereg.net/</a>).
+  As of the October 2009 release, it contains 459 curated, non-redundant
+ profiles.  These "profiles are derived from published collections of 
+experimentally defined transcription factor binding sites for 
+multi-cellular eukaryotes. The database represents a curated collection 
+of target sequences"  (<a href="http://jaspar.genereg.net/html/TEMPLATES/help.html" class="external text" rel="nofollow">JASPAR Documentation</a>).
+</p><p><br>
+The profiles represent counts of how many times each of the four 
 nucleotide bases occurs at a particular position in the aligned promoter
  sequences.
 </p>
@@ -60,7 +51,7 @@ component include
 </li><li> The <b>Logo</b>, <b>Parameters</b> and <b>Sequence</b> tabs at right. These provide respectively visual display of the profile, the parameters, and the scan results.
 </li><li> Control buttons at bottom left to manage scans and results.
 </li></ul>
-<p><img alt="Promoter Logo TBP.png" src="promoter_files/Promoter_Logo_TBP.png" height="479" width="818">
+<p><img alt="Promoter Logo TBP.png" src="promoter_files/Promoter_Logo_TBP.png" height="410" width="846">
 </p><p><br>
 Further details of each part of the component are provided below.
 </p>
@@ -73,7 +64,7 @@ signatures in the TF list box (upper box) to add TF's to the Selected TF
  list (lower box). This lower list displays transcription factors which 
 can be searched against the available genomic sequences by clicking on <b>Scan</b>. Double-clicking on a TF name clears it from the Selected TF list and returns it to the TF List. 
 </p><p>The information displayed in the list contains the following fields from Jaspar, separated by colons:
-</p><p>TF Name:class:Jaspar identifier
+</p><p>TF Name:family:Jaspar identifier
 </p><p><br>
 Multiple profiles can be moved to the selected list for scanning.
 </p>
@@ -86,14 +77,14 @@ string.
 <a name="Taxa_pulldown_menu"></a><h4> <span class="mw-headline" id="Taxa_pulldown_menu">Taxa pulldown menu</span></h4>
 <p>The list of displayed TFs can be restricted to a certain taxa.  Taxa assignments are obtained from the Jaspar motif files.
 </p><p><br>
-<img alt="Promoter Taxa Pulldown.png" src="promoter_files/Promoter_Taxa_Pulldown.png" height="201" width="228">
+<img alt="Promoter Taxa Pulldown.png" src="promoter_files/Promoter_Taxa_Pulldown.png" height="235" width="244">
 </p>
 <a name="Selected_TF"></a><h3> <span class="mw-headline" id="Selected_TF">Selected TF</span></h3>
 <p>This list contains the profiles that will be used in the next scan.  
 Entries on the Selected TF list can be moved back up to the "available 
 TFs" list by again double-clicking on their entry.
 </p><p>Here the motif for TBP (class: Beta-sheet, family: TATA-binding) entry has been moved to the selected list.
-</p><p><img alt="Promoter TBP selected.png" src="promoter_files/Promoter_TBP_selected.png" height="408" width="232">
+</p><p><img alt="Promoter TBP selected.png" src="promoter_files/Promoter_TBP_selected.png" height="391" width="248">
 </p>
 <a name="Controls"></a><h3> <span class="mw-headline" id="Controls">Controls</span></h3>
 <a name="Scan"></a><h4> <span class="mw-headline" id="Scan">Scan</span></h4>
@@ -161,7 +152,7 @@ counts or as frequencies.
 </li><li> Frequencies - Display the frequency of each base at each position in the motif.
 </li></ul>
 <a name="The_Parameters_tab"></a><h2> <span class="mw-headline" id="The_Parameters_tab">The Parameters tab</span></h2>
-<p><img alt="T Promoter Parameters initial.png" src="promoter_files/T_Promoter_Parameters_initial.png" height="451" width="513">
+<p><img alt="Promoter Parameters initial.png" src="promoter_files/Promoter_Parameters_initial.png" height="564" width="591">
 </p>
 <a name="Background_sequence_and_scoring_threshold_determination"></a><h3> <span class="mw-headline" id="Background_sequence_and_scoring_threshold_determination">Background sequence and scoring threshold determination</span></h3>
 <p>A background sequence is used to estimate an appropriate scoring threshold.  This background can be generated in two ways.
@@ -204,9 +195,11 @@ background.
 </li><li> Actual - Actual number of hits.
 </li></ul>
 <a name="The_Sequence_tab"></a><h2> <span class="mw-headline" id="The_Sequence_tab">The Sequence tab</span></h2>
-<p><img alt="T Promoter Sequence tab with mouseover.png" src="promoter_files/T_Promoter_Sequence_tab_with_mouseover.png" height="304" width="708">
+<p><img alt="Promoter Result CDH2 Sequence View.png" src="promoter_files/Promoter_Result_CDH2_Sequence_View.png" height="453" width="841">
 </p><p><br>
-The Sequence tab can display either a line or a full character 
+<img alt="Promoter Result CDH2 Sequence View hover.png" src="promoter_files/Promoter_Result_CDH2_Sequence_View_hover.png" height="385" width="791">
+</p><p><br>
+</p><p>The Sequence tab can display either a line or a full character 
 representation of the sequence which was searched against.  Clicking on a
  position along the line or character representation will cause that 
 portion of the sequence to be displayed in the detail box at the bottom 
@@ -215,11 +208,12 @@ along the sequence, relative to the start of that particular sequence
 (not its genomic location).  Both the character and detail views will 
 show the location and extent of any profile match to the sequence.
 </p><p>If matches are found, the sequence will include blocks in various
- colors with solid arrows indicating the match orientation (forward or 
-reverse complement). Individual hits can be identified by positioning 
-the mouse pointer over them, which will display a tool tip. Clicking on 
-an area with a match will show it in the Sequence Detail at the bottom 
-with the hits shown as boxes around the characters.
+ colors (each motif will be represented by a unique color) with solid 
+arrows indicating the match orientation (forward or reverse complement).
+ Individual hits can be identified by positioning the mouse pointer over
+ them, which will display a tool tip. Clicking on an area with a match 
+will show it in the Sequence Detail at the bottom with the hits shown as
+ boxes around the characters.
 </p><p>The tooltip format is as follows: numeric position, Transcription
  Factor name &lt;numeric position of the first character of the pattern,
  numeric position of last matching pattern character&gt;. 
@@ -240,10 +234,10 @@ the two adjacent check boxes.  The relevant box must be re-checked to
 see further results.
 </li></ul>
 <p><br>
-The full character display shows any hits in white with a red 
-background, and a small red arrow marks the start of the match and its 
-direction.
-</p><p><img alt="T Promoter CDH2 AP2 2000updn scan fullseq.png" src="promoter_files/T_Promoter_CDH2_AP2_2000updn_scan_fullseq.png" height="350" width="518">
+The full character display shows any hits in white with a colored 
+border, and a small red arrow marks the start of the match and its 
+direction.  Each motif is represented by a unique color.
+</p><p><img alt="Promoter Result CDH2 Sequence View Full.png" src="promoter_files/Promoter_Result_CDH2_Sequence_View_Full.png" height="391" width="590">
 </p><p><br>
 </p>
 <a name="Implementation_details"></a><h3> <span class="mw-headline" id="Implementation_details">Implementation details</span></h3>
@@ -309,12 +303,12 @@ geWorkbench <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Download#
 "Selection" set.  Or you can right-click on it and add it to a named 
 set, such as "Cadherins".  This is depicted below.
 </p><p>5. "Activate" (check the box next to) the set to which you added the marker.
-</p><p><img alt="T SequenceRetriever Markers CDH2.png" src="promoter_files/T_SequenceRetriever_Markers_CDH2.png" height="414" width="229">
+</p><p><img alt="Markers Set CDH2.png" src="promoter_files/Markers_Set_CDH2.png" height="359" width="228">
 </p><p>6. Any activated markers will appear in the Sequence Retriever component, as shown below.
 </p><p>7. Set the retrieval limits to 2000 base pairs up- and downstream from the transcription start site.
 </p><p>8. Make sure the retrieval type is set to DNA, UCSC (the Santa Cruz genome sequence database).
-</p><p>9. Click "<b>Get Sequence</b>".
-</p><p><img alt="T SequenceRetriever CDH2 2000updn.png" src="promoter_files/T_SequenceRetriever_CDH2_2000updn.png" height="373" width="878">
+</p><p>9. Click "<b>Get Sequence</b>".  When prompted, select the human genome build.
+</p><p><img alt="Sequence Retriever CDH2.png" src="promoter_files/Sequence_Retriever_CDH2.png" height="359" width="837">
 </p><p>10. Once the sequence has been retrieved, check the box next to 
 the sequence and then hit the button "Add to Project".  We now have the 
 genomic sequence available for other components to use.
@@ -324,19 +318,23 @@ genomic sequence available for other components to use.
 <a name="Running_the_scan"></a><h2> <span class="mw-headline" id="Running_the_scan">Running the scan</span></h2>
 <p>1. In the Promoter component, search for "ap2", which corresponds to transcription factor activator protein 2 alpha.
 </p><p>2. Double-click on the TFAP2A entry to move it down to the search list.
-</p><p><img alt="T Promoter CDH2 AP2 2000updn setup logo.png" src="promoter_files/T_Promoter_CDH2_AP2_2000updn_setup_logo.png" height="413" width="772">
+</p><p><img alt="Promoter CDH2 AP2 2000updn setup logo.png" src="promoter_files/Promoter_CDH2_AP2_2000updn_setup_logo.png" height="377" width="845">
 </p><p>3. Hit the "<b>Scan</b>" button.  The result is displayed in the <b>Sequence</b> tab of the Promoter component as shown here.
-</p><p><img alt="T Promoter CDH2 AP2 2000updn scan.png" src="promoter_files/T_Promoter_CDH2_AP2_2000updn_scan.png" height="408" width="772">
+</p><p><img alt="Promoter Result CDH2 Sequence View.png" src="promoter_files/Promoter_Result_CDH2_Sequence_View.png" height="453" width="841">
 </p><p>4. Setting the View to Full Sequence shows the hits in white on 
 the sequence. Red arrows indicate whether the hit is to the forward 
 (right arrow) or reverse (complementary) (left-arrow) strand.
-</p><p><img alt="T Promoter CDH2 AP2 2000updn scan fullseq.png" src="promoter_files/T_Promoter_CDH2_AP2_2000updn_scan_fullseq.png" height="350" width="518">
+</p><p><img alt="Promoter Result CDH2 Sequence View Full.png" src="promoter_files/Promoter_Result_CDH2_Sequence_View_Full.png" height="391" width="590">
 </p><p>5. The parameters tab displays the actual threshold values calculated during the run, and displays the enrichment results.
 </p><p><br>
-<img alt="T Promoter CDH2 AP2 2000updn scan finalparams.png" src="promoter_files/T_Promoter_CDH2_AP2_2000updn_scan_finalparams.png" height="349" width="517">
+<img alt="Promoter Result CDH2 Parameter View.png" src="promoter_files/Promoter_Result_CDH2_Parameter_View.png" height="629" width="845">
 </p>
 <a name="References"></a><h1> <span class="mw-headline" id="References">References</span></h1>
-<ul><li> Lawrence and Reilly (1990) Searching putative regulatory 
+<ul><li> Bryne JC, Valen E, Tang MH, Marstrand T, Winther O, da Piedade 
+I, Krogh A, Lenhard B, Sandelin A. (2008) JASPAR, the open access 
+database of transcription factor-binding profiles: new content and tools
+ in the 2008 update.  Nucleic Acids Res. 36(Database issue):D102-6. 
+</li><li> Lawrence and Reilly (1990) Searching putative regulatory 
 sequences against a collection of known transcription factor DNA-binding
  signatures represented as a position weight matrices (PWMs) (citation 
 unknown).  See perhaps: Lawrence, C. and Reilly, A. (1990). An 
@@ -362,12 +360,12 @@ Nucleic Acids Res.  Jan 1;34(Database issue):D95-7.
 <!-- 
 NewPP limit report
 Preprocessor node count: 146/1000000
-Post-expand include size: 1889/2097152 bytes
+Post-expand include size: 1907/2097152 bytes
 Template argument size: 0/2097152 bytes
 Expensive parser function count: 0/100
 -->
 
-<!-- Saved in parser cache with key workbench:pcache:idhash:1516-0!1!0!!en!2!printable=1 and timestamp 20110729024726 -->
+<!-- Saved in parser cache with key workbench:pcache:idhash:1516-0!1!0!!en!2!printable=1 and timestamp 20120309180741 -->
 <div class="printfooter">
 Retrieved from "<a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Promoter_Analysis">http://wiki.c2b2.columbia.edu/workbench/index.php/Promoter_Analysis</a>"</div>
 		<div id="catlinks" class="catlinks catlinks-allhidden"></div>		<!-- end content -->
@@ -376,11 +374,10 @@ Retrieved from "<a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Promo
 </div></div>
 <div class="visualClear"></div>
 <div id="footer">
-
-This page was last modified on 18 February 2011, at 15:21.
-
+	<div id="f-poweredbyico"><img src="promoter_files/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" height="31" width="88"></div>
+	<ul id="f-list">
+		<li id="lastmod"> This page was last modified on 9 March 2012, at 12:59.</li>
+	</ul>
 </div>
 </div>
 
-<!-- Served in 0.421 secs. -->
-</body></html>
