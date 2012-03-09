@@ -4,16 +4,6 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="generator" content="MediaWiki 1.16.0">
 <meta name="robots" content="noindex,follow">
-<link rel="alternate" type="application/x-wiki" title="Edit" href="http://wiki.c2b2.columbia.edu/workbench/index.php?title=MarkUs&amp;action=edit">
-<link rel="edit" title="Edit" href="http://wiki.c2b2.columbia.edu/workbench/index.php?title=MarkUs&amp;action=edit">
-<link rel="shortcut icon" href="http://wiki.c2b2.columbia.edu/workbench/skins/common/images/favicon.ico">
-<link rel="search" type="application/opensearchdescription+xml" href="http://wiki.c2b2.columbia.edu/workbench/opensearch_desc.php" title="Workbench (en)">
-<link rel="alternate" type="application/atom+xml" title="Workbench Atom feed" href="http://wiki.c2b2.columbia.edu/workbench/index.php?title=Special:RecentChanges&amp;feed=atom">
-<link rel="stylesheet" href="MarkUs_files/commonPrint.css" media="">
-<link rel="stylesheet" href="MarkUs_files/index_003.css">
-<link rel="stylesheet" href="MarkUs_files/index.css" media="">
-<link rel="stylesheet" href="MarkUs_files/index_002.css">
-<link rel="stylesheet" href="MarkUs_files/index_004.css">
 
 </head>
 <body class="mediawiki ltr ns-0 ns-subject page-MarkUs skin-monobook">
@@ -23,7 +13,6 @@
 	
 	<h1 id="firstHeading" class="firstHeading">MarkUs</h1>
 	<div id="bodyContent">
-
 		<!-- start content -->
 <p><br>
 </p>
@@ -35,7 +24,22 @@ calculates the surface electrostatic potentials and amino acid
 conservation profile. The results can be browsed by an interactive web 
 interface that allows one to integrate Gene Ontology terms, UniProt 
 features, and the Enzyme Classification.  The MarkUs website is at <a href="http://luna.bioc.columbia.edu/honiglab/mark-us/cgi-bin/submit.pl" class="external free" rel="nofollow">http://luna.bioc.columbia.edu/honiglab/mark-us/cgi-bin/submit.pl</a>.
-</p><p>MarkUs is available as a local or grid service in geWorkbench.  Details about running grid services are available in the <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Grid_Services" title="Grid Services"> Grid Services</a> tutorial.
+</p><p>geWorkbench supports both a direct link to the MarkUs server via a
+ web service, and also can connect through a grid service.  Details 
+about running grid services are available in the <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Grid_Services" title="Grid Services"> Grid Services</a> tutorial.   No password is required for either the web or grid service interface to MarkUs.
+</p>
+<a name="Availability_of_results"></a><h2> <span class="mw-headline" id="Availability_of_results">Availability of results</span></h2>
+<p>MarkUs results are returned on demand from the server into the 
+browser window in geWorkbench.  The results will be available within 
+geWorkbench for as long as they are preserved on the server, which 
+should be at least 30 days. It is not possible to preserve the entire 
+MarkUs run result within geWorkbench.  Hence, after a MarkUs run, the 
+relevant results should be determined and saved to an appropriate format
+ (screenshot, etc). 
+</p><p>To maintain access to a particular MarkUs result, you should 
+either save the workspace before exiting geWorkbench, or make note of 
+the MarkUs job ID.  It can be used to retrieve the results at a later 
+time.
 </p>
 <a name="Technical_Note"></a><h2> <span class="mw-headline" id="Technical_Note">Technical Note</span></h2>
 <p>MarkUs in geWorkbench requires a 32-bit JVM, such as included with 
@@ -60,15 +64,20 @@ JVM.
 </p>
 <a name="Parameters"></a><h2> <span class="mw-headline" id="Parameters">Parameters</span></h2>
 <a name="Main"></a><h3> <span class="mw-headline" id="Main">Main</span></h3>
-<p><img alt="MarkUs Parameters.png" src="MarkUs_files/MarkUs_Parameters.png" height="322" width="1135">
-</p><p><br>
+<p><img alt="MarkUs Parameters.png" src="MarkUs_files/MarkUs_Parameters.png" height="364" width="1149">
 </p>
+<ul><li> <b>Private Key</b> - if checked, the system will generate and 
+displayed the key in the name of the result node.  The private key will 
+be needed to retrieve the job results. 
+</li><li> <b>Email</b> (optional) - enter an Email address to request notification when the job has finished.
+</li><li> <b>Title</b> (optional) - provide a title for your job.
+</li></ul>
 <a name="DelPhi"></a><h3> <span class="mw-headline" id="DelPhi">DelPhi</span></h3>
-<p><img alt="MarkUs DelPhi Parameters.png" src="MarkUs_files/MarkUs_DelPhi_Parameters.png" height="319" width="1132">
+<p><img alt="MarkUs DelPhi Parameters.png" src="MarkUs_files/MarkUs_DelPhi_Parameters.png" height="248" width="867">
 </p><p><br>
 </p>
 <a name="ConSurf"></a><h3> <span class="mw-headline" id="ConSurf">ConSurf</span></h3>
-<p><img alt="MarkUs ConSurf Parameters.png" src="MarkUs_files/MarkUs_ConSurf_Parameters.png" height="230" width="1134">
+<p><img alt="MarkUs ConSurf Parameters.png" src="MarkUs_files/MarkUs_ConSurf_Parameters.png" height="232" width="805">
 </p><p><br>
 </p>
 <a name="Retrieve_Prior_Jobs"></a><h3> <span class="mw-headline" id="Retrieve_Prior_Jobs">Retrieve Prior Jobs</span></h3>
@@ -90,7 +99,7 @@ the Parameters tab when the job was submitted, the system also generated
 you must also supply this private key to retrieve the job results.
 </li></ul>
 <p><br>
-<img alt="MarkUs Retreive Prior.png" src="MarkUs_files/MarkUs_Retreive_Prior.png" height="228" width="1131">
+<img alt="MarkUs Retreive Prior.png" src="MarkUs_files/MarkUs_Retreive_Prior.png" height="198" width="823">
 </p>
 <a name="Results"></a><h2> <span class="mw-headline" id="Results">Results</span></h2>
 <a name="Private_Key"></a><h3> <span class="mw-headline" id="Private_Key">Private Key</span></h3>
@@ -142,7 +151,7 @@ always run as part of a MarkUs job and cannot be left out.
 server, so there is no advantage to using the grid service. 
 </p><p>The figure below shows the local service as selected.
 </p><p><br>
-<img alt="MarkUs Services empty.png" src="MarkUs_files/MarkUs_Services_empty.png" height="235" width="544">
+<img alt="MarkUs Services empty.png" src="MarkUs_files/MarkUs_Services_empty.png" height="190" width="501">
 </p><p><br>
 7. Return to the Parameters tab.
 </p><p>8. Push the "Analyze" button.
@@ -159,19 +168,19 @@ private key from the new result node in the Project Folders component.
 </li><li> Select the radio button for the desired grid service.
 </li></ul>
 <p><br>
-<img alt="MarkUs Services grid selected.png" src="MarkUs_files/MarkUs_Services_grid_selected.png" height="321" width="1114">
+<img alt="MarkUs Services grid selected.png" src="MarkUs_files/MarkUs_Services_grid_selected.png" height="304" width="700">
 </p><p><br>
 See the <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Grid_Services" title="Grid Services"> Grid Services</a> section for further details on setting up a grid job.
 </p>
 <!-- 
 NewPP limit report
-Preprocessor node count: 66/1000000
-Post-expand include size: 1889/2097152 bytes
+Preprocessor node count: 70/1000000
+Post-expand include size: 1907/2097152 bytes
 Template argument size: 0/2097152 bytes
 Expensive parser function count: 0/100
 -->
 
-<!-- Saved in parser cache with key workbench:pcache:idhash:1876-0!1!0!!en!2!printable=1 and timestamp 20110729022132 -->
+<!-- Saved in parser cache with key workbench:pcache:idhash:1876-0!1!0!!en!2!printable=1 and timestamp 20120309001505 -->
 <div class="printfooter">
 Retrieved from "<a href="http://wiki.c2b2.columbia.edu/workbench/index.php/MarkUs">http://wiki.c2b2.columbia.edu/workbench/index.php/MarkUs</a>"</div>
 		<div id="catlinks" class="catlinks catlinks-allhidden"></div>		<!-- end content -->
@@ -180,11 +189,10 @@ Retrieved from "<a href="http://wiki.c2b2.columbia.edu/workbench/index.php/MarkU
 </div></div>
 <div class="visualClear"></div>
 <div id="footer">
-
-This page was last modified on 17 June 2011, at 14:22.
-
+	<div id="f-poweredbyico"><img src="MarkUs_files/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" height="31" width="88"></div>
+	<ul id="f-list">
+		<li id="lastmod"> This page was last modified on 26 September 2011, at 15:02.</li>
+	</ul>
 </div>
 </div>
 
-<!-- Served in 0.382 secs. -->
-</body></html>
