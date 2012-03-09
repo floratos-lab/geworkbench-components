@@ -8,9 +8,9 @@
 
 	<mapID target="Overview" url="MasterRegulatorAnalysis.htm#Overview"/>
 	<mapID target="Setting_up_an_MRA_run" url="MasterRegulatorAnalysis.htm#Setting_up_an_MRA_run"/>
-	<mapID target="Viewing_MRA_analysis_results" url="MasterRegulatorAnalysis.htm#Viewing_MRA_analysis_results"/>
+	<mapID target="Viewing_MRA_analysis_results_FET_Method" url="MasterRegulatorAnalysis.htm#Viewing_MRA_analysis_results_.28FET_Method.29"/>
 	<mapID target="Dataset_History" url="MasterRegulatorAnalysis.htm#Dataset_History"/>
-	<mapID target="Example_of_running_MRA" url="MasterRegulatorAnalysis.htm#Example_of_running_MRA"/>
+	<mapID target="Example_of_running_MRA_FET_Method" url="MasterRegulatorAnalysis.htm#Example_of_running_MRA_.28FET_Method.29"/>
 	<mapID target="References" url="MasterRegulatorAnalysis.htm#References"/>
 
 </map>
