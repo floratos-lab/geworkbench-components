@@ -1,0 +1,187 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html dir="ltr" lang="en"><head>
+<title>MatrixREDUCE - Workbench</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="generator" content="MediaWiki 1.16.0">
+<meta name="robots" content="noindex,follow">
+
+</head>
+<body class="mediawiki ltr ns-0 ns-subject page-MatrixREDUCE skin-monobook">
+<div id="globalWrapper">
+<div id="column-content"><div id="content">
+	<a id="top"></a>
+	
+	<h1 id="firstHeading" class="firstHeading">MatrixREDUCE</h1>
+	<div id="bodyContent">
+		<!-- start content -->
+<p><br>
+</p><p><br>
+</p>
+<p><br>
+</p>
+<a name="Outline"></a><h2> <span class="mw-headline" id="Outline">Outline</span></h2>
+<p>This tutorial contains
+</p>
+<ol><li> an overview of MatrixREDUCE, 
+</li><li> descriptions of data types, parameters, and the graphical user interface, and
+</li><li> an example of a simple run of the program.
+</li></ol>
+<a name="Overview"></a><h2> <span class="mw-headline" id="Overview">Overview</span></h2>
+<p>MatrixREDUCE is a tool for inferring the binding specificity and 
+nuclear concentration of transcription factors from microarray data. The
+ sequence specificity of the transcription factors' DNA-binding domain 
+is modeled using a position-specific affinity matrix (PSAM), whose 
+elements represent the change in the binding affinity whenever a 
+specific position within a reference binding sequence is mutated.  The 
+PSAM(s) resulting from the fit to the microarray data can be displayed 
+as an affinity logo or as a consensus sequence.
+</p><p>MatrixREDUCE was developed by <a href="http://www.bussemakerlab.org/" class="external text" rel="nofollow">Harmen Bussemaker</a> at Columbia University. For further details see <a href="http://bussemaker.bio.columbia.edu/software/MatrixREDUCE" class="external text" rel="nofollow">MatrixREDUCE</a>.
+</p>
+<a name="Data_Files"></a><h2> <span class="mw-headline" id="Data_Files">Data Files</span></h2>
+<p>MatrixREDUCE operates on two data files plus an optional topological pattern file.  
+</p><p>The data files required are a microarray gene expression dataset 
+and a FASTA file containing the DNA sequences corresponding to the 
+regulatory region of genes probed in the microarray experiment.  The 
+gene/probe identifiers used in the microarray dataset and the sequence 
+identifiers used in the FASTA file must match.  However, case is not 
+important; the program will change the identifiers to lower case before 
+attempting to match the records.  If an identifier appears more than 
+once in a file, the last instance is used.
+</p><p>The topological pattern can either be specified by name or loaded from an external file (via the adjacent "Load" button).
+</p>
+<a name="Parameters"></a><h2> <span class="mw-headline" id="Parameters">Parameters</span></h2>
+<p>(default values are shown in parentheses)
+</p><p><b>Topological Pattern</b> - a flexible way to specify which 
+motif patterns to search for; e.g. X6 for all hexamers, X3N5X3 for all 
+dyads of trimers with a 5-bp spacer
+</p><p><b>P value</b>       - maximum p-value to accept a new motif (0.001).
+</p><p><b>Max Motif</b>     - Maximum # of motifs to search.
+</p><p><b>Strand</b> - [("Auto-detect"), "Leading", "Reverse", "Both"]
+</p><p><b>Save run log</b> - diagnostic messages from the run will be saved to a file.
+</p><p><br>
+</p>
+<a name="Services_.28Grid.29"></a><h2> <span class="mw-headline" id="Services_.28Grid.29">Services (Grid)</span></h2>
+<p>MatrixREDUCE can be run either locally within geWorkbench, or remotely as a grid job on caGrid.  See the <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_Grid_Services" title="Tutorial - Grid Services" class="mw-redirect"> Grid Services</a> section for further details on setting up a grid job.
+</p>
+<a name="Graphical_Interface_for_results"></a><h2> <span class="mw-headline" id="Graphical_Interface_for_results">Graphical Interface for results</span></h2>
+<a name="PSAM_Detail_Tab"></a><h3> <span class="mw-headline" id="PSAM_Detail_Tab">PSAM Detail Tab</span></h3>
+<p>The PSAM detail tab displays the result PSAMs in a table format.  
+Users can modify the display so that each PSAM is represented either by 
+its sequence logo or its consensus sequence.  Selected or all PSAMs can 
+be exported to a text file using the "ExportAll" or "Export Selected" 
+buttons.
+</p>
+<a name="Table_Columns:"></a><h4> <span class="mw-headline" id="Table_Columns:">Table Columns:</span></h4>
+<p><b>Select</b> - If the box is checked, and the <b>Export Selected</b> button is pushed, the selected PSAMs will be exported to a file.
+</p><p><b>Consensus Sequence</b> - This displays the PSAM resulting from
+ the analysis as an affinity logo.  The logo displays "the actual 
+relative free energies of binding for each nucleotide at each position".
+  The horizontal line indicates the average delta-delta-G at each 
+position, each letter is placed above or below the line depending on 
+whether its delta-delta-G is more or less favorable than the average.  
+"The height of the letter can be interpreted as free energy difference 
+from the average in units of RT."  The tallest letters thus contribute 
+most to the sequence specificity of the motif.
+</p><p><br>
+<b>Experiment Name</b> - the experiment used to fit the PSAM parameters, which had the strongest (absolute) correlation with the seed motif.
+</p><p><b>Seed sequence</b> - the motif used as the seed for the PSAM fit.
+</p><p><b>F</b> - regression coefficient resulting from the model fit.  See eq 12, pg. e143 of Foat et al. 2006 <a href="http://www.ncbi.nlm.nih.gov/pubmed/16873464?ordinalpos=9&amp;itool=EntrezSystem2.PEntrez.Pubmed.Pubmed_ResultsPanel.Pubmed_DefaultReportPanel.Pubmed_RVDocSum" class="external text" rel="nofollow">link to paper</a>.
+</p><p><b>t</b> - t-value, equal to the regression coefficient divided by standard error.
+</p><p><b>P</b> - P-value corresponding to the significance of the t-value.
+</p>
+<a name="Sequence_Tab"></a><h3> <span class="mw-headline" id="Sequence_Tab">Sequence Tab</span></h3>
+<p>The sequence tab displays the DNA sequences of the regulatory region 
+associated with each gene that is probed. Users can visualize the 
+matching scores of PSAMs against each sequence. Sequence score is the 
+product of weights w across all positions in the sliding window. 
+</p><p>When a PSAM is selected, its weighted score is displayed 
+graphically on the input (upstream) sequences (Affinity score graph). 
+The system computes for every position an aggregate affinity score for 
+all selected PSAMs and plots the scores along all sequence positions. 
+Each score is between 0 and 1. Only scores larger than the designated 
+cut-off threshold are drawn.
+</p>
+<a name="PSAM:"></a><h4> <span class="mw-headline" id="PSAM:">PSAM:</span></h4>
+<p><b>Choose PSAM</b> - select which PSAM to slide along the upstream sequence to generate a score at each position.
+</p><p><b>Direction</b> - controls whether to generate a sliding score 
+for the Forward, Backward (Reverse) or both directions.  Forward is 
+displayed above the sequence, while Backward is displayed below the 
+sequence.
+</p>
+<a name="Filtering:"></a><h4> <span class="mw-headline" id="Filtering:">Filtering:</span></h4>
+<p><b>Threshold</b> - Only show sequences which have a weighted score exceeding the given threshold at some location along the sequence.  
+</p><p><b>Sequence Name</b> - Only show sequences matching the input name.
+</p>
+<a name="Image_Snapshot"></a><h4> <span class="mw-headline" id="Image_Snapshot">Image Snapshot</span></h4>
+<p><b>Take Snapshot</b> - Places an image of the sequence view in the Project folders component.
+</p>
+<a name="Example"></a><h2> <span class="mw-headline" id="Example">Example</span></h2>
+<p>In this example, we will use two files that are available here.  
+Right-click on each link and select "Save link as".  Download them into a
+ convenient directory.  They are <a href="http://wiki.c2b2.columbia.edu/workbench/images/7/7a/SpellmanReduced.txt" class="internal" title="SpellmanReduced.txt"> SpellmanReduced.txt</a> and <a href="http://wiki.c2b2.columbia.edu/workbench/images/c/c7/Y5_600_Bst.txt" class="internal" title="Y5 600 Bst.txt"> Y5_600_Bst.txt</a>.
+  SpellmanReduced.txt contains a subset of the data from Spellman 1998. 
+  Y5_600_Bst.txt contains the corresponding upstream DNA sequences for 
+these genes.
+</p><p><br>
+1. In the Project Folders component, either use an existing Project, or create a new one.
+</p><p>2. Right-click on Project and select "Open File(s)".
+</p><p>3. Browse to where you saved the file SpellmanReduced.txt and set the file type to "Tab-Delimted".    Open the file.
+</p><p>4. You will be asked for an annotations file.  This is not needed for this example, so you can hit Cancel.
+</p><p>5. Go to the Analysis tab and select Matrix Reduce.
+</p><p>6. To load the sequence file, click the "Load..." button.  Browse to the sequence file "Y5_600_Bst.txt" and open it.
+</p><p><br>
+<img alt="MatrixREDUCE Parameters.png" src="MatrixReduce_files/MatrixREDUCE_Parameters.png" height="308" width="1011">
+</p><p><br>
+</p><p>7. Click Analyze to run MatrixREDUCE. (If you are running 
+geWorkbench from a console window using ANT, you can follow the progress
+ of the calculations there).
+</p><p>8. The result is placed as a node beneath the parent microarray 
+dataset in the Project Folders component.  At the same time, the results
+ are displayed in the Visual Area of geWorkbench.
+</p><p>There are two tabs in the viewer, <b>PSAM Detail</b> and <b>Sequence</b>.  Within PSAM Detail there are two options.  The first is the Image view, which depicts the PSAM graphically.
+</p><p><br>
+<img alt="T MatrixREDUCE PSAM view.png" src="MatrixReduce_files/T_MatrixREDUCE_PSAM_view.png" height="559" width="689">
+</p><p><br>
+</p><p>The second viewing option is the Name view, which just shows the consensus sequence without the weighted components.
+</p><p><img alt="T MatrixREDUCE PSAM name view.png" src="MatrixReduce_files/T_MatrixREDUCE_PSAM_name_view.png" height="297" width="690">
+</p><p><br>
+Finally, the Sequence tab depicts scores along each sequence.
+</p><p><br>
+</p><p><img alt="T MatrixREDUCE SequenceView.png" src="MatrixReduce_files/T_MatrixREDUCE_SequenceView.png" height="540" width="735">
+</p>
+<a name="References"></a><h2> <span class="mw-headline" id="References">References</span></h2>
+<ul><li> Foat BC, Houshmandi SS, Olivas WM, Bussemaker HJ. (2005). 
+Profiling condition-specific, genome-wide regulation of mRNA stability 
+in yeast.  PNAS 102(49), 17675-17680. <a href="http://www.ncbi.nlm.nih.gov/pubmed/16317069?ordinalpos=4&amp;itool=EntrezSystem2.PEntrez.Pubmed.Pubmed_ResultsPanel.Pubmed_DefaultReportPanel.Pubmed_RVDocSum" class="external text" rel="nofollow">link to paper</a>
+</li><li> Foat BC, Morozov AV, Bussemaker HJ. (2006). Statistical 
+mechanical modeling of genome-wide transcription factor occupancy data 
+by MatrixREDUCE.  Bioinformatics 22(14):e141-e149.  <a href="http://www.ncbi.nlm.nih.gov/pubmed/16873464?ordinalpos=9&amp;itool=EntrezSystem2.PEntrez.Pubmed.Pubmed_ResultsPanel.Pubmed_DefaultReportPanel.Pubmed_RVDocSum" class="external text" rel="nofollow">link to paper</a>
+</li><li> Spellman et al., (1998).  Comprehensive Identification of Cell
+ Cycle-regulated Genes of the Yeast Saccharomyces cerevisiae by 
+Microarray Hybridization.  Molecular Biology of the Cell 9, 3273-3297.
+</li></ul>
+
+<!-- 
+NewPP limit report
+Preprocessor node count: 58/1000000
+Post-expand include size: 1907/2097152 bytes
+Template argument size: 0/2097152 bytes
+Expensive parser function count: 0/100
+-->
+
+<!-- Saved in parser cache with key workbench:pcache:idhash:1742-0!1!0!!en!2!printable=1 and timestamp 20120309004518 -->
+<div class="printfooter">
+Retrieved from "<a href="http://wiki.c2b2.columbia.edu/workbench/index.php/MatrixREDUCE">http://wiki.c2b2.columbia.edu/workbench/index.php/MatrixREDUCE</a>"</div>
+		<div id="catlinks" class="catlinks catlinks-allhidden"></div>		<!-- end content -->
+				<div class="visualClear"></div>
+	</div>
+</div></div>
+<div class="visualClear"></div>
+<div id="footer">
+	<div id="f-poweredbyico"><img src="MatrixReduce_files/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" height="31" width="88"></div>
+	<ul id="f-list">
+		<li id="lastmod"> This page was last modified on 1 March 2012, at 18:47.</li>
+	</ul>
+</div>
+</div>
+
