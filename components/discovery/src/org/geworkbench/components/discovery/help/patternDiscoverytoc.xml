@@ -4,8 +4,6 @@
 	<tocitem text="Pattern Discovery">
 		 
 	<tocitem target="Overview" text="Overview"/>
-	<tocitem target="Component_layout" text="Component_layout"/>
-	<tocitem target="Top-level_run_controls" text="Top-level run controls"/>
 	<tocitem target="Setting_parameters" text="Setting parameters"/>
 	<tocitem target="Run_Pattern_Discovery" text="Run Pattern Discovery"/>
 	<tocitem target="Viewing_results" text="Viewing results"/>

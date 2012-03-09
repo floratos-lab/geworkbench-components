@@ -7,8 +7,6 @@
 <map version="1.0">
 	
 	<mapID target="Overview" url="patternDiscovery.htm#Overview"/>
-	<mapID target="Component_layout" url="patternDiscovery.htm#Component_layout"/>
-	<mapID target="Top-level_run_controls" url="patternDiscovery.htm#Top-level_run_controls"/>
 	<mapID target="Setting_parameters" url="patternDiscovery.htm#Setting_parameters"/>
 	<mapID target="Run_Pattern_Discovery" url="patternDiscovery.htm#Run_Pattern_Discovery"/>
 	<mapID target="Viewing_results" url="patternDiscovery.htm#Viewing_results"/>
