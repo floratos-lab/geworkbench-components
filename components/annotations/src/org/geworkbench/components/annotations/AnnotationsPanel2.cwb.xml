@@ -20,7 +20,7 @@
 			</html>
 		]]></license>
 
-		<online-help helpSet="org/geworkbench/components/annotations/help/annotationspanel/markerAnnotationPanelHelpSet.hs"/>
+		<online-help helpSet="org/geworkbench/components/annotations/help/markerAnnotationPanelHelpSet.hs"/>
 		
 	</component>
 
