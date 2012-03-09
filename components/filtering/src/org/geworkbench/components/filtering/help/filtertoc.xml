@@ -5,25 +5,19 @@
 	<tocitem text="Filtering">
 
 		<tocitem target="overview" text="Overview"/>
-		
 		<tocitem target="filter.configuration" text="Filter Configuration"/>
-		
+		<tocitem target="Available_Filters" text="Available Filters"/>
 		<tocitem target="basic.controls" text="Basic Controls"/>
-
-		<tocitem target="single.value.filter" text="Affy Detection Filter"/>
-		
-		<tocitem target="Coefficient_of_Variation_Filter" text="Coefficient of Variation Filter"/>
-
-		<tocitem target="deviation.filter" text="Deviation Filter"/>
-
-		<tocitem target="expr.threshold.filter" text="Expression Threshold Filter"/>
-
-		<tocitem target="two.channel.filter" text="Genepix Expression Threshold Filter(Two Channel)"/>
-
-		<tocitem target="Genepix.filter" text="Genepix Flags Filter"/>
-		
-		<tocitem target="missing.value.filter" text="Missing Values Filter"/>
-	
+		<tocitem target="Specific_Controls_for_each_Filter" text="Specific Controls for each Filter"/>
+		<tocitem target="Affymetrix_Detection_Call_Filter" text="    Affy Detection Filter"/>
+		<tocitem target="Coefficient_of_Variation_Filter" text="    Coefficient of Variation Filter"/>
+		<tocitem target="Entrez_Gene_ID_Filter" text="    Multiple Probeset per Gene Filter"/>
+		<tocitem target="expr.threshold.filter" text="    Expression Threshold Filter"/>
+		<tocitem target="two.channel.filter" text="    Genepix Expression Threshold Filter(Two Channel)"/>
+		<tocitem target="Genepix.filter" text="    Genepix Flags Filter"/>
+		<tocitem target="missing.value.filter" text="    Missing Values Filter"/>
+		<tocitem target="Multiple_Probeset_per_Gene_Filter" text="    Multiple Probeset per Gene Filter"/>        
+		<tocitem target="Standard_Deviation_Filter" text="    Standard Deviation Filter"/>	
 
 	</tocitem>
 

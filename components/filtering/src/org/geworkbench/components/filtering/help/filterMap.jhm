@@ -6,26 +6,20 @@
 
 <map version="1.0">
 
-	<mapID target="overview" url="Filtering.htm#Overview"/>
-
-	<mapID target="filter.configuration" url="Filtering.htm#Filter_Configuration"/>
-
-	<mapID target="basic.controls" url="Filtering.htm#Basic_Controls"/>
-
-	<mapID target="single.value.filter" url="Filtering.htm#Affymetrix_Detection_Call_Filter"/>
-	
-	<mapID target="Coefficient_of_Variation_Filter" url="Filtering.htm#Coefficient_of_Variation_Filter"/>
-
-	<mapID target="deviation.filter" url="Filtering.htm#Deviation_Filter"/>
-
-	<mapID target="expr.threshold.filter" url="Filtering.htm#Expression_Threshold_Filter"/>
-
-	<mapID target="two.channel.filter" url="Filtering.htm#GenePix_Expression_Threshold"/>
-
-	<mapID target="Genepix.filter" url="Filtering.htm#GenePix_Flags_Filter"/>
-
-	<mapID target="missing.value.filter" url="Filtering.htm#Missing_Values_Filter"/>
-
+	<mapID target="overview" url="filtering.htm#Overview"/>
+	<mapID target="filter.configuration" url="Filtering.htm#filter_Configuration"/>
+    <mapID target="Available_Filters" url="Filtering.htm#Available_Filters"/>
+	<mapID target="basic.controls" url="filtering.htm#Basic_Controls"/>
+	<mapID target="Specific_Controls_for_each_Filter" url="filtering.htm#Specific_Controls_for_each_Filter"
+	<mapID target="Affymetrix_Detection_Call_Filter" url="filtering.htm#Affymetrix_Detection_Call_Filter"/>
+	<mapID target="Coefficient_of_Variation_Filter" url="filtering.htm#Coefficient_of_Variation_Filter"/>    
+	<mapID target="Entrez_Gene_ID_Filter" url="filtering.htm#Multiple_Probeset_per_Gene_Filter"/>
+	<mapID target="expr.threshold.filter" url="filtering.htm#Expression_Threshold_Filter"/>
+	<mapID target="two.channel.filter" url="filtering.htm#GenePix_Expression_Threshold_Filter"/>
+	<mapID target="Genepix.filter" url="filtering.htm#GenePix_Flags_Filter"/>
+	<mapID target="missing.value.filter" url="filtering.htm#Missing_Values_Filter"/>
+	<mapID target="Multiple_Probeset_per_Gene_Filter" url="filtering.htm#Multiple_Probeset_per_Gene_Filter"/>
+	<mapID target="Standard_Deviation_Filter" url="filtering.htm#Standard_Deviation_Filter"/>
 
 </map>
 
