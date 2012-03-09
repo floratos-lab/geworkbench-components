@@ -4,17 +4,6 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="generator" content="MediaWiki 1.16.0">
 <meta name="robots" content="noindex,follow">
-<link rel="alternate" type="application/x-wiki" title="Edit" href="http://wiki.c2b2.columbia.edu/workbench/index.php?title=Pattern_Discovery&amp;action=edit">
-<link rel="edit" title="Edit" href="http://wiki.c2b2.columbia.edu/workbench/index.php?title=Pattern_Discovery&amp;action=edit">
-<link rel="shortcut icon" href="http://wiki.c2b2.columbia.edu/workbench/skins/common/images/favicon.ico">
-<link rel="search" type="application/opensearchdescription+xml" href="http://wiki.c2b2.columbia.edu/workbench/opensearch_desc.php" title="Workbench (en)">
-<link rel="alternate" type="application/atom+xml" title="Workbench Atom feed" href="http://wiki.c2b2.columbia.edu/workbench/index.php?title=Special:RecentChanges&amp;feed=atom">
-<link rel="stylesheet" href="patternDiscovery_files/commonPrint.css" media="">
-<link rel="stylesheet" href="patternDiscovery_files/index_003.css">
-<link rel="stylesheet" href="patternDiscovery_files/index.css" media="">
-<link rel="stylesheet" href="patternDiscovery_files/index_002.css">
-<link rel="stylesheet" href="patternDiscovery_files/index_004.css">
-
 
 </head>
 <body class="mediawiki ltr ns-0 ns-subject page-Pattern_Discovery skin-monobook">
@@ -24,7 +13,6 @@
 	
 	<h1 id="firstHeading" class="firstHeading">Pattern Discovery</h1>
 	<div id="bodyContent">
-
 		<!-- start content -->
 <p><br>
 </p><p><br>
@@ -58,57 +46,41 @@ pattern is discovered. Discovered patterns are reported and then masked
 in the sequence set so that they are no longer discovered. Then the 
 process continues iteratively until the minimum support reaches a lower 
 user-defined limit. Exhaustive Discovery, thus, produces a list of 
-non-overlapping motifs in order of support. 
+non-overlapping motifs in order of support.
+</p><p>The Pattern Discovery component is available when a sequence 
+(FASTA format) file has been loaded in the Project Folders component, 
+and its data node is selected.
 </p><p><br>
 </p>
-<a name="Component_layout"></a><h2> <span class="mw-headline" id="Component_layout">Component layout</span></h2>
-<p>The Pattern discovery component control area has three sections. 
-</p>
-<ol><li> Run controls are shown at top, 
-</li><li> the hit display area is in the center (empty in the figure below), and 
-</li><li> the parameter settings are at bottom. 
-</li></ol>
-<p><img alt="PatternDiscovery Params Basic Norm.png" src="patternDiscovery_files/PatternDiscovery_Params_Basic_Norm.png" height="334" width="708">
-</p>
-<a name="Top-level_run_controls"></a><h2> <span class="mw-headline" id="Top-level_run_controls">Top-level run controls</span></h2>
-<p><img alt="PatternDiscovery Run Controls.png" src="patternDiscovery_files/PatternDiscovery_Run_Controls.png" height="76" width="702">
-</p>
-<ul><li> <b>Normal</b> - select the "normal" pattern discovery algorithm.
-</li><li> <b>Exhaustive</b> - select the "exhaustive" pattern discovery algorithm.   This takes much more time.
-</li></ul>
-<ul><li> <b>Curling arrow</b> - start a new pattern discovery run.
-</li><li> <b>Stop sign</b> - Cancel the current pattern discovery run
-</li><li> <b>File folder</b> - load a pattern file
-</li></ul>
-<ul><li> <b>Progress bar</b> - To the right of the control buttons is a progress bar that reports on the current stage of discovery being executed.
-</li></ul>
 <a name="Setting_parameters"></a><h2> <span class="mw-headline" id="Setting_parameters">Setting parameters</span></h2>
 <p>A number of parameters can be adjusted by the user to adjust the sensitivity of the search. 
 </p>
 <a name="Basic_tab"></a><h3> <span class="mw-headline" id="Basic_tab">Basic tab</span></h3>
-<p><img alt="PatternDiscovery Params Basic only.png" src="patternDiscovery_files/PatternDiscovery_Params_Basic_only.png" height="175" width="386">
-</p><p>Three options for specifying support are available via a pulldown menu:
-</p>
-<ul><li> <b>Support Percent&nbsp;%</b> - The pattern must appear in at least given percentage of sequences.
-</li><li> <b>Support # Sequences</b> - The pattern must appear in at least the given number of sequences.
-</li><li> <b>Support # Occurrences</b> - The pattern must occur at least the given number of times in the set of sequences (can be more than once per sequence).
-</li></ul>
-<p><img alt="PatternDiscovery Params Basic support options.png" src="patternDiscovery_files/PatternDiscovery_Params_Basic_support_options.png" height="161" width="274">
+<p><img alt="PatternDiscovery Params Basic.png" src="patternDiscovery_files/PatternDiscovery_Params_Basic.png" height="318" width="639">
 </p><p><br>
+Three options for specifying support are available via a pulldown menu:
 </p>
-<ul><li> <b>Min. Tokens</b> - The minimum number of tokens in a discovered motif.
+<ul><li> <b>Support (Percent of Sequences)</b> - The pattern must appear in at least given percentage of sequences.
+</li><li> <b>Support (Number of Sequences)</b> - The pattern must appear in at least the given number of sequences.
+</li><li> <b>Support (Number of Occurrences)</b> - The pattern must occur at least the given number of times in the set of sequences (can be more than once per sequence).
+</li></ul>
+<p><br>
+<img alt="PatternDiscovery Params Basic support options.png" src="patternDiscovery_files/PatternDiscovery_Params_Basic_support_options.png" height="216" width="268">
+</p><p>Additional options are:
+</p>
+<ul><li> <b>Minimum Tokens</b> - The minimum number of tokens in a discovered motif.
 </li><li> <b>Density Window</b> - A sliding window in which at least the number of tokens set in "Density Window Min. Tokens" must be found.  
 </li><li> <b>Density Window Min. Tokens</b> - the minimum number of matching full character tokens (not wildcards) within the "Density Window".
 </li></ul>
 <a name="Exhaustive_tab"></a><h3> <span class="mw-headline" id="Exhaustive_tab">Exhaustive tab</span></h3>
 <p>Parameters specific to the "exhaustive" search algorithm can be set in this tab.
-</p><p><img alt="PatternDiscovery Params Exhaustive.png" src="patternDiscovery_files/PatternDiscovery_Params_Exhaustive.png" height="178" width="338">
+</p><p><img alt="PatternDiscovery Params Exhaustive.png" src="patternDiscovery_files/PatternDiscovery_Params_Exhaustive.png" height="195" width="390">
 </p>
-<ul><li> <b>Decrease support (%)</b> - sets the size of intervals by 
+<ul><li> <b>Decrement support (%)</b> - sets the size of intervals by 
 which support level is decreased in successive searches (default is 5). 
  The decrease is multiplicative, e.g. if one enters 5%, support will be 
 reduce to 95% of its previous value at each step.
-</li><li> <b>Minimum Support</b> - sets the lower limit on the percentage of sequences that must contain a specific motif (default is 10%).  
+</li><li> <b>Minimum Support (%)</b> - sets the lower limit on the percentage of sequences that must contain a specific motif (default is 10%).  
 </li></ul>
 <p><b>Note</b> - Prior to version 2.2.1, if a&nbsp;% sign is included in
  the minimum support text field, the percentage entered will be applied 
@@ -119,12 +91,11 @@ stopping value for the calculation will be 7%.
 <ul><li> <b>Minimum Pattern Number</b> - sets a lower limit on the number of motifs in a cluster (point at which support decrease stops).
 </li></ul>
 <a name="Limits"></a><h3> <span class="mw-headline" id="Limits">Limits</span></h3>
-<p><img alt="PatternDiscovery Params Limits.png" src="patternDiscovery_files/PatternDiscovery_Params_Limits.png" height="138" width="306">
+<p><img alt="PatternDiscovery Params Limits.png" src="patternDiscovery_files/PatternDiscovery_Params_Limits.png" height="128" width="343">
 </p>
 <ul><li> <b>Max. Pattern Number</b> - limits the number of patterns to 
 discover.  The actual upper limit to the number of patterns the server 
 will return is 99,999.
-</li><li> <b>Max. run time (sec)</b> - limits search time.
 </li></ul>
 <a name="Advanced_tab"></a><h3> <span class="mw-headline" id="Advanced_tab">Advanced tab</span></h3>
 <ul><li> <b>Exact Only</b> (default checked)  
@@ -142,11 +113,11 @@ integers.  (Note that the threshold is however stored as a double).
 </li></ul>
 <p>The Advanced tab when "Exact Only" is checked:
 </p><p><br>
-<img alt="PatternDiscovery Params Advanced Exact.png" src="patternDiscovery_files/PatternDiscovery_Params_Advanced_Exact.png" height="142" width="321">
+<img alt="PatternDiscovery Params Advanced Exact.png" src="patternDiscovery_files/PatternDiscovery_Params_Advanced_Exact.png" height="196" width="350">
 </p><p><br>
 The Advanced tab when the "Exact Only" is unchecked:
 </p><p><br>
-<img alt="PatternDiscovery Params Advanced Matrix.png" src="patternDiscovery_files/PatternDiscovery_Params_Advanced_Matrix.png" height="158" width="326">
+<img alt="PatternDiscovery Params Advanced Matrix.png" src="patternDiscovery_files/PatternDiscovery_Params_Advanced_Matrix.png" height="178" width="322">
 </p>
 <a name="Run_Pattern_Discovery"></a><h2> <span class="mw-headline" id="Run_Pattern_Discovery">Run Pattern Discovery</span></h2>
 <ul><li> Pushing on the button with the curling arrow icon will bring up the session creation box:
@@ -165,16 +136,9 @@ The Advanced tab when the "Exact Only" is unchecked:
 </li><li> <b>Password</b>: none currently required.
 </li></ul>
 <p><br>
+The progress bar will show the sequence upload and run steps:
 </p><p><br>
-</p><p>The progress bar will show the several stages of a search:
-</p>
-<ul><li> Uploading
-</li><li> Processing seeds
-</li><li> Discovering
-</li><li> Collating
-</li><li> Done
-</li></ul>
-<p><img alt="PatternDiscovery RunProgress.png" src="patternDiscovery_files/PatternDiscovery_RunProgress.png" height="126" width="645">
+<img alt="PatternDiscovery ProgressBar.png" src="patternDiscovery_files/PatternDiscovery_ProgressBar.png" height="134" width="326">
 </p>
 <a name="Viewing_results"></a><h2> <span class="mw-headline" id="Viewing_results">Viewing results</span></h2>
 <p>The result of the search can be viewed both in the <b>Pattern Discovery</b> module itself and in sequence viewer modules such as "Sequence" and "Promoter" and "Position Histogram".  In <b>Pattern Discovery</b>
@@ -206,7 +170,7 @@ characters at a given position (occurs when a substitution matrix
 <p>Each sequence is shown as a line with length proportional to the sequence length.  All sequences are left-aligned.
 </p><p>The position of matches along the sequence are shown using colored boxes (here blue).
 </p><p><br>
-<img alt="PatternDiscovery Basic histone result exact.png" src="patternDiscovery_files/PatternDiscovery_Basic_histone_result_exact.png" height="836" width="685">
+<img alt="PatternDiscovery Basic histone result exact.png" src="patternDiscovery_files/PatternDiscovery_Basic_histone_result_exact.png" height="606" width="655">
 </p><p><br>
 If the "All/Matching Pattern" box is checked (red arrow), only sequences that have a match to a selected pattern will be shown.
 </p><p><br>
@@ -216,7 +180,7 @@ If the "All/Matching Pattern" box is checked (red arrow), only sequences that ha
 <p>If more than one pattern is selected, each will be displayed using a 
 separate color (note we have scrolled down in the result list, so these 
 are not the same hits as above):
-</p><p><img alt="PatternDiscovery Basic Histones Result exact 3.png" src="patternDiscovery_files/PatternDiscovery_Basic_Histones_Result_exact_3.png" height="597" width="681">
+</p><p><img alt="PatternDiscovery Basic Histones Result exact 3.png" src="patternDiscovery_files/PatternDiscovery_Basic_Histones_Result_exact_3.png" height="475" width="654">
 </p><p><br>
 </p>
 <a name="Details_as_Hover_Text"></a><h4> <span class="mw-headline" id="Details_as_Hover_Text">Details as Hover Text</span></h4>
@@ -232,7 +196,7 @@ details of any matches at that point are displayed as hover text.
 </p>
 <a name="Result_.28Exact_matches.29_full_sequence_view"></a><h3> <span class="mw-headline" id="Result_.28Exact_matches.29_full_sequence_view">Result (Exact matches) full sequence view</span></h3>
 <p>In full sequence view, the actual sequence letters are displayed and matches are again outlined in colored boxes (here blue).  
-</p><p><img alt="PatternDiscovery Basic histone result exact seqs.png" src="patternDiscovery_files/PatternDiscovery_Basic_histone_result_exact_seqs.png" height="592" width="687">
+</p><p><img alt="PatternDiscovery Basic histone result exact seqs.png" src="patternDiscovery_files/PatternDiscovery_Basic_histone_result_exact_seqs.png" height="474" width="657">
 </p>
 <a name="Result_.28BLOSUM50.29_full_sequence_view"></a><h3> <span class="mw-headline" id="Result_.28BLOSUM50.29_full_sequence_view">Result (BLOSUM50) full sequence view</span></h3>
 <p>BLOSUM50 was selected in the Advanced parameters tab and the search 
@@ -257,7 +221,7 @@ fractional support for the motif at that position.
 <p><br>
 </p><p>Note that this will only be useful to the extent that the sequences are in some way aligned before analysis.
 </p><p>The figure below shows three motifs selected.  Each is displayed in a unique color in the position histogram.
-</p><p><img alt="PatternDiscovery Basic Histones Result exact 3 histogram.png" src="patternDiscovery_files/PatternDiscovery_Basic_Histones_Result_exact_3_histogram.png" height="631" width="641">
+</p><p><img alt="PatternDiscovery Basic Histones Result exact 3 histogram.png" src="patternDiscovery_files/PatternDiscovery_Basic_Histones_Result_exact_3_histogram.png" height="523" width="656">
 </p>
 <a name="Adding_results_to_the_Projects_Folder"></a><h2> <span class="mw-headline" id="Adding_results_to_the_Projects_Folder">Adding results to the Projects Folder</span></h2>
 <p>The results of a run of <b>Pattern Discovery</b> are automatically placed in the Project Folder:
@@ -289,19 +253,16 @@ patterns and their hits to the query sequences.  The locations positions
  on the query sequences) saved are specific to the particular input file
  used.  The name of this file is saved in the pattern file.
 </li></ul>
-<ul><li> <b>Add Patterns to Project</b> - This will add the patterns found as a data node in the Projects Folder, with the position information on the input sequences.
-</li></ul>
 <p><br>
-<img alt="PatternDiscovery Right click menu.png" src="patternDiscovery_files/PatternDiscovery_Right_click_menu.png" height="198" width="585">
+</p><p><img alt="PatternDiscovery Right click menu.png" src="patternDiscovery_files/PatternDiscovery_Right_click_menu.png" height="171" width="504">
 </p>
 <a name="Notes_on_display_of_results"></a><h2> <span class="mw-headline" id="Notes_on_display_of_results">Notes on display of results</span></h2>
 <ol><li> Pattern Discovery results can only be displayed in the context of the sequences from which they were derived.
+</li><li> To reload saved pattern files, see the <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Local_Data_Files" title="Local Data Files">| Local Data Files</a> tutorial.
 </li><li> There is no provision for filtering out repeats from genomic 
 DNA sequence.  Affected sequences should be masked before loading into 
 geWorkbench.
 </li></ol>
-<p><br>
-</p>
 <a name="Example_Pattern_Discovery_runs"></a><h2> <span class="mw-headline" id="Example_Pattern_Discovery_runs">Example Pattern Discovery runs</span></h2>
 <a name="Prerequisites"></a><h3> <span class="mw-headline" id="Prerequisites">Prerequisites</span></h3>
 <ol><li> Make sure that Pattern Discovery and Position Histogram (if desired) are loaded in the Component Configuration Manager.
@@ -333,9 +294,9 @@ substitutions.
 </li></ul>
 <p>These parameters were empirically chosen.  You can try variations to see how it affects the result.
 </p><p><br>
-<img alt="PatternDiscovery Params Basic histone setup.png" src="patternDiscovery_files/PatternDiscovery_Params_Basic_histone_setup.png" height="342" width="524">
+<img alt="PatternDiscovery Params Basic histone setup new.png" src="patternDiscovery_files/PatternDiscovery_Params_Basic_histone_setup_new.png" height="318" width="639">
 </p><p><br>
-The results are pictured above in <b>Viewing Results</b>.
+</p><p>The results are pictured above in <b>Viewing Results</b>.
 </p>
 <a name="Setup_.28BLOSUM50.29"></a><h3> <span class="mw-headline" id="Setup_.28BLOSUM50.29">Setup (BLOSUM50)</span></h3>
 <p>If the "Exact only" checkbox in the Advanced Parameters tab is 
@@ -346,21 +307,23 @@ will be used.
 number.  (However, note that it is passed to the Splash server as a 
 double).
 </li></ul>
-<p><img alt="PatternDiscovery Params Advanced Matrix.png" src="patternDiscovery_files/PatternDiscovery_Params_Advanced_Matrix.png" height="158" width="326">
-</p><p>The results of repeating the same run as before but using BLOSUM50 are pictured above in <b>Viewing Results</b>.
+<p><img alt="PatternDiscovery Params Advanced Matrix.png" src="patternDiscovery_files/PatternDiscovery_Params_Advanced_Matrix.png" height="178" width="322">
+</p><p>The results of repeating the same run as before but using BLOSUM50 are pictured above in <b>Viewing Results</b>.<br>
 </p>
-<a name="References"></a><h2> <span class="mw-headline" id="References">References</span></h2>
+<p>
+  <a name="References"></a></p>
+<h2> <span class="mw-headline" id="References">References</span></h2>
 <p>Califano, A. (2000).  SPLASH: structural pattern localization analysis by sequential histograms.  Bioinformatics, Apr;<b>16</b>(4):341-57 (<a href="http://bioinformatics.oxfordjournals.org/cgi/content/abstract/16/4/341" class="external text" rel="nofollow">link to paper</a>).
 </p>
 <!-- 
 NewPP limit report
-Preprocessor node count: 114/1000000
-Post-expand include size: 1889/2097152 bytes
+Preprocessor node count: 118/1000000
+Post-expand include size: 1907/2097152 bytes
 Template argument size: 0/2097152 bytes
 Expensive parser function count: 0/100
 -->
 
-<!-- Saved in parser cache with key workbench:pcache:idhash:1515-0!1!0!!en!2!printable=1 and timestamp 20110729010011 -->
+<!-- Saved in parser cache with key workbench:pcache:idhash:1515-0!1!0!!en!2!printable=1 and timestamp 20120309171257 -->
 <div class="printfooter">
 Retrieved from "<a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Pattern_Discovery">http://wiki.c2b2.columbia.edu/workbench/index.php/Pattern_Discovery</a>"</div>
 		<div id="catlinks" class="catlinks catlinks-allhidden"></div>		<!-- end content -->
@@ -369,12 +332,10 @@ Retrieved from "<a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Patte
 </div></div>
 <div class="visualClear"></div>
 <div id="footer">
-
-This page was last modified on 26 July 2011, at 23:09.
-
-
+	<div id="f-poweredbyico"><img src="patternDiscovery_files/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" height="31" width="88"></div>
+	<ul id="f-list">
+		<li id="lastmod"> This page was last modified on 9 March 2012, at 12:11.</li>
+	</ul>
 </div>
 </div>
 
-<!-- Served in 0.478 secs. -->
-</body></html>
