@@ -1,0 +1,7 @@
+STD_BONFERRONI
+0.9 // alpha
+false // by permutation
+false // use Welch
+true // all permutation
+100 // number of combinations
+false // is log normalized

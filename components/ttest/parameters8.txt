@@ -1,0 +1,7 @@
+MAX_T
+0.5 // alpha
+true // by permutation
+false // use Welch
+true // all permutation
+100 // number of combinations
+false // is log normalized

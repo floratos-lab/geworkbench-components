@@ -1,0 +1,7 @@
+JUST_ALPHA
+0.1 // alpha
+true // by permutation
+true // use Welch
+false // all permutation
+100 // number of combinations
+false // is log normalized
