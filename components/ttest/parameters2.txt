@@ -1,0 +1,7 @@
+JUST_ALPHA
+0.1 // alpha
+false // by permutation
+false // use Welch
+true
+2
+false // is log normalized

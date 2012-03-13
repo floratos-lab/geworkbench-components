@@ -1,0 +1,7 @@
+MIN_P
+1.0 // alpha
+true // by permutation
+false // use Welch
+true // all permutation
+100 // number of combinations
+false // is log normalized
