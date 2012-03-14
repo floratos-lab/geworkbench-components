@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="yes"?>
+
+<toc version="1.0">
+
+	<tocitem text="Analysis Framework">
+
+		<tocitem target="Overview" text="Overview"/>
+		<tocitem target="Layout_of_analysis_framework" text="Layout of analysis components"/>
+		<tocitem target="Analysis_Actions" text="Analysis Actions"/>
+		<tocitem target="Analyze" text="    Analyze"/>
+		<tocitem target="Save_Settings" text="    Save Settings"/>
+		<tocitem target="Delete_Settings" text="    Delete Settings"/>
+		<tocitem target="Creating_saved_parameter_sets" text="Creating saved parameter sets"/>
+		<tocitem target="Interplay_of_parameters_and_list" text="Interplay of parameters and list"/>
+
+	</tocitem>
+
+</toc>
+

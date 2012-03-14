@@ -1,0 +1,102 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html dir="ltr" lang="en"><head>
+<title>Analysis Framework - Workbench</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="generator" content="MediaWiki 1.16.0">
+<meta name="robots" content="noindex,follow">
+
+</head>
+<body class="mediawiki ltr ns-0 ns-subject page-Analysis_Framework skin-monobook">
+<div id="globalWrapper">
+<div id="column-content"><div id="content">
+	<a id="top"></a>
+	
+	<h1 id="firstHeading" class="firstHeading">Analysis Framework</h1>
+	<div id="bodyContent">
+		<!-- start content -->
+<p><br>
+</p>
+<a name="Overview"></a><h2> <span class="mw-headline" id="Overview">Overview</span></h2>
+<p>Most analysis routines are located in the command area in the lower 
+right quadrant of geWorkbench.  There they share a common framework and a
+ common method for saving parameter settings.
+</p>
+<a name="Layout_of_analysis_components_.28as_of_geWorkbench_2.3.0.29"></a>
+<h2> <span class="mw-headline" id="Layout_of_analysis_components_.28as_of_geWorkbench_2.3.0.29">Layout of analysis components</span></h2>
+<p>Analysis actions are activated in one of two ways.
+</p>
+<ol><li> Right-click on a data node
+</li><li> In the top Menu Bar, select Commands-&gt;Analysis
+</li></ol>
+<p>Either method will bring up a list of the currently loaded analysis components.  Additional components may be available in the <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Component_Configuration_Manager" title="Component Configuration Manager">|Component Configuration Manager</a>.
+</p><p><br>
+<img alt="Project Folders Analysis ANOVA.png" src="analysisFramework_files/Project_Folders_Analysis_ANOVA.png" height="305" width="507">
+</p><p><br>
+Selecting a component will cause its analysis control dialog to appear. 
+ All components share a common framework, but each also has its own 
+controls and parameters.  The below figure shows the ANOVA analysis 
+dialog.
+</p><p><br>
+<img alt="ANOVA Parameters w.png" src="analysisFramework_files/ANOVA_Parameters_w.png" height="520" width="689">
+</p>
+<h2>&nbsp;</h2>
+<a name="Analysis_Actions"></a><h2> <span class="mw-headline" id="Analysis_Actions">Analysis Actions</span></h2>
+<p>At right are three buttons shared by all analysis components:
+</p>
+<a name="Analyze"></a><h3> <span class="mw-headline" id="Analyze">Analyze</span></h3>
+<p>Launches the currently selected analysis with the specified parameters.
+</p><p><br>
+</p>
+<a name="Save_Settings"></a><h3> <span class="mw-headline" id="Save_Settings">Save Settings</span></h3>
+<p>Save the current parameter settings to a named set in the settings list.
+</p><p><br>
+</p>
+<a name="Delete_Settings"></a><h3> <span class="mw-headline" id="Delete_Settings">Delete Settings</span></h3>
+<p>Delete the currently highlighted settings entry from the list.
+</p><p><br>
+</p>
+<a name="Creating_saved_parameter_sets_.28as_of_geWorkbench_2.3.0.29"></a><h2> <span class="mw-headline" id="Creating_saved_parameter_sets_.28as_of_geWorkbench_2.3.0.29">Creating saved parameter sets</span></h2>
+<p>The current parameter settings can be saved by pushing the <b>Save Settings</b> button.  A dialog will appear asking for a name for the new set of saved parameters.
+</p><p><br>
+<img alt="Analysis Parameters Save.png" src="analysisFramework_files/Analysis_Parameters_Save.png" height="159" width="341">
+</p><p>In this figure, the default settings have been saved to a set called "Initial Settings".
+</p><p><br>
+<img alt="Analysis Saved Parameter Set.png" src="analysisFramework_files/Analysis_Saved_Parameter_Set.png" height="192" width="672">
+</p><p><br>
+If any parameters are then changed, the entry "Initial Settings" will no
+ longer be selected in the list.  However, if it is chosen again, its 
+saved parameter settings will be restored.
+</p><p>&nbsp;</p>
+<p>&nbsp;</p>
+<a name="Interplay_of_parameters_and_list"></a><h2> <span class="mw-headline" id="Interplay_of_parameters_and_list">Interplay of parameters and list</span></h2>
+<p>The analysis parameters can be restored to their saved values by selecting the desired item on the list.
+</p><p>For most analysis components, when the parameters shown in the 
+graphical interface are made to exactly match those stored in a list 
+entry, that entry will be selected (highlighted).  If any change is made
+ so that the parameters no longer match a stored entry, then no entry 
+will be highlighted.
+</p>
+<!-- 
+NewPP limit report
+Preprocessor node count: 42/1000000
+Post-expand include size: 1847/2097152 bytes
+Template argument size: 0/2097152 bytes
+Expensive parser function count: 0/100
+-->
+
+<!-- Saved in parser cache with key workbench:pcache:idhash:1933-0!1!0!!en!2!printable=1 and timestamp 20120314212935 -->
+<div class="printfooter">
+Retrieved from "<a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Analysis_Framework">http://wiki.c2b2.columbia.edu/workbench/index.php/Analysis_Framework</a>"</div>
+		<div id="catlinks" class="catlinks catlinks-allhidden"></div>		<!-- end content -->
+				<div class="visualClear"></div>
+	</div>
+</div></div>
+<div class="visualClear"></div>
+<div id="footer">
+	<div id="f-poweredbyico"><img src="analysisFramework_files/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" height="31" width="88"></div>
+	<ul id="f-list">
+		<li id="lastmod"> This page was last modified on 29 February 2012, at 18:18.</li>
+	</ul>
+</div>
+</div>
+

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE map PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp Map Version 1.0//EN"
+
+         "http://java.sun.com/products/javahelp/map_1_0.dtd">
+
+<map version="1.0">
+
+		<mapID target="Overview" url="analysisFramework.htm#Overview"/>
+		<mapID target="Layout_of_analysis_framework" url="analysisFramework.htm#Layout_of_analysis_components_.28as_of_geWorkbench_2.3.0.29"/>
+		<mapID target="Analysis_Actions" url="analysisFramework.htm#Analysis_Actions"/>
+		<mapID target="Analyze" url="analysisFramework.htm#Analyze"/>
+		<mapID target="Save_Settings" url="analysisFramework.htm#Save_Settings"/>
+		<mapID target="Delete_Settings" url="analysisFramework.htm#Delete_Settings"/>
+		<mapID target="Creating_saved_parameter_sets" url="analysisFramework.htm#Creating_saved_parameter_sets_.28as_of_geWorkbench_2.3.0.29"/>
+		<mapID target="Interplay_of_parameters_and_list" url="analysisFramework.htm#Interplay_of_parameters_and_list"/>
+	
+</map>
+
