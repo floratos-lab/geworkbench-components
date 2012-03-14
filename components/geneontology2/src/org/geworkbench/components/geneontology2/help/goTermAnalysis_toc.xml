@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="yes"?>
+
+<toc version="1.0">
+
+	<tocitem text="GO Term Analysis">
+		<tocitem target="Overview" text="Overview"/>
+		<tocitem target="Gene_Ontology_OBO_file_source" text="Gene_Ontology_OBO_file_source"/>
+		<tocitem target="Analysis_Component_GUI" text="Analysis_Component_GUI"/>
+		<tocitem target="Parameters" text="Parameters"/>
+		<tocitem target="Example" text="Example"/>
+		<tocitem target="Setup" text="Setup"/>
+		<tocitem target="Results" text="Results"/>
+		<tocitem target="References" text="References"/>
+	</tocitem>
+
+</toc>
+
