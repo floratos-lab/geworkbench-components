@@ -14,7 +14,7 @@
 		>
 
 		<required-component class="org.geworkbench.components.geneontology2.GoAnalysisResultView" />
-
+		<online-help helpSet="org/geworkbench/components/geneontology2/help/goTermAnalysis_HelpSet.hs"/>
 	</component>
 	
 	<plugin id="GeneOntology2" name="Gene Ontology Term Analysis (Ontologizer 2.0)"

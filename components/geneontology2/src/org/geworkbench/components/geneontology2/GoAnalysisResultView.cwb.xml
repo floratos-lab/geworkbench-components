@@ -12,6 +12,7 @@
 				loadByDefault="true"
 	 >
 		<required-component class="org.geworkbench.components.geneontology2.GoAnalysis" />
+		<online-help helpSet="org/geworkbench/components/geneontology2/help/goViewer_HelpSet.hs"/>
 
 	</component>
 	

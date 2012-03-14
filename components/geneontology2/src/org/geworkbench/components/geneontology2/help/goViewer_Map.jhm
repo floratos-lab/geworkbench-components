@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE map PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp Map Version 1.0//EN"
+
+         "http://java.sun.com/products/javahelp/map_1_0.dtd">
+
+<map version="1.0">
+
+		<mapID target="Overview" url="goViewer.htm#Overview"/>
+		<mapID target="Gene_Ontology_OBO_file_source" url="goViewer.htm#Gene_Ontology_OBO_file_source"/>
+		<mapID target="Standalone_Gene_Ontology_Browser" url="goViewer.htm#Standalone_Gene_Ontology_Browser"/>
+		<mapID target="Table_Browser" url="goViewer.htm#Table_Browser"/>
+		<mapID target="Tree_Browser" url="goViewer.htm#Tree_Browser"/>
+		<mapID target="Detail_Views" url="goViewer.htm#Detail_Views"/>
+		<mapID target="GO_Term_Analysis_Results" url="goViewer.htm#GO_Term_Analysis_Results"/>
+		<mapID target="Table_Browser" url="goViewer.htm#Table_Browser"/>
+		<mapID target="Gene_List" url="goViewer.htm#Gene_List"/>
+		<mapID target="Tree_Browser" url="goViewer.htm#Tree_Browser"/>
+</map>
+

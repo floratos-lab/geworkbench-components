@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="yes"?>
+
+<toc version="1.0">
+
+	<tocitem text="GO Term Viewer">
+
+		<tocitem target="Overview" text="Overview"/>
+		<tocitem target="Gene_Ontology_OBO_file_source" text="Gene Ontology OBO file source"/>
+		<tocitem target="Standalone_Gene_Ontology_Browser" text="Standalone Gene Ontology Browser"/>
+		<tocitem target="Table_Browser" text="    Table Browser"/>
+		<tocitem target="Tree_Browser" text="    Tree Browser"/>
+		<tocitem target="Detail_Views" text="    Detail Views"/>
+		<tocitem target="GO_Term_Analysis_Results" text="GO Term Analysis Results"/>
+		<tocitem target="Table_Browser" text="    Table Browser"/>
+		<tocitem target="Gene_List" text="    Gene List"/>
+		<tocitem target="Tree_Browser" text="    Tree Browser"/>
+		
+	</tocitem>
+
+</toc>
+
