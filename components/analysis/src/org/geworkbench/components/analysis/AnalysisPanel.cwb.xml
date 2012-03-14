@@ -18,9 +18,9 @@
 				<body>----</body>
 			</html>
 		]]></license>
-<!--
-        <online-help helpSet="org/geworkbench/components/analysis/help/analysisPanelHelpSet.hs"/>
--->
+
+        <online-help helpSet="org/geworkbench/components/analysis/help/analysisFramework_HelpSet.hs"/>
+
 	</component>
 
 
