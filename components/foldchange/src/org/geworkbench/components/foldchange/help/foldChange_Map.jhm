@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE map PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp Map Version 1.0//EN"
+
+         "http://java.sun.com/products/javahelp/map_1_0.dtd">
+
+<map version="1.0">
+
+		<mapID target="overview" url="foldChange.htm#Overview"/>
+		<mapID target="Parameters" url="foldChange.htm#Parameters"/>
+		<mapID target="Criterion" url="foldChange.htm#Criterion"/>
+		<mapID target="Input_Data_Format" url="foldChange.htm#Input_Data_Format"/>
+		<mapID target="Calculation_Method" url="foldChange.htm#Calculation_Method"/>
+		<mapID target="Tranformation_Notice" url="foldChange.htm#Tranformation_Notice"/>
+		<mapID target="Example_and_Results" url="foldChange.htm#Example_and_Results"/>
+		<mapID target="Setup" url="foldChange.htm#Setup"/>
+		<mapID target="Results" url="foldChange.htm#Results"/>
+</map>
+
