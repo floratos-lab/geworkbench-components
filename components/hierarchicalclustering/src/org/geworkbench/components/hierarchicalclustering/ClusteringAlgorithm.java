@@ -8,9 +8,7 @@ import java.util.TreeSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.util.Distance;
-import org.geworkbench.util.ProgressBar;
 
 /**
  * @author John Watkinson
@@ -18,8 +16,7 @@ import org.geworkbench.util.ProgressBar;
  */
 public class ClusteringAlgorithm {
 
-    static Log log = LogFactory.getLog(ClusteringAlgorithm.class);  
-    private AbstractAnalysis analysis = null;
+    static Log log = LogFactory.getLog(ClusteringAlgorithm.class); 
     
     public enum Linkage {
         SINGLE,
@@ -30,14 +27,14 @@ public class ClusteringAlgorithm {
     private Distance distance;
     private Linkage linkage;
     private ArrayList<HNode> nodes;
-    private double[][] values;
+    private final double[][] values;
     private HashMap<Integer, Double> distanceMap;    
     private ArrayList<float[]> distances;
 
     // TODO - this can be made more efficient with some manual unrolling of treeset's behavior
     private TreeSet<SortStruct> distanceSet;
-
-    private ProgressBar pb;
+	
+    final private HierarchicalClustering clusteringTask;
 
     /**
      * 
@@ -48,15 +45,15 @@ public class ClusteringAlgorithm {
      * @param linkage
      * @param pb
      */
-    public ClusteringAlgorithm(final AbstractAnalysis analysis, final String[] items, final double[][] values, final Distance distance, final Linkage linkage, final ProgressBar pb) {
-        this.analysis = analysis;
+    public ClusteringAlgorithm(final String[] items, final double[][] values, final Distance distance, final Linkage linkage,
+    		final HierarchicalClustering clusteringTask) {
     	this.distance = distance;
         this.linkage = linkage;
         this.values = values;
-        this.pb = pb;      
+
         int n = items.length;
         nodes = new ArrayList<HNode>(n);
-        for (int i = 0; i < n && !analysis.stopAlgorithm; i++) {
+        for (int i = 0; i < n; i++) {
             nodes.add(createLeafNode(i, items[i]));
         }
         id = n;
@@ -66,6 +63,7 @@ public class ClusteringAlgorithm {
             distances = new ArrayList<float[]>();
         }
 
+        this.clusteringTask = clusteringTask;
     }
     
     private int id = 0;
@@ -132,9 +130,6 @@ public class ClusteringAlgorithm {
         int newN = leftN + rightN;
         for (HNode node : nodes ) {
         	
-        	if (analysis != null && analysis.stopAlgorithm)             
-            	break;
-        	
             if (node.equals(left) || node.equals(right)) {
                 continue;
             }
@@ -160,39 +155,38 @@ public class ClusteringAlgorithm {
         int n = nodes.size();
         
         log.debug("Computing intial distance map...");
-        if (pb!=null)
-        pb.setMessage("Computing intial distance map...");
+
         // Compute n^2/2 initial distances
-        for (int i = 0; i < n && !analysis.stopAlgorithm; i++) {
-        	if (pb!=null)
-            pb.updateTo(i);
+        for (int i = 0; i < n; i++) {
+
+            if (clusteringTask.cancelled) {
+            	return null; // cancelled
+            }
+            
             if (linkage != Linkage.AVERAGE)  
             {
             	float[] distanceList = new float[n]; 
                 distances.add(i,distanceList);
             }
-            for (int j = i + 1; j < n && !analysis.stopAlgorithm; j++) {
+            for (int j = i + 1; j < n; j++) {
                 computeDistance(i, j);
             }
         }
         // Now, iteratively construct cluster
         log.debug("Constructing cluster...");
-        if (pb!=null)
-        pb.setMessage("Clustering...");
+
         int step = 0;
-        while (nodes.size() > 1 && !analysis.stopAlgorithm) {
-        	if (pb!=null)
-            pb.updateTo(step);
+        while (nodes.size() > 1) {
+
             SortStruct closest = distanceSet.first();
             HNode left = closest.getLeftNode();
             HNode right = closest.getRightNode();
             double d = getAndRemoveDistance(left, right);
             HNode newNode = createBranchNode(left, right, d);
             updateDistanceMap(newNode);
-            
-            if (analysis != null && analysis.stopAlgorithm) {
-            	stopAlgorithm(analysis, pb);
-            	return null;
+
+            if (clusteringTask.cancelled) {
+            	return null; // cancelled
             }
             
             nodes.remove(left);
@@ -201,23 +195,8 @@ public class ClusteringAlgorithm {
             step++;
         }
         
-        if (analysis != null && analysis.stopAlgorithm) {
-        	stopAlgorithm(analysis, pb);
-        	return null;
-        }
-        
         log.debug("Done in " + step + " steps.");
         return nodes.get(0);
     }
     
-    /**
-     * Terminates the algorithm and stops the progress bar.
-     * @param progressBar
-     * @return HierCluster
-     */
-	private void stopAlgorithm(AbstractAnalysis analysis, ProgressBar progressBar) {
-		analysis.stopAlgorithm = false;
-        progressBar.stop();
-	}
-
 }

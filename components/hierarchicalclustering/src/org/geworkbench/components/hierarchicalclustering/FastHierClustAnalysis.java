@@ -4,9 +4,12 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.Set;
 
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -30,6 +33,7 @@ import org.geworkbench.builtin.projects.history.HistoryPanel;
 import org.geworkbench.util.CorrelationDistance;
 import org.geworkbench.util.Distance;
 import org.geworkbench.util.EuclideanDistance;
+import org.geworkbench.util.ProgressBar;
 import org.geworkbench.util.SpearmanRankDistance;
  
 
@@ -45,12 +49,6 @@ public class FastHierClustAnalysis extends AbstractGridAnalysis implements
 	private static final long serialVersionUID = 4486758109656693283L;
 
 	private static Log log = LogFactory.getLog(FastHierClustAnalysis.class);
-
-	private int dim = 0;
-
-	private DSMicroarraySetView<DSGeneMarker, DSMicroarray> data;
-	
-	private String groupAndChipsString = null;
 
 	private final String analysisName = "Hierarchical";
 
@@ -70,7 +68,7 @@ public class FastHierClustAnalysis extends AbstractGridAnalysis implements
 		if (input == null)
 			return new AlgorithmExecutionResults(false, "Invalid input.", null);
 		assert input instanceof DSMicroarraySetView;
-		data = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
+		DSMicroarraySetView<DSGeneMarker, DSMicroarray> data = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
 		DSMicroarraySet maSet = data.getMicroarraySet();
 		int numMAs = data.items().size();
 		int numMarkers = data.getUniqueMarkers().size();
@@ -86,34 +84,67 @@ public class FastHierClustAnalysis extends AbstractGridAnalysis implements
 		int method = ((HierClustPanel) aspp).getMethod();
 		int dimension = ((HierClustPanel) aspp).getDimension();
 		int metric = ((HierClustPanel) aspp).getDistanceMetric();
-		HierCluster markerCluster = null;
-		HierCluster microarrayCluster = null;
-		if (dimension == 2) {
-			dim = 0;
-			markerCluster = hierarchical(metric, dim, method);
-			if (markerCluster == null)
-				return null;
-			dim = 1;
-			microarrayCluster = hierarchical(metric, dim, method);
-			if (microarrayCluster == null)
-				return null;
 
-		} else if (dimension == 1) {
-			dim = 1;
-			microarrayCluster = hierarchical(metric, dim, method);
-			if (microarrayCluster == null)
-				return null;
+		double[][] matrix = geValues(data);
+		final Distance[] distances = { EuclideanDistance.instance,
+				CorrelationDistance.instance, SpearmanRankDistance.instance };
+		Distance distanceMetric = distances[metric];
+		ClusteringAlgorithm.Linkage linkageType = null;
+		switch(method) {
+		case 0: linkageType = ClusteringAlgorithm.Linkage.SINGLE; break;
+		case 1: linkageType = ClusteringAlgorithm.Linkage.AVERAGE; break;
+		case 2: linkageType = ClusteringAlgorithm.Linkage.COMPLETE; break;
+		default: log.error("error in linkage type");
+		}
+		final HierarchicalClustering hierarchicalClustering = new HierarchicalClustering(linkageType);
 
-		} else if (dimension == 0) {
-			dim = 0;
-			markerCluster = hierarchical(metric, dim, method);
-			if (markerCluster == null)
-				return null;
+		SwingUtilities.invokeLater(new Runnable() {
+
+			@Override
+			public void run() {
+				pb = org.geworkbench.util.ProgressBar
+						.create(org.geworkbench.util.ProgressBar.INDETERMINATE_TYPE);
+				pb.addObserver(new CancelObserver(hierarchicalClustering));
+				pb.setTitle("Hierarchical Clustering");
+				pb.setMessage("Computing ...");
+				pb.start();
+			}
+			
+		});
+
+		// one for marker; one for array
+		HierCluster[] resultClusters = new HierCluster[2];
+		
+		try {
+			if (dimension == 2) {
+				
+				HierClusterFactory cluster = new HierClusterFactory.Gene(data.markers());
+				resultClusters[0] = hierarchicalClustering.compute(matrix,
+						cluster, distanceMetric);
+	
+				cluster = new HierClusterFactory.Microarray(data.items());
+				resultClusters[1] = hierarchicalClustering.compute(getTranspose(matrix),
+						cluster, distanceMetric);
+			} else if (dimension == 1) {
+				HierClusterFactory cluster = new HierClusterFactory.Microarray(data.items());
+				resultClusters[1] = hierarchicalClustering.compute(getTranspose(matrix),
+						cluster, distanceMetric);
+			} else if (dimension == 0) {
+				HierClusterFactory cluster = new HierClusterFactory.Gene(data.markers());
+				resultClusters[0] = hierarchicalClustering.compute(matrix,
+						cluster, distanceMetric);
+			}
+
+		} catch (OutOfMemoryError e) {
+			log
+					.error("OutOfMemoryError: "+e.getMessage()
+							+ ". The application is not stable to continue. It is suggested to quit the geWorkbench.");
+			// very likely the following dialog will not be able to show up
+			JOptionPane.showMessageDialog(null, "Even if you are able to see this message, " +
+					"the application is not stable to continue due to Out Of Memory error. It is suggested to quit or kill geWorkbench.");
+			return null;
 		}
 
-		HierCluster[] resultClusters = new HierCluster[2];
-		resultClusters[0] = markerCluster;
-		resultClusters[1] = microarrayCluster;
 		CSHierClusterDataSet dataSet = new CSHierClusterDataSet(resultClusters, null, false,
 				"Hierarchical Clustering", data);
 		
@@ -125,8 +156,6 @@ public class FastHierClustAnalysis extends AbstractGridAnalysis implements
 		DSAnnotationContext<DSMicroarray> context = manager
 				.getCurrentContext(maSet);
 				 
-		int numSelectedGroups = 0;		 
-		groupAndChipsString = "";
 		int nl = context.getNumberOfLabels();
 		 
 		for (int i = 0; i < nl; i++) {
@@ -137,30 +166,58 @@ public class FastHierClustAnalysis extends AbstractGridAnalysis implements
 			}		 
 		}
 
-		numSelectedGroups = labelSet.size();	 
-		String[] labels = labelSet.toArray(new String[numSelectedGroups]);
-		 
-		groupAndChipsString += numSelectedGroups + " groups analyzed:\n";
-		for (int i = 0; i < numSelectedGroups; i++) {// for each groups
-			String labelA = labels[i];
+		StringBuffer groupAndChipsString = new StringBuffer(
+				labelSet.size() + " groups analyzed:\n" );
+		for (String labelA : labelSet) {// for each groups
 			DSPanel<DSMicroarray> panelA = context.getItemsWithLabel(labelA);
 			// put group label into history
-			groupAndChipsString += "\tGroup " + labelA + " (" + panelA.size() +" chips)"+":\n";;
+			groupAndChipsString .append( "\tGroup " ).append( labelA ).append( " (" ).append( panelA.size() )
+				.append(" chips)").append(":\n");
 
 			if (panelA.isActive()) {
 				int aSize = panelA.size();
 				for (int aIndex = 0; aIndex < aSize; aIndex++) {  
-					groupAndChipsString += "\t\t" + panelA.get(aIndex) + "\n";  }
+					groupAndChipsString .append( "\t\t" ).append( panelA.get(aIndex) ).append( "\n" ); }
 			}
 		}
 				
 		// add to Dataset History
-		HistoryPanel.addToHistory(dataSet, generateHistoryString());
-        
+		HistoryPanel.addToHistory(dataSet, generateHistoryString(data.markers(), groupAndChipsString));
+		if(hierarchicalClustering.cancelled) {
+			// we don't need to dispose progress bar explicitly because 'cancel' comes from progress bar
+			return null;
+		}
+		SwingUtilities.invokeLater(new Runnable() {
+
+			@Override
+			public void run() {
+				if(pb!=null) {
+					pb.dispose();
+				}
+			}
+			
+		});
 		
 		return new AlgorithmExecutionResults(true, "No errors.", dataSet);
 	}
 
+	private transient ProgressBar pb;
+
+	static private class CancelObserver implements Observer {
+		final private HierarchicalClustering hierarchicalClustering;
+		
+		CancelObserver(final HierarchicalClustering hierarchicalClustering) {
+			super();
+			this.hierarchicalClustering = hierarchicalClustering;
+		}
+		
+		@Override
+		public void update(Observable o, Object arg) {
+			hierarchicalClustering.cancelled = true;
+		}
+		
+	}
+	
 	/**
 	 * Check if the argument <code>MicroarraySet</code> contains missing
 	 * values.
@@ -184,62 +241,25 @@ public class FastHierClustAnalysis extends AbstractGridAnalysis implements
         return false;
 	}
 
-	private HierCluster hierarchical(int metric, int dim, int method) {
-		ClusteringAlgorithm.Linkage linkageType = null;
-		switch(method) {
-		case 0: linkageType = ClusteringAlgorithm.Linkage.SINGLE; break;
-		case 1: linkageType = ClusteringAlgorithm.Linkage.AVERAGE; break;
-		case 2: linkageType = ClusteringAlgorithm.Linkage.COMPLETE; break;
-		default: log.error("error in linkage type");
-		}
 
-		final Distance[] distance = { EuclideanDistance.instance,
-				CorrelationDistance.instance, SpearmanRankDistance.instance };
-		HierClusterFactory[] cluster = {
-				new HierClusterFactory.Gene(data.markers()),
-				new HierClusterFactory.Microarray(data.items()) };
-
-		double[][][] matrix = { getMatrixWithMarkerAsRow(),
-				getMatrixWithMicroarrayAsRow() };
-		
-		try {
-			HierCluster result = new HierarchicalClustering(linkageType).compute(this, matrix[dim],
-					cluster[dim], distance[metric]);
-			return result;
-		} catch (OutOfMemoryError e) {
-			log
-					.error("OutOfMemoryError: "+e.getMessage()
-							+ ". The application is not stable to continue. It is suggested to quit the geWorkbench.");
-			// very likely the following dialog will not be able to show up
-			JOptionPane.showMessageDialog(null, "Even if you are able to see this message, " +
-					"the application is not stable to continue due to Out Of Memory error. It is suggested to quit or kill geWorkbench.");
-			return null;
-		}
-
-	}
-	
-	private double[][] getMatrixWithMarkerAsRow() {
+	private static double[][] geValues(final DSMicroarraySetView<DSGeneMarker, DSMicroarray> data) {
 		int rows = data.markers().size();
 		int cols = data.items().size();
 		double[][] array = new double[rows][cols];
 		for (int i = 0; i < rows; i++) {
-			for (int j = 0; j < cols; j++) {
-				array[i][j] = data.getValue(i, j);
-			}
+			array[i] = data.getRow(i);
 		}
 		return array;
 	}
 
-	private double[][] getMatrixWithMicroarrayAsRow() {
-		int rows = data.items().size();
-		int cols = data.markers().size();
-		double[][] array = new double[rows][cols];
-		for (int i = 0; i < rows; i++) {
-			for (int j = 0; j < cols; j++) {
-				array[i][j] = data.getValue(j, i);
+	private static double[][] getTranspose(final double[][] input) {
+		double d[][] = new double[input[0].length][input.length];
+		for (int i = 0; i < d.length; i++) {
+			for (int j = 0; j < d[0].length; j++) {
+				d[i][j] = input[j][i];
 			}
 		}
-		return array;
+		return d;
 	}
 	
 	/*
@@ -332,22 +352,22 @@ public class FastHierClustAnalysis extends AbstractGridAnalysis implements
 	
 	/**
 	 * 
-	 * @param none
+	 * @param markers 
+	 * @param groupAndChipsString
 	 * @return
 	 */
-	private String generateHistoryString() {
-		String histStr = "";
-		histStr += aspp.getDataSetHistory();
+	private String generateHistoryString(DSItemList<DSGeneMarker> markers, StringBuffer groupAndChipsString) {
+		StringBuffer histStr = new StringBuffer( aspp.getDataSetHistory() );
 
 		// group names and markers
-		histStr += groupAndChipsString;
+		histStr .append( groupAndChipsString );
         
-		histStr += data.markers().size() +" markers analyzed:\n";
-		for (DSGeneMarker marker : data.markers()){
-			histStr+="\t"+marker.getLabel()+"\n";
+		histStr .append( markers.size() ).append(" markers analyzed:\n");
+		for (DSGeneMarker marker : markers){
+			histStr.append("\t").append(marker.getLabel()).append("\n");
 		}
 		
-		return histStr;
+		return histStr.toString();
 	}
 
 	@Override
