@@ -1007,7 +1007,7 @@ public class AnalysisPanel extends CommandBase implements
 		
 		// check the result before further publishing event 
 		if (results == null) {
-			log.error("unexpected null result");
+			log.info("null result"); // e.g. cancelled
 			return;
 		}
 		/*
