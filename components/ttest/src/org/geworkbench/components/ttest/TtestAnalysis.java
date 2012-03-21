@@ -1,7 +1,11 @@
 package org.geworkbench.components.ttest;
 
 import java.util.HashSet;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.Vector;
+
+import javax.swing.SwingUtilities;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -113,23 +117,11 @@ public class TtestAnalysis extends AbstractAnalysis implements
 		numGenes = data.markers().size();
 		numExps = data.items().size();
 
-		ProgressBar pbTtest = ProgressBar
-				.create(ProgressBar.INDETERMINATE_TYPE);
-		pbTtest.addObserver(this);
-		pbTtest.setTitle("T Test Analysis");
-		pbTtest.setBounds(new ProgressBar.IncrementModel(0, numGenes, 0,
-				numGenes, 1));
-
-		pbTtest.setMessage("Calculating TTest, please wait...");
-		pbTtest.start();
-		this.stopAlgorithm = false;
-
 		groupAssignments = new int[numExps];
 
 		DSDataSet<? extends DSBioObject> set = data.getDataSet();
 
 		if (!(set instanceof DSMicroarraySet)) {
-			pbTtest.dispose();
 			return null;
 		}
 
@@ -164,20 +156,17 @@ public class TtestAnalysis extends AbstractAnalysis implements
 			}
 		}
 		if (numberGroupA == 0 && numberGroupB == 0) {
-			pbTtest.dispose();
 			return new AlgorithmExecutionResults(
 					false,
 					"Please activate at least one set of arrays for \"case\", and one set of arrays for \"control\".",
 					null);
 		}
 		if (numberGroupA == 0) {
-			pbTtest.dispose();
 			return new AlgorithmExecutionResults(false,
 					"Please activate at least one set of arrays for \"case\".",
 					null);
 		}
 		if (numberGroupB == 0) {
-			pbTtest.dispose();
 			return new AlgorithmExecutionResults(
 					false,
 					"Please activate at least one set of arrays for \"control\".",
@@ -270,15 +259,34 @@ public class TtestAnalysis extends AbstractAnalysis implements
 				numberGroupB, caseArray, controlArray, m, alpha, isPermut,
 				useWelchDf, useAllCombs, numCombs, isLogNormalized);
 		DSSignificanceResultSet<DSGeneMarker> sigSet;
+
+		final TTest tTest = new TTest(tTestInput);
+		SwingUtilities.invokeLater(new Runnable() {
+
+			@Override
+			public void run() {
+				pbTtest = ProgressBar
+						.create(ProgressBar.INDETERMINATE_TYPE);
+				pbTtest.addObserver(new CancelObserver(tTest));
+				pbTtest.setTitle("T Test Analysis");
+				pbTtest.setBounds(new ProgressBar.IncrementModel(0, numGenes, 0,
+						numGenes, 1));
+
+				pbTtest.setMessage("Calculating TTest, please wait...");
+				pbTtest.start();
+			}
+			
+		});
+
 		try {
-			TTestOutput output = new TTest(tTestInput).execute();
+			TTestOutput output = tTest.execute();
+			if(output==null) return null; // cancelled
+			
 			sigSet = createDSSignificanceResultSet(data, output, caseLabels, controlLabels);
 			
 			// add data set history.
 			HistoryPanel.addToHistory(sigSet, GenerateHistoryHeader() + groupAndChipsString
 					+ histMarkerString);
-
-			pbTtest.dispose();
 
 		} catch (TTestException e) {
 			e.printStackTrace();
@@ -287,9 +295,36 @@ public class TtestAnalysis extends AbstractAnalysis implements
 					"Exception happened in t-test computaiton: "+e,
 					null);
 		}
+		SwingUtilities.invokeLater(new Runnable() {
+
+			@Override
+			public void run() {
+				if(pbTtest!=null) {
+					pbTtest.dispose();
+				}
+			}
+			
+		});
 		
 		return new AlgorithmExecutionResults(true, "Ttest", sigSet);
 	} // end of method calculate
+
+	private transient ProgressBar pbTtest;
+	
+	static private class CancelObserver implements Observer {
+		final private TTest tTest;
+		
+		CancelObserver(final TTest tTest) {
+			super();
+			this.tTest = tTest;
+		}
+		
+		@Override
+		public void update(Observable o, Object arg) {
+			tTest.cancelled = true;
+		}
+		
+	}
 	
 	private DSSignificanceResultSet<DSGeneMarker> createDSSignificanceResultSet(
 			DSMicroarraySetView<? extends DSGeneMarker, ? extends DSMicroarray> data,

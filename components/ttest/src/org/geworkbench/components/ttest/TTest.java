@@ -40,6 +40,7 @@ public class TTest {
 	final int numberCombinations;
 
 	boolean isLogNormalized; // only affect folder change
+	volatile boolean cancelled;
 	
 	public TTest(TTestInput input) {
 		rowCount = input.rowCount;
@@ -61,6 +62,7 @@ public class TTest {
 	}
 	
 	public TTestOutput execute() throws TTestException {
+		cancelled = false;
 
 		if (caseArray.length != rowCount || caseArray[0].length != caseCount
 				|| controlArray.length != rowCount
@@ -94,6 +96,7 @@ public class TTest {
 				e.printStackTrace();
 				throw new TTestException(e.getMessage());
 			}
+			if(pValue==null) return null;
 
 			// three different ways to decide significance
 			switch (significanceMethod) {
@@ -167,6 +170,8 @@ public class TTest {
 	private double[] getPValue(double[] tValue) throws IllegalArgumentException, MathException {
 		double[] pValue = new double[rowCount];
 		for (int i = 0; i < rowCount; i++) {
+			if(cancelled) return null;
+			
 			if (byPermutation) {
 				double[] sampleTValue = null;
 				if (useAllCombinations) {
