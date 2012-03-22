@@ -1,14 +1,17 @@
 package org.geworkbench.components.masterregulator;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.Iterator;
 
 import javax.swing.AbstractButton;
@@ -23,9 +26,13 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.border.EtchedBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableColumn;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -35,6 +42,7 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMasterRagulat
 import org.geworkbench.bison.datastructure.complex.panels.CSAnnotPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSAnnotatedPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
+import org.geworkbench.components.masterregulator.TableViewer.DefaultViewerTableModel;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
@@ -66,18 +74,28 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 	TableViewer tv;
 	TableViewer tv2;
 	String[] columnNames = { "Master Regulator", "FET P-Value", "Genes in regulon",
-			"Genes in intersection set" };
+			"Genes in intersection set", "Mode" };
 	// for label with -log10 etc, need to do something so Excel does not interpret it as a formula...
 	// Here use leading space.
 	String[] detailColumnNames = { "Genes in intersection set",
 			" -log10(P-value) * sign of t-value" };
 	DSMasterRagulatorResultSet<DSGeneMarker> MRAResultSet;
-	DetailedTFGraphViewer detailedTFGraphViewer;
 	boolean useSymbol = true;
 
 	private ValueModel tfAHolder = new ValueHolder(" ");
 	JRadioButton currentSelectedRadioButton = null;
+	DSGeneMarker currentSelectedtfA = null;
 	private static final String EXPORTDIR = "exportDir";
+	private static final Color bgcolor = new Color(214,217,223);
+	private static final String defaultnumtop = "10";
+	private static final String defaultbarheight = "30";
+	private JTextField numtop = new JTextField(defaultnumtop); 
+	private JTextField barheight = new JTextField(defaultbarheight);
+	private JScrollPane gspane = new JScrollPane(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+	private JScrollPane gspane2 = new JScrollPane(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+	private JRadioButton modeAll = new JRadioButton("All");
+	private JRadioButton activator = new JRadioButton("Activator(+)");
+	private JRadioButton repressor = new JRadioButton("Repressor(-)");
 
 	public MasterRegulatorViewer() {
 
@@ -87,7 +105,6 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		tv2 = new TableViewer(detailColumnNames, data);
 		tv.setPreferredSize(new Dimension(0, 156));
 		tv2.setPreferredSize(new Dimension(0, 156));
-		detailedTFGraphViewer = new DetailedTFGraphViewer();
 		tv.setNumerical(1, true);
 		tv.setNumerical(2, true);
 		tv.setNumerical(3, true);
@@ -102,9 +119,11 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.LINE_AXIS));
 		topPanel.add(jSplitPane2);
 		viewPanel.add(topPanel);
-		detailedTFGraphViewer.setPreferredSize(new Dimension(0,90));
-		viewPanel.add(detailedTFGraphViewer);
-		jSplitPane2.setDividerLocation(630);
+		viewPanel.add(gspane);
+		viewPanel.add(gspane2);
+		gspane2.getVerticalScrollBar().setUI(new javax.swing.plaf.basic.BasicScrollBarUI());
+		gspane2.setPreferredSize(new Dimension(0, Integer.valueOf(defaultbarheight)/2));
+		jSplitPane2.setDividerLocation(650);
 		jSplitPane2.setDividerSize(3);
 
 		FormLayout layout = new FormLayout("500dlu:grow, pref",
@@ -112,7 +131,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		DefaultFormBuilder builder = new DefaultFormBuilder(layout);
 
 		FormLayout headerLayout = new FormLayout(
-				"60dlu, 6dlu, 60dlu, 30dlu, 90dlu, 6dlu, 80dlu, 20dlu, 80dlu",
+				"60dlu,6dlu,60dlu,20dlu,70dlu,1dlu,20dlu,25dlu,35dlu,2dlu,20dlu,55dlu,70dlu,20dlu,72dlu",
 				"20dlu");
 		DefaultFormBuilder headerBuilder = new DefaultFormBuilder(headerLayout);
 		ActionListener actionListener = new ActionListener() {
@@ -140,6 +159,22 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		headerBuilder.append(showSymbolButton);
 		headerBuilder.append(showProbeSetButton);
 		// end of symbol and probe set
+
+		headerBuilder.append("Display results for top ");
+		headerBuilder.append(numtop);
+		numtop.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				updateGraph();
+			}
+		});
+		
+		headerBuilder.append("Bar height ");
+		headerBuilder.append(barheight);
+		barheight.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				updateGraph();
+			}
+		});
 
 		// export part
 		JButton exportAllButton = new JButton("Export all targets");
@@ -204,14 +239,14 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		JButton addToSetButton = new JButton("Add targets to set");
 		addToSetButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (detailedTFGraphViewer.tfA == null)
+				if (currentSelectedtfA == null)
 					return;
 				DSAnnotatedPanel<DSGeneMarker, Float> panelSignificant = new CSAnnotPanel<DSGeneMarker, Float>(
 						"Target List of "
-								+ detailedTFGraphViewer.tfA.getLabel());
+								+ currentSelectedtfA.getLabel());
 
 				for (DSGeneMarker marker : MRAResultSet
-						.getGenesInTargetList(detailedTFGraphViewer.tfA)) {
+						.getGenesInTargetList(currentSelectedtfA)) {
 					panelSignificant.add(marker, new Float(0));
 				}
 				publishSubpanelChangedEvent(new SubpanelChangedEvent<DSGeneMarker>(
@@ -225,12 +260,34 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		builder.nextLine();
 
 		// build the top-left panel
-		FormLayout summaryTFFormLayout = new FormLayout("pref:grow",
+		FormLayout summaryTFFormLayout = new FormLayout("53dlu,70dlu,25dlu,6dlu,35dlu,6dlu,60dlu,6dlu,60dlu,pref:grow",
 				"20dlu, pref:grow");
 		DefaultFormBuilder summaryTFFormBuilder = new DefaultFormBuilder(
 				summaryTFFormLayout);
+
+		modeAll.setSelected(true);
+		ButtonGroup modeGroup = new ButtonGroup();
+		modeGroup.add(modeAll);
+		modeGroup.add(activator);
+		modeGroup.add(repressor);
+		ActionListener modeListener = new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				updateTable();
+				updateSelectedTF(MRAResultSet, currentSelectedtfA, tv2);
+			}
+		};
+		modeAll.addActionListener(modeListener);
+		activator.addActionListener(modeListener);
+		repressor.addActionListener(modeListener);
+		
+		summaryTFFormBuilder.append(tv.exportButton);
+		summaryTFFormBuilder.append("Mode:");
+		summaryTFFormBuilder.append(modeAll);
+		summaryTFFormBuilder.append(activator);
+		summaryTFFormBuilder.append(repressor);
+
 		summaryTFFormBuilder.nextLine();
-		summaryTFFormBuilder.add(tv, new CellConstraints("1,1,1,2,f,f"));
+		summaryTFFormBuilder.add(tv, new CellConstraints("1,2,10,1,f,f"));
 
 		jSplitPane2.setLeftComponent(new JScrollPane(summaryTFFormBuilder
 				.getPanel(), JScrollPane.VERTICAL_SCROLLBAR_NEVER,
@@ -239,26 +296,22 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		// build the top-right panel
 		FormLayout detailTFFormLayout = new FormLayout(
 				//"80dlu, 6dlu, 120dlu, pref:grow, 60dlu, 6dlu, 60dlu",
-				"60dlu, 6dlu, 80dlu, pref:grow",
+				"60dlu, 6dlu, 80dlu, 0dlu, 53dlu, pref:grow",
 				"20dlu, pref:grow");
 		DefaultFormBuilder detailTFFormBuilder = new DefaultFormBuilder(
 				detailTFFormLayout);
 		detailTFFormBuilder.append("Master Regulator:");
 		JLabel tfALabelField = BasicComponentFactory.createLabel(tfAHolder);
 		detailTFFormBuilder.append(tfALabelField);
+		detailTFFormBuilder.append(tv2.exportButton);
 
 		detailTFFormBuilder.nextLine();
-		detailTFFormBuilder.add(tv2, new CellConstraints("1,2,4,1,f,f"));
+		detailTFFormBuilder.add(tv2, new CellConstraints("1,2,6,1,f,f"));
 
 		jSplitPane2.setRightComponent(new JScrollPane(detailTFFormBuilder
 				.getPanel(), JScrollPane.VERTICAL_SCROLLBAR_NEVER,
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED));
 
-		detailedTFGraphViewer.setPreferredSize(new Dimension(600, 75));
-		detailedTFGraphViewer.setMinimumSize(new Dimension(50, 50));
-		detailedTFGraphViewer.setBorder(BorderFactory
-				.createEtchedBorder(EtchedBorder.LOWERED));
-		// builder.append(new JScrollPane(detailedTFGraphViewer),2);
 		builder.add(viewPanel, new CellConstraints("1,2,f,f"));
 
 		JScrollPane wholeWindowScrollPane = new JScrollPane(builder.getPanel());
@@ -275,15 +328,15 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 			if (selected)
 				currentSelectedRadioButton = jRadioButton; // save current
 															// selected one
+			else return;
 			String GeneMarkerStr = jRadioButton.getName();
 			log.debug(GeneMarkerStr + " selected : " + selected);
 			// fire a TF selected event //but event won't deliver to itself.
 			tv.updateUI();
 			DSGeneMarker tfA = null;
 			tfA = (DSGeneMarker) MRAResultSet.getTFs().get(GeneMarkerStr);
+			currentSelectedtfA = tfA;
 			updateSelectedTF(MRAResultSet, tfA, tv2);
-			detailedTFGraphViewer.setTFA(MRAResultSet, tfA);
-			detailedTFGraphViewer.updateUI();
 		}
 	};
 
@@ -293,19 +346,34 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		DSDataSet dataSet = event.getDataSet();
 		if (dataSet instanceof DSMasterRagulatorResultSet) {
 			MRAResultSet = (DSMasterRagulatorResultSet<DSGeneMarker>) dataSet;
-			currentSelectedRadioButton = null;
 			updateTable();
+			updateSelectedTF(MRAResultSet, currentSelectedtfA, tv2);
 			useSymbol = true;
 		}
 	}
+	
+	private void clearSelection(){
+		currentSelectedRadioButton = null;
+		currentSelectedtfA = null;
+		tfAHolder.setValue(null);
+	}
 
 	private void updateTable() {
-		Object data[][] = new Object[MRAResultSet.getTFs().size()][4];
+		DSItemList<DSGeneMarker> markers = MRAResultSet.getTFs();
+		char selectedtfAmode = MRAResultSet.getMode(currentSelectedtfA);
+		if (activator.isSelected()){
+			markers = MRAResultSet.getActivators();
+			if (selectedtfAmode == DSMasterRagulatorResultSet.REPRESSOR)
+				clearSelection();
+		}else if (repressor.isSelected()){
+			markers = MRAResultSet.getRepressors();
+			if (selectedtfAmode == DSMasterRagulatorResultSet.ACTIVATOR)
+				clearSelection();
+		}
+		Object data[][] = new Object[markers.size()][5];
 		int cx = 0;
 		ButtonGroup group1 = new ButtonGroup();
-		for (Iterator<DSGeneMarker> iterator = MRAResultSet.getTFs().iterator(); iterator
-				.hasNext();) {
-			DSGeneMarker tfA = (DSGeneMarker) iterator.next();
+		for (DSGeneMarker tfA : markers) {
 			JRadioButton tfRadioButton;
 			if ((currentSelectedRadioButton != null)
 					&& (currentSelectedRadioButton.getName().equals(tfA
@@ -326,36 +394,163 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 			data[cx][1] = MRAResultSet.getPValue(tfA);
 			data[cx][2] = MRAResultSet.getGenesInRegulon(tfA).size();
 			data[cx][3] = MRAResultSet.getGenesInTargetList(tfA).size();
+			data[cx][4] = MRAResultSet.getMode(tfA);
 			cx++;
 		}
 		// myTableModel.updateData(data);
 		tv.setTableModel(data);
+		((DefaultViewerTableModel) tv.model).sort(1); //sort by p-values
+		tv.table.getColumnModel().getColumn(4).setMaxWidth(40); // mode width
+
 		tv.updateUI();
+		tv.setMRViewer(this);
+		updateGraph();
 		tv2.setTableModel(new String[0][0]);
  
 		tv2.updateUI();
-		detailedTFGraphViewer.setTFA(null, null);
-		detailedTFGraphViewer.updateUI();
 	}
 
+	void updateGraph(){
+		int n = 0, h = 0;
+		try{
+			n = Integer.valueOf(numtop.getText());
+			h = Integer.valueOf(barheight.getText());
+			int totaltfs = tv.table.getRowCount();
+			if (totaltfs == 0) n = 0;
+			else if (n < 0 || n > totaltfs){
+				numtop.setText(Integer.toString(totaltfs));
+				JOptionPane.showMessageDialog(null, "Display top results number: 0 < n < "+totaltfs, 
+						"Display results for top", JOptionPane.WARNING_MESSAGE);
+				n = totaltfs;
+			}
+			if (h <= 0){
+				barheight.setText(defaultbarheight);
+				JOptionPane.showMessageDialog(null, "Bar height should be a positive integer", 
+						"Bar Height", JOptionPane.WARNING_MESSAGE);
+				h = Integer.valueOf(defaultbarheight);
+			}
+		}catch(NumberFormatException nfe){
+			JOptionPane.showMessageDialog(null, "Please enter an integer.", 
+					"NumberFormatException", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+
+		Object[][] graphdata = new Object[n][3];
+		for (int i = 0; i < n; i++){
+			JRadioButton button = (JRadioButton)tv.getTable().getValueAt(i, 0);
+			graphdata[i][0] = button.getText();
+			DetailedTFGraphViewer gv = new DetailedTFGraphViewer();
+			gv.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
+			gv.setTFA(MRAResultSet, MRAResultSet.getTFs().get(button.getName()));
+			gv.updateUI();
+			graphdata[i][1] = gv;
+			graphdata[i][2] = tv.getTable().getValueAt(i, 4);
+		}
+
+		JTable graphtable = new JTable(graphdata, new String[]{"Master Regulator","Bar Graph","Mode"});
+		graphtable.setRowSelectionAllowed(false);
+		graphtable.setRowHeight(h);
+		int col0w = 120, col2w = 40;
+		int length = gspane.getViewport().getWidth() - col0w - col2w - gspane.getVerticalScrollBar().getWidth();
+		if (length <= 0) length = gspane.getViewport().getWidth();
+		Enumeration<TableColumn> columns = graphtable.getColumnModel().getColumns();
+		while(columns.hasMoreElements()){
+			TableColumn tc = columns.nextElement();
+			switch (tc.getModelIndex()){
+				case 0: tc.setPreferredWidth(col0w); break;
+				case 1: tc.setPreferredWidth(length); 
+						tc.setCellRenderer(new DefaultTableCellRenderer() {
+							private static final long serialVersionUID = 5010765085642920180L;
+							public Component getTableCellRendererComponent(JTable jTable,
+									Object obj, boolean param, boolean param3, int row, int col) {
+								if (obj instanceof DetailedTFGraphViewer){
+									DetailedTFGraphViewer gv = (DetailedTFGraphViewer)obj;
+									return gv;
+								}
+								return this;
+							}
+						}); 
+						break;                                                                                                                        
+				case 2: tc.setPreferredWidth(col2w); break;
+				default: log.error("invalid column in graph table"); break;
+			}
+		}
+
+		int markercnt = 0;
+		if (MRAResultSet != null && n > 0) markercnt = MRAResultSet.getMarkerCount();
+		graphtable.setPreferredScrollableViewportSize(new Dimension(0, 150));
+		gspane.setViewportView(graphtable);
+
+		DetailedTFGraphViewer.GradientPanel gdpane = new DetailedTFGraphViewer().new GradientPanel();
+		gdpane.setParams(markercnt, MRAResultSet.getMinValue(), MRAResultSet.getMaxValue());
+		gdpane.updateUI();
+		
+		Object[][] gradientdata = new Object[1][3];
+		gradientdata[0][0] = "";
+		gradientdata[0][1] = gdpane;
+		gradientdata[0][2] = "";
+
+		JTable gradienttable = new JTable(gradientdata, new String[]{"","",""});
+		gradienttable.setTableHeader(null);
+		gradienttable.setRowHeight(Integer.valueOf(defaultbarheight)/2);
+		columns = gradienttable.getColumnModel().getColumns();
+		while(columns.hasMoreElements()){
+			TableColumn tc = columns.nextElement();
+			switch (tc.getModelIndex()){
+				case 0: tc.setPreferredWidth(col0w); 
+						tc.setCellRenderer(new BlankCellRenderer());
+						break;
+				case 1: tc.setPreferredWidth(length); 
+						tc.setCellRenderer(new DefaultTableCellRenderer() {
+							private static final long serialVersionUID = -2363543603658908463L;
+							public Component getTableCellRendererComponent(JTable jTable,
+									Object obj, boolean param, boolean param3, int row, int col) {
+								if (obj instanceof DetailedTFGraphViewer.GradientPanel){
+									DetailedTFGraphViewer.GradientPanel gd = (DetailedTFGraphViewer.GradientPanel)obj;
+									return gd;
+								}
+								return this;
+							}
+						});
+						break;                                                                                                                        
+				case 2: tc.setPreferredWidth(col2w);
+						tc.setCellRenderer(new BlankCellRenderer());
+						break;
+				default: log.error("invalid column in gradient table"); break;
+			}
+		}
+
+		gspane2.setViewportView(gradienttable);
+		Insets insets = gspane.getBorder().getBorderInsets(null);
+		gspane2.setBorder(BorderFactory.createEmptyBorder(0,insets.left,0,insets.right));
+
+		//gspane2.getVerticalScrollBar().setEnabled(false);
+		//gspane2.getVerticalScrollBar().removeAll();
+	}
+
+	private class BlankCellRenderer extends DefaultTableCellRenderer {
+		private static final long serialVersionUID = 7497061980958072825L;
+		public Component getTableCellRendererComponent(JTable table, Object obj, boolean isSelected, boolean hasFocus, int row, int col) {
+			Component c = super.getTableCellRendererComponent(table, obj, isSelected, hasFocus, row, col);
+			c.setBackground(bgcolor);
+			return c;
+		}
+	}
+	
 	private void showSymbol() {
-		DSGeneMarker currentTFA = detailedTFGraphViewer.tfA;
+		DSGeneMarker currentTFA = currentSelectedtfA;
 		useSymbol = true;
 		updateTable();
 
 		updateSelectedTF(MRAResultSet, currentTFA, tv2);
-		detailedTFGraphViewer.setTFA(MRAResultSet, currentTFA);
-		detailedTFGraphViewer.updateUI();
 	}
 
 	private void showProbeSet() {
-		DSGeneMarker currentTFA = detailedTFGraphViewer.tfA;
+		DSGeneMarker currentTFA = currentSelectedtfA;
 		useSymbol = false;
 		updateTable();
 
 		updateSelectedTF(MRAResultSet, currentTFA, tv2);
-		detailedTFGraphViewer.setTFA(MRAResultSet, currentTFA);
-		detailedTFGraphViewer.updateUI();
 	}
 
 
@@ -374,6 +569,10 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		if (usePValue) {
 			DSItemList<DSGeneMarker> genesInTargetList = mraResultSet
 					.getGenesInTargetList(tfA);
+			if (genesInTargetList == null){
+				clearSelection();
+				return;
+			}
 			records = genesInTargetList.size();
 		} else
 			records = mraResultSet.getGenesInTargetList(tfA).size();

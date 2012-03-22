@@ -28,6 +28,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.zip.GZIPOutputStream;
 
+import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -37,6 +38,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.ListModel;
@@ -70,6 +72,7 @@ import com.jgoodies.binding.adapter.BasicComponentFactory;
 import com.jgoodies.binding.list.ArrayListModel;
 import com.jgoodies.binding.list.SelectionInList;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
 /**
@@ -107,6 +110,12 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 	private JButton loadNetworkButton = new JButton("Load");
 	private JButton loadTFButton = new JButton("Load");
 	private JButton loadSigButton = new JButton("Load");
+	private JRadioButton fet1Button = new JRadioButton("One (enrichment only)");
+	private JRadioButton fet2Button = new JRadioButton("Two (enrichment plus mode of activity)");
+	private ButtonGroup fetGroup = new ButtonGroup();
+	private JRadioButton ncButton = new JRadioButton("No correction");
+	private JRadioButton sbButton = new JRadioButton("Standard Bonferroni");
+	private ButtonGroup correctionGroup = new ButtonGroup();
 	private JComboBox networkFrom = null;
 	private JComboBox tfFrom = null;
 	private JComboBox sigFrom = null;
@@ -122,6 +131,9 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 					+ "masterregulator" + FilePathnameUtils.FILE_SEPARATOR + "lastDir.conf";
 	boolean allpos = true;
 	private int correlationCol = 3;
+	private ArrayList<String> markersets = new ArrayList<String>();
+	private ArrayList<String> ttestnodes = new ArrayList<String>();
+	
 
 	public MasterRegulatorPanel() {
 		networkTextField = new JTextField();
@@ -166,7 +178,7 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		builder.append("Master Regulators");
 		tfFrom = createTFFromComboBox();
 		tfFrom.setSelectedIndex(0); // preselect "From File"
-		tfFrom.setEnabled(false);
+		//tfFrom.setEnabled(false);
 		// JComboBox tfGroups = createGroupsComboBox();
 		builder.append(tfFrom);
 		// tfGroups.setEnabled(false);
@@ -180,22 +192,47 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		builder.append(loadTFButton);
 		builder.nextLine();
 
+		if (sigGeneListTextField == null)
+			sigGeneListTextField = new JTextField();
+
 		builder.append("Signature Markers");
 		sigFrom = createSigFromComboBox();
 		sigFrom.setSelectedIndex(0);
-		sigFrom.setEnabled(false);
+		//sigFrom.setEnabled(false);
 		// preselect "From File"
 		builder.append(sigFrom);
 		// sigGroups.setEnabled(false);
 		builder.append(sigGroups);
 
-		if (sigGeneListTextField == null)
-			sigGeneListTextField = new JTextField();
 		// sifGeneListTextField.setText(TFGeneListDefault);
 		builder.append(sigGeneListTextField);
 		loadSigButton.addActionListener(new LoadMarkerFileListener());
 		builder.append(loadSigButton);
 		builder.nextLine();
+		builder.append("");
+		builder.nextLine();
+
+		builder.append("FET Runs:");
+		builder.append(fet1Button);
+		fet1Button.setSelected(true);
+		builder.append("");
+		builder.append("Multiple Testing Correction:");
+		builder.append(ncButton);
+		ncButton.setSelected(true);
+		builder.nextLine();
+		
+		builder.append("");
+		CellConstraints cc = new CellConstraints();
+		builder.add(fet2Button, cc.xyw(builder.getColumn(), builder.getRow(), 3));
+		fetGroup.add(fet1Button);
+		fetGroup.add(fet2Button);
+		builder.append("");builder.append("");builder.append("");
+		builder.append(sbButton);
+		builder.nextLine();
+
+		builder.append("");builder.append("");builder.append("");builder.append("");
+		correctionGroup.add(ncButton);
+		correctionGroup.add(sbButton);
 
 		jTabbedPane1.addTab("FET (local service)", null, builder.getPanel(), "The paremeters on this tab apply to local FET analysis only.");
 
@@ -266,7 +303,8 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		sigGroups.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent actionEvent) {
 				String selectedLabel = (String) sigGroups.getSelectedItem();
-				if (!StringUtils.isEmpty(selectedLabel))
+				if (!StringUtils.isEmpty(selectedLabel) &&
+						sigFrom.getSelectedIndex() == 0)
 					if (!chooseMarkersFromSet(selectedLabel,
 							sigGeneListTextField)) {
 						sigGroups.setSelectedIndex(0);
@@ -295,6 +333,10 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		pvsynergy.addActionListener(parameterActionListener);
 		resultid.addActionListener(parameterActionListener);
 		priorBox.addActionListener(parameterActionListener);
+		fet1Button.addActionListener(parameterActionListener);
+		fet2Button.addActionListener(parameterActionListener);
+		ncButton.addActionListener(parameterActionListener);
+		sbButton.addActionListener(parameterActionListener);
 
 		TFGeneListTextField.addFocusListener(parameterActionListener);
 		sigGeneListTextField.addFocusListener(parameterActionListener);
@@ -312,6 +354,14 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		resultid.addFocusListener(parameterActionListener);
 	}
 	private ParameterActionListener parameterActionListener;
+
+	public boolean twoFET(){
+		return fet2Button.isSelected();
+	}
+	
+	public boolean standardBonferroni(){
+		return sbButton.isSelected();
+	}
 
 	public class LoadNetworkButtonListener implements
 			java.awt.event.ActionListener {
@@ -471,6 +521,8 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 				if (evt.getNewValue() == "From Sets") {
 					sigGroups.setEnabled(true);
 					loadSigButton.setEnabled(false);
+					sigGeneListTextField.setEnabled(true);
+					refreshSigGroups(markersets);
 					getGroups();
 					// hide fileNameField
 					// clear combo box
@@ -478,10 +530,36 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 				} else if (evt.getNewValue() == "From File") {
 					sigGroups.setEnabled(false);
 					loadSigButton.setEnabled(true);
+					sigGeneListTextField.setEnabled(true);
 					// active load button
 					// show file name loaded
+				} else if (evt.getNewValue() == "From t-test result node"){
+					sigGroups.setEnabled(true);
+					loadSigButton.setEnabled(false);
+					sigGeneListTextField.setEnabled(false);
+					refreshSigGroups(ttestnodes);
 				}
 		}
+	}
+
+	void clearTTestNodes(){
+		ttestnodes.clear();
+		if (sigFrom.getSelectedItem().equals("From t-test result node"))
+			refreshSigGroups(ttestnodes);
+	}
+
+	void addTTestNode(String label){
+		ttestnodes.add(label);
+		if (sigFrom.getSelectedItem().equals("From t-test result node"))
+			refreshSigGroups(ttestnodes);
+	}
+	
+	String getTTestNode(){
+		if (sigFrom.getSelectedItem().equals("From t-test result node")){
+			String label = sigGroups.getSelectedItem().toString().trim();
+			return label.length()>0?label:null;
+		}
+		return null;
 	}
 
 	private JComboBox createNetworkMatrixComboBox() {
@@ -509,6 +587,7 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		ArrayListModel<String> sigFromModel = new ArrayListModel<String>();
 		sigFromModel.add("From Sets");
 		sigFromModel.add("From File");
+		sigFromModel.add("From t-test result node");
 		SigFromListener sigFromListener = new SigFromListener();
 		SelectionInList<String> selectionInList = new SelectionInList<String>(
 				(ListModel) sigFromModel);
@@ -699,6 +778,13 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 			else
 			   setPValue(0.01);
 		}
+		if ((Boolean)parameters.get("twoFET"))
+			fet2Button.setSelected(true);
+		else fet1Button.setSelected(true);
+
+		if ((Boolean)parameters.get("standardBonferroni"))
+			sbButton.setSelected(true);
+		else ncButton.setSelected(true);
 
 		if (parameters.get("mintg") != null)
 			setMintg((Integer)parameters.get("mintg"));
@@ -746,6 +832,8 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 			answer.put("Fisher's Exact P Value", 0.01);
 		else
 			answer.put("Fisher's Exact P Value", getPValue());
+		answer.put("twoFET", twoFET());
+		answer.put("standardBonferroni", standardBonferroni());
 
 		if (mintg.isEnabled())     answer.put("mintg", getMintg());
 		if (minsp.isEnabled())     answer.put("minsp", getMinsp());
@@ -803,14 +891,23 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 			}
 		}
 
-		String currentSigSet = (String) aspp.sigGroups.getSelectedItem();
-		DefaultComboBoxModel sigComboModel = (DefaultComboBoxModel) aspp.sigGroups
+		markersets.clear();
+		for (DSPanel<DSGeneMarker> panel : selectorPanel.panels()) {
+			String label = panel.getLabel().trim();
+			markersets.add(label);
+		}
+		if (sigFrom.getSelectedItem().equals("From Sets"))
+			refreshSigGroups(markersets);
+	}
+
+	private void refreshSigGroups(ArrayList<String> nodes){
+		String currentSigSet = (String) sigGroups.getSelectedItem();//aspp.sigGroups?
+		DefaultComboBoxModel sigComboModel = (DefaultComboBoxModel) sigGroups
 				.getModel();
 		sigComboModel.removeAllElements();
 		sigComboModel.addElement(" ");
 		sigGeneListTextField.setText("");
-		for (DSPanel<DSGeneMarker> panel : selectorPanel.panels()) {
-			String label = panel.getLabel().trim();
+		for (String label : nodes){
 			sigComboModel.addElement(label);
 			if (StringUtils.equals(label, currentSigSet.trim())) {
 				sigComboModel.setSelectedItem(label);
