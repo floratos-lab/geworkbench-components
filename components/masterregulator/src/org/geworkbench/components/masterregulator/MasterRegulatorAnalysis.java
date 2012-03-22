@@ -2,10 +2,14 @@ package org.geworkbench.components.masterregulator;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -16,6 +20,7 @@ import javax.swing.JOptionPane;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.math.stat.correlation.SpearmansCorrelation;
 import org.geworkbench.analysis.AbstractGridAnalysis;
 import org.geworkbench.bison.annotation.CSAnnotationContext; 
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
@@ -28,6 +33,7 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSMasterRegulatorResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMasterRagulatorResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
 import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
@@ -94,7 +100,7 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
 					"Transcription Factor has not been entered yet.", 
 					null);
 		};
-		if (signatureMarkersSTr.equals("")){
+		if (signatureMarkersSTr.equals("") && mraAnalysisPanel.getTTestNode()==null){
 			return new AlgorithmExecutionResults(false,
 					"Signature Marker has not been entered yet.", 
 					null);
@@ -112,18 +118,34 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
 		//t-analysis
 		log.info("Executing T Analysis");
 		Map<DSGeneMarker, Double> values = null;
-		try {
-			TAnalysis tTestAnalysis= new TAnalysis(view);
-			values = tTestAnalysis.calculateDisplayValues();
-		} catch (TAnalysisException e1) {
-			return new AlgorithmExecutionResults(false,
-					e1.getMessage(), 
-					null);
+		String ttestlabel = mraAnalysisPanel.getTTestNode();
+		DSSignificanceResultSet<DSGeneMarker> ttestrst = null;
+		if (ttestlabel != null){
+			if ((ttestrst = ttesthm.get(ttestlabel))!=null){
+				values = new HashMap<DSGeneMarker, Double>();
+				for (int i = 0; i < view.markers().size(); i++) {
+					DSGeneMarker m = view.markers().get(i);
+					double pval = ttestrst.getSignificance(m);
+					double tval = ttestrst.getTValue(m);
+					values.put(m, Math.copySign(-Math.log10( pval ), tval));
+				}
+			}
+		}else{
+			try {
+				TAnalysis tTestAnalysis= new TAnalysis(view);
+				values = tTestAnalysis.calculateDisplayValues();
+			} catch (TAnalysisException e1) {
+				return new AlgorithmExecutionResults(false,
+						e1.getMessage(), 
+						null);
+			}
 		}
 		if (values==null) return new AlgorithmExecutionResults(false,
 				"The set of display values is set null.", 
 				null);
 		mraResultSet.setValues(values);
+		
+		sortByValue(values, mraResultSet);
 	 
 		//get TFs
 		ArrayList<DSGeneMarker> transcriptionFactors=new ArrayList<DSGeneMarker>();
@@ -149,15 +171,34 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
 		
 		//get Signature Markers
 		ArrayList<DSGeneMarker> signatureMarkers=new ArrayList<DSGeneMarker>();
-		StringTokenizer sigSt = new StringTokenizer(signatureMarkersSTr, ", ");
-		while (sigSt.hasMoreTokens()){
-			String markerName = sigSt.nextToken();
-			try{
-				DSGeneMarker marker = maSet.getMarkers().get(markerName);
-				if (marker!=null)
-					signatureMarkers.add(marker);
-			}catch(Exception e){
-				log.info("We can not find marker " + markerName + " in our MicroarraySet.");
+		//genes with positive differential expression(t-value>=0)
+		ArrayList<DSGeneMarker> posDE = new ArrayList<DSGeneMarker>();
+		//genes with negative differential expression(t-value<0)
+		ArrayList<DSGeneMarker> negDE = new ArrayList<DSGeneMarker>();
+		if (ttestrst != null){
+			for (DSGeneMarker marker : ttestrst.getSignificantMarkers()){
+				signatureMarkers.add(marker);
+				if (mraAnalysisPanel.twoFET()){
+					if (mraResultSet.getValue(marker)>=0)	posDE.add(marker);
+					else									negDE.add(marker);
+				}
+			}
+		}else{
+			StringTokenizer sigSt = new StringTokenizer(signatureMarkersSTr, ", ");
+			while (sigSt.hasMoreTokens()){
+				String markerName = sigSt.nextToken();
+				try{
+					DSGeneMarker marker = maSet.getMarkers().get(markerName);
+					if (marker!=null){
+						signatureMarkers.add(marker);
+						if (mraAnalysisPanel.twoFET()){
+							if (mraResultSet.getValue(marker)>=0)	posDE.add(marker);
+							else									negDE.add(marker);
+						}
+					}
+				}catch(Exception e){
+					log.info("We can not find marker " + markerName + " in our MicroarraySet.");
+				}
 			}
 		}
 		log.info("We got "+signatureMarkers.size()+" signature markers");
@@ -171,12 +212,22 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
 		for (DSGeneMarker tfA: transcriptionFactors){
 			//we calculate the set N(A), i.e., all the direct neighbors of A in N (Aracne network) 
 			ArrayList<DSGeneMarker> nA = new ArrayList<DSGeneMarker>();
+			//regulon genes with positive spearman correlation to the TF(sc>=0)
+			ArrayList<DSGeneMarker> posSC = new ArrayList<DSGeneMarker>();
+			//regulon genes with negative spearman correlation to the TF(sc<0)
+			ArrayList<DSGeneMarker> negSC = new ArrayList<DSGeneMarker>();
 			//int geneid = tfA.getSerial();
 			AdjacencyMatrix adjMatrix = amSet.getMatrix();
 			Set<DSGeneMarker> neighbors = adjMatrix.get(tfA);
 			if (neighbors!=null){
 				for (DSGeneMarker neighbor : neighbors){//for each neighbor
 					nA.add(neighbor);
+					if (mraAnalysisPanel.twoFET()){
+						SpearmansCorrelation SC = new SpearmansCorrelation();
+						if (SC.correlation(maSet.getRow(tfA), maSet.getRow(neighbor)) >= 0)
+							posSC.add(neighbor);
+						else negSC.add(neighbor);
+					}
 				}
 			}
 			//now we got z/nA that are also found in M (because transcriptionFactors is a subset of M)
@@ -185,16 +236,26 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
 			//genes in regulon = nA
 
 			//calculate genes in target list, which is intersection of nA and significant genes from t-test  
-			ArrayList<DSGeneMarker> genesInTargetList = new ArrayList<DSGeneMarker>();		 
+			ArrayList<DSGeneMarker> genesInTargetList = new ArrayList<DSGeneMarker>();
+			//a1=(posDE AND posSC) + (negDE AND negSC)
+			ArrayList<DSGeneMarker> a1 = new ArrayList<DSGeneMarker>();
+			//a2=(negDE AND posSC) + (posDE AND negSC)
+			ArrayList<DSGeneMarker> a2 = new ArrayList<DSGeneMarker>();
 			for (DSGeneMarker marker: signatureMarkers){
 				if (nA.contains(marker)){
 					genesInTargetList.add(marker);				 
 					log.debug(tfA.getShortName()+"\t"+ marker.getShortName()+"\tT:"+values.get(marker));
+					if (mraAnalysisPanel.twoFET()){
+						if ((posDE.contains(marker) && posSC.contains(marker)) ||
+								(negDE.contains(marker) && negSC.contains(marker)))
+							a1.add(marker);
+						else a2.add(marker);
+					}
 				}
 			}
 			
 			//now we got w in genesInTargetList
-			int w = genesInTargetList.size();
+			int w = mraAnalysisPanel.twoFET()?a1.size():genesInTargetList.size();
 			
 			//calculate P-value by using Fishe's Exact test
 			int a=w;
@@ -202,9 +263,35 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
 			int c=z-w;
 			int d=x-z-y+w;
 			double pValue = FishersExactTest.getRightSideOneTailedP(a,b,c,d);
-			
-			if ( pValue > mraAnalysisPanel.getPValue())
-				continue;
+			//System.out.println(tfA.getLabel()+"\t"+ pValue +"\ta:"+a+"\tb:"+b+"\tc:"+c+"\td:"+d+"\tGenes in Regulon:"+z+"\tGenes in activated Targetlist:"+w);
+
+			double pValue2 = 1.1;
+			char mode = 0;
+			if (mraAnalysisPanel.twoFET()){
+				w = a2.size();
+				a=w;
+				b=y-w;
+				c=z-w;
+				d=x-z-y+w;
+				pValue2 = FishersExactTest.getRightSideOneTailedP(a,b,c,d);
+
+				//log.debug(tfA.getLabel()+"\t"+ pValue2 +"\ta:"+a+"\tb:"+b+"\tc:"+c+"\td:"+d+"\tGenes in Regulon:"+z+"\tGenes in repressed Targetlist:"+w);
+
+				//show the most significant pValue of the two FET
+				if (pValue <= pValue2){ //activator
+					mode = CSMasterRegulatorResultSet.ACTIVATOR;
+					//log.debug(pValue+" <= "+pValue2+" "+mode);
+				}else {                 //repressor
+					mode = CSMasterRegulatorResultSet.REPRESSOR;
+					//log.debug(pValue+" > "+pValue2+" "+mode);
+					pValue = pValue2;
+				}
+			}
+
+			double threshold = mraAnalysisPanel.getPValue();
+			if (mraAnalysisPanel.standardBonferroni())
+				threshold /= transcriptionFactors.size();
+			if ( pValue > threshold)	continue;
 
 			DSItemList<DSGeneMarker> nAItemList = new CSItemList<DSGeneMarker>();
 			nAItemList.addAll(nA);
@@ -215,8 +302,8 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
 			mraResultSet.setGenesInTargetList(tfA, genesInTargetItemList);
 
 			mraResultSet.setPValue(tfA, pValue);
-			
-			log.debug(tfA.getLabel()+"\t"+ pValue +"\ta:"+a+"\tb:"+b+"\tc:"+c+"\td:"+d+"\tGenes in Regulon:"+z+"\tGenes in Targetlist:"+w);
+			mraResultSet.setMode(tfA, mode);
+			log.debug(tfA.getLabel()+"\t"+mode+" "+pValue);
 		}
 		
 		// generate result
@@ -271,6 +358,30 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
 		AlgorithmExecutionResults results = new AlgorithmExecutionResults(true,
 				"MRA Analysis", mraResultSet);
 		return results;
+	}
+	
+	private void sortByValue(final Map<DSGeneMarker, Double> values,
+			DSMasterRagulatorResultSet<DSGeneMarker> mraResultSet){
+		Map<DSGeneMarker, Integer> gene2rankMap = new HashMap<DSGeneMarker, Integer>();
+		List<DSGeneMarker> genes = new ArrayList<DSGeneMarker>();
+		genes.addAll(values.keySet());
+
+		//sort genes by value
+		Collections.sort(genes, new Comparator<DSGeneMarker>(){
+			public int compare(DSGeneMarker m1, DSGeneMarker m2){
+				return values.get(m1).compareTo(values.get(m2));
+			}
+		});
+		mraResultSet.setMinValue(values.get(genes.get(0)));
+		mraResultSet.setMaxValue(values.get(genes.get(genes.size()-1)));
+
+		//give same ranks to genes with same value
+		for (int i = 0; i < genes.size(); i++){
+			int rank = (i > 0 && values.get(genes.get(i)) == values.get(genes.get(i-1))) ?
+					gene2rankMap.get(genes.get(i-1)) : i;
+			gene2rankMap.put(genes.get(i), rank);
+		}
+		mraResultSet.setRanks(gene2rankMap);
 	}
 
 	public ParamValidationResults validateParameters() {
@@ -331,7 +442,7 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
 					.renameAdjMatrixToCombobox((AdjacencyMatrixDataSet)dataSet, e.getOldName(),e.getNewName());
 		}
 	}
-	@SuppressWarnings({ "rawtypes" })
+	@SuppressWarnings({ "rawtypes","unchecked" })
 	@Subscribe
 	public void receive(org.geworkbench.events.ProjectEvent e, Object source) {
 		if (e.getMessage().equals(org.geworkbench.events.ProjectEvent.SELECTED)){
@@ -352,6 +463,8 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
         
         String currentTargetSet = this.mraAnalysisPanel.getSelectedAdjMatrix();
         this.mraAnalysisPanel.clearAdjMatrixCombobox();
+        this.mraAnalysisPanel.clearTTestNodes();
+        ttesthm.clear();
         Enumeration children = dNode.children();
         while (children.hasMoreElements()) {
             Object obj = children.nextElement();
@@ -362,10 +475,14 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
                     if (currentTargetSet != null && StringUtils.equals(ads.getDataSetName(), currentTargetSet.trim())) {
                     	mraAnalysisPanel.setSelectedAdjMatrix(ads.getDataSetName());
         			}
+                } else if (ads instanceof DSSignificanceResultSet){
+                	mraAnalysisPanel.addTTestNode(ads.getLabel());
+                	ttesthm.put(ads.getLabel(), (DSSignificanceResultSet<DSGeneMarker>)ads);
                 }
             }
         }
 	}
+	private HashMap<String, DSSignificanceResultSet<DSGeneMarker>> ttesthm = new HashMap<String, DSSignificanceResultSet<DSGeneMarker>>();
 	
 	
 	@Publish

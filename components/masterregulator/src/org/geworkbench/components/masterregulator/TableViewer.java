@@ -92,7 +92,6 @@ public class TableViewer extends JPanel {
 		}
 
 		pane = new JScrollPane(table);
-		JButton exportButton = new JButton("Export table");
 		exportButton.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
@@ -102,11 +101,11 @@ public class TableViewer extends JPanel {
 		});
 
 		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
-		add(exportButton);
 		add(pane);
 		this.setAlignmentX(LEFT_ALIGNMENT);
 
 	}
+	JButton exportButton = new JButton("Export table");
 
 	public Expression getExpression() {
 		return new Expression(this, this.getClass(), "new", new Object[] {
@@ -429,9 +428,15 @@ public class TableViewer extends JPanel {
 					int tableCol = header.columnAtPoint(evt.getPoint());
 					int modelCol = table.convertColumnIndexToModel(tableCol);
 					((DefaultViewerTableModel) model).sort(modelCol);
+					if (mrviewer != null)   mrviewer.updateGraph();
 				}
 			}
 		}
+	}
+
+	private MasterRegulatorViewer mrviewer = null;
+	void setMRViewer(MasterRegulatorViewer v){
+		mrviewer = v;
 	}
 
 	private void exportTableData() {
