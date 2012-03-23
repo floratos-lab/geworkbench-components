@@ -32,6 +32,7 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 
 import org.apache.commons.logging.Log;
@@ -93,6 +94,12 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 	private JTextField barheight = new JTextField(defaultbarheight);
 	private JScrollPane gspane = new JScrollPane(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 	private JScrollPane gspane2 = new JScrollPane(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+	private static final int col0w = 120, col2w = 40;
+	private static final String[] graphheader = new String[]{"Master Regulator","Bar Graph","Mode"};
+	private DefaultTableModel bgm = new DefaultTableModel(new Object[0][3], graphheader);
+	private JTable graphtable = new JTable(bgm);
+	private DefaultTableModel gdm = new DefaultTableModel(new Object[0][3], graphheader);
+	private JTable gradienttable = new JTable(gdm);
 	private JRadioButton modeAll = new JRadioButton("All");
 	private JRadioButton activator = new JRadioButton("Activator(+)");
 	private JRadioButton repressor = new JRadioButton("Repressor(-)");
@@ -119,10 +126,9 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.LINE_AXIS));
 		topPanel.add(jSplitPane2);
 		viewPanel.add(topPanel);
+		initGraphTables();
 		viewPanel.add(gspane);
 		viewPanel.add(gspane2);
-		gspane2.getVerticalScrollBar().setUI(new javax.swing.plaf.basic.BasicScrollBarUI());
-		gspane2.setPreferredSize(new Dimension(0, Integer.valueOf(defaultbarheight)/2));
 		jSplitPane2.setDividerLocation(650);
 		jSplitPane2.setDividerSize(3);
 
@@ -447,19 +453,36 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 			graphdata[i][2] = tv.getTable().getValueAt(i, 4);
 		}
 
-		JTable graphtable = new JTable(graphdata, new String[]{"Master Regulator","Bar Graph","Mode"});
-		graphtable.setRowSelectionAllowed(false);
+		bgm.setDataVector(graphdata, graphheader);
 		graphtable.setRowHeight(h);
-		int col0w = 120, col2w = 40;
 		int length = gspane.getViewport().getWidth() - col0w - col2w - gspane.getVerticalScrollBar().getWidth();
 		if (length <= 0) length = gspane.getViewport().getWidth();
+		graphtable.getColumnModel().getColumn(1).setPreferredWidth(length); 
+
+		int markercnt = 0;
+		if (MRAResultSet != null && n > 0) markercnt = MRAResultSet.getMarkerCount();
+		DetailedTFGraphViewer.GradientPanel gdpane = new DetailedTFGraphViewer().new GradientPanel();
+		gdpane.setParams(markercnt, MRAResultSet.getMinValue(), MRAResultSet.getMaxValue());
+		gdpane.updateUI();
+		
+		Object[][] gradientdata = new Object[1][3];
+		gradientdata[0][0] = "";
+		gradientdata[0][1] = gdpane;
+		gradientdata[0][2] = "";
+
+		gdm.setDataVector(gradientdata, graphheader);
+		gradienttable.getColumnModel().getColumn(1).setPreferredWidth(length); 
+	}
+	
+	private void initGraphTables(){
+		//init bar graph table
+		graphtable.setRowSelectionAllowed(false);
 		Enumeration<TableColumn> columns = graphtable.getColumnModel().getColumns();
 		while(columns.hasMoreElements()){
 			TableColumn tc = columns.nextElement();
 			switch (tc.getModelIndex()){
 				case 0: tc.setPreferredWidth(col0w); break;
-				case 1: tc.setPreferredWidth(length); 
-						tc.setCellRenderer(new DefaultTableCellRenderer() {
+				case 1: tc.setCellRenderer(new DefaultTableCellRenderer() {
 							private static final long serialVersionUID = 5010765085642920180L;
 							public Component getTableCellRendererComponent(JTable jTable,
 									Object obj, boolean param, boolean param3, int row, int col) {
@@ -476,21 +499,11 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 			}
 		}
 
-		int markercnt = 0;
-		if (MRAResultSet != null && n > 0) markercnt = MRAResultSet.getMarkerCount();
+		graphtable.setAutoCreateColumnsFromModel(false);
 		graphtable.setPreferredScrollableViewportSize(new Dimension(0, 150));
 		gspane.setViewportView(graphtable);
 
-		DetailedTFGraphViewer.GradientPanel gdpane = new DetailedTFGraphViewer().new GradientPanel();
-		gdpane.setParams(markercnt, MRAResultSet.getMinValue(), MRAResultSet.getMaxValue());
-		gdpane.updateUI();
-		
-		Object[][] gradientdata = new Object[1][3];
-		gradientdata[0][0] = "";
-		gradientdata[0][1] = gdpane;
-		gradientdata[0][2] = "";
-
-		JTable gradienttable = new JTable(gradientdata, new String[]{"","",""});
+		//init gradient table
 		gradienttable.setTableHeader(null);
 		gradienttable.setRowHeight(Integer.valueOf(defaultbarheight)/2);
 		columns = gradienttable.getColumnModel().getColumns();
@@ -500,8 +513,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 				case 0: tc.setPreferredWidth(col0w); 
 						tc.setCellRenderer(new BlankCellRenderer());
 						break;
-				case 1: tc.setPreferredWidth(length); 
-						tc.setCellRenderer(new DefaultTableCellRenderer() {
+				case 1: tc.setCellRenderer(new DefaultTableCellRenderer() {
 							private static final long serialVersionUID = -2363543603658908463L;
 							public Component getTableCellRendererComponent(JTable jTable,
 									Object obj, boolean param, boolean param3, int row, int col) {
@@ -523,7 +535,9 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		gspane2.setViewportView(gradienttable);
 		Insets insets = gspane.getBorder().getBorderInsets(null);
 		gspane2.setBorder(BorderFactory.createEmptyBorder(0,insets.left,0,insets.right));
-
+		gspane2.getVerticalScrollBar().setUI(new javax.swing.plaf.basic.BasicScrollBarUI());
+		gspane2.setPreferredSize(new Dimension(0, Integer.valueOf(defaultbarheight)/2));
+		gradienttable.setAutoCreateColumnsFromModel(false);
 		//gspane2.getVerticalScrollBar().setEnabled(false);
 		//gspane2.getVerticalScrollBar().removeAll();
 	}
