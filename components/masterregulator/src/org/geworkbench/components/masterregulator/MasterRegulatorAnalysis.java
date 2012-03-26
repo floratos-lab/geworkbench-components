@@ -2,7 +2,6 @@ package org.geworkbench.components.masterregulator;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
@@ -52,6 +51,9 @@ import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.util.FishersExactTest;
+import org.geworkbench.util.ProgressDialog;
+import org.geworkbench.util.ProgressItem;
+import org.geworkbench.util.ProgressTask;
 
 /**
  * @author yc2480
@@ -65,299 +67,359 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
 	private final String analysisName = "MRA";
     private static final Pattern pattern = Pattern.compile("^mra\\d+$");
 	private MasterRegulatorPanel mraAnalysisPanel = new MasterRegulatorPanel();
+	private ProgressDialog pd = ProgressDialog.create(ProgressDialog.NONMODAL_TYPE);
+	private class ResultWrapper{
+		AlgorithmExecutionResults rst = null;
+		private void setResult(AlgorithmExecutionResults rst){
+			this.rst = rst;
+		}
+		private AlgorithmExecutionResults getResult(){
+			return this.rst;
+		}
+	}
 
 	public MasterRegulatorAnalysis() {
 		setDefaultPanel(mraAnalysisPanel);
 	}
 
-	@SuppressWarnings("unchecked")
 	public AlgorithmExecutionResults execute(Object input) {
-		// read input data, dataset view, dataset, etc.
-		if (!(input instanceof DSMicroarraySetView)){
-			return new AlgorithmExecutionResults(false,
-					"Input dataset for MRA analysis should be a MicroarraySet.\n"+
-					"But you selected a "+input.getClass().getName(), null);
-		};
-		if (mraAnalysisPanel.getResultid() != null)
-			return new AlgorithmExecutionResults(false,
-					"Retrieving prior result is not supported by local MRA.", null);
-		if (mraAnalysisPanel.use5colnetwork()){
-			return new AlgorithmExecutionResults(false,
-					"Local MRA does not use network in "+mraAnalysisPanel.marina5colformat, null);
-		}
-		DSMicroarraySetView<DSGeneMarker, DSMicroarray> view = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
-		DSMicroarraySet maSet = view.getMicroarraySet();
-		AdjacencyMatrixDataSet amSet = mraAnalysisPanel.getAdjMatrixDataSet();
-		if (amSet==null || amSet.getMatrix()==null){
-			return new AlgorithmExecutionResults(false,
-					"Network (Adjacency Matrix) has not been loaded yet.", null);
-		};		
-
-		String transcriptionFactorsStr = mraAnalysisPanel.getTranscriptionFactor();
-		String signatureMarkersSTr = mraAnalysisPanel.getSigMarkers();
-		if (transcriptionFactorsStr.equals("")){
-			return new AlgorithmExecutionResults(false,
-					"Transcription Factor has not been entered yet.", 
-					null);
-		};
-		if (signatureMarkersSTr.equals("") && mraAnalysisPanel.getTTestNode()==null){
-			return new AlgorithmExecutionResults(false,
-					"Signature Marker has not been entered yet.", 
-					null);
-		};
-		 
-		// validate data and parameters.
-		ParamValidationResults validation = validateParameters();
-		if (!validation.isValid()) {
-			return new AlgorithmExecutionResults(false,
-					validation.getMessage(), null);
-		}
-		// analysis
-		DSMasterRagulatorResultSet<DSGeneMarker> mraResultSet = new CSMasterRegulatorResultSet<DSGeneMarker>(
-				maSet, analysisName, view.markers().size());		
-		//t-analysis
-		log.info("Executing T Analysis");
-		Map<DSGeneMarker, Double> values = null;
-		String ttestlabel = mraAnalysisPanel.getTTestNode();
-		DSSignificanceResultSet<DSGeneMarker> ttestrst = null;
-		if (ttestlabel != null){
-			if ((ttestrst = ttesthm.get(ttestlabel))!=null){
-				values = new HashMap<DSGeneMarker, Double>();
-				for (int i = 0; i < view.markers().size(); i++) {
-					DSGeneMarker m = view.markers().get(i);
-					double pval = ttestrst.getSignificance(m);
-					double tval = ttestrst.getTValue(m);
-					values.put(m, Math.copySign(-Math.log10( pval ), tval));
-				}
-			}
-		}else{
-			try {
-				TAnalysis tTestAnalysis= new TAnalysis(view);
-				values = tTestAnalysis.calculateDisplayValues();
-			} catch (TAnalysisException e1) {
-				return new AlgorithmExecutionResults(false,
-						e1.getMessage(), 
-						null);
-			}
-		}
-		if (values==null) return new AlgorithmExecutionResults(false,
-				"The set of display values is set null.", 
-				null);
-		mraResultSet.setValues(values);
-		
-		sortByValue(values, mraResultSet);
-	 
-		//get TFs
-		ArrayList<DSGeneMarker> transcriptionFactors=new ArrayList<DSGeneMarker>();
-		StringTokenizer tfSt = new StringTokenizer(transcriptionFactorsStr, ", ");
-		while (tfSt.hasMoreTokens()){
-			String markerName = tfSt.nextToken();
+		ResultWrapper rw = new ResultWrapper();
+		MRATask task = new MRATask(ProgressItem.BOUNDED_TYPE, "Executing Master Regulator Analysis: started", input, rw);
+		pd.executeTask(task);
+		while(rw.getResult() == null){
 			try{
-				DSGeneMarker marker = maSet.getMarkers().get(markerName);
-				if (marker!=null)
-					transcriptionFactors.add(marker);
+				Thread.sleep(1000);
 			}catch(Exception e){
-				log.info("We can not find marker " + markerName + " in our MicroarraySet.");
+				e.printStackTrace();
 			}
 		}
-		log.info("We got "+transcriptionFactors.size()+" transcription factors");
-		
-		if (transcriptionFactors.size()==0){
-			return new AlgorithmExecutionResults(false,
-					"Sorry, but in the Microarray Set, I can not find the Transcription Factors you entered.", 
-					null);
+		return rw.getResult();
+	}
+
+	private class MRATask extends ProgressTask<AlgorithmExecutionResults, String>{
+		Object input;
+		ResultWrapper rw = null;
+		MRATask(int pbtype, String message, Object input, ResultWrapper rw){
+    		super(pbtype, message);
+			this.input = input;
+			this.rw = rw;
 		}
-		
-		
-		//get Signature Markers
-		ArrayList<DSGeneMarker> signatureMarkers=new ArrayList<DSGeneMarker>();
-		//genes with positive differential expression(t-value>=0)
-		ArrayList<DSGeneMarker> posDE = new ArrayList<DSGeneMarker>();
-		//genes with negative differential expression(t-value<0)
-		ArrayList<DSGeneMarker> negDE = new ArrayList<DSGeneMarker>();
-		if (ttestrst != null){
-			for (DSGeneMarker marker : ttestrst.getSignificantMarkers()){
-				signatureMarkers.add(marker);
-				if (mraAnalysisPanel.twoFET()){
-					if (mraResultSet.getValue(marker)>=0)	posDE.add(marker);
-					else									negDE.add(marker);
+
+		@Override
+    	protected void done(){
+	   		pd.removeTask(this);
+    		if (isCancelled()) return;
+    		try{
+    			AlgorithmExecutionResults rst = get();
+    			rw.setResult(rst);
+    		}catch(Exception e){
+    			e.printStackTrace();
+    		}
+	   	}
+
+		@Override
+	   	protected void process(List<String> chunks){
+	   		for (String message : chunks){
+	   			if (isCancelled()) return;
+	   			pb.setMessage(message);
+	   		}
+	   	}
+
+		@Override
+		@SuppressWarnings("unchecked")
+		protected AlgorithmExecutionResults doInBackground() throws Exception {
+			// read input data, dataset view, dataset, etc.
+			if (!(input instanceof DSMicroarraySetView)){
+				return new AlgorithmExecutionResults(false,
+						"Input dataset for MRA analysis should be a MicroarraySet.\n"+
+						"But you selected a "+input.getClass().getName(), null);
+			};
+			if (mraAnalysisPanel.getResultid() != null)
+				return new AlgorithmExecutionResults(false,
+						"Retrieving prior result is not supported by local MRA.", null);
+			if (mraAnalysisPanel.use5colnetwork()){
+				return new AlgorithmExecutionResults(false,
+						"Local MRA does not use network in "+mraAnalysisPanel.marina5colformat, null);
+			}
+			DSMicroarraySetView<DSGeneMarker, DSMicroarray> view = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
+			DSMicroarraySet maSet = view.getMicroarraySet();
+			AdjacencyMatrixDataSet amSet = mraAnalysisPanel.getAdjMatrixDataSet();
+			if (amSet==null || amSet.getMatrix()==null){
+				return new AlgorithmExecutionResults(false,
+						"Network (Adjacency Matrix) has not been loaded yet.", null);
+			};		
+	
+			String transcriptionFactorsStr = mraAnalysisPanel.getTranscriptionFactor();
+			String signatureMarkersSTr = mraAnalysisPanel.getSigMarkers();
+			if (transcriptionFactorsStr.equals("")){
+				return new AlgorithmExecutionResults(false,
+						"Transcription Factor has not been entered yet.", 
+						null);
+			};
+			if (signatureMarkersSTr.equals("") && mraAnalysisPanel.getTTestNode()==null){
+				return new AlgorithmExecutionResults(false,
+						"Signature Marker has not been entered yet.", 
+						null);
+			};
+			 
+			// validate data and parameters.
+			ParamValidationResults validation = validateParameters();
+			if (!validation.isValid()) {
+				return new AlgorithmExecutionResults(false,
+						validation.getMessage(), null);
+			}
+			if(isCancelled()) return null;
+			// analysis
+			DSMasterRagulatorResultSet<DSGeneMarker> mraResultSet = new CSMasterRegulatorResultSet<DSGeneMarker>(
+					maSet, analysisName, view.markers().size());		
+			//t-analysis
+			log.info("Executing T Analysis");
+			Map<DSGeneMarker, Double> values = null;
+			String ttestlabel = mraAnalysisPanel.getTTestNode();
+			DSSignificanceResultSet<DSGeneMarker> ttestrst = null;
+			if (ttestlabel != null){
+				if ((ttestrst = ttesthm.get(ttestlabel))!=null){
+					values = new HashMap<DSGeneMarker, Double>();
+					for (int i = 0; i < view.markers().size(); i++) {
+						DSGeneMarker m = view.markers().get(i);
+						double pval = ttestrst.getSignificance(m);
+						double tval = ttestrst.getTValue(m);
+						values.put(m, Math.copySign(-Math.log10( pval ), tval));
+					}
+				}
+			}else{
+				try {
+					TAnalysis tTestAnalysis= new TAnalysis(view);
+					values = tTestAnalysis.calculateDisplayValues();
+				} catch (TAnalysisException e1) {
+					return new AlgorithmExecutionResults(false,
+							e1.getMessage(), 
+							null);
 				}
 			}
-		}else{
-			StringTokenizer sigSt = new StringTokenizer(signatureMarkersSTr, ", ");
-			while (sigSt.hasMoreTokens()){
-				String markerName = sigSt.nextToken();
+			if (values==null) return new AlgorithmExecutionResults(false,
+					"The set of display values is set null.", 
+					null);
+			mraResultSet.setValues(values);
+			
+			sortByValue(values, mraResultSet);
+		 
+			//get TFs
+			ArrayList<DSGeneMarker> transcriptionFactors=new ArrayList<DSGeneMarker>();
+			StringTokenizer tfSt = new StringTokenizer(transcriptionFactorsStr, ", ");
+			while (tfSt.hasMoreTokens()){
+				String markerName = tfSt.nextToken();
 				try{
 					DSGeneMarker marker = maSet.getMarkers().get(markerName);
-					if (marker!=null){
-						signatureMarkers.add(marker);
-						if (mraAnalysisPanel.twoFET()){
-							if (mraResultSet.getValue(marker)>=0)	posDE.add(marker);
-							else									negDE.add(marker);
-						}
-					}
+					if (marker!=null)
+						transcriptionFactors.add(marker);
 				}catch(Exception e){
 					log.info("We can not find marker " + markerName + " in our MicroarraySet.");
 				}
 			}
-		}
-		log.info("We got "+signatureMarkers.size()+" signature markers");
-
-		//y = size of significantMarkers		 
-		int y = signatureMarkers.size();
-		//x = size of markers
-		int x = maSet.getMarkers().size();
-		
-		//for each TF A 
-		for (DSGeneMarker tfA: transcriptionFactors){
-			//we calculate the set N(A), i.e., all the direct neighbors of A in N (Aracne network) 
-			ArrayList<DSGeneMarker> nA = new ArrayList<DSGeneMarker>();
-			//regulon genes with positive spearman correlation to the TF(sc>=0)
-			ArrayList<DSGeneMarker> posSC = new ArrayList<DSGeneMarker>();
-			//regulon genes with negative spearman correlation to the TF(sc<0)
-			ArrayList<DSGeneMarker> negSC = new ArrayList<DSGeneMarker>();
-			//int geneid = tfA.getSerial();
-			AdjacencyMatrix adjMatrix = amSet.getMatrix();
-			Set<DSGeneMarker> neighbors = adjMatrix.get(tfA);
-			if (neighbors!=null){
-				for (DSGeneMarker neighbor : neighbors){//for each neighbor
-					nA.add(neighbor);
+			log.info("We got "+transcriptionFactors.size()+" transcription factors");
+			
+			if (transcriptionFactors.size()==0){
+				return new AlgorithmExecutionResults(false,
+						"Sorry, but in the Microarray Set, I can not find the Transcription Factors you entered.", 
+						null);
+			}
+			
+			
+			//get Signature Markers
+			ArrayList<DSGeneMarker> signatureMarkers=new ArrayList<DSGeneMarker>();
+			//genes with positive differential expression(t-value>=0)
+			ArrayList<DSGeneMarker> posDE = new ArrayList<DSGeneMarker>();
+			//genes with negative differential expression(t-value<0)
+			ArrayList<DSGeneMarker> negDE = new ArrayList<DSGeneMarker>();
+			if (ttestrst != null){
+				for (DSGeneMarker marker : ttestrst.getSignificantMarkers()){
+					signatureMarkers.add(marker);
 					if (mraAnalysisPanel.twoFET()){
-						SpearmansCorrelation SC = new SpearmansCorrelation();
-						if (SC.correlation(maSet.getRow(tfA), maSet.getRow(neighbor)) >= 0)
-							posSC.add(neighbor);
-						else negSC.add(neighbor);
+						if (mraResultSet.getValue(marker)>=0)	posDE.add(marker);
+						else									negDE.add(marker);
+					}
+				}
+			}else{
+				StringTokenizer sigSt = new StringTokenizer(signatureMarkersSTr, ", ");
+				while (sigSt.hasMoreTokens()){
+					String markerName = sigSt.nextToken();
+					try{
+						DSGeneMarker marker = maSet.getMarkers().get(markerName);
+						if (marker!=null){
+							signatureMarkers.add(marker);
+							if (mraAnalysisPanel.twoFET()){
+								if (mraResultSet.getValue(marker)>=0)	posDE.add(marker);
+								else									negDE.add(marker);
+							}
+						}
+					}catch(Exception e){
+						log.info("We can not find marker " + markerName + " in our MicroarraySet.");
 					}
 				}
 			}
-			//now we got z/nA that are also found in M (because transcriptionFactors is a subset of M)
-			int z = nA.size();
-			
-			//genes in regulon = nA
-
-			//calculate genes in target list, which is intersection of nA and significant genes from t-test  
-			ArrayList<DSGeneMarker> genesInTargetList = new ArrayList<DSGeneMarker>();
-			//a1=(posDE AND posSC) + (negDE AND negSC)
-			ArrayList<DSGeneMarker> a1 = new ArrayList<DSGeneMarker>();
-			//a2=(negDE AND posSC) + (posDE AND negSC)
-			ArrayList<DSGeneMarker> a2 = new ArrayList<DSGeneMarker>();
-			for (DSGeneMarker marker: signatureMarkers){
-				if (nA.contains(marker)){
-					genesInTargetList.add(marker);				 
-					log.debug(tfA.getShortName()+"\t"+ marker.getShortName()+"\tT:"+values.get(marker));
-					if (mraAnalysisPanel.twoFET()){
-						if ((posDE.contains(marker) && posSC.contains(marker)) ||
-								(negDE.contains(marker) && negSC.contains(marker)))
-							a1.add(marker);
-						else a2.add(marker);
-					}
-				}
-			}
-			
-			//now we got w in genesInTargetList
-			int w = mraAnalysisPanel.twoFET()?a1.size():genesInTargetList.size();
-			
-			//calculate P-value by using Fishe's Exact test
-			int a=w;
-			int b=y-w;
-			int c=z-w;
-			int d=x-z-y+w;
-			double pValue = FishersExactTest.getRightSideOneTailedP(a,b,c,d);
-			//System.out.println(tfA.getLabel()+"\t"+ pValue +"\ta:"+a+"\tb:"+b+"\tc:"+c+"\td:"+d+"\tGenes in Regulon:"+z+"\tGenes in activated Targetlist:"+w);
-
-			double pValue2 = 1.1;
-			char mode = 0;
-			if (mraAnalysisPanel.twoFET()){
-				w = a2.size();
-				a=w;
-				b=y-w;
-				c=z-w;
-				d=x-z-y+w;
-				pValue2 = FishersExactTest.getRightSideOneTailedP(a,b,c,d);
-
-				//log.debug(tfA.getLabel()+"\t"+ pValue2 +"\ta:"+a+"\tb:"+b+"\tc:"+c+"\td:"+d+"\tGenes in Regulon:"+z+"\tGenes in repressed Targetlist:"+w);
-
-				//show the most significant pValue of the two FET
-				if (pValue <= pValue2){ //activator
-					mode = CSMasterRegulatorResultSet.ACTIVATOR;
-					//log.debug(pValue+" <= "+pValue2+" "+mode);
-				}else {                 //repressor
-					mode = CSMasterRegulatorResultSet.REPRESSOR;
-					//log.debug(pValue+" > "+pValue2+" "+mode);
-					pValue = pValue2;
-				}
-			}
-
-			double threshold = mraAnalysisPanel.getPValue();
-			if (mraAnalysisPanel.standardBonferroni())
-				threshold /= transcriptionFactors.size();
-			if ( pValue > threshold)	continue;
-
-			DSItemList<DSGeneMarker> nAItemList = new CSItemList<DSGeneMarker>();
-			nAItemList.addAll(nA);
-			mraResultSet.setGenesInRegulon(tfA, nAItemList);
-			
-			DSItemList<DSGeneMarker> genesInTargetItemList = new CSItemList<DSGeneMarker>();
-			genesInTargetItemList.addAll(genesInTargetList);
-			mraResultSet.setGenesInTargetList(tfA, genesInTargetItemList);
-
-			mraResultSet.setPValue(tfA, pValue);
-			mraResultSet.setMode(tfA, mode);
-			log.debug(tfA.getLabel()+"\t"+mode+" "+pValue);
-		}
-		
-		// generate result
-		String historyStr = generateHistoryString(view);
-
-		/*String groupAndChipsString = "Groups analyzed:\n";
-		{//generate group information
-			DSAnnotationContextManager manager = CSAnnotationContextManager
-			.getInstance();
-	DSAnnotationContext<DSMicroarray> context = manager
-			.getCurrentContext(maSet);
-			String[][] labels = new String[2][];
-			labels[0] = context
-					.getLabelsForClass(CSAnnotationContext.CLASS_CASE);
-			labels[1] = context
-					.getLabelsForClass(CSAnnotationContext.CLASS_CONTROL);
-			HashSet<String>[] classSets = new HashSet[2];
-			for (int j = 0; j < 2; j++) {
-				String[] classLabels = labels[j];
-				classSets[j] = new HashSet<String>();
+			log.info("We got "+signatureMarkers.size()+" signature markers");
 	
-				if (j == 0)
-					groupAndChipsString += "\t case group(s): \n";
-				else
-					groupAndChipsString += "\t control group(s): \n";
+			//y = size of significantMarkers		 
+			int y = signatureMarkers.size();
+			//x = size of markers
+			int x = maSet.getMarkers().size();
+			
+			//for each TF A 
+			int i = 0;
+			for (DSGeneMarker tfA: transcriptionFactors){
+				i++;
+				publish("Executing Master Regulator Analysis: "+100*i/transcriptionFactors.size()+"%");
+				setProgress(100*i/transcriptionFactors.size());
+				//we calculate the set N(A), i.e., all the direct neighbors of A in N (Aracne network) 
+				ArrayList<DSGeneMarker> nA = new ArrayList<DSGeneMarker>();
+				//regulon genes with positive spearman correlation to the TF(sc>=0)
+				ArrayList<DSGeneMarker> posSC = new ArrayList<DSGeneMarker>();
+				//regulon genes with negative spearman correlation to the TF(sc<0)
+				ArrayList<DSGeneMarker> negSC = new ArrayList<DSGeneMarker>();
+				//int geneid = tfA.getSerial();
+				AdjacencyMatrix adjMatrix = amSet.getMatrix();
+				Set<DSGeneMarker> neighbors = adjMatrix.get(tfA);
+				if (neighbors!=null){
+					for (DSGeneMarker neighbor : neighbors){//for each neighbor
+						nA.add(neighbor);
+						if (mraAnalysisPanel.twoFET()){
+							SpearmansCorrelation SC = new SpearmansCorrelation();
+							if (SC.correlation(maSet.getRow(tfA), maSet.getRow(neighbor)) >= 0)
+								posSC.add(neighbor);
+							else negSC.add(neighbor);
+						}
+					}
+				}
+				//now we got z/nA that are also found in M (because transcriptionFactors is a subset of M)
+				int z = nA.size();
+				
+				//genes in regulon = nA
 	
-				for (int i = 0; i < classLabels.length; i++) {
-					String label = classLabels[i];
-					if (context.isLabelActive(label) || !view.useItemPanel()) {
-						// if (context.isLabelActive(label)) {
-						classSets[j].add(label);
-						groupAndChipsString += GenerateGroupAndChipsString(context
-								.getItemsWithLabel(label));
+				//calculate genes in target list, which is intersection of nA and significant genes from t-test  
+				ArrayList<DSGeneMarker> genesInTargetList = new ArrayList<DSGeneMarker>();
+				//a1=(posDE AND posSC) + (negDE AND negSC)
+				ArrayList<DSGeneMarker> a1 = new ArrayList<DSGeneMarker>();
+				//a2=(negDE AND posSC) + (posDE AND negSC)
+				ArrayList<DSGeneMarker> a2 = new ArrayList<DSGeneMarker>();
+				for (DSGeneMarker marker: signatureMarkers){
+					if (nA.contains(marker)){
+						genesInTargetList.add(marker);				 
+						log.debug(tfA.getShortName()+"\t"+ marker.getShortName()+"\tT:"+values.get(marker));
+						if (mraAnalysisPanel.twoFET()){
+							if ((posDE.contains(marker) && posSC.contains(marker)) ||
+									(negDE.contains(marker) && negSC.contains(marker)))
+								a1.add(marker);
+							else a2.add(marker);
+						}
+					}
+				}
+				
+				//now we got w in genesInTargetList
+				int w = mraAnalysisPanel.twoFET()?a1.size():genesInTargetList.size();
+				
+				//calculate P-value by using Fishe's Exact test
+				int a=w;
+				int b=y-w;
+				int c=z-w;
+				int d=x-z-y+w;
+				double pValue = FishersExactTest.getRightSideOneTailedP(a,b,c,d);
+				//System.out.println(tfA.getLabel()+"\t"+ pValue +"\ta:"+a+"\tb:"+b+"\tc:"+c+"\td:"+d+"\tGenes in Regulon:"+z+"\tGenes in activated Targetlist:"+w);
+	
+				double pValue2 = 1.1;
+				char mode = 0;
+				if (mraAnalysisPanel.twoFET()){
+					w = a2.size();
+					a=w;
+					b=y-w;
+					c=z-w;
+					d=x-z-y+w;
+					pValue2 = FishersExactTest.getRightSideOneTailedP(a,b,c,d);
+	
+					//log.debug(tfA.getLabel()+"\t"+ pValue2 +"\ta:"+a+"\tb:"+b+"\tc:"+c+"\td:"+d+"\tGenes in Regulon:"+z+"\tGenes in repressed Targetlist:"+w);
+	
+					//show the most significant pValue of the two FET
+					if (pValue <= pValue2){ //activator
+						mode = CSMasterRegulatorResultSet.ACTIVATOR;
+						//log.debug(pValue+" <= "+pValue2+" "+mode);
+					}else {                 //repressor
+						mode = CSMasterRegulatorResultSet.REPRESSOR;
+						//log.debug(pValue+" > "+pValue2+" "+mode);
+						pValue = pValue2;
+					}
+				}
+	
+				double threshold = mraAnalysisPanel.getPValue();
+				if (mraAnalysisPanel.standardBonferroni())
+					threshold /= transcriptionFactors.size();
+				if ( pValue > threshold)	continue;
+	
+				DSItemList<DSGeneMarker> nAItemList = new CSItemList<DSGeneMarker>();
+				nAItemList.addAll(nA);
+				mraResultSet.setGenesInRegulon(tfA, nAItemList);
+				
+				DSItemList<DSGeneMarker> genesInTargetItemList = new CSItemList<DSGeneMarker>();
+				genesInTargetItemList.addAll(genesInTargetList);
+				mraResultSet.setGenesInTargetList(tfA, genesInTargetItemList);
+	
+				mraResultSet.setPValue(tfA, pValue);
+				mraResultSet.setMode(tfA, mode);
+				log.debug(tfA.getLabel()+"\t"+mode+" "+pValue);
+			}
+			
+			// generate result
+			String historyStr = generateHistoryString(view);
+	
+			/*String groupAndChipsString = "Groups analyzed:\n";
+			{//generate group information
+				DSAnnotationContextManager manager = CSAnnotationContextManager
+				.getInstance();
+		DSAnnotationContext<DSMicroarray> context = manager
+				.getCurrentContext(maSet);
+				String[][] labels = new String[2][];
+				labels[0] = context
+						.getLabelsForClass(CSAnnotationContext.CLASS_CASE);
+				labels[1] = context
+						.getLabelsForClass(CSAnnotationContext.CLASS_CONTROL);
+				HashSet<String>[] classSets = new HashSet[2];
+				for (int j = 0; j < 2; j++) {
+					String[] classLabels = labels[j];
+					classSets[j] = new HashSet<String>();
+		
+					if (j == 0)
+						groupAndChipsString += "\t case group(s): \n";
+					else
+						groupAndChipsString += "\t control group(s): \n";
+		
+					for (int i = 0; i < classLabels.length; i++) {
+						String label = classLabels[i];
+						if (context.isLabelActive(label) || !view.useItemPanel()) {
+							// if (context.isLabelActive(label)) {
+							classSets[j].add(label);
+							groupAndChipsString += GenerateGroupAndChipsString(context
+									.getItemsWithLabel(label));
+						}
 					}
 				}
 			}
+			historyStr += groupAndChipsString;*/
+	
+			HistoryPanel.addToHistory(mraResultSet, historyStr);
+			
+			DSPanel<DSGeneMarker> selectedMarkers = new CSPanel<DSGeneMarker>(
+					"MRA Genes", "MRA");
+			
+			selectedMarkers.addAll(mraResultSet.getTFs());
+			mraResultSet.setDescription("# of master regulators (MRA): "+selectedMarkers.size());
+	
+			publishSubpanelChangedEvent(new SubpanelChangedEvent<DSGeneMarker>(
+					DSGeneMarker.class, selectedMarkers,
+					SubpanelChangedEvent.NEW));
+	
+			AlgorithmExecutionResults results = new AlgorithmExecutionResults(true,
+					"MRA Analysis", mraResultSet);
+			return results;
 		}
-		historyStr += groupAndChipsString;*/
-
-		HistoryPanel.addToHistory(mraResultSet, historyStr);
-		
-		DSPanel<DSGeneMarker> selectedMarkers = new CSPanel<DSGeneMarker>(
-				"MRA Genes", "MRA");
-		
-		selectedMarkers.addAll(mraResultSet.getTFs());
-		mraResultSet.setDescription("# of master regulators (MRA): "+selectedMarkers.size());
-
-		publishSubpanelChangedEvent(new SubpanelChangedEvent<DSGeneMarker>(
-				DSGeneMarker.class, selectedMarkers,
-				SubpanelChangedEvent.NEW));
-
-		AlgorithmExecutionResults results = new AlgorithmExecutionResults(true,
-				"MRA Analysis", mraResultSet);
-		return results;
 	}
 	
 	private void sortByValue(final Map<DSGeneMarker, Double> values,
