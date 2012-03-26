@@ -16,7 +16,6 @@ import java.util.Iterator;
 
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.ButtonModel;
 import javax.swing.JButton;
@@ -103,6 +102,8 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 	private JRadioButton modeAll = new JRadioButton("All");
 	private JRadioButton activator = new JRadioButton("Activator(+)");
 	private JRadioButton repressor = new JRadioButton("Repressor(-)");
+	private final JSplitPane jSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+	private boolean shown = false;
 
 	public MasterRegulatorViewer() {
 
@@ -118,17 +119,15 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		tv2.setNumerical(1, true);
 		tv2.setNumerical(2, true); 
 
-		final JPanel viewPanel = new JPanel();
 		final JSplitPane jSplitPane2 = new JSplitPane();
+		jSplitPane.setTopComponent(jSplitPane2);
 
-		viewPanel.setLayout(new BoxLayout(viewPanel, BoxLayout.PAGE_AXIS));
-		JPanel topPanel = new JPanel();
-		topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.LINE_AXIS));
-		topPanel.add(jSplitPane2);
-		viewPanel.add(topPanel);
 		initGraphTables();
-		viewPanel.add(gspane);
-		viewPanel.add(gspane2);
+		JPanel graphpanel = new JPanel();
+		graphpanel.setLayout(new BorderLayout());
+		graphpanel.add(gspane, BorderLayout.CENTER);
+		graphpanel.add(gspane2, BorderLayout.SOUTH);
+		jSplitPane.setBottomComponent(graphpanel);
 		jSplitPane2.setDividerLocation(650);
 		jSplitPane2.setDividerSize(3);
 
@@ -318,7 +317,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 				.getPanel(), JScrollPane.VERTICAL_SCROLLBAR_NEVER,
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED));
 
-		builder.add(viewPanel, new CellConstraints("1,2,f,f"));
+		builder.add(jSplitPane, new CellConstraints("1,2,f,f"));
 
 		JScrollPane wholeWindowScrollPane = new JScrollPane(builder.getPanel());
 		this.setLayout(new BorderLayout());
@@ -365,6 +364,10 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 	}
 
 	private void updateTable() {
+		if (!shown && jSplitPane.getHeight()>0){
+			jSplitPane.setDividerLocation(0.78);
+			shown = true;
+		}
 		DSItemList<DSGeneMarker> markers = MRAResultSet.getTFs();
 		char selectedtfAmode = MRAResultSet.getMode(currentSelectedtfA);
 		if (activator.isSelected()){
