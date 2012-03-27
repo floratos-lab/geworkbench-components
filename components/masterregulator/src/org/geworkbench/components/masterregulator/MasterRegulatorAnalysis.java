@@ -86,7 +86,7 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
 		ResultWrapper rw = new ResultWrapper();
 		MRATask task = new MRATask(ProgressItem.BOUNDED_TYPE, "Executing Master Regulator Analysis: started", input, rw);
 		pd.executeTask(task);
-		while(rw.getResult() == null){
+		while(!task.isDone()){
 			try{
 				Thread.sleep(1000);
 			}catch(Exception e){
@@ -268,6 +268,7 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
 			//for each TF A 
 			int i = 0;
 			for (DSGeneMarker tfA: transcriptionFactors){
+				if(isCancelled()) return null;
 				i++;
 				publish("Executing Master Regulator Analysis: "+100*i/transcriptionFactors.size()+"%");
 				setProgress(100*i/transcriptionFactors.size());
