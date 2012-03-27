@@ -69,7 +69,7 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
 	private MasterRegulatorPanel mraAnalysisPanel = new MasterRegulatorPanel();
 	private ProgressDialog pd = ProgressDialog.create(ProgressDialog.NONMODAL_TYPE);
 	private class ResultWrapper{
-		AlgorithmExecutionResults rst = null;
+		private AlgorithmExecutionResults rst = null;
 		private void setResult(AlgorithmExecutionResults rst){
 			this.rst = rst;
 		}
@@ -96,7 +96,7 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
 		return rw.getResult();
 	}
 
-	private class MRATask extends ProgressTask<AlgorithmExecutionResults, String>{
+	private class MRATask extends ProgressTask<Void, String>{
 		Object input;
 		ResultWrapper rw = null;
 		MRATask(int pbtype, String message, Object input, ResultWrapper rw){
@@ -108,13 +108,6 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
 		@Override
     	protected void done(){
 	   		pd.removeTask(this);
-    		if (isCancelled()) return;
-    		try{
-    			AlgorithmExecutionResults rst = get();
-    			rw.setResult(rst);
-    		}catch(Exception e){
-    			e.printStackTrace();
-    		}
 	   	}
 
 		@Override
@@ -126,8 +119,17 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
 	   	}
 
 		@Override
+		protected Void doInBackground() {
+			try{
+				rw.setResult(executeInBackground());
+			}catch(Exception e){
+				rw.setResult(new AlgorithmExecutionResults(false, "Exception: "+e, null));
+			}
+			return null;
+		}
+
 		@SuppressWarnings("unchecked")
-		protected AlgorithmExecutionResults doInBackground() throws Exception {
+		private AlgorithmExecutionResults executeInBackground() throws Exception {
 			// read input data, dataset view, dataset, etc.
 			if (!(input instanceof DSMicroarraySetView)){
 				return new AlgorithmExecutionResults(false,

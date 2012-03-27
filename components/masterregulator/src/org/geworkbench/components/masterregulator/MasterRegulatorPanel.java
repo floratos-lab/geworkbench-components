@@ -214,7 +214,6 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 
 		builder.append("FET Runs:");
 		builder.append(fet1Button);
-		fet1Button.setSelected(true);
 		builder.append("");
 		builder.append("Multiple Testing Correction:");
 		builder.append(ncButton);
@@ -224,6 +223,7 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		builder.append("");
 		CellConstraints cc = new CellConstraints();
 		builder.add(fet2Button, cc.xyw(builder.getColumn(), builder.getRow(), 3));
+		fet2Button.setSelected(true);
 		fetGroup.add(fet1Button);
 		fetGroup.add(fet2Button);
 		builder.append("");builder.append("");builder.append("");
