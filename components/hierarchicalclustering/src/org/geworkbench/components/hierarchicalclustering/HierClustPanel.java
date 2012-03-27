@@ -1,21 +1,14 @@
 package org.geworkbench.components.hierarchicalclustering;
 
 import java.awt.BorderLayout;
-import java.awt.GridLayout;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.events.listeners.ParameterActionListener;
@@ -31,7 +24,7 @@ import com.jgoodies.forms.layout.FormLayout;
  * Hierarchical clustering analysis
  *
  * @author First Genetic Trust
- * @version $Id: HierClustPanel.java,v 1.5 2009-06-22 15:20:26 chiangy Exp $
+ * @version $Id$
  */
 public class HierClustPanel extends AbstractSaveableParameterPanel{
 	private static final String NEWLINE = "\n";
@@ -52,39 +45,13 @@ public class HierClustPanel extends AbstractSaveableParameterPanel{
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
-	private Log log = LogFactory.getLog(this.getClass());
-	/**
-     * Visual Widget
-     */
-    private JPanel jPanel1 = new JPanel();
-    /**
-     * Visual Widget
-     */
-    private GridLayout gridLayout1 = new GridLayout();
-    /**
-     * Visual Widget
-     */
-    private JLabel clusteringMethod = new JLabel();
+	private static final long serialVersionUID = -3787482991189174700L;
+
     /**
      * Visual Widget
      */
     private JComboBox metric = new JComboBox();
-    /**
-     * Visual Widget
-     */
-    private JLabel distance = new JLabel();
-    /**
-     * Visual Widget
-     */
     private JComboBox dimension = new JComboBox();
-    /**
-     * Visual Widget
-     */
-    private JLabel clusteringDim = new JLabel();
-    /**
-     * Visual Widget
-     */
     private JComboBox method = new JComboBox();
     
 
@@ -106,22 +73,8 @@ public class HierClustPanel extends AbstractSaveableParameterPanel{
      * @throws Exception
      */
     private void jbInit() throws Exception {
-        clusteringDim.setText("Clustering Dimension");
-        clusteringDim.setRequestFocusEnabled(true);
-        clusteringDim.setBorder(BorderFactory.createEtchedBorder());
         this.setLayout(new BorderLayout());
-        jPanel1.setLayout(gridLayout1);
-        gridLayout1.setColumns(2);
-        gridLayout1.setHgap(0);
-        gridLayout1.setRows(3);
-        clusteringMethod.setVerticalTextPosition(SwingConstants.CENTER);
-        clusteringMethod.setVerticalAlignment(SwingConstants.CENTER);
-        clusteringMethod.setText("Clustering Method");
-        clusteringMethod.setVerifyInputWhenFocusTarget(true);
-        clusteringMethod.setRequestFocusEnabled(true);
-        clusteringMethod.setBorder(BorderFactory.createEtchedBorder());
-        distance.setBorder(BorderFactory.createEtchedBorder());
-        distance.setText("Distance Metric");
+
         method.addItem("Single Linkage");
         method.addItem("Average Linkage");
         method.addItem("Total Linkage");
@@ -161,10 +114,6 @@ public class HierClustPanel extends AbstractSaveableParameterPanel{
         return method.getSelectedIndex();
     }
 
-    public void setMethod(int index) {
-        method.setSelectedIndex(index);
-    }
-
     /**
      * Gets the dimension of clustering, if marker, microarray or both
      *
@@ -174,10 +123,6 @@ public class HierClustPanel extends AbstractSaveableParameterPanel{
         return dimension.getSelectedIndex();
     }
 
-    public void setDimension(int index) {
-        dimension.setSelectedIndex(index);
-    }
-
     /**
      * Gets the distance metric to be used for clustering
      *
@@ -185,10 +130,6 @@ public class HierClustPanel extends AbstractSaveableParameterPanel{
      */
     public int getDistanceMetric() {
         return metric.getSelectedIndex();
-    }
-
-    public void setDistanceMetric(int index) {
-        metric.setSelectedIndex(index);
     }
 
     /**
@@ -265,24 +206,6 @@ public class HierClustPanel extends AbstractSaveableParameterPanel{
 		return parameters;
 	}
 	
-    /*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#clone() We
-	 *      create a new HierClustPanel, and copy the parameters, in this case,
-	 *      three parameters.
-	 */
-    @Override
-    public HierClustPanel clone(){
-        HierClustPanel panel = new HierClustPanel();
-        
-        log.debug("Clone"+metric.getSelectedIndex()+","+dimension.getSelectedIndex()+","+method.getSelectedIndex());
-        panel.metric.setSelectedIndex(metric.getSelectedIndex());
-        panel.dimension.setSelectedIndex(dimension.getSelectedIndex());
-        panel.method.setSelectedIndex(method.getSelectedIndex());
-        return panel;
-    }
-
 	@Override
 	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
 		// TODO Auto-generated method stub
