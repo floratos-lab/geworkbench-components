@@ -295,6 +295,7 @@ public class SAMAnalysis extends AbstractAnalysis implements
 		String command = R_ROOT+"rscript.exe"+" "+samdir+R_SCRIPTS;		
 		System.out.println(command);
 		try {
+			@SuppressWarnings("unused")
 			Process p = Runtime.getRuntime().exec(command);
 			
 		} catch (Exception e) {
