@@ -47,8 +47,6 @@ public class SAMAnalysis extends AbstractAnalysis implements
  	private String samOutput = SAMROOT+"output\\";
  	
 
- 	private int[] cl;
- 	private float[] delta_vec;
  	private float deltaInc;
  	private float deltaMax;
  	private int perm;
@@ -85,6 +83,7 @@ public class SAMAnalysis extends AbstractAnalysis implements
 			return new AlgorithmExecutionResults(false, "Invalid input.", null);
 		}
 		
+		@SuppressWarnings("unchecked")
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> data = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
 		boolean allArrays = !data.useItemPanel();
 		log.info("All arrays: " + allArrays);

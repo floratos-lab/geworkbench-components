@@ -87,8 +87,6 @@ public class SAMViewer extends JPanel implements VisualPlugin{
 	private JLabel sigTotalLabel;
 	private JLabel sigExpectLabel;
 	private JButton jAddBttn;
-	private JButton jAddBttn2;
-	
 	private static final String DELTA_HEAD="Delta = ";
 	private static final String FDR_HEAD="FDR  = ";
 	private static final String SIG_TOTAL_HEAD="Significant (total) = ";
