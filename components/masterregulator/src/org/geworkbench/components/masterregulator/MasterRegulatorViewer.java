@@ -27,6 +27,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EtchedBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -351,9 +352,13 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		DSDataSet dataSet = event.getDataSet();
 		if (dataSet instanceof DSMasterRagulatorResultSet) {
 			MRAResultSet = (DSMasterRagulatorResultSet<DSGeneMarker>) dataSet;
-			updateTable();
-			updateSelectedTF(MRAResultSet, currentSelectedtfA, tv2);
-			useSymbol = true;
+			SwingUtilities.invokeLater(new Runnable(){
+				public void run(){
+					updateTable();
+					updateSelectedTF(MRAResultSet, currentSelectedtfA, tv2);
+					useSymbol = true;
+				}
+			});
 		}
 	}
 	
