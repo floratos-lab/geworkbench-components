@@ -5,15 +5,16 @@ package org.geworkbench.components.interactions.cellularnetwork;
  */
 
 /**
- * The  Version Descriptorof one Dataset.
+ * The  Version Descriptor of one Dataset.
+ * @version $Id$
  */
 public class VersionDescriptor {
-    private String version;    
-    private Boolean requiresAuthentication;
-    private String versionDesc;
+    private final String version;    
+    private final boolean requiresAuthentication;
+    private final String versionDesc;
     
 
-    public VersionDescriptor(String version, boolean requiresAuthentication, String versionDesc) {
+    public VersionDescriptor(final String version, final boolean requiresAuthentication, final String versionDesc) {
         this.version = version;
         this.requiresAuthentication = requiresAuthentication;
         this.versionDesc = versionDesc;
@@ -23,26 +24,12 @@ public class VersionDescriptor {
         return version;
     }
 
-    public void setVersion(String version) {
-        this.version = version;
-    }
-
     public String getVersionDesc() {
         return versionDesc;
     }
 
-    public void setVersionDesc(String versionDesc) {
-        this.versionDesc = versionDesc;
-    }
-
-
-    public void setRequiresAuthentication(Boolean requiresAuthentication) {
-        this.requiresAuthentication = requiresAuthentication;
-    }
-
-    public Boolean  getRequiresAuthentication() {
+    public boolean getRequiresAuthentication() {
         return requiresAuthentication;
     }
-
    
 }
