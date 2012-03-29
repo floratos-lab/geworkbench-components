@@ -13,6 +13,7 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractGridAnalysis;
@@ -545,7 +546,7 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 						+ Util.formatDateStandard(endDate) + FileTools.NEWLINE;
 				long elapsedTime = endTime - startTime;
 				history += "\nTotal elapsed time: "
-						+ Util.convertLongToTimeStr(elapsedTime);
+						+ DurationFormatUtils.formatDurationHMS(elapsedTime);
 
 				HistoryPanel.addToHistory(mindyDataSet, history);
 				progressBar.stop();

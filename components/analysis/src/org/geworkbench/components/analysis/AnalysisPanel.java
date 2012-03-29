@@ -37,6 +37,7 @@ import javax.swing.JToolBar;
 
 import org.apache.axis.types.URI.MalformedURIException;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractAnalysis;
@@ -1034,8 +1035,7 @@ public class AnalysisPanel extends CommandBase implements
 			history = "\nAnalysis finished at: "
 					+ Util.formatDateStandard(endDate) + FileTools.NEWLINE;			 
 			long elapsedTime = endTime - startTime;
-			history += "\nTotal elapsed time: "
-					+ Util.convertLongToTimeStr(elapsedTime);
+			history += "\nTotal elapsed time: " + DurationFormatUtils.formatDurationHMS(elapsedTime);
 			HistoryPanel.addToHistory(dataSet, history);
 			
 			ProjectPanel.getInstance().addProjectNode(null, dataSet);
