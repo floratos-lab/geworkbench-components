@@ -4,12 +4,14 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
- 
 import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.Vector;
 
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractAnalysis;
@@ -17,7 +19,7 @@ import org.geworkbench.analysis.AbstractGridAnalysis;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet; 
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
@@ -32,11 +34,8 @@ import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.ProjectNodeAddedEvent;
- 
-import wb.data.Marker;
-import wb.data.MarkerSet;
-import wb.data.Microarray;
-import wb.data.MicroarraySet;
+import org.geworkbench.util.ProgressBar;
+
 import wb.plugins.aracne.GraphEdge;
 import wb.plugins.aracne.WeightedGraph;
 import edu.columbia.c2b2.aracne.Parameter;
@@ -171,16 +170,85 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 		if (bs <= 0 || pt <= 0 || pt > 1)
 			return null;
 		
-		AracneThread aracneThread = new AracneThread(mSetView, p, bs, pt, params.isPrune());
+        ProgressBar progressBar = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
+		Thread computationalThread = Thread.currentThread();
+		progressBar.addObserver(new CancelObserver(computationalThread));
+		progressBar.setTitle("ARACNE");
+		progressBar.setMessage("ARACNE Process Running");
+		progressBar.start();
 
-		AracneProgress progress = new AracneProgress(aracneThread);
-		aracneThread.setProgressWindow(progress);
-		progress.startProgress();
+		WeightedGraph weightedGraph = new Aracne(mSetView, p, bs, pt).execute();
+		
+		progressBar.stop();
+		
+		if (weightedGraph.getEdges().size() > 0) {
+			boolean prune = params.isPrune();
+			AdjacencyMatrixDataSet dataSet = new AdjacencyMatrixDataSet(
+					this.convert(weightedGraph, p, mSetView.getMicroarraySet(), prune),
+					0, "Adjacency Matrix", "ARACNE Set", mSetView
+							.getMicroarraySet());
+			StringBuilder paramDescB = new StringBuilder(
+					"Generated with ARACNE run with data:\n");
+			paramDescB.append(this.generateHistoryForMaSetView(this.mSetView, this.useMarkersFromSelector()));
+			String s=prune?"yes":"no";
+			HistoryPanel.addToHistory(dataSet,
+					"Generated with ARACNE run with paramters:\n"
+							+ p.getParamterDescription()
+							+ dpiTargetListDescription()+"\n"
+							+ "[PARA] Merge multiple probesets: "+ s+"\n"
+							+ hubMarkersDescription(p)
+							+ paramDescB.toString());
+			return new AlgorithmExecutionResults(true, "ARACNE Done.", dataSet);
 
-		return new AlgorithmExecutionResults(true, "ARACNE in progress.", null);
+		} else {
+			this.tellUserToRelaxThresholds();
+			return null;
+		}
 
 	}
+	
+	static private class CancelObserver implements Observer {
+		
+		private final Thread threadToBeCancelled;
 
+		CancelObserver(final Thread threadToBeCancelled) {
+			super();
+			this.threadToBeCancelled = threadToBeCancelled;
+		}
+		
+		@SuppressWarnings("deprecation")
+		@Override
+		public void update(Observable o, Object arg) {
+			// this is inherently unsafe. see http://docs.oracle.com/javase/6/docs/technotes/guides/concurrency/threadPrimitiveDeprecation.html
+			// but it is the only way to stop the thread running 3rd-party code, in this case, aracne-main.jar
+			threadToBeCancelled.stop();
+		}
+		
+	}
+
+	private String dpiTargetListDescription(){
+		String listString="[PARA] DPI Target List: ";
+		AracneParamPanel params = (AracneParamPanel) aspp;
+		listString+=params.getTargetGeneString();		
+		return listString;
+	}
+
+	/*
+	 * this is not included in Parameter's implement, which is outside this
+	 * package
+	 */
+	private final String hubMarkersDescription(Parameter p) {
+		StringBuilder builder = new StringBuilder();
+		Vector<String> subnet = p.getSubnet();
+		if (subnet.size() == 0)
+			return "";
+		builder.append("[PARA] Hub markers: " + subnet.get(0));
+		for (int i = 1; i < subnet.size(); i++)
+			builder.append(", " + subnet.get(i));
+		builder.append("\n");
+		return builder.toString();
+	}
+	
 	/**
 	 *
 	 * @param adjMatrix
@@ -214,29 +282,6 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 			}
 		}
 		return graph;
-	}
-
-	// a very old comment (revision 4310) saying this method has a bug is removed
-	private MicroarraySet convert(
-			DSMicroarraySetView<DSGeneMarker, DSMicroarray> inSet) {
-		MarkerSet markers = new MarkerSet();
-		for (DSGeneMarker marker : inSet.markers()) {
-			markers.addMarker(new Marker(marker.getLabel()));
-		}
-		MicroarraySet returnSet = new MicroarraySet(inSet.getDataSet()
-				.getDataSetName(), inSet.getDataSet().getID(), "Unknown",
-				markers);
-		DSItemList<DSMicroarray> arrays = inSet.items();
-		for (DSMicroarray microarray : arrays) {
-			float[] markerData=new float[markers.size()];
-			int i=0;
-			for (DSGeneMarker marker : inSet.markers()){
-				markerData[i++]=(float)microarray.getMarkerValue(marker).getValue();
-			}
-			returnSet.addMicroarray(new Microarray(microarray.getLabel(),
-					markerData));
-		}
-		return returnSet;
 	}
 
 	/**
@@ -290,135 +335,6 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 	public ProjectNodeAddedEvent publishProjectNodeAddedEvent(
 			ProjectNodeAddedEvent event) {
 		return event;
-	}
-
-	/**
-	 *
-	 */
-	class AracneThread extends Thread {
-		private WeightedGraph weightedGraph;
-		private AracneProgress progressWindow;
-		private DSMicroarraySetView<DSGeneMarker, DSMicroarray> mSetView;
-		private Parameter p;
-
-		private int bootstrapNumber;
-		private double pThreshold;
-		
-		private boolean prune;
-
-		public AracneThread(
-				DSMicroarraySetView<DSGeneMarker, DSMicroarray> mSet,
-				Parameter p, int bootstrapNumber, double pThreshold, boolean prune) {
-			this.mSetView = mSet;
-			this.p = p;
-
-			this.bootstrapNumber = bootstrapNumber;
-			this.pThreshold = pThreshold;
-			
-			this.prune = prune;
-		}
-
-		public void run() {
-			log.debug("Running ARACNE in worker thread.");
-			p.setSuppressFileWriting(true);
-			try {
-				weightedGraph = HardenedAracne.run(convert(mSetView), p,
-						bootstrapNumber, pThreshold);
-			} catch (Exception e) {
-				progressWindow.stopProgress();
-				showMessage("Exception caught in ARACNe run: "+e.toString());
-				return;
-			}
-			log.debug("Done running ARACNE in worker thread.");
-			progressWindow.stopProgress();
-
-			/* done if in PREPROCESSING mode*/
-			if (this.p.getMode().equals(Parameter.MODE.PREPROCESSING)) {
-				return;
-			}
-
-			if (weightedGraph.getEdges().size() > 0) {
-				AdjacencyMatrixDataSet dataSet = new AdjacencyMatrixDataSet(
-						convert(weightedGraph, p, mSetView.getMicroarraySet(), prune),
-						0, "Adjacency Matrix", "ARACNE Set", mSetView
-								.getMicroarraySet());
-				StringBuilder paramDescB = new StringBuilder(
-						"Generated with ARACNE run with data:\n");
-				paramDescB.append(generateHistoryForMaSetView(this.mSetView, useMarkersFromSelector()));
-				String s=prune?"yes":"no";
-				HistoryPanel.addToHistory(dataSet,
-						"Generated with ARACNE run with paramters:\n"
-								+ p.getParamterDescription()
-								+ dpiTargetListDescription()+"\n"
-								+ "[PARA] Merge multiple probesets: "+ s+"\n"
-								+ hubMarkersDescription(p)
-								+ paramDescB.toString());
-				publishProjectNodeAddedEvent(new ProjectNodeAddedEvent(
-						"Adjacency Matrix Added", null, dataSet));
-			} else {
-				tellUserToRelaxThresholds();
-			}
-
-		}
-
-		/*
-		 * this is not included in Parameter's implement, which is outside this
-		 * package
-		 */
-		private final String hubMarkersDescription(Parameter p) {
-			StringBuilder builder = new StringBuilder();
-			Vector<String> subnet = p.getSubnet();
-			if (subnet.size() == 0)
-				return "";
-			builder.append("[PARA] Hub markers: " + subnet.get(0));
-			for (int i = 1; i < subnet.size(); i++)
-				builder.append(", " + subnet.get(i));
-			builder.append("\n");
-			return builder.toString();
-		}
-		
-		private String dpiTargetListDescription(){
-			String listString="[PARA] DPI Target List: ";
-			AracneParamPanel params = (AracneParamPanel) aspp;
-			listString+=params.getTargetGeneString();		
-			return listString;
-		}
-
-		/**
-		 *
-		 * @return
-		 */
-		public AracneProgress getProgressWindow() {
-			return progressWindow;
-		}
-
-		/**
-		 *
-		 * @param progressWindow
-		 */
-		public void setProgressWindow(AracneProgress progressWindow) {
-			this.progressWindow = progressWindow;
-		}
-
-	}
-
-	// this is meant to be called from non-EDT thread
-	private static void showMessage(final String message) {
-		Runnable runnable = new Runnable() {
-
-			@Override
-			public void run() {
-				JOptionPane.showMessageDialog(null, message);
-			}
-			
-		};
-		try {
-			SwingUtilities.invokeAndWait(runnable);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			e.printStackTrace();
-		}
 	}
 
 	/*
