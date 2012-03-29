@@ -30,7 +30,7 @@ public class NullDistribution {
 
 	private final int columnCountOverall;
 	private int columnCountWithoutExclude;	
-	private ArrayList<IdeaEdge> edgeIndex = null;	
+	private HashSet<IdeaEdge> edgeIndex = null;	
 	private double incre;
 	private static final double K_WEIGHT = 1;
 	private static final double K_PRECISION = 0.0072;// the precision to which numeric
@@ -50,7 +50,7 @@ public class NullDistribution {
 	IDEAAnalysis analysis;
 	private static DSMicroarraySet maSet;
 
-	public NullDistribution(DSMicroarraySet maSet, ArrayList<IdeaEdge> edgeIndex,
+	public NullDistribution(DSMicroarraySet maSet, HashSet<IdeaEdge> edgeIndex,
 			final Phenotype phenotype, IDEAAnalysis analysis) {
 		NullDistribution.maSet=maSet;
 		this.edgeIndex = edgeIndex;
@@ -298,7 +298,7 @@ public class NullDistribution {
 
 	}
 
-	public ArrayList<IdeaEdge> getEdgeIndex() {
+	public HashSet<IdeaEdge> getEdgeIndex() {
 		return edgeIndex;
 	}
 
