@@ -84,7 +84,6 @@ import org.geworkbench.util.CommandBase;
 import org.geworkbench.util.ProgressBar;
 import org.geworkbench.util.Util;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.EdgeListDataSet;
-import org.ginkgo.labs.util.FileTools;
 import org.ginkgo.labs.ws.GridEndpointReferenceType;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
@@ -117,6 +116,9 @@ public class AnalysisPanel extends CommandBase implements
 	private static final int ANALYSIS_TAB_COUNT = 1;
 	private static final String USER_INFO_DELIMIETER = "==";
 
+	private static final String NEWLINE = "\n";
+	private static final String TAB = "\t";
+	
 	/* from application.properties */
 	private final static String DISPATCHER_URL = "dispatcher.url";
 
@@ -949,16 +951,16 @@ public class AnalysisPanel extends CommandBase implements
 		}
 
 		/* generate history for grid analysis */	
-		String history = "Grid service started at: " + Util.formatDateStandard(startDate) + ", milliseconds=" + startTime + FileTools.NEWLINE;
-		history += "Grid service information:" + FileTools.NEWLINE;
-		history += FileTools.TAB + "Index server url: "
-				+ jGridServicePanel.getIndexServerUrl() + FileTools.NEWLINE;
-		history += FileTools.TAB + "Dispatcher url: " + dispatcherUrl
-				+ FileTools.NEWLINE;
-		history += FileTools.TAB + "Service url: " + url + FileTools.NEWLINE
-				+ FileTools.NEWLINE;
+		String history = "Grid service started at: " + Util.formatDateStandard(startDate) + ", milliseconds=" + startTime + NEWLINE;
+		history += "Grid service information:" + NEWLINE;
+		history += TAB + "Index server url: "
+				+ jGridServicePanel.getIndexServerUrl() + NEWLINE;
+		history += TAB + "Dispatcher url: " + dispatcherUrl
+				+ NEWLINE;
+		history += TAB + "Service url: " + url + NEWLINE
+				+ NEWLINE;
 		history += selectedGridAnalysis.createHistory()
-	            + FileTools.NEWLINE;
+	            + NEWLINE;
 		
 		if (refOtherSet != null) {
 			history += selectedGridAnalysis.generateHistoryStringForGeneralDataSet(refOtherSet);
@@ -1027,13 +1029,13 @@ public class AnalysisPanel extends CommandBase implements
 			DSAncillaryDataSet<DSBioObject> dataSet = (DSAncillaryDataSet<DSBioObject>) resultObject;		
 			
 			//add start/end time to history
-			String history = "Analysis started at: " + Util.formatDateStandard(startDate) +  FileTools.NEWLINE;
+			String history = "Analysis started at: " + Util.formatDateStandard(startDate) +  NEWLINE;
 			HistoryPanel.addBeforeToHistory(dataSet, history);
 			 
 			Date endDate = new Date();
 			long endTime = endDate.getTime();
 			history = "\nAnalysis finished at: "
-					+ Util.formatDateStandard(endDate) + FileTools.NEWLINE;			 
+					+ Util.formatDateStandard(endDate) + NEWLINE;			 
 			long elapsedTime = endTime - startTime;
 			history += "\nTotal elapsed time: " + DurationFormatUtils.formatDurationHMS(elapsedTime);
 			HistoryPanel.addToHistory(dataSet, history);
