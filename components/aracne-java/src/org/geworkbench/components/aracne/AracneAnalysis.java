@@ -177,7 +177,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 		progressBar.setMessage("ARACNE Process Running");
 		progressBar.start();
 
-		WeightedGraph weightedGraph = new Aracne(mSetView, p, bs, pt).execute();
+		WeightedGraph weightedGraph = new AracneComputation(mSetView, p, bs, pt).execute();
 		
 		progressBar.stop();
 		
