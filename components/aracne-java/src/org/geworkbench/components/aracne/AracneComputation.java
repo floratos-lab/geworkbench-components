@@ -17,9 +17,9 @@ import edu.columbia.c2b2.aracne.Parameter;
 /**
  * ARACNe computation.
  */
-class Aracne {
+class AracneComputation {
 
-	private static Log log = LogFactory.getLog(Aracne.class);
+	private static Log log = LogFactory.getLog(AracneComputation.class);
 
 	private final DSMicroarraySetView<DSGeneMarker, DSMicroarray> mSetView;
 	private final Parameter p;
@@ -27,7 +27,7 @@ class Aracne {
 	private final int bootstrapNumber;
 	private final double pThreshold;
 
-	public Aracne(final DSMicroarraySetView<DSGeneMarker, DSMicroarray> mSet,
+	public AracneComputation(final DSMicroarraySetView<DSGeneMarker, DSMicroarray> mSet,
 			final Parameter p, int bootstrapNumber, final double pThreshold) {
 		this.mSetView = mSet;
 		this.p = p;
