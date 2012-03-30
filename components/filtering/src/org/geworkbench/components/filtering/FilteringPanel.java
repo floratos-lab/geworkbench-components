@@ -52,7 +52,6 @@ import org.geworkbench.events.AnalysisInvokedEvent;
 import org.geworkbench.events.FilteringEvent;
 import org.geworkbench.util.CommandBase;
 import org.geworkbench.util.ProgressBar;
-import org.ginkgo.labs.util.FileTools;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
@@ -583,14 +582,13 @@ public class FilteringPanel extends CommandBase implements VisualPlugin, ReHighl
 					.getResults();
 			String historyString = "";
 			if (selectedFilter.getLabel() != null)
-				historyString += selectedFilter.getLabel() + FileTools.NEWLINE;
+				historyString += selectedFilter.getLabel() + "\n";
 			/* to avoid printing null for panels  didn't implement this method. */
 			if (selectedFilter.createHistory() != null) 
 				historyString += selectedFilter.createHistory();
 			 /* to separate with next section (if any) */
-			historyString += count + " markers were removed."+FileTools.NEWLINE;
-			historyString += "----------------------------------------";
-			historyString += FileTools.NEWLINE;
+			historyString += count + " markers were removed.\n";
+			historyString += "----------------------------------------\n";
 			
 			progressBar.stop();
 			AnalysisInvokedEvent event = new AnalysisInvokedEvent(
