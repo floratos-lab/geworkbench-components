@@ -50,7 +50,7 @@ public class MedusaVisualizationPanel extends JPanel {
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = -7517972429045806087L;
 
 	private String defaultPath = FilePathnameUtils.getTemporaryFilesDirectoryPath()+"temp/medusa/dataset/output/";
 	private String path = defaultPath + "run1/";
@@ -372,7 +372,7 @@ public class MedusaVisualizationPanel extends JPanel {
 			 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 			 */
 			public void actionPerformed(ActionEvent e) {
-				ArrayList<SerializedRule> srules = MedusaUtil
+				List<SerializedRule> srules = MedusaUtil
 						.getSerializedRules(rulesFiles, rulesPath);
 
 				JFileChooser chooser = new JFileChooser();
@@ -382,8 +382,8 @@ public class MedusaVisualizationPanel extends JPanel {
                 if(returnVal == JFileChooser.APPROVE_OPTION) {
                     File chosenFile = chooser.getSelectedFile();
 
-                    visualComponent.exportMotifs(srules, chosenFile
-                            .getAbsolutePath());
+                    MedusaUtil.writePssmToFile(chosenFile
+                            .getAbsolutePath(), srules);
                 }
 			}
 

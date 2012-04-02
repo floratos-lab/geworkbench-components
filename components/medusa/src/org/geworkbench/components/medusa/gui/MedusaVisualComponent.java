@@ -9,7 +9,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.lang.reflect.InvocationTargetException;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.ImageIcon;
@@ -30,7 +29,6 @@ import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.medusa.MedusaDataSet;
 import org.geworkbench.bison.datastructure.properties.DSNamed;
 import org.geworkbench.builtin.projects.Icons;
-import org.geworkbench.components.medusa.MedusaUtil;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
@@ -41,8 +39,6 @@ import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.util.FilePathnameUtils;
 
 import com.ice.tar.tar;
-
-import edu.columbia.ccls.medusa.io.SerializedRule;
 
 /**
  * The visual component for MEDUSA. When receiving a project event, the
@@ -316,14 +312,6 @@ public class MedusaVisualComponent implements VisualPlugin {
 				"Medusa Snapshot", icon,
 				org.geworkbench.events.ImageSnapshotEvent.Action.SAVE);
 		return event;
-	}
-
-	/**
-	 * Export motifs.
-	 */
-	public void exportMotifs(List<SerializedRule> srules, String filePath) {
-		// FIXME allowing a null param for now, but I don't like it
-		MedusaUtil.writePssmToFile(filePath, srules);
 	}
 
 	private void decodeStringToFile(String encodedInput, String decodedFile) throws Exception {
