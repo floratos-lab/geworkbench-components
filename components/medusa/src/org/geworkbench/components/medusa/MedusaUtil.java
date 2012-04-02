@@ -9,7 +9,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -31,7 +30,6 @@ import org.geworkbench.components.medusa.gui.TranscriptionFactorInfoBean;
 import org.geworkbench.util.FilePathnameUtils;
 import org.ginkgo.labs.reader.XmlReader;
 import org.ginkgo.labs.reader.XmlWriter;
-import org.ginkgo.labs.util.FileTools;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -47,7 +45,7 @@ import edu.columbia.ccls.medusa.io.SerializedRule;
  * updating the configuration file, etc.
  * 
  * @author keshav
- * @version $Id: MedusaUtil.java,v 1.24 2008-03-07 17:14:25 chiangy Exp $
+ * @version $Id$
  */
 public class MedusaUtil {
 
@@ -441,59 +439,6 @@ public class MedusaUtil {
 	}
 
 	/**
-	 * Deletes the medusa run.
-	 * 
-	 */
-	public static void deleteRunDir() {
-		File runDir = new File("temp/medusa/dataset/output/run1/");
-
-		if (runDir.exists()) {
-			Collection<File> dirFiles = FileTools.listDirectoryFiles(runDir);
-			FileTools.deleteFiles(dirFiles);
-
-			// delete rules files
-			try {
-			File rulesDir = new File("temp/medusa/dataset/output/run1/rules/");
-			Collection<File> rulesFiles = FileTools.listDirectoryFiles(rulesDir);
-			FileTools.deleteFiles(rulesFiles);
-			}catch(IllegalArgumentException iAE){
-			}
-			// delete data
-			try{
-			File dataDir = new File(
-					"temp/medusa/dataset/output/run1/state/data/");
-			Collection<File> dataFiles = FileTools.listDirectoryFiles(dataDir);
-			FileTools.deleteFiles(dataFiles);
-			FileTools.deleteDir(dataDir);
-			}catch(IllegalArgumentException iAE){
-			}
-
-			// delete features
-			try{
-			File featuresDir = new File(
-					"temp/medusa/dataset/output/run1/state/features/");
-			Collection<File> featuresFiles = FileTools
-					.listDirectoryFiles(featuresDir);
-			FileTools.deleteFiles(featuresFiles);
-			FileTools.deleteDir(featuresDir);
-			}catch(IllegalArgumentException iAE){
-			}
-
-			try{
-			File stateDir = new File("temp/medusa/dataset/output/run1/state/");
-			FileTools.deleteDir(stateDir);
-			}catch(IllegalArgumentException iAE){
-			}
-
-			try{
-			FileTools.deleteDir(runDir);
-			}catch(IllegalArgumentException iAE){
-			}
-		}
-		log.error("Directory " + runDir + " does not exist.");
-	}
-
-	/**
 	 * 
 	 * @param filename
 	 *            If filename is null, the default path is used for the output
@@ -518,17 +463,13 @@ public class MedusaUtil {
 
 			for (SerializedRule srule : srules) {
 				/* write out comment */
-				out.write(FileTools.HASH_MARK);
-				out.write(FileTools.SPACE);
+				out.write("# ");
 				// out.write("the comment");
-				out.write(FileTools.NEWLINE);
-				out.write(FileTools.FASTA_PREFIX);
+				out.write("\n>"); // FASTA_PREFIX;
 
 				/* write out name and description of pssm */
-				out.write("PSSM Name: ");
-				out.write(FileTools.TAB);
-				out.write("PSSM Description: ");
-				out.write(FileTools.NEWLINE);
+				out.write("PSSM Name: \t");
+				out.write("PSSM Description: \n");
 
 				/* write out each pssm */
 
@@ -537,9 +478,9 @@ public class MedusaUtil {
 					for (int j = 0; j < pssm[i].length; j++) {
 						out.write(String.valueOf(pssm[i][j]));
 						if (j < pssm[i].length - 1)
-							out.write(FileTools.TAB);
+							out.write("\t");
 						else
-							out.write(FileTools.NEWLINE);
+							out.write("\n");
 					}
 				}
 			}
