@@ -3,10 +3,13 @@ package org.geworkbench.components.medusa;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Date;
@@ -18,6 +21,15 @@ import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerFactoryConfigurationError;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -28,8 +40,6 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.components.medusa.gui.TranscriptionFactorInfoBean;
 import org.geworkbench.util.FilePathnameUtils;
-import org.ginkgo.labs.reader.XmlReader;
-import org.ginkgo.labs.reader.XmlWriter;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -358,7 +368,7 @@ public class MedusaUtil {
 	 */
 	public static String updateConfigXml(String configFile, String outFile,
 			MedusaCommand command) {
-		Document doc = XmlReader.readXmlFile(configFile);
+		Document doc = readXmlFile(configFile);
 
 		updateXmlNode(doc, "parameters", "iterations", String.valueOf(command
 				.getIter()));
@@ -414,9 +424,52 @@ public class MedusaUtil {
 		if (outFile == null)
 			outFile = configFile;
 
-		XmlWriter.writeXml(doc, outFile);
+		writeXml(doc, outFile);
 
 		return "run_"+String.valueOf(nowLong);
+	}
+
+	private static Document readXmlFile(String filename) {
+
+		DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory
+				.newInstance();
+		DocumentBuilder docBuilder = null;
+		Document doc = null;
+		try {
+			docBuilder = docBuilderFactory.newDocumentBuilder();
+			InputStream is = new FileInputStream(filename);
+			doc = docBuilder.parse(is);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+
+		return doc;
+	}
+
+	private static void writeXml(Document doc, String hackedConfig)
+			throws TransformerFactoryConfigurationError {
+
+		Transformer transformer;
+		try {
+			transformer = TransformerFactory.newInstance().newTransformer();
+			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+
+			// initialize StreamResult with File object to save to file
+			StreamResult result = new StreamResult(new StringWriter());
+			DOMSource source = new DOMSource(doc);
+			transformer.transform(source, result);
+			String xmlString = result.getWriter().toString();
+			log.info(xmlString);
+
+			File outFile = new File(hackedConfig);
+
+			FileWriter writer = new FileWriter(outFile);
+			writer.write(xmlString);
+			writer.close();
+
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	/**

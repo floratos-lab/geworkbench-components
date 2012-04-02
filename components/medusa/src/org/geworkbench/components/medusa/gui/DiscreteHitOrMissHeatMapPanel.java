@@ -34,8 +34,6 @@ import javax.swing.table.TableModel;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.components.medusa.MedusaUtil;
-import org.ginkgo.labs.gui.SwingUtil;
-import org.ginkgo.labs.psam.PsamUtil;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
@@ -221,7 +219,7 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel implements
                 "center:default", // columns
                 ""));// rows added dynamically
 
-        PSAMPlot psamPlot = new PSAMPlot(PsamUtil.convertScoresToWeights(rule
+        PSAMPlot psamPlot = new PSAMPlot(Util.convertScoresToWeights(rule
                 .getPssm(), true));
         psamPlot.setMaintainProportions(false);
         psamPlot.setAxisDensityScale(4);
@@ -240,7 +238,7 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel implements
         builder.append(new JLabel(psamImage));
 
         // add the table
-        JTable pssmTable = PsamUtil.createPssmTable(rule.getPssm(),
+        JTable pssmTable = Util.createPssmTable(rule.getPssm(),
                 "Nucleotides");
 
         TableColumn column = null;
@@ -258,7 +256,7 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel implements
         builder.append(scrollPane);
 
         JPanel transFacButtonPanel = new JPanel();
-        final List<JRadioButton> buttons = SwingUtil.createRadioButtonGroup("JASPAR",
+        final List<JRadioButton> buttons = Util.createRadioButtonGroup("JASPAR",
                 "Custom");
         for (JRadioButton b : buttons) {
             transFacButtonPanel.add(b);
@@ -267,17 +265,17 @@ public class DiscreteHitOrMissHeatMapPanel extends JPanel implements
 
         // add search results table
         JPanel pssmButtonPanel = new JPanel();
-        final JButton exportButton = SwingUtil.createButton("Export",
+        final JButton exportButton = Util.createButton("Export",
                 "Export search results to file in PSSM file format.");
         exportButton.setEnabled(false);
         pssmButtonPanel.add(exportButton);
-        final JButton searchButton = SwingUtil.createButton("Search",
+        final JButton searchButton = Util.createButton("Search",
                 "Executes a database search.");
         pssmButtonPanel.add(searchButton);
         searchButton.setEnabled(false);
 
 
-        JButton loadTransFacButton = SwingUtil
+        JButton loadTransFacButton = Util
                 .createButton("Load TF",
                         "Load file containing new transcription factors to add to the TF listing.");
         transFacButtonPanel.add(loadTransFacButton);
