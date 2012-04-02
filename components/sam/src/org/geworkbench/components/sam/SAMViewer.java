@@ -392,8 +392,8 @@ public class SAMViewer extends JPanel implements VisualPlugin{
 	        		seriesOverExpDot.add(d.getX(),d.getY());
 	        		d.setOverExpressed(true);
 	        		d.setUnderExpressed(false);
-	        		if(dataView!=null)
-	        			System.out.println("overExp: "+d.getMarker().getGeneName());
+	        		//if(dataView!=null)
+	        			//System.out.println("overExp: "+d.getMarker().getGeneName());
 	        		overExpressed++;
 	        		overList.add(d);
 	        		totalList.add(d);
@@ -422,7 +422,7 @@ public class SAMViewer extends JPanel implements VisualPlugin{
 	        sigTotalLabel.setText(SIG_TOTAL_HEAD+Integer.toString(sigTotal));
 	        sigOverUnderLabel.setText(SIG_OVERUNDER_HEAD+sigOver+"/"+sigUnder);
 	        
-	        System.out.println("************OVER EXPRESSED "+overExpressed);
+	        //System.out.println("************OVER EXPRESSED "+overExpressed);
 	      	totalTableModel.setValues(totalList);
 			totalTableModel.fireTableDataChanged();
 			overExpTableModel.setValues(overList);
@@ -483,11 +483,8 @@ public class SAMViewer extends JPanel implements VisualPlugin{
 		    
 		    updateSum();
 			
-			//tableModel.setValues(samResult.getGocList());
-			totalTableModel.fireTableDataChanged();
-			//locTableModel.setValues(samResult.getLocList());
-			overExpTableModel.fireTableDataChanged();
-			//moduleTableModel.setValues(samResult.getModuleList());
+			totalTableModel.fireTableDataChanged();			
+			overExpTableModel.fireTableDataChanged();			
 			underExpTableModel.fireTableDataChanged();			
 		}
 	}	

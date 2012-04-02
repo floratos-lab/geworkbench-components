@@ -83,7 +83,7 @@ public class SAMAnalysis extends AbstractAnalysis implements
 			return new AlgorithmExecutionResults(false, "Invalid input.", null);
 		}
 		
-		@SuppressWarnings("unchecked")
+		
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> data = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
 		boolean allArrays = !data.useItemPanel();
 		log.info("All arrays: " + allArrays);
@@ -295,7 +295,7 @@ public class SAMAnalysis extends AbstractAnalysis implements
 		String command = R_ROOT+"rscript.exe"+" "+samdir+R_SCRIPTS;		
 		System.out.println(command);
 		try {
-			@SuppressWarnings("unused")
+			
 			Process p = Runtime.getRuntime().exec(command);
 			
 		} catch (Exception e) {
