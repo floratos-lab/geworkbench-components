@@ -26,7 +26,6 @@ import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.events.listeners.ParameterActionListener;
-import org.ginkgo.labs.util.FileTools;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
@@ -35,7 +34,7 @@ import com.jgoodies.forms.layout.FormLayout;
 /**
  * 
  * @author keshav
- * @version $Id: MedusaParamPanel.java,v 1.15 2009-06-19 19:22:41 jiz Exp $
+ * @version $Id$
  */
 public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 		Serializable {
@@ -314,9 +313,12 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 
 						BufferedReader reader = new BufferedReader(
 								new FileReader(featuresFilePath));
+					    String str = reader.readLine();
+					    reader.close();
+					    boolean isFasta = str.startsWith(">");
 
 						try{
-							if (!FileTools.isFasta(reader)) {
+							if (!isFasta) {
 								log.warn("Not in FASTA format.");
 								JOptionPane.showMessageDialog(null,
 										"Not in FASTA format.", "Error",
