@@ -40,7 +40,6 @@ import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyData;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyDataSet;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyResultRow;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.ModulatorInfo;
-import org.ginkgo.labs.util.FileTools;
 
 import wb.data.Marker;
 import wb.data.MarkerSet;
@@ -537,13 +536,13 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 				// add start/end time to history
 				String history = "Analysis started at: "
 						+ Util.formatDateStandard(startDate)
-						+ FileTools.NEWLINE;
+						+ "\n";
 				history += "\n" + paramDesc + "\n";
 
 				Date endDate = new Date();
 				long endTime = endDate.getTime();
 				history += "\nAnalysis finished at: "
-						+ Util.formatDateStandard(endDate) + FileTools.NEWLINE;
+						+ Util.formatDateStandard(endDate) + "\n";
 				long elapsedTime = endTime - startTime;
 				history += "\nTotal elapsed time: "
 						+ DurationFormatUtils.formatDurationHMS(elapsedTime);
