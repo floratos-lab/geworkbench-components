@@ -148,7 +148,14 @@ public class SAMViewer extends JPanel implements VisualPlugin{
 				return fold[d.getGeneRowNo()];
 			case 4:
 				String gene=d.getMarker().getGeneName();
-				return AnnotationManager.getGeneDetail(maSet, gene);				
+				String s="";
+				try{
+					s=AnnotationManager.getGeneDetail(maSet, gene);
+				}
+				catch(Exception e){
+					e.printStackTrace();
+				}
+				return s;				
 			}
 			return 0;
 		}
