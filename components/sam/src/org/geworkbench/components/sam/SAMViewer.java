@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -174,7 +175,7 @@ public class SAMViewer extends JPanel implements VisualPlugin{
 				upperLeftPane, upperRightPane);
 		upperRightPane.setLayout(new BorderLayout());
 		splitPaneTop.setOneTouchExpandable(true);
-		splitPaneTop.setDividerLocation(800);
+		splitPaneTop.setDividerLocation(750);
 		
 		JSplitPane splitPane;		
 		//JPanel upperPane=new JPanel();
@@ -208,17 +209,18 @@ public class SAMViewer extends JPanel implements VisualPlugin{
 		
 		createSlider();
 		sliderPane=new JPanel();
+		//sliderPane.setLayout(new BoxLayout(sliderPane, BoxLayout.LINE_AXIS));
 		sliderPane.setLayout(new BorderLayout());
-		sliderPane.add(deltaSlider, BorderLayout.CENTER);
-		sliderPane.setPreferredSize(new Dimension(300, 80));
+		sliderPane.add(deltaSlider,BorderLayout.CENTER);
+		//sliderPane.setPreferredSize(new Dimension(200, 80));		
 			
 		JPanel sumPane=new JPanel();
 		upperRightPane.add(sumPane,BorderLayout.NORTH);		
 		sumPane.setLayout(new BoxLayout(sumPane, BoxLayout.Y_AXIS));
-		sumPane.add(sliderPane);
-		//sumPane.add(new JLabel(" "));
+		sumPane.setBorder(BorderFactory.createEmptyBorder(10,10,10,40));
+		sumPane.add(sliderPane);		
 		deltaLabel=new JLabel();
-		deltaLabel.setText(DELTA_HEAD+delta);
+		deltaLabel.setText(DELTA_HEAD+delta);		
 		sumPane.add(deltaLabel);
 		sumPane.add(new JLabel(" "));
 		fdrLabel=new JLabel();
@@ -305,8 +307,8 @@ public class SAMViewer extends JPanel implements VisualPlugin{
 		// Generate the graph
 		chart= ChartFactory.createXYLineChart(
 			"SAM Plot", // Title
-			"x-axis: d.bar", // x-axis Label
-			"y-axis: d", // y-axis Label
+			"average null t-statistic, from permutations", // x-axis Label
+			"actual t-statistic, from data", // y-axis Label
 			ds, // Dataset
 			PlotOrientation.VERTICAL, // Plot Orientation
 			false, // Show Legend or not
