@@ -68,7 +68,8 @@ public class SAMAnalysis extends AbstractAnalysis implements
 	private int[] groupAssignments;	
  	private static Log log = LogFactory.getLog(SAMAnalysis.class);
  	
- 	private final long POLL_INTERVAL = 10000; //10 seconds
+ 	private final long POLL_INTERVAL = 5000; //5 seconds
+ 	private final int MAX_ROUNDS=10;
  	
  	private SAMPanel samPanel=new SAMPanel();
  	
@@ -307,18 +308,22 @@ public class SAMAnalysis extends AbstractAnalysis implements
 			return new AlgorithmExecutionResults(false,
 					"error running R scripts.", null);
 		}
-		 try{
-		    	Thread.sleep(POLL_INTERVAL);
-		    	if (this.stopAlgorithm) {
-					pbSam.dispose();
-					return null;
-				}
-		    }catch(InterruptedException e){
-		    	pbSam.dispose();
-		    }		
 		
+		int round=0;
+		while(!resultFile.exists()){
+			round++;
+			 try{
+			    	Thread.sleep(POLL_INTERVAL);
+			    	if (this.stopAlgorithm) {
+						pbSam.dispose();
+						return null;
+					}
+			    }catch(InterruptedException e){
+			    	pbSam.dispose();
+			    }		
+		}
 		
-		if(!resultFile.exists()){
+		if(round>MAX_ROUNDS){
 			pbSam.dispose();
 			return new AlgorithmExecutionResults(false,
 					"R scripts did not get results.", null);
