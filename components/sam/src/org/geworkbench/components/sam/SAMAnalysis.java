@@ -279,7 +279,10 @@ public class SAMAnalysis extends AbstractAnalysis implements
 		String unlogFile=samdir+"unlog.txt";
 		try{
 			out = new PrintWriter(new File(unlogFile));
-			out.println(unlog);			
+			if(unlog)
+				out.print(""+1);
+			else
+				out.print(""+0);			
 		}catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} finally {
