@@ -4,12 +4,12 @@ import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.Stroke;
 import java.awt.event.ActionEvent;
 import java.awt.geom.Ellipse2D;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Hashtable;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -26,9 +26,11 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.table.AbstractTableModel;
 
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.SAMResult;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationManager;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSAnnotPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSAnnotatedPanel;
@@ -76,6 +78,7 @@ public class SAMViewer extends JPanel implements VisualPlugin{
 	private static float[] fold;
 	private float[] fdr;
 	private DSMicroarraySetView<DSGeneMarker, DSMicroarray> dataView;
+	private static DSMicroarraySet maSet;
 		
 	SortPair[] sortPair;
 	
@@ -144,7 +147,8 @@ public class SAMViewer extends JPanel implements VisualPlugin{
 			case 3:
 				return fold[d.getGeneRowNo()];
 			case 4:
-				return d.getMarker().getDescription();					
+				String gene=d.getMarker().getGeneName();
+				return AnnotationManager.getGeneDetail(maSet, gene);				
 			}
 			return 0;
 		}
@@ -295,6 +299,15 @@ public class SAMViewer extends JPanel implements VisualPlugin{
 		deltaSlider.setMinorTickSpacing(1);
 		deltaSlider.setPaintTicks(true);
 		deltaSlider.setPaintLabels(true);
+		
+		Hashtable<Integer, JLabel> labelTable = new Hashtable<Integer, JLabel>();
+		labelTable.put( new Integer( 1 ), new JLabel(""+deltaInc) );
+		labelTable.put( new Integer( sliderMax ), new JLabel(""+deltaInc*sliderMax) );
+		deltaSlider.setLabelTable( labelTable );
+
+		deltaSlider.setPaintLabels(true);
+		
+		
 		deltaSlider.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(ChangeEvent e) {
                 deltaSlider_stateChanged(e);
@@ -385,7 +398,6 @@ public class SAMViewer extends JPanel implements VisualPlugin{
 	        XYSeries seriesOverExpDot = new XYSeries("Series 4");	       
 	        XYSeries seriesUnderExpDot = new XYSeries("Series 5");	       
 	        XYSeries seriesMiddleDot = new XYSeries("Series 6");	       
-	        int overExpressed=0;
 	        overList=new ArrayList<Dot>();
 	        underList=new ArrayList<Dot>();
 	        totalList=new ArrayList<Dot>();
@@ -394,9 +406,6 @@ public class SAMViewer extends JPanel implements VisualPlugin{
 	        		seriesOverExpDot.add(d.getX(),d.getY());
 	        		d.setOverExpressed(true);
 	        		d.setUnderExpressed(false);
-	        		//if(dataView!=null)
-	        			//System.out.println("overExp: "+d.getMarker().getGeneName());
-	        		overExpressed++;
 	        		overList.add(d);
 	        		totalList.add(d);
 	        	}
@@ -451,7 +460,7 @@ public class SAMViewer extends JPanel implements VisualPlugin{
 		if (resultDataSet instanceof SAMResult) {			
 			
 			samResult = (SAMResult) resultDataSet;
-			samResult.getMaSet();
+			maSet=samResult.getMaSet();
 			dataView=samResult.getData();
 			deltaInc=samResult.getDeltaInc();
 			deltaMax=samResult.getDeltaMax();			
