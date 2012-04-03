@@ -68,7 +68,7 @@ public class SAMAnalysis extends AbstractAnalysis implements
 	private int[] groupAssignments;	
  	private static Log log = LogFactory.getLog(SAMAnalysis.class);
  	
- 	private final long POLL_INTERVAL = 8000; //8 seconds
+ 	private final long POLL_INTERVAL = 10000; //10 seconds
  	
  	private SAMPanel samPanel=new SAMPanel();
  	
