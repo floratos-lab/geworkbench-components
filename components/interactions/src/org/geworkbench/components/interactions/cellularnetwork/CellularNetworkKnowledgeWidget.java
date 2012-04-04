@@ -1428,6 +1428,18 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	private void createNetworks(ProgressBar createNetworkPb,
 			CreateNetworkHandler handler) {// GEN-FIRST:event_loadfromDBHandler
 
+		double threshold = 0;
+		try {
+			threshold = new Double(thresholdTextField.getText().trim());
+		} catch (NumberFormatException e1) {
+			createNetWorkButton.setEnabled(true);
+			createNetworkPb.dispose();
+			JOptionPane.showMessageDialog(null, "The Threshold field is not a number.",
+					"Please check your input.", JOptionPane.ERROR_MESSAGE);
+			
+			return;
+		}
+		
 		//HashMap<String, String> geneIdToNameMap = new HashMap<String, String>();
 		DSItemList<DSGeneMarker> markers = dataset.getMarkers();
 		DSItemList<DSGeneMarker> copy = new CSItemList<DSGeneMarker>();
@@ -1439,7 +1451,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				.getGeneNameToMarkerIDMapping(dataset);
 
 		AdjacencyMatrix matrix = new AdjacencyMatrix(null, dataset,
-				CellularNetworkPreferencePanel.interactionTypeSifMap);
+				CellularNetworkPreferencePanel.interactionTypeSifMap, CellularNetworkPreferencePanel.interactionEvidenceMap);
 		handler.setAdjacencyMatrix(matrix);
 		AdjacencyMatrixDataSet adjacencyMatrixdataSet = null;
 
@@ -1652,20 +1664,9 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				}
 				String shortNameType = CellularNetworkPreferencePanel.interactionTypeSifMap
 						.get(interactionDetail.getInteractionType());
-				if (isGene1InMicroarray == false
-						|| isGene2InMicroarray == false) {
-						
-					// this has no more effect - to be removed
-					if (serial1 != -1)
-						mid1 = String.valueOf(serial1);
-					if (serial2 != -1)
-						mid2 = String.valueOf(serial2);
-
-					matrix.add(node1, node2, 0.8f, shortNameType);
-
-				} else {
-					matrix.add(node1, node2, 0.8f, shortNameType);
-				}
+			 
+			    matrix.add(node1, node2, new Float(interactionDetail.getConfidence()), shortNameType, interactionDetail.getEvidenceId());
+ 
 				interactionNum++;			 
 			}
 		} // end for loop
@@ -1682,7 +1683,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		if (createNetwork == true) {
 
 			adjacencyMatrixdataSet = new AdjacencyMatrixDataSet(matrix,
-					0.5f, "Adjacency Matrix", dataset.getLabel(), dataset);
+					threshold, "Adjacency Matrix", dataset.getLabel(), dataset);
 		 
 			String history = "Cellular Network Parameters: \n"
 					+ "      URL Used:     "

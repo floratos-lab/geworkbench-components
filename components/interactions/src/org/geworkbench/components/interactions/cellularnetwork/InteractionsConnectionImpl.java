@@ -82,8 +82,7 @@ public class InteractionsConnectionImpl {
 					arrayList.add(interactionDetail);
 				} catch (NullPointerException npe) {
 					if (logger.isErrorEnabled()) {
-						logger
-								.error("db row is dropped because a NullPointerException");
+						logger.error("db row is dropped because a NullPointerException");
 					}
 				}
 			}
@@ -109,8 +108,7 @@ public class InteractionsConnectionImpl {
 
 		} catch (Exception se) {
 			if (logger.isErrorEnabled()) {
-				logger
-						.error("getPairWiseInteraction(BigDecimal) - ResultSetlUtil rs=" + rs); //$NON-NLS-1$
+				logger.error("getPairWiseInteraction(BigDecimal) - ResultSetlUtil rs=" + rs); //$NON-NLS-1$
 			}
 			se.printStackTrace();
 		}
@@ -129,6 +127,7 @@ public class InteractionsConnectionImpl {
 		String db1_xref = null;
 		String db2_xref = null;
 		String interactionId = null;
+		Short  evidenceId  = 0;
 
 		double confidenceValue = 0d;
 
@@ -174,16 +173,17 @@ public class InteractionsConnectionImpl {
 
 					confidenceValue = rs.getDouble("confidence_value");
 					interactionType = rs.getString("interaction_type").trim();
-
+					if (rs.getString("evidence_id") != null && !rs.getString("evidence_id").trim().equals("null"))
+					    evidenceId = new Short(rs.getString("evidence_id"));
+					
 					InteractionDetail interactionDetail = new InteractionDetail(
 							msid1, msid2, geneName1, geneName2, db1_xref,
 							db2_xref, confidenceValue, interactionType,
-							interactionId);
+							interactionId, evidenceId);
 					arrayList.add(interactionDetail);
 				} catch (NullPointerException npe) {
 					if (logger.isErrorEnabled()) {
-						logger
-								.error("db row is dropped because a NullPointerException");
+						logger.error("db row is dropped because a NullPointerException");
 					}
 				}
 			}
@@ -209,8 +209,7 @@ public class InteractionsConnectionImpl {
 
 		} catch (Exception se) {
 			if (logger.isErrorEnabled()) {
-				logger
-						.error("getPairWiseInteraction(BigDecimal) - ResultSetlUtil rs=" + rs); //$NON-NLS-1$
+				logger.error("getPairWiseInteraction(BigDecimal) - ResultSetlUtil rs=" + rs); //$NON-NLS-1$
 			}
 			se.printStackTrace();
 		}
@@ -227,7 +226,8 @@ public class InteractionsConnectionImpl {
 		String db_xref = null;
 		String interactionId = null;
 
-		double confidenceValue = 0d;
+		double confidenceValue = 1d;
+		Short evidenceId = 0;
 
 		List<InteractionDetail> arrayList = new ArrayList<InteractionDetail>();
 
@@ -256,6 +256,8 @@ public class InteractionsConnectionImpl {
 					confidenceValue = rs.getDouble("confidence_value");
 					interactionType = rs.getString("interaction_type").trim();
 					interactionId = rs.getString("interaction_id");
+					if (rs.getString("evidence_id") != null && !rs.getString("evidence_id").trim().equals("null"))
+					   evidenceId = new Short(rs.getString("evidence_id"));
 					if (!db_xref.equalsIgnoreCase(ENTREZ_GENE)
 							&& geneName.equals(marker_geneName)) {
 						msid = marker_msid;
@@ -269,11 +271,10 @@ public class InteractionsConnectionImpl {
 					} else {
 						for (InteractionParticipant p : participantList) {
 							InteractionDetail interactionDetail = new InteractionDetail(
-									p.getdSGeneMarker(), msid, p
-											.getdSGeneName(), geneName, p
-											.getDbSource(), db_xref,
-									confidenceValue, interactionType,
-									interactionId);
+									p.getdSGeneMarker(), msid,
+									p.getdSGeneName(), geneName,
+									p.getDbSource(), db_xref, confidenceValue,
+									interactionType, interactionId, evidenceId);
 							arrayList.add(interactionDetail);
 						}
 					}
@@ -283,8 +284,7 @@ public class InteractionsConnectionImpl {
 
 				} catch (NullPointerException npe) {
 					if (logger.isErrorEnabled()) {
-						logger
-								.error("db row is dropped because a NullPointerException");
+						logger.error("db row is dropped because a NullPointerException");
 					}
 				}
 			}
@@ -310,8 +310,7 @@ public class InteractionsConnectionImpl {
 
 		} catch (Exception se) {
 			if (logger.isErrorEnabled()) {
-				logger
-						.error("getPairWiseInteraction(BigDecimal) - ResultSetlUtil rs=" + rs); //$NON-NLS-1$
+				logger.error("getPairWiseInteraction(BigDecimal) - ResultSetlUtil rs=" + rs); //$NON-NLS-1$
 			}
 			se.printStackTrace();
 		}
@@ -341,8 +340,7 @@ public class InteractionsConnectionImpl {
 					arrayList.add(sifLine);
 				} catch (NullPointerException npe) {
 					if (logger.isErrorEnabled()) {
-						logger
-								.error("db row is dropped because a NullPointerException");
+						logger.error("db row is dropped because a NullPointerException");
 					}
 				}
 			}
@@ -368,8 +366,7 @@ public class InteractionsConnectionImpl {
 
 		} catch (Exception se) {
 			if (logger.isErrorEnabled()) {
-				logger
-						.error("getInteractionsSifFormat - ResultSetlUtil rs=" + rs); //$NON-NLS-1$
+				logger.error("getInteractionsSifFormat - ResultSetlUtil rs=" + rs); //$NON-NLS-1$
 			}
 			se.printStackTrace();
 		}
@@ -399,8 +396,7 @@ public class InteractionsConnectionImpl {
 					arrayList.add(adjLine);
 				} catch (NullPointerException npe) {
 					if (logger.isErrorEnabled()) {
-						logger
-								.error("db row is dropped because a NullPointerException");
+						logger.error("db row is dropped because a NullPointerException");
 					}
 				}
 			}
@@ -426,8 +422,7 @@ public class InteractionsConnectionImpl {
 
 		} catch (Exception se) {
 			if (logger.isErrorEnabled()) {
-				logger
-						.error("getInteractionsAdjFormat - ResultSetlUtil rs=" + rs); //$NON-NLS-1$
+				logger.error("getInteractionsAdjFormat - ResultSetlUtil rs=" + rs); //$NON-NLS-1$
 			}
 			se.printStackTrace();
 		}
@@ -476,8 +471,56 @@ public class InteractionsConnectionImpl {
 
 		} catch (Exception se) {
 			if (logger.isErrorEnabled()) {
-				logger
-						.error("getInteractionTypes() - ResultSetlUtil: " + se.getMessage()); //$NON-NLS-1$
+				logger.error("getInteractionTypes() - ResultSetlUtil: " + se.getMessage()); //$NON-NLS-1$
+			}
+
+		}
+		return map;
+	}
+
+	public HashMap<String, String> getInteractionEvidenceMap()
+			throws ConnectException, SocketTimeoutException, IOException {
+		HashMap<String, String> map = new HashMap<String, String>();
+
+		ResultSetlUtil rs = null;
+		String evidenceDesc = null;
+		String evidenceId;
+
+		try {
+
+			String methodAndParams = "getInteractionEvidences";
+			rs = ResultSetlUtil.executeQuery(methodAndParams,
+					ResultSetlUtil.getUrl());
+
+			while (rs.next()) {
+
+				evidenceDesc = rs.getString("description");
+				evidenceId = rs.getString("id");
+
+				map.put(evidenceId, evidenceDesc);
+				map.put(evidenceDesc, evidenceId);
+			}
+			rs.close();
+
+		} catch (ConnectException ce) {
+			if (logger.isErrorEnabled()) {
+				logger.error(ce.getMessage());
+			}
+			throw new ConnectException(ce.getMessage());
+		} catch (SocketTimeoutException se) {
+			if (logger.isErrorEnabled()) {
+				logger.error(se.getMessage());
+			}
+			throw new SocketTimeoutException(se.getMessage());
+		} catch (IOException ie) {
+			if (logger.isErrorEnabled()) {
+				logger.error(ie.getMessage());
+			}
+			throw new IOException(ie.getMessage());
+
+		} catch (Exception se) {
+			if (logger.isErrorEnabled()) {
+				logger.error("getInteractionTypes() - ResultSetlUtil: " + se.getMessage()); //$NON-NLS-1$
 			}
 
 		}
@@ -523,8 +566,7 @@ public class InteractionsConnectionImpl {
 
 		} catch (Exception se) {
 			if (logger.isErrorEnabled()) {
-				logger
-						.error("getInteractionTypes() - ResultSetlUtil: " + se.getMessage()); //$NON-NLS-1$
+				logger.error("getInteractionTypes() - ResultSetlUtil: " + se.getMessage()); //$NON-NLS-1$
 			}
 
 		}
@@ -572,8 +614,7 @@ public class InteractionsConnectionImpl {
 
 		} catch (Exception se) {
 			if (logger.isErrorEnabled()) {
-				logger
-						.error("getInteractionTypes() - ResultSetlUtil: " + se.getMessage()); //$NON-NLS-1$
+				logger.error("getInteractionTypes() - ResultSetlUtil: " + se.getMessage()); //$NON-NLS-1$
 			}
 
 		}
