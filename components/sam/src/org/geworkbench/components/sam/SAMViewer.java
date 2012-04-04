@@ -153,15 +153,14 @@ public class SAMViewer extends JPanel implements VisualPlugin{
 				String markerLabel=d.getMarker().getLabel();				
 				try{
 					if (!(gene.equals("")||gene.equals("---"))){
-						//s=AnnotationManager.getGeneDetail(maSet, gene);
+						
 						String[] geneTitles = AnnotationParser.getInfo(maSet,
 								markerLabel, AnnotationParser.DESCRIPTION);
 						s=geneTitles[0];						
 					}
 				}
-				catch(Exception e){
-					//System.out.println(markerLabel+":"+gene);
-					e.printStackTrace();
+				catch(Exception e){					
+					//e.printStackTrace();
 				}
 				return s;
 				
