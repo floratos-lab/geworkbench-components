@@ -31,6 +31,7 @@ import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetV
 import org.geworkbench.bison.datastructure.bioobjects.SAMResult;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationManager;
+import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSAnnotPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSAnnotatedPanel;
@@ -149,13 +150,21 @@ public class SAMViewer extends JPanel implements VisualPlugin{
 			case 4:
 				String gene=d.getMarker().getGeneName();
 				String s="";
+				String markerLabel=d.getMarker().getLabel();				
 				try{
-					s=AnnotationManager.getGeneDetail(maSet, gene);
+					if (!(gene.equals("")||gene.equals("---"))){
+						//s=AnnotationManager.getGeneDetail(maSet, gene);
+						String[] geneTitles = AnnotationParser.getInfo(maSet,
+								markerLabel, AnnotationParser.DESCRIPTION);
+						s=geneTitles[0];						
+					}
 				}
 				catch(Exception e){
+					//System.out.println(markerLabel+":"+gene);
 					e.printStackTrace();
 				}
-				return s;				
+				return s;
+				
 			}
 			return 0;
 		}
@@ -467,7 +476,7 @@ public class SAMViewer extends JPanel implements VisualPlugin{
 		if (resultDataSet instanceof SAMResult) {			
 			
 			samResult = (SAMResult) resultDataSet;
-			maSet=samResult.getMaSet();
+			//maSet=samResult.getMaSet();
 			dataView=samResult.getData();
 			deltaInc=samResult.getDeltaInc();
 			deltaMax=samResult.getDeltaMax();			
@@ -505,6 +514,10 @@ public class SAMViewer extends JPanel implements VisualPlugin{
 			overExpTableModel.fireTableDataChanged();			
 			underExpTableModel.fireTableDataChanged();			
 		}
+		else if (resultDataSet instanceof DSMicroarraySet){
+			maSet = (DSMicroarraySet)resultDataSet;
+		}	
+		
 	}	
 	
 	private void deltaSlider_stateChanged(ChangeEvent e) {

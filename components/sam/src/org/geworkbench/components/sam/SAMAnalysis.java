@@ -92,7 +92,7 @@ public class SAMAnalysis extends AbstractAnalysis implements
 		numGenes = data.markers().size();
 		numExps = data.items().size();
 		
-		System.out.println("numGene="+numGenes+"\tnumExps="+numExps);
+		//System.out.println("numGene="+numGenes+"\tnumExps="+numExps);
 		
 		groupAssignments = new int[numExps];
 		
