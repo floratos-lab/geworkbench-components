@@ -327,7 +327,7 @@ public class NetworkRedrawWindow {
 		AdjacencyMatrix origMatrix = CytoscapeWidget.getInstance()
 				.getAdjMatrix();
 		AdjacencyMatrix matrix = new AdjacencyMatrix(null, origMatrix
-				.getMicroarraySet(), origMatrix.getInteractionTypeSifMap());
+				.getMicroarraySet(), origMatrix.getInteractionTypeSifMap(), origMatrix.getInteractionEvidenceMap());
 
 		Double value = new Double(thresholdSlider.getValue());
 		value = value / 100;
@@ -355,20 +355,38 @@ public class NetworkRedrawWindow {
 						String gene2 = target.getIdentifier();
 
 						String interactionType = null;
+						String evidence = "0";
+						String confidenceValue = "0.8";
 
 						interactionType = edgeAttrs.getStringAttribute(edgeView
 								.getEdge().getIdentifier(), "type");
+						evidence = edgeAttrs.getStringAttribute(edgeView
+								.getEdge().getIdentifier(), "evidence source");
+						confidenceValue = edgeAttrs.getStringAttribute(edgeView
+								.getEdge().getIdentifier(), "confidence value");
+						
+						if (evidence != null
+								&& !evidence.trim().equals("")) {
 
+							String evId = CytoscapeWidget.getInstance().interactionEvidenceMap
+									.get(evidence);
+							if (evId != null && !evId.trim().equals(""))
+								evidence = evId;							 
+						}
+						
 						if (interactionType != null
 								&& !interactionType.trim().equals("")) {
+
 							String type = CytoscapeWidget.getInstance().interactionTypeSifMap
 									.get(interactionType);
 							if (type != null && !type.trim().equals(""))
-								interactionType = CytoscapeWidget.getInstance().interactionTypeSifMap
-										.get(interactionType);
+								interactionType = type;
 
-						}
-
+						}	
+						
+						if (confidenceValue == null || confidenceValue.trim().equals(""))
+							confidenceValue = "0.8";
+						
 					 
 						AdjacencyMatrix.Node node1 = null;
 						AdjacencyMatrix.Node node2 = null;						
@@ -379,7 +397,7 @@ public class NetworkRedrawWindow {
 						node2 = new AdjacencyMatrix.Node(
 									NodeType.GENE_SYMBOL, gene2);
 
-						matrix.add(node1, node2, 0.8f, interactionType);
+						matrix.add(node1, node2, new Float(confidenceValue), interactionType, new Short(evidence));
 					}
 
 				}
@@ -393,7 +411,7 @@ public class NetworkRedrawWindow {
 				return;
 			}
 
-			adjacencyMatrixdataSet = new AdjacencyMatrixDataSet(matrix, 0.5f,
+			adjacencyMatrixdataSet = new AdjacencyMatrixDataSet(matrix, 0.0f,
 					"Adjacency Matrix", CytoscapeWidget.getInstance().maSet
 							.getLabel(), CytoscapeWidget.getInstance().maSet);
 

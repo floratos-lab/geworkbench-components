@@ -104,7 +104,7 @@ public class MarkerSelectionPanel extends JPanel implements Observer {
 		AdjacencyMatrix origMatrix = CytoscapeWidget.getInstance()
 				.getAdjMatrix();
 		AdjacencyMatrix matrix = new AdjacencyMatrix(null, origMatrix
-				.getMicroarraySet(), origMatrix.getInteractionTypeSifMap());
+				.getMicroarraySet(), origMatrix.getInteractionTypeSifMap(), origMatrix.getInteractionEvidenceMap());
 
 		DSPanel<DSGeneMarker> selectedObject = (DSPanel<DSGeneMarker>) list
 				.getSelectedValue();
@@ -137,20 +137,39 @@ public class MarkerSelectionPanel extends JPanel implements Observer {
 				String gene2 = target.getIdentifier();
 
 				String interactionType = null;
+				String evidence = null;
+				String confidenceValue = null;
 
 				interactionType = edgeAttrs.getStringAttribute(edgeView
 						.getEdge().getIdentifier(), "type");
+				evidence = edgeAttrs.getStringAttribute(edgeView
+						.getEdge().getIdentifier(), "evidence source");
+				confidenceValue = edgeAttrs.getStringAttribute(edgeView
+						.getEdge().getIdentifier(), "confidence value");
+				
+				if (evidence != null
+						&& !evidence.trim().equals("")) {
 
+					String evId = CytoscapeWidget.getInstance().interactionEvidenceMap
+							.get(evidence);
+					if (evId != null && !evId.trim().equals(""))
+						evidence = evId;
+					else
+						evidence="0";
+				}
+				
 				if (interactionType != null
 						&& !interactionType.trim().equals("")) {
 
 					String type = CytoscapeWidget.getInstance().interactionTypeSifMap
 							.get(interactionType);
 					if (type != null && !type.trim().equals(""))
-						interactionType = CytoscapeWidget.getInstance().interactionTypeSifMap
-								.get(interactionType);
+						interactionType = type;
 
-				}
+				}	
+				
+				if (confidenceValue == null || confidenceValue.trim().equals(""))
+					confidenceValue = "0.8";
 
 				Object geneId1 = nodeAttrs.getAttribute(gene1, "geneID");				
 				Object geneId2 = nodeAttrs.getAttribute(gene2, "geneID");
@@ -176,7 +195,7 @@ public class MarkerSelectionPanel extends JPanel implements Observer {
 						.contains(gene1)) && node1.intId != 0)
 						&& ((selectedGeneNameList.contains(gene2) || selectedGeneLabelList
 								.contains(gene2))&& node2.intId != 0)) {					
-					matrix.add(node1, node2, 0.8f, interactionType);
+					matrix.add(node1, node2, new Float(confidenceValue), interactionType,  new Short(evidence));
 				} else if ((selectedGeneNameList.contains(gene1)
 						|| selectedGeneLabelList.contains(gene1)) && node1.intId != 0) {
 					matrix.addGeneRow(node1);
@@ -199,7 +218,7 @@ public class MarkerSelectionPanel extends JPanel implements Observer {
 			return;
 		}
 
-		adjacencyMatrixdataSet = new AdjacencyMatrixDataSet(matrix, 0.5f,
+		adjacencyMatrixdataSet = new AdjacencyMatrixDataSet(matrix, 0.0f,
 				"Adjacency Matrix", CytoscapeWidget.getInstance().maSet
 						.getLabel(), CytoscapeWidget.getInstance().maSet);
 
