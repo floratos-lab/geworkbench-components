@@ -174,6 +174,7 @@ public class CytoscapeWidget implements VisualPlugin {
 	boolean publishEnabled = true;
 
 	Map<String, String> interactionTypeSifMap = null;
+	Map<String, String> interactionEvidenceMap = null;
 
 	private static CytoscapeWidget INSTANCE = null;
 
@@ -553,10 +554,15 @@ public class CytoscapeWidget implements VisualPlugin {
 	}
 
 	private void createEdge(CyNode n1, CyNode n2, String geneId1,
-			String geneId2, String type) {
+			String geneId2, String type, float value, Short evidenceId) {
+		
+		String evidenceDesc = null;
+		if (evidenceId != null)
+			evidenceDesc = this.interactionEvidenceMap.get(evidenceId.toString());
+		
 		if (type != null) {
 
-			String typeName = interactionTypeSifMap.get(type);
+			String typeName = interactionTypeSifMap.get(type);			 
 			if (typeName == null || typeName.trim().equals(""))
 				typeName = type;
 
@@ -569,6 +575,12 @@ public class CytoscapeWidget implements VisualPlugin {
 			try {
 				Cytoscape.getEdgeAttributes().setAttribute(e1.getIdentifier(),
 						"type", typeName);
+				
+				Cytoscape.getEdgeAttributes().setAttribute(e1.getIdentifier(),
+						"confidence value", new Float(value).toString());
+				if (evidenceDesc != null)
+					Cytoscape.getEdgeAttributes().setAttribute(e1.getIdentifier(),
+							"evidence source", evidenceDesc);
 
 				if (edgeDm.getMapValue(typeName) == null) {
 					edgeDm.putMapValue(typeName, getRandomCorlor());
@@ -588,7 +600,11 @@ public class CytoscapeWidget implements VisualPlugin {
 				cytoNetwork.addEdge(e);
 
 			e.setIdentifier(n1.getIdentifier() + " () " + n2.getIdentifier());
-
+			Cytoscape.getEdgeAttributes().setAttribute(e.getIdentifier(),
+					"confidence value", new Float(value).toString());
+			if (evidenceDesc != null)
+				Cytoscape.getEdgeAttributes().setAttribute(e.getIdentifier(),
+						"evidence source", evidenceDesc);
 		}
 
 	}
@@ -716,7 +732,7 @@ public class CytoscapeWidget implements VisualPlugin {
 
 			String type = edge.info.type;
 
-			if (edge.info.value <= threshold)
+			if (edge.info.value < threshold)
 				continue;
 
 			// process the two nodes
@@ -724,7 +740,7 @@ public class CytoscapeWidget implements VisualPlugin {
 			CyNode n2 = createNode(edge.node2);
 
 			createEdge(n1, n2, String.valueOf(node1), String
-					.valueOf(edge.node2), type);
+					.valueOf(edge.node2), type, edge.info.value, edge.info.evidenceId);
 
 		} // end of the loop for edges
 	}
@@ -979,6 +995,11 @@ public class CytoscapeWidget implements VisualPlugin {
 		interactionTypeSifMap = adjMatrix.getInteractionTypeSifMap();
 		if (interactionTypeSifMap == null)
 			interactionTypeSifMap = new HashMap<String, String>();
+		interactionEvidenceMap = adjMatrix.getInteractionEvidenceMap();
+		if (interactionEvidenceMap == null)
+			interactionEvidenceMap = new HashMap<String, String>();
+		
+		
 		int i = 0;
 		for (AdjacencyMatrix.Node node : adjMatrix.getNodes()) {
 			if (cancelList.contains(adjMatrixId)) {
@@ -1009,8 +1030,7 @@ public class CytoscapeWidget implements VisualPlugin {
 			return;
 		}
 
-		// new SpringEmbeddedLayouter(Cytoscape.getCurrentNetworkView())
-		// .doLayout();
+		 
 
 		if (cancelList.contains(adjMatrixId)) {
 			log.info("got cancel action");
