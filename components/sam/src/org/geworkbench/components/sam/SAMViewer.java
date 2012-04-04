@@ -30,7 +30,6 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.SAMResult;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationManager;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSAnnotPanel;
@@ -148,7 +147,6 @@ public class SAMViewer extends JPanel implements VisualPlugin{
 			case 3:
 				return fold[d.getGeneRowNo()];
 			case 4:
-				String gene=d.getMarker().getGeneName();
 				String s="";
 				String markerLabel=d.getMarker().getLabel();				
 				try{					
