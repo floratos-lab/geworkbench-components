@@ -6,11 +6,14 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Serializable;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.analysis.AbstractAnalysis;
+import org.geworkbench.analysis.AbstractGridAnalysis;
 import org.geworkbench.bison.annotation.CSAnnotationContext;
 import org.geworkbench.bison.annotation.CSAnnotationContextManager;
 import org.geworkbench.bison.annotation.DSAnnotationContext;
@@ -25,6 +28,7 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
+import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.builtin.projects.history.HistoryPanel;
 import org.geworkbench.util.ProgressBar;
 
@@ -34,7 +38,7 @@ import org.geworkbench.util.ProgressBar;
  * @version $Id$
  */
 
-public class SAMAnalysis extends AbstractAnalysis implements
+public class SAMAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
 
  	private static final long serialVersionUID = -1672201775884915447L;
@@ -435,6 +439,100 @@ public class SAMAnalysis extends AbstractAnalysis implements
 
 		return histStr.toString();
 
+	}
+
+	@Override
+	public String getAnalysisName() {
+		// TODO Auto-generated method stub
+		return "Sam";
+	}
+
+	@Override
+	public Class<?> getBisonReturnType() {
+		return SAMResult.class;
+	}	
+
+	@Override
+	protected boolean useMicroarraySetView() {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+	@Override
+	protected boolean useOtherDataSet() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	protected Map<Serializable, Serializable> getBisonParameters() {
+		Map<Serializable, Serializable> bisonParameters = new HashMap<Serializable, Serializable>();
+		SAMPanel paramPanel = (SAMPanel) this.aspp;
+		float deltaIncrement=Float.parseFloat(paramPanel.getDeltaInc());
+		bisonParameters.put("deltaIncrement", deltaIncrement);
+		float deltaMax=Float.parseFloat(paramPanel.getDeltaMax());
+		bisonParameters.put("deltaMax", deltaMax);
+		int m=Integer.parseInt(paramPanel.getPermutation());
+		bisonParameters.put("m", m);
+		boolean unlog=paramPanel.needUnLog();
+		bisonParameters.put("unlog", unlog);
+		
+		int[] cl=groupAssignments;
+		bisonParameters.put("cl", cl);		
+		
+		return bisonParameters;
+	}
+
+	@Override
+	public ParamValidationResults validInputData(
+			DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView,
+			DSDataSet<?> refMASet) {
+		if (aspp == null)
+			return new ParamValidationResults(true, null);
+		// Use this to get params
+		SAMPanel paramPanel = (SAMPanel) aspp;
+		
+		float deltaIncrement;
+		try{
+			deltaIncrement=Float.parseFloat(paramPanel.getDeltaInc());
+			if(deltaIncrement<=0)
+				return new ParamValidationResults(false,
+						"Delta Increment value should be a positive number.");
+		}
+		catch (Exception e){
+			return new ParamValidationResults(false,
+					"Delta Increment is invalid.");
+		}
+		
+		float deltaMax;
+		try{
+			deltaMax=Float.parseFloat(paramPanel.getDeltaMax());
+			if(deltaMax<=0)
+				return new ParamValidationResults(false,
+						"Delta Increment value should be a positive number.");
+			if(deltaMax<=deltaIncrement)
+				return new ParamValidationResults(false,
+						"Delta Max should be great than Delta Increment value.");
+		}
+		catch (Exception e){
+			return new ParamValidationResults(false,
+					"Delta Max is invalid.");
+		}
+			
+		int permutation;
+		try{
+			permutation=Integer.parseInt(paramPanel.getPermutation());
+			if(permutation<=0)
+				return new ParamValidationResults(false,
+						"Number of label permutations should be a positive number.");
+		}
+		catch (Exception e){
+			return new ParamValidationResults(false,
+					"Number of label permutations is invalid.");
+		}	
+			
+		
+		return new ParamValidationResults(true, "No, no Error");
 	}
 
 }
