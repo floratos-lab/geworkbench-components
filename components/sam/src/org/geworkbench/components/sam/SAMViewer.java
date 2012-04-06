@@ -28,7 +28,7 @@ import javax.swing.table.AbstractTableModel;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
-import org.geworkbench.bison.datastructure.bioobjects.SAMResult;
+import org.geworkbench.bison.datastructure.bioobjects.SamResult;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
@@ -57,7 +57,7 @@ import org.jfree.data.xy.XYSeriesCollection;
  */
 
 
-@AcceptTypes({ SAMResult.class })
+@AcceptTypes({ SamResult.class })
 public class SAMViewer extends JPanel implements VisualPlugin{
 
 	private static final long serialVersionUID = -4629489912300556101L;
@@ -462,14 +462,14 @@ public class SAMViewer extends JPanel implements VisualPlugin{
     }
 	
 
-	private SAMResult samResult = null;
+	private SamResult samResult = null;
 
 	@Subscribe
 	public void receive(ProjectEvent event, Object source) {
 		DSDataSet<?> resultDataSet = event.getDataSet();
-		if (resultDataSet instanceof SAMResult) {			
+		if (resultDataSet instanceof SamResult) {			
 			
-			samResult = (SAMResult) resultDataSet;
+			samResult = (SamResult) resultDataSet;
 			//maSet=samResult.getMaSet();
 			dataView=samResult.getData();
 			deltaInc=samResult.getDeltaInc();

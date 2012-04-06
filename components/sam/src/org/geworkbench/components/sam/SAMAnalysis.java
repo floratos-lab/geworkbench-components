@@ -22,7 +22,7 @@ import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
-import org.geworkbench.bison.datastructure.bioobjects.SAMResult;
+import org.geworkbench.bison.datastructure.bioobjects.SamResult;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
@@ -349,7 +349,7 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 		
 		
 		
-		SAMResult analysisResult=new SAMResult(maSet,"SAM result", data,
+		SamResult analysisResult=new SamResult(maSet,"SAM result", data,
 				deltaInc, deltaMax,	dd, dbar, pvalue, fold, fdr, matfdr);
 		AlgorithmExecutionResults results = new AlgorithmExecutionResults(true,
 				"SAM Analysis", analysisResult);
@@ -449,7 +449,7 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 
 	@Override
 	public Class<?> getBisonReturnType() {
-		return SAMResult.class;
+		return SamResult.class;
 	}	
 
 	@Override
