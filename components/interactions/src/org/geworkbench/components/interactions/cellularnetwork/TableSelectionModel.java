@@ -14,6 +14,7 @@ import javax.swing.event.*;
   * It keeps the information in a list of ListSelectionModels, where
   * each Model represents the selection of a column.
   * @author Min You
+  * @version $Id$
   */
   // This class is added to the Table as aPropertyChangeListener. It
   //  will be noticed when the Table has a new TableModel. So it can
@@ -32,12 +33,10 @@ import javax.swing.event.*;
   //  for myself and makes sure that a TableSelectionEvent is fired
   //  whenever the selection changes.
 public class TableSelectionModel
-      implements PropertyChangeListener, ListSelectionListener, TableModelListener {
+      implements PropertyChangeListener, TableModelListener {
 
-  /** List of Listeners which will be notified when the selection value changes */
-  protected EventListenerList listenerList = new EventListenerList();
   /** contains a ListSelectionModel for each column */
-  protected Vector<ListSelectionModel> listSelectionModels = new Vector<ListSelectionModel>();
+  private Vector<ListSelectionModel> listSelectionModels = new Vector<ListSelectionModel>();
 
   public TableSelectionModel() {
   }
@@ -193,19 +192,17 @@ public class TableSelectionModel
   /**
     * Add a column to the end of the model.
     */
-  protected void addColumn() {
+  private void addColumn() {
     DefaultListSelectionModel newListModel = new DefaultListSelectionModel();
     listSelectionModels.addElement(newListModel);
-    newListModel.addListSelectionListener(this);
   }
 
   /**
     * Remove last column from model.
     */
-  protected void removeColumn() {
+  private void removeColumn() {
     //get last element
     DefaultListSelectionModel removedModel = (DefaultListSelectionModel)listSelectionModels.lastElement();
-    removedModel.removeListSelectionListener(this);
     listSelectionModels.removeElement(removedModel);
 
   }
@@ -216,6 +213,7 @@ public class TableSelectionModel
     * if a new TableModel is set to the JTable.
     */
   // implements PropertyChangeListener
+  @Override
   public void propertyChange(PropertyChangeEvent evt) {
     if ("model".equals(evt.getPropertyName())) {
       TableModel newModel = (TableModel)(evt.getNewValue());
@@ -229,26 +227,11 @@ public class TableSelectionModel
   }
 
   /**
-    * Add a listener to the list that's notified each time a
-    * change to the selection occurs.
-    */
-  public void addTableSelectionListener(TableSelectionListener l) {
- 	  listenerList.add(TableSelectionListener.class, l);
-  }
-
-  /**
-    * Remove a listener from the list that's notified each time a
-    * change to the selection occurs.
-    */
-  public void removeTableSelectionListener(TableSelectionListener l) {
- 	  listenerList.remove(TableSelectionListener.class, l);
-  }
-
-  /**
     * Is called when the TableModel changes. If the number of columns
     * had changed this class will adapt to it.
     */
   //implements TableModelListener
+  @Override
   public void tableChanged(TableModelEvent e) {
     TableModel tm = (TableModel)e.getSource();
     int count = listSelectionModels.size();
@@ -265,36 +248,7 @@ public class TableSelectionModel
     }
   }
 
-  /**
-    * Is called when the selection of a ListSelectionModel
-    * of a column has changed.
-    * @see #fireValueChanged(Object source, int firstIndex, int lastIndex, int columnIndex, boolean isAdjusting)
-    */
-  //implements ListSelectionListener
-  public void valueChanged(ListSelectionEvent e) {
-    ListSelectionModel lsm = (ListSelectionModel)e.getSource();
-    int columnIndex = listSelectionModels.lastIndexOf(lsm);
-    if (columnIndex > -1) {
-      fireValueChanged(this, e.getFirstIndex(), e.getLastIndex(), columnIndex, e.getValueIsAdjusting());
-    }
-  }
-
-  /**
-    * Notify listeners that we have ended a series of adjustments.
-    */
-  protected void fireValueChanged(Object source, int firstIndex, int lastIndex, int columnIndex, boolean isAdjusting) {
-	  Object[] listeners = listenerList.getListenerList();
-	  TableSelectionEvent e = null;
-
-	  for (int i = listeners.length - 2; i >= 0; i -= 2) {
-	    if (listeners[i] == TableSelectionListener.class) {
-		    if (e == null) {
-		      e = new TableSelectionEvent(source, firstIndex, lastIndex, columnIndex, false);
-		    } ((TableSelectionListener)listeners[i+1]).valueChanged(e);
-      }
-	  }
-  }
-
+  @Override
   public String toString() {
     String ret = "[\n";
     for (int col=0; col<listSelectionModels.size(); col++) {
