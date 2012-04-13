@@ -3,7 +3,6 @@ package org.geworkbench.components.poshistogram;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
-import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -27,6 +26,7 @@ import org.geworkbench.bison.datastructure.complex.pattern.sequence.DSMatchedSeq
 import org.geworkbench.util.patterns.CSMatchedSeqPattern;
 import org.geworkbench.util.patterns.PatternOperations;
 import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
@@ -50,7 +50,7 @@ public final class PositionHistogramWidget extends JPanel {
             patterns = new ArrayList<DSMatchedPattern<DSSequence,
             CSSeqRegistration>>();
 
-    private JLabel lblChart = new JLabel();
+	private ChartPanel chartPanel = new ChartPanel(null, true);
     private JFreeChart chart = null;
     private BorderLayout borderLayout1 = new BorderLayout();
     private JToolBar jToolBar1 = new JToolBar();
@@ -108,7 +108,10 @@ public final class PositionHistogramWidget extends JPanel {
         jLabel1.setText("Step:");
         jStepBox.setText("2");
 
-        this.add(lblChart, BorderLayout.CENTER);
+        JPanel p = new JPanel();
+        p.setLayout(new BorderLayout());
+        p.add(chartPanel);
+		this.add(p , BorderLayout.CENTER);
         this.add(jToolBar1, BorderLayout.NORTH);
         jToolBar1.add(plotButton, null);
         jToolBar1.add(component1, null);
@@ -194,8 +197,7 @@ public final class PositionHistogramWidget extends JPanel {
                 plots, // Dataset
                 PlotOrientation.VERTICAL, true, // Show legend
                 false, false);
-        BufferedImage image = chart.createBufferedImage(lblChart.getWidth() - 20, lblChart.getHeight() - 20);
-        lblChart.setIcon(new ImageIcon(image));
+        chartPanel.setChart(chart);
     }
 
     public void imageSnapshotAction(ActionEvent e) {
