@@ -31,6 +31,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
+import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.BlastObj;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
@@ -73,7 +74,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 	private JSplitPane mainPanel = new JSplitPane();
 	private GeneListModel geneListModel = new GeneListModel();
 	private JSplitPane rightPanel = new JSplitPane();
-	private CSSequenceSet<DSSequence> sequenceDB;
+	private DSSequenceSet<? extends DSSequence> sequenceDB;
 	private ArrayList<Vector<BlastObj>> blastDataSet = new ArrayList<Vector<BlastObj>>();
 	private final double jSplitPane1DividerLocation = 0.5;
 
@@ -586,7 +587,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 	 * @param sequenceDB
 	 *            DSDataSet
 	 */
-	public void setSequenceDB(CSSequenceSet<DSSequence> sequenceDB) {
+	public void setSequenceDB(final DSSequenceSet<? extends DSSequence> sequenceDB) {
 		this.sequenceDB = sequenceDB;
 		geneListModel.refresh();
 	}
