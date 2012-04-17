@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Random;
 
 import org.apache.commons.math.MathException;
+import org.apache.commons.math.stat.StatUtils;
 import org.apache.commons.math.stat.inference.TestUtils;
 import org.apache.commons.math.stat.ranking.NaNStrategy;
 import org.apache.commons.math.stat.ranking.NaturalRanking;
@@ -474,55 +475,30 @@ public class TTest {
 
 	}
 	
-	// the algorithm to calculate foldChange is really odd, but let's keep it as it has always been.
+	/** 
+	 * Calculate fold change. If the mean is negative for a row, its fold change value is set as NaN.
+	 * 
+	 * @param significanceIndex
+	 * @return
+	 */
 	private double[] calculateFoldChange(final int[] significanceIndex) {
 		double[] foldChange = new double[rowCount];
-		
-		double minValue = Double.MAX_VALUE;
-		for(int i=0; i<rowCount; i++) {
-			for(int j=0; j<caseCount; j++) {
-				if(caseArray[i][j]<minValue) minValue = caseArray[i][j]; 
-			}
-			for(int j=0; j<controlCount; j++) {
-				if(controlArray[i][j]<minValue) minValue = controlArray[i][j]; 
-			}
-		}
-		
-		if (minValue < 0) {
-			// Minimum value adjust to get us above 0 values
-			minValue = Math.abs(minValue) + 1;
-		} else {
-			minValue = 0;
-		}
 
-		for(int i=0; i<significanceIndex.length; i++) {
-			// Calculate fold change
+		for (int i = 0; i < significanceIndex.length; i++) {
+
 			int index = significanceIndex[i];
-			double caseMean = 0;
-			for(int j=0; j<caseCount; j++) {
-				caseMean += caseArray[index][j];
-			}
-			caseMean = caseMean /caseCount + minValue;
+			double caseMean = StatUtils.mean(caseArray[index]);
+			double controlMean = StatUtils.mean(controlArray[index]);
 
-			double controlMean = 0;
-			for(int j=0; j<controlCount; j++) {
-				controlMean += controlArray[index][j];
-			}
-			controlMean = controlMean / controlCount + minValue;
-
-			double ratio = 0;
-			if (!isLogNormalized) {
-				ratio = caseMean / controlMean;
-				if (ratio < 0) {
-					foldChange[index] = -Math.log(-ratio) / Math.log(2.0);
-				} else {
-					foldChange[index] = Math.log(ratio) / Math.log(2.0);
-				}
-			} else {
+			if (isLogNormalized) {
 				foldChange[index] = caseMean - controlMean;
+			} else if (caseMean <= 0 || controlMean <= 0) {
+				foldChange[index] = Double.NaN;
+			} else {
+				foldChange[index] = MathUtils.log(2.0, caseMean / controlMean);
 			}
 		}
-		
+
 		return foldChange;
 	}
 }
