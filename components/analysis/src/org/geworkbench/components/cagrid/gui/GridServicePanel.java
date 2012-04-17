@@ -69,6 +69,7 @@ public class GridServicePanel extends JPanel {
 		analysisSet.add("SkyBase");
 		analysisSet.add("MRA");
 		analysisSet.add("Idea");
+		analysisSet.add("Sam");
 
 		/* part A */
 		DefaultFormBuilder indexServiceBuilder = new DefaultFormBuilder(
