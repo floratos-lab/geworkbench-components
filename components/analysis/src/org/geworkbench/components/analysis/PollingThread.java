@@ -7,6 +7,9 @@ import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.builtin.projects.ProjectPanel;
+import org.geworkbench.events.AnalysisAbortEvent;
+import org.geworkbench.events.AnalysisCompleteEvent;
+import org.geworkbench.events.AnalysisInvokedEvent;
 import org.ginkgo.labs.ws.GridEndpointReferenceType;
 
 import edu.columbia.geworkbench.cagrid.dispatcher.client.DispatcherClient;
@@ -26,13 +29,19 @@ public class PollingThread extends Thread {
 	private DispatcherClient dispatcherClient = null;
 
 	volatile private boolean cancelled = false;
+	
+	final AnalysisInvokedEvent invokeEvent;
+	final AnalysisPanel analysisPanel;
 
 	public PollingThread(GridEndpointReferenceType gridEPR,
-			DispatcherClient dispatcherClient) {
+			DispatcherClient dispatcherClient,
+			final AnalysisInvokedEvent invokeEvent,
+			final AnalysisPanel analysisPanel) {
 
 		this.gridEPR = gridEPR;
 		this.dispatcherClient = dispatcherClient;
-
+		this.invokeEvent = invokeEvent;
+		this.analysisPanel = analysisPanel;
 	}
 
 	@SuppressWarnings({"unchecked" })
@@ -43,8 +52,10 @@ public class PollingThread extends Thread {
 			while (result == null) {
 				log.debug("polling");
 				Thread.sleep(10000);
-				if (cancelled)
+				if (cancelled) {
+					analysisPanel.publishAnalysisAbortEvent(new AnalysisAbortEvent(invokeEvent));
 					return;
+				}
 				try {
 					result = dispatcherClient.getResults(gridEPR);
 				} catch (Throwable e) {
@@ -81,7 +92,10 @@ public class PollingThread extends Thread {
 			log
 					.error("Error when polling for remote service results.  Error is: ");
 			e.printStackTrace();
+			analysisPanel.publishAnalysisAbortEvent(new AnalysisAbortEvent(invokeEvent));
+			return;
 		}
+		analysisPanel.publishAnalysisCompleteEvent(new AnalysisCompleteEvent(invokeEvent));
 
 	}
 
