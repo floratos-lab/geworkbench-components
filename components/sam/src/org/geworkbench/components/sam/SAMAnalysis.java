@@ -375,8 +375,7 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 	private void prepareRscripts() throws IOException{
 		String scriptsBase=R_SCRIPTS_BASE;
 		BufferedReader br = new BufferedReader(new FileReader(scriptsBase));
-		String line = br.readLine();
-		line = br.readLine();//skip first two lines to make base r scripts the same as grid service
+		String line = br.readLine(); //skip first line to make base r scripts similar as grid service
 		
 		line = br.readLine();
 		String rFile=R_SCRIPTS;
