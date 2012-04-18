@@ -62,9 +62,7 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 	private float[] pvalue;
 	private float[] fold;
 	private float[] fdr;
-	private float[][] matfdr;
- 	
- 	private static final int GROUP_CASE = 1;
+	private static final int GROUP_CASE = 1;
 	private static final int GROUP_CONTROL = 0;
 	private static final int NEITHER_GROUP = 2;
  	private int numGenes,numExps;
