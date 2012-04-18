@@ -77,6 +77,8 @@ import org.geworkbench.engine.management.ComponentRegistry;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.engine.properties.PropertiesManager;
+import org.geworkbench.events.AnalysisAbortEvent;
+import org.geworkbench.events.AnalysisCompleteEvent;
 import org.geworkbench.events.AnalysisInvokedEvent;
 import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.SubpanelChangedEvent;
@@ -369,8 +371,10 @@ public class AnalysisPanel extends CommandBase implements
 
 		for (GridEndpointReferenceType gridEpr : gridEprs) {
 
+			// to control the complexity, let's not support the analysis Abort/Complete event
+			// in the case of restoring workspace for now
 			PollingThread pollingThread = new PollingThread(gridEpr,
-					dispatcherClient);
+					dispatcherClient, null, this);
 			threadList.add(pollingThread);
 			pollingThread.start();
 
@@ -835,19 +839,21 @@ public class AnalysisPanel extends CommandBase implements
 			return false;
 		}
 
+		AnalysisInvokedEvent event = null;
 		if (refOtherSet != null) { /*
 									 * added for analysis that do not take in
 									 * microarray data set
 									 */
 
-			AnalysisInvokedEvent event = new AnalysisInvokedEvent(
+			event = new AnalysisInvokedEvent(
 					selectedAnalysis, "");
 			publishAnalysisInvokedEvent(event);
 		} else if ((maSetView != null) && (refMASet != null)) {
-			AnalysisInvokedEvent event = new AnalysisInvokedEvent(
+			event = new AnalysisInvokedEvent(
 					selectedAnalysis, maSetView.getDataSet().getLabel());
 			publishAnalysisInvokedEvent(event);
 		}
+		final AnalysisInvokedEvent invokeEvent = event;
 
 		ParamValidationResults pvr = selectedAnalysis.validateParameters();
 		if (!pvr.isValid()) {
@@ -862,9 +868,9 @@ public class AnalysisPanel extends CommandBase implements
 				public void run() {
 					/* check if we are dealing with a grid analysis */
 					if (isGridAnalysis()) {
-						submitAsCaGridService();
+						submitAsCaGridService(invokeEvent);
 					} else {						
-						executeLocally();
+						executeLocally(invokeEvent);
 					}
 					analyze.setEnabled(true);
 				}
@@ -876,7 +882,7 @@ public class AnalysisPanel extends CommandBase implements
 		}
 	}
 
-	private void submitAsCaGridService() {
+	private void submitAsCaGridService(final AnalysisInvokedEvent invokeEvent) {
 
 		Date startDate = new Date();
 		Long startTime =startDate.getTime();
@@ -904,10 +910,12 @@ public class AnalysisPanel extends CommandBase implements
 								"Please make sure you entered a valid username and password",
 								"Invalid User Account",
 								JOptionPane.ERROR_MESSAGE);
+				publishAnalysisAbortEvent(new AnalysisAbortEvent(invokeEvent));
 				return;
 			}
 			if (StringUtils.isEmpty(userInfo)) {
 				userInfo = null;
+				publishAnalysisAbortEvent(new AnalysisAbortEvent(invokeEvent));
 				return;
 			}
 		}
@@ -918,6 +926,7 @@ public class AnalysisPanel extends CommandBase implements
 			JOptionPane.showMessageDialog(null,
 					"Cannot execute grid analysis: Invalid URL "+url+" specified.",
 					"Invalid grid URL Error", JOptionPane.ERROR_MESSAGE);
+			publishAnalysisAbortEvent(new AnalysisAbortEvent(invokeEvent));
 			return;
 		}
 
@@ -942,9 +951,11 @@ public class AnalysisPanel extends CommandBase implements
 							.getBisonReturnType());
 		} catch (MalformedURIException e) {
 			e.printStackTrace();
+			publishAnalysisAbortEvent(new AnalysisAbortEvent(invokeEvent));
 			return;
 		} catch (RemoteException e) {
 			e.printStackTrace();
+			publishAnalysisAbortEvent(new AnalysisAbortEvent(invokeEvent));
 			return;
 		} finally {
 			pBar.stop();
@@ -972,14 +983,14 @@ public class AnalysisPanel extends CommandBase implements
 				selectedGridAnalysis.getLabel() + " (pending)", history, false);
 
 		PollingThread pollingThread = new PollingThread(gridEpr,
-				dispatcherClient);
+				dispatcherClient, invokeEvent, this);
 		threadList.add(pollingThread);
 		pollingThread.start();
 	}
 
 	// this method is only invoked form background thread
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private void executeLocally() {
+	private void executeLocally(final AnalysisInvokedEvent invokeEvent) {
 		
 		Date startDate = new Date();
 		Long startTime =startDate.getTime();
@@ -1000,8 +1011,10 @@ public class AnalysisPanel extends CommandBase implements
 							"Invalid Input Data", JOptionPane.ERROR_MESSAGE);
 					results = null;
 					analyze.setEnabled(true);
+					publishAnalysisAbortEvent(new AnalysisAbortEvent(invokeEvent));
 					return;
 				} else if(validResult.getMessage().equals("QUIT")) {
+					publishAnalysisAbortEvent(new AnalysisAbortEvent(invokeEvent));
 					return;
 				}
 			}
@@ -1011,6 +1024,7 @@ public class AnalysisPanel extends CommandBase implements
 		// check the result before further publishing event 
 		if (results == null) {
 			log.info("null result"); // e.g. cancelled
+			publishAnalysisAbortEvent(new AnalysisAbortEvent(invokeEvent));
 			return;
 		}
 		/*
@@ -1022,6 +1036,7 @@ public class AnalysisPanel extends CommandBase implements
 		if (!results.isExecutionSuccessful()) {
 			JOptionPane.showMessageDialog(null, results.getMessage(),
 					"Analysis Error", JOptionPane.ERROR_MESSAGE);
+			publishAnalysisAbortEvent(new AnalysisAbortEvent(invokeEvent));
 			return;
 		}
 		Object resultObject = results.getResults();
@@ -1041,7 +1056,6 @@ public class AnalysisPanel extends CommandBase implements
 			HistoryPanel.addToHistory(dataSet, history);
 			
 			ProjectPanel.getInstance().addProjectNode(null, dataSet);
-			return;
 		}
 		if (resultObject instanceof Hashtable) {
 			DSPanel<DSGeneMarker> panel = ((Hashtable<?, DSPanel<DSGeneMarker>>) resultObject)
@@ -1051,8 +1065,19 @@ public class AnalysisPanel extends CommandBase implements
 						DSGeneMarker.class, panel, SubpanelChangedEvent.NEW));
 			}
 		}
+		publishAnalysisCompleteEvent(new AnalysisCompleteEvent(invokeEvent));
 	}
 	
+	@Publish
+	public AnalysisAbortEvent publishAnalysisAbortEvent(AnalysisAbortEvent analysisAbortEvent) {
+		return analysisAbortEvent;
+	}
+
+	@Publish
+	public AnalysisCompleteEvent publishAnalysisCompleteEvent(AnalysisCompleteEvent analysisCompleteEvent) {
+		return analysisCompleteEvent;
+	}
+
 	private Class<?> currentDataType = null, lastDataType = null;
 	private HashMap<Class<?>, AbstractAnalysis> pidMap = new HashMap<Class<?>, AbstractAnalysis>();
 
