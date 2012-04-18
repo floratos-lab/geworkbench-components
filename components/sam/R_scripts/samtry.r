@@ -1,5 +1,6 @@
+samdir<-getwd()
+samdir<-paste(samdir,"/",sep="")
 library(siggenes)
-samdir<-"c:/samdata/"
 outdir<-paste(samdir,"output", sep="")
 dir.create(outdir,showWarnings = FALSE)
 samoutput<-paste(samdir,"output/", sep="")

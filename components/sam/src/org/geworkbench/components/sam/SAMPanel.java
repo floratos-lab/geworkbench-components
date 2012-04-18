@@ -13,6 +13,8 @@ import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
+
+import org.apache.commons.lang.StringUtils;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
@@ -156,6 +158,22 @@ public class SAMPanel extends AbstractSaveableParameterPanel {
 		}
 	}
 
+    @Override
+	public String getDataSetHistory() {
+    	String histStr = "";
+		// Header
+		histStr += "SAM Analysis with the following parameters:\n";
+		histStr += "----------------------------------------------------------\n";
+
+		histStr += "Input Parameters:" + "\n";			
+		histStr += "\t" + "Delta increment: " + this.getDeltaInc() + "\n";
+		histStr += "\t" + "Delta max: " + this.getDeltaMax() + "\n";
+		histStr += "\t" + "Data log2 transformed: " + this.needUnLog() + "\n";
+		histStr += "\t" + "Number of permutations: " + this.getPermutation() + "\n";	
+		return histStr.toString();
+	}
+    
+    
     public String getDeltaInc() {
        return deltaInc.getText();
     }
