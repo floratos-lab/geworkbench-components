@@ -487,7 +487,7 @@ public class ExportSelectionPanel extends JPanel {
 
 		if (format.equals(Constants.SIF_FORMAT) && tr.hasMoreTokens())
 			restrictedLine.append("\t" + tr.nextToken());
-
+        boolean hasRestrictedNode = false;
 		while (tr.hasMoreTokens()) {
 			String node2 = tr.nextToken();
 			if (markers.get(node2) == null) {
@@ -498,9 +498,10 @@ public class ExportSelectionPanel extends JPanel {
 			restrictedLine.append("\t" + node2);
 			if (format.equals(Constants.ADJ_FORMAT))
 				restrictedLine.append("\t" + tr.nextToken());
-
+			hasRestrictedNode = true;
 		}
-
+         if (!hasRestrictedNode)
+        	 return null;
 		return restrictedLine.toString();
 	}
 
