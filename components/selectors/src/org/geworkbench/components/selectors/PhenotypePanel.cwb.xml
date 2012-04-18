@@ -20,16 +20,6 @@
 
 		<online-help
 			helpSet="org/geworkbench/components/selectors/help/PanelsHelpSet.hs" />
-		<menu-item path="Commands.Sets.Delete Set" mode="onFocus"
-			var="Commands.Sets.Delete" />
-		<menu-item path="Commands.Sets.Activate Set" mode="onFocus"
-			var="Commands.Sets.Activate" />
-		<menu-item path="Commands.Sets.Deactivate Set" mode="onFocus"
-			var="Commands.Sets.Deactivate" />
-		<!--  menu-item path="Commands.Sets.Rename Set" mode="onFocus"
-			var="Commands.Sets.Rename" / -->
-		<menu-item path="Commands.Sets.Add to Set" mode="onFocus"
-			var="Commands.Sets.Add to Set" />
 		<menu-item path="Commands.Clear &quot;Selection&quot; Set" mode="onFocus"
 			var="Commands.Clear &quot;Selection&quot; Set" />
 
