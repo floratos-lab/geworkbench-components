@@ -48,9 +48,11 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.builtin.projects.ProjectPanel;
+import org.geworkbench.builtin.projects.SaveFileFilterFactory; 
+import org.geworkbench.builtin.projects.SaveFileFilterFactory.CustomFileFilter;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.events.ProjectNodeAddedEvent;
-import org.geworkbench.parsers.InputFileFormatException;
+import org.geworkbench.parsers.InputFileFormatException; 
 import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbench.util.ProgressBar;
 
@@ -195,22 +197,39 @@ public class ExportSelectionPanel extends JPanel {
 
 		if (selectedExportTo.equals(Constants.FILE)) {
 
-			File f = new File("export_" + context + "_" + version + ".sif");
+			CustomFileFilter filter = null;	
+			File f = null;		
+			
 			String selectedFormart = formatJcb.getSelectedItem().toString();
 			if (selectedFormart.equals(Constants.ADJ_FORMAT))
+			{
 				f = new File("export_" + context + "_" + version + ".adj");
-			
+				filter = SaveFileFilterFactory.createAdjFileFilter();
+			}
+			else
+			{	
+				f = new File("export_" + context + "_" + version + ".sif");
+				filter = SaveFileFilterFactory.createSifFileFilter();
+			}
 			JFileChooser jFileChooser1 = new JFileChooser(f);
+			jFileChooser1.setFileFilter(filter);
 			String lastDir = null;
 			if ((lastDir = getLastDir()) != null) {
 				jFileChooser1.setCurrentDirectory(new File(lastDir));
 			}			
 		 
-			jFileChooser1.setSelectedFile(f);			
+			jFileChooser1.setSelectedFile(f);
+			
+			
 			String newFileName = null;			
 			if (JFileChooser.APPROVE_OPTION == jFileChooser1
 					.showSaveDialog(null)) {
 				newFileName = jFileChooser1.getSelectedFile().getPath();				
+				if (!filter.accept(new File(newFileName))) {
+					newFileName += "." + filter.getExtension();
+				}
+			
+			
 			} else {
 				return;
 			}
