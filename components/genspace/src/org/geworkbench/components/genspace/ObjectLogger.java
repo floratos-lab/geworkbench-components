@@ -7,6 +7,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -20,6 +21,7 @@ import org.geworkbench.components.genspace.server.stubs.AnalysisEvent;
 import org.geworkbench.components.genspace.server.stubs.AnalysisEventParameter;
 import org.geworkbench.components.genspace.server.stubs.Transaction;
 import org.geworkbench.components.genspace.server.stubs.WorkflowTool;
+import org.geworkbench.events.AnalysisInvokedEvent;
 import org.geworkbench.util.FilePathnameUtils;
 
 /**
@@ -31,15 +33,14 @@ public class ObjectLogger {
 
 //	private Log log = LogFactory.getLog(this.getClass());
 
-	public static Transaction curTransaction = null;
-	
+	public static HashMap<String, Transaction> curTransactions  =new HashMap<String, Transaction>();
 	public ObjectLogger()
 	{
 		
 	}
 	public void log(final String analysisName,final String dataSetName,
 			final String transactionId,
-			@SuppressWarnings("rawtypes") final Map parameters) {
+			@SuppressWarnings("rawtypes") final Map parameters, final AnalysisInvokedEvent event) {
 			SwingWorker<Transaction, Void > worker = new SwingWorker<Transaction, Void>()
 			{
 				@Override
@@ -55,7 +56,7 @@ public class ObjectLogger {
 					
 					if(ret != null)
 					{
-						curTransaction = ret;
+						curTransactions.put(dataSetName, ret);
 					}
 					
 					super.done();
@@ -69,6 +70,7 @@ public class ObjectLogger {
 					} catch (UnknownHostException e1) {
 //						e1.printStackTrace();
 					}
+					Transaction curTransaction = curTransactions.get(dataSetName);
 					if(curTransaction == null || !curTransaction.getClientID().equals(GenSpaceServerFactory.getUsername() + hostname + transactionId))
 					{
 						
@@ -113,7 +115,7 @@ public class ObjectLogger {
 							if(pending.get(pending.size()).getCreatedAt().toGregorianCalendar().after(recentTime))
 							{
 								RealTimeWorkFlowSuggestion.cwfUpdated(done.getWorkflow());
-								curTransaction = done;
+								curTransactions.put(dataSetName, done);
 							}
 						}
 					}
@@ -142,6 +144,7 @@ public class ObjectLogger {
 					try
 					{
 						Transaction retTrans = (GenSpaceServerFactory.getUsageOps().sendUsageEvent((e))); //try to send the log event
+						curTransactions.put(dataSetName, retTrans);
 						GenSpaceServerFactory.clearCache();
 						if(retTrans != null)
 						{
@@ -154,6 +157,7 @@ public class ObjectLogger {
 								t.setTool(null);
 								t.setTool(RuntimeEnvironmentSettings.tools.get(id));
 							}
+							ObjectHandler.runningAnalyses.put(event,retTrans);
 							RealTimeWorkFlowSuggestion.cwfUpdated(retTrans.getWorkflow());
 							return retTrans;
 						}
