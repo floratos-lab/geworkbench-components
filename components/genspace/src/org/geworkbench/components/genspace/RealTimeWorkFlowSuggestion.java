@@ -362,7 +362,7 @@ public class RealTimeWorkFlowSuggestion extends JPanel implements VisualPlugin,
 
 	private static boolean emptyPanel = true;
 	public static void cwfUpdated(Workflow newCWF) {
-
+	
 		WorkflowWrapper last = cwf;
 		RealTimeWorkFlowSuggestion.cwf = new WorkflowWrapper(newCWF);
 		//viewerStatus.setText("You recently used " + cwf.getTools().get(cwf.getTools().size() -1 ).getTool().getName());
