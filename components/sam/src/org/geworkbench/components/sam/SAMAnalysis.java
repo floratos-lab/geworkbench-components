@@ -45,8 +45,7 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
  	
  	private static final String SAMROOT = "/samdata/";
  	private static final String R_ROOT="C:\\Program Files\\R\\R-2.14.2\\bin\\";
- 	private static final String R_SCRIPTS_BASE="C:\\samdata\\samtry.r";
- 	private static final String R_SCRIPTS="C:\\samdata\\sam.r";
+ 	private static final String R_SCRIPTS="C:\\samdata\\samtry.r";
  	
  	private String samdir = SAMROOT;
  	private String samOutput = SAMROOT+"output\\";
@@ -365,21 +364,14 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 	}
 	
 	private void prepareRscripts() throws IOException{
-		String scriptsBase=R_SCRIPTS_BASE;
-		BufferedReader br = new BufferedReader(new FileReader(scriptsBase));
-		String line = br.readLine(); //skip first line to make base r scripts similar as grid service
 		
-		line = br.readLine();
 		String rFile=R_SCRIPTS;
 		PrintWriter out = null;
 				
 		try{
 			out = new PrintWriter(new File(rFile));
 			out.println("samdir<-\""+samdir+"\"");
-			while(line!=null){
-				out.println(line);
-				line=br.readLine();
-			}
+			out.println(R_COMMAND);
 			
 		}catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -614,5 +606,36 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 		
 		return new ParamValidationResults(true, "No, no Error");
 	}//end of validInputData
+	
+	private static final String R_COMMAND=
+			"library(siggenes)\n"
+				+"outdir<-paste(samdir,\"output\", sep=\"\")\n"
+				+"dir.create(outdir,showWarnings = FALSE)\n"
+				+"samoutput<-paste(samdir,\"output/\", sep=\"\")\n"
+				+"datafile<-paste(samdir, \"data.txt\", sep=\"\")\n"
+				+"clfile<-paste(samdir,\"cl.txt\",sep=\"\")\n"
+				+"deltafile<-paste(samdir,\"delta_vec.txt\",sep=\"\")\n"
+				+"permfile<-paste(samdir,\"perm.txt\",sep=\"\")\n"
+				+"unlogfile<-paste(samdir,\"unlog.txt\",sep=\"\")\n"
+
+				+"outdfile<-paste(samoutput,\"outd.txt\",sep=\"\")\n"
+				+"outdbarfile<-paste(samoutput,\"outdbar.txt\",sep=\"\")\n"
+				+"outpvaluefile<-paste(samoutput,\"outpvalue.txt\",sep=\"\")\n"
+				+"outfoldfile<-paste(samoutput,\"outfold.txt\",sep=\"\")\n"
+				+"outmatfdrfile<-paste(samoutput,\"outmatfdr.txt\",sep=\"\")\n"
+				+"donefile<-paste(samoutput,\"done.txt\",sep=\"\")\n"
+
+				+"data<-read.table(datafile, sep=\"\\t\")\n"
+				+"cl<-scan(clfile)\n"
+				+"delta_vec<-scan(deltafile)\n"
+				+"perm<-scan(permfile)\n"
+				+"unlog<-scan(unlogfile, what=\"logical\")\n"
+				+"sam.out<-sam(data,cl,control=samControl(delta=delta_vec),B=perm, R.unlog=unlog, rand=123)\n"
+				+"write.table(sam.out@d,outdfile)\n"
+				+"write.table(sam.out@d.bar,outdbarfile)\n"
+				+"write.table(sam.out@p.value,outpvaluefile)\n"
+				+"write.table(sam.out@fold,outfoldfile)\n"
+				+"write.table(sam.out@mat.fdr[,c(1,3:5)],outmatfdrfile)\n"
+				+"write.table(cl,donefile)";
 
 }
