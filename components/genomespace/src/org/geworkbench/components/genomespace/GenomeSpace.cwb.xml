@@ -9,7 +9,7 @@
 				toolURL="http://www.broadinstitute.org/software/genomespace/analysisandtools"
 				tutorialURL="http://www.broadinstitute.org/software/genomespace"
 				description="Genome Space"
-				loadByDefault="true"
+				loadByDefault="false"
 				category="visualizer"
 	 >
 		<license><![CDATA[
