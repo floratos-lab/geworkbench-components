@@ -71,8 +71,7 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 	private int[] groupAssignments;	
  	private static Log log = LogFactory.getLog(SAMAnalysis.class);
  	
- 	private final long POLL_INTERVAL = 5000; //5 seconds
- 	private final int MAX_ROUNDS=3;
+ 	private final long POLL_INTERVAL = 5000; //5 seconds 	
  	
  	private SAMPanel samPanel=new SAMPanel();
  	
@@ -312,18 +311,16 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 		System.out.println(command);
 		try {
 			
-			Process p = Runtime.getRuntime().exec(command);
+			Runtime.getRuntime().exec(command);
 			
 		} catch (Exception e) {
 			pbSam.dispose();
 			e.printStackTrace();
 			return new AlgorithmExecutionResults(false,
 					"error running R scripts.", null);
-		}
+		}		
 		
-		int round=0;
-		while(!resultFile.exists()){
-			round++;
+		while(!resultFile.exists()){			
 			 try{
 			    	Thread.sleep(POLL_INTERVAL);
 			    	if (this.stopAlgorithm) {
@@ -335,11 +332,6 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 			    }		
 		}
 		
-		if(round>MAX_ROUNDS){
-			pbSam.dispose();
-			return new AlgorithmExecutionResults(false,
-					"R scripts did not get results.", null);
-		}
 		
 		//mock sam result here from file
 		try {
