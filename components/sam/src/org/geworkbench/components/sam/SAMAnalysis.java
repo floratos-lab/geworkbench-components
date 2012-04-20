@@ -44,12 +44,13 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
  	private static final long serialVersionUID = -1672201775884915447L;
  	
  	private static final String SAMROOT = "/samdata/";
- 	private static final String R_ROOT="C:\\Program Files\\R\\R-2.14.2\\bin\\";
+ 	private static final String R_ROOT="C:\\Program Files\\R\\R-2.14.2\\bin\\rscript.exe";
  	private static final String R_SCRIPTS="C:\\samdata\\samtry.r";
  	
  	private String samdir = SAMROOT;
  	private String samOutput = SAMROOT+"output\\";
  	
+ 	private String logfile = "err.log";
 
  	private float deltaInc;
  	private float deltaMax;
@@ -306,12 +307,11 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 		if(resultFile.exists())
 			resultFile.delete();
 		
-		String command = R_ROOT+"rscript.exe"+" "+R_SCRIPTS;		
+		String command = R_ROOT+" "+R_SCRIPTS +" > "+samdir+logfile+" 2>&1";		
 		System.out.println(command);
-		try {
-			
-			Runtime.getRuntime().exec(command);
-			
+		
+		try {			
+			Runtime.getRuntime().exec(command);			
 		} catch (Exception e) {
 			pbSam.dispose();
 			e.printStackTrace();
@@ -321,18 +321,20 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 		
 		while(!resultFile.exists()){			
 			 try{
-			    	Thread.sleep(POLL_INTERVAL);
-			    	if (this.stopAlgorithm) {
-						pbSam.dispose();
-						return null;
-					}
-			    }catch(InterruptedException e){
-			    	pbSam.dispose();
+			    	Thread.sleep(POLL_INTERVAL);			    	
+			    	
+			    	String err = null;
+				    if ((err = runError()) != null){
+				    	pbSam.dispose();
+				    	return new AlgorithmExecutionResults(false,
+				    			"Sam run got error:\n"+err, null);				    	
+				    }
+				}
+			 catch(InterruptedException e){
+			    	
 			    }		
-		}
+		}		
 		
-		
-		//mock sam result here from file
 		try {
 			dd=getResultFromFile(samOutput+"outd.txt");
 			dbar=getResultFromFile(samOutput+"outdbar.txt");
@@ -606,6 +608,35 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 		
 		return new ParamValidationResults(true, "No, no Error");
 	}//end of validInputData
+	
+	private String runError(){
+		StringBuilder str = new StringBuilder();
+		BufferedReader br = null;
+		boolean error = false;
+		if (!new File(samdir+logfile).exists()) return null;
+		try{
+			br = new BufferedReader(new FileReader(samdir+logfile));
+			String line = null;
+			int i = 0;
+			while((line = br.readLine())!=null){
+				if (((i = line.indexOf("Error:"))>-1)||((i = line.indexOf("error:"))>-1)){
+					str.append(line.substring(i)+"\n");
+					error = true;
+				}
+			}
+		}catch(IOException e){
+			e.printStackTrace();
+		}finally{
+			try{
+				if (br!=null) br.close();
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+		}
+		if (error)  return str.toString();
+		return null;
+	}
+
 	
 	private static final String R_COMMAND=
 			"library(siggenes)\n"
