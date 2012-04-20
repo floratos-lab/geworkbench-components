@@ -14,7 +14,6 @@ import javax.swing.SwingUtilities;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.analysis.AbstractGridAnalysis;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType;
@@ -61,15 +60,6 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 	 */
 	public AracneAnalysis() {
 		setDefaultPanel(new AracneParamPanel());
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.geworkbench.analysis.AbstractAnalysis#getAnalysisType()
-	 */
-	public int getAnalysisType() {
-		return AbstractAnalysis.ZERO_TYPE;
 	}
 
 	/*
