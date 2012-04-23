@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
+import javax.swing.JOptionPane;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractGridAnalysis;
@@ -30,6 +32,7 @@ import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.builtin.projects.history.HistoryPanel;
+import org.geworkbench.engine.preferences.GlobalPreferences;
 import org.geworkbench.util.ProgressBar;
 
 /**
@@ -43,12 +46,12 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 
  	private static final long serialVersionUID = -1672201775884915447L;
  	
- 	private static final String SAMROOT = "/samdata/";
- 	private static final String R_ROOT="C:\\Program Files\\R\\R-2.14.2\\bin\\rscript.exe";
- 	private static final String R_SCRIPTS="C:\\samdata\\samtry.r";
+ 	private static final String SAMROOT = "/samdata/";	//it should be replaced.
+ 	private static String r_root="";
+ 	private static final String R_SCRIPTS="samtry.r";
  	
  	private String samdir = SAMROOT;
- 	private String samOutput = SAMROOT+"output\\";
+ 	private final String samOutFolder = "output\\";
  	
  	private String logfile = "err.log";
 
@@ -102,6 +105,41 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 
 		if (!(set instanceof DSMicroarraySet)) {			
 			return null;
+		}		
+		
+		String currdir=System.getProperty("user.dir");		
+		String predir=currdir+"\\data\\sam";
+		
+		File prefile=new File(predir);
+		if(!prefile.exists()){
+			if(!(prefile ).mkdir())
+				return new AlgorithmExecutionResults(false, "Cannot create directory at "+predir, null);
+		}
+		samdir=predir+"\\";
+		String samOutput=samdir+samOutFolder;
+				
+		int n = JOptionPane.showConfirmDialog(
+			    null,
+			    "SAM requires R installed on your computer. R location should be assigned in Tools->Preference->R location.\n" +
+			    "R package of SAM is also required which will be installed automatically if not installed yet.\n" +
+			    "Do you want to continue?",
+			    "Pleas be aware of",
+			    JOptionPane.YES_NO_OPTION);
+		if(n!=JOptionPane.YES_OPTION)
+			return new AlgorithmExecutionResults(false, "Analysis aborted.", null);
+		
+		
+		String rExe = GlobalPreferences.getInstance().getRLocation();
+		if ((rExe == null)||(rExe.equals(""))) {
+			//log.info("No R location configured.");
+			return new AlgorithmExecutionResults(false, "Rscript.exe's location is not assigned", null);
+		}		
+		else{
+			File rExeFile=new File(rExe);
+			if(!rExeFile.exists())
+				return new AlgorithmExecutionResults(false, "Rscript.exe not exist. Please check it's location at Tools->Preference->R location.", null);
+			else
+				r_root=rExe;
 		}
 		
 		ProgressBar pbSam = ProgressBar
@@ -307,7 +345,7 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 		if(resultFile.exists())
 			resultFile.delete();
 		
-		String command = R_ROOT+" "+R_SCRIPTS +" > "+samdir+logfile+" 2>&1";		
+		String command = r_root+" "+samdir+R_SCRIPTS +" > "+samdir+logfile+" 2>&1";		
 		System.out.println(command);
 		
 		try {			
@@ -367,12 +405,13 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 	
 	private void prepareRscripts() throws IOException{
 		
-		String rFile=R_SCRIPTS;
+		String dir4r=samdir.replace("\\", "/");
+		String rFile=dir4r+R_SCRIPTS;
 		PrintWriter out = null;
 				
 		try{
 			out = new PrintWriter(new File(rFile));
-			out.println("samdir<-\""+samdir+"\"");
+			out.println("samdir<-\""+dir4r+"\"");
 			out.println(R_COMMAND);
 			
 		}catch (FileNotFoundException e) {
@@ -639,7 +678,13 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 
 	
 	private static final String R_COMMAND=
-			"library(siggenes)\n"
+			"a<-require(siggenes)\n"
+					+"if(a==FALSE){\n"
+					+"source(\"http://bioconductor.org/biocLite.R\")\n"
+					+"biocLite(\"siggenes\")\n"
+					+"}\n"
+
+				+"library(siggenes)\n"
 				+"outdir<-paste(samdir,\"output\", sep=\"\")\n"
 				+"dir.create(outdir,showWarnings = FALSE)\n"
 				+"samoutput<-paste(samdir,\"output/\", sep=\"\")\n"
