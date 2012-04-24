@@ -27,6 +27,7 @@ public class DetailedTFGraphViewer extends JPanel {
 	private DSMasterRagulatorResultSet<DSGeneMarker> mraResultSet;
 	private DSMicroarraySet mSet;
 	private int numberOfMarkers;
+	private boolean showRegulonBar;
 	/*private HashMap<Integer, DSGeneMarker> Rank2GeneMap;
 	private HashMap<DSGeneMarker, Integer> Gene2RankMap;
 
@@ -34,9 +35,10 @@ public class DetailedTFGraphViewer extends JPanel {
 	double maxValue = 0;*/
 
 	public void setTFA(DSMasterRagulatorResultSet<DSGeneMarker> mraResultSet,
-			DSGeneMarker tfA) {
+			DSGeneMarker tfA, boolean regulon) {
 		this.mraResultSet = mraResultSet;
 		this.tfA = tfA;
+		showRegulonBar = regulon;
 		if (mraResultSet != null) {
 			mSet = mraResultSet.getMicroarraySet();
 			numberOfMarkers = mSet.getMarkers().size();
@@ -120,7 +122,8 @@ public class DetailedTFGraphViewer extends JPanel {
 
 			//double maxAbsValue = Math.max(Math.abs(minValue), Math.abs(maxValue));
 
-			DSItemList<DSGeneMarker> genesInRegulonList = mraResultSet.getGenesInRegulon(tfA);					 
+			DSItemList<DSGeneMarker> genesInRegulonList = showRegulonBar?
+					mraResultSet.getGenesInRegulon(tfA):mraResultSet.getGenesInTargetList(tfA);
 			if (genesInRegulonList == null) { // if user selected wrong
 												// TF, which doesn't have
 												// neighbors
