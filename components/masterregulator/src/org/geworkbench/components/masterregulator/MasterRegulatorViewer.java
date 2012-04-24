@@ -103,6 +103,8 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 	private JRadioButton modeAll = new JRadioButton("All");
 	private JRadioButton activator = new JRadioButton("Activator(+)");
 	private JRadioButton repressor = new JRadioButton("Repressor(-)");
+	private JRadioButton regulonBar = new JRadioButton("Regulons");
+	private JRadioButton intersectionBar = new JRadioButton("Intersection Sets");
 	private final JSplitPane jSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 	private boolean shown = false;
 
@@ -137,7 +139,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		DefaultFormBuilder builder = new DefaultFormBuilder(layout);
 
 		FormLayout headerLayout = new FormLayout(
-				"60dlu,6dlu,60dlu,20dlu,70dlu,1dlu,20dlu,25dlu,35dlu,2dlu,20dlu,55dlu,70dlu,20dlu,72dlu",
+				"40dlu,2dlu,45dlu,10dlu,70dlu,0dlu,20dlu,10dlu,35dlu,0dlu,20dlu,10dlu,52dlu,0dlu,44dlu,2dlu,65dlu,10dlu,70dlu,10dlu,72dlu",
 				"20dlu");
 		DefaultFormBuilder headerBuilder = new DefaultFormBuilder(headerLayout);
 		ActionListener actionListener = new ActionListener() {
@@ -166,21 +168,29 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		headerBuilder.append(showProbeSetButton);
 		// end of symbol and probe set
 
-		headerBuilder.append("Display results for top ");
-		headerBuilder.append(numtop);
-		numtop.addActionListener(new ActionListener(){
+		ActionListener barListener = new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				updateGraph();
 			}
-		});
+		};
+
+		headerBuilder.append("Display results for top ");
+		headerBuilder.append(numtop);
+		numtop.addActionListener(barListener);
 		
 		headerBuilder.append("Bar height ");
 		headerBuilder.append(barheight);
-		barheight.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e){
-				updateGraph();
-			}
-		});
+		barheight.addActionListener(barListener);
+		
+		headerBuilder.append("Display bars for ");
+		headerBuilder.append(regulonBar);
+		headerBuilder.append(intersectionBar);
+		ButtonGroup barGroup = new ButtonGroup();
+		barGroup.add(regulonBar);
+		barGroup.add(intersectionBar);
+		regulonBar.setSelected(true);
+		regulonBar.addActionListener(barListener);
+		intersectionBar.addActionListener(barListener);
 
 		// export part
 		JButton exportAllButton = new JButton("Export all targets");
@@ -455,7 +465,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 			graphdata[i][0] = button.getText();
 			DetailedTFGraphViewer gv = new DetailedTFGraphViewer();
 			gv.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
-			gv.setTFA(MRAResultSet, MRAResultSet.getTFs().get(button.getName()));
+			gv.setTFA(MRAResultSet, MRAResultSet.getTFs().get(button.getName()), regulonBar.isSelected());
 			gv.updateUI();
 			graphdata[i][1] = gv;
 			graphdata[i][2] = tv.getTable().getValueAt(i, 4);
