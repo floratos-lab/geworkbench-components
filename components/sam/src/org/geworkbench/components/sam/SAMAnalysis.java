@@ -1,9 +1,11 @@
 package org.geworkbench.components.sam;
  
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Serializable;
@@ -11,6 +13,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
+import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 
 import org.apache.commons.logging.Log;
@@ -33,6 +36,7 @@ import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.builtin.projects.history.HistoryPanel;
 import org.geworkbench.engine.preferences.GlobalPreferences;
+import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbench.util.ProgressBar;
 
 /**
@@ -74,7 +78,10 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 	private int[] groupAssignments;	
  	private static Log log = LogFactory.getLog(SAMAnalysis.class);
  	
- 	private final long POLL_INTERVAL = 5000; //5 seconds 	
+ 	private final long POLL_INTERVAL = 5000; //5 seconds 
+ 	
+ 	private static final String lastConf = FilePathnameUtils.getUserSettingDirectoryPath()
+ 			+ "sam" + FilePathnameUtils.FILE_SEPARATOR + "last.conf";
  	
  	private SAMPanel samPanel=new SAMPanel();
  	
@@ -117,18 +124,30 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 		}
 		samdir=predir+"\\";
 		String samOutput=samdir+samOutFolder;
+		
+		String noShow=getLast();
+		if((noShow.equals(""))||(noShow.equalsIgnoreCase("false"))){
+		
+			JCheckBox checkbox = new JCheckBox("Do not show this message again.");
+			String message = "SAM requires R installed on your computer. R location should be assigned in Tools->Preference->R location.\n" +
+				    "R package of SAM is also required which will be installed automatically if not installed yet.\n" +
+				    "Do you want to continue?";
+			Object[] params = {message, checkbox};
+			int n = JOptionPane.showConfirmDialog(
+					null,
+					params,
+				    "Pleas be aware of",
+				    JOptionPane.YES_NO_OPTION);
+			boolean dontShow = checkbox.isSelected();
+			String s=dontShow?"True":"False";
+			System.out.println("donShow="+s );
+			saveLast(s);
+			
+			if(n!=JOptionPane.YES_OPTION)
+				return new AlgorithmExecutionResults(false, "Analysis aborted.", null);
+			
+		}
 				
-		int n = JOptionPane.showConfirmDialog(
-			    null,
-			    "SAM requires R installed on your computer. R location should be assigned in Tools->Preference->R location.\n" +
-			    "R package of SAM is also required which will be installed automatically if not installed yet.\n" +
-			    "Do you want to continue?",
-			    "Pleas be aware of",
-			    JOptionPane.YES_NO_OPTION);
-		if(n!=JOptionPane.YES_OPTION)
-			return new AlgorithmExecutionResults(false, "Analysis aborted.", null);
-		
-		
 		String rExe = GlobalPreferences.getInstance().getRLocation();
 		if ((rExe == null)||(rExe.equals(""))) {
 			//log.info("No R location configured.");
@@ -674,6 +693,31 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 		}
 		if (error)  return str.toString();
 		return null;
+	}
+	
+	private String getLast(){
+		String conf = "";
+		try {
+			File file = new File(lastConf);
+			if (file.exists()) {
+				BufferedReader br = new BufferedReader(new FileReader(file));
+				conf = br.readLine();
+				br.close();
+			}
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
+		return conf;
+	}
+	private void saveLast(String conf){
+		//save as last used conf
+		try {
+			BufferedWriter br = new BufferedWriter(new FileWriter(lastConf));
+			br.write(conf);
+			br.close();
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
 	}
 
 	
