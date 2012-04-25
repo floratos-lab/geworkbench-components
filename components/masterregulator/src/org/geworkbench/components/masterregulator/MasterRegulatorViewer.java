@@ -96,9 +96,9 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 	private JScrollPane gspane2 = new JScrollPane(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 	private static final int col0w = 120, col2w = 40;
 	private static final String[] graphheader = new String[]{"Master Regulator","Bar Graph","Mode"};
-	private DefaultTableModel bgm = new DefaultTableModel(new Object[0][3], graphheader);
+	private GraphTableModel bgm = new GraphTableModel(new Object[0][3], graphheader);
 	private JTable graphtable = new JTable(bgm);
-	private DefaultTableModel gdm = new DefaultTableModel(new Object[0][3], graphheader);
+	private GraphTableModel gdm = new GraphTableModel(new Object[0][3], graphheader);
 	private JTable gradienttable = new JTable(gdm);
 	private JRadioButton modeAll = new JRadioButton("All");
 	private JRadioButton activator = new JRadioButton("Activator(+)");
@@ -642,5 +642,14 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		return event;
 	}
 
+	private class GraphTableModel extends DefaultTableModel{
+		GraphTableModel(Object[][] data, Object[] columnNames) {
+			super(data, columnNames);
+		}
+		
+		public boolean isCellEditable(int row, int col){
+			return false;
+		}
+	}
 	 
 }
