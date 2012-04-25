@@ -55,23 +55,18 @@ import edu.columbia.c2b2.mindy.MindyResults;
  * @author oshteynb
  * @version $Id$
  */
-@SuppressWarnings("serial")
 public class MindyAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
 
-	Log log = LogFactory.getLog(this.getClass());
+	private static final long serialVersionUID = -3116424364457413572L;
+
+	private Log log = LogFactory.getLog(MindyAnalysis.class);
 
 	private MindyParamPanel paramPanel;
 
-	private MindyDataSet mindyDataSet;
-
-	private final String analysisName = "Mindy";
+	private static final String analysisName = "Mindy";
 
 	private ProgressBar progressBar = null;
-
-	private DSPanel<DSGeneMarker> selectorPanel = null;
-
-	MindyResults results = null;
 
 	/* to test decoupling from dataset */
 	/*
@@ -91,15 +86,6 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 	public MindyAnalysis() {
 		paramPanel = new MindyParamPanel();
 		setDefaultPanel(paramPanel);
-	}
-
-	// not used - required to implement from interface ClusteringAnalysis
-	public int getAnalysisType() {
-		return AbstractGridAnalysis.ZERO_TYPE;
-	}
-
-	MindyParamPanel getCurrentParamPanel() {
-		return (MindyParamPanel) aspp;
 	}
 
 	/**
@@ -308,9 +294,9 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 		}
 
 		if (e.getPanel() != null) {
-			this.selectorPanel = e.getPanel();
+			DSPanel<DSGeneMarker> selectorPanel = e.getPanel();
 			((MindyParamPanel) aspp).setSelectorPanel(((MindyParamPanel) aspp),
-					this.selectorPanel);
+					selectorPanel);
 		} else {
 			log.debug("Received Gene Selector Event: Selection panel sent was null");
 		}
@@ -341,7 +327,7 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 		return event;
 	}
 
-	class MindyThread extends Thread implements Observer {
+	private class MindyThread extends Thread implements Observer {
 		DSMicroarraySet mSet;
 
 		DSPanel<DSMicroarray> arraySet;
@@ -371,8 +357,6 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 		String paramDesc;
 
 		String candidateModFile;
-
-		// MindyParamPanel params;
 
 		public MindyThread(DSMicroarraySet mSet,
 				DSPanel<DSMicroarray> arraySet, List<String> chosenTargets,
@@ -491,6 +475,7 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 
 			// bug 1992, it was about NPE, but just in case will catch any
 			// exception
+			MindyResults results = null;
 			try {
 				results = mindy.runMindy(
 						convert(mSet, arrayForMindyRun, chosenTargets), tf,
@@ -517,7 +502,7 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 					(CSMicroarraySet) mSet, arrayForMindyRun, setFraction,
 					transFac);
 
-			mindyDataSet = new MindyDataSet(mSet, "MINDY Results", loadedData,
+			MindyDataSet mindyDataSet = new MindyDataSet(mSet, "MINDY Results", loadedData,
 					candidateModFile);
 
 			log.info("Done converting MINDY results.");
@@ -531,32 +516,24 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 				return;
 			}
 
-			if (mindyDataSet != null) {
-				log.info(paramDesc);
-				// add start/end time to history
-				String history = "Analysis started at: "
-						+ Util.formatDateStandard(startDate)
-						+ "\n";
-				history += "\n" + paramDesc + "\n";
+			log.info(paramDesc);
+			// add start/end time to history
+			String history = "Analysis started at: "
+					+ Util.formatDateStandard(startDate) + "\n";
+			history += "\n" + paramDesc + "\n";
 
-				Date endDate = new Date();
-				long endTime = endDate.getTime();
-				history += "\nAnalysis finished at: "
-						+ Util.formatDateStandard(endDate) + "\n";
-				long elapsedTime = endTime - startTime;
-				history += "\nTotal elapsed time: "
-						+ DurationFormatUtils.formatDurationHMS(elapsedTime);
+			Date endDate = new Date();
+			long endTime = endDate.getTime();
+			history += "\nAnalysis finished at: "
+					+ Util.formatDateStandard(endDate) + "\n";
+			long elapsedTime = endTime - startTime;
+			history += "\nTotal elapsed time: "
+					+ DurationFormatUtils.formatDurationHMS(elapsedTime);
 
-				HistoryPanel.addToHistory(mindyDataSet, history);
-				progressBar.stop();
-				publishProjectNodeAddedEvent(new ProjectNodeAddedEvent(
-						"Mindy Result Added", null, mindyDataSet));
-			} else {
-				JOptionPane.showMessageDialog(paramPanel.getParent(),
-						"Cannot analyze data.", "MINDY Analyze Error",
-						JOptionPane.WARNING_MESSAGE);
-				log.warn("MINDY Analyze Error: Cannot analyze data.");
-			}
+			HistoryPanel.addToHistory(mindyDataSet, history);
+			progressBar.stop();
+			publishProjectNodeAddedEvent(new ProjectNodeAddedEvent(
+					"Mindy Result Added", null, mindyDataSet));
 
 			progressBar.stop();
 		}
@@ -704,7 +681,7 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 	public ParamValidationResults validInputData(
 			DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView,
 			DSDataSet<?> refMASet) {
-		// TODO Auto-generated method stub
+
 		MindyParamPanel params = (MindyParamPanel) aspp;
 		DSMicroarraySet mSet = null;
 		mSet = maSetView.getMicroarraySet();
@@ -789,21 +766,4 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 		return new ParamValidationResults(true, "No Error");
 	}
 
-	// FIXME:
-	// Overriding the method from AbstractAnalysis class.
-	// The goal here is to get access to selector panel object that the
-	// MindyAnalysis class listens for.
-	// This is not the preferred way of doing things, but it suffices for now.
-
-	// FIXME: In new parameter panel frame work, we only store parameters
-	// instead of panels, attending to get the panel will no longer works. We'll
-	// need to fix this using other way.
-
-	// public ParameterPanel getNamedParameterSetPanel(String name) {
-	// MindyParamPanel pp = (MindyParamPanel) super
-	// .getNamedParameterSetPanel(name);
-	// // this is really bad...
-	// pp.setSelectorPanel(pp, this.selectorPanel);
-	// return pp;
-	// }
 }
