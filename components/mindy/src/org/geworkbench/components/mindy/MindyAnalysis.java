@@ -68,18 +68,6 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 
 	private ProgressBar progressBar = null;
 
-	/* to test decoupling from dataset */
-	/*
-	 * assuming that there will be only one parameter panel, like a singleton,
-	 * selector panel or selections in a well known location will be a better
-	 * solution
-	 */
-	static MindyParamPanel paramsPanel;
-
-	public static MindyParamPanel getParamsPanel() {
-		return paramsPanel;
-	}
-
 	/**
 	 * Constructor. Creates MINDY parameter panel.
 	 */
@@ -123,9 +111,6 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 
 		// Use this to get params
 		MindyParamPanel params = (MindyParamPanel) aspp;
-
-		/* to test decoupling from dataset */
-		paramsPanel = params;
 
 		DSMicroarraySet mSet = inputSetView.getMicroarraySet();
 
