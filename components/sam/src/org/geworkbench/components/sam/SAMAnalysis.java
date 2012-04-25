@@ -140,7 +140,6 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 				    JOptionPane.YES_NO_OPTION);
 			boolean dontShow = checkbox.isSelected();
 			String s=dontShow?"True":"False";
-			System.out.println("donShow="+s );
 			saveLast(s);
 			
 			if(n!=JOptionPane.YES_OPTION)
