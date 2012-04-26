@@ -4,9 +4,14 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -18,10 +23,13 @@ import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.ButtonModel;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -33,6 +41,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
 
 import org.apache.commons.logging.Log;
@@ -49,9 +58,11 @@ import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.engine.properties.PropertiesManager;
+import org.geworkbench.events.ImageSnapshotEvent;
 import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.util.OWFileChooser;
+import org.geworkbench.util.SaveImage;
 
 import com.jgoodies.binding.adapter.BasicComponentFactory;
 import com.jgoodies.binding.value.ValueHolder;
@@ -332,7 +343,60 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 
 		JScrollPane wholeWindowScrollPane = new JScrollPane(builder.getPanel());
 		this.setLayout(new BorderLayout());
-		this.add(wholeWindowScrollPane, BorderLayout.CENTER);
+		this.add(wholeWindowScrollPane, BorderLayout.CENTER);	
+		
+		graphtable.addMouseListener(new MouseAdapter() {
+	        @Override
+	        public void mouseReleased(MouseEvent e) {
+	            int r = graphtable.rowAtPoint(e.getPoint());
+	            if (r >= 0 && r < graphtable.getRowCount()) {
+	                graphtable.setRowSelectionInterval(r, r);
+	            } else {
+	                graphtable.clearSelection();
+	            }
+
+	            int rowindex = graphtable.getSelectedRow();
+	            if (rowindex < 0)
+	                return;
+	            if (e.isPopupTrigger() && e.getComponent() instanceof JTable ) {
+	                JPopupMenu popup = createSavePopUp();
+	                popup.show(e.getComponent(), e.getX(), e.getY());
+	            }
+	        }
+
+		});
+		
+	}
+
+	private JPopupMenu createSavePopUp(){
+		return new PopUpOptions();
+	}
+	class PopUpOptions extends JPopupMenu {
+	    
+		private static final long serialVersionUID = 2993281547057589679L;
+		JMenuItem itemSnapshot;
+		JMenuItem itemToDisk;
+	    public PopUpOptions(){
+	        itemSnapshot = new JMenuItem("Save image to Project (snapshot)");
+	        itemToDisk = new JMenuItem("Save image to Disk");
+	        add(itemSnapshot);
+	        add(itemToDisk);
+	        
+	        itemSnapshot.addActionListener(new java.awt.event.ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent paramActionEvent) {					
+					createImageSnapshot(graphtable, graphtable.getTableHeader());
+				}});
+	        
+	        itemToDisk.addActionListener(new java.awt.event.ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent paramActionEvent) {
+					saveToImage(graphtable, graphtable.getTableHeader());
+					
+				}});
+	    }
 	}
 
 	ChangeListener changeListener = new ChangeListener() {
@@ -651,5 +715,36 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 			return false;
 		}
 	}
+	
+	@Publish public ImageSnapshotEvent createImageSnapshot(JTable table, JTableHeader header) {        
+        
+		int w = Math.max(table.getWidth(), header.getWidth());  
+	    int h = table.getHeight() + header.getHeight();  
+	    BufferedImage bi = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);  
+	    Graphics2D g2 = bi.createGraphics();  
+	    header.paint(g2);  
+	    g2.translate(0, header.getHeight());  
+	    table.paint(g2);  
+	    g2.dispose();
+        ImageIcon icon = new ImageIcon(bi, "Bar Graph");
+        org.geworkbench.events.ImageSnapshotEvent event = new org.geworkbench.events.ImageSnapshotEvent("Bar Graph Snapshot", icon, org.geworkbench.events.ImageSnapshotEvent.Action.SAVE);
+        return event;
+    }
+	
+	private static void saveToImage(JTable table, JTableHeader header)  
+    {  
+        int w = Math.max(table.getWidth(), header.getWidth());  
+        int h = table.getHeight() + header.getHeight();  
+        BufferedImage bi = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);  
+        Graphics2D g2 = bi.createGraphics();  
+        header.paint(g2);  
+        g2.translate(0, header.getHeight());  
+        table.paint(g2);  
+        g2.dispose();
+        Image currentImage=bi;
+        SaveImage si = new SaveImage(currentImage);
+        si.save();      
+        
+    }  
 	 
 }
