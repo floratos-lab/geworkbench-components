@@ -160,16 +160,20 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 		if (bs <= 0 || pt <= 0 || pt > 1)
 			return null;
 		
+		AracneComputation aracneComputation = new AracneComputation(mSetView, p, bs, pt);
+		
         ProgressBar progressBar = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
-		Thread computationalThread = Thread.currentThread();
-		progressBar.addObserver(new CancelObserver(computationalThread));
+		progressBar.addObserver(new CancelObserver(aracneComputation));
 		progressBar.setTitle("ARACNE");
 		progressBar.setMessage("ARACNE Process Running");
 		progressBar.start();
 
-		WeightedGraph weightedGraph = new AracneComputation(mSetView, p, bs, pt).execute();
+		WeightedGraph weightedGraph = aracneComputation.execute();
 		
 		progressBar.stop();
+		if(weightedGraph==null) { // likely cancelled
+			return null;
+		}
 		
 		if (weightedGraph.getEdges().size() > 0) {
 			boolean prune = params.isPrune();
@@ -199,19 +203,16 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 	
 	static private class CancelObserver implements Observer {
 		
-		private final Thread threadToBeCancelled;
+		private final AracneComputation aracneComputation;
 
-		CancelObserver(final Thread threadToBeCancelled) {
+		CancelObserver(final AracneComputation aracneComputation) {
 			super();
-			this.threadToBeCancelled = threadToBeCancelled;
+			this.aracneComputation = aracneComputation;
 		}
 		
-		@SuppressWarnings("deprecation")
 		@Override
 		public void update(Observable o, Object arg) {
-			// this is inherently unsafe. see http://docs.oracle.com/javase/6/docs/technotes/guides/concurrency/threadPrimitiveDeprecation.html
-			// but it is the only way to stop the thread running 3rd-party code, in this case, aracne-main.jar
-			threadToBeCancelled.stop();
+			aracneComputation.cancel();
 		}
 		
 	}
