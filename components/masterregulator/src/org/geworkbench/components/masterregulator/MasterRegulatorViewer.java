@@ -347,17 +347,8 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		
 		graphtable.addMouseListener(new MouseAdapter() {
 	        @Override
-	        public void mouseReleased(MouseEvent e) {
-	            int r = graphtable.rowAtPoint(e.getPoint());
-	            if (r >= 0 && r < graphtable.getRowCount()) {
-	                graphtable.setRowSelectionInterval(r, r);
-	            } else {
-	                graphtable.clearSelection();
-	            }
-
-	            int rowindex = graphtable.getSelectedRow();
-	            if (rowindex < 0)
-	                return;
+	  
+	        public void mouseReleased(MouseEvent e) {	        	
 	            if (e.isPopupTrigger() && e.getComponent() instanceof JTable ) {
 	                JPopupMenu popup = createSavePopUp();
 	                popup.show(e.getComponent(), e.getX(), e.getY());
