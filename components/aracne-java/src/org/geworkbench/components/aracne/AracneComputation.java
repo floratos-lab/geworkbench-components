@@ -26,6 +26,8 @@ class AracneComputation {
 
 	private final int bootstrapNumber;
 	private final double pThreshold;
+	
+	private HardenedAracne hardenedAracne = new HardenedAracne();
 
 	public AracneComputation(final DSMicroarraySetView<DSGeneMarker, DSMicroarray> mSet,
 			final Parameter p, int bootstrapNumber, final double pThreshold) {
@@ -36,12 +38,17 @@ class AracneComputation {
 		this.pThreshold = pThreshold;
 	}
 
+	void cancel() {
+		hardenedAracne.cancelled = true;
+	}
+	
 	public WeightedGraph execute() {
+		hardenedAracne.cancelled = false;
 
 		p.setSuppressFileWriting(true);
 		WeightedGraph weightedGraph;
 		try {
-			weightedGraph = HardenedAracne.run(convert(mSetView), p,
+			weightedGraph = hardenedAracne.run(convert(mSetView), p,
 					bootstrapNumber, pThreshold);
 		} catch (Exception e) {
 			log.warn("Exception caught in ARACNe run: " + e.toString());

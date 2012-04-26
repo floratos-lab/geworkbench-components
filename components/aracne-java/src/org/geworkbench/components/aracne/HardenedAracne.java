@@ -28,23 +28,60 @@ import edu.columbia.c2b2.aracne.Parameter;
  *
  */
 public class HardenedAracne {
-    static Log log = LogFactory.getLog(HardenedAracne.class);
+    private static final int ONE_SECOND = 1000;
+	static Log log = LogFactory.getLog(HardenedAracne.class);
+	
+	public volatile boolean cancelled = false;
 
+	// use this class to limit the unsafe killing of the thread to a minimal scope
+	private static class UnsafeToStopThread implements Runnable {
+
+		volatile WeightedGraph result = null;
+		
+		final private MicroarraySet microarraySet;
+		final private Parameter parameter;
+		
+		UnsafeToStopThread(final MicroarraySet microarraySet, final Parameter parameter) {
+			this.microarraySet = microarraySet;
+			this.parameter = parameter;
+		}
+		
+		@Override
+		public void run() {
+			// TODO to catch the unexpected exception from aracne library, we need to add some field in  UnsafeToStopThread
+			result =  Aracne.run(microarraySet, parameter);
+		}
+		
+	}
+	
+	@SuppressWarnings("deprecation")
+	private WeightedGraph runSingleAracne(final MicroarraySet microarraySet, final Parameter parameter) throws InterruptedException {
+		UnsafeToStopThread unsafeToStopThread = new UnsafeToStopThread(microarraySet, parameter);
+		Thread t = new Thread(unsafeToStopThread);
+		t.start();
+		while (t.isAlive()) {
+			// not just return, but also kill the computational thread
+			if(cancelled) {
+				// this is inherently unsafe. see http://docs.oracle.com/javase/6/docs/technotes/guides/concurrency/threadPrimitiveDeprecation.html
+				// but it is the only way to stop the thread running 3rd-party code, in this case, aracne-main.jar
+				t.stop();
+				return null;
+			}
+            t.join(ONE_SECOND);
+        }
+		return unsafeToStopThread.result;
+	}
+	
 	/*
 	 * this method is used in place of Aracne.run(MicroarraySet microarraySet, Parameter parameter)
 	 * to make ARACNE 'hardened' - bootstrap
 	 */
 	// two parameters (bootstrap & pthreshold) are not part of edu.columbia.c2b2.aracne.Parameter
 	// because they are from the perl script instead of aracne-java
-	public static WeightedGraph run(MicroarraySet microarraySet, Parameter parameter, int bootstrapNumber, double pThreshold) throws Exception {
+	public WeightedGraph run(MicroarraySet microarraySet, Parameter parameter, int bootstrapNumber, double pThreshold) throws Exception {
+		cancelled = false;
 		if(bootstrapNumber==1){
-			WeightedGraph g = null;
-			try {
-				g =  Aracne.run(microarraySet, parameter);
-			} catch (Exception e) {
-				throw e;
-			}
-			return g;
+			return runSingleAracne(microarraySet, parameter);
 		}
 
 		if(parameter.getSample()!=0) {
@@ -56,9 +93,11 @@ public class HardenedAracne {
 		/* in the bootstrap process, dataset is copied every time; multiple ID numbers are produced */
 		WeightedGraph[] graph = new WeightedGraph[bootstrapNumber];
 		for(int i=0; i<bootstrapNumber; i++) {
+			if(cancelled) return null;
+			
 			Parameter param = copyParameter(parameter, bootstrapId);
 			MicroarraySet m = microarraySet.makeCopy();
-			graph[i] = Aracne.run(m, param);
+			graph[i] = runSingleAracne(m, param);
 			bootstrapId++;
 		}
 
