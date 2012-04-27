@@ -114,8 +114,8 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 	private JRadioButton modeAll = new JRadioButton("All");
 	private JRadioButton activator = new JRadioButton("Activator(+)");
 	private JRadioButton repressor = new JRadioButton("Repressor(-)");
-	private JRadioButton regulonBar = new JRadioButton("Regulons");
-	private JRadioButton intersectionBar = new JRadioButton("Intersection Sets");
+	private JRadioButton regulonBar = new JRadioButton("Regulon");
+	private JRadioButton intersectionBar = new JRadioButton("Intersection Set");
 	private final JSplitPane jSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 	private boolean shown = false;
 
@@ -145,12 +145,12 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		jSplitPane2.setDividerLocation(650);
 		jSplitPane2.setDividerSize(3);
 
-		FormLayout layout = new FormLayout("500dlu:grow, pref",
+		FormLayout layout = new FormLayout("300dlu:grow, pref",
 				"20dlu, pref:grow");
 		DefaultFormBuilder builder = new DefaultFormBuilder(layout);
 
 		FormLayout headerLayout = new FormLayout(
-				"40dlu,2dlu,45dlu,10dlu,70dlu,0dlu,20dlu,10dlu,35dlu,0dlu,20dlu,10dlu,52dlu,0dlu,44dlu,2dlu,65dlu,10dlu,70dlu,10dlu,72dlu",
+				"40dlu,0dlu,45dlu,8dlu,48dlu,0dlu,20dlu,8dlu,35dlu,0dlu,20dlu,8dlu,26dlu,1dlu,40dlu,2dlu,61dlu",
 				"20dlu");
 		DefaultFormBuilder headerBuilder = new DefaultFormBuilder(headerLayout);
 		ActionListener actionListener = new ActionListener() {
@@ -185,7 +185,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 			}
 		};
 
-		headerBuilder.append("Display results for top ");
+		headerBuilder.append("Results for top ");
 		headerBuilder.append(numtop);
 		numtop.addActionListener(barListener);
 		
@@ -193,7 +193,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		headerBuilder.append(barheight);
 		barheight.addActionListener(barListener);
 		
-		headerBuilder.append("Display bars for ");
+		headerBuilder.append("Bars for ");
 		headerBuilder.append(regulonBar);
 		headerBuilder.append(intersectionBar);
 		ButtonGroup barGroup = new ButtonGroup();
@@ -259,8 +259,6 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 				}
 			}
 		});
-
-		headerBuilder.append(exportAllButton);
 	 
 		// add to set button and function
 		JButton addToSetButton = new JButton("Add targets to set");
@@ -281,13 +279,12 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 						SubpanelChangedEvent.NEW));
 			}
 		});
-		headerBuilder.append(addToSetButton);
 
 		builder.append(headerBuilder.getPanel(), 2);
 		builder.nextLine();
 
 		// build the top-left panel
-		FormLayout summaryTFFormLayout = new FormLayout("53dlu,70dlu,25dlu,6dlu,35dlu,6dlu,60dlu,6dlu,60dlu,pref:grow",
+		FormLayout summaryTFFormLayout = new FormLayout("53dlu,2dlu,68dlu,2dlu,70dlu,8dlu,20dlu,2dlu,23dlu,2dlu,50dlu,2dlu,55dlu,pref:grow",
 				"20dlu, pref:grow");
 		DefaultFormBuilder summaryTFFormBuilder = new DefaultFormBuilder(
 				summaryTFFormLayout);
@@ -308,13 +305,15 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		repressor.addActionListener(modeListener);
 		
 		summaryTFFormBuilder.append(tv.exportButton);
+		summaryTFFormBuilder.append(exportAllButton);
+		summaryTFFormBuilder.append(addToSetButton);
 		summaryTFFormBuilder.append("Mode:");
 		summaryTFFormBuilder.append(modeAll);
 		summaryTFFormBuilder.append(activator);
 		summaryTFFormBuilder.append(repressor);
 
 		summaryTFFormBuilder.nextLine();
-		summaryTFFormBuilder.add(tv, new CellConstraints("1,2,10,1,f,f"));
+		summaryTFFormBuilder.add(tv, new CellConstraints("1,2,14,1,f,f"));
 
 		jSplitPane2.setLeftComponent(new JScrollPane(summaryTFFormBuilder
 				.getPanel(), JScrollPane.VERTICAL_SCROLLBAR_NEVER,
@@ -554,7 +553,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		while(columns.hasMoreElements()){
 			TableColumn tc = columns.nextElement();
 			switch (tc.getModelIndex()){
-				case 0: tc.setPreferredWidth(col0w); break;
+				case 0: tc.setPreferredWidth(col0w); tc.setMaxWidth(2*col0w); break;
 				case 1: tc.setCellRenderer(new DefaultTableCellRenderer() {
 							private static final long serialVersionUID = 5010765085642920180L;
 							public Component getTableCellRendererComponent(JTable jTable,
@@ -567,7 +566,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 							}
 						}); 
 						break;                                                                                                                        
-				case 2: tc.setPreferredWidth(col2w); break;
+				case 2: tc.setPreferredWidth(col2w); tc.setMaxWidth(col2w); break;
 				default: log.error("invalid column in graph table"); break;
 			}
 		}
@@ -583,7 +582,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		while(columns.hasMoreElements()){
 			TableColumn tc = columns.nextElement();
 			switch (tc.getModelIndex()){
-				case 0: tc.setPreferredWidth(col0w); 
+				case 0: tc.setPreferredWidth(col0w); tc.setMaxWidth(2*col0w);
 						tc.setCellRenderer(new BlankCellRenderer());
 						break;
 				case 1: tc.setCellRenderer(new DefaultTableCellRenderer() {
@@ -598,7 +597,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 							}
 						});
 						break;                                                                                                                        
-				case 2: tc.setPreferredWidth(col2w);
+				case 2: tc.setPreferredWidth(col2w); tc.setMaxWidth(col2w);
 						tc.setCellRenderer(new BlankCellRenderer());
 						break;
 				default: log.error("invalid column in gradient table"); break;
@@ -698,6 +697,8 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 	}
 
 	private class GraphTableModel extends DefaultTableModel{
+		private static final long serialVersionUID = -184811029499155710L;
+
 		GraphTableModel(Object[][] data, Object[] columnNames) {
 			super(data, columnNames);
 		}
