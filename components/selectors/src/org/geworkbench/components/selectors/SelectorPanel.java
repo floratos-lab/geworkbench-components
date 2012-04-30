@@ -395,7 +395,7 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 		if (path != null) {
 			String label = getLabelForPath(path);
 			T item = getItemForPath(path);
-			if ((e.isMetaDown()) && (e.getClickCount() == 1)) {
+			if ((e.getButton()==MouseEvent.BUTTON3) && (e.getClickCount() == 1)) {
 				rightClickedPath = path;
 				ensurePathIsSelected(rightClickedPath);
 				if (label != null) {
