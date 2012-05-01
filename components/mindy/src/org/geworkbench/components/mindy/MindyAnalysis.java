@@ -224,19 +224,56 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 				+ generateHistoryForMaSetView(inputSetView,
 						useMarkersFromSelector());
 
-		MindyDataSet mindyDataSet = run(mSet, arraySet,
-				params.getTargetGeneList(), transFac, new Marker(
-						params.getTranscriptionFactor()), modulators,
+		log.debug("Running MINDY algorithm...");
+		cancelled = false;
+
+		ArrayList<DSMicroarray> arrayForMindyRun = MindyData
+				.createArrayForMindyRun(mSet, arraySet);
+
+		MicroarraySet microarraySet = convert(mSet, arrayForMindyRun,
+				params.getTargetGeneList());
+
+		MindyResults results = run(microarraySet,
+				new Marker(params.getTranscriptionFactor()), modulators,
 				dpiAnnots, fullSetMI, fullSetThreshold, subsetMI,
-				subsetThreshold, setFraction, params.getDPITolerance(),
-				history, params.getCandidateModulatorsFile(), progressBar);
-		progressBar.stop();
-		
-		if(mindyDataSet!=null) {
-			return new AlgorithmExecutionResults(true, "Mindy Result Added", mindyDataSet);
-		} else {
+				subsetThreshold, setFraction, params.getDPITolerance());
+
+		if (results == null) {
+			log.debug("MINDY canceled.");
 			return null;
 		}
+
+		log.debug("Finished running MINDY algorithm.");
+
+		progressBar.setMessage("Processing MINDY Results");
+
+		MindyData loadedData = createMindyData(results, (CSMicroarraySet) mSet,
+				arrayForMindyRun, setFraction, transFac);
+		
+		if(cancelled) return null;
+
+		MindyDataSet mindyDataSet = new MindyDataSet(mSet, "MINDY Results",
+				loadedData, params.getCandidateModulatorsFile());
+
+		if(cancelled) return null;
+		log.info("Done converting MINDY results.");
+
+		if (loadedData.isEmpty()) {
+			log.warn("MINDY obtained no results.");
+			JOptionPane.showMessageDialog(null,
+					"MINDY obtained no results.", "MINDY Analyze Error",
+					JOptionPane.WARNING_MESSAGE);
+			progressBar.stop();
+			return null;
+		}
+
+		log.info(history);
+
+		HistoryPanel.addToHistory(mindyDataSet, history);
+
+		progressBar.stop();
+		
+		return new AlgorithmExecutionResults(true, "Mindy Result Added", mindyDataSet);
 	}
 
 	/**
@@ -442,20 +479,12 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 	public static volatile boolean cancelled = false;
 	
 	@SuppressWarnings("deprecation")
-	private static MindyDataSet run(final DSMicroarraySet mSet, final DSPanel<DSMicroarray> arraySet,
-			final List<String> chosenTargets, final DSGeneMarker transFac, final Marker tf,
-			final ArrayList<Marker> modulators, final ArrayList<Marker> dpiAnnots,
-			final boolean fullSetMI, final float fullSetThreshold, final boolean subsetMI,
-			final float subsetThreshold, final float setFraction, final float dpiTolerance,
-			final String paramDesc, final String candidateModFile, final ProgressBar progressBar) {
-		log.debug("Running MINDY algorithm...");
-		cancelled = false;
-
-		ArrayList<DSMicroarray> arrayForMindyRun = MindyData
-				.createArrayForMindyRun(mSet, arraySet);
-
-		MicroarraySet microarraySet = convert(mSet, arrayForMindyRun,
-				chosenTargets);
+	private static MindyResults run(final MicroarraySet microarraySet,
+			final Marker tf, final ArrayList<Marker> modulators,
+			final ArrayList<Marker> dpiAnnots, final boolean fullSetMI,
+			final float fullSetThreshold, final boolean subsetMI,
+			final float subsetThreshold, final float setFraction,
+			final float dpiTolerance) {
 		UnsafeToStopThread unsafeToStopThread = new UnsafeToStopThread(
 				microarraySet, tf, modulators, dpiAnnots, fullSetMI,
 				fullSetThreshold, subsetMI, subsetThreshold, setFraction,
@@ -478,41 +507,7 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 			}
         }
 
-		MindyResults results = unsafeToStopThread.result;
-
-		if (results == null) {
-			log.warn("MINDY obtained no results.");
-			JOptionPane.showMessageDialog(null,
-					"MINDY obtained no results.", "see errors, logs",
-					JOptionPane.WARNING_MESSAGE);
-			return null;
-		}
-
-		log.debug("Finished running MINDY algorithm.");
-
-		progressBar.setMessage("Processing MINDY Results");
-
-		MindyData loadedData = createMindyData(results, (CSMicroarraySet) mSet,
-				arrayForMindyRun, setFraction, transFac);
-
-		MindyDataSet mindyDataSet = new MindyDataSet(mSet, "MINDY Results",
-				loadedData, candidateModFile);
-
-		log.info("Done converting MINDY results.");
-
-		if (loadedData.isEmpty()) {
-			log.warn("MINDY obtained no results.");
-			JOptionPane.showMessageDialog(null,
-					"MINDY obtained no results.", "MINDY Analyze Error",
-					JOptionPane.WARNING_MESSAGE);
-			return null;
-		}
-
-		log.info(paramDesc);
-
-		HistoryPanel.addToHistory(mindyDataSet, paramDesc);
-
-		return mindyDataSet;
+		return unsafeToStopThread.result;
 	}
 
 	private static MicroarraySet convert(DSMicroarraySet inSet,
