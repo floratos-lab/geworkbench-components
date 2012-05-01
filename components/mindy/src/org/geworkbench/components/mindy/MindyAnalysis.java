@@ -3,17 +3,15 @@ package org.geworkbench.components.mindy;
 import java.io.Serializable;
 import java.text.Collator;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Observer;
+import java.util.Observable;
 
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractGridAnalysis;
@@ -35,7 +33,6 @@ import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.util.ProgressBar;
-import org.geworkbench.util.Util;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyData;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyDataSet;
 import org.geworkbench.util.pathwaydecoder.mutualinformation.MindyResultRow;
@@ -60,13 +57,11 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 
 	private static final long serialVersionUID = -3116424364457413572L;
 
-	private Log log = LogFactory.getLog(MindyAnalysis.class);
+	private static Log log = LogFactory.getLog(MindyAnalysis.class);
 
 	private MindyParamPanel paramPanel;
 
 	private static final String analysisName = "Mindy";
-
-	private ProgressBar progressBar = null;
 
 	/**
 	 * Constructor. Creates MINDY parameter panel.
@@ -103,7 +98,7 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 		// would look the same as the one created by the analysis panel
 
 		stopAlgorithm = false;
-		progressBar = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
+		ProgressBar progressBar = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
 		progressBar.addObserver(this);
 		progressBar.setTitle("MINDY");
 		progressBar.setMessage("Processing Parameters");
@@ -223,28 +218,25 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 			return null;
 		}
 
-		if (stopAlgorithm) {
-			stopAlgorithm = false;
-			progressBar.stop();
-			log.warn("Cancelling Mindy Analysis.");
-			return null;
-		}
 		progressBar.setMessage("Running MINDY Algorithm");
 
 		String history = params.getDataSetHistory()
 				+ generateHistoryForMaSetView(inputSetView,
 						useMarkersFromSelector());
 
-		MindyThread mt = new MindyThread(mSet, arraySet,
+		MindyDataSet mindyDataSet = run(mSet, arraySet,
 				params.getTargetGeneList(), transFac, new Marker(
 						params.getTranscriptionFactor()), modulators,
 				dpiAnnots, fullSetMI, fullSetThreshold, subsetMI,
 				subsetThreshold, setFraction, params.getDPITolerance(),
-				history, params.getCandidateModulatorsFile());
-		progressBar.addObserver(mt);
-		mt.start();
-
-		return new AlgorithmExecutionResults(true, "MINDY in progress.", null);
+				history, params.getCandidateModulatorsFile(), progressBar);
+		progressBar.stop();
+		
+		if(mindyDataSet!=null) {
+			return new AlgorithmExecutionResults(true, "Mindy Result Added", mindyDataSet);
+		} else {
+			return null;
+		}
 	}
 
 	/**
@@ -311,272 +303,263 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 			ProjectNodeAddedEvent event) {
 		return event;
 	}
+	
+	@Override
+	public void update(Observable observable, Object object) {
+		super.update(observable, object);
+		cancelled = true;
+	}
+	
+	private static MindyData createMindyData(MindyResults results,
+			CSMicroarraySet arraySet,
+			ArrayList<DSMicroarray> arrayForMindyRun, float setFraction,
+			DSGeneMarker transFac) {
+		MindyData mindyData = new MindyData(arraySet, arrayForMindyRun,
+				setFraction, transFac);
 
-	private class MindyThread extends Thread implements Observer {
-		DSMicroarraySet mSet;
+		processResults(mindyData, results, arraySet);
 
-		DSPanel<DSMicroarray> arraySet;
+		return mindyData;
+	}
+	
+	/**
+	 * @param results
+	 * @param arraySet
+	 * @param mindyData
+	 */
+	private static void processResults(MindyData mindyData, MindyResults results,
+			CSMicroarraySet arraySet) {
+		int numWithSymbols = 0;
+		List<MindyResultRow> dataRows = new ArrayList<MindyResultRow>();
 
-		List<String> chosenTargets;
+		// process mindy run results
+		// consider iterating over modulators first
+		Collator myCollator = Collator.getInstance();
+		for (MindyResults.MindyResultForTarget result : results) {
+			DSItemList<DSGeneMarker> markers = arraySet.getMarkers();
+			DSGeneMarker target = markers.get(result.getTarget().getName());
 
-		DSGeneMarker transFac;
+			// used to find out if annotations file was loaded
+			// reminder: look at the class that does file processing, in
+			// should process annotation file too.
+			if (!StringUtils.isEmpty(target.getGeneName()))
+				numWithSymbols++;
 
-		Marker tf;
+			for (MindyResults.MindyResultForTarget.ModulatorSpecificResult specificResult : result) {
 
-		ArrayList<Marker> modulators;
+				// process results with nonzero scores
+				float score = specificResult.getScore();
+				if (score != 0.0) {
+					mindyData.addToSortkeyMap(myCollator, target);
 
-		ArrayList<Marker> dpiAnnots;
+					DSGeneMarker mod = markers.get(specificResult
+							.getModulator().getName());
 
-		boolean fullSetMI;
+					// used to find out if annotations file was loaded
+					if (!StringUtils.isEmpty(mod.getGeneName()))
+						numWithSymbols++;
 
-		float fullSetThreshold;
+					mindyData.addToSortkeyMap(myCollator, mod);
 
-		boolean subsetMI;
+					double correlation = mindyData
+							.calcPearsonCorrelation(target);
+					mindyData.addToTargetInfoMap(correlation, target);
 
-		float subsetThreshold;
+					// load data
+					MindyResultRow row = new MindyResultRow(mod, target,
+							score);
 
-		float setFraction;
+					HashMap<DSGeneMarker, ModulatorInfo> modInfoMap = mindyData
+							.getModulatorInfoMap();
+					ModulatorInfo modInfo = modInfoMap.get(mod);
+					if (modInfo == null) {
+						modInfo = new ModulatorInfo();
+						modInfoMap.put(mod, modInfo);
+					}
+					modInfo.insertRow(row);
 
-		float dpiTolerance;
+					dataRows.add(row);
+				}
+			}
 
-		String paramDesc;
+			mindyData.initFilteredModulatorInfoMap();
+		}
 
-		String candidateModFile;
+		if (numWithSymbols > 0)
+			mindyData.setAnnotated(true);
+	}
 
-		public MindyThread(DSMicroarraySet mSet,
-				DSPanel<DSMicroarray> arraySet, List<String> chosenTargets,
-				DSGeneMarker transFac, Marker tf, ArrayList<Marker> modulators,
-				ArrayList<Marker> dpiAnnots, boolean fullSetMI,
-				float fullSetThreshold, boolean subsetMI,
-				float subsetThreshold, float setFraction, float dpiTolerance,
-				String paramDesc, String candidateModFile) {
-			this.mSet = mSet;
-			this.arraySet = arraySet;
-			this.chosenTargets = chosenTargets;
-			this.transFac = transFac;
-			this.tf = tf;
-			this.modulators = modulators;
-			this.dpiAnnots = dpiAnnots;
-			this.fullSetMI = fullSetMI;
+	// use this class to limit the unsafe killing of the thread to a minimal scope
+	private static class UnsafeToStopThread implements Runnable {
+
+		public UnsafeToStopThread(final MicroarraySet maSet,
+				final Marker transcriptionFactor,
+				final List<Marker> candidateModulators,
+				final List<Marker> dpiAnnotatedGenes,
+				final boolean fullSetThresholdisMI,
+				final float fullSetThreshold,
+				final boolean partialSetThresholdisMI,
+				final float partialSetThreshold, final float setFractionToUse,
+				final double dpiTolerance) {
+			super();
+			this.maSet = maSet;
+			this.transcriptionFactor = transcriptionFactor;
+			this.candidateModulators = candidateModulators;
+			this.dpiAnnotatedGenes = dpiAnnotatedGenes;
+			this.fullSetThresholdisMI = fullSetThresholdisMI;
 			this.fullSetThreshold = fullSetThreshold;
-			this.subsetMI = subsetMI;
-			this.subsetThreshold = subsetThreshold;
-			this.setFraction = setFraction;
+			this.partialSetThresholdisMI = partialSetThresholdisMI;
+			this.partialSetThreshold = partialSetThreshold;
+			this.setFractionToUse = setFractionToUse;
 			this.dpiTolerance = dpiTolerance;
-			this.paramDesc = paramDesc;
-			this.candidateModFile = candidateModFile;
 		}
 
-		private MindyData createMindyData(MindyResults results,
-				CSMicroarraySet arraySet,
-				ArrayList<DSMicroarray> arrayForMindyRun, float setFraction,
-				DSGeneMarker transFac) {
-			MindyData mindyData = new MindyData(arraySet, arrayForMindyRun,
-					setFraction, transFac);
+		final private MicroarraySet maSet;
+		final private Marker transcriptionFactor;
+		final private List<Marker> candidateModulators;
+		final private List<Marker> dpiAnnotatedGenes;
+		final private boolean fullSetThresholdisMI;
+		final private float fullSetThreshold;
+		final private boolean partialSetThresholdisMI;
+		final private float partialSetThreshold;
+		final private float setFractionToUse;
+		final private double dpiTolerance;
 
-			processResults(mindyData, results, arraySet);
-
-			return mindyData;
-
-		}
-
-		/**
-		 * @param results
-		 * @param arraySet
-		 * @param mindyData
-		 */
-		private void processResults(MindyData mindyData, MindyResults results,
-				CSMicroarraySet arraySet) {
-			int numWithSymbols = 0;
-			List<MindyResultRow> dataRows = new ArrayList<MindyResultRow>();
-
-			// process mindy run results
-			// consider iterating over modulators first
-			Collator myCollator = Collator.getInstance();
-			for (MindyResults.MindyResultForTarget result : results) {
-				DSItemList<DSGeneMarker> markers = arraySet.getMarkers();
-				DSGeneMarker target = markers.get(result.getTarget().getName());
-
-				// used to find out if annotations file was loaded
-				// reminder: look at the class that does file processing, in
-				// should process annotation file too.
-				if (!StringUtils.isEmpty(target.getGeneName()))
-					numWithSymbols++;
-
-				for (MindyResults.MindyResultForTarget.ModulatorSpecificResult specificResult : result) {
-
-					// process results with nonzero scores
-					float score = specificResult.getScore();
-					if (score != 0.0) {
-						mindyData.addToSortkeyMap(myCollator, target);
-
-						DSGeneMarker mod = markers.get(specificResult
-								.getModulator().getName());
-
-						// used to find out if annotations file was loaded
-						if (!StringUtils.isEmpty(mod.getGeneName()))
-							numWithSymbols++;
-
-						mindyData.addToSortkeyMap(myCollator, mod);
-
-						double correlation = mindyData
-								.calcPearsonCorrelation(target);
-						mindyData.addToTargetInfoMap(correlation, target);
-
-						// load data
-						MindyResultRow row = new MindyResultRow(mod, target,
-								score);
-
-						HashMap<DSGeneMarker, ModulatorInfo> modInfoMap = mindyData
-								.getModulatorInfoMap();
-						ModulatorInfo modInfo = modInfoMap.get(mod);
-						if (modInfo == null) {
-							modInfo = new ModulatorInfo();
-							modInfoMap.put(mod, modInfo);
-						}
-						modInfo.insertRow(row);
-
-						dataRows.add(row);
-					}
-				}
-
-				mindyData.initFilteredModulatorInfoMap();
-			}
-
-			if (numWithSymbols > 0)
-				mindyData.setAnnotated(true);
-		}
-
+		@Override
 		public void run() {
-			log.debug("Running MINDY algorithm...");
-
-			Date startDate = new Date();
-			Long startTime = startDate.getTime();
-
-			Mindy mindy = new Mindy();
-
-			ArrayList<DSMicroarray> arrayForMindyRun = MindyData
-					.createArrayForMindyRun(mSet, arraySet);
-
-			// bug 1992, it was about NPE, but just in case will catch any
-			// exception
-			MindyResults results = null;
-			try {
-				results = mindy.runMindy(
-						convert(mSet, arrayForMindyRun, chosenTargets), tf,
-						modulators, dpiAnnots, fullSetMI, fullSetThreshold,
-						subsetMI, subsetThreshold, setFraction, dpiTolerance);
-			} catch (Exception e) {
-				log.error(e.getCause());
-				results = null;
-			}
-			if (results == null) {
-				progressBar.stop();
-				log.warn("MINDY obtained no results.");
-				JOptionPane.showMessageDialog(paramPanel.getParent(),
-						"MINDY obtained no results.", "see errors, logs",
-						JOptionPane.WARNING_MESSAGE);
-				return;
-			}
-
-			log.debug("Finished running MINDY algorithm.");
-
-			progressBar.setMessage("Processing MINDY Results");
-
-			MindyData loadedData = createMindyData(results,
-					(CSMicroarraySet) mSet, arrayForMindyRun, setFraction,
-					transFac);
-
-			MindyDataSet mindyDataSet = new MindyDataSet(mSet, "MINDY Results", loadedData,
-					candidateModFile);
-
-			log.info("Done converting MINDY results.");
-
-			if (loadedData.isEmpty()) {
-				progressBar.stop();
-				log.warn("MINDY obtained no results.");
-				JOptionPane.showMessageDialog(paramPanel.getParent(),
-						"MINDY obtained no results.", "MINDY Analyze Error",
-						JOptionPane.WARNING_MESSAGE);
-				return;
-			}
-
-			log.info(paramDesc);
-			// add start/end time to history
-			String history = "Analysis started at: "
-					+ Util.formatDateStandard(startDate) + "\n";
-			history += "\n" + paramDesc + "\n";
-
-			Date endDate = new Date();
-			long endTime = endDate.getTime();
-			history += "\nAnalysis finished at: "
-					+ Util.formatDateStandard(endDate) + "\n";
-			long elapsedTime = endTime - startTime;
-			history += "\nTotal elapsed time: "
-					+ DurationFormatUtils.formatDurationHMS(elapsedTime);
-
-			HistoryPanel.addToHistory(mindyDataSet, history);
-			progressBar.stop();
-			publishProjectNodeAddedEvent(new ProjectNodeAddedEvent(
-					"Mindy Result Added", null, mindyDataSet));
-
-			progressBar.stop();
+			// TODO exception may need to be caught explicitly. see bug 1992.
+			result = new Mindy().runMindy(maSet, transcriptionFactor,
+					candidateModulators, dpiAnnotatedGenes,
+					fullSetThresholdisMI, fullSetThreshold,
+					partialSetThresholdisMI, partialSetThreshold,
+					setFractionToUse, dpiTolerance);
 		}
 
-		@SuppressWarnings("deprecation")
-		public void update(java.util.Observable ob, Object o) {
-			log.debug("initiated close");
-			log.warn("Cancelling Mindy Analysis.");
-			this.stop();
+		volatile MindyResults result = null;
+	}
+	
+	private static final int ONE_SECOND = 1000;
+	public static volatile boolean cancelled = false;
+	
+	@SuppressWarnings("deprecation")
+	private static MindyDataSet run(final DSMicroarraySet mSet, final DSPanel<DSMicroarray> arraySet,
+			final List<String> chosenTargets, final DSGeneMarker transFac, final Marker tf,
+			final ArrayList<Marker> modulators, final ArrayList<Marker> dpiAnnots,
+			final boolean fullSetMI, final float fullSetThreshold, final boolean subsetMI,
+			final float subsetThreshold, final float setFraction, final float dpiTolerance,
+			final String paramDesc, final String candidateModFile, final ProgressBar progressBar) {
+		log.debug("Running MINDY algorithm...");
+		cancelled = false;
+
+		ArrayList<DSMicroarray> arrayForMindyRun = MindyData
+				.createArrayForMindyRun(mSet, arraySet);
+
+		MicroarraySet microarraySet = convert(mSet, arrayForMindyRun,
+				chosenTargets);
+		UnsafeToStopThread unsafeToStopThread = new UnsafeToStopThread(
+				microarraySet, tf, modulators, dpiAnnots, fullSetMI,
+				fullSetThreshold, subsetMI, subsetThreshold, setFraction,
+				dpiTolerance);
+		Thread t = new Thread(unsafeToStopThread);
+		t.start();
+		while (t.isAlive()) {
+			// not just return, but also kill the computational thread
+			if(cancelled) {
+				// this is inherently unsafe. see http://docs.oracle.com/javase/6/docs/technotes/guides/concurrency/threadPrimitiveDeprecation.html
+				// but it is the only way to stop the thread running 3rd-party code, in this case, aracne-main.jar
+				t.stop();
+				return null;
+			}
+            try {
+				t.join(ONE_SECOND);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+				return null;
+			}
+        }
+
+		MindyResults results = unsafeToStopThread.result;
+
+		if (results == null) {
+			log.warn("MINDY obtained no results.");
+			JOptionPane.showMessageDialog(null,
+					"MINDY obtained no results.", "see errors, logs",
+					JOptionPane.WARNING_MESSAGE);
+			return null;
 		}
 
-		private MicroarraySet convert(DSMicroarraySet inSet,
-				ArrayList<DSMicroarray> arrayForMindyRun,
-				List<String> chosenTargets) {
-			MarkerSet markers = new MarkerSet();
-			if ((chosenTargets != null) && (chosenTargets.size() > 0)) {
-				log.debug("Processing chosen targets: size="
-						+ chosenTargets.size());
-				int size = chosenTargets.size();
-				List<String> alreadyIn = markers.getAllMarkerNames();
-				for (int i = 0; i < size; i++) {
-					String chosenName = chosenTargets.get(i);
-					if (chosenName != null) {
-						chosenName = chosenName.trim();
-						if (!alreadyIn.contains(chosenName)) {
-							markers.addMarker(new Marker(chosenName));
-						}
+		log.debug("Finished running MINDY algorithm.");
+
+		progressBar.setMessage("Processing MINDY Results");
+
+		MindyData loadedData = createMindyData(results, (CSMicroarraySet) mSet,
+				arrayForMindyRun, setFraction, transFac);
+
+		MindyDataSet mindyDataSet = new MindyDataSet(mSet, "MINDY Results",
+				loadedData, candidateModFile);
+
+		log.info("Done converting MINDY results.");
+
+		if (loadedData.isEmpty()) {
+			log.warn("MINDY obtained no results.");
+			JOptionPane.showMessageDialog(null,
+					"MINDY obtained no results.", "MINDY Analyze Error",
+					JOptionPane.WARNING_MESSAGE);
+			return null;
+		}
+
+		log.info(paramDesc);
+
+		HistoryPanel.addToHistory(mindyDataSet, paramDesc);
+
+		return mindyDataSet;
+	}
+
+	private static MicroarraySet convert(DSMicroarraySet inSet,
+			ArrayList<DSMicroarray> arrayForMindyRun,
+			List<String> chosenTargets) {
+		MarkerSet markers = new MarkerSet();
+		if ((chosenTargets != null) && (chosenTargets.size() > 0)) {
+			log.debug("Processing chosen targets: size="
+					+ chosenTargets.size());
+			int size = chosenTargets.size();
+			List<String> alreadyIn = markers.getAllMarkerNames();
+			for (int i = 0; i < size; i++) {
+				String chosenName = chosenTargets.get(i);
+				if (chosenName != null) {
+					chosenName = chosenName.trim();
+					if (!alreadyIn.contains(chosenName)) {
+						markers.addMarker(new Marker(chosenName));
 					}
 				}
 			}
-			log.debug("markers size (post chosen)=" + markers.size());
-			if (markers.size() <= 0) {
-				log.debug("adding all markers.");
-				for (DSGeneMarker marker : inSet.getMarkers()) {
-					markers.addMarker(new Marker(marker.getLabel()));
-				}
+		}
+		log.debug("markers size (post chosen)=" + markers.size());
+		if (markers.size() <= 0) {
+			log.debug("adding all markers.");
+			for (DSGeneMarker marker : inSet.getMarkers()) {
+				markers.addMarker(new Marker(marker.getLabel()));
 			}
-
-			MicroarraySet returnSet = new MicroarraySet(inSet.getDataSetName(),
-					"ID", "ChipType", markers);
-
-			for (DSMicroarray microarray : arrayForMindyRun) {
-				returnSet.addMicroarray(new Microarray(microarray.getLabel(),
-						microarray.getRawMarkerData()));
-			}
-
-			// debug only
-			if (log.isDebugEnabled()) {
-				MarkerSet ms = returnSet.getMarkers();
-				log.debug("Markers in converted set:");
-				for (int i = 0; i < ms.size(); i++) {
-					log.debug("\t" + ms.getMarker(i).getName());
-				}
-			}
-
-			return returnSet;
 		}
 
+		MicroarraySet returnSet = new MicroarraySet(inSet.getDataSetName(),
+				"ID", "ChipType", markers);
+
+		for (DSMicroarray microarray : arrayForMindyRun) {
+			returnSet.addMicroarray(new Microarray(microarray.getLabel(),
+					microarray.getRawMarkerData()));
+		}
+
+		// debug only
+		if (log.isDebugEnabled()) {
+			MarkerSet ms = returnSet.getMarkers();
+			log.debug("Markers in converted set:");
+			for (int i = 0; i < ms.size(); i++) {
+				log.debug("\t" + ms.getMarker(i).getName());
+			}
+		}
+
+		return returnSet;
 	}
 
 	// the following methods implemented for AbstractGridAnalysis
