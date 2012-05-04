@@ -50,25 +50,24 @@ import org.geworkbench.builtin.projects.remoteresources.carraydata.CaArray2Exper
  *
  */
 public class CaArrayClient {
-	private Log log = null;
+	private Log log = LogFactory.getLog(CaArrayClient.class);
 
 	private static final String NAME_SEPARATOR = ", ";
 
-	private CaArrayServer server = null;
-    private SearchService searchService = null;
-    private SearchApiUtils searchServiceHelper = null;
-	private DataService dataService = null;
+    final private SearchService searchService;
+    final private SearchApiUtils searchServiceHelper;
+	final private DataService dataService;
 
+	final private transient ClassLoader originalContextClassLoader;
 	CaArrayClient(String url,
 			int port, String username,
 			String password) throws ServerConnectionException, FailedLoginException {
-		server = new CaArrayServer(url, port);
+		CaArrayServer server = new CaArrayServer(url, port);
 
-		ClassLoader originalContextClassLoader = Thread.currentThread()
+		originalContextClassLoader = Thread.currentThread()
 				.getContextClassLoader();
 		Thread.currentThread().setContextClassLoader(
 				server.getClass().getClassLoader());
-		log = LogFactory.getLog(CaArrayClient.class);
 
 		if (username == null || username.trim().length() == 0) {
 			server.connect();// enable a user login.
@@ -78,6 +77,9 @@ public class CaArrayClient {
 		searchService = server.getSearchService();
 		searchServiceHelper = new JavaSearchApiUtils(searchService);
 		dataService = server.getDataService();
+	}
+	
+	void resetContextClassLoader() {
 		Thread.currentThread()
 				.setContextClassLoader(originalContextClassLoader);
 	}
