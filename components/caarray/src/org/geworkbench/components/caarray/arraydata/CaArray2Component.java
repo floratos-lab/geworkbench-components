@@ -91,8 +91,6 @@ public class CaArray2Component implements VisualPlugin {
 		String currentConnectionInfo = CaARRAYPanel.createConnectonInfo(url, port, username,
 				password);
 		try {
-			CaArrayClient client = new CaArrayClient(url, port, username,
-					password);
 
 			if (ce.getRequestItem().equalsIgnoreCase(
 					CaArrayRequestEvent.EXPERIMENT)) {
@@ -101,6 +99,8 @@ public class CaArray2Component implements VisualPlugin {
 				CaArrayEvent event = new CaArrayEvent(url, port);
 				// TreeMap<String, String> desTreeMap = null;
 				CaArray2Experiment[] exps = null;
+				CaArrayClient client = new CaArrayClient(url, port, username,
+						password);
 				if (ce.isUseFilterCrit()) {
 					Map<String, String> filters = ce.getFilterCrit();
 					if (filters != null) {
@@ -119,6 +119,7 @@ public class CaArray2Component implements VisualPlugin {
 					exps = client.getExperimentListWithFilter(
 							null, null);
 				}
+				client.resetContextClassLoader();
 				if (exps != null && exps.length > 0) {
 					event.setExperiments(exps);
 					event.setPopulated(true);
@@ -153,7 +154,7 @@ public class CaArray2Component implements VisualPlugin {
 
 				String chipType = AffyAnnotationUtil.matchAffyAnnotationFile(null);
 
-				getData(client, hybridzations, qType, experimentName,
+				getData(url, port, username, password, hybridzations, qType, experimentName,
 							currentConnectionInfo, chipType);
 
 				CaArrayEvent event = new CaArrayEvent(url, port);
@@ -333,18 +334,21 @@ public class CaArray2Component implements VisualPlugin {
 		return microarraySet;
 	}
 	
-	private void getData(CaArrayClient client,
-			SortedMap<String, String> hybridzations, String qType,
-			final String experimentName, String currentConnectionInfo, String chipType)
-			throws Exception {
+	private void getData(String url, int port, String username,
+			String password, SortedMap<String, String> hybridzations,
+			String qType, final String experimentName,
+			String currentConnectionInfo, String chipType) throws Exception {
 		CSMicroarraySet microarraySet = null;
 
 		int number = 0;
 		CaArraySuccessEvent caArraySuccessEvent = new CaArraySuccessEvent(hybridzations.size());
 		for (String hybridizationName : hybridzations.keySet()) {
 			String hybridizationId = hybridzations.get(hybridizationName);
+			CaArrayClient client = new CaArrayClient(url, port, username,
+					password);
 			DataSet dataset = client.getCaArrayDataSet(hybridizationName,
 					hybridizationId, qType);
+			client.resetContextClassLoader();
 			
 			if(number==0) { // create the dataset when processing the first microarray
 				microarraySet = createInitialMicroarraySet(dataset, chipType);
@@ -407,6 +411,7 @@ public class CaArray2Component implements VisualPlugin {
 					password);
 			treeMap = client.lookupTypeValues();
 			succeeded = true;
+			client.resetContextClassLoader();
 		} catch (ServerConnectionException se) {
 			succeeded = false;
 			message = "ServerConnectionException: host " + url
@@ -477,6 +482,7 @@ public class CaArray2Component implements VisualPlugin {
 					password);
 			client.getHybridizations(caArray2Experiment);
 			publishCaArrayReturnHybridizationListEvent(new CaArrayReturnHybridizationListEvent(caArray2Experiment));
+			client.resetContextClassLoader();
 		} catch (FailedLoginException e) {
 			CaArrayEvent errorEvent = new CaArrayEvent(url, port);
 			errorEvent.setPopulated(false);
