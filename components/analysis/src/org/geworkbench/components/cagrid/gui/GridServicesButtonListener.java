@@ -171,6 +171,7 @@ public class GridServicesButtonListener implements ActionListener {
 				pBar.stop();
 
 				urlServiceBuilder.getPanel().revalidate();
+				gridServicePanel.getRootPane().revalidate();
 				gridServicePanel.serviceDetailsBuilder
 						.getPanel().revalidate();
 
