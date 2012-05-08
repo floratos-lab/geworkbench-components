@@ -2,23 +2,23 @@ package org.geworkbench.components.interactions.cellularnetwork;
 
 public class InteractionParticipant {
 
-	private String dSGeneMarker;    
+	private String dSGeneId;    
     private String dSGeneName;     
     private String dbSource;   
    
     public InteractionParticipant(String dSGeneMarker, String dSGeneName, String dbSource) {
-        this.dSGeneMarker = dSGeneMarker; 
+        this.dSGeneId = dSGeneMarker; 
         this.dSGeneName = dSGeneName;        
         this.dbSource = dbSource;       
     }
 
     
-    public String getdSGeneMarker() {
-        return dSGeneMarker;
+    public String getdSGeneId() {
+        return dSGeneId;
     }
 
-    public void setdSGeneMarker(String dSGeneMarker) {
-        this.dSGeneMarker = dSGeneMarker;
+    public void setdSGeneId(String dSGeneId) {
+        this.dSGeneId = dSGeneId;
     }
     
    

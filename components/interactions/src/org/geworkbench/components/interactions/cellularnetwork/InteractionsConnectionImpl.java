@@ -4,7 +4,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 import java.util.List;
@@ -28,93 +27,6 @@ public class InteractionsConnectionImpl {
 	public InteractionsConnectionImpl() {
 	}
 
-	public List<InteractionDetail> getPairWiseInteraction(DSGeneMarker marker,
-			String context, String version) throws UnAuthenticatedException,
-			ConnectException, SocketTimeoutException, IOException {
-		BigDecimal id = new BigDecimal(marker.getGeneId());
-		return this.getPairWiseInteraction(id, context, version);
-	}
-
-	public List<InteractionDetail> getPairWiseInteraction(BigDecimal id1,
-			String context, String version) throws UnAuthenticatedException,
-			ConnectException, SocketTimeoutException, IOException {
-		String interactionType = null;
-		String msid2 = null;
-		String msid1 = null;
-		String geneName1 = null;
-		String geneName2 = null;
-		String db1_xref = null;
-		String db2_xref = null;
-		String interactionId = null;
-
-		double confidenceValue = 0d;
-
-		List<InteractionDetail> arrayList = new ArrayList<InteractionDetail>();
-
-		ResultSetlUtil rs = null;
-
-		try {
-
-			String methodAndParams = "getPairWiseInteraction" + Constants.DEL
-					+ id1.toString() + Constants.DEL + context + Constants.DEL
-					+ version;
-			// String aSQL = "SELECT * FROM pairwise_interaction where ms_id1="
-			// + id1.toString() + " or ms_id2=" + id1.toString();
-			rs = ResultSetlUtil.executeQuery(methodAndParams,
-					ResultSetlUtil.getUrl());
-
-			while (rs.next()) {
-				try {
-					msid1 = rs.getString("ms_id1");
-					msid2 = rs.getString("ms_id2");
-					geneName1 = rs.getString("gene1");
-					geneName2 = rs.getString("gene2");
-					db1_xref = rs.getString("db1_xref");
-					db2_xref = rs.getString("db2_xref");
-					confidenceValue = rs.getDouble("confidence_value");
-					interactionId = rs.getString("interaction_id");
-					interactionType = rs.getString("interaction_type").trim();
-
-					InteractionDetail interactionDetail = new InteractionDetail(
-							msid1.toString(), msid2.toString(), geneName1,
-							geneName2, db1_xref, db2_xref, confidenceValue,
-							interactionType, interactionId);
-					arrayList.add(interactionDetail);
-				} catch (NullPointerException npe) {
-					if (logger.isErrorEnabled()) {
-						logger.error("db row is dropped because a NullPointerException");
-					}
-				}
-			}
-			rs.close();
-		} catch (UnAuthenticatedException uae) {
-			throw new UnAuthenticatedException(uae.getMessage());
-
-		} catch (ConnectException ce) {
-			if (logger.isErrorEnabled()) {
-				logger.error(ce.getMessage());
-			}
-			throw new ConnectException(ce.getMessage());
-		} catch (SocketTimeoutException se) {
-			if (logger.isErrorEnabled()) {
-				logger.error(se.getMessage());
-			}
-			throw new SocketTimeoutException(se.getMessage());
-		} catch (IOException ie) {
-			if (logger.isErrorEnabled()) {
-				logger.error(ie.getMessage());
-			}
-			throw new IOException(ie.getMessage());
-
-		} catch (Exception se) {
-			if (logger.isErrorEnabled()) {
-				logger.error("getPairWiseInteraction(BigDecimal) - ResultSetlUtil rs=" + rs); //$NON-NLS-1$
-			}
-			se.printStackTrace();
-		}
-		return arrayList;
-	}
-
 	public List<InteractionDetail> getInteractionsByEntrezIdOrGeneSymbol_1(
 			DSGeneMarker marker, String context, String version)
 			throws UnAuthenticatedException, ConnectException,
@@ -124,12 +36,12 @@ public class InteractionsConnectionImpl {
 		String msid1 = null;
 		String geneName1 = null;
 		String geneName2 = null;
-		String db1_xref = null;
 		String db2_xref = null;
 		String interactionId = null;
-		Short  evidenceId  = 0;
+		Short evidenceId = 0;
 
 		double confidenceValue = 0d;
+		short confidenceType;
 
 		List<InteractionDetail> arrayList = new ArrayList<InteractionDetail>();
 
@@ -138,9 +50,7 @@ public class InteractionsConnectionImpl {
 		try {
 
 			msid1 = new Integer(marker.getGeneId()).toString();
-			db1_xref = ENTREZ_GENE;
 			geneName1 = marker.getGeneName();
-
 			String methodAndParams = "getInteractionsByEntrezIdOrGeneSymbol"
 					+ Constants.DEL + msid1 + Constants.DEL + geneName1
 					+ Constants.DEL + context + Constants.DEL + version;
@@ -171,16 +81,37 @@ public class InteractionsConnectionImpl {
 						}
 					}
 
-					confidenceValue = rs.getDouble("confidence_value");
 					interactionType = rs.getString("interaction_type").trim();
-					if (rs.getString("evidence_id") != null && !rs.getString("evidence_id").trim().equals("null"))
-					    evidenceId = new Short(rs.getString("evidence_id"));
-					
+					if (rs.getString("evidence_id") != null
+							&& !rs.getString("evidence_id").trim()
+									.equals("null"))
+						evidenceId = new Short(rs.getString("evidence_id"));
+
 					InteractionDetail interactionDetail = new InteractionDetail(
-							msid1, msid2, geneName1, geneName2, db1_xref,
-							db2_xref, confidenceValue, interactionType,
+							msid2, geneName2, db2_xref, interactionType,
 							interactionId, evidenceId);
+
+					confidenceValue = rs.getDouble("confidence_value");
+					confidenceType = new Short(rs.getString("confidence_type")
+							.trim());
+					interactionDetail.addConfidence(confidenceValue,
+							confidenceType);
+					String otherConfidenceValues = rs
+							.getString("other_confidence_values");
+					String otherConfidenceTypes = rs
+							.getString("other_confidence_types");
+					if (!otherConfidenceValues.equals("null")) {
+						String[] values = otherConfidenceValues.split(";");
+						String[] types = otherConfidenceTypes.split(";");
+
+						for (int i = 0; i < values.length; i++)
+							interactionDetail.addConfidence(new Double(
+									values[i]), new Short(types[i]));
+
+					}
+
 					arrayList.add(interactionDetail);
+
 				} catch (NullPointerException npe) {
 					if (logger.isErrorEnabled()) {
 						logger.error("db row is dropped because a NullPointerException");
@@ -227,6 +158,8 @@ public class InteractionsConnectionImpl {
 		String interactionId = null;
 
 		double confidenceValue = 1d;
+		short confidenceType;
+
 		Short evidenceId = 0;
 
 		List<InteractionDetail> arrayList = new ArrayList<InteractionDetail>();
@@ -252,12 +185,14 @@ public class InteractionsConnectionImpl {
 				try {
 					msid = rs.getString("primary_accession");
 					geneName = rs.getString("gene_symbol");
+			 
 					db_xref = rs.getString("accession_db");
-					confidenceValue = rs.getDouble("confidence_value");
 					interactionType = rs.getString("interaction_type").trim();
 					interactionId = rs.getString("interaction_id");
-					if (rs.getString("evidence_id") != null && !rs.getString("evidence_id").trim().equals("null"))
-					   evidenceId = new Short(rs.getString("evidence_id"));
+					if (rs.getString("evidence_id") != null
+							&& !rs.getString("evidence_id").trim()
+									.equals("null"))
+						evidenceId = new Short(rs.getString("evidence_id"));
 					if (!db_xref.equalsIgnoreCase(ENTREZ_GENE)
 							&& geneName.equals(marker_geneName)) {
 						msid = marker_msid;
@@ -270,12 +205,44 @@ public class InteractionsConnectionImpl {
 						participantList.clear();
 					} else {
 						for (InteractionParticipant p : participantList) {
-							InteractionDetail interactionDetail = new InteractionDetail(
-									p.getdSGeneMarker(), msid,
-									p.getdSGeneName(), geneName,
-									p.getDbSource(), db_xref, confidenceValue,
-									interactionType, interactionId, evidenceId);
+							InteractionDetail interactionDetail = null;
+							 
+							if ((p.getdSGeneName() != null && p.getdSGeneName()
+									.equalsIgnoreCase(marker_geneName))
+									|| (p.getdSGeneId() != null && p
+											.getdSGeneId().equals(marker_msid)))
+								interactionDetail = new InteractionDetail(msid,
+										geneName, db_xref, interactionType,
+										interactionId, evidenceId);
+							else
+								interactionDetail = new InteractionDetail(
+										p.getdSGeneId(), p.getdSGeneName(),
+										p.getDbSource(), interactionType,
+										interactionId, evidenceId);
+
+							confidenceValue = rs.getDouble("confidence_value");
+							confidenceType = new Short(rs.getString(
+									"confidence_type").trim());
+							interactionDetail.addConfidence(confidenceValue,
+									confidenceType);
+							String otherConfidenceValues = rs
+									.getString("other_confidence_values");
+							String otherConfidenceTypes = rs
+									.getString("other_confidence_types");
+							if (!otherConfidenceValues.equals("null")) {
+								String[] values = otherConfidenceValues
+										.split(";");
+								String[] types = otherConfidenceTypes
+										.split(";");
+
+								for (int i = 0; i < values.length; i++)
+									interactionDetail.addConfidence(new Double(
+											values[i]), new Short(types[i]));
+
+							}
+
 							arrayList.add(interactionDetail);
+
 						}
 					}
 
@@ -285,7 +252,13 @@ public class InteractionsConnectionImpl {
 				} catch (NullPointerException npe) {
 					if (logger.isErrorEnabled()) {
 						logger.error("db row is dropped because a NullPointerException");
-					}
+					}				
+					
+				} catch (NumberFormatException nfe)
+				{
+					if (logger.isErrorEnabled()) {
+						logger.error("db row is dropped because a NumberFormatExceptio");
+					}		
 				}
 			}
 			rs.close();
@@ -310,12 +283,14 @@ public class InteractionsConnectionImpl {
 
 		} catch (Exception se) {
 			if (logger.isErrorEnabled()) {
-				logger.error("getPairWiseInteraction(BigDecimal) - ResultSetlUtil rs=" + rs); //$NON-NLS-1$
+				logger.error(se.getMessage()); //$NON-NLS-1$
 			}
 			se.printStackTrace();
 		}
 		return arrayList;
 	}
+	
+	
 
 	public List<String> getInteractionsSifFormat(String context,
 			String version, String interactionType, String presentBy)
@@ -521,6 +496,55 @@ public class InteractionsConnectionImpl {
 		} catch (Exception se) {
 			if (logger.isErrorEnabled()) {
 				logger.error("getInteractionTypes() - ResultSetlUtil: " + se.getMessage()); //$NON-NLS-1$
+			}
+
+		}
+		return map;
+	}
+
+	public HashMap<String, String> getConfidenceTypeMap()
+			throws ConnectException, SocketTimeoutException, IOException {
+		HashMap<String, String> map = new HashMap<String, String>();
+
+		ResultSetlUtil rs = null;
+		String confidenceType = null;
+		String id = null;
+
+		try {
+
+			String methodAndParams = "getConfidenceTypes";
+			rs = ResultSetlUtil.executeQuery(methodAndParams,
+					ResultSetlUtil.getUrl());
+
+			while (rs.next()) {
+
+				confidenceType = rs.getString("name").trim();
+				id = rs.getString("id").trim();
+
+				map.put(confidenceType, id);
+				map.put(id, confidenceType);
+			}
+			rs.close();
+
+		} catch (ConnectException ce) {
+			if (logger.isErrorEnabled()) {
+				logger.error(ce.getMessage());
+			}
+			throw new ConnectException(ce.getMessage());
+		} catch (SocketTimeoutException se) {
+			if (logger.isErrorEnabled()) {
+				logger.error(se.getMessage());
+			}
+			throw new SocketTimeoutException(se.getMessage());
+		} catch (IOException ie) {
+			if (logger.isErrorEnabled()) {
+				logger.error(ie.getMessage());
+			}
+			throw new IOException(ie.getMessage());
+
+		} catch (Exception se) {
+			if (logger.isErrorEnabled()) {
+				logger.error("getConfidenceTypesMap() - ResultSetlUtil: " + se.getMessage()); //$NON-NLS-1$
 			}
 
 		}

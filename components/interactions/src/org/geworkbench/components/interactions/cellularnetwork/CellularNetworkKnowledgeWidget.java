@@ -11,6 +11,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -39,11 +41,12 @@ import java.util.Vector;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.CellEditor;
+import javax.swing.CellEditor; 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JLabel;
+import javax.swing.JComboBox;
+import javax.swing.JLabel; 
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -56,7 +59,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.JToolBar;
+import javax.swing.JToolBar; 
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.Timer;
@@ -200,6 +203,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	private CreateNetworkHandler createNetworkHandler;
 
 	private JTextField thresholdTextField;
+	
+	private JComboBox thresholdTypes = new JComboBox();
 
 	private JSlider thresholdSlider;
 
@@ -289,6 +294,10 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		DSPanel<DSGeneMarker> selectedMarkers = new CSPanel<DSGeneMarker>(
 				Constants.CNKB_SELECTION + " " + cnkbSelectionIndex,
 				"Cellular Network Knowledge Base");
+		
+		Map<String, List<DSGeneMarker>> geneNameToMarkerMap = AffyAnnotationUtil.getGeneNameToMarkerMapping(dataset);
+		Map<String, List<DSGeneMarker>> geneIdToMarkerMap = AffyAnnotationUtil.getGeneIdToMarkerMapping(dataset);
+		
 		int rowCount = detailTable.getRowCount();
 		int colCount = detailTable.getColumnCount();
 		for (int i = 0; i < rowCount; i++) {
@@ -307,15 +316,20 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 					}
 
 					Integer geneId = c.getdSGeneMarker().getGeneId();
-					Collection<DSGeneMarker> markers = AffyAnnotationUtil.getMarkersForGivenGeneId(dataset, geneId.toString());
+					Collection<DSGeneMarker> markers = geneIdToMarkerMap.get(geneId.toString());
 					selectedMarkers.addAll(markers);
 
 					for (InteractionDetail detail : arrayList) {
-						Integer interactionGeneId = detail
-								.getInteractionGeneId(geneId);
-						Collection<DSGeneMarker> markers2
-							= AffyAnnotationUtil.getMarkersForGivenGeneId(dataset, interactionGeneId.toString());
-						selectedMarkers.addAll(markers2);
+						String dbSource = detail.getDbSource();
+						Collection<DSGeneMarker> markers2 = null;
+						if (dbSource.equalsIgnoreCase(Constants.ENTREZ_GENE))								 
+						   markers2 =
+							   geneIdToMarkerMap.get(detail.getdSGeneId());
+						else
+						   markers2 = 
+							   geneNameToMarkerMap.get(detail.getdSGeneName() );
+						if (markers2 != null)
+						     selectedMarkers.addAll(markers2);
 					}
 
 				}
@@ -659,8 +673,9 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			jButtonList[i].setPreferredSize(new java.awt.Dimension(10, 10));
 		}
 		legendList = new LegendObjectCollection();
-
-		thresholdTextField = new JTextField(".00", 4);
+		
+		
+		thresholdTextField = new JTextField("", 7);
 		thresholdTextField.setMaximumSize(new Dimension(100, 50));
 		thresholdTextField.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -692,11 +707,33 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				});
 		thresholdSlider
 				.setToolTipText("Move the slider to change the threshold for the throttle graph");
-
+		 
 		graphToolBar
 				.setLayout(new BoxLayout(graphToolBar, BoxLayout.LINE_AXIS));
 		graphToolBar.add(Box.createRigidArea(new Dimension(10, 0)));
-		graphToolBar.add(new JLabel("Threshold "));
+		graphToolBar.add(new JLabel("Threshold: "));		 
+		thresholdTypes.setPreferredSize(new Dimension(140, 25));
+		thresholdTypes.setMaximumSize(new Dimension(140, 25));
+		graphToolBar.add(thresholdTypes);
+		
+		thresholdTypes.addItemListener(new ItemListener()
+		{
+			 public void itemStateChanged(ItemEvent itemEvent) {
+		         System.out.println("itemStateChanged is called...");
+				 if (thresholdTypes.getSelectedItem() != null)
+				 {
+					String type =  CellularNetworkPreferencePanel.interactionConfidenceTypeMap.get(thresholdTypes.getSelectedItem().toString());
+					CellularNetWorkElementInformation.setUsedConfidenceType(new Short(type));					
+				    
+					//drawPlot(createCollection(0, 1, 1, true), false, true);
+					//throttlePanel.repaint();
+				 
+				 }
+				 
+		      
+			 }
+			
+		});
 		graphToolBar.add(thresholdTextField);
 		graphToolBar.add(thresholdSlider);
 		JButton cancelButton = new JButton();
@@ -1061,13 +1098,37 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	private XYSeriesCollection createCollection(double min, double max,
 			int selectedId, boolean active) {
+		 
 		boolean needDraw = false;
 		if (hits != null && hits.size() > 0)
 			updateLegendList();
 		else
+		{
 			this.legendList.clear();
-
-		XYSeries dataSeries = new XYSeries("Total Distribution");
+			thresholdTypes.removeAllItems();
+			CellularNetWorkElementInformation.clearConfidenceTypes();
+		}
+		
+		double maxConfidenceValue = CellularNetWorkElementInformation.getMaxConfidenceValue();
+		if (maxConfidenceValue > 1)
+		{
+			int a = (int)Math.log10(maxConfidenceValue);
+			double b = maxConfidenceValue / (Math.pow(10, a));
+			double maxX = Math.round(b);
+			maxX =  maxX * (Math.pow(10, a));			 
+			long smallestIncrement = (long)maxX/100;		 	    
+			 
+		    CellularNetWorkElementInformation.setSmallestIncrement(smallestIncrement);
+		    CellularNetWorkElementInformation.setMaxX((long)maxX);
+		     
+		}
+		else
+		{
+			    CellularNetWorkElementInformation.setSmallestIncrement(0.01);
+			    CellularNetWorkElementInformation.setMaxX(1);			     
+		}
+		
+		XYSeries dataSeries = new XYSeries("Total Distribution");	 
 		int binSize = CellularNetWorkElementInformation.getBinNumber();
 		XYSeriesCollection plots = new XYSeriesCollection();
 		try {
@@ -1140,8 +1201,12 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				}
 
 			} else
+			{
 				this.legendList.clear();
-
+				thresholdTypes.removeAllItems();
+				CellularNetWorkElementInformation.clearConfidenceTypes();
+			}
+		 
 		} catch (IndexOutOfBoundsException e) {
 			return null;
 		}
@@ -1164,7 +1229,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		}
 		XYPlot plot = this.chart.getXYPlot();
 		double newSliderValue = newvalue
-				* (CellularNetWorkElementInformation.getBinNumber() - 1);
+			     * 100 / CellularNetWorkElementInformation.getMaxX();
 		thresholdSlider.setValue((int) newSliderValue);
 		plot.setDomainCrosshairValue(newvalue);
 		for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {
@@ -1220,7 +1285,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		if (hits != null && hits.size() > 0)
 			threshhold = hits.get(0).getThreshold();
 		double newSliderValue = threshhold
-				* (CellularNetWorkElementInformation.getBinNumber() - 1);
+				*100/CellularNetWorkElementInformation.getMaxX();
 
 		thresholdSlider.setValue((int) newSliderValue);
 
@@ -1233,7 +1298,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	 * @param title
 	 */
 	public void drawPlot(final XYSeriesCollection plots, boolean needRedraw,
-			boolean needCreateLegendItems) {
+			boolean needCreateLegendItems) {		
+		 
 		if (plots == null) {
 			return;
 		}
@@ -1252,8 +1318,12 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			} else
 				tgPreference.setTitle("Throttle Graph");
 
+			Object selectedType = thresholdTypes.getSelectedItem();
+			String xAxisLabel = "likelihood";
+			if (selectedType != null && !selectedType.toString().equals(""))
+				xAxisLabel  = selectedType.toString();
 			chart = ChartFactory.createXYLineChart(tgPreference.getTitle(),
-					"likelihood", "#interactions", plots,
+					xAxisLabel, "#interactions", plots,
 					PlotOrientation.VERTICAL, true, true, true);
 			xyPlot = (XYPlot) chart.getPlot();
 			chart.setBackgroundPaint(Color.white);
@@ -1292,7 +1362,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 						String xStr = myFormatter.format(x);
 
 						return resultStr = label + ": ([" + xStr + ", "
-								+ myFormatter.format(x + 0.01) + "], "
+								+ myFormatter.format(x + CellularNetWorkElementInformation.getSmallestIncrement()) + "], "
 								+ (int) y + ")";
 					}
 				});
@@ -1307,10 +1377,13 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			// change the auto tick unit selection to integer units only...
 			NumberAxis rangeAxis = (NumberAxis) xyPlot.getRangeAxis();
 			rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-
+			 
 			ValueAxis xAxis = xyPlot.getDomainAxis();
-
-			xAxis.setRange(0, 1);
+			 xAxis.setAutoRange(true);
+            
+			 if (CellularNetWorkElementInformation.getMaxX() <= 1)			  
+				 xAxis.setRange(0, 1);
+          
 			// OPTIONAL CUSTOMISATION COMPLETED.
 
 			chart.addProgressListener(new ChartProgressListener() {
@@ -1325,9 +1398,9 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 						String s = myFormatter.format(aCrosshair);
 						thresholdTextField.setText(s);
 
-						double newSliderValue = aCrosshair
-								* (CellularNetWorkElementInformation
-										.getBinNumber() - 1);
+						double newSliderValue = aCrosshair 
+							       /CellularNetWorkElementInformation.getMaxX() * 100; 
+										 
 						thresholdSlider.setValue((int) newSliderValue);
 					}
 				}
@@ -1383,15 +1456,15 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 		setThresholdSliderValue();
 		thresholdSlider_stateChanged();
-
+	 
 	} // end of drawPlot
 
 	private void thresholdSlider_stateChanged() {
 		int value = thresholdSlider.getValue();
 		XYPlot plot = chart.getXYPlot();
 
-		double lowValue = (double) value
-				/ (CellularNetWorkElementInformation.getBinNumber() - 1);
+		double lowValue = (double) value * 
+			   CellularNetWorkElementInformation.getMaxX()/100;
 
 		plot.setDomainCrosshairValue(lowValue);
 		String s = myFormatter.format(lowValue);
@@ -1423,302 +1496,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		};
 		SwingUtilities.invokeLater(r);
 
-	}
-
-	private void createNetworks(ProgressBar createNetworkPb,
-			CreateNetworkHandler handler) {// GEN-FIRST:event_loadfromDBHandler
-
-		double threshold = 0;
-		try {
-			threshold = new Double(thresholdTextField.getText().trim());
-		} catch (NumberFormatException e1) {
-			createNetWorkButton.setEnabled(true);
-			createNetworkPb.dispose();
-			JOptionPane.showMessageDialog(null, "The Threshold field is not a number.",
-					"Please check your input.", JOptionPane.ERROR_MESSAGE);
-			
-			return;
-		}
-		
-		//HashMap<String, String> geneIdToNameMap = new HashMap<String, String>();
-		DSItemList<DSGeneMarker> markers = dataset.getMarkers();
-		DSItemList<DSGeneMarker> copy = new CSItemList<DSGeneMarker>();
-		copy.addAll(markers);
-		CellularNetworkKnowledgeWidget.EntrezIdComparator eidc = new CellularNetworkKnowledgeWidget.EntrezIdComparator();
-		Collections.sort(copy, eidc);
-
-		Map<String, List<Integer>> geneNameToMarkerIdMap = AffyAnnotationUtil
-				.getGeneNameToMarkerIDMapping(dataset);
-
-		AdjacencyMatrix matrix = new AdjacencyMatrix(null, dataset,
-				CellularNetworkPreferencePanel.interactionTypeSifMap, CellularNetworkPreferencePanel.interactionEvidenceMap);
-		handler.setAdjacencyMatrix(matrix);
-		AdjacencyMatrixDataSet adjacencyMatrixdataSet = null;
-
-		int interactionNum = 0;
-		boolean createNetwork = false;
-		boolean needBreak = false;
-		boolean isGene1InMicroarray = true;
-		boolean isGene2InMicroarray = true;
-		StringBuffer historyStr = new StringBuffer();
-		boolean isRestrictToGenesPresentInMicroarray = jPreferencePanel
-				.isNetworkJCheckBox1Selected();
-
-		for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {
-			if (needBreak)
-				break;
-			if (cellularNetWorkElementInformation.isDirty() == true)
-				continue;
-			ArrayList<InteractionDetail> arrayList = cellularNetWorkElementInformation
-					.getSelectedInteractions(jPreferencePanel
-							.getNetworkSelectedInteractionTypes());
-
-			List<String> networkSelectedInteractionTypes = jPreferencePanel
-					.getNetworkSelectedInteractionTypes();
-			if (networkSelectedInteractionTypes.size() > 0)
-				historyStr
-						.append("           ")
-						.append(cellularNetWorkElementInformation
-								.getdSGeneMarker().getLabel()).append(": \n");
-			for (String interactionType : networkSelectedInteractionTypes)
-				historyStr
-						.append("\t Include ")
-						.append(interactionType)
-						.append(": ")
-						.append(cellularNetWorkElementInformation
-								.getInteractionNum(interactionType))
-						.append("\n");
-
-			if (arrayList == null || arrayList.size() <= 0) {
-				continue;
-			}
-			
-			for (InteractionDetail interactionDetail : arrayList) {
-				if (handler.isCancelled() == true)
-					return;
-				isGene1InMicroarray = true;
-				isGene2InMicroarray = true;
-				DSGeneMarker marker = new CSGeneMarker();
-				String mid2 = interactionDetail.getdSGeneMarker2();
-				String mid1 = interactionDetail.getdSGeneMarker1();
-				int serial2 = -1;
-				AdjacencyMatrix.Node node2 = null;
-
-				if (interactionDetail.getDbSource2().equalsIgnoreCase(
-						Constants.ENTREZ_GENE)) {
-					try {
-						marker.setGeneId(new Integer(mid2));
-					} catch (NumberFormatException ne) {
-						if (log.isErrorEnabled()) {
-							log.error("ms_id2 is expect to be an integer: "
-									+ mid2
-									+ "This interaction is going to be dropped");
-						}
-						continue;
-					}
-					int index = Collections.binarySearch(copy, marker, eidc);
-					if (index >= 0) {
-						serial2 = copy.get(index).getSerial();
-						//node2 = new AdjacencyMatrix.Node(copy.get(index));
-						node2 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL, copy.get(index).getGeneName());
-					} else {
-						isGene2InMicroarray = false;
-					}
-
-				} else {
-					Collection<Integer> markerIds = geneNameToMarkerIdMap
-							.get(interactionDetail.getdSGeneName2());
-					if (markerIds != null && !markerIds.isEmpty()) {
-						for (Integer markerId : markerIds) {
-
-							marker = (DSGeneMarker) dataset.getMarkers().get(
-									markerId);
-							//node2 = new AdjacencyMatrix.Node(marker);
-							node2 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL, marker.getGeneName());
-							 
-							if (interactionDetail.getDbSource2()
-									.equalsIgnoreCase(Constants.UNIPORT)) {
-								Set<String> SwissProtIds = new HashSet<String>();
-								String[] ids = AnnotationParser.getInfo(marker
-										.getLabel(), AnnotationParser.SWISSPROT);
-								for (String s : ids) {
-									SwissProtIds.add(s.trim());
-								}
-								if (SwissProtIds.contains(interactionDetail
-										.getdSGeneMarker2())) {
-									serial2 = marker.getSerial();
-									break;
-								}
-							} else { 
-								serial2 = marker.getSerial();
-								break;
-							}
-							
-							if (serial2 == -1)
-								serial2 = marker.getSerial();; 
-
-						}
-					} else {
-						isGene2InMicroarray = false;
-					}
-				}
-
-				if (isGene2InMicroarray == false) {
-					log.info("Marker " + interactionDetail.getdSGeneMarker2()
-							+ " does not exist at the dataset. ");
-					if (isRestrictToGenesPresentInMicroarray)
-						continue;
-
-					if (interactionDetail.getdSGeneName2() != null
-							&& !interactionDetail.getdSGeneName2().trim()
-									.equals("")
-							&& !interactionDetail.getdSGeneName2().trim()
-									.equals("null")) {					 
-						node2 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL, interactionDetail.getdSGeneName2(), 0);
-					} else {					 
-						node2 = new AdjacencyMatrix.Node(NodeType.STRING, mid2);
-					}
-				}
-
-				mid1 = interactionDetail.getdSGeneMarker1();
-				DSGeneMarker marker1 = new CSGeneMarker();
-				int serial1 = -1;
-				AdjacencyMatrix.Node node1 = null;
-				if (interactionDetail.getDbSource1().equalsIgnoreCase(
-						Constants.ENTREZ_GENE)) {
-
-					try {
-						marker1.setGeneId(Integer.parseInt(mid1));
-					} catch (NumberFormatException ne) {
-						if (log.isErrorEnabled()) {
-							log.error("ms_id1 is expect to be an integer: "
-									+ mid1
-									+ "This interaction is going to be dropped");
-						}
-						continue;
-					}
-					int index1 = Collections.binarySearch(copy, marker1, eidc);
-
-					if (index1 < 0) {
-						isGene1InMicroarray = false;
-					} else {
-						serial1 = copy.get(index1).getSerial();
-						//node1 = new AdjacencyMatrix.Node(copy.get(index1));
-						node1 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL, copy.get(index1).getGeneName());
-					}
-				} else {
-					Collection<Integer> markerIds = geneNameToMarkerIdMap
-							.get(interactionDetail.getdSGeneName1());
-					if (markerIds != null && !markerIds.isEmpty()) {
-						for (Integer markerId : markerIds) {
-
-							marker = (DSGeneMarker) dataset.getMarkers().get(
-									markerId);
-							//node1 = new AdjacencyMatrix.Node(marker);
-							node1 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL, marker.getGeneName());
-							
-							if (interactionDetail.getDbSource1()
-									.equalsIgnoreCase(Constants.UNIPORT)) {
-								Set<String> SwissProtIds = new HashSet<String>();
-								String[] ids = AnnotationParser.getInfo(marker
-										.getLabel(), AnnotationParser.SWISSPROT);
-								for (String s : ids) {
-									SwissProtIds.add(s.trim());
-								}
-								if (SwissProtIds.contains(interactionDetail
-										.getdSGeneMarker1())) {
-									serial1 = marker.getSerial();
-									break;
-								}
-							} else {
-								serial1 = marker.getSerial();
-								break;
-							}
-
-						}
-						
-						if (serial1 == -1)
-							serial1 = marker.getSerial();; 
-						
-					} else {
-						isGene1InMicroarray = false;
-					}
-				}
-				if (isGene1InMicroarray == false) {
-					log.info("Marker " + interactionDetail.getdSGeneMarker1()
-							+ " does not exist at the dataset. ");
-
-					if (isRestrictToGenesPresentInMicroarray)
-						continue;
-
-					if (interactionDetail.getdSGeneName1() != null
-							&& !interactionDetail.getdSGeneName1().trim()
-									.equals("")
-							&& !interactionDetail.getdSGeneName1().trim()
-									.equals("null")) {
-					 
-						node1 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL, interactionDetail.getdSGeneName1(),0);
-					} else {						 
-						node1 = new AdjacencyMatrix.Node(NodeType.STRING, mid1); 
-					}
-				}
-				String shortNameType = CellularNetworkPreferencePanel.interactionTypeSifMap
-						.get(interactionDetail.getInteractionType());
-			 
-			    matrix.add(node1, node2, new Float(interactionDetail.getConfidence()), shortNameType, interactionDetail.getEvidenceId());
- 
-				interactionNum++;			 
-			}
-		} // end for loop
-
-		if (interactionNum > 0) {
-			createNetwork = true;
-		} else if (interactionNum == 0) {
-			JOptionPane.showMessageDialog(null,
-					"No interactions exist in the current database.",
-					"Empty Set", JOptionPane.ERROR_MESSAGE);
-			createNetwork = false;
-
-		}
-		if (createNetwork == true) {
-
-			adjacencyMatrixdataSet = new AdjacencyMatrixDataSet(matrix,
-					threshold, "Adjacency Matrix", dataset.getLabel(), dataset);
-		 
-			String history = "Cellular Network Parameters: \n"
-					+ "      URL Used:     "
-					+ ResultSetlUtil.getUrl() + "\n"
-					+ "      Selected Interactome:     "
-					+ jPreferencePanel.getSelectedContext() + "\n"
-					+ "      Selected Version:     "
-					+ jPreferencePanel.getSelectedVersion() + "\n"
-					+ "      Threshold:     " + thresholdTextField.getText()
-					+ "\n" + "      Selected Marker List: \n" + historyStr
-					+ "\n";
-			HistoryPanel.addToHistory(adjacencyMatrixdataSet, history);
-
-			if (handler.isCancelled())
-				return;
-			else {
-				createNetworkPb.setTitle("Draw cytoscape graph");
-				createNetworkPb.setMessage("Draw cytoscape graph ...");
-
-			}
-			publishProjectNodeAddedEvent(new ProjectNodeAddedEvent(
-					"Adjacency Matrix Added", null, adjacencyMatrixdataSet));
-
-		}
-
-		if (!handler.isCancelled()) {
-			log.info("task is completed");
-			createNetWorkButton.setEnabled(true);
-			createNetworkPb.dispose();
-		} else {
-			log.info("task is canceled");
-
-		}
-
-	}// end of createNetworks
+	}	 
 
 	public Vector<CellularNetWorkElementInformation> getHits() {
 		return hits;
@@ -1807,7 +1585,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 					updateProgressBar(0, "Querying the Knowledge Base...");
 
 					int retrievedQueryNumber = 0;
-					isQueryRuning = true;
+					isQueryRuning = true;	
+					boolean hasRereivedRecord = false;
 					for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {
 						retrievedQueryNumber++;
 						updateProgressBar(((double) retrievedQueryNumber)
@@ -1872,10 +1651,34 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 							cellularNetWorkElementInformation.setDirty(false);
 							cellularNetWorkElementInformation
 									.setInteractionDetails(interactionDetails);
-
+							
+						}
+						else
+						{
+							hasRereivedRecord =true;	
 						}
 
 					}
+					
+
+					
+					List<Short> confidenceTypeList = CellularNetWorkElementInformation.getConfidenceTypeList();
+					Object selectItem = thresholdTypes.getSelectedItem();
+					thresholdTypes.removeAllItems();
+					for(int i=0; i<confidenceTypeList.size(); i++)
+					{
+						Short typeId =  confidenceTypeList.get(i);
+						String typeName = CellularNetworkPreferencePanel.interactionConfidenceTypeMap.get(typeId.toString());
+						thresholdTypes.addItem(typeName);						
+					}
+					if (hasRereivedRecord &&  thresholdTypes.getItemCount() > 0 && selectItem != null)
+						thresholdTypes.setSelectedItem(selectItem.toString());
+					else
+					{
+						if (hits.size() > 0 && thresholdTypes.getItemCount() > 0 && selectItem != null)
+						   thresholdTypes.setSelectedIndex(0);
+					}
+
 
 					if (!cancelAction) {
 						updateProgressBar(1, "Query is finished.");
@@ -1888,7 +1691,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 							 tgPreference.setVersion(version);							 
 						} 
 						 
-						
+					
 						drawPlot(createCollection(0, 1, 1, true), needNewProperties,
 								true);
 						throttlePanel.repaint();
@@ -1919,7 +1722,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		// SwingUtilities.invokeLater(r);
 		Thread thread = new Thread(r);
 		thread.start();
-	}
+	}   
 
 	/**
 	 * Create a connection with the server.
@@ -2467,13 +2270,213 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 		public void run() {
 			pb.addObserver(this);
-			createNetworks(pb, this);
+			createNetworks();
+			//pb.dispose();
 		}
+		
+		private void createNetworks()  { 
 
-		private AdjacencyMatrix getAdjacencyMatrix() {
-			return matrix;
-		}
+			double threshold = 0;
+			try {
+				threshold = new Double(thresholdTextField.getText().trim());
+			} catch (NumberFormatException e1) {
+				createNetWorkButton.setEnabled(true);
+				pb.dispose();
+				JOptionPane.showMessageDialog(null, "The Threshold field is not a number.",
+						"Please check your input.", JOptionPane.ERROR_MESSAGE);
+				
+				return;
+			}			
+			 
+			DSItemList<DSGeneMarker> markers = dataset.getMarkers();
+			DSItemList<DSGeneMarker> copy = new CSItemList<DSGeneMarker>();
+			copy.addAll(markers);
+			CellularNetworkKnowledgeWidget.EntrezIdComparator eidc = new CellularNetworkKnowledgeWidget.EntrezIdComparator();
+			Collections.sort(copy, eidc);
 
+			Map<String, List<DSGeneMarker>> geneNameToMarkerMap = AffyAnnotationUtil
+					.getGeneNameToMarkerMapping(dataset);
+
+			AdjacencyMatrix matrix = new AdjacencyMatrix(null, dataset,
+					CellularNetworkPreferencePanel.interactionTypeSifMap, CellularNetworkPreferencePanel.interactionEvidenceMap);
+			setAdjacencyMatrix(matrix);
+			AdjacencyMatrixDataSet adjacencyMatrixdataSet = null;
+
+			int interactionNum = 0;
+			boolean createNetwork = false;
+			boolean needBreak = false;			 
+			boolean isGene2InMicroarray = true;
+			StringBuffer historyStr = new StringBuffer();
+			boolean isRestrictToGenesPresentInMicroarray = jPreferencePanel
+					.isNetworkJCheckBox1Selected();
+
+			short usedConfidenceType = CellularNetWorkElementInformation.getUsedConfidenceType();
+			
+			for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {
+				if (needBreak)
+					break;
+				if (cellularNetWorkElementInformation.isDirty() == true)
+					continue;
+				ArrayList<InteractionDetail> arrayList = cellularNetWorkElementInformation
+						.getSelectedInteractions(jPreferencePanel
+								.getNetworkSelectedInteractionTypes());
+
+				List<String> networkSelectedInteractionTypes = jPreferencePanel
+						.getNetworkSelectedInteractionTypes();
+				if (networkSelectedInteractionTypes.size() > 0)
+					historyStr
+							.append("           ")
+							.append(cellularNetWorkElementInformation
+									.getdSGeneMarker().getLabel()).append(": \n");
+				for (String interactionType : networkSelectedInteractionTypes)
+					historyStr
+							.append("\t Include ")
+							.append(interactionType)
+							.append(": ")
+							.append(cellularNetWorkElementInformation
+									.getInteractionNum(interactionType))
+							.append("\n");
+
+				if (arrayList == null || arrayList.size() <= 0) {
+					continue;
+				}				
+				
+				DSGeneMarker marker1 = cellularNetWorkElementInformation.getdSGeneMarker();
+				
+				for (InteractionDetail interactionDetail : arrayList) {
+					if (isCancelled() == true)
+						return;				 
+					isGene2InMicroarray = true;
+					DSGeneMarker marker = new CSGeneMarker();
+					String mid2 = interactionDetail.getdSGeneId();						 
+					AdjacencyMatrix.Node node2 = null;
+
+					if (interactionDetail.getDbSource().equalsIgnoreCase(
+							Constants.ENTREZ_GENE)) {
+						try {
+							marker.setGeneId(new Integer(mid2));
+						} catch (NumberFormatException ne) {
+							if (log.isErrorEnabled()) {
+								log.error("ms_id2 is expect to be an integer: "
+										+ mid2
+										+ "This interaction is going to be dropped");
+							}
+							continue;
+						}
+						int index = Collections.binarySearch(copy, marker, eidc);
+						if (index >= 0) {							 					 
+							node2 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL, copy.get(index).getGeneName());
+						} else {
+							isGene2InMicroarray = false;
+						}
+
+					} else {
+						Collection<DSGeneMarker> dSGeneMarkerList = geneNameToMarkerMap
+								.get(interactionDetail.getdSGeneName());
+						if (dSGeneMarkerList != null && !dSGeneMarkerList.isEmpty()) {
+							for (DSGeneMarker dSGeneMarker : dSGeneMarkerList) {								 
+								node2 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL, dSGeneMarker.getGeneName());								 
+								if (interactionDetail.getDbSource()
+										.equalsIgnoreCase(Constants.UNIPORT)) {
+									Set<String> SwissProtIds = new HashSet<String>();
+									String[] ids = AnnotationParser.getInfo(dSGeneMarker
+											.getLabel(), AnnotationParser.SWISSPROT);
+									for (String s : ids) {
+										SwissProtIds.add(s.trim());
+									}
+									if (SwissProtIds.contains(interactionDetail
+											.getdSGeneId())) {										 
+										break;
+									}
+								} else { 
+									 
+									break;
+								}						
+								 
+							}
+						} else {
+							isGene2InMicroarray = false;
+						}
+					}
+
+					if (isGene2InMicroarray == false) {
+						log.info("Marker " + interactionDetail.getdSGeneId()
+								+ " does not exist at the dataset. ");
+						if (isRestrictToGenesPresentInMicroarray)
+							continue;
+
+						if (interactionDetail.getdSGeneName() != null
+								&& !interactionDetail.getdSGeneName().trim()
+										.equals("")
+								&& !interactionDetail.getdSGeneName().trim()
+										.equals("null")) {					 
+							node2 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL, interactionDetail.getdSGeneName(), 0);
+						} else {					 
+							node2 = new AdjacencyMatrix.Node(NodeType.STRING, mid2);
+						}
+					}					
+					AdjacencyMatrix.Node node1 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL, marker1.getGeneName());					
+				 
+					String shortNameType = CellularNetworkPreferencePanel.interactionTypeSifMap
+							.get(interactionDetail.getInteractionType());
+				 
+				    matrix.add(node1, node2, new Float(interactionDetail.getConfidenceValue(usedConfidenceType)), shortNameType, interactionDetail.getEvidenceId());
+	 
+					interactionNum++;			 
+				}
+			} // end for loop
+
+			if (interactionNum > 0) {
+				createNetwork = true;
+			} else if (interactionNum == 0) {
+				JOptionPane.showMessageDialog(null,
+						"No interactions exist in the current database.",
+						"Empty Set", JOptionPane.ERROR_MESSAGE);
+				createNetwork = false;
+
+			}
+			if (createNetwork == true) {
+
+				adjacencyMatrixdataSet = new AdjacencyMatrixDataSet(matrix,
+						threshold, "Adjacency Matrix", dataset.getLabel(), dataset);
+			 
+				String history = "Cellular Network Parameters: \n"
+						+ "      URL Used:     "
+						+ ResultSetlUtil.getUrl() + "\n"
+						+ "      Selected Interactome:     "
+						+ jPreferencePanel.getSelectedContext() + "\n"
+						+ "      Selected Version:     "
+						+ jPreferencePanel.getSelectedVersion() + "\n"
+						+ "      Threshold:     " + thresholdTextField.getText()
+						+ "\n" + "      Selected Marker List: \n" + historyStr
+						+ "\n";
+				HistoryPanel.addToHistory(adjacencyMatrixdataSet, history);
+
+				if (isCancelled())
+					return;
+				else {
+					pb.setTitle("Draw cytoscape graph");
+					pb.setMessage("Draw cytoscape graph ...");
+
+				}
+				publishProjectNodeAddedEvent(new ProjectNodeAddedEvent(
+						"Adjacency Matrix Added", null, adjacencyMatrixdataSet));
+
+			}
+
+			if (!isCancelled()) {
+				log.info("task is completed");
+				createNetWorkButton.setEnabled(true);
+				pb.dispose();
+			} else {
+				log.info("task is canceled");
+
+			}
+
+		}// end of createNetworks
+		
+
+	 
 		private void setAdjacencyMatrix(AdjacencyMatrix matrix) {
 			this.matrix = matrix;
 		}
@@ -2484,14 +2487,15 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 		private void cancel(boolean cancel) {
 			this.cancel = cancel;
-		}
+		}	 
+		
 
 		public void update(Observable o, Object arg) {
 			cancel(true);
 			if (pb.getTitle().equals("Draw cytoscape graph")) {
 				pb.dispose();
 				publishAdjacencyMatrixCancelEvent(new AdjacencyMatrixCancelEvent(
-						createNetworkHandler.getAdjacencyMatrix()) );
+						matrix) );
 
 			} else {
 				pb.dispose();
@@ -2502,6 +2506,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		}
 
 	}
+	
+	 
 
 	@Publish
 	public org.geworkbench.events.SubpanelChangedEvent<DSGeneMarker> publishSubpanelChangedEvent(
