@@ -129,6 +129,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 
 	public static Map<String, String> interactionTypeSifMap = null; 
 	public static Map<String, String> interactionEvidenceMap = null; 
+	public static Map<String, String> interactionConfidenceTypeMap = null; 
 	
 	
 	/**
@@ -228,6 +229,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 		selectedInteractionTypeMap = new HashMap<String,HashMap<String, List<String>>>();
 		interactionTypeSifMap = new HashMap<String, String>();
 		interactionEvidenceMap = new HashMap<String, String>();
+		interactionConfidenceTypeMap = new HashMap<String, String>();
 		
 		addButton = new javax.swing.JButton();
 		removeButton = new javax.swing.JButton();
@@ -365,6 +367,10 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 					return;
 				InteractionsConnectionImpl interactionsConnection = new InteractionsConnectionImpl();
 				try {
+					
+					if (CellularNetWorkElementInformation.getConfidenceTypeList() != null)
+					   CellularNetWorkElementInformation.clearConfidenceTypes();;
+					 
 					displayAvailInteractionTypes = interactionsConnection
 							.getInteractionTypesByInteractomeVersion(context,
 									version);
@@ -1163,6 +1169,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 						.getInteractionTypes();
 				interactionTypeSifMap = interactionsConnection.getInteractionTypeMap();
 				interactionEvidenceMap = interactionsConnection.getInteractionEvidenceMap();
+				interactionConfidenceTypeMap = interactionsConnection.getConfidenceTypeMap();
 				
 			} catch (ConnectException ce) {
 				JOptionPane
