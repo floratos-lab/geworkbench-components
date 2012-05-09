@@ -7,6 +7,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -287,7 +288,7 @@ public class BlastViewComponent implements VisualPlugin {
 	private JLabel summaryLabel = new JLabel();
 	private JButton resetButton = new JButton();
 	private JEditorPane singleAlignmentArea = new JEditorPane();
-	private Vector<BlastObj> hits;
+	private int selectedInputSequence = 0;
 	private String summaryStr;
 
 	private String currentError;
@@ -302,8 +303,8 @@ public class BlastViewComponent implements VisualPlugin {
 	private ArrayList<Vector<BlastObj>> blastDataSet = new ArrayList<Vector<BlastObj>>();
 	private final double jSplitPane1DividerLocation = 0.5;
 	
-	private void setResults(Vector<BlastObj> hits) {
-		this.hits = hits;
+	private void selectInputSequence(int selecIndext) {
+		selectedInputSequence = selecIndext;
 
 		blastResult.removeAll();
 		blastResult.add(getBlastListPanel());
@@ -359,6 +360,7 @@ public class BlastViewComponent implements VisualPlugin {
 
 			} else {
 				selectedRow = lsm.getMinSelectionIndex();
+				Vector<BlastObj> hits = blastDataSet.get(selectedInputSequence);
 				if (hits != null && hits.size() > selectedRow) {
 					selectedHit = hits.get(selectedRow);
 
@@ -390,7 +392,7 @@ public class BlastViewComponent implements VisualPlugin {
 
 		/* returns the number of rows in table */
 		public int getRowCount() {
-
+			Vector<BlastObj> hits = blastDataSet.get(selectedInputSequence);
 			return (hits.size());
 		}
 
@@ -401,6 +403,7 @@ public class BlastViewComponent implements VisualPlugin {
 
 		/* get the Object data to be displayed at (row, col) in table */
 		public Object getValueAt(int row, int col) {
+			Vector<BlastObj> hits = blastDataSet.get(selectedInputSequence);
 			/* get specific BlastObj based on row number */
 			BlastObj hit = (BlastObj) hits.get(row);
 			/* display data depending on which column is chosen */
@@ -452,6 +455,7 @@ public class BlastViewComponent implements VisualPlugin {
 		 * table
 		 */
 		public void setValueAt(Object value, int row, int col) {
+			Vector<BlastObj> hits = blastDataSet.get(selectedInputSequence);
 			BlastObj hit = hits.get(row);
 			hit.setInclude(((Boolean) value).booleanValue());
 			fireTableCellUpdated(row, col);
@@ -479,7 +483,7 @@ public class BlastViewComponent implements VisualPlugin {
 		protected void elementClicked(int index, MouseEvent e) {
 			if (blastDataSet != null && blastDataSet.size() > index) {
 				if (blastDataSet.get(index) != null) {
-					setResults( blastDataSet.get(index));
+					selectInputSequence( index );
 					displaySummaryLabel(" " + summaryStr + " Sequence "
 							+ ((CSSequence) sequenceDB.get(index)).getLabel()
 							+ " has "
@@ -488,7 +492,7 @@ public class BlastViewComponent implements VisualPlugin {
 
 				} else {
 
-					setResults(new Vector<BlastObj>());
+					selectInputSequence(-1);
 					resetToWhite("No hits found");
 					displaySummaryLabel(" " + summaryStr + " Sequence "
 							+ ((CSSequence) sequenceDB.get(index)).getLabel()
@@ -497,7 +501,7 @@ public class BlastViewComponent implements VisualPlugin {
 				}
 			} else if (blastDataSet != null && blastDataSet.size()>0
 					&& blastDataSet.get(0) != null) {
-				setResults(blastDataSet.get(0));
+				selectInputSequence(0);
 			}
 		}
 
@@ -555,52 +559,32 @@ public class BlastViewComponent implements VisualPlugin {
 		singleAlignmentArea.setCaretPosition(0);
 	}
 	
-	private boolean foundAtLeastOneSelected() {
-
-		for (int i = 0; i < hits.size(); i++) {
-			BlastObj hit = hits.get(i);
-			if (hit.getInclude()) {
-				return true;
-			}
-
-		}
-		return false;
-	}
-	
 	private void reportError(String errorMessage) {
 		JOptionPane.showMessageDialog(null, errorMessage, "Error",
 				JOptionPane.INFORMATION_MESSAGE);
 	}
 	
-	private class AddNewSequenceThread extends Thread {
-		boolean isFullLength;
-
-		// This method is called when the thread runs
-		public AddNewSequenceThread(boolean fullLength) {
-			isFullLength = fullLength;
+	private void addNewSequence(boolean isFullLength) {
+		int total = 0; // not important, just for information
+		for (Vector<BlastObj> hits : blastDataSet) {
+			total += hits.size();
 		}
 
-		public void run() {
+		String tempString = "temp-" + RandomNumberGenerator.getID() + ".fasta";
+		String tempFolder = FilePathnameUtils.getTemporaryFilesDirectoryPath();
+		File tempFile = new File(tempFolder + tempString);
+		PrintWriter out;
+		try {
+			out = new PrintWriter(new FileOutputStream(tempFile));
+			ProgressMonitor progressMonitor = new ProgressMonitor(detailedInfo,
+					"Retrieving Sequences from NCBI...", "", 0, total);
 
-			CSSequenceSet<DSSequence> db = new CSSequenceSet<DSSequence>();
+			int retrievedSequenceNum = 0;
+			int countForSelectedSequence = 0;
 
-			try {
-
-				if (!foundAtLeastOneSelected()) {
-					reportError("No hit is selected. Please choose at least one.");
-					return;
-				}
-
-				ProgressMonitor progressMonitor = new ProgressMonitor(detailedInfo,
-						"Retrieving Sequences from NCBI...", "", 0, hits.size());
-				int retrievedSequenceNum = 0;
-				progressMonitor.setProgress(retrievedSequenceNum);
-				String tempString = "temp-" + RandomNumberGenerator.getID()
-						+ ".fasta";
-				String tempFolder = FilePathnameUtils.getTemporaryFilesDirectoryPath();
-				File tempFile = new File(tempFolder + tempString);
-				PrintWriter out = new PrintWriter(
-						new FileOutputStream(tempFile));
+			progressMonitor.setProgress(retrievedSequenceNum);
+			for (int index = 0; index < blastDataSet.size(); index++) {
+				Vector<BlastObj> hits = blastDataSet.get(index);
 				for (int i = 0; i < hits.size(); i++) {
 					BlastObj hit = hits.get(i);
 					progressMonitor.setProgress(retrievedSequenceNum);
@@ -611,9 +595,11 @@ public class BlastViewComponent implements VisualPlugin {
 					if (hit.getInclude()) {
 
 						retrievedSequenceNum++;
+						if (index == selectedInputSequence)
+							countForSelectedSequence++;
+
 						CSSequence seq = null;
 						if (isFullLength) {
-
 							seq = hit.getWholeSeq();
 						} else {
 							seq = hit.getAlignedSeq();
@@ -626,27 +612,47 @@ public class BlastViewComponent implements VisualPlugin {
 					}
 
 				}
-				progressMonitor.close();
-				out.flush();
-				out.close();
-				db.setLabel("temp_Fasta_File");
-				db.readFASTAFile(tempFile);
+			}
+			out.flush();
+			out.close();
+			progressMonitor.close();
 
-				org.geworkbench.events.ProjectNodeAddedEvent event = new org.geworkbench.events.ProjectNodeAddedEvent(
-						"message", db, null);
-				publishProjectNodeAddedEvent(event);
-			} catch (Exception ex) { //FIXME this catch-all exception is dangerous
-				ex.printStackTrace();
+			if (retrievedSequenceNum == 0) {
+				reportError("No hit is selected. Please choose at least one.");
+				return;
+			}
+			if (countForSelectedSequence < retrievedSequenceNum) {
+				int ret = JOptionPane
+						.showConfirmDialog(
+								null,
+								"Some of selected hits belong to the sequences other than the one currently highlighted.\n"
+										+ "They will be included in the project too. Do you want to continue?",
+								"Include all selected hits?",
+								JOptionPane.YES_NO_OPTION);
+				if (ret != JOptionPane.YES_OPTION) {
+					return;
+				}
 			}
 
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
 		}
+
+		CSSequenceSet<DSSequence> db = new CSSequenceSet<DSSequence>();
+		db.setLabel("temp_Fasta_File");
+		db.readFASTAFile(tempFile);
+
+		org.geworkbench.events.ProjectNodeAddedEvent event = new org.geworkbench.events.ProjectNodeAddedEvent(
+				"message", db, null);
+		publishProjectNodeAddedEvent(event);
 	}
-	
+
 	// following are action adapters for the buttons
 	private class SelectAllActionAdapter implements
 			ActionListener {
 
 		public void actionPerformed(ActionEvent e) {
+			Vector<BlastObj> hits =  blastDataSet.get(selectedInputSequence);
 			if (hits == null) {
 				reportError(currentError);
 				return;
@@ -664,11 +670,12 @@ public class BlastViewComponent implements VisualPlugin {
 			java.awt.event.ActionListener {
 
 		public void actionPerformed(ActionEvent e) {
+			Vector<BlastObj> hits =  blastDataSet.get(selectedInputSequence);
 			if (hits == null) {
 				reportError(currentError);
 				return;
 			}
-			new AddNewSequenceThread(true).start();
+			addNewSequence(true);
 		}
 	}
 
@@ -676,11 +683,12 @@ public class BlastViewComponent implements VisualPlugin {
 			implements ActionListener {
 
 		public void actionPerformed(ActionEvent e) {
+			Vector<BlastObj> hits =  blastDataSet.get(selectedInputSequence);
 			if (hits == null) {
 				reportError(currentError);
 				return;
 			}
-			new AddNewSequenceThread(false).start();
+			addNewSequence(false);
 		}
 	}
 
@@ -688,6 +696,7 @@ public class BlastViewComponent implements VisualPlugin {
 			java.awt.event.ActionListener {
 
 		public void actionPerformed(ActionEvent e) {
+			Vector<BlastObj> hits =  blastDataSet.get(selectedInputSequence);
 			if (hits == null) {
 				reportError(currentError);
 				return;
