@@ -48,30 +48,26 @@ import org.geworkbench.util.JAutoList;
 public class BlastViewPanel extends JPanel implements HyperlinkListener {
 	private static final long serialVersionUID = -5271804907456553741L;
 
-	private JPanel westPanel = new JPanel(new BorderLayout());
 	private JAutoList markerList;
 
 	private JPanel blastResult = new JPanel();
 	private JPanel detailedInfo = new JPanel();
-	private JPanel furtherProcess = new JPanel();
+
 	private JButton AddSequenceToProjectButton = new JButton();
 	private JLabel summaryLabel = new JLabel();
 	private JButton resetButton = new JButton();
 	private JEditorPane singleAlignmentArea = new JEditorPane();
 	private Vector<BlastObj> hits;
 	private String summaryStr;
-	private BorderLayout borderLayout1 = new BorderLayout();
-	private JScrollPane jScrollPane1 = new JScrollPane();
-	private BorderLayout borderLayout2 = new BorderLayout();
+
 	private BlastViewComponent blastViewComponent;
 
 	private String currentError;
-	private JButton jButton1 = new JButton();
+
 	private JButton addAlignedButton = new JButton();
 	private JButton allButton = new JButton();
 	private JSplitPane jSplitPane1 = new JSplitPane();
-	private JPanel summaryPanel = new JPanel();
-	private JSplitPane mainPanel = new JSplitPane();
+
 	private GeneListModel geneListModel = new GeneListModel();
 	private JSplitPane rightPanel = new JSplitPane();
 	private DSSequenceSet<? extends DSSequence> sequenceDB;
@@ -106,14 +102,14 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 	}
 
 	private void jbInit() throws Exception {
-		mainPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+		JSplitPane mainPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 		mainPanel.setOneTouchExpandable(true);
 
 		rightPanel = new JSplitPane();
 		rightPanel.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		markerList = new MarkerAutoList();
 
-		blastResult.setLayout(borderLayout1);
+		blastResult.setLayout(new BorderLayout());
 		AddSequenceToProjectButton.setMinimumSize(new Dimension(100, 23));
 
 		AddSequenceToProjectButton
@@ -137,11 +133,12 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 
 		rightPanel.setMinimumSize(new Dimension(155, 300));
 
-		summaryPanel = new JPanel();
+		JPanel summaryPanel = new JPanel();
 		summaryLabel = new JLabel();
 		summaryPanel.setBorder(BorderFactory.createLoweredBevelBorder());
 		summaryPanel.setMinimumSize(new Dimension(100, 40));
 		summaryPanel.setPreferredSize(new Dimension(100, 40));
+		JPanel furtherProcess = new JPanel();
 		furtherProcess.setLayout(new BorderLayout());
 		furtherProcess.add(summaryPanel, java.awt.BorderLayout.CENTER);
 		furtherProcess.add(summaryLabel, java.awt.BorderLayout.SOUTH);
@@ -150,13 +147,13 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 		furtherProcess.setPreferredSize(new Dimension(50, 40));
 		furtherProcess.setMaximumSize(new Dimension(50, 40));
 
-		detailedInfo.setLayout(borderLayout2);
+		detailedInfo.setLayout(new BorderLayout());
 
 		singleAlignmentArea.setContentType("text/html");
 
 		singleAlignmentArea.setEditable(false);
 		singleAlignmentArea.addHyperlinkListener(this);
-		jButton1.setText("jButton1");
+
 		addAlignedButton.setMinimumSize(new Dimension(100, 23));
 		addAlignedButton.setToolTipText("Add only aligned parts into project.");
 		addAlignedButton.setText("Only Add Aligned Parts");
@@ -178,6 +175,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 		summaryPanel.add(addAlignedButton);
 
 		jSplitPane1.add(blastResult, JSplitPane.TOP);
+		JScrollPane jScrollPane1 = new JScrollPane();
 		detailedInfo.add(jScrollPane1, BorderLayout.CENTER);
 		jSplitPane1.add(detailedInfo, JSplitPane.BOTTOM);
 		jSplitPane1.setDividerLocation(jSplitPane1DividerLocation);
@@ -187,6 +185,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 		// rightPanel.setDividerLocation(0.8);
 		rightPanel.add(furtherProcess, JSplitPane.BOTTOM);
 		currentError = "No alignment result is loaded, please check again.";
+		JPanel westPanel = new JPanel(new BorderLayout());
 		westPanel.add(markerList, BorderLayout.CENTER);
 		// mainPanel.add(markerList);
 		mainPanel.add(westPanel);
@@ -214,7 +213,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 		displaySummaryLabel(s);
 	}
 
-	public void displaySummaryLabel(String s) {
+	private void displaySummaryLabel(String s) {
 
 		summaryLabel.setText(s);
 		double propLoc = .8D;
@@ -345,7 +344,6 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 		/* array of the column names in order from left to right */
 		final String[] columnNames = { "db", "Name", "Description", "e-value",
 				"start point", "align length", "%identity", "Include" };
-		BlastObj hit;
 
 		/* returns the number of columns in table */
 		public int getColumnCount() {
@@ -366,7 +364,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 		/* get the Object data to be displayed at (row, col) in table */
 		public Object getValueAt(int row, int col) {
 			/* get specific BlastObj based on row number */
-			hit = (BlastObj) hits.get(row);
+			BlastObj hit = (BlastObj) hits.get(row);
 			/* display data depending on which column is chosen */
 			switch (col) {
 			case 0:
@@ -416,7 +414,7 @@ public class BlastViewPanel extends JPanel implements HyperlinkListener {
 		 * table
 		 */
 		public void setValueAt(Object value, int row, int col) {
-			hit = hits.get(row);
+			BlastObj hit = hits.get(row);
 			hit.setInclude(((Boolean) value).booleanValue());
 			fireTableCellUpdated(row, col);
 		}
