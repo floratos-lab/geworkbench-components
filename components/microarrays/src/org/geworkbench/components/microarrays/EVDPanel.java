@@ -634,7 +634,7 @@ public class EVDPanel extends MicroarrayViewEventBase {
 
 					String label = (String) (plots.getSeries(series).getKey());
 					return label + ": ([" + myFormatter.format(x) + ", "
-							+ myFormatter.format(x + binSize) + "), " + (int) y
+							+ myFormatter.format(x + binSize) + "], " + (int) y
 							+ ")";
 				}
 			});
