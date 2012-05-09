@@ -126,7 +126,7 @@ public class JmolComponent extends JPanel implements VisualPlugin {
 
             getSize(currentSize);
             g.getClipBounds(rectClip);
-            viewer.renderScreenImage(g, currentSize, rectClip);
+            viewer.renderScreenImage(g, currentSize.width, currentSize.height);
         }
 
 /*
