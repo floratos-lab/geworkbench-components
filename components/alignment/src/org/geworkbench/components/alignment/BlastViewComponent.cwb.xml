@@ -2,7 +2,7 @@
 <component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 	<component name="BLAST Results Viewer"
-		class="org.geworkbench.components.alignment.panels.BlastViewComponent"
+		class="org.geworkbench.components.alignment.BlastViewComponent"
 		version="1.0" 
 		author="geWorkbench Development Team"
 		authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
@@ -26,7 +26,7 @@
 			helpSet="org/geworkbench/components/alignment/help/blastHelpSet.hs" />
 	</component>
 	<plugin id="BlastViewComponent" name="Alignment Results"
-		class="org.geworkbench.components.alignment.panels.BlastViewComponent"
+		class="org.geworkbench.components.alignment.BlastViewComponent"
 		source="alignment">
 		<gui-area name="VisualArea" />
 	</plugin>
