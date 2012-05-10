@@ -52,7 +52,6 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 
 	static Log log = LogFactory.getLog(AracneAnalysis.class);
 
-	private DSMicroarraySetView<DSGeneMarker, DSMicroarray> mSetView;
 	private AdjacencyMatrixDataSet adjMatrix;
 	private final String analysisName = "Aracne";
 	/**
@@ -69,17 +68,13 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 	 */
 	@SuppressWarnings("unchecked")
 	public AlgorithmExecutionResults execute(Object input) {
+		if (!(input instanceof DSMicroarraySetView)) {
+			log.error("Invalid type passed to Aracne analysis: "+input.getClass().getName());
+			return null;
+		}
 		log.debug("input: " + input);
 		AracneParamPanel params = (AracneParamPanel) aspp;
-		if (input instanceof DSMicroarraySetView) {
-			log.debug("Input dataset is microarray type.");
-			mSetView = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
-		} else if (input instanceof AdjacencyMatrixDataSet) {
-			log
-					.debug("Input dataset is adjacency matrix, will only perform DPI.");
-			adjMatrix = (AdjacencyMatrixDataSet) input;
-			mSetView.setDataSet(adjMatrix.getParentDataSet());
-		}
+		DSMicroarraySetView<DSGeneMarker, DSMicroarray> mSetView = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
 
 		final Parameter p = new Parameter();
 		if (params.isHubListSpecified()) {
@@ -183,7 +178,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 							.getMicroarraySet());
 			StringBuilder paramDescB = new StringBuilder(
 					"Generated with ARACNE run with data:\n");
-			paramDescB.append(this.generateHistoryForMaSetView(this.mSetView, this.useMarkersFromSelector()));
+			paramDescB.append(this.generateHistoryForMaSetView(mSetView, this.useMarkersFromSelector()));
 			String s=prune?"yes":"no";
 			HistoryPanel.addToHistory(dataSet,
 					"Generated with ARACNE run with paramters:\n"
@@ -467,12 +462,8 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 		bisonParameters.put("prune", paramPanel.isPrune());
 		bisonParameters.put("isMI", paramPanel.isThresholdMI());
 
-		float threshold = paramPanel.getThreshold();
-		if (!paramPanel.isThresholdMI() && !paramPanel.noCorrection() && mSetView!=null && mSetView.markers().size() > 0){
-    		threshold = threshold / mSetView.markers().size();
-    		paramPanel.pval = threshold;
-		}
-		bisonParameters.put("threshold", threshold);
+		bisonParameters.put("noCorrection", paramPanel.noCorrection());
+		bisonParameters.put("threshold", paramPanel.getThreshold());
 
 		int bootstrapNumber = paramPanel.getBootstrapNumber();
 		bisonParameters.put("bootstrapNumber", bootstrapNumber);
@@ -563,7 +554,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 			DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView,
 			DSDataSet<?> refMASet) {
 		AracneParamPanel params = (AracneParamPanel) aspp;
-		mSetView = maSetView;
+
 		if (params.isHubListSpecified()) {
 			ArrayList<String> hubGeneList = params.getHubGeneList();
 			for (String modGene : hubGeneList) {
@@ -580,7 +571,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 			}
 		}
 
-		if(mSetView.size()<MINIMUM_ARRAY_NUMBER) {
+		if(maSetView.size()<MINIMUM_ARRAY_NUMBER) {
 			int n = JOptionPane.showConfirmDialog(
 				    null,
 				    "ARACNe should not in general be run on less than "+MINIMUM_ARRAY_NUMBER+" arrays. Do you want to continue?",
