@@ -26,6 +26,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.ProgressMonitor;
+import javax.swing.SwingWorker;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.event.ListSelectionEvent;
@@ -564,87 +565,113 @@ public class BlastViewComponent implements VisualPlugin {
 				JOptionPane.INFORMATION_MESSAGE);
 	}
 	
-	private void addNewSequence(boolean isFullLength) {
-		int total = 0; // not important, just for information
-		for (Vector<BlastObj> hits : blastDataSet) {
-			total += hits.size();
+	private volatile boolean empty = true;
+
+	private void addNewSequence(final boolean isFullLength) {
+		int total = 0;
+		int countForSelectedSequence = 0;
+		for (int index = 0; index < blastDataSet.size(); index++) {
+			Vector<BlastObj> hits = blastDataSet.get(index);
+			for (BlastObj hit : hits) {
+				if (hit.getInclude()) {
+					total++;
+					if (index == selectedInputSequence)
+						countForSelectedSequence++;
+				}
+			}
 		}
+		if (total == 0) {
+			reportError("No hit is selected. Please choose at least one.");
+			return;
+		}
+		if (countForSelectedSequence < total) {
+			int ret = JOptionPane
+					.showConfirmDialog(
+							null,
+							"Some of selected hits belong to the sequences other than the one currently highlighted.\n"
+									+ "They will be included in the project too. Do you want to continue?",
+							"Include all selected hits?",
+							JOptionPane.YES_NO_OPTION);
+			if (ret != JOptionPane.YES_OPTION) {
+				return;
+			}
+		}
+		final int countToBeAdded = countForSelectedSequence;
 
 		String tempString = "temp-" + RandomNumberGenerator.getID() + ".fasta";
 		String tempFolder = FilePathnameUtils.getTemporaryFilesDirectoryPath();
-		File tempFile = new File(tempFolder + tempString);
-		PrintWriter out;
-		try {
-			out = new PrintWriter(new FileOutputStream(tempFile));
-			ProgressMonitor progressMonitor = new ProgressMonitor(detailedInfo,
-					"Retrieving Sequences from NCBI...", "", 0, total);
+		final File tempFile = new File(tempFolder + tempString);
+		SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
-			int retrievedSequenceNum = 0;
-			int countForSelectedSequence = 0;
+			@Override
+			protected Void doInBackground() throws Exception {
+				PrintWriter out;
+				try {
+					out = new PrintWriter(new FileOutputStream(tempFile));
+					ProgressMonitor progressMonitor = new ProgressMonitor(
+							detailedInfo, "Collecting Sequences ...", "", 0,
+							countToBeAdded);
 
-			progressMonitor.setProgress(retrievedSequenceNum);
-			for (int index = 0; index < blastDataSet.size(); index++) {
-				Vector<BlastObj> hits = blastDataSet.get(index);
-				for (int i = 0; i < hits.size(); i++) {
-					BlastObj hit = hits.get(i);
+					int retrievedSequenceNum = 0;
+
 					progressMonitor.setProgress(retrievedSequenceNum);
+					for (int index = 0; index < blastDataSet.size(); index++) {
+						Vector<BlastObj> hits = blastDataSet.get(index);
+						for (int i = 0; i < hits.size(); i++) {
+							BlastObj hit = hits.get(i);
+							progressMonitor.setProgress(retrievedSequenceNum);
 
-					if (progressMonitor.isCanceled()) {
-						return;
-					}
-					if (hit.getInclude()) {
+							if (progressMonitor.isCanceled()) {
+								empty = true;
+								return null;
+							}
+							if (hit.getInclude()) {
 
-						retrievedSequenceNum++;
-						if (index == selectedInputSequence)
-							countForSelectedSequence++;
+								retrievedSequenceNum++;
 
-						CSSequence seq = null;
-						if (isFullLength) {
-							seq = hit.getWholeSeq();
-						} else {
-							seq = hit.getAlignedSeq();
+								CSSequence seq = null;
+								if (isFullLength) {
+									seq = hit.getWholeSeq();
+								} else {
+									seq = hit.getAlignedSeq();
+
+								}
+								if (seq != null) {
+									out.println(seq.getLabel());
+									out.println(seq.getSequence());
+									empty = false;
+								}
+							}
 
 						}
-						if (seq != null) {
-							out.println(seq.getLabel());
-							out.println(seq.getSequence());
-						}
 					}
-
+					out.flush();
+					out.close();
+					progressMonitor.close();
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
 				}
+				return null;
 			}
-			out.flush();
-			out.close();
-			progressMonitor.close();
 
-			if (retrievedSequenceNum == 0) {
-				reportError("No hit is selected. Please choose at least one.");
-				return;
-			}
-			if (countForSelectedSequence < retrievedSequenceNum) {
-				int ret = JOptionPane
-						.showConfirmDialog(
-								null,
-								"Some of selected hits belong to the sequences other than the one currently highlighted.\n"
-										+ "They will be included in the project too. Do you want to continue?",
-								"Include all selected hits?",
-								JOptionPane.YES_NO_OPTION);
-				if (ret != JOptionPane.YES_OPTION) {
+			@Override
+			protected void done() {
+				if (empty) {
+					log.info("cancelled or for other reason no hits returned");
 					return;
 				}
+
+				CSSequenceSet<DSSequence> db = new CSSequenceSet<DSSequence>();
+				db.setLabel("temp_Fasta_File");
+				db.readFASTAFile(tempFile);
+
+				org.geworkbench.events.ProjectNodeAddedEvent event = new org.geworkbench.events.ProjectNodeAddedEvent(
+						"message", db, null);
+				publishProjectNodeAddedEvent(event);
 			}
 
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-
-		CSSequenceSet<DSSequence> db = new CSSequenceSet<DSSequence>();
-		db.setLabel("temp_Fasta_File");
-		db.readFASTAFile(tempFile);
-
-		org.geworkbench.events.ProjectNodeAddedEvent event = new org.geworkbench.events.ProjectNodeAddedEvent(
-				"message", db, null);
-		publishProjectNodeAddedEvent(event);
+		};
+		worker.execute();
 	}
 
 	// following are action adapters for the buttons
