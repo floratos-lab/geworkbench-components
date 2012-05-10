@@ -694,10 +694,7 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
         if (params.isThresholdMI()) {
             p.setThreshold(params.getThreshold());
         } else {
-    		if (!noCorrection() &&  pval >= 0)
-    			p.setPvalue(pval);
-    		else
-    			p.setPvalue(params.getThreshold());
+   			p.setPvalue(params.getThreshold());
         }
         if (params.isKernelWidthSpecified()) {
             p.setSigma(params.getKernelWidth());
@@ -711,7 +708,7 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
         return resultString;
 
 	}
-	protected float pval = -1;
+
 	/*
 	 * (non-Javadoc)
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
