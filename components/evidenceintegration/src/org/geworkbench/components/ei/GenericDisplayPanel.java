@@ -46,12 +46,8 @@ import javax.swing.event.ListSelectionListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
-import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.ImageSnapshotEvent;
@@ -59,7 +55,6 @@ import org.geworkbench.events.MarkerSelectedEvent;
 import org.geworkbench.events.PhenotypeSelectedEvent;
 import org.geworkbench.util.JAutoList;
 import org.geworkbench.util.PrintUtils;
-import org.geworkbench.util.pathwaydecoder.RankSorter;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
@@ -170,11 +165,6 @@ public class GenericDisplayPanel extends JPanel {
     private Integer currentGSNumber;
     private String currentTargetGSName;
     JSplitPane mainPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-
-    /**
-     * The dataset that holds the microarrayset and panels.
-     */
-    private DSMicroarraySetView<DSGeneMarker, DSMicroarray> dataSetView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>();
 
     /**
      * The two chart groups (one for microarrays, one for markers).
@@ -712,8 +702,6 @@ public class GenericDisplayPanel extends JPanel {
     @Subscribe
     public void receive(org.geworkbench.events.GeneSelectorEvent e, Object source) {
         if (e.getPanel() != null) {
-            dataSetView.setMarkerPanel(e.getPanel());
-            // markerPanel = e.getPanel().activeSubset();
             goldStrModel.refresh();
         }
         //updateCharts(PlotType.PERF); removed by xz
@@ -729,9 +717,6 @@ public class GenericDisplayPanel extends JPanel {
     @Subscribe
     public void receive(org.geworkbench.events.PhenotypeSelectorEvent<DSMicroarray> e, Object source) {
         if (e.getTaggedItemSetTree() != null) {
-            DSPanel<DSMicroarray> activatedArrays = e.getTaggedItemSetTree().activeSubset();
-            dataSetView.setItemPanel(activatedArrays);
-            // expPanel = e.getTaggedItemSetTree();
             evidenceModel.refresh();
             // All marker charts must be updated
         }
@@ -1283,34 +1268,34 @@ public class GenericDisplayPanel extends JPanel {
     }
 
     private class ChartData {
-        private ArrayList<ArrayList<org.geworkbench.util.pathwaydecoder.RankSorter>> xyPoints;
+//        private ArrayList<ArrayList<org.geworkbench.util.pathwaydecoder.RankSorter>> xyPoints;
 
         public ChartData() {
         }
 
         public DSGeneMarker getMarker(int series, int item) {
-            ArrayList<RankSorter> list = xyPoints.get(series);
-            org.geworkbench.util.pathwaydecoder.RankSorter rs = (RankSorter) list.get(item);
-            DSMicroarraySet maSet = (DSMicroarraySet) dataSetView.getDataSet();
-            if (maSet != null) {
-                if (rs.id < maSet.getMarkers().size()) {
-                    DSGeneMarker marker = maSet.getMarkers().get(rs.id);
-                    return marker;
-                }
-            }
+//            ArrayList<RankSorter> list = xyPoints.get(series);
+//            org.geworkbench.util.pathwaydecoder.RankSorter rs = (RankSorter) list.get(item);
+//            DSMicroarraySet maSet = (DSMicroarraySet) dataSetView.getDataSet();
+//            if (maSet != null) {
+//                if (rs.id < maSet.getMarkers().size()) {
+//                    DSGeneMarker marker = maSet.getMarkers().get(rs.id);
+//                    return marker;
+//                }
+//            }
             return null;
         }
 
         public DSMicroarray getMicroarray(int series, int item) {
-            ArrayList<RankSorter> list = xyPoints.get(series);
-            RankSorter rs = (org.geworkbench.util.pathwaydecoder.RankSorter) list.get(item);
-            DSMicroarraySet maSet = (DSMicroarraySet) dataSetView.getDataSet();
-            if (maSet != null) {
-                if (rs.id < maSet.size()) {
-                    DSMicroarray ma = maSet.get(rs.id);
-                    return ma;
-                }
-            }
+//            ArrayList<RankSorter> list = xyPoints.get(series);
+//            RankSorter rs = (org.geworkbench.util.pathwaydecoder.RankSorter) list.get(item);
+//            DSMicroarraySet maSet = (DSMicroarraySet) dataSetView.getDataSet();
+//            if (maSet != null) {
+//                if (rs.id < maSet.size()) {
+//                    DSMicroarray ma = maSet.get(rs.id);
+//                    return ma;
+//                }
+//            }
             return null;
         }
 
