@@ -17,7 +17,7 @@ import edu.columbia.c2b2.aracne.Parameter;
 /**
  * ARACNe computation.
  */
-class AracneComputation {
+public class AracneComputation {
 
 	private static Log log = LogFactory.getLog(AracneComputation.class);
 
