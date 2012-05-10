@@ -13,12 +13,12 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Date;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -48,17 +48,17 @@ import org.geworkbench.analysis.HighlightCurrentParameterThread;
 import org.geworkbench.analysis.ParameterKey;
 import org.geworkbench.analysis.ReHighlightable;
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet; 
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
-import org.geworkbench.bison.datastructure.bioobjects.DSBioObject; 
+import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.structure.CSProteinStructure;
-import org.geworkbench.bison.datastructure.complex.panels.CSPanel; 
+import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.Analysis;
@@ -72,7 +72,6 @@ import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.history.HistoryPanel;
 import org.geworkbench.components.cagrid.gui.GridServicePanel;
 import org.geworkbench.engine.config.VisualPlugin;
-import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.ComponentRegistry;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
@@ -85,7 +84,6 @@ import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.util.CommandBase;
 import org.geworkbench.util.ProgressBar;
 import org.geworkbench.util.Util;
-import org.geworkbench.util.pathwaydecoder.mutualinformation.EdgeListDataSet;
 import org.ginkgo.labs.ws.GridEndpointReferenceType;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
@@ -103,8 +101,6 @@ import edu.columbia.geworkbench.cagrid.dispatcher.client.DispatcherClient;
  * @version $Id$
  * 
  */
-@AcceptTypes( { DSMicroarraySet.class, EdgeListDataSet.class,
-		CSProteinStructure.class, CSSequenceSet.class })
 public class AnalysisPanel extends CommandBase implements
 		VisualPlugin, ReHighlightable {
 
@@ -198,7 +194,6 @@ public class AnalysisPanel extends CommandBase implements
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				refreshMaSetView();
 				mainPanel.repaint();
 			}
 
@@ -207,7 +202,6 @@ public class AnalysisPanel extends CommandBase implements
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				refreshMaSetView();
 				mainPanel.repaint();
 			}
 
@@ -812,7 +806,7 @@ public class AnalysisPanel extends CommandBase implements
 							JOptionPane.INFORMATION_MESSAGE);
 			return false;
 		}
-		maSetView = getDataSetView();
+		final DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView = getDataSetView();
 
 		boolean onlyActivatedArrays = false;
 		if (currentParameterPanel instanceof ParameterPanelIncludingNormalized) {
@@ -868,9 +862,9 @@ public class AnalysisPanel extends CommandBase implements
 				public void run() {
 					/* check if we are dealing with a grid analysis */
 					if (isGridAnalysis()) {
-						submitAsCaGridService(invokeEvent);
+						submitAsCaGridService(invokeEvent, maSetView);
 					} else {						
-						executeLocally(invokeEvent);
+						executeLocally(invokeEvent, maSetView);
 					}
 					analyze.setEnabled(true);
 				}
@@ -882,7 +876,8 @@ public class AnalysisPanel extends CommandBase implements
 		}
 	}
 
-	private void submitAsCaGridService(final AnalysisInvokedEvent invokeEvent) {
+	private void submitAsCaGridService(final AnalysisInvokedEvent invokeEvent,
+			DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView) {
 
 		Date startDate = new Date();
 		Long startTime =startDate.getTime();
@@ -990,7 +985,8 @@ public class AnalysisPanel extends CommandBase implements
 
 	// this method is only invoked form background thread
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private void executeLocally(final AnalysisInvokedEvent invokeEvent) {
+	private void executeLocally(final AnalysisInvokedEvent invokeEvent,
+			DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView) {
 		
 		Date startDate = new Date();
 		Long startTime =startDate.getTime();
@@ -1100,7 +1096,6 @@ public class AnalysisPanel extends CommandBase implements
 					this.refMASet = (DSMicroarraySet) dataSet;					
 				}
 			}
-			refreshMaSetView();
 		}
 		
 		DSDataSet dataSet = event.getDataSet();
@@ -1206,7 +1201,6 @@ public class AnalysisPanel extends CommandBase implements
 	 * The reference microarray set.
 	 */
 	private DSMicroarraySet refMASet = null;
-	private DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView = null;
 
 	private JCheckBox chkAllMarkers = new JCheckBox("All Markers", false);
 	private JCheckBox chkAllArrays = new JCheckBox("All Arrays", false);
@@ -1258,10 +1252,6 @@ public class AnalysisPanel extends CommandBase implements
 		} else {
 			numMarkersSelectedLabel.setText(markerLabelPrefix);
 		}
-
-		if (markersPanel!=null)
-			refreshMaSetView();
-
 	}
 
 	/**
@@ -1280,22 +1270,6 @@ public class AnalysisPanel extends CommandBase implements
 		if (e.getTaggedItemSetTree() != null) {
 			activatedArrays = e.getTaggedItemSetTree().activeSubset();
 		}
-
-		refreshMaSetView();
-
 	}
 
-	/**
-	 * Refreshes the chart view.
-	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	final private void refreshMaSetView() {
-		maSetView = new CSMicroarraySetView(this.refMASet);
-		if (activatedMarkers != null && activatedMarkers.panels().size() > 0)
-			maSetView.setMarkerPanel(activatedMarkers);
-		if (activatedArrays != null && activatedArrays.panels().size() > 0 && activatedArrays.size() > 0)
-			maSetView.setItemPanel(activatedArrays);
-		maSetView.useMarkerPanel(!chkAllMarkers.isSelected());
-		maSetView.useItemPanel(!chkAllArrays.isSelected());
-	}
 }
