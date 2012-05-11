@@ -307,9 +307,10 @@ public class TabularMicroarrayPanel extends MicroarrayViewEventBase {
 					
 					File file = new File(newFileName);
 					if (file.exists()) {
-						int o = JOptionPane.showConfirmDialog(null, "Replace the file",
+						int o = JOptionPane.showConfirmDialog(null, 
+								"The file already exists. Do you wish to overwrite it?",
 								"Replace the existing file?",
-								JOptionPane.YES_NO_CANCEL_OPTION);
+								JOptionPane.YES_NO_OPTION);
 						if (o != JOptionPane.YES_OPTION) {
 							return;
 						}
