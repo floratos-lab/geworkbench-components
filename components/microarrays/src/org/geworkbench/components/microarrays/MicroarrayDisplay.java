@@ -12,14 +12,13 @@ import java.awt.image.BufferedImage;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
-import javax.swing.border.TitledBorder;
 
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
-import org.geworkbench.util.microarrayutils.MicroarrayVisualizer;
 
 /**
  * <p>Title: Plug And Play Framework</p>
@@ -34,11 +33,7 @@ public class MicroarrayDisplay extends JPanel {
 	private static final long serialVersionUID = 8362707074970193407L;
 	
 	DSMicroarray microarray = null;
-    int selectedGeneId = -1;
-    boolean showValidOnly = false;
-    TitledBorder titledBorder1;
     
-	private BorderLayout borderLayout1 = new BorderLayout();
 	private int dx = 0;
 	private int dy = 0;
 	private int wx = 0;
@@ -50,17 +45,16 @@ public class MicroarrayDisplay extends JPanel {
 	private int selRow = -1;
 	private int selCol = -1;
      
-    private MicroarrayVisualizer microarrayVisualizer = null;
+    private DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView;
     private int[] patternGenes = null;
     private char[] maskedGenes = null;
     private char[] graphedGenes = null;
     private float intensity = 1f;
 
-    public MicroarrayDisplay(final org.geworkbench.util.microarrayutils.MicroarrayVisualizer visualizer) {
-        microarrayVisualizer = visualizer;
-        titledBorder1 = new TitledBorder("");
+    public MicroarrayDisplay(final DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView) {
+    	this.maSetView = maSetView;
         this.setBorder(BorderFactory.createLoweredBevelBorder());
-        this.setLayout(borderLayout1);
+        this.setLayout(new BorderLayout());
     }
 
     void setMicroarray(DSMicroarray microarray) {
@@ -79,13 +73,15 @@ public class MicroarrayDisplay extends JPanel {
         }
     }
 
-    void setMicroarrays(DSMicroarraySet microarrays) {
+    void setMicroarraySetView(DSMicroarraySetView<DSGeneMarker, DSMicroarray> microarraySetView) {
         rows = 0;
         cols = 0;
+    	maSetView = microarraySetView;
+    	DSMicroarraySet microarrays = microarraySetView.getMicroarraySet();
         if (microarrays != null) {
             int maxMarkerNo = microarrays.size();
             if (maxMarkerNo > 0) {
-                rows = (int) Math.ceil(Math.sqrt((double) microarrayVisualizer.getUniqueMarkers().size()));
+                rows = (int) Math.ceil(Math.sqrt((double) maSetView.getUniqueMarkers().size()));
                 cols = rows;
                 patternGenes = new int[maxMarkerNo];
                 maskedGenes = new char[maxMarkerNo];
@@ -118,7 +114,7 @@ public class MicroarrayDisplay extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         if (microarray != null) {
-            rows = (int) Math.ceil(Math.sqrt((double) microarrayVisualizer.getUniqueMarkers().size()));
+            rows = (int) Math.ceil(Math.sqrt((double) maSetView.getUniqueMarkers().size()));
             cols = rows;
             computeScale();
             drawImage((Graphics2D) g);
@@ -138,15 +134,15 @@ public class MicroarrayDisplay extends JPanel {
     }
 
     private void drawImage(Graphics2D g) {
-        int geneNo = microarrayVisualizer.getUniqueMarkers().size();
+        int geneNo = maSetView.getUniqueMarkers().size();
         int geneId = 0;
-        DSDataSet<DSMicroarray> maSet = microarrayVisualizer.getDataSetView().getDataSet();
+        DSDataSet<DSMicroarray> maSet = maSetView.getDataSet();
         if (maSet != null) {
             org.geworkbench.bison.util.colorcontext.ColorContext colorContext = (org.geworkbench.bison.util.colorcontext.ColorContext) maSet.getObject(org.geworkbench.bison.util.colorcontext.ColorContext.class);
             for (int row = 0; row < rows; row++) {
                 for (int col = 0; col < cols; col++) {
                     if (geneId < geneNo) {
-                        DSGeneMarker stats = microarrayVisualizer.getUniqueMarkers().get(geneId);
+                        DSGeneMarker stats = maSetView.getUniqueMarkers().get(geneId);
                         //this place should get the right marker with the selecte markers or all markers
 
 
@@ -159,11 +155,8 @@ public class MicroarrayDisplay extends JPanel {
                                 g.setColor(Color.yellow);
                             } else if (spot.isMasked()) {
                                 g.setColor(Color.white);
-                            } else if (!showValidOnly || (!spot.isMissing())) {
-                                g.setColor(colorContext.getMarkerValueColor(spot, stats, intensity));
-                                //pixels[geneId] = spot.getAbsColor(stats, 1.0F).getRGB();
                             } else {
-                                g.setColor(Color.lightGray);
+                                g.setColor(colorContext.getMarkerValueColor(spot, stats, intensity));
                             }
                             int x0 = dx + (int) ((double) col * scaleX);
                             int x1 = dx + (int) ((double) (col + 1) * scaleX);
@@ -203,11 +196,11 @@ public class MicroarrayDisplay extends JPanel {
             int col = (int) (x / scaleX);
             rubberBandBox(row, col);
             geneId = row * cols + col;
-            if ((geneId < 0) || (geneId >= microarrayVisualizer.getUniqueMarkers().size())) {
+            if ((geneId < 0) || (geneId >= maSetView.getUniqueMarkers().size())) {
                 return -1;
             }
         }
-        return microarrayVisualizer.getUniqueMarkers().get(geneId).getSerial();
+        return maSetView.getUniqueMarkers().get(geneId).getSerial();
     }
 
     void rubberBandBox(int row, int col) {
