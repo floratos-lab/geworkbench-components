@@ -2,6 +2,7 @@ package org.geworkbench.components.microarrays;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
@@ -18,15 +19,24 @@ import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.event.ChangeEvent;
 
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
+import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
+import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
+import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.bison.util.colorcontext.ColorContext;
+import org.geworkbench.builtin.projects.ProjectPanel;
+import org.geworkbench.builtin.projects.ProjectSelection;
 import org.geworkbench.engine.config.MenuListener;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
@@ -36,54 +46,121 @@ import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.ImageSnapshotEvent;
 import org.geworkbench.events.MarkerSelectedEvent;
 import org.geworkbench.events.PhenotypeSelectorEvent;
+import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.events.SingleMicroarrayEvent;
 import org.geworkbench.util.ColorScale;
-import org.geworkbench.util.microarrayutils.MicroarrayVisualizer;
 
 /**
- * <p>
- * Title: Plug And Play Framework
- * </p>
- * <p>
- * Description: Architecture for enGenious Plug&Play
- * </p>
- * <p>
+ * Microarray Viewer.
+ * 
  * Copyright: Copyright (c) 2002
- * </p>
- * <p>
  * Company: First Genetic Trust
- * </p>
  * 
  * @author Andrea Califano
  * @version $Id$
  */
 
 @AcceptTypes( { DSMicroarraySet.class })
-public class MicroarrayPanel extends MicroarrayVisualizer implements
+public class MicroarrayPanel implements
 		VisualPlugin, MenuListener {
-	private MicroarrayDisplay microarrayImageArea = new MicroarrayDisplay(this);
-	private int x = 0;
-	private int y = 0;
-	private JToolBar jToolBar = new JToolBar();
-	private JSlider jMASlider = new JSlider();
+    private DSMicroarraySetView<DSGeneMarker, DSMicroarray> dataSetView;
+
+    private int microarrayId = 0;
+    private int markerId = 0;
+    private JPanel mainPanel = new JPanel();
+
+    @Publish public ImageSnapshotEvent publishImageSnapshotEvent(ImageSnapshotEvent event) {
+        return event;
+    }
+
+    @Publish public MarkerSelectedEvent publishMarkerSelectedEvent(MarkerSelectedEvent event) {
+        return event;
+    }
+
+    private final void changeMicroArraySet(DSMicroarraySet maSet) {
+		mArraySet = maSet;
+        dataSetView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(maSet);
+		dataSetView.useMarkerPanel(true);
+        dataSetView.useItemPanel(true);
+
+		microarrayImageArea.setMicroarraySetView(dataSetView);
+		
+		if (maSet != null) {
+			ColorContext colorContext = (ColorContext) maSet
+					.getObject(ColorContext.class);
+			if (colorContext != null) {
+				valueGradient.setMinColor(colorContext
+						.getMinColorValue(intensitySlider.getValue()));
+				valueGradient.setCenterColor(colorContext
+						.getMiddleColorValue(intensitySlider.getValue()));
+				valueGradient.setMaxColor(colorContext
+						.getMaxColorValue(intensitySlider.getValue()));
+				valueGradient.repaint();
+			}
+			selectMicroarray(0);
+		}
+		
+        resetMicroarraySlider();
+    }
+
+    private void showAllMArrays(boolean showAll) {
+        dataSetView.useItemPanel(!showAll);
+        resetMicroarraySlider();
+        mainPanel.repaint();
+    }
+
+    private void showAllMarkers(boolean showAll) {
+        dataSetView.useMarkerPanel(!showAll);
+        mainPanel.repaint();
+    }
+
+    @Subscribe public void receive(org.geworkbench.events.ProjectEvent projectEvent, Object source) {
+
+		if (projectEvent.getMessage().equals(ProjectEvent.CLEARED)) {
+			changeMicroArraySet(null);
+			mainPanel.repaint();
+			return;
+		}
+		
+		ProjectSelection selection = ((ProjectPanel) source).getSelection();
+		DSDataSet<?> dataSet = selection.getDataSet();
+		if (dataSet instanceof DSMicroarraySet) {
+			DSMicroarraySet microarraySet = (DSMicroarraySet)dataSet;
+			if(microarraySet!=mArraySet) {
+				changeMicroArraySet(microarraySet);
+			}
+		} else {
+			changeMicroArraySet(null);
+		}
+		mainPanel.repaint();
+    }
+
+    @Override
+    public Component getComponent() {
+        return mainPanel;
+    }
+
+    // Most of the code up to here used to in the original base MicroarrayVisualizer
+    ////////////////////////////////////////////////////////////////////////////////////
+    
+	final private MicroarrayDisplay microarrayImageArea;
+
+	private JSlider microarraySlider = new JSlider();
 	private JSlider intensitySlider = new JSlider();
-	private JCheckBox jShowAllMArrays = new JCheckBox();
 	private JTextField jMALabel = new JTextField(20);
-	private JLabel intensityLabel = new JLabel("Intensity");
-	private JLabel arrayLabel = new JLabel("Array");
-	private JPopupMenu jDisplayPanelPopup = new JPopupMenu();
-	private JMenuItem jShowMarkerMenu = new JMenuItem();
-	private JMenuItem jRemoveMarkerMenu = new JMenuItem();
-	private JMenuItem jSaveImageMenu = new JMenuItem();
-	private JCheckBox jShowAllMarkers = new JCheckBox();
+
 	private ColorScale valueGradient = new ColorScale(
 			Color.gray, Color.gray, Color.gray);
-	private BorderLayout jLayout = new BorderLayout();
+
 	private HashMap<String, ActionListener> listeners = new HashMap<String, ActionListener>();
 	private DSMicroarraySet mArraySet = null;
 	private boolean forcedSliderChange = false;
 
 	public MicroarrayPanel() {
+		dataSetView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(null);
+		microarrayImageArea = new MicroarrayDisplay(dataSetView);
+		dataSetView.useMarkerPanel(true);
+        dataSetView.useItemPanel(true);
 		try {
 			jbInit();
 		} catch (Exception e) {
@@ -96,63 +173,33 @@ public class MicroarrayPanel extends MicroarrayVisualizer implements
 		return (ActionListener) listeners.get(key);
 	}
 
-	@Override
-	protected void setMicroarraySet(DSMicroarraySet maSet) {
-		// Note that the check to guarantee that this is in fact a valid MA Set
-		// and that it is
-		// different from the previous one is already performed at the
-		// superclass level.
-		// This method should never be called other than by the superclass
-		// changeMicroArraySet method.
-		mArraySet = maSet;
-		microarrayImageArea.setMicroarrays(mArraySet);
-		if (maSet != null) {
-			org.geworkbench.bison.util.colorcontext.ColorContext colorContext = (org.geworkbench.bison.util.colorcontext.ColorContext) maSet
-					.getObject(org.geworkbench.bison.util.colorcontext.ColorContext.class);
-			if (colorContext != null) {
-				valueGradient.setMinColor(colorContext
-						.getMinColorValue(intensitySlider.getValue()));
-				valueGradient.setCenterColor(colorContext
-						.getMiddleColorValue(intensitySlider.getValue()));
-				valueGradient.setMaxColor(colorContext
-						.getMaxColorValue(intensitySlider.getValue()));
-				valueGradient.repaint();
-			}
-			reset();
-			selectMicroarray(0);
-		}
-	}
-
-	@Override
-	protected void reset() {
-		super.reset();
+	private void resetMicroarraySlider() {
 		if (mArraySet != null) {
-			jMASlider.setMaximum(dataSetView.items().size() - 1);
+			microarraySlider.setMaximum(dataSetView.items().size() - 1);
 		} else {
-			jMASlider.setMaximum(0);
-			jMASlider.setMinimum(0);
-			jMASlider.setValue(0);
+			microarraySlider.setMaximum(0);
+			microarraySlider.setMinimum(0);
+			microarraySlider.setValue(0);
 		}
 	}
 
 	private void jbInit() throws Exception {
-		microarrayImageArea.setLayout(jLayout);
+        mainPanel.setLayout(new BorderLayout());
+        
+		microarrayImageArea.setLayout(new BorderLayout());
 		microarrayImageArea.setBorder(BorderFactory.createEtchedBorder());
 		microarrayImageArea.setOpaque(false);
 
 		microarrayImageArea.addMouseMotionListener(new MouseMotionAdapter() {
 			public void mouseMoved(MouseEvent e) {
 				if (mArraySet != null) {
-					x = e.getX();
-					y = e.getY();
+					int x = e.getX();
+					int y = e.getY();
 					markerId = microarrayImageArea.getGeneIdAndRubberBand(x, y);
-					if ((markerId >= 0) && (markerId < mArraySet.size())
-							&& (markerId != microarrayImageArea.selectedGeneId)) {
-						microarrayImageArea.selectedGeneId = markerId;
-					}
 				}
 			}
 		});
+		final JPopupMenu jDisplayPanelPopup = new JPopupMenu();
 		microarrayImageArea.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -177,16 +224,16 @@ public class MicroarrayPanel extends MicroarrayVisualizer implements
 				}
 			}
 		});
-		jMASlider.setValue(0);
-		jMASlider.setMaximum(0);
-		jMASlider.setMinimum(0);
-		jMASlider.setSnapToTicks(true);
-		jMASlider.setPaintTicks(true);
-		jMASlider.setMinorTickSpacing(1);
-		jMASlider.setMajorTickSpacing(5);
-		jMASlider.setCursor(java.awt.Cursor
+		microarraySlider.setValue(0);
+		microarraySlider.setMaximum(0);
+		microarraySlider.setMinimum(0);
+		microarraySlider.setSnapToTicks(true);
+		microarraySlider.setPaintTicks(true);
+		microarraySlider.setMinorTickSpacing(1);
+		microarraySlider.setMajorTickSpacing(5);
+		microarraySlider.setCursor(java.awt.Cursor
 				.getPredefinedCursor(java.awt.Cursor.HAND_CURSOR));
-		jMASlider.addChangeListener(new javax.swing.event.ChangeListener() {
+		microarraySlider.addChangeListener(new javax.swing.event.ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				chipSlider_stateChanged(e);
 			}
@@ -205,6 +252,7 @@ public class MicroarrayPanel extends MicroarrayVisualizer implements
 					}
 				});
 
+		JMenuItem jShowMarkerMenu = new JMenuItem();
 		jShowMarkerMenu.setText("Show Marker");
 		jShowMarkerMenu.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -213,6 +261,7 @@ public class MicroarrayPanel extends MicroarrayVisualizer implements
 			}
 		});
 
+		JMenuItem jRemoveMarkerMenu = new JMenuItem();
 		jRemoveMarkerMenu.setText("Remove Marker");
 		jRemoveMarkerMenu.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -237,9 +286,11 @@ public class MicroarrayPanel extends MicroarrayVisualizer implements
 		};
 
 		listeners.put("File.Image Snapshot", imageSnapshotListener);
+		JMenuItem jSaveImageMenu = new JMenuItem();
 		jSaveImageMenu.setText("Image Snapshot");
 		jSaveImageMenu.addActionListener(imageSnapshotListener);
 
+		final JCheckBox jShowAllMArrays = new JCheckBox();
 		jShowAllMArrays.setText("All Arrays");
 		jShowAllMArrays.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -248,6 +299,7 @@ public class MicroarrayPanel extends MicroarrayVisualizer implements
 		});
 		jShowAllMArrays.setSelected(false);
 		
+		final JCheckBox jShowAllMarkers = new JCheckBox();
 		jShowAllMarkers.setText("All Markers");
 		jShowAllMarkers.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -259,6 +311,7 @@ public class MicroarrayPanel extends MicroarrayVisualizer implements
 		jMALabel.setEditable(false);		
 		jMALabel.setMinimumSize(new Dimension(40, 20));
 		
+		JToolBar jToolBar = new JToolBar();
 		mainPanel.add(jToolBar, BorderLayout.SOUTH);
 		jToolBar.setLayout(new BoxLayout(jToolBar, BoxLayout.X_AXIS));
 		jToolBar.add(jShowAllMArrays, null);
@@ -269,13 +322,13 @@ public class MicroarrayPanel extends MicroarrayVisualizer implements
 		jToolBar.add(Box.createGlue(), null);
 		jToolBar.add(valueGradient);
 		jToolBar.add(Box.createGlue(), null);
-		jToolBar.add(intensityLabel, null);
+		jToolBar.add(new JLabel("Intensity"), null);
 		jToolBar.add(Box.createHorizontalStrut(5), null);
 		jToolBar.add(intensitySlider, null);
 		jToolBar.add(Box.createGlue(), null);
-		jToolBar.add(arrayLabel, null);
+		jToolBar.add(new JLabel("Array"), null);
 		jToolBar.add(Box.createHorizontalStrut(5), null);
-		jToolBar.add(jMASlider, null);
+		jToolBar.add(microarraySlider, null);
 		mainPanel.add(microarrayImageArea, BorderLayout.CENTER);
 		jDisplayPanelPopup.add(jShowMarkerMenu);
 		jDisplayPanelPopup.add(jRemoveMarkerMenu); // Popup Menu Added to the
@@ -284,9 +337,10 @@ public class MicroarrayPanel extends MicroarrayVisualizer implements
 	}
 
 	private void chipSlider_stateChanged(ChangeEvent e) {
-		int mArrayId = jMASlider.getValue();
+		int mArrayId = microarraySlider.getValue();
 		if ((mArrayId >= 0) && !forcedSliderChange) {
-			if (selectMicroarray(mArrayId)) {
+			selectMicroarray(mArrayId);
+			if (mArraySet != null && dataSetView.items().size() > 0) {
 				DSMicroarray array = dataSetView.items().get(mArrayId);
 				jMALabel.setText(array.getLabel());
 			}
@@ -310,22 +364,16 @@ public class MicroarrayPanel extends MicroarrayVisualizer implements
 		return event;
 	}
 
-	private boolean selectMicroarray(int mArrayId) {
+	private void selectMicroarray(int mArrayId) {
 		if (mArraySet != null && dataSetView.items().size() > 0) {
 			DSMicroarray mArray = dataSetView.items().get(mArrayId);
 			if (mArray != null) {
 				microarrayId = mArray.getSerial();
 				microarrayImageArea.setMicroarray(mArray);
-				try {
-					microarrayImageArea.repaint();
-				} catch (java.lang.Exception exception) {
-					exception.printStackTrace();
-				}
+				microarrayImageArea.repaint();
 			}
-			return true;
 		} else {
 			microarrayImageArea.setMicroarray(null);
-			return false;
 		}
 	}
 
@@ -338,10 +386,10 @@ public class MicroarrayPanel extends MicroarrayVisualizer implements
 	@Subscribe
 	public void receive(GeneSelectorEvent e, Object source) {
 		if (e.getPanel() != null) {
-			markerPanel = e.getPanel().activeSubset();
+			DSPanel<DSGeneMarker> markerPanel = e.getPanel().activeSubset();
 			dataSetView.setMarkerPanel(markerPanel);
-			reset();
-			repaint();
+			resetMicroarraySlider();
+			mainPanel.repaint();
 		}
 	}
 
@@ -356,7 +404,7 @@ public class MicroarrayPanel extends MicroarrayVisualizer implements
 		if (index != -1) {
 			selectMicroarray(index);
 			forcedSliderChange = true;
-			jMASlider.setValue(index);
+			microarraySlider.setValue(index);
 			forcedSliderChange = false;
 			jMALabel.setText(array.getLabel());
 		}
@@ -378,14 +426,14 @@ public class MicroarrayPanel extends MicroarrayVisualizer implements
 			} catch (IndexOutOfBoundsException ioobe) {
 				// Ignore -- no arrays
 			}
-			mArrayPanel = e.getTaggedItemSetTree();
+			DSPanel<DSBioObject> mArrayPanel = e.getTaggedItemSetTree();
 			dataSetView.setItemPanel((DSPanel) mArrayPanel);
-			reset();
+			resetMicroarraySlider();
 			// Keep old microarray selection, if possible
 			if (oldArray != null) {
 				displayMicroarray(oldArray);
 			}
-			repaint();
+			mainPanel.repaint();
 		}
 	}
 
