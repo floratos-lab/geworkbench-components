@@ -741,7 +741,7 @@ public class ScatterPlot implements VisualPlugin {
     /**
      * The dataset that holds the microarrayset and panels.
      */
-    private DSMicroarraySetView<DSGeneMarker, DSMicroarray> dataSetView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>();
+    private DSMicroarraySetView<DSGeneMarker, DSMicroarray> dataSetView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(null);
 
     /**
      * The two chart groups (one for microarrays, one for markers).
@@ -1475,38 +1475,34 @@ public class ScatterPlot implements VisualPlugin {
      * @param e      the event.
      * @param source the source of the event (unused).
      */
-    @SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked")
 	@Subscribe public void receive(ProjectEvent e, Object source) {
-        boolean doClear = true;
-        if (e.getMessage().equals(org.geworkbench.events.ProjectEvent.CLEARED)) {
-            dataSetView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>();
-            markerModel.refresh();
-            microarrayModel.refresh();
-        } else {
-            ProjectSelection selection = ((ProjectPanel) source).getSelection();
-            DSDataSet<? extends DSBioObject> dataFile = selection.getDataSet();
-            if (dataFile != null && dataFile instanceof DSMicroarraySet) {
-                DSMicroarraySet set = (DSMicroarraySet) dataFile;
-                // If it is the same dataset as before, then don't reset everything
-                if (dataSetView.getDataSet() != set) {
-                    dataSetView.setMicroarraySet(set);
-                } else {
-                    doClear = false;
-                }
-            } else {
-                dataSetView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>();
-                markerModel.refresh();
-                microarrayModel.refresh();
-            }
-        }
-        if (doClear) {
-            clearAllCharts(PlotType.ARRAY);
-            clearAllCharts(PlotType.MARKER);
-            markerModel.refresh();
-            microarrayModel.refresh();
-            packChartPanel(getActivePlotType());
-        }
-    }
+
+		ProjectSelection selection = ((ProjectPanel) source).getSelection();
+		DSDataSet<? extends DSBioObject> dataFile = selection.getDataSet();
+
+		if (!(dataFile instanceof DSMicroarraySet)
+				|| e.getMessage().equals(
+						org.geworkbench.events.ProjectEvent.CLEARED)) {
+			dataSetView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(
+					null);
+		} else {
+			DSMicroarraySet set = (DSMicroarraySet) dataFile;
+			// If it is the same dataset as before, then don't reset everything
+			if (dataSetView.getDataSet() == set) {
+				return;
+			}
+
+			dataSetView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(
+					set);
+		}
+
+		clearAllCharts(PlotType.ARRAY);
+		clearAllCharts(PlotType.MARKER);
+		markerModel.refresh();
+		microarrayModel.refresh();
+		packChartPanel(getActivePlotType());
+	}
     
     private DSGeneMarker findMarker(String label){
     	DSItemList<DSGeneMarker> markers = dataSetView.getMicroarraySet().getMarkers();
