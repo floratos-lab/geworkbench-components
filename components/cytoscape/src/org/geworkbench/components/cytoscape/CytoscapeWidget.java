@@ -386,7 +386,7 @@ public class CytoscapeWidget implements VisualPlugin {
 				adjSet = (AdjacencyMatrixDataSet) dataSet;
 				AdjacencyMatrix adjMatrix = adjSet.getMatrix();
 				adjMatrixId = adjMatrix.hashCode();
-				maSet = adjMatrix.getMicroarraySet();
+				maSet = (DSMicroarraySet) adjSet.getParentDataSet();
 
 				boolean found = false;
 				String foundID = null;

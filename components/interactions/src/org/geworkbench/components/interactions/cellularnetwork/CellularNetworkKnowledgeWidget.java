@@ -2297,7 +2297,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			Map<String, List<DSGeneMarker>> geneNameToMarkerMap = AffyAnnotationUtil
 					.getGeneNameToMarkerMapping(dataset);
 
-			AdjacencyMatrix matrix = new AdjacencyMatrix(null, dataset,
+			AdjacencyMatrix matrix = new AdjacencyMatrix(null,
 					CellularNetworkPreferencePanel.interactionTypeSifMap, CellularNetworkPreferencePanel.interactionEvidenceMap);
 			setAdjacencyMatrix(matrix);
 			AdjacencyMatrixDataSet adjacencyMatrixdataSet = null;

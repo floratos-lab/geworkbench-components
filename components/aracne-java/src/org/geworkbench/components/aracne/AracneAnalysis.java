@@ -279,7 +279,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 	 */
 	private AdjacencyMatrix convert(WeightedGraph graph, Parameter p,
 			DSMicroarraySet mSet, boolean prune) {
-		AdjacencyMatrix matrix = new AdjacencyMatrix(null, mSet);
+		AdjacencyMatrix matrix = new AdjacencyMatrix(null);
 
 		Vector<String> subnet = p.getSubnet();
 
