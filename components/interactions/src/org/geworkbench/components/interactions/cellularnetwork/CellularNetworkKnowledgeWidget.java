@@ -719,7 +719,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		thresholdTypes.addItemListener(new ItemListener()
 		{
 			 public void itemStateChanged(ItemEvent itemEvent) {
-		         System.out.println("itemStateChanged is called...");
+		          
 				 if (thresholdTypes.getSelectedItem() != null)
 				 {
 					String type =  CellularNetworkPreferencePanel.interactionConfidenceTypeMap.get(thresholdTypes.getSelectedItem().toString());
