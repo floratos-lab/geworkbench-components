@@ -257,6 +257,7 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
 			//x = size of markers
 			int x = maSet.getMarkers().size();
 			
+			DSMicroarraySet microarraySet = (DSMicroarraySet) amSet.getParentDataSet();
 			//for each TF A 
 			int i = 0;
 			for (DSGeneMarker tfA: transcriptionFactors){
@@ -272,7 +273,7 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
 				ArrayList<DSGeneMarker> negSC = new ArrayList<DSGeneMarker>();
 				//int geneid = tfA.getSerial();
 				AdjacencyMatrix adjMatrix = amSet.getMatrix();
-				Set<DSGeneMarker> neighbors = adjMatrix.get(tfA);
+				Set<DSGeneMarker> neighbors = adjMatrix.get(tfA, microarraySet );
 				if (neighbors!=null){
 					for (DSGeneMarker neighbor : neighbors){//for each neighbor
 						nA.add(neighbor);
