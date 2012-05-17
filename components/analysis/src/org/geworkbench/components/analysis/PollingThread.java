@@ -4,6 +4,7 @@ import javax.swing.JOptionPane;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geworkbench.analysis.AbstractGridAnalysis;
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.builtin.projects.ProjectPanel;
@@ -32,19 +33,23 @@ public class PollingThread extends Thread {
 	
 	final AnalysisInvokedEvent invokeEvent;
 	final AnalysisPanel analysisPanel;
+	
+	final AbstractGridAnalysis analysis;
 
 	public PollingThread(GridEndpointReferenceType gridEPR,
 			DispatcherClient dispatcherClient,
 			final AnalysisInvokedEvent invokeEvent,
-			final AnalysisPanel analysisPanel) {
+			final AnalysisPanel analysisPanel,
+			final AbstractGridAnalysis analysis) {
 
 		this.gridEPR = gridEPR;
 		this.dispatcherClient = dispatcherClient;
 		this.invokeEvent = invokeEvent;
 		this.analysisPanel = analysisPanel;
+		
+		this.analysis = analysis; 
 	}
 
-	@SuppressWarnings({"unchecked" })
 	public void run() {
 
 		try {
@@ -84,8 +89,8 @@ public class PollingThread extends Thread {
 				JOptionPane.showMessageDialog(null, errorMessage,
 						"Your analysis has been canceled.",
 						JOptionPane.ERROR_MESSAGE);
-			} else if (result instanceof DSAncillaryDataSet) {
-				ancillaryDataSet = ((DSAncillaryDataSet<? extends DSBioObject>) result);
+			} else {
+				ancillaryDataSet = analysis.postProcessResult(result);
 			}
 			ProjectPanel.getInstance().processNodeCompleted(gridEPR, ancillaryDataSet);
 		} catch (Exception e) {
