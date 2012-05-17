@@ -2,8 +2,13 @@ package org.geworkbench.components.masterregulator;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Arrays;
 
+import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
@@ -46,6 +51,22 @@ public class MasterRegulatorTableViewer extends JPanel implements VisualPlugin {
 		tv = new TableViewer(columnNames, data);		
 		setLayout(new BorderLayout());
 		add(tv, BorderLayout.CENTER);
+		JButton saveButton=new JButton();
+		JPanel bottom1=new JPanel();
+		bottom1.setLayout(new GridLayout(0,5));
+		bottom1.add(new JLabel());
+		bottom1.add(new JLabel());
+		bottom1.add(saveButton);
+		saveButton.setText("Export Table");
+		add(bottom1,BorderLayout.SOUTH );
+		
+		saveButton.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				if (tv.getTable().getRowCount() > 0)
+					tv.exportTableData();
+			}
+		});
 	}
 
 	@Override
