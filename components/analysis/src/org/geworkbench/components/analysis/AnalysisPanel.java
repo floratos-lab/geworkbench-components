@@ -368,7 +368,7 @@ public class AnalysisPanel extends CommandBase implements
 			// to control the complexity, let's not support the analysis Abort/Complete event
 			// in the case of restoring workspace for now
 			PollingThread pollingThread = new PollingThread(gridEpr,
-					dispatcherClient, null, this);
+					dispatcherClient, null, this, null); // FIXME analysisType not implemented here yet
 			threadList.add(pollingThread);
 			pollingThread.start();
 
@@ -978,7 +978,7 @@ public class AnalysisPanel extends CommandBase implements
 				selectedGridAnalysis.getLabel() + " (pending)", history, false);
 
 		PollingThread pollingThread = new PollingThread(gridEpr,
-				dispatcherClient, invokeEvent, this);
+				dispatcherClient, invokeEvent, this, selectedGridAnalysis);
 		threadList.add(pollingThread);
 		pollingThread.start();
 	}

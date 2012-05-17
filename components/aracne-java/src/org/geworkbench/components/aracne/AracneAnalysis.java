@@ -18,9 +18,11 @@ import org.geworkbench.analysis.AbstractGridAnalysis;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
+import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
+import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
@@ -657,6 +659,10 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 						+ "consider relaxing your thresholds.");
 	}
 
-	 
+	@Override
+	public DSAncillaryDataSet<? extends DSBioObject> postProcessResult(Object object) {
+		return new AdjacencyMatrixDataSet((AdjacencyMatrix) object, 0,
+				"Adjacency Matrix", "from caGrid service", null); // parent is not needed to be known at this point
+	}
 
 }
