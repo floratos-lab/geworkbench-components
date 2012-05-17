@@ -439,7 +439,7 @@ public class TableViewer extends JPanel {
 		mrviewer = v;
 	}
 
-	private void exportTableData() {
+	public void exportTableData() {
 
 		try {
 			String exportFileStr = "exportTable.csv";
