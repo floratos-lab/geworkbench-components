@@ -588,8 +588,8 @@ public class BlastViewComponent implements VisualPlugin {
 			int ret = JOptionPane
 					.showConfirmDialog(
 							null,
-							"Some of selected hits belong to the sequences other than the one currently highlighted.\n"
-									+ "They will be included in the project too. Do you want to continue?",
+							"Sequence hits from more than one query sequence have been selected.\n"
+									+ "All selected hits will be added. Do you want to continue?",
 							"Include all selected hits?",
 							JOptionPane.YES_NO_OPTION);
 			if (ret != JOptionPane.YES_OPTION) {
