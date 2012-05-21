@@ -12,7 +12,6 @@ import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -361,14 +360,14 @@ public class AnalysisPanel extends CommandBase implements
 			e.printStackTrace();
 		}
 
-		Collection<GridEndpointReferenceType> gridEprs = ppne.getGridEprs();
+		Map<GridEndpointReferenceType, AbstractGridAnalysis> gridEprs = ppne.getGridEprs();
 
-		for (GridEndpointReferenceType gridEpr : gridEprs) {
+		for (GridEndpointReferenceType gridEpr : gridEprs.keySet()) {
 
 			// to control the complexity, let's not support the analysis Abort/Complete event
 			// in the case of restoring workspace for now
 			PollingThread pollingThread = new PollingThread(gridEpr,
-					dispatcherClient, null, this, null); // FIXME analysisType not implemented here yet
+					dispatcherClient, null, this, gridEprs.get(gridEpr));
 			threadList.add(pollingThread);
 			pollingThread.start();
 
@@ -975,7 +974,7 @@ public class AnalysisPanel extends CommandBase implements
 		}
 
 		ProjectPanel.getInstance().addPendingNode(gridEpr,
-				selectedGridAnalysis.getLabel() + " (pending)", history, false);
+				selectedGridAnalysis.getLabel() + " (pending)", history, false, selectedGridAnalysis);
 
 		PollingThread pollingThread = new PollingThread(gridEpr,
 				dispatcherClient, invokeEvent, this, selectedGridAnalysis);
