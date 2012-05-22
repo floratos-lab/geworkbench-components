@@ -742,8 +742,10 @@ public class AnalysisPanel extends CommandBase implements
 			/* load from memory */
 			Map<Serializable, Serializable> parameters = selectedAnalysis
 					.getNamedParameterSet(paramName);
-			if (parameters != null) // fix share directory issue in gpmodule
+			if (parameters != null) {// fix share directory issue in gpmodule
 				selectedAnalysis.setParameters(parameters);
+				parameterComboBox.setSelectedItem(paramName);
+			}
 		} else {
 			/* nothing saved, so select nothing */
 		}
