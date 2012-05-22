@@ -118,7 +118,11 @@ public class TTest {
 			case ADJ_BONFERRONI:
 				NaturalRanking ranking = new NaturalRanking(
 						NaNStrategy.MINIMAL, TiesStrategy.SEQUENTIAL);
-				double[] ranks = ranking.rank(tValue);
+				double[] absoluateTValue = new double[tValue.length];
+				for(int i=0; i<tValue.length; i++) {
+					absoluateTValue[i] = Math.abs( tValue[i] );
+				}
+				double[] ranks = ranking.rank(absoluateTValue);
 				int[] rank2Index = new int[ranks.length];
 				for (int i = 0; i < rank2Index.length; i++) {
 					rank2Index[(int) (ranks[i] - 1)] = i;
@@ -131,7 +135,7 @@ public class TTest {
 					if (pValue[i] <= alpha / n) {
 						significanceIndexList.add(i);
 					}
-					if (i > 0 && tValue[i] > tValue[rank2Index[rank - 1]]) {
+					if (rank > 0 && absoluateTValue[i] > absoluateTValue[rank2Index[rank - 1]]) {
 						n--;
 					}
 				}
