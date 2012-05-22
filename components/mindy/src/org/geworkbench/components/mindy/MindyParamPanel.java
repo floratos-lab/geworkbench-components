@@ -259,7 +259,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 					loadTargetsFile.setEnabled(false);
 				} else if (StringUtils.equals(selected, FROM_FILE)) {
 					targetsSets.setSelectedIndex(0);
-					targetsSets.setEnabled(false);
+					targetsSets.setEnabled(false);				 
 					targetList.setText("");
 					targetList.setEditable(true);
 					targetList.setEnabled(true);
@@ -292,10 +292,12 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 
 		targetsSets.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent actionEvent) {
+				if (!targetsSets.isEnabled())
+					return;
 				String selectedLabel = (String) targetsSets.getSelectedItem();
 				if (!StringUtils.isEmpty(selectedLabel))
 					if (!chooseMarkersFromSet(selectedLabel, targetList)) {
-						targetsSets.setSelectedIndex(0);
+						targetsSets.setSelectedIndex(0);						 
 						targetList.setText("");
 					}
 			}
