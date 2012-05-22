@@ -1156,8 +1156,8 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
             ArrayList<DSGeneMarker> positiveFolds = new ArrayList<DSGeneMarker>();   
             ArrayList<DSGeneMarker> negativeFolds = new ArrayList<DSGeneMarker>();
             for(DSGeneMarker m: sortedMarkers){
-            	if(sigSet.getFoldChange(m) >= 0) positiveFolds.add(m);
-				if(sigSet.getFoldChange(m) < 0) negativeFolds.add(m);
+            	if(sigSet.getTValue(m) >= 0) positiveFolds.add(m);
+				if(sigSet.getTValue(m) < 0) negativeFolds.add(m);
             }
             
             // sort each list by t-value
