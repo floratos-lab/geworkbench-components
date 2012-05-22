@@ -442,8 +442,10 @@ public class NormalizationPanel extends CommandBase implements VisualPlugin, ReH
 			/* load from memory */
 			Map<Serializable, Serializable> parameters = selectedNormalizer
 					.getNamedParameterSet(paramName);
-			if (parameters != null) // fix share directory issue in gpmodule
+			if (parameters != null) {// fix share directory issue in gpmodule
 				selectedNormalizer.setParameters(parameters);
+				namedParameters.setSelectedItem(paramName);
+			}
 		} else {
 			/* nothing saved, so select nothing */
 		}
