@@ -132,7 +132,7 @@ public class VolcanoPlot implements VisualPlugin {
             	return unknown;
             MarkerAndStats markerStats = markerList[item];
             if (markerStats != null) {
-                return markerStats.marker.getLabel() + " (" + markerStats.marker.getGeneName() + "): " + df.format(markerStats.fold) + "/" + df.format(markerStats.pValue);
+                return markerStats.marker.getLabel() + " (" + markerStats.marker.getGeneName() + "): " + df.format(markerStats.fold) + ", " + df.format(markerStats.pValue);
             } else {
             	return unknown;
             }
