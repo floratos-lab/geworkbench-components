@@ -320,7 +320,7 @@ public class VolcanoPlot implements VisualPlugin {
                 }
 
                 series.add(xVal, yVal);
-                toolTipGenerator.addMarkerAndStats(marker, xVal, sigValue);
+                toolTipGenerator.addMarkerAndStats(marker, xVal, yVal);
             } else {
                 log.debug("Marker " + i + " was infinite or NaN.");
             }
