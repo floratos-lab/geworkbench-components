@@ -115,9 +115,13 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel implement
 			}
 			if (key.equals("pvaluesByTDistribution")){
 				pvaluesByTDistribution.setSelected((Boolean)value);
+				if ((Boolean)value)
+					pvaluesByTDistribution_actionPerformed();
 			}
 			if (key.equals("pvaluesByPerm")){
 				pvaluesByPerm.setSelected((Boolean)value);
+				if ((Boolean)value)
+					pvaluesByPerm_actionPerformed();
 			}
 			if (key.equals("randomlyGroup")){
 				randomlyGroup.setSelected((Boolean)value);
@@ -127,6 +131,10 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel implement
 			}
 			if (key.equals("allPerms")){
 				allPerms.setSelected((Boolean)value);
+			}
+			if (key.equals("isLog2Transformed"))
+			{
+				logCheckbox.setSelected((Boolean)value);
 			}
 			if (key.equals("alpha")){
 				alpha.setValue((Number)value);
@@ -164,6 +172,7 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel implement
 		parameters.put("randomlyGroup", randomlyGroup.isSelected());
 		parameters.put("numCombs", (Number) numCombs.getValue());
 		parameters.put("allPerms", allPerms.isSelected());
+		parameters.put("isLog2Transformed", isLogNormalized());
 		parameters.put("alpha", (Number) alpha.getValue());
 		parameters.put("noCorrection", noCorrection.isSelected());
 		parameters.put("bonferroni", bonferroni.isSelected());
@@ -405,6 +414,8 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel implement
        pvaluesByPerm.addActionListener(new
                pvaluesByPerm_actionAdapter());
        
+       logCheckbox.addActionListener(parameterActionListener);
+       
        randomlyGroup.addActionListener(new randomlyGroup_actionAdapter());
        numCombs.addActionListener(parameterActionListener);
        allPerms.addActionListener(new allPerms_actionAdapter());
@@ -419,11 +430,11 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel implement
     private class pvaluesByTDistribution_actionAdapter implements
 		java.awt.event.ActionListener {
 			public void actionPerformed(ActionEvent e) {
-				pvaluesByTDistribution_actionPerformed(e);
+				pvaluesByTDistribution_actionPerformed();
 		}
 	}
 	
-	private void pvaluesByTDistribution_actionPerformed(ActionEvent e) {
+	private void pvaluesByTDistribution_actionPerformed() {
 			allPerms.setEnabled(false);
 			randomlyGroup.setEnabled(false);
 			numCombs.setEnabled(false);
@@ -438,11 +449,11 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel implement
     private class pvaluesByPerm_actionAdapter implements
 		java.awt.event.ActionListener {
 			public void actionPerformed(ActionEvent e) {
-				pvaluesByPerm_actionPerformed(e);
+				pvaluesByPerm_actionPerformed();
 			}
     }
     
-    private void pvaluesByPerm_actionPerformed(ActionEvent e) {
+    private void pvaluesByPerm_actionPerformed() {
     	allPerms.setEnabled(true);
     	randomlyGroup.setEnabled(true);
     	numCombs.setEnabled(true);
@@ -455,20 +466,20 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel implement
     private class allPerms_actionAdapter implements
     	java.awt.event.ActionListener {
 			public void actionPerformed(ActionEvent e) {
-				allPerms_actionPerformed(e);
+				allPerms_actionPerformed();
 			}
     }
-    private void allPerms_actionPerformed(ActionEvent e) {
+    private void allPerms_actionPerformed() {
     	numCombs.setEditable(false);
     }
     
     private class randomlyGroup_actionAdapter implements
     	java.awt.event.ActionListener {
 			public void actionPerformed(ActionEvent e) {
-				ramdomlyGroup_actionPerformed(e);
+				ramdomlyGroup_actionPerformed();
 			}
 	}
-	private void ramdomlyGroup_actionPerformed(ActionEvent e) {
+	private void ramdomlyGroup_actionPerformed() {
 		numCombs.setEditable(true);
 	}
     
