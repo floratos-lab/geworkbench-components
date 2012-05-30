@@ -16,6 +16,7 @@ import javax.swing.DefaultSingleSelectionModel;
 import java.awt.KeyboardFocusManager;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.InputVerifier;
@@ -323,19 +324,21 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel {
 		 * limitPanel.add(limitBottomPanel);
 		 */
 
+		Dimension size3 = new Dimension(235, 30);
 		JPanel exhaustive1 = new JPanel();
 		exhaustive1.setLayout(new BoxLayout(exhaustive1, BoxLayout.LINE_AXIS));
 		exhaustive1.setBorder(emptyBorder);
 		JLabel label4 = new JLabel("Decrement Support (%):");
-		label4.setMaximumSize(size2);
+		label4.setMaximumSize(size3);
 		exhaustive1.add(label4);
+		exhaustive1.add(Box.createRigidArea(new Dimension(1,0)));
 		exhaustive1.add(jDecreaseSupportBox);
 
 		JPanel exhaustive2 = new JPanel();
 		exhaustive2.setLayout(new BoxLayout(exhaustive2, BoxLayout.LINE_AXIS));
 		exhaustive2.setBorder(emptyBorder);
-		JLabel label5 = new JLabel("Minimum Support (%):");
-		label5.setMaximumSize(size2);
+		JLabel label5 = new JLabel("Minimum Support (Number of Sequences):");
+		label5.setMaximumSize(size3);
 		exhaustive2.add(label5);
 		exhaustive2.add(jMinSupportExhaustive);
 
@@ -343,8 +346,9 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel {
 		exhaustive3.setLayout(new BoxLayout(exhaustive3, BoxLayout.LINE_AXIS));
 		exhaustive3.setBorder(emptyBorder);
 		JLabel label6 = new JLabel("Minimum Pattern Number:");
-		label6.setMaximumSize(size2);
+		label6.setMaximumSize(size3);
 		exhaustive3.add(label6);
+		exhaustive3.add(Box.createRigidArea(new Dimension(1,0)));
 		exhaustive3.add(minPatternNumberField);
 
 		JPanel exhaustivePanel = new JPanel();
@@ -357,18 +361,6 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel {
 		exhaustivePanel.add(exhaustive1);
 		exhaustivePanel.add(exhaustive2);
 		exhaustivePanel.add(exhaustive3);
-		JPanel exhaustiveOccurrencePanel = new JPanel();
-		exhaustiveOccurrencePanel.setLayout(new BoxLayout(
-				exhaustiveOccurrencePanel, BoxLayout.LINE_AXIS));
-		exhaustiveOccurrencePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-		JPanel exhaustiveSequencePanel = new JPanel();
-		exhaustiveSequencePanel.setLayout(new BoxLayout(
-				exhaustiveSequencePanel, BoxLayout.LINE_AXIS));
-		exhaustiveSequencePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-		exhaustivePanel.add(exhaustiveOccurrencePanel);
-		exhaustivePanel.add(exhaustiveSequencePanel);
 
 	    JTabbedPane jTabbedPane1;jTabbedPane1 = new JTabbedPane();
 		jTabbedPane1.add(basicPanel, "Basic");
@@ -380,6 +372,8 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel {
 		// set a new model with a custom setSelectedIndex method
 		jTabbedPane1.setModel(new DefaultSingleSelectionModel() {
 			 
+			private static final long serialVersionUID = -6555370509260654118L;
+
 			public void setSelectedIndex(int index) {
 				Component compWithFocus = KeyboardFocusManager
 						.getCurrentKeyboardFocusManager().getFocusOwner();
