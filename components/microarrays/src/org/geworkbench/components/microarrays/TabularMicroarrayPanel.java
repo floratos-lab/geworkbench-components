@@ -162,6 +162,7 @@ public class TabularMicroarrayPanel extends MicroarrayViewEventBase {
 					DSMicroarray array = maSetView.get(col - 1);
 					DSMarkerValue value = array.getMarkerValue(marker);
 
+					if (value == null) return "Invalid";
 					if (value.isMissing())
 						return "n/a";
 					else {

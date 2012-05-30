@@ -523,7 +523,7 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 		if (fe == null || fe.getOriginalMASet() == null) {
 			return;
 		}
-
+		itemList = fe.getOriginalMASet().getMarkers();
 		updateSelectedPanel();
 	}
 
