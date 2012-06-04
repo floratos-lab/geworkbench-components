@@ -12,7 +12,7 @@
  implementation of PCA (Principal
  Component Analysis)."
  
-				category="visualizer"
+				category="Visualizer, Microarray"
 	 >
 		<required-component class="org.geworkbench.components.gpmodule.pca.PCAAnalysis" />
 		<license><![CDATA[

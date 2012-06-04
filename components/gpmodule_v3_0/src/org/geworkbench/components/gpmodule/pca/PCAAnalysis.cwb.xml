@@ -13,7 +13,7 @@
  number of orthogonal variables which, starting with
  the first, each explain as much as possible of the
  variability remaining in the dataset."
-				category="analysis"
+				category="Analysis, Microarray"
 	 >
 		<required-component class="org.geworkbench.components.gpmodule.pca.PCA" />
 		<license><![CDATA[

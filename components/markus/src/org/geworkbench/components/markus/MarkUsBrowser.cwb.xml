@@ -12,7 +12,7 @@
  The results can be browsed by an interactive web interface
  that integrates Gene Ontology terms, UniProt features, and the Enzyme Classification."
  
-				category="visualizer"
+				category="Visualizer, Structure, Remote Access"
 	 >
 		<required-component class="org.geworkbench.components.markus.MarkUsAnalysis" />
 		<license><![CDATA[

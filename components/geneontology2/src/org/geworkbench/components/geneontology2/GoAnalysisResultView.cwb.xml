@@ -8,7 +8,7 @@
 				toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 				tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Gene_Ontology_Term_Analysis"
 				description="Tabular, list and detail views of Gene Ontology Over-representation analysis results."
-				category="visualizer"
+				category="Visualizer, Microarray"
 				loadByDefault="true"
 	 >
 		<required-component class="org.geworkbench.components.geneontology2.GoAnalysis" />

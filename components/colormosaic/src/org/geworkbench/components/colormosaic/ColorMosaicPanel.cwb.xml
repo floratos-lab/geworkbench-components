@@ -13,7 +13,7 @@
  i.e. set 1,set 2 etc. Each row corresponds to a marker,
  and marker display is ordered by p-value in ascending order
  (from most significant to least significant)."
-		category="visualizer" loadByDefault="true">
+		category="Visualizer, Microarray" loadByDefault="true">
 		<license><![CDATA[
 			<html><head><meta http-equiv=Content-Type content="text/html; charset=windows-1252"></head>
 				<body>----</body>

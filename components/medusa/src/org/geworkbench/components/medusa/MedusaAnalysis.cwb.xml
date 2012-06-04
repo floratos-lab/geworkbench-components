@@ -7,7 +7,7 @@
 		authorURL="http://www.mskcc.org/mskcc/html/79964.cfm"
 		toolURL="http://cbio.mskcc.org/leslielab/software/medusa"
 		description="MEDUSA is an integrative method for learning motif models of transcription factor binding sites by incorporating promoter sequence and gene expression data." 
-		category="analysis">
+		category="Analysis, Microarray, Sequence">
 		<required-component
 			class="org.geworkbench.components.medusa.gui.MedusaVisualComponent" />
 		<license><![CDATA[

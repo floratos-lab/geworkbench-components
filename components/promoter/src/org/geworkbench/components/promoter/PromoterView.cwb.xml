@@ -9,7 +9,7 @@
 				tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Promoter_Analysis"
 				description="Allows searching from a database of promotor motifs,
  or user-defined motifs, against genomic nucleotide sequences."
-				category="visualizer"
+				category="Visualizer, Sequence"
 				loadByDefault="true"
 	 >
 		<license><![CDATA[

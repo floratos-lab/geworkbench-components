@@ -12,8 +12,8 @@
 		description="This component computes the Student's t-test result
  for the significance of any differential expression seen between two
  clases of microarray gene expression profiles (case and control)."
-		category="analysis"
-		loadByDefault="true"				
+		category="Analysis, Microarray"
+		loadByDefault="true"
  	 >
 		<required-component class="org.geworkbench.components.colormosaic.ColorMosaicPanel" />
 		<license><![CDATA[

@@ -10,7 +10,7 @@
 		toolURL="http://psb.stanford.edu/psb-online/proceedings/psb09/lim.pdf"
 		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/SAM_Analysis"							
 		description="Significance Analysis of Microarrays(SAM) component attempts"
-		category="analysis"							
+		category="Analysis, Microarray"							
 	 >
 		<required-component class="org.geworkbench.components.sam.SAMViewer" />
 		<license><![CDATA[

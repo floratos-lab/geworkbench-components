@@ -13,7 +13,7 @@
  NCBI BLAST service.  Sequence hits can be returned to the Project
  for further analysis."
 		mustAccept="false" 
-		category="visualizer" loadByDefault="true">
+		category="Visualizer, Sequence" loadByDefault="true">
 		<required-component
 			class="org.geworkbench.components.alignment.blast.BlastAnalysis" />
 		<license><![CDATA[

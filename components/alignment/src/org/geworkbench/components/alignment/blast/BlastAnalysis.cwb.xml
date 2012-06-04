@@ -12,9 +12,8 @@
 		description="The Sequence Alignment component allows amino-acid (protein)
  or nucleotide (DNA) sequences to be submitted to the NCBI BLAST server
  for sequence similarity search against various databases."
-        category="analysis,remote access"
+        category="Analysis, Remote Access, Sequence"
         loadByDefault="true">
-		<!--category="analysis" loadByDefault="true">-->
 		<required-component
 			class="org.geworkbench.components.alignment.panels.BlastViewComponent" />
 		<required-component

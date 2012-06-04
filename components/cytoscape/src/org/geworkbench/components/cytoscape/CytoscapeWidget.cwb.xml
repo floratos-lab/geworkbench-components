@@ -13,7 +13,7 @@
  is used to display network graphs, as created e.g. by ARACNe.
  The component allows selected network nodes (genes) to be
  returned to a geWorkbench project for further analysis."
-		category="visualizer" 
+		category="Visualizer, Network" 
 		loadByDefault="true"
 	>
 

@@ -12,7 +12,7 @@
  is a supervised classification method that computes a
  maximal separating hyperplane between the expression
  vectors of different classes or phenotypes."
-				category="analysis"
+				category="Analysis, Microarray"
 	 >
 		<required-component class="org.geworkbench.components.gpmodule.classification.gui.GPClassificationVisualComponent" />
 		<license><![CDATA[

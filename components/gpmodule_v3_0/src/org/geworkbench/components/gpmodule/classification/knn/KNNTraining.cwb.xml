@@ -12,7 +12,7 @@
  algorithm.  The K-Nearest Neighbor algorithm classifies a
  sample by assigning it the label most frequently
  represented among the k nearest samples."
-				category="analysis"
+				category="Analysis, Microarray"
 	 >
 		<license><![CDATA[
 			<html><head><meta http-equiv=Content-Type content="text/html; charset=windows-1252"></head>

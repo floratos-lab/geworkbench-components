@@ -9,7 +9,8 @@
 		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/EVD"
 		description="The Expression Value Distribution component
  plots a histogram of expression values versus their frequency of occurence."
-		category="visualizer" loadByDefault="true">
+		category="Visualizer, Microarray"
+		loadByDefault="true">
 		<license><![CDATA[
 			<html><head><meta http-equiv=Content-Type content="text/html; charset=windows-1252"></head>
 				<body>----</body>
