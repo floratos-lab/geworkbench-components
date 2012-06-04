@@ -13,7 +13,7 @@
  Regulator analysis.  The primary result, shown in table and graphical
  form, is the overlap of a set of differentially expressed genes with
  the set of genes regulated by a particular transcription factor."
-				category="visualizer"				
+				category="Visualizer, Network, Microarray"				
 	 >
 		<required-component class="org.geworkbench.components.masterregulator.MasterRegulatorAnalysis" />
 		<required-component class="org.geworkbench.components.masterregulator.MasterRegulatorTableViewer" />

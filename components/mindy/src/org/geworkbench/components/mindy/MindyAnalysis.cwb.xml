@@ -13,7 +13,7 @@
  a set of target genes.  The ARACNe algorithm is used determine
  if a change in modulator expression results in a change in the
  mutual information of hub and target genes."
-		category="analysis">
+		category="Analysis, Network, Microarray">
 		<required-component
 			class="org.geworkbench.components.mindy.MindyVisualComponent" />
 		<license><![CDATA[

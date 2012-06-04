@@ -8,7 +8,7 @@
 				authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 				toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 				description="Not released.  Interface to NCI CGEMS (Cancer Genetic Markers of Susceptibility) project."
-				visualizer="true"
+				category="Visualizer, Microarray"
 	 >
 		<license><![CDATA[
 			<html><head><meta http-equiv=Content-Type content="text/html; charset=windows-1252"></head>

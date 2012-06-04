@@ -10,7 +10,7 @@
 				tutorialURL="http://www.broadinstitute.org/software/genomespace"
 				description="Genome Space"
 				loadByDefault="false"
-				category="visualizer"
+				category="Visualizer, Microarray, Remote Access"
 	 >
 		<license><![CDATA[
 			<html><head><meta http-equiv=Content-Type content="text/html; charset=windows-1252"></head>

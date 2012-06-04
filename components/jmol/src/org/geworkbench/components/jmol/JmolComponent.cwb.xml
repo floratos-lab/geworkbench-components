@@ -11,7 +11,7 @@
 				description="Jmol: an open-source Java viewer for chemical structures in 3D. http://www.jmol.org/.
  In geWorkbench Jmol can be used to visualize protein
  and DNA structures in PDB format"
-				category="visualizer"
+				category="Visualizer, Structure"
 				loadByDefault="true"
 	 >
 		<license><![CDATA[

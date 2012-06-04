@@ -15,6 +15,7 @@
  particular components who may be able provide advice."
 		loadByDefault="true"
 		hidden="true"
+		category="Remote Access"
 	 >
 		<license><![CDATA[
 			<html><head><meta http-equiv=Content-Type content="text/html; charset=windows-1252"></head>

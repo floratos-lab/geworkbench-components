@@ -11,7 +11,7 @@
 				description="The sequence viewer can display either a line
  or sequence-level display of loaded sequences.  Results of pattern discovery can
  be projected onto this display."
-				category="visualizer"
+				category="Visualizer, Sequence"
 				loadByDefault="true"
 	 >
 		<license><![CDATA[

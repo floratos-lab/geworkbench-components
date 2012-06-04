@@ -8,7 +8,7 @@
 				toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 				tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/MatrixREDUCE"				
 				description="Shows results of MatrixREDUCE calculations using logo, chromosomal and tabular displays."
-				category="visualizer"
+				category="Visualizer, Microarray, Sequence"
 	 >
 		<required-component class="org.geworkbench.components.matrixreduce.MatrixReduceAnalysis" />
 		<license><![CDATA[

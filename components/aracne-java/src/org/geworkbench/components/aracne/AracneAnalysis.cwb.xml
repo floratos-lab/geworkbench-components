@@ -10,7 +10,7 @@
 		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/ARACNe"
 		description="ARACNe: Algorithm for the Reconstruction of Accurate Cellular Networks.  This component uses a measure of mutual information to quantify the influence of one or more chosen hub genes (e.g. transcription factors) on the expression of other target genes.  Direct interactions can be preferentially preserved over indirect.  Primarily intended for the reconstruction of cellular networks within mammalian cell types, it requires expression profiles from many differ states (conditions, phenotypes) to provide the perturbations which allow networks to be inferred." 
  		mustAccept="true" documentation="http://wiki.c2b2.columbia.edu/workbench/index.php/ARACNE" 
- 		category="analysis, network">
+ 		category="Analysis, Network, Microarray">
 		<related-component
 			class="org.geworkbench.components.cytoscape.CytoscapeWidget" />
 				

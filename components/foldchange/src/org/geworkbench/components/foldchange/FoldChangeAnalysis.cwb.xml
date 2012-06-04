@@ -10,7 +10,7 @@
 		toolURL="http://psb.stanford.edu/psb-online/proceedings/psb09/lim.pdf"
 		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/FoldChange"
 		description="The Fold Change Analysis component calculates, for each marker, and for two classes of expression arrays (case and control), the ratio of average expression values (linear data) or the difference of average log values (log data)"
-		category="analysis"							
+		category="Analysis, Microarray"							
 		loadByDefault="true"
 	 >
 		<required-component class="org.geworkbench.components.foldchange.FoldChangeViewer" />

@@ -6,7 +6,8 @@
 		authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 		toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Pudge"
-		description="Visualization of Pudge results." category="visualizer"
+		description="Visualization of Pudge results." 
+		category="Visualizer, Sequence, Structure, Remote Access"
 	 >
 	 	<required-component class="org.geworkbench.components.pudge.PudgeAnalysis" />
 		<license><![CDATA[

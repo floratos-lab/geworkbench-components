@@ -14,7 +14,7 @@
  interactions maintained by the Califano lab at Columbia. For a
  given query set of genes, details are displayed in tabular
  form and interactions can be visualized as a network graph in Cytoscape."
-		category="visualizer">
+		category="Visualizer, Network, Microarray, Remote Access">
 		<related-component
 			class="org.geworkbench.components.cytoscape.CytoscapeWidget" />
 		<license><![CDATA[

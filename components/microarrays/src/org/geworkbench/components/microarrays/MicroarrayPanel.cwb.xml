@@ -10,7 +10,7 @@
 				description="Displays a representation of the data from the
  microarray dataset, centered either around zero (absolute display)
  or around the marker average value (relative display)."
-				category="visualizer"
+				category="Visualizer, Microarray"
 				loadByDefault="true"
 	 >
 		<license><![CDATA[

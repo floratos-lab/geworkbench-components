@@ -10,7 +10,7 @@
 				description="MatrixREDUCE is a tool for inferring the binding
  specificity and nuclear concentration of transcription
  factors from microarray data."
-				category="analysis"
+				category="Analysis, Microarray, Sequence"
 	 >
 		<required-component class="org.geworkbench.components.matrixreduce.MatrixReduceViewer" />
 		<license><![CDATA[

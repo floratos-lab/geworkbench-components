@@ -12,7 +12,8 @@
  for and downloaded from instances of caArray (an NCI microarray
  database product).  Currently only gene-level data downloads are
  supported (e.g. summarized data derived from Affymetrix CHP files)."
-		category="visualizer" loadByDefault="true">
+		category="Visualizer, Remote Access, Microarray"
+		loadByDefault="true">
 		<license><![CDATA[
 			<html><head><meta http-equiv=Content-Type content="text/html; charset=windows-1252"></head>
 				<body>----</body>

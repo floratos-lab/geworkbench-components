@@ -11,7 +11,7 @@
  retrieves and displays annotation information available in the Cancer
  Gene Index (CGI) and the Cancer Genome Anatomy Project (CGAP), as well
  as any available Biocarta Pathway diagrams."
-		category="visualizer"
+		category="Visualizer, Remote Access, Microarray"
 		loadByDefault="true"
 	 >
 		<license><![CDATA[

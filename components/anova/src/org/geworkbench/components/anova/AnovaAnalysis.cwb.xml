@@ -13,7 +13,7 @@
  if significant differences in expression exist among three or more groups
  of microarray gene expression profiles.  Formally, it tests the null
  hypothesis that, for each gene, the mean expression of each group is equal."
-		category="analysis"
+		category="Analysis, Microarray"
 		loadByDefault="true"
 	 >
 		<required-component class="org.geworkbench.components.anova.gui.TabularDataViewer" />

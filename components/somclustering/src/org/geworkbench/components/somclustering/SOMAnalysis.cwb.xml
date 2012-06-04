@@ -8,7 +8,7 @@
 				toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 				tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/SOM"
 				description="SOM Analysis clusters gene expression profiles into a preset number of groups by similarity."
-				category="analysis"
+				category="Analysis, Microarray"
 	 >
 		<required-component class="org.geworkbench.components.somclustering.SOMDisplay" />
 		<license><![CDATA[

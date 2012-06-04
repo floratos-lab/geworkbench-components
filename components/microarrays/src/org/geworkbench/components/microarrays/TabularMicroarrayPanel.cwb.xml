@@ -10,7 +10,7 @@
 				tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Viewing_a_Microarray_Dataset"
 				description="Displays microarray gene expression data in a tabular, spreadsheet format."
 				loadByDefault="true"
-				category="visualizer"
+				category="Visualizer, Microarray"
 	 >
 		<license><![CDATA[
 			<html><head><meta http-equiv=Content-Type content="text/html; charset=windows-1252"></head>
