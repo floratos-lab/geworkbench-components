@@ -145,6 +145,7 @@ public class RetrieveAllTask extends ProgressTask<AgentDiseaseResults, String>{
         	for (String message : chunks){
         		if (isCancelled()) return;
         		pb.setMessage(message);
+            	ap.pd.updateWidth(message);
         	}
         }
     	
