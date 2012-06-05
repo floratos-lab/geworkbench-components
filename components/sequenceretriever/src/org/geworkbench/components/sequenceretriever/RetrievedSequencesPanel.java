@@ -68,11 +68,6 @@ public final class RetrievedSequencesPanel extends SequenceViewWidget {
                 sequencedetailPanel.repaint();
             }
         });
-        seqViewWPanel.addMouseMotionListener(new MouseMotionAdapter() {
-            public void mouseMoved(MouseEvent e) {
-                seqViewWPanel.this_mouseMoved(e);
-            }
-        });
 
         sequenceRetrieverNewLineView.addMouseMotionListener(new MouseMotionAdapter() {
             public void mouseMoved(MouseEvent e) {
