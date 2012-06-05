@@ -141,8 +141,8 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel {
 
 		jMinSupportExhaustive.setMaximumSize(size1);
 		jMinSupportExhaustive.setText("10");
-		jMinSupportExhaustive.setInputVerifier(new PercentNumberVerifier(
-				"((\\d){1,10}(.))?(\\d){1,10}"));
+		jMinSupportExhaustive
+		.setInputVerifier(new RegularExpressionVerifier("(\\d){1,9}"));
 
 		// add a verifier
 		jMinTokensBox.setInputVerifier(new RegularExpressionVerifier(
