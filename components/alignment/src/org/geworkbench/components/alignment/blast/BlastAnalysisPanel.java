@@ -1421,7 +1421,9 @@ public class BlastAnalysisPanel extends AbstractSaveableParameterPanel {
 					jGapcostsBox.setSelectedItem(value);
 				}
 			}			
-		}		
+		}	
+		
+		 stopNotifyAnalysisPanelTemporary(false);	
 		 
 	}
 
