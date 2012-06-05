@@ -8,7 +8,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -41,6 +43,7 @@ import org.geworkbench.bison.datastructure.complex.pattern.PatternResult;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.events.listeners.ParameterActionListener;
 import org.geworkbench.util.RegularExpressionVerifier;
 
 /**
@@ -91,17 +94,21 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel {
 	private String currentSupportMenuStr = SUPPORT_PERCENT_1_100;
 	private int maxSeqNumber = Integer.MAX_VALUE;
 
-	private JRadioButton discovery = new JRadioButton("Normal");
+	private JRadioButton normal = new JRadioButton("Normal");
 	private JRadioButton exhaustive = new JRadioButton("Exhaustive");
-	
+
+	private ParameterActionListener parameterActionListener;
+
 	public PatternDiscoveryParamPanel() {
 		this.setLayout(new BorderLayout());
 
 		final Dimension size1 = new Dimension(150, 30);
 
-		discovery.setSelected(true);
+		parameterActionListener = new ParameterActionListener(this);
+
+		normal.setSelected(true);
 		ButtonGroup algorithmGroup = new ButtonGroup();
-		algorithmGroup.add(discovery);
+		algorithmGroup.add(normal);
 		algorithmGroup.add(exhaustive);
 
 		jMinSupportMenu.addItem(SUPPORT_PERCENT_1_100);
@@ -115,6 +122,7 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel {
 				jSupportMenu_actionPerformed();
 			}
 		});
+
 		Dimension size2 = new Dimension(220, 30);
 		jMinSupportMenu.setMaximumSize(size2);
 		jMinSupportBox.setMaximumSize(size1);
@@ -222,7 +230,7 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel {
 		JLabel label0 = new JLabel("Algorithm Type:");
 		label0.setMaximumSize(size2);
 		basic0.add(label0);
-		basic0.add(discovery);
+		basic0.add(normal);
 		basic0.add(exhaustive);
 
 		JPanel basic1 = new JPanel();
@@ -331,7 +339,7 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel {
 		JLabel label4 = new JLabel("Decrement Support (%):");
 		label4.setMaximumSize(size3);
 		exhaustive1.add(label4);
-		exhaustive1.add(Box.createRigidArea(new Dimension(1,0)));
+		exhaustive1.add(Box.createRigidArea(new Dimension(1, 0)));
 		exhaustive1.add(jDecreaseSupportBox);
 
 		JPanel exhaustive2 = new JPanel();
@@ -348,7 +356,7 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel {
 		JLabel label6 = new JLabel("Minimum Pattern Number:");
 		label6.setMaximumSize(size3);
 		exhaustive3.add(label6);
-		exhaustive3.add(Box.createRigidArea(new Dimension(1,0)));
+		exhaustive3.add(Box.createRigidArea(new Dimension(1, 0)));
 		exhaustive3.add(minPatternNumberField);
 
 		JPanel exhaustivePanel = new JPanel();
@@ -362,40 +370,59 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel {
 		exhaustivePanel.add(exhaustive2);
 		exhaustivePanel.add(exhaustive3);
 
-	    JTabbedPane jTabbedPane1;jTabbedPane1 = new JTabbedPane();
+		JTabbedPane jTabbedPane1;
+		jTabbedPane1 = new JTabbedPane();
 		jTabbedPane1.add(basicPanel, "Basic");
 		jTabbedPane1.add(exhaustivePanel, "Exhaustive");
 		jTabbedPane1.add(limitPanel, "Limits");
-		jTabbedPane1.add(advancedPanel, "Advanced");		
-		jTabbedPane1.setSelectedIndex(0);	
-		
+		jTabbedPane1.add(advancedPanel, "Advanced");
+		jTabbedPane1.setSelectedIndex(0);
+
 		// set a new model with a custom setSelectedIndex method
 		jTabbedPane1.setModel(new DefaultSingleSelectionModel() {
-			 
+
 			private static final long serialVersionUID = -6555370509260654118L;
 
 			public void setSelectedIndex(int index) {
 				Component compWithFocus = KeyboardFocusManager
 						.getCurrentKeyboardFocusManager().getFocusOwner();
 
-				if (   compWithFocus != null && compWithFocus instanceof JTextField) {
-					JTextField tf = (JTextField)compWithFocus;
-					if (tf.getInputVerifier() != null)
-					{
-						if (!tf.getInputVerifier().verify(tf))
-						{	   String message = "Data input is not valid, please check and input correct data ";
-						   JOptionPane.showMessageDialog(null, message, "Invalid value",
-								JOptionPane.WARNING_MESSAGE); 
-							return;}
+				if (compWithFocus != null
+						&& compWithFocus instanceof JTextField) {
+					JTextField tf = (JTextField) compWithFocus;
+					if (tf.getInputVerifier() != null) {
+						if (!tf.getInputVerifier().verify(tf)) {
+							String message = "Data input is not valid, please check and input correct data ";
+							JOptionPane.showMessageDialog(null, message,
+									"Invalid value",
+									JOptionPane.WARNING_MESSAGE);
+							return;
+						}
 					}
-					
-				}   
+
+				}
 				super.setSelectedIndex(index);
 			}
 
-		}); 
-		
-		
+		});
+
+		normal.addActionListener(parameterActionListener);
+		exhaustive.addActionListener(parameterActionListener);
+		jMinSupportMenu.addActionListener(parameterActionListener);	 
+		jMinSupportBox.addActionListener(parameterActionListener);
+		jMinTokensBox.addActionListener(parameterActionListener);
+		jWindowBox.addActionListener(parameterActionListener);
+		jMinWTokensBox.addActionListener(parameterActionListener);
+
+		jDecreaseSupportBox.addActionListener(parameterActionListener);
+		jMinSupportExhaustive.addActionListener(parameterActionListener);
+		minPatternNumberField.addActionListener(parameterActionListener);
+
+		jMaxPatternNoBox.addActionListener(parameterActionListener);
+
+		jExactOnlyBox.addActionListener(parameterActionListener);
+		jMatrixBox.addActionListener(parameterActionListener);
+		jSimThresholdBox.addActionListener(parameterActionListener);   
 
 		this.setPreferredSize(new Dimension(400, 200));
 		this.add(jTabbedPane1, BorderLayout.CENTER);
@@ -426,13 +453,12 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel {
 			// side effects. So temporarily remove the input verifier on the
 			// text
 			// field.
-			 input.setInputVerifier(null);
-				
-				
-			// Pop up the message dialog.		   
+			input.setInputVerifier(null);
+
+			// Pop up the message dialog.
 			String message = "Data input is not valid, please check and input correct data ";
 			JOptionPane.showMessageDialog(null, message, "Invalid value",
-					JOptionPane.WARNING_MESSAGE);		 
+					JOptionPane.WARNING_MESSAGE);
 
 			// Reinstall the input verifier.
 			input.setInputVerifier(this);
@@ -491,11 +517,11 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel {
 				return true;
 			}
 			input.setInputVerifier(null);
-		 
-			// Pop up the message dialog.		  
+
+			// Pop up the message dialog.
 			String message = "Data input is not valid, please check and input correct data ";
 			JOptionPane.showMessageDialog(null, message, "Invalid value",
-					JOptionPane.WARNING_MESSAGE); 
+					JOptionPane.WARNING_MESSAGE);
 
 			// Reinstall the input verifier.
 			input.setInputVerifier(this);
@@ -503,9 +529,6 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel {
 			return false;
 		}
 
-		
-		
-		
 		public boolean verify(JComponent input) {
 			JTextField tf = (JTextField) input;
 			Matcher m = p.matcher(tf.getText());
@@ -524,7 +547,7 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel {
 
 			return match;
 		}// end of verify()
-	} 
+	}
 
 	private void jSupportMenu_actionPerformed() {
 		String selectedSupportStr = (String) jMinSupportMenu.getSelectedItem();
@@ -539,7 +562,7 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel {
 
 	// ------------------------BASIC PANEL
 	public String getSelectedAlgorithmName() {
-		if (discovery.isSelected()) {
+		if (normal.isSelected()) {
 			return PatternResult.DISCOVER;
 		} else if (exhaustive.isSelected()) {
 			return PatternResult.EXHAUSTIVE;
@@ -637,7 +660,93 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel {
 	}
 
 	public void setParameters(Map<Serializable, Serializable> parameters) {
-		// TODO
+		Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
+
+		if ((getStopNotifyAnalysisPanelTemporaryFlag()==true)&&(parameterActionListener.getCalledFromProgramFlag()==true)) return;
+    	stopNotifyAnalysisPanelTemporary(true);		
+		
+		for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set
+				.iterator(); iterator.hasNext();) {
+			Map.Entry<Serializable, Serializable> parameter = iterator.next();
+			Object key = parameter.getKey();
+			Object value = parameter.getValue();
+
+			if (key.equals("jMinSupportMenu")) {
+				if (value != null
+						&& !value.toString().equalsIgnoreCase(
+								jMinSupportMenu.getSelectedItem().toString()))
+					jMinSupportMenu.setSelectedItem(value);
+			} else if (key.equals("normal")) {
+				if (value != null) {
+					normal.setSelected((Boolean) value);
+				}
+
+			} else if (key.equals("exhaustive")) {
+				if (value != null) {
+					exhaustive.setSelected((Boolean) value);
+				}
+
+			} else if (key.equals("jMinSupportBox")) {
+				if (value != null && !value.toString().trim().equals("")) {
+					jMinSupportBox.setText(value.toString());
+				}
+
+			} else if (key.equals("jMinTokensBox")) {
+				if (value != null && !value.toString().trim().equals("")) {
+					jMinTokensBox.setText(value.toString());
+				}
+
+			} else if (key.equals("jWindowBox")) {
+				if (value != null && !value.toString().trim().equals("")) {
+					jWindowBox.setText(value.toString());
+				}
+
+			} else if (key.equals("jMinWTokensBox")) {
+				if (value != null && !value.toString().trim().equals("")) {
+					jMinWTokensBox.setText(value.toString());
+				}
+			} else if (key.equals("jDecreaseSupportBox")) {
+				if (value != null && !value.toString().trim().equals("")) {
+					jDecreaseSupportBox.setText(value.toString());
+				}
+			} else if (key.equals("jMinSupportExhaustive")) {
+				if (value != null && !value.toString().trim().equals("")) {
+					jMinSupportExhaustive.setText(value.toString());
+				}
+			} else if (key.equals("minPatternNumberField")) {
+				if (value != null && !value.toString().trim().equals("")) {
+					minPatternNumberField.setText(value.toString());
+				}
+			} else if (key.equals("jMaxPatternNoBox")) {
+				if (value != null && !value.toString().trim().equals("")) {
+					jMaxPatternNoBox.setText(value.toString());
+				}
+			} else if (key.equals("jExactOnlyBox")) {
+				if (value != null) {
+					jExactOnlyBox.setSelected((Boolean) value);
+				}
+				if (jExactOnlyBox.isSelected()) {
+					jMatrixBox.setEnabled(false);
+					jSimThresholdBox.setEnabled(false);
+				} else {
+					jMatrixBox.setEnabled(true);
+					jSimThresholdBox.setEnabled(true);
+				}
+
+			} else if (key.equals("jMatrixBox")) {
+				if (value != null && !value.toString().trim().equals("")) {
+					jMatrixBox.setSelectedItem(value);
+				}
+			} else if (key.equals("jSimThresholdBox")) {
+				if (value != null && !value.toString().trim().equals("")) {
+					jSimThresholdBox.setText(value.toString());
+				}
+
+			}
+
+		}
+		stopNotifyAnalysisPanelTemporary(false);
+
 	}
 
 	public String getDecSupportExhaustive() {
@@ -652,81 +761,87 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel {
 	public Map<Serializable, Serializable> getParameters() {
 		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
 
+		parameters.put("normal", new Boolean(normal.isSelected()));
+		parameters.put("exhaustive", new Boolean(exhaustive.isSelected()));
+		parameters.put("jMinSupportMenu", jMinSupportMenu.getSelectedItem()
+				.toString());
+		parameters.put("jMinSupportBox", jMinSupportBox.getText().trim());
+		parameters.put("jMinTokensBox", jMinTokensBox.getText().trim());
+		parameters.put("jWindowBox", jWindowBox.getText().trim());
+		parameters.put("jMinWTokensBox",jMinWTokensBox.getText().trim());
+		parameters.put("jDecreaseSupportBox", jDecreaseSupportBox.getText().trim());
+		parameters.put("jMinSupportExhaustive", jMinSupportExhaustive.getText().trim());
+		parameters.put("minPatternNumberField", minPatternNumberField.getText().trim());
+		parameters.put("jMaxPatternNoBox", jMaxPatternNoBox.getText().trim());
+		parameters.put("jExactOnlyBox",new Boolean(jExactOnlyBox.isSelected()));
+		parameters.put("jMatrixBox", jMatrixBox.getSelectedItem().toString());
+		parameters.put("jSimThresholdBox", jSimThresholdBox.getText().trim());
+
 		return parameters;
 	}
-	
-	
+
 	@Override
 	public ParamValidationResults validateParameters() {
-		 
-		if (jMinSupportBox.getInputVerifier().verify(jMinSupportBox) == false)
-		{	 
+
+		if (jMinSupportBox.getInputVerifier().verify(jMinSupportBox) == false) {
 			jMinSupportBox.requestFocus();
 			return new ParamValidationResults(false,
-					"Please enter valid data for " + currentSupportMenuStr + "in Basic window.");
-		
-		
-		}  
-	
-		if (jMinTokensBox.getInputVerifier().verify(jMinTokensBox) == false)
-		{	 
+					"Please enter valid data for " + currentSupportMenuStr
+							+ "in Basic window.");
+
+		}
+
+		if (jMinTokensBox.getInputVerifier().verify(jMinTokensBox) == false) {
 			jMinTokensBox.requestFocus();
 			return new ParamValidationResults(false,
 					"Please enter valid data for Minimum Tokens in Basic window.");
-		}  
-		
-		if (jWindowBox.getInputVerifier().verify(jWindowBox) == false)
-		{	 
+		}
+
+		if (jWindowBox.getInputVerifier().verify(jWindowBox) == false) {
 			jWindowBox.requestFocus();
 			return new ParamValidationResults(false,
 					"Please enter valid data for Density Window in Basic window.");
-		}  
-	
-		if (jMinWTokensBox.getInputVerifier().verify(jMinWTokensBox) == false)
-		{	 
+		}
+
+		if (jMinWTokensBox.getInputVerifier().verify(jMinWTokensBox) == false) {
 			jMinWTokensBox.requestFocus();
 			return new ParamValidationResults(false,
 					"Please enter valid data for Density Window Min. Tokens in Basic window.");
-		}  
-		
-		if (jDecreaseSupportBox.getInputVerifier().verify(jDecreaseSupportBox) == false)
-		{	 
+		}
+
+		if (jDecreaseSupportBox.getInputVerifier().verify(jDecreaseSupportBox) == false) {
 			jDecreaseSupportBox.requestFocus();
 			return new ParamValidationResults(false,
 					"Please enter valid data for Decrement Support in Exhaustive window.");
-		}  
-		if (jMinSupportExhaustive.getInputVerifier().verify(jMinSupportExhaustive) == false)
-		{	 
+		}
+		if (jMinSupportExhaustive.getInputVerifier().verify(
+				jMinSupportExhaustive) == false) {
 			jMinSupportExhaustive.requestFocus();
 			return new ParamValidationResults(false,
 					"Please enter valid data for Minimum Support in Exhaustive window.");
-		}  
-		if (minPatternNumberField.getInputVerifier().verify(minPatternNumberField) == false)
-		{	 
+		}
+		if (minPatternNumberField.getInputVerifier().verify(
+				minPatternNumberField) == false) {
 			minPatternNumberField.requestFocus();
 			return new ParamValidationResults(false,
 					"Please enter valid data for Minimum Pattern Support in Exhaustive window.");
-		}  
-	 
-		if (jMaxPatternNoBox.getInputVerifier().verify(jMaxPatternNoBox) == false)
-		{	 
+		}
+
+		if (jMaxPatternNoBox.getInputVerifier().verify(jMaxPatternNoBox) == false) {
 			jMaxPatternNoBox.requestFocus();
 			return new ParamValidationResults(false,
 					"Please enter valid data for Maximum Pattern Number in Limit window.");
-		}  
-		
-		if (jSimThresholdBox.getInputVerifier().verify(jSimThresholdBox) == false)
-		{	 
+		}
+
+		if (jSimThresholdBox.getInputVerifier().verify(jSimThresholdBox) == false) {
 			jSimThresholdBox.requestFocus();
 			return new ParamValidationResults(false,
 					"Please enter valid data for Similarity Threshold in Advanced window.");
-		}  
-		
+		}
+
 		return new ParamValidationResults(true, null);
-	
+
 	}
-	
-	
 
 	public void fillDefaultValues(Map<Serializable, Serializable> parameters) {
 		// TODO Auto-generated method stub
