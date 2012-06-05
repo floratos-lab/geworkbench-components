@@ -195,6 +195,8 @@ public final class RetrievedSequencesPanel extends SequenceViewWidget {
 	}
 
 	public void setDNA(boolean isDNA) {
+		if(isDNA) checkBoxHideDuplicate.setEnabled(true);
+		else checkBoxHideDuplicate.setEnabled(false);
 		this.isDNA = isDNA;
 	}
 }
