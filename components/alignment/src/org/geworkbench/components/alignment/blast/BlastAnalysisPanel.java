@@ -1210,6 +1210,10 @@ public class BlastAnalysisPanel extends AbstractSaveableParameterPanel {
 	 */
 	public void setParameters(Map<Serializable, Serializable> parameters) {
 		 
+		if ((getStopNotifyAnalysisPanelTemporaryFlag()==true)&&(parameterActionListener.getCalledFromProgramFlag()==true)) return;
+    	     stopNotifyAnalysisPanelTemporary(true);		
+		
+		
 		Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
 		
 		for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set
@@ -1229,7 +1233,7 @@ public class BlastAnalysisPanel extends AbstractSaveableParameterPanel {
 		
 		}
 		
-		while( !isFinished )
+		 while( !isFinished )
 		{   
 			try{
 			Thread.sleep(10);
@@ -1238,7 +1242,7 @@ public class BlastAnalysisPanel extends AbstractSaveableParameterPanel {
 			{
 				log.info(ex.getMessage());
 			}
-		}
+		} 
 		
 		for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set
 				.iterator(); iterator.hasNext();) {
