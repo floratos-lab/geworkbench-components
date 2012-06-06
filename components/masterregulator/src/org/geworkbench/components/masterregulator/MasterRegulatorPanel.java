@@ -620,6 +620,7 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 	// after user selected adjMatrix in the panel, you can use this method to
 	// get the adjMatrix user selected.
 	public AdjacencyMatrixDataSet getAdjMatrixDataSet() {
+		if (!networkMatrix.isEnabled() && networkTextField.getText().length()==0) return null;
 		return this.adjMatrix.get("adjMatrix");
 	}
 
@@ -673,6 +674,7 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 	public void clearAdjMatrixCombobox() {
 		adjacencymatrixDataSets.clear();
 		adjModel.clear();
+        networkTextField.setText(null);
 	}
 
 	public void removeAdjMatrixToCombobox(AdjacencyMatrixDataSet adjDataSet) {
