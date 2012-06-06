@@ -694,7 +694,25 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 									+ " from target file in microarray set.\n");
 				}
 			}
+		
+		   boolean hasModGeneinTarget = false;
+		   for (String modGene : modulatorGeneList) { 
+			   if (targetGeneList.contains(modGene))
+			   {
+				   hasModGeneinTarget = true;
+				   break;
+			   }
+		   }
+		   
+		   if (hasModGeneinTarget == false)
+			   return new ParamValidationResults(false,
+				"No modulator specified in target list.\n");
+		
+		
 		}
+		
+		
+		
 
 		ArrayList<String> dpiAnnotList = params.getDPIAnnotatedGeneList();
 		for (String modGene : dpiAnnotList) {
