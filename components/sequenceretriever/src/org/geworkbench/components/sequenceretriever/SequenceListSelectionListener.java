@@ -36,6 +36,13 @@ class SequenceListSelectionListener implements
 
 		int[] selectedRows = lsm.getSelectedIndices();
 
+		if(selectedRows.length == 0) {
+			selectedRows = new int[lsm.getModel().getSize()];
+			for(int i= 0; i<lsm.getModel().getSize(); i++) {
+				selectedRows[i] = i;				
+			}
+		}
+		
 		sequenceRetriever.initializeRetrievedSequencesPanel();
 		DefaultListModel ls2 = sequenceRetriever.getListModel();
 		TreeMap<String, ArrayList<String>> currentRetrievedSequences = sequenceRetriever.getCurrentRetrievedSequences();
