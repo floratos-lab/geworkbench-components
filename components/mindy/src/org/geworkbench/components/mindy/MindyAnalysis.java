@@ -684,6 +684,21 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 					"No modulator specified.\n");
 		}
 
+	
+		String hub = params.getTranscriptionFactor();
+		
+		DSGeneMarker transFac = mSet.getMarkers().get(hub);
+		if (hub != null && !hub.trim().equals("")) {
+			if (transFac == null) {
+				return new ParamValidationResults(false,
+						"Specified hub marker (" + hub
+								+ ") not found in loadad microarray set.\n");
+			}
+		} else {
+			return new ParamValidationResults(false,
+					"No hub marker specified.\n");
+		}
+		
 		ArrayList<String> targetGeneList = params.getTargetGeneList();
 		if ((targetGeneList != null) && (targetGeneList.size() > 0)) {
 			for (String modGene : targetGeneList) {
@@ -706,7 +721,15 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 		   
 		   if (hasModGeneinTarget == false)
 			   return new ParamValidationResults(false,
-				"No modulator specified in target list.\n");
+				"No modulator specified in target list.\n");		
+		 
+			if (!targetGeneList.contains(hub)
+					&& !params.getTargetsFrom().getSelectedItem().toString()
+							.equals(MindyParamPanel.FROM_ALL)) {
+				return new ParamValidationResults(false, "Hub marker " + hub
+						+ " is not in the target list.");
+			}
+		   
 		
 		
 		}
@@ -725,18 +748,9 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 								+ " from DPI annotation file in microarray set.\n");
 			}
 		}
-		String transcriptionFactor = params.getTranscriptionFactor();
-		DSGeneMarker transFac = mSet.getMarkers().get(transcriptionFactor);
-		if (!transcriptionFactor.trim().equals("")) {
-			if (transFac == null) {
-				return new ParamValidationResults(false,
-						"Specified hub marker (" + transcriptionFactor
-								+ ") not found in loadad microarray set.\n");
-			}
-		} else {
-			return new ParamValidationResults(false,
-					"No hub marker specified.\n");
-		}
+		 
+	
+		
 		float setFraction = params.getSetFraction() / 100f;
 		if (Math.round(setFraction * 2 * numMarkers) < 2) {
 			return new ParamValidationResults(
