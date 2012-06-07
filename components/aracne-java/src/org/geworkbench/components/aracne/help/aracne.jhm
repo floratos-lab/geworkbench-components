@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE map PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp Map Version 1.0//EN"
+
+         "http://java.sun.com/products/javahelp/map_1_0.dtd">
+
+<map version="1.0">
+
+	<mapID target="Overview" url="aracne.htm#Overview"/>
+	<mapID target="Setting_up_an_ARACNe_run" url="aracne.htm#Setting_up_an_ARACNe_run"/>
+	<mapID target="Services_.28Local_vs_Grid.29" url="aracne.htm#Services_.28Local_vs_Grid.29"/>
+	<mapID target="Viewing_ARACNe_results" url="aracne.htm#Viewing_ARACNe_results"/>
+	<mapID target="Dataset_History" url="aracne.htm#Dataset_History"/>
+	<mapID target="Example_of_running_ARACNe" url="aracne.htm#Example_of_running_ARACNe"/>
+	<mapID target="Technical_Notes" url="aracne.htm#Technical_Notes"/>
+	<mapID target="References" url="aracne.htm#References"/>
+
+</map>
+
