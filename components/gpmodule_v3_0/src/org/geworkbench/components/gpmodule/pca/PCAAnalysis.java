@@ -102,8 +102,8 @@ public class PCAAnalysis extends GPAnalysis {
 			pb.setTitle("PCA Progress");
 		}
 
-		public void setProgress(int value) {
-			pb.setMessage("" + value);
+		public void setProgress(String string) {
+			pb.setMessage(string);
 		}
 
 		public void startProgress() {
@@ -146,7 +146,7 @@ public class PCAAnalysis extends GPAnalysis {
 		}
 
 		public CSPCADataSet doInBackground() {
-			progress.setProgress(0);
+			progress.setProgress("Creating GCT File");
 			String history = generateHistoryString(view);
 
 			if (((PCAAnalysisPanel) panel).getVariables().equals("genes")) {
@@ -156,8 +156,7 @@ public class PCAAnalysis extends GPAnalysis {
 
 			String gctFileName = createGCTFile("pcaDataset", view.markers(),
 					view.items()).getAbsolutePath();
-			progress.setProgress(20);
-
+			
 			String clusterBy = "rows";
 
 			// Modification for doing PCA analysis using the standard instead of
@@ -170,7 +169,8 @@ public class PCAAnalysis extends GPAnalysis {
 				List<String> results = runAnalysis("TransposeDataset",
 						(Parameter[]) parameters.toArray(new Parameter[0]),
 						panel.getPassword());
-				progress.setProgress(30);
+				
+				progress.setProgress("Running PCA Analysis");
 
 				if (results == null) {
 					return null;
@@ -182,25 +182,22 @@ public class PCAAnalysis extends GPAnalysis {
 				}
 			}
 
-			progress.setProgress(40);
 			List<Parameter> parameters = new ArrayList<Parameter>();
 
 			parameters.add(new Parameter("input.filename", gctFileName));
 
 			parameters.add(new Parameter("cluster.by", clusterBy));
 
-			progress.setProgress(50);
+			progress.setProgress("Running PCA Analysis");
 
 			List<String> results = runAnalysis("PCA", (Parameter[]) parameters
 					.toArray(new Parameter[0]), panel.getPassword());
 
-			progress.setProgress(60);
 
 			if (results == null) {
 				return null;
 			}
 
-			progress.setProgress(70);
 			Iterator<String> it = results.iterator();
 			while (it.hasNext()) {
 				String file = (String) it.next();
@@ -208,9 +205,7 @@ public class PCAAnalysis extends GPAnalysis {
 					it.remove();
 				}
 			}
-
-			progress.setProgress(80);
-
+			
 			if (results.size() == 0) {
 				return null;
 			}
@@ -223,11 +218,9 @@ public class PCAAnalysis extends GPAnalysis {
 					pcaData.getUMatrix().getArray(), pcaData.getEigenValues(),
 					pcaData.getEigenVectors(), pcaData.getPercentVars());
 
-			progress.setProgress(90);
-
 			HistoryPanel.addToHistory(pcaDs, history);
 
-			progress.setProgress(100);
+			progress.setProgress("Analysis Completed");
 
 			log.info("Done running PCA. " + System.currentTimeMillis());
 
