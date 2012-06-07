@@ -558,24 +558,29 @@ public class GPConfigPanel extends JPanel
         {
             if(protocol.getText() == null || ((String)protocol.getValue()).length() == 0)
             {
+            	editSettingsFrame.dispose();
                 throw new InvalidInputException("Protocol must be provided");
             }
             else if(host.getText() == null || ((String)host.getValue()).length() == 0)
             {
+            	editSettingsFrame.dispose();
                 throw new InvalidInputException("Host must be provided");
             }
             else if(port.getValue() != null && ((String)port.getValue()).length() != 0 && (!((String)port.getValue()).matches("[0-9]+") ||  Integer.valueOf((String)port.getValue()).intValue() <= -1))
             {
+            	editSettingsFrame.dispose();
                 throw new InvalidInputException("Invalid port setting: " + port.getValue());
             }
             else if(username.getValue() == null || ((String)username.getValue()).length() == 0)
             {
+            	editSettingsFrame.dispose();
                 throw new InvalidInputException("Username must be provided");
             }
         }
         catch(NumberFormatException nf)
         {
             log.error(nf);
+            editSettingsFrame.dispose();
             throw new InvalidInputException("Invalid value found for GenePattern server setting.");
         }
     }
