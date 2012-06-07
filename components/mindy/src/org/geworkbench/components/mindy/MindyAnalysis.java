@@ -122,7 +122,7 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 		ArrayList<String> targetGeneList = params.getTargetGeneList();
 
 		if (numMarkers < 2) {
-			errMsgB.append("Not enough markers in the microarrays. (Need at least 2)\n");
+			errMsgB.append("At least 2 markers must be included.\n");
 		}
 
 		ArrayList<Marker> modulators = new ArrayList<Marker>();
@@ -721,13 +721,13 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 		   
 		   if (hasModGeneinTarget == false)
 			   return new ParamValidationResults(false,
-				"No modulator specified in target list.\n");		
+				"All modulators must also be included in the target list.\n");		
 		 
 			if (!targetGeneList.contains(hub)
 					&& !params.getTargetsFrom().getSelectedItem().toString()
 							.equals(MindyParamPanel.FROM_ALL)) {
 				return new ParamValidationResults(false, "Hub marker " + hub
-						+ " is not in the target list.");
+						+ " must also be included in the target list.");
 			}
 		   
 		
