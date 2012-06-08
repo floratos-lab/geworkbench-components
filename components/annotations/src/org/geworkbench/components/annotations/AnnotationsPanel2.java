@@ -1102,7 +1102,7 @@ public class AnnotationsPanel2 implements VisualPlugin{
      */
     private void showPanels_actionPerformed(ActionEvent e) {
         if (selectedMarkerInfo == null || selectedMarkerInfo.size() == 0) {
-            JOptionPane.showMessageDialog(cgiPanel.getParent(), "Please activate marker panels to retrieve annotations.");
+            JOptionPane.showMessageDialog(cgiPanel.getParent(), "Please activate a marker set to retrieve annotations.");
         }else if((!userAlsoWantCaBioData)&&(!userAlsoWantPathwayData)){
 			JOptionPane.showMessageDialog(cgiPanel.getParent(),
 					" Please select a data type to retrieve. " + "( "
