@@ -46,21 +46,27 @@ public class AracneComputation {
 		hardenedAracne.cancelled = false;
 
 		p.setSuppressFileWriting(true);
-		WeightedGraph weightedGraph;
+
 		try {
-			weightedGraph = hardenedAracne.run(convert(mSetView), p,
-					bootstrapNumber, pThreshold);
+			switch (p.getMode()) {
+			case PREPROCESSING: // ignore return
+				hardenedAracne.run(convert(mSetView), p, 1, pThreshold);
+				return null;
+			case DISCOVERY:
+				return hardenedAracne.run(convert(mSetView), p,
+						bootstrapNumber, pThreshold);
+			case COMPLETE: // do not use this mode, re-create the process
+				p.setMode(Parameter.MODE.PREPROCESSING);
+				hardenedAracne.run(convert(mSetView), p, 1, pThreshold);
+				p.setMode(Parameter.MODE.DISCOVERY);
+				return hardenedAracne.run(convert(mSetView), p,
+						bootstrapNumber, pThreshold);
+			}
 		} catch (Exception e) {
 			log.warn("Exception caught in ARACNe run: " + e.toString());
 			return null;
 		}
-
-		/* done if in PREPROCESSING mode */
-		if (this.p.getMode().equals(Parameter.MODE.PREPROCESSING)) {
-			return null;
-		}
-
-		return weightedGraph;
+		return null;
 	}
 
 	private static MicroarraySet convert(
