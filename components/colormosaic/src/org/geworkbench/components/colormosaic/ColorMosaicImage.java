@@ -27,8 +27,6 @@ import javax.swing.SwingConstants;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.annotation.CSAnnotationContext;
-import org.geworkbench.bison.annotation.CSAnnotationContextManager;
-import org.geworkbench.bison.annotation.DSAnnotationContext;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
@@ -80,7 +78,7 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 
 	private DSPanel<DSGeneMarker> markerPanel = null;
 	protected DSPanel<DSMicroarray> microarrayPanel = null;
-	private boolean showPattern = false;
+
 	private boolean isPrintLabels = true;
 	private boolean isPrintRatio = true;
 	private boolean isPrintDescription = true;
@@ -192,8 +190,6 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 		Rectangle visibleRect = getVisibleRect();
 		maxDisplayMarker = visibleRect.height / geneHeight;
 		maxDisplayArray = visibleRect.width / geneWidth;
-		DSAnnotationContext<DSMicroarray> context = CSAnnotationContextManager
-				.getInstance().getCurrentContext(microarraySet);
 
 		currentCluster = cluster;
 		int geneNo = cluster.getMarkerNo();
@@ -259,23 +255,7 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 					}
 				}
 			}
-			for (int j = 0; j < chipNo; j++) {
-				DSMicroarray pl = getPhenoLabel(j);
-				if (pl instanceof DSMicroarray) {
-					DSMicroarray mArray = (DSMicroarray) pl;
-					if (showPattern) {
-						if (cluster.getPattern().match(mArray)
-								.getPValue() < 1.0) {
-							int x = (j * geneWidth) / 1;
-							int width = ((j + 1) * geneWidth) / 1 - x;
-							String v = context.getClassForItem(mArray);
-							g.setColor(new Color(getRGBForClass(v)));
-							g.drawRect(x, y, width, geneHeight);
-						}
-					}
-				}
 
-			}
 			int xLabel = (chipNo * geneWidth) / 1 + 4;
 			int yLabel = (row + i + 1) * geneHeight - (geneHeight - fontSize)
 					/ 2;
@@ -934,10 +914,6 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
         colorMap.put(CSAnnotationContext.CLASS_CONTROL, Color.BLUE.getRGB());
         colorMap.put(CSAnnotationContext.CLASS_TEST, Color.GREEN.getRGB());
         colorMap.put(CSAnnotationContext.CLASS_IGNORE, Color.DARK_GRAY.getRGB());
-    }
-
-    private static int getRGBForClass(String className) {
-        return colorMap.get(className);
     }
 
 }
