@@ -409,9 +409,9 @@ public class GPConfigPanel extends JPanel
         try
         {
             admin = new AdminProxy(serverName, userName, password);
-
             //hack to force to connect to server
             admin.getServiceInfo();
+            
         }
         catch(Exception e)
         {
@@ -422,10 +422,12 @@ public class GPConfigPanel extends JPanel
 
                 if(e.getMessage() != null && e.getMessage().contains("Unknown user"))
                 {
+                	editSettingsFrame.dispose();
                     showMessageDialog("Unknown user or invalid password");
                 }
                 else
                 {
+                	editSettingsFrame.dispose();
                     showMessageDialog("Could not connect to the GenePattern server at " + serverName + "/gp" +
                                     "\nPlease verify the settings and that the GenePattern server is running");
                 }
