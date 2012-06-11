@@ -12,6 +12,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -247,7 +248,8 @@ public class PCA extends MicroarrayViewEventBase
                         sum += Double.parseDouble(value);
                     }
 
-                    perVar.setText(String.valueOf(sum));
+                    DecimalFormat myFormat = new DecimalFormat("0.000");
+                    perVar.setText(String.valueOf(myFormat.format(sum)));
                     createButton.setEnabled(true);
                     buildComponentsPanel(selectedRows);
                 }
