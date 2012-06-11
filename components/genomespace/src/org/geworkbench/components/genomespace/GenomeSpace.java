@@ -204,7 +204,7 @@ public class GenomeSpace implements VisualPlugin {
 
 				projectTree.setSelectionPath(path);
 				ProjectTreeNode mNode = (ProjectTreeNode) path.getLastPathComponent();
-				if (e.isMetaDown() || e.getClickCount() >= 2) {
+				if (e.getButton() == MouseEvent.BUTTON3 || e.getClickCount() >= 2) {
 					// exp data node only
 					if (mNode instanceof DataSetNode && 
 							((DataSetNode)mNode).getDataset() instanceof DSMicroarraySet ) {
@@ -337,7 +337,7 @@ public class GenomeSpace implements VisualPlugin {
 
 				genomeTree.setSelectionPath(path);
 				ProjectTreeNode mNode = (ProjectTreeNode) path.getLastPathComponent();
-				if (e.isMetaDown() || e.getClickCount() >= 2) {
+				if (e.getButton() == MouseEvent.BUTTON3 || e.getClickCount() >= 2) {
 					if (mNode.isRoot()){
 						gsrootPopupMenu.show(genomeTree, e.getX(), e.getY());
 					} else if (mNode.isLeaf() && !mNode.getAllowsChildren()) {
