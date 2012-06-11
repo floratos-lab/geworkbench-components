@@ -730,7 +730,7 @@ public class HouseKeepingGeneNormalizerPanel extends AbstractSaveableParameterPa
     private void handleMouseEvent(MouseEvent event) {
         int index = jList2.locationToIndex(event.getPoint());
         if (index != -1) {
-            if (event.isMetaDown()) {
+            if (event.getButton() == MouseEvent.BUTTON3) {
                 markerRightClicked(index, event);
             } else if (event.getButton() == MouseEvent.BUTTON1) {
                 if (event.getClickCount() > 1) {

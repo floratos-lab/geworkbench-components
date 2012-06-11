@@ -336,7 +336,7 @@ public final class PromoterViewPanel extends JPanel {
             public void mouseClicked(MouseEvent e) {
                 int index = jSelectedTFList.locationToIndex(e.getPoint());
 
-                if (e.isMetaDown()) {
+                if (e.getButton() == MouseEvent.BUTTON3) {
                     selectedItemRightClicked(index, e);
 
                 } else {
