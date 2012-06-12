@@ -102,12 +102,12 @@ import org.geworkbench.events.AdjacencyMatrixCancelEvent;
 import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.ImageSnapshotEvent;
 import org.geworkbench.events.ProjectNodeAddedEvent;
+import org.geworkbench.util.AnnotationLookupHelper;
 import org.geworkbench.util.BasicAuthenticator;
 import org.geworkbench.util.BrowserLauncher;
 import org.geworkbench.util.ProgressBar;
 import org.geworkbench.util.ResultSetlUtil;
 import org.geworkbench.util.UnAuthenticatedException;
-import org.geworkbench.util.annotation.AffyAnnotationUtil;
 import org.geworkbench.util.network.CellularNetWorkElementInformation;
 import org.geworkbench.util.network.CellularNetworkPreference;
 import org.geworkbench.util.network.InteractionDetail;
@@ -295,9 +295,9 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				Constants.CNKB_SELECTION + " " + cnkbSelectionIndex,
 				"Cellular Network Knowledge Base");
 
-		Map<String, List<DSGeneMarker>> geneNameToMarkerMap = AffyAnnotationUtil
+		Map<String, List<DSGeneMarker>> geneNameToMarkerMap = AnnotationLookupHelper
 				.getGeneNameToMarkerMapping(dataset);
-		Map<String, List<DSGeneMarker>> geneIdToMarkerMap = AffyAnnotationUtil
+		Map<String, List<DSGeneMarker>> geneIdToMarkerMap = AnnotationLookupHelper
 				.getGeneIdToMarkerMapping(dataset);
 
 		int rowCount = detailTable.getRowCount();
@@ -2303,7 +2303,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			CellularNetworkKnowledgeWidget.EntrezIdComparator eidc = new CellularNetworkKnowledgeWidget.EntrezIdComparator();
 			Collections.sort(copy, eidc);
 
-			Map<String, List<DSGeneMarker>> geneNameToMarkerMap = AffyAnnotationUtil
+			Map<String, List<DSGeneMarker>> geneNameToMarkerMap = AnnotationLookupHelper
 					.getGeneNameToMarkerMapping(dataset);
 
 			AdjacencyMatrix matrix = new AdjacencyMatrix(null,
