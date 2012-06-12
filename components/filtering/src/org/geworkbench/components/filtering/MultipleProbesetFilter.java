@@ -19,7 +19,7 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.model.analysis.FilteringAnalysis;
 import org.geworkbench.components.filtering.MultipleProbesetFilterPanel.Action;
-import org.geworkbench.util.annotation.AffyAnnotationUtil;
+import org.geworkbench.util.AnnotationLookupHelper;
 
 /**
  * 
@@ -65,7 +65,7 @@ public class MultipleProbesetFilter extends FilteringAnalysis {
 			String probeSetID = dsGeneMarker.getLabel();
 			probesetIndexMap.put(probeSetID, i);
 
-			Set<String> set = AffyAnnotationUtil.getGeneIDs(probeSetID);
+			Set<String> set = AnnotationLookupHelper.getGeneIDs(probeSetID);
 			if(set.size()==0)
 				continue;
 			

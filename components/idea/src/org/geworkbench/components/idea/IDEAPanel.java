@@ -52,9 +52,9 @@ import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.events.listeners.ParameterActionListener;
 import org.geworkbench.parsers.AdjacencyMatrixFileFormat;
 import org.geworkbench.parsers.InputFileFormatException;
+import org.geworkbench.util.AnnotationLookupHelper;
 import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbench.util.Util;
-import org.geworkbench.util.annotation.AffyAnnotationUtil;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
@@ -742,7 +742,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 		}		
 		else if (nt.equals(NodeType.GENE_SYMBOL)) {
 			DSMicroarraySet dataset = (DSMicroarraySet) adjDataSet.getParentDataSet();
-			Map<String, List<Integer>> geneNameToMarkerIdMap = AffyAnnotationUtil
+			Map<String, List<Integer>> geneNameToMarkerIdMap = AnnotationLookupHelper
 			.getGeneNameToMarkerIDMapping(dataset);
 
 			for (Edge ed : adjDataSet.getMatrix().getEdges()) {
@@ -755,7 +755,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 				if(markers1!=null && markers1.size()>0) {
 					Integer index = markers1.iterator().next();
 					DSGeneMarker m = (DSGeneMarker) dataset.getMarkers().get(index);
-					Set<String> entrezIds = AffyAnnotationUtil.getGeneIDs(m.getLabel());
+					Set<String> entrezIds = AnnotationLookupHelper.getGeneIDs(m.getLabel());
 					if(entrezIds!=null && entrezIds.size()>0) {
 						try {
 							Iterator<String> itr=entrezIds.iterator();
@@ -772,7 +772,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 				if(markers2!=null && markers2.size()>0) {
 					Integer index = markers2.iterator().next();
 					DSGeneMarker m = (DSGeneMarker) dataset.getMarkers().get(index);
-					Set<String> entrezIds = AffyAnnotationUtil.getGeneIDs(m.getLabel());
+					Set<String> entrezIds = AnnotationLookupHelper.getGeneIDs(m.getLabel());
 					if(entrezIds!=null && entrezIds.size()>0) {
 						try {
 							Iterator<String> itr=entrezIds.iterator();
