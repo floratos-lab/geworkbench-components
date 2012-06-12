@@ -59,6 +59,7 @@ import org.geworkbench.builtin.projects.OboSourcePreference;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.ProjectTreeNode;
 import org.geworkbench.events.listeners.ParameterActionListener;
+import org.geworkbench.util.AnnotationInformationManager;
 import org.geworkbench.util.BrowserLauncher;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
@@ -755,7 +756,10 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 
 	public void setDataset(CSMicroarraySet d) {
 		dataset = d;
-		annotationFileNameField.setText(dataset.getAnnotationFileName());
+		if(AnnotationInformationManager.getInstance().is3Prime(d))
+			annotationFileNameField.setText(dataset.getAnnotationFileName());
+		else
+			annotationFileNameField.setText("");
 
 		switch (referenceListSource.getSelectedIndex()) {
 		case 1:
