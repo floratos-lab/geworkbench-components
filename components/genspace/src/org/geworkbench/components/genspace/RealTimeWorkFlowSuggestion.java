@@ -295,42 +295,44 @@ public class RealTimeWorkFlowSuggestion extends JPanel implements VisualPlugin,
 		}
 
 		List<Workflow> suggestions = getRealTimeWorkFlowSuggestion(cwf);
-		
-		
-		int curIndexIntoTools = cwf.getTools().size();
 		String nextSteps = "";
 		Tool nextBestRated = null;
-		
-		HashMap<Tool, Integer> toolRatings = new HashMap<Tool, Integer>();
-		for(Workflow wa : suggestions)
+
+		if(suggestions != null)
 		{
-			WorkflowWrapper w = new WorkflowWrapper(wa);
-			w.loadToolsFromCache();
-			if(curIndexIntoTools < w.getTools().size())
+			int curIndexIntoTools = cwf.getTools().size();
+			
+			HashMap<Tool, Integer> toolRatings = new HashMap<Tool, Integer>();
+			for(Workflow wa : suggestions)
 			{
-				Tool t = w.getTools().get(curIndexIntoTools).getTool();
-				if(toolRatings.containsKey(t))
-					toolRatings.put(t, toolRatings.get(t) + w.getUsageCount());
-				else
-					toolRatings.put(t, w.getUsageCount());
+				WorkflowWrapper w = new WorkflowWrapper(wa);
+				w.loadToolsFromCache();
+				if(curIndexIntoTools < w.getTools().size())
+				{
+					Tool t = w.getTools().get(curIndexIntoTools).getTool();
+					if(toolRatings.containsKey(t))
+						toolRatings.put(t, toolRatings.get(t) + w.getUsageCount());
+					else
+						toolRatings.put(t, w.getUsageCount());
+				}
+				for(int i = curIndexIntoTools; i < w.getTools().size(); i++)
+				{
+					nextSteps += w.getTools().get(i).getTool().getName() + ", ";
+				}
+				if(nextSteps.length() > 2)
+					nextSteps = nextSteps.substring(0,nextSteps.length()-2) + "\n";
 			}
-			for(int i = curIndexIntoTools; i < w.getTools().size(); i++)
+			
+			int bestRating = 0;
+			for(Tool t : toolRatings.keySet())
 			{
-				nextSteps += w.getTools().get(i).getTool().getName() + ", ";
+				if(toolRatings.get(t) > bestRating)
+				{
+					bestRating = toolRatings.get(t);
+					nextBestRated = t;
+				}
 			}
-			if(nextSteps.length() > 2)
-				nextSteps = nextSteps.substring(0,nextSteps.length()-2) + "\n";
 		}
-		int bestRating = 0;
-		for(Tool t : toolRatings.keySet())
-		{
-			if(toolRatings.get(t) > bestRating)
-			{
-				bestRating = toolRatings.get(t);
-				nextBestRated = t;
-			}
-		}
-		
 		infoArea.setText("");		
 		
 		// infoArea.append("\n\n\n\n\n\n\n");
