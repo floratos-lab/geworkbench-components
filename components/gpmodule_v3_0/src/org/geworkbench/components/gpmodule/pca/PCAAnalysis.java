@@ -162,6 +162,7 @@ public class PCAAnalysis extends GPAnalysis {
 			// Modification for doing PCA analysis using the standard instead of
 			// the shortcut method
 			if (((PCAAnalysisPanel) panel).getVariables().equals("genes")) {
+				progress.setProgress("Transposing dataset");
 				List<Parameter> parameters = new ArrayList<Parameter>();
 
 				parameters.add(new Parameter("input.filename", gctFileName));
@@ -169,8 +170,6 @@ public class PCAAnalysis extends GPAnalysis {
 				List<String> results = runAnalysis("TransposeDataset",
 						(Parameter[]) parameters.toArray(new Parameter[0]),
 						panel.getPassword());
-				
-				progress.setProgress("Running PCA Analysis");
 
 				if (results == null) {
 					return null;
@@ -198,6 +197,8 @@ public class PCAAnalysis extends GPAnalysis {
 				return null;
 			}
 
+			progress.setProgress("Processing PCA Results");
+			
 			Iterator<String> it = results.iterator();
 			while (it.hasNext()) {
 				String file = (String) it.next();
