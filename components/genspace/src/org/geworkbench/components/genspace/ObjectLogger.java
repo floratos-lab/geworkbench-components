@@ -58,7 +58,9 @@ public class ObjectLogger {
 					{
 						curTransactions.put(dataSetName, ret);
 					}
-					
+					if(GenSpace.getInstance() != null && GenSpace.getInstance().notebookPanel != null)
+						GenSpace.getInstance().notebookPanel.updateFormFields();
+
 					super.done();
 				}
 				@Override

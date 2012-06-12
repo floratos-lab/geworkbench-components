@@ -21,6 +21,7 @@ import org.geworkbench.components.genspace.ui.StatusBar;
 import org.geworkbench.components.genspace.ui.UpdateablePanel;
 import org.geworkbench.components.genspace.ui.WorkflowStatistics;
 import org.geworkbench.components.genspace.ui.WorkflowVisualization;
+import org.geworkbench.components.genspace.ui.notebook.NotebookPanel;
 import org.geworkbench.components.genspace.workflowRepository.WorkflowRepository;
 
 
@@ -37,6 +38,7 @@ public class GenSpace {
 	public JFrame jframe;
 	private static GenSpace instance;
 	private WorkflowRepository workflowRepository;
+	NotebookPanel notebookPanel;
 	public static Logger logger = Logger.getLogger(GenSpace.class);
 	public static boolean instrument = false;
 	
@@ -105,16 +107,21 @@ public class GenSpace {
 	}
 	
 	JPanel needLoginPanel;
-	
+	JPanel needLoginPanel2;
+
 	public void handleLogin()
 	{
-		jtp.setComponentAt(5, workflowRepository);
+
+		jtp.setComponentAt(5, notebookPanel);
+		jtp.setComponentAt(6, workflowRepository);
+		notebookPanel.init();
 		//mahoutRecommendationPanel.handleLogin();
 	}
 	
 	public void handleLogout()
 	{
 		jtp.setComponentAt(5, needLoginPanel);
+		jtp.setComponentAt(6, needLoginPanel2);
 		//mahoutRecommendationPanel.handleLogout();
 	}
 	private StatusBar statusBar;
@@ -132,9 +139,13 @@ public class GenSpace {
 
 		RealTimeWorkFlowSuggestion rtwfs = new RealTimeWorkFlowSuggestion();
 
+		notebookPanel = new NotebookPanel();
 		workflowRepository = new WorkflowRepository(jframe);
 		needLoginPanel = new JPanel();
 		needLoginPanel.add(new JLabel("Please login to genSpace to access this area."));
+		needLoginPanel2 = new JPanel();
+		needLoginPanel2.add(new JLabel("Please login to genSpace to access this area."));
+		
 		login = new org.geworkbench.components.genspace.ui.GenSpaceLogin();
 		login.addMahoutPanel();
 
@@ -142,9 +153,10 @@ public class GenSpace {
 		
 		jtp.addTab("genSpace Login", login);
 		jtp.addTab("Workflow Visualization", wv);
-		jtp.addTab("Real Time Workflow Suggestion", rtwfs);
+		jtp.addTab("Workflow Suggestions", rtwfs);
 		jtp.addTab("Workflow Statistics", stats);
 		jtp.addTab("Social Center", networksPanels.$$$getRootComponent$$$());
+		jtp.addTab("Research Notebook", needLoginPanel2);
 		jtp.addTab("Workflow Repository", needLoginPanel);
 //		jtp.addTab("MSA Recommender", saPanel);
 		

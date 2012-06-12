@@ -123,7 +123,6 @@ public class ObjectHandler {
 				}
 				catch(Exception ex)
 				{
-					ex.printStackTrace();
 					//The sound of silence - this probably just means that the server had never received this event, or it's a continuation, etc.
 				}
 				return (ObjectLogger.curTransactions.get(invokeEvent.getDataSetName()) == null ? null : ObjectLogger.curTransactions.get(invokeEvent.getDataSetName()).getWorkflow());
@@ -136,6 +135,8 @@ public class ObjectHandler {
 					{
 						wf = new Workflow();
 					}
+					if(GenSpace.getInstance() != null && GenSpace.getInstance().notebookPanel != null)
+						GenSpace.getInstance().notebookPanel.updateFormFields();
 					RealTimeWorkFlowSuggestion.cwfUpdated(wf);
 				} catch (InterruptedException e) {
 					
