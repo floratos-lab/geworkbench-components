@@ -833,17 +833,16 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 	}
 
 	/* this method is called from both EDT and non-EDT. this is not a good situation FIXME*/
-	void setSelectorPanel(final MasterRegulatorPanel aspp,
-			final DSPanel<DSGeneMarker> ap) {
+	void setSelectorPanel(final DSPanel<DSGeneMarker> ap) {
 		if (SwingUtilities.isEventDispatchThread()) {
-			setSelectorPanelFromEDT(aspp, ap);
+			setSelectorPanelFromEDT(ap);
 		} else {
 			try {
 				SwingUtilities.invokeAndWait(new Runnable() {
 
 					@Override
 					public void run() {
-						setSelectorPanelFromEDT(aspp, ap);
+						setSelectorPanelFromEDT(ap);
 					}
 
 				});
@@ -855,10 +854,10 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		}
 	}
 	
-	private void setSelectorPanelFromEDT(final MasterRegulatorPanel aspp, final DSPanel<DSGeneMarker> ap) {
-		aspp.selectorPanel = ap;
-		String currentTargetSet = (String) aspp.tfGroups.getSelectedItem();
-		DefaultComboBoxModel targetComboModel = (DefaultComboBoxModel) aspp.tfGroups
+	private void setSelectorPanelFromEDT(final DSPanel<DSGeneMarker> ap) {
+		selectorPanel = ap;
+		String currentTargetSet = (String) tfGroups.getSelectedItem();
+		DefaultComboBoxModel targetComboModel = (DefaultComboBoxModel) tfGroups
 				.getModel();
 		targetComboModel.removeAllElements();
 		targetComboModel.addElement(" ");
