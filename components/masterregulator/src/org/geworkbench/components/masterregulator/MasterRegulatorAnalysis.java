@@ -483,7 +483,7 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
 	public void receive(GeneSelectorEvent e, Object source) {
 		if (e.getPanel() != null) {
 			DSPanel<DSGeneMarker> selectorPanel = e.getPanel();
-			((MasterRegulatorPanel) aspp).setSelectorPanel(((MasterRegulatorPanel) aspp), selectorPanel);		
+			((MasterRegulatorPanel) aspp).setSelectorPanel(selectorPanel);		
 		} else
 			log.debug("MRA Received Gene Selector Event: Selection panel sent was null");
 	}
