@@ -502,7 +502,6 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 				if (evt.getNewValue() == "From Sets") {
 					tfGroups.setEnabled(true);
 					loadTFButton.setEnabled(false);
-					getGroups();
 					// hide fileNameField
 					// clear combo box
 					// load adj matrix into the list
@@ -523,7 +522,6 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 					loadSigButton.setEnabled(false);
 					sigGeneListTextField.setEnabled(true);
 					refreshSigGroups(markersets);
-					getGroups();
 					// hide fileNameField
 					// clear combo box
 					// load adj matrix into the list
@@ -700,13 +698,6 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 
 	public void setMicroarraySet(DSMicroarraySet maSet) {
 		this.maSet = maSet;
-	}
-
-	public void getGroups() {
-	}
-
-	public void addGroupsToComboBox() {
-
 	}
 
 	/*
