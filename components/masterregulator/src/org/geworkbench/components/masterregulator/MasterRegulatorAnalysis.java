@@ -432,10 +432,20 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
 		mraResultSet.setMaxValue(values.get(genes.get(genes.size()-1)));
 
 		//give same ranks to genes with same value
-		for (int i = 0; i < genes.size(); i++){
-			int rank = (i > 0 && values.get(genes.get(i)) == values.get(genes.get(i-1))) ?
-					gene2rankMap.get(genes.get(i-1)) : i;
-			gene2rankMap.put(genes.get(i), rank);
+		// TODO we should use standard library, e.g. apache commons math to do this
+		gene2rankMap.put(genes.get(0), 0);
+		double lastValue = values.get(genes.get(0));
+		int lastRank = 0;
+		for (int i = 1; i < genes.size(); i++) {
+			int rank = i;
+			DSGeneMarker marker = genes.get(i);
+			double value = values.get(marker);
+			if (value == lastValue) {
+				rank = lastRank;
+			}
+			gene2rankMap.put(marker, rank);
+			lastValue = value;
+			lastRank = rank;
 		}
 		mraResultSet.setRanks(gene2rankMap);
 	}
