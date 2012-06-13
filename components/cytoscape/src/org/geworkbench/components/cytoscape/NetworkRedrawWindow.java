@@ -355,7 +355,7 @@ public class NetworkRedrawWindow {
 						String gene2 = target.getIdentifier();
 
 						String interactionType = null;
-						String evidence = "0";
+						String evidence = null;
 						String confidenceValue = "0.8";
 
 						interactionType = edgeAttrs.getStringAttribute(edgeView
@@ -371,8 +371,12 @@ public class NetworkRedrawWindow {
 							String evId = CytoscapeWidget.getInstance().interactionEvidenceMap
 									.get(evidence);
 							if (evId != null && !evId.trim().equals(""))
-								evidence = evId;							 
+								evidence = evId;
+							else
+								evidence="0";
 						}
+						else
+							evidence = "0";
 						
 						if (interactionType != null
 								&& !interactionType.trim().equals("")) {

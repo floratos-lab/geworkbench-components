@@ -157,6 +157,8 @@ public class MarkerSelectionPanel extends JPanel implements Observer {
 					else
 						evidence="0";
 				}
+				else
+					evidence = "0";
 				
 				if (interactionType != null
 						&& !interactionType.trim().equals("")) {
