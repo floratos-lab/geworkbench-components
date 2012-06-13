@@ -14,6 +14,8 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
+import org.geworkbench.events.listeners.ParameterActionListener;
+
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
 
@@ -40,13 +42,20 @@ public class FoldChangePanel extends AbstractSaveableParameterPanel {
     private JLabel noteTitle=new JLabel();
     private JLabel aNote=new JLabel();
     
+    private ParameterActionListener parameterActionListener;
+    
 	/*
 	 * (non-Javadoc)
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
 	 * Set inputed parameters to GUI.
 	 */
     public void setParameters(Map<Serializable, Serializable> parameters){
-        Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
+       
+    	if (getStopNotifyAnalysisPanelTemporaryFlag() == true)
+			return;
+		stopNotifyAnalysisPanelTemporary(true);	
+	
+    	Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
         for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set.iterator(); iterator.hasNext();) {
         	Map.Entry<Serializable, Serializable> parameter = iterator.next();
 			Object key = parameter.getKey();
@@ -66,12 +75,13 @@ public class FoldChangePanel extends AbstractSaveableParameterPanel {
 			}
 			if (key.equals("diffBtn")){
 				diffBtn.setSelected((Boolean)value);
-			}
-			if(key.equals("aNote")){
-				aNote.setText((String)value);
-			}
+			}		 
+			
+			ratioBtnActionPerformed();
 			
 		}
+        
+        stopNotifyAnalysisPanelTemporary(false);	
     }
 
     /*
@@ -86,8 +96,7 @@ public class FoldChangePanel extends AbstractSaveableParameterPanel {
 		parameters.put("logBtn", logBtn.isSelected());
 		parameters.put("ratioBtn", ratioBtn.isSelected());
 		parameters.put("diffBtn", diffBtn.isSelected());
-		parameters.put("aNote", aNote.getText());
-		
+		 
 		return parameters;
 	}
 
@@ -144,30 +153,47 @@ public class FoldChangePanel extends AbstractSaveableParameterPanel {
 		logBtn.addActionListener( new BtnActionListener());
 		ratioBtn.addActionListener( new BtnActionListener());
 		diffBtn.addActionListener( new BtnActionListener());
+		
+		parameterActionListener = new ParameterActionListener(this);
+		
+		alpha.addActionListener(parameterActionListener);
+		alpha.addFocusListener(parameterActionListener);
+		linearBtn.addActionListener(parameterActionListener);
+		logBtn.addActionListener(parameterActionListener);
+		ratioBtn.addActionListener(parameterActionListener);
+		diffBtn.addActionListener(parameterActionListener); 
+		
        
     }
     
     private class BtnActionListener implements
 	java.awt.event.ActionListener {
 		public void actionPerformed(ActionEvent e) {
-			if(isLinear()&&!isRatio()) {
-				noteTitle.setText("Please note:");
-				aNote.setText("Log2 of values will be taken.            ");
-				noteTitle.setVisible(true);
-				aNote.setVisible(true);
-			}
-			else if(!isLinear()&&isRatio()) {
-				noteTitle.setText("Please note:");
-				aNote.setText("Antilog2 of values will be taken.");
-				noteTitle.setVisible(true);
-				aNote.setVisible(true);
-			}
-			else {
-				noteTitle.setVisible(false);
-				aNote.setVisible(false);
-			}
+			ratioBtnActionPerformed();
 		}
 	}
+    
+    private void ratioBtnActionPerformed() {
+		if(isLinear()&&!isRatio()) {
+			noteTitle.setText("Please note:");
+			aNote.setText("Log2 of values will be taken.            ");
+			noteTitle.setVisible(true);
+			aNote.setVisible(true);
+		}
+		else if(!isLinear()&&isRatio()) {
+			noteTitle.setText("Please note:");
+			aNote.setText("Antilog2 of values will be taken.");
+			noteTitle.setVisible(true);
+			aNote.setVisible(true);
+		}
+		else {
+			noteTitle.setVisible(false);
+			aNote.setVisible(false);
+		}
+	}  
+    
+    
+    
 
     public String getAlpha() {
        return alpha.getText();
