@@ -19,6 +19,7 @@ import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetV
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
+import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 
 /**
  * <p>Title: Plug And Play Framework</p>
@@ -51,10 +52,14 @@ public class MicroarrayDisplay extends JPanel {
     private char[] graphedGenes = null;
     private float intensity = 1f;
 
+    private DSItemList<DSGeneMarker> uniqueMarkers = null;
+    
     public MicroarrayDisplay(final DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView) {
     	this.maSetView = maSetView;
         this.setBorder(BorderFactory.createLoweredBevelBorder());
         this.setLayout(new BorderLayout());
+        
+        uniqueMarkers = maSetView.getUniqueMarkers();
     }
 
     void setMicroarray(DSMicroarray microarray) {
@@ -77,11 +82,13 @@ public class MicroarrayDisplay extends JPanel {
         rows = 0;
         cols = 0;
     	maSetView = microarraySetView;
+    	uniqueMarkers = maSetView.getUniqueMarkers();
+        
     	DSMicroarraySet microarrays = microarraySetView.getMicroarraySet();
         if (microarrays != null) {
             int maxMarkerNo = microarrays.size();
             if (maxMarkerNo > 0) {
-                rows = (int) Math.ceil(Math.sqrt((double) maSetView.getUniqueMarkers().size()));
+                rows = (int) Math.ceil(Math.sqrt((double) uniqueMarkers.size()));
                 cols = rows;
                 patternGenes = new int[maxMarkerNo];
                 maskedGenes = new char[maxMarkerNo];
@@ -114,7 +121,7 @@ public class MicroarrayDisplay extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         if (microarray != null) {
-            rows = (int) Math.ceil(Math.sqrt((double) maSetView.getUniqueMarkers().size()));
+            rows = (int) Math.ceil(Math.sqrt((double) uniqueMarkers.size()));
             cols = rows;
             computeScale();
             drawImage((Graphics2D) g);
@@ -134,7 +141,7 @@ public class MicroarrayDisplay extends JPanel {
     }
 
     private void drawImage(Graphics2D g) {
-        int geneNo = maSetView.getUniqueMarkers().size();
+        int geneNo = uniqueMarkers.size();
         int geneId = 0;
         DSDataSet<DSMicroarray> maSet = maSetView.getDataSet();
         if (maSet != null) {
@@ -142,7 +149,7 @@ public class MicroarrayDisplay extends JPanel {
             for (int row = 0; row < rows; row++) {
                 for (int col = 0; col < cols; col++) {
                     if (geneId < geneNo) {
-                        DSGeneMarker stats = maSetView.getUniqueMarkers().get(geneId);
+                        DSGeneMarker stats = uniqueMarkers.get(geneId);
                         //this place should get the right marker with the selecte markers or all markers
 
 
@@ -196,11 +203,11 @@ public class MicroarrayDisplay extends JPanel {
             int col = (int) (x / scaleX);
             rubberBandBox(row, col);
             geneId = row * cols + col;
-            if ((geneId < 0) || (geneId >= maSetView.getUniqueMarkers().size())) {
+            if ((geneId < 0) || (geneId >= uniqueMarkers.size())) {
                 return -1;
             }
         }
-        return maSetView.getUniqueMarkers().get(geneId).getSerial();
+        return uniqueMarkers.get(geneId).getSerial();
     }
 
     void rubberBandBox(int row, int col) {
