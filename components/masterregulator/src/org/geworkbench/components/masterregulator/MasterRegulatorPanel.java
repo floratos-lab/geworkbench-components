@@ -99,7 +99,7 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 	private JTextField TFGeneListTextField = null; // Marker 1, Marker 2...
 	private JTextField networkTextField = null;
 	private JTextField sigGeneListTextField = null;
-	private HashMap<String, AdjacencyMatrixDataSet> adjMatrix = new HashMap<String, AdjacencyMatrixDataSet>();
+	private AdjacencyMatrixDataSet adjMatrix = null;
 	private DSMicroarraySet maSet = null;
 
 	private JComboBox networkMatrix = createNetworkMatrixComboBox();
@@ -155,8 +155,7 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 		builder.append(networkTextField);
 
 		// JButton loadNetworkButton=new JButton("Load");
-		loadNetworkButton.addActionListener(new LoadNetworkButtonListener(
-				adjMatrix));
+		loadNetworkButton.addActionListener(new LoadNetworkButtonListener());
 		builder.append(loadNetworkButton);
 		builder.nextLine();
 
@@ -365,13 +364,8 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 
 	public class LoadNetworkButtonListener implements
 			java.awt.event.ActionListener {
-		private HashMap<String, AdjacencyMatrixDataSet> adjMatrixHolder;
 
-		public LoadNetworkButtonListener(
-				HashMap<String, AdjacencyMatrixDataSet> adjMatrixHolder) {
-			this.adjMatrixHolder = adjMatrixHolder;
-		}
-
+		@Override
 		public void actionPerformed(java.awt.event.ActionEvent e) {
 			if (e.getActionCommand().equals("Load")) {
 				if (maSet != null) {
@@ -403,15 +397,15 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 										interactionTypeMap, selectedFormat,
 										selectedRepresentedBy, isRestrict);
 
-								AdjacencyMatrixDataSet adjMatrix = new AdjacencyMatrixDataSet(matrix, 
+								adjMatrix = new AdjacencyMatrixDataSet(matrix, 
 										0, adjMatrixFileStr, adjMatrixFileStr, maSet);
-								this.adjMatrixHolder.remove("adjMatrix");
-								this.adjMatrixHolder.put("adjMatrix", adjMatrix);
 							} catch (InputFileFormatException e1) {
 								log.error(e1.getMessage());
 								e1.printStackTrace();
 							}
-						} else  this.adjMatrixHolder.remove("adjMatrix");
+						} else {
+							adjMatrix = null;
+						}
 					} else {
 						// user canceled
 					}
@@ -563,7 +557,7 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 	private JComboBox createNetworkMatrixComboBox() {
 		adjModel = new ArrayListModel<String>();
 		// we'll generate network list in addAdjMatrixToCombobox()
-		AdjListener adjListener = new AdjListener(this.adjMatrix);
+		AdjListener adjListener = new AdjListener();
 		SelectionInList<String> selectionInList = new SelectionInList<String>(
 				(ListModel) adjModel);
 		selectionInList.addPropertyChangeListener(adjListener);
@@ -594,11 +588,6 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 	}
 
 	private class AdjListener implements PropertyChangeListener {
-		HashMap<String, AdjacencyMatrixDataSet> adjMatrix;
-
-		public AdjListener(HashMap<String, AdjacencyMatrixDataSet> adjMatrix) {
-			this.adjMatrix = adjMatrix;
-		};
 
 		public void propertyChange(PropertyChangeEvent evt) {
 			if (evt.getPropertyName() == "value")
@@ -608,8 +597,7 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 				AdjacencyMatrixDataSet adjMatrixDataSet = (AdjacencyMatrixDataSet) iterator
 						.next();
 				if (adjMatrixDataSet.getDataSetName().equals(evt.getNewValue())) {
-					this.adjMatrix.remove("adjMatrix");
-					this.adjMatrix.put("adjMatrix", adjMatrixDataSet);
+					adjMatrix = adjMatrixDataSet;
 				}
 			}
 		}
@@ -619,7 +607,7 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 	// get the adjMatrix user selected.
 	public AdjacencyMatrixDataSet getAdjMatrixDataSet() {
 		if (!networkMatrix.isEnabled() && networkTextField.getText().length()==0) return null;
-		return this.adjMatrix.get("adjMatrix");
+		return adjMatrix;
 	}
 
 	public double getPValue() {
@@ -729,10 +717,8 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 			networkFilename = new File(networkText).getName();
 			if (!is5colnetwork(networkText, 10)){
 				try {
-					AdjacencyMatrixDataSet adjMatrix2 = new AdjacencyMatrixDataSet(
+					adjMatrix = new AdjacencyMatrixDataSet(
 							0, networkText, networkText, maSet, networkText);
-					this.adjMatrix.remove("adjMatrix");
-					this.adjMatrix.put("adjMatrix", adjMatrix2);
 				} catch (InputFileFormatException e) {
 					log.error(e.getMessage());
 					e.printStackTrace();
