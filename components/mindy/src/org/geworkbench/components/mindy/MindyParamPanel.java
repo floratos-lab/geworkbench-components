@@ -35,6 +35,7 @@ import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
+import org.geworkbench.events.listeners.ParameterActionListener;
 import org.geworkbench.util.ValidationUtils;
 
 import wb.data.Marker;
@@ -151,6 +152,8 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 	private DSDataSet<?> dataSet;
 
 	private boolean calledFromProgram = false;
+	
+	private ParameterActionListener parameterActionListener; 
 
 	/**
 	 * Constructor. Creates the parameter panel GUI.
@@ -183,6 +186,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 	}
 
 	private void init() {
+		parameterActionListener = new ParameterActionListener(this);
 		tabs = new JTabbedPane();
 		tabs.addTab("Main", initMainPanel());
 		tabs.addTab("Advanced", initAdvancedPanel());
@@ -201,8 +205,20 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 		targetsSets.setEnabled(false);
 		targetList.setEditable(false);
 		targetList.setEnabled(false);
-		loadTargetsFile.setEnabled(false);
-
+		loadTargetsFile.setEnabled(false);		
+		
+		//add parameterActionListener
+		modulatorsFrom.addActionListener(parameterActionListener);
+		modulatorsSets.addActionListener(parameterActionListener);
+		modulatorList.addActionListener(parameterActionListener);
+		modulatorList.addFocusListener(parameterActionListener);
+		targetsFrom.addActionListener(parameterActionListener);
+		targetsSets.addActionListener(parameterActionListener);
+		targetList.addActionListener(parameterActionListener);
+		targetList.addFocusListener(parameterActionListener);
+		transcriptionFactor.addActionListener(parameterActionListener);
+		transcriptionFactor.addFocusListener(parameterActionListener);
+		
 		JPanel result = new JPanel(new BorderLayout());
 		FormLayout layout = new FormLayout(
 				"left:max(100dlu;pref), 10dlu, 100dlu, 10dlu, "
@@ -400,6 +416,22 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 	}
 
 	private JPanel initAdvancedPanel() {
+		
+		//add parameterActionListener
+		setFraction.addChangeListener(parameterActionListener);
+		conditionalCombo.addActionListener(parameterActionListener);
+		conditional.addActionListener(parameterActionListener);
+		conditional.addFocusListener(parameterActionListener);
+		conditionalCorrection.addActionListener(parameterActionListener);
+		unconditionalCombo.addActionListener(parameterActionListener);
+		unconditional.addActionListener(parameterActionListener);
+		unconditional.addFocusListener(parameterActionListener);
+		unconditionalCorrection.addActionListener(parameterActionListener);
+		dpiAnnotationList.addActionListener(parameterActionListener);
+		dpiAnnotationList.addFocusListener(parameterActionListener);
+		dpiTolerance.addChangeListener(parameterActionListener);		 
+		
+		
 		JPanel result = new JPanel(new BorderLayout());
 		FormLayout layout = new FormLayout(
 				"left:max(100dlu;pref), 3dlu, 40dlu, 7dlu, "
@@ -659,6 +691,11 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 	 * (java.util.Map) Set inputed parameters to GUI.
 	 */
 	public void setParameters(Map<Serializable, Serializable> parameters) {
+		
+		if (getStopNotifyAnalysisPanelTemporaryFlag() == true)
+			return;
+		stopNotifyAnalysisPanelTemporary(true);	
+		
 		Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
 		for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set
 				.iterator(); iterator.hasNext();) {
@@ -672,11 +709,17 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 			if (key.equals("modulatorFromType")) {
 				this.modulatorsFrom.setSelectedIndex((Integer) value);
 			}
+			if (key.equals("modulatorsSet")) {
+				this.modulatorsSets.setSelectedIndex((Integer) value);
+			}			
 			if (key.equals("targets")) {
 				this.targetList.setText((String) value);
 			}
 			if (key.equals("targetFromType")) {
 				this.targetsFrom.setSelectedIndex((Integer) value);
+			}
+			if (key.equals("targetSet")) {
+				this.targetsSets.setSelectedIndex((Integer) value);
 			}
 			if (key.equals("annotations")) {
 				this.dpiAnnotationList.setText((String) value);
@@ -713,7 +756,10 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 			}
 			calledFromProgram = false;
 		}
-		notifyAnalysisPanel();
+		
+		 
+		stopNotifyAnalysisPanelTemporary(false);	
+		
 	}
 
 	/*
@@ -726,13 +772,11 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
 		parameters.put("modulators", this.modulatorList.getText());
 		parameters.put("modulatorFromType",
-				this.modulatorsFrom.getSelectedIndex());
-		// from previous code, it seems like the modulatorsSets is unused.
-		// parameters.put("", (String) this.modulatorsSets.getSelectedItem()
+				this.modulatorsFrom.getSelectedIndex());		 
+	    parameters.put("modulatorsSet", this.modulatorsSets.getSelectedIndex());
 		parameters.put("targets", this.targetList.getText());
-		parameters.put("targetFromType", this.targetsFrom.getSelectedIndex());
-		// from previous code, it seems like the targetsSets is unused.
-		// parameters.put("", (String) this.targetsSets.getSelectedItem());
+		parameters.put("targetFromType", this.targetsFrom.getSelectedIndex());	 
+		parameters.put("targetsSet", this.targetsSets.getSelectedIndex());
 		parameters.put("annotations", this.dpiAnnotationList.getText());
 		parameters.put("tf", this.transcriptionFactor.getText());
 		parameters.put("fraction", (Integer) this.setFraction.getValue());
