@@ -834,7 +834,7 @@ public class SequenceRetriever implements VisualPlugin {
 
 		log.debug("Source object " + source);
 
-		if (e.getMessage().equals(org.geworkbench.events.ProjectEvent.CLEARED)) {
+		if (e.getValue()==org.geworkbench.events.ProjectEvent.Message.CLEAR) {
 			refMASet = null;
 			cleanUpAll();
 
@@ -875,12 +875,12 @@ public class SequenceRetriever implements VisualPlugin {
 		final String sequenceType = (String) jComboCategory.getSelectedItem();
 		
 		// only non Swing/GUI action should be put in the background thread
-		SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
+		SwingWorker<Set<DSGeneMarker>, Void> worker = new SwingWorker<Set<DSGeneMarker>, Void>() {
 
 			@Override
-			protected Boolean doInBackground() throws Exception {
-				boolean atLeastOneActive = processGeneSelectorEvent(sequenceType, markers);
-				return atLeastOneActive;
+			protected Set<DSGeneMarker> doInBackground() throws Exception {
+				Set<DSGeneMarker> markerSet = processGeneSelectorEvent(sequenceType, markers);
+				return markerSet;
 			}
 			
 			@Override
@@ -894,8 +894,11 @@ public class SequenceRetriever implements VisualPlugin {
 				updateDisplay(sequenceDB, currentRetrievedMap);
 
 				try {
-					boolean atLeastOneActive = get();
-					if (!atLeastOneActive) {
+					Set<DSGeneMarker> markerSet = get();
+					for(DSGeneMarker marker: markerSet) {
+						listModel.addElement(marker);
+					}
+					if (markerSet.size()==0) {
 						cleanUpCurrentView();
 					}
 				} catch (InterruptedException e) {
@@ -913,8 +916,7 @@ public class SequenceRetriever implements VisualPlugin {
 	 * background thread triggered by geneSelectorAction
 	 * 
 	 */
-	private boolean processGeneSelectorEvent(String sequenceType, final DSPanel<DSGeneMarker> markers) {
-		boolean atLeastOneActive = false;
+	private Set<DSGeneMarker> processGeneSelectorEvent(String sequenceType, final DSPanel<DSGeneMarker> markers) {
 
 		CSSequenceSet<DSSequence> tempSequenceDB = new CSSequenceSet<DSSequence>();
 		HashMap<String, RetrievedSequenceView> tempMap = new HashMap<String, RetrievedSequenceView>();
@@ -923,17 +925,16 @@ public class SequenceRetriever implements VisualPlugin {
 		for (int j = 0; j < markers.panels().size(); j++) {
 			DSPanel<DSGeneMarker> mrk = markers.panels().get(j);
 			if (mrk.isActive()) {
-				atLeastOneActive = true;
 				for (int i = 0; i < mrk.size(); i++) {
 					set.add(mrk.get(i));
 				}
 			}
 		}
 
+		// side-effect part
 		for (Iterator<DSGeneMarker> markerIter = set.iterator(); markerIter
 				.hasNext();) {
 			DSGeneMarker mrk = markerIter.next();
-			listModel.addElement(mrk);
 			ArrayList<String> values = null;
 			if (sequenceType.equalsIgnoreCase(DNAVIEW)) {
 				values = cachedRetrievedDNASequences.get(mrk.toString());
@@ -974,7 +975,7 @@ public class SequenceRetriever implements VisualPlugin {
 			proteinSequenceDB = tempSequenceDB;
 		}
 
-		return atLeastOneActive;
+		return set;
 	}
 
 	/**
