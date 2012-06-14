@@ -511,22 +511,19 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
 	@SuppressWarnings({ "rawtypes","unchecked" })
 	@Subscribe
 	public void receive(org.geworkbench.events.ProjectEvent e, Object source) {
-		if (e.getMessage().equals(org.geworkbench.events.ProjectEvent.SELECTED)){
-			DSDataSet dataSet = e.getDataSet();
-			if (dataSet instanceof DSMicroarraySet) {
-				this.mraAnalysisPanel.setMicroarraySet((DSMicroarraySet)dataSet);
-			}else{
-				this.mraAnalysisPanel.setMicroarraySet(null);
-			}
+		DSDataSet dataSet = e.getDataSet();
+		if (!(dataSet instanceof DSMicroarraySet)) {
+			return;
 		}
 
-        ProjectSelection selection = ((ProjectPanel) source).getSelection();
+		mraAnalysisPanel.setMicroarraySet((DSMicroarraySet)dataSet);
+
+		ProjectSelection selection = ProjectPanel.getInstance().getSelection();
         DataSetNode dNode = selection.getSelectedDataSetNode();
         if(dNode == null){
         	return;
         }
-        
-        
+
         String currentTargetSet = this.mraAnalysisPanel.getSelectedAdjMatrix();
         this.mraAnalysisPanel.clearAdjMatrixCombobox();
         this.mraAnalysisPanel.clearTTestNodes();
