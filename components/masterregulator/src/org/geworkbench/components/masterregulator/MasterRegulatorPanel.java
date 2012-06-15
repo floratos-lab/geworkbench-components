@@ -1172,6 +1172,7 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 			marker = microarraySet.getMarkers().get(node.stringId);
 		return marker;
 	}
+	 
 
 	HashSet<String> getIxClass(String contextClass){
 		DSAnnotationContextManager manager = CSAnnotationContextManager.getInstance();
@@ -1360,21 +1361,26 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 	
 	@Override
 	public String getDataSetHistory() {			 
-		StringBuffer histStr = new StringBuffer("Generated with MRA run with parameters:\n");
-		AdjacencyMatrixDataSet adjset = getAdjMatrixDataSet();
-		histStr .append( "\n[PARA] Load Network: " +(adjset==null?networkFilename:adjset.getDataSetName())  ).append("\n");
-		histStr .append( "[PARA] FET/GSEA p-value : " + pValueTextField.getText() ).append("\n");
-		histStr .append( "[PARA] Minimum number of Targets : " + mintg.getText() ).append("\n");
-		histStr .append( "[PARA] GSEA Tail : " + tail.getText() ).append("\n");
-		histStr .append( "[PARA] Minimum number of Samples : " + minsp.getText() ).append("\n");
-		histStr .append( "[PARA] Shadow P-value : " + pvshadow.getText() ).append("\n");
-		histStr .append( "[PARA] Number of GSEA Permutations : " + nperm.getText() ).append("\n");
+		StringBuffer histStr = new StringBuffer("Generated with MRA run with parameters:\n\n");		 
 		
-		histStr .append( "[PARA] Synergy P-value: " )
+		if (getPriorid())
+		{
+			 histStr .append( "[PARA] : Retrieve prior result with ID:  ")
+				.append(getResultid())
+						.append( "\n\n\n" );			
+		}else
+		{
+		    histStr .append( "[PARA] Load Network: " + getAdjMatrixDataSet().getDataSetName()  ).append("\n");
+	  	    histStr .append( "[PARA] FET/GSEA p-value : " + getPValue() ).append("\n");		
+		    histStr .append( "[PARA] Minimum number of Targets : " + mintg.getText() ).append("\n");
+		    histStr .append( "[PARA] GSEA Tail : " + tail.getText() ).append("\n");
+		    histStr .append( "[PARA] Minimum number of Samples : " + minsp.getText() ).append("\n");
+		    histStr .append( "[PARA] Shadow P-value : " + pvshadow.getText() ).append("\n");
+		    histStr .append( "[PARA] Number of GSEA Permutations : " + nperm.getText() ).append("\n");
+		    histStr .append( "[PARA] Synergy P-value: " )
 				.append( pvsynergy.getText() )
 						.append( "\n\n\n" );
-
-	 
+		}
 		
 		return histStr.toString();
 	}
