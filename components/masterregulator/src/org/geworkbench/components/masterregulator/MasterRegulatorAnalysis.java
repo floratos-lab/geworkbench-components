@@ -2,6 +2,7 @@ package org.geworkbench.components.masterregulator;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
@@ -11,7 +12,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
 import javax.swing.JOptionPane;
@@ -193,18 +193,7 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
 			sortByValue(values, mraResultSet);
 		 
 			//get TFs
-			ArrayList<DSGeneMarker> transcriptionFactors=new ArrayList<DSGeneMarker>();
-			StringTokenizer tfSt = new StringTokenizer(transcriptionFactorsStr, ", ");
-			while (tfSt.hasMoreTokens()){
-				String markerName = tfSt.nextToken();
-				try{
-					DSGeneMarker marker = maSet.getMarkers().get(markerName);
-					if (marker!=null)
-						transcriptionFactors.add(marker);
-				}catch(Exception e){
-					log.info("We can not find marker " + markerName + " in our MicroarraySet.");
-				}
-			}
+			ArrayList<DSGeneMarker> transcriptionFactors = parseMarkers(maSet.getMarkers(), transcriptionFactorsStr);
 			log.info("We got "+transcriptionFactors.size()+" transcription factors");
 			
 			if (transcriptionFactors.size()==0){
@@ -233,20 +222,11 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
 					}
 				}
 			}else{
-				StringTokenizer sigSt = new StringTokenizer(signatureMarkersSTr, ", ");
-				while (sigSt.hasMoreTokens()){
-					String markerName = sigSt.nextToken();
-					try{
-						DSGeneMarker marker = maSet.getMarkers().get(markerName);
-						if (marker!=null){
-							signatureMarkers.add(marker);
-							if (mraAnalysisPanel.twoFET()){
-								if (mraResultSet.getValue(marker)>=0)	posDE.add(marker);
-								else									negDE.add(marker);
-							}
-						}
-					}catch(Exception e){
-						log.info("We can not find marker " + markerName + " in our MicroarraySet.");
+				signatureMarkers = parseMarkers(maSet.getMarkers(), signatureMarkersSTr);
+				if (mraAnalysisPanel.twoFET()){
+					for (DSGeneMarker marker : signatureMarkers){
+						if (mraResultSet.getValue(marker)>=0)	posDE.add(marker);
+						else									negDE.add(marker);
 					}
 				}
 			}
@@ -414,6 +394,36 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
 					"MRA Analysis", mraResultSet);
 			return results;
 		}
+	}
+
+	//to be refactored with genepanel
+	private ArrayList<DSGeneMarker> parseMarkers(DSItemList<DSGeneMarker> itemList, String str){
+		ArrayList<DSGeneMarker> transcriptionFactors = new ArrayList<DSGeneMarker>();
+		if (str==null || str.length()==0) return transcriptionFactors;
+
+		List<String> markerstr = new ArrayList<String>();
+		String[] labels = str.split(", ");
+		if (labels.length==1)
+			markerstr = Arrays.asList(labels[0].split(","));
+		else{
+			for(String label : labels){
+				String[] a = label.split(",");
+				if (a.length > 0) label = a[0];
+				markerstr.add(label);
+			}
+		}
+		for(DSGeneMarker marker: itemList) {
+			if(markerstr.contains(marker.getGeneName()))
+				transcriptionFactors.add(marker);
+		}
+		if (transcriptionFactors.isEmpty()){
+			for (String label : markerstr){
+				DSGeneMarker marker = itemList.get(label);
+				if (marker != null)
+					transcriptionFactors.add(marker);
+			}
+		}
+		return transcriptionFactors;
 	}
 	
 	private void sortByValue(final Map<DSGeneMarker, Double> values,
