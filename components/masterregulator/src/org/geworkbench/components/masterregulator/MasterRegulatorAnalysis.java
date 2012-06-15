@@ -468,12 +468,22 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
 
 	private String generateHistoryString(
 			DSMicroarraySetView<DSGeneMarker, DSMicroarray> view) {
-		StringBuffer histStr = new StringBuffer("Generated with MRA run with parameters:\n");	 
-		histStr .append( "\n [PARA] Load Network " + mraAnalysisPanel.getSelectedAdjMatrix() + ":  " + mraAnalysisPanel.getAdjMatrixDataSet().getDataSetName()  ).append("\n");
+		StringBuffer histStr = new StringBuffer("Generated with MRA run with parameters:\n\n");	 
+		histStr .append( "[PARA] Load Network: " + mraAnalysisPanel.getAdjMatrixDataSet().getDataSetName()  ).append("\n");
 		histStr .append( "[PARA] FET/GSEA p-value : " + mraAnalysisPanel.getPValue() ).append("\n");		
-		histStr .append( "Master Regulators: " + mraAnalysisPanel.getTranscriptionFactor() ).append("\n");
-		histStr .append( "Signature Markers: " + mraAnalysisPanel.getSigMarkers() ).append("\n\n\n");
-		 
+		histStr .append( "[PARA] Master Regulators: " + mraAnalysisPanel.getTranscriptionFactor() ).append("\n");
+		histStr .append( "[PARA] Signature Markers: " + mraAnalysisPanel.getSigMarkers() ).append("\n");
+		if (mraAnalysisPanel.twoFET())
+		   histStr .append( "[PARA] FET Runs: Two(enrichment plus mode of activity)\n");		
+		else
+		   histStr .append( "[PARA] FET Runs: One(enrichment only\n");		
+		
+		if (mraAnalysisPanel.standardBonferroni())
+			   histStr .append( "[PARA] Multiple Testing Correction: Standard Bonferroni\n\n\n");		
+			else
+			   histStr .append( "[PARA] Multiple Testing Correction: No correction\n\n\n");		
+		
+		
 		histStr.append(generateHistoryForMaSetView(view, useMarkersFromSelector()));
 		
 		return histStr.toString();
