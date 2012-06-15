@@ -421,14 +421,16 @@ public class SequenceRetriever implements VisualPlugin {
 	private void getSequences() {
 		final String lastSequenceType = (String) jComboCategory.getSelectedItem();
 		
+		if (listModel.getSize() == 0)
+		{
+			JOptionPane.showMessageDialog(null,	 
+					"Please select gene(s) or marker(s).");
+			return;
+		}
+		
 		cleanUpCurrentView();
 		status = RUNNING;
 		stopButton.setEnabled(true);
-
-		if (listModel.getSize() == 0)
-			JOptionPane.showMessageDialog(null,
-					"Please select gene(s) or marker(s).");
-
 		seqDisPanel.initialize();
 		jProgressBar1.setIndeterminate(false);
 		jProgressBar1.setMinimum(0);
