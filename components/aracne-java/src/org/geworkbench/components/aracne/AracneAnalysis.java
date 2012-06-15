@@ -175,7 +175,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 		if (weightedGraph.getEdges().size() > 0) {
 			boolean prune = params.isPrune();
 			AdjacencyMatrixDataSet dataSet = new AdjacencyMatrixDataSet(
-					this.convert(weightedGraph, p, mSetView.getMicroarraySet(), prune),
+					convert(weightedGraph, p, mSetView.getMicroarraySet(), prune),
 					0, "Adjacency Matrix", "ARACNE Set", mSetView
 							.getMicroarraySet());
 			StringBuilder paramDescB = new StringBuilder(
@@ -279,7 +279,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 	 * @param mSet
 	 * @return
 	 */
-	private AdjacencyMatrix convert(WeightedGraph graph, Parameter p,
+	private static AdjacencyMatrix convert(WeightedGraph graph, Parameter p,
 			DSMicroarraySet mSet, boolean prune) {
 		AdjacencyMatrix matrix = new AdjacencyMatrix(null);
 
