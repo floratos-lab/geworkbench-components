@@ -4,9 +4,14 @@ import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.GridLayout;
 import java.awt.Stroke;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.geom.Ellipse2D;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Hashtable;
@@ -15,7 +20,9 @@ import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
@@ -23,6 +30,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.event.ChangeEvent;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.table.AbstractTableModel;
 
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
@@ -100,8 +108,7 @@ public class SAMViewer extends JPanel implements VisualPlugin{
 	ArrayList<Dot> dotList=new ArrayList<Dot>();
 	List<Dot> overList;
 	List<Dot> underList;
-	List<Dot> totalList;
-	
+	List<Dot> totalList;	
 	
 	private static class TableModel extends AbstractTableModel {
 		
@@ -208,18 +215,79 @@ public class SAMViewer extends JPanel implements VisualPlugin{
 		JTabbedPane tabbedPane=new JTabbedPane();
 		JPanel totalPane=new JPanel();
 		JPanel overExPane=new JPanel();
-		JPanel underExPane=new JPanel();		
-		totalPane.setLayout(new BorderLayout());
-		totalPane.add(new JScrollPane(totalTable), BorderLayout.CENTER);
-		overExPane.setLayout(new BorderLayout());
-		overExPane.add(new JScrollPane(overExpTable), BorderLayout.CENTER);
-		underExPane.setLayout(new BorderLayout());
-		underExPane.add(new JScrollPane(underExpTable), BorderLayout.CENTER);
+		JPanel underExPane=new JPanel();
 		
-		tabbedPane.addTab("Total",totalPane);
-		tabbedPane.addTab("OverExpressed",overExPane);
-		tabbedPane.addTab("UnderExpressed",underExPane);
-		lowerPane.add(tabbedPane,BorderLayout.CENTER);		
+		totalPane.setLayout(new BorderLayout());
+		totalPane.add(new JScrollPane(totalTable), BorderLayout.CENTER);		
+		JPanel totalPaneWithSave=new JPanel();
+		totalPaneWithSave.setLayout(new BorderLayout());
+		totalPaneWithSave.add(totalPane, BorderLayout.CENTER);
+		JButton saveTotalButton=new JButton();
+		saveTotalButton.setText("Export Table");
+		JPanel bottom1=new JPanel();
+		bottom1.setLayout(new GridLayout(0,5));
+		bottom1.add(new JLabel());
+		bottom1.add(new JLabel());
+		bottom1.add(saveTotalButton);
+		totalPaneWithSave.add(bottom1, BorderLayout.SOUTH);		
+		tabbedPane.addTab("Total",totalPaneWithSave);
+		
+		
+		overExPane.setLayout(new BorderLayout());
+		overExPane.add(new JScrollPane(overExpTable), BorderLayout.CENTER);		
+		JPanel overExPaneWithSave=new JPanel();
+		overExPaneWithSave.setLayout(new BorderLayout());
+		overExPaneWithSave.add(overExPane, BorderLayout.CENTER);
+		JButton saveExButton=new JButton();
+		saveExButton.setText("Export Table");
+		JPanel bottom2=new JPanel();
+		bottom2.setLayout(new GridLayout(0,5));
+		bottom2.add(new JLabel());
+		bottom2.add(new JLabel());
+		bottom2.add(saveExButton);
+		overExPaneWithSave.add(bottom2, BorderLayout.SOUTH);		
+		tabbedPane.addTab("OverExpressed",overExPaneWithSave);
+		
+		underExPane.setLayout(new BorderLayout());
+		underExPane.add(new JScrollPane(underExpTable), BorderLayout.CENTER);		
+		JPanel underExPaneWithSave=new JPanel();
+		underExPaneWithSave.setLayout(new BorderLayout());
+		underExPaneWithSave.add(underExPane, BorderLayout.CENTER);
+		JButton saveUnderButton=new JButton();
+		saveUnderButton.setText("Export Table");
+		JPanel bottom3=new JPanel();
+		bottom3.setLayout(new GridLayout(0,5));
+		bottom3.add(new JLabel());
+		bottom3.add(new JLabel());
+		bottom3.add(saveUnderButton);
+		underExPaneWithSave.add(bottom3, BorderLayout.SOUTH);		
+		tabbedPane.addTab("UnderExpressed",underExPaneWithSave);
+		lowerPane.add(tabbedPane,BorderLayout.CENTER);
+		
+		saveTotalButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				saveTable(totalList);
+			}
+
+		});
+
+		saveExButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				saveTable(overList);
+			}
+		});
+
+		saveUnderButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {				
+				saveTable(underList);
+			}
+		});
+		
+		
 		
 		createSlider();
 		sliderPane=new JPanel();
@@ -604,5 +672,95 @@ public class SAMViewer extends JPanel implements VisualPlugin{
 	public Component getComponent() {
 		return this;
 	}
+	
+	private void saveTable(List<Dot> list){
+
+		JFileChooser fc = new JFileChooser();
+		fc.addChoosableFileFilter(new TXTFilter());
+        fc.setAcceptAllFileFilterUsed(false);
+		int returnVal = fc.showSaveDialog(SAMViewer.this);
+		String exportFileStr=fc.getSelectedFile().getPath();				
+		if (!exportFileStr.endsWith(".txt")&&!exportFileStr.endsWith(".TXT"))
+			exportFileStr += ".txt";
+		File exportFile=new File(exportFileStr);
+		
+		if (exportFile.exists()) {
+			int n = JOptionPane.showConfirmDialog(
+					null,
+					"The file exists, are you sure to overwrite?",
+					"Overwrite?", JOptionPane.YES_NO_OPTION);
+			if (n == JOptionPane.NO_OPTION || n == JOptionPane.CLOSED_OPTION) {
+				JOptionPane.showMessageDialog(null, "Save cancelled.");
+				return;
+			}
+		}
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			String str = "";
+
+			str += "ProbeSet Id\tGene Sysmbol\tP-value\tFold x\tMI\tAnotation";
+			for(Dot d: list){
+				String s="";
+				String markerLabel=d.getMarker().getLabel();				
+				try{					
+					String[] geneTitles = AnnotationParser.getInfo(maSet,
+							markerLabel, AnnotationParser.DESCRIPTION);
+					s=geneTitles[0];					
+				}
+				catch(Exception e){					
+					//e.printStackTrace();
+				}
+				
+				str+="\n"+d.getMarker().getLabel()+"\t"+d.getMarker().getGeneName()+"\t"+pvalue[d.getGeneRowNo()]
+						+"\t"+fold[d.getGeneRowNo()]+"\t"+s;
+				
+				
+			}
+			
+			PrintWriter out = null;
+			try {
+				out = new PrintWriter(exportFile);
+				out.println(str);
+			} catch (FileNotFoundException e1) {
+				e1.printStackTrace();
+			} finally {
+				out.close();
+			}
+			
+		}
+	
+	}
+	
+	
+	private class TXTFilter extends FileFilter {
+	    //Accept all directories and csv files.
+	    public boolean accept(File f) {
+	        if (f.isDirectory()) {
+	            return true;
+	        }
+	        String extension = getExtension(f);
+	        if (extension != null) {
+	            if (extension.equals("txt")) {
+	                    return true;
+	            } else {
+	                return false;
+	            }
+	        }
+	        return false;
+	    }
+	    public String getExtension(File f) {
+	        String ext = null;
+	        String s = f.getName();
+	        int i = s.lastIndexOf('.');
+	        if (i > 0 &&  i < s.length() - 1) {
+	            ext = s.substring(i+1).toLowerCase();
+	        }
+	        return ext;
+	    }
+	    //The description of this filter
+	    public String getDescription() {
+	        return "Tab-Delimited Data Files (*.txt)";
+	    }
+	}
+	
 
 }
