@@ -202,8 +202,7 @@ public abstract class AbstractTrainingPanel extends AbstractSaveableParameterPan
 
                         int numFolds = ((Number) numberFolds.getValue()).intValue();
                         KFoldCrossValidation cross = new KFoldCrossValidation(numFolds, caseData, controlData);
-
-
+                        
                         try {
                             for (int i = 0; i < cross.getNumFolds() && !isCancelled(); i++) {
                                 KFoldCrossValidation.CrossValidationData crossData = cross.getData(i);
@@ -212,7 +211,12 @@ public abstract class AbstractTrainingPanel extends AbstractSaveableParameterPan
 
                                 java.util.List<float[]> trainingCaseData = crossData.getTrainingCaseData();
                                 java.util.List<float[]> trainingControlData = crossData.getTrainingControlData();
-
+                                
+                                if (numFolds == 1){
+                                	throw new ClassifierException("Minimum of 2 cross validation runs required");
+                                }
+                                
+                               
                                 if(trainingCaseData == null || trainingCaseData.size() == 0)
                                 {
                                     throw new ClassifierException("Case data must be provided");
