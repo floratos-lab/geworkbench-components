@@ -17,23 +17,38 @@
 <p><br>
 </p><p><br>
 </p>
-<a name="The_Remote_Open_File_dialog_.28caArray.29"></a><h1> <span class="mw-headline" id="The_Remote_Open_File_dialog_.28caArray.29">The Remote Open File dialog (caArray)</span></h1>
+<a name="The_caArray_Open_File_dialog"></a><h1> <span class="mw-headline" id="The_caArray_Open_File_dialog">The caArray Open File dialog</span></h1>
 <p>geWorkbench can retrieve gene expression data from remote instances 
 of the NCICB's caArray database.  These may be copies maintained by the 
 NCI itself, or copies maintained locally at your or another institution.
   You can maintain settings for any number of different caArray 
 installations.
-</p><p>As of release 2.3.0, improvements in memory management allow 
+</p>
+<a name="Recent_Changes"></a><h2> <span class="mw-headline" id="Recent_Changes">Recent Changes</span></h2>
+<ul><li> The caArray 2.5.0 communication client code is not backward 
+compatible with that used in caArray 2.4 or earlier versions.  With the 
+release of geWorkbench 2.4.0, only communication with caArray 2.5 
+installations will be directly supported.
+</li></ul>
+<ul><li> With geWorkbench 2.4.0, this dialog was renamed from "Remote" to "caArray 2.5" to more accurately reflect its current function.
+</li></ul>
+<ul><li> As of release 2.3.0, improvements in memory management allow 
 large numbers of arrays to be downloaded.  Downloads of more than 500 
 arrays at one time have been tested without incident.
-</p><p>Multiple arrays downloaded at the same time are automatically merged together into a single data set.
-</p><p>To connect to a remote caArray, right-click on <b>Project</b> in the geWorkbench main window,
+</li></ul>
+<ul><li> Multiple arrays downloaded at the same time are automatically merged together into a single data set.
+</li></ul>
+<p><br>
+</p>
+<a name="Connecting_with_caArray"></a><h2> <span class="mw-headline" id="Connecting_with_caArray">Connecting with caArray</span></h2>
+<p>To connect to a remote caArray, right-click on <b>Project</b> in the geWorkbench main window,
 </p><p><br>
 <img alt="T ProjectFolders OpenFiles.png" src="caArray_files/T_ProjectFolders_OpenFiles.png" height="277" width="393">
 </p><p><br>
-which will bring up the <b>Open File(s)</b> dialog.   Click the <b>Remote</b> radio button.   The <b>Open File</b> dialog window will be expanded to include remote caArray sources as shown here.
+which will bring up the <b>Open File(s)</b> dialog.   Click the <b>caArray 2.5</b> radio button.   The <b>Open File</b> dialog window will be expanded to include remote caArray sources as shown here.
 </p><p><br>
-<img alt="Open File Remote caArray.png" src="caArray_files/Open_File_Remote_caArray.png" height="375" width="570">
+<img alt="Open File caArray.png" src="caArray_files/Open_File_caArray.png" height="375" width="544">
+</p><p><br>
 </p>
 <a name="Connection_and_Query_Controls"></a><h2> <span class="mw-headline" id="Connection_and_Query_Controls">Connection and Query Controls</span></h2>
 <p>The buttons at the bottom of the remote file dialog are:
@@ -96,35 +111,36 @@ password is needed for accessing public experiments.
 and submitted to caArray, you cannot go back to using no 
 username/password, except by restarting geWorkbench.  However you can 
 still put in a different username/password combination.  This is a 
-property of the caArray server-side code.  Thus if you have no valid 
-username/password and enter an incorrect one, you will need to restart 
-geWorkbench before you can query caArray public experiments again (no 
-login required).
+property of the caArray server-side code.
 </li></ul>
 </li></ul>
 <a name="Searching_and_viewing_available_experiments"></a><h2> <span class="mw-headline" id="Searching_and_viewing_available_experiments">Searching and viewing available experiments</span></h2>
-<p>If you click on the red <b>Go</b> button next to the caArray data 
-source at the bottom of the dialog, all available caArray experiments at
- that location will be displayed.  
+<p>If you click on the <b>Go</b> button next to the caArray data source 
+at the bottom of the dialog, all available caArray experiments at that 
+location will be displayed.  
 </p><p>Instead, you can select only particular kinds of experiments by pushing the <b>Filter</b> button.  Here we show experiments of type "Human" being selected.
 </p><p><br>
 <img alt="OpenFile Remote Filtered human.png" src="caArray_files/OpenFile_Remote_Filtered_human.png" height="270" width="624">
 </p><p><br>
-And here are the resulting entries in the database:
+The below figure shows the matching entries in the database.  
+</p><p><b>Experiment ID</b> - Note that the <b>caArray Experiment ID</b>
+ of the selected experiment is shown in the upper right-hand corner of 
+the dialog.  This same ID will be seen e.g. if you browse caArray 
+through its own web interface.
 </p><p><br>
-<img alt="Open File Remote caArray Human.png" src="caArray_files/Open_File_Remote_caArray_Human.png" height="375" width="570">
+<img alt="Open File caArray Human.png" src="caArray_files/Open_File_caArray_Human.png" height="375" width="544">
 </p>
 <a name="Viewing_the_list_of_arrays_available_in_a_given_experiment"></a><h2> <span class="mw-headline" id="Viewing_the_list_of_arrays_available_in_a_given_experiment">Viewing the list of arrays available in a given experiment</span></h2>
 <p>Select an experiment and push the <b>Show Arrays</b> button to see the individual array datasets available for download for that experiment.
 </p><p>You can also right-click directly on an experiment and select <b>Show Arrays</b>.
 </p><p>(As of geWorkbench v2.2.2, the list of arrays will be displayed sorted alphabetically.)
 </p><p><br>
-<img alt="Open File Remote caArray show arrays.png" src="caArray_files/Open_File_Remote_caArray_show_arrays.png" height="375" width="570">
+<img alt="Open File caArray show arrays.png" src="caArray_files/Open_File_caArray_show_arrays.png" height="375" width="541">
 </p>
 <a name="Downloading_select_array_datasets"></a><h2> <span class="mw-headline" id="Downloading_select_array_datasets">Downloading select array datasets</span></h2>
 <p>Now we will select four of the arrays of type HG-U133A and push the <b>Open</b> button to begin the download.  Multiple selections will automatically be merged into a single dataset in geWorkbench.
 </p><p><br>
-<img alt="Open File Remote caArray download selected.png" src="caArray_files/Open_File_Remote_caArray_download_selected.png" height="375" width="570">
+<img alt="Open File caArray download selected.png" src="caArray_files/Open_File_caArray_download_selected.png" height="375" width="541">
 </p><p><br>
 </p><p>You will be prompted to select the quantitation type from those 
 available for the experiment.  Although all available quantitation types
@@ -137,7 +153,17 @@ You will also be prompted to load an annotation file, if desired.  Here we choos
 </p><p><br>
 <img alt="OpenFile Remote Annotation Glioma.png" src="caArray_files/OpenFile_Remote_Annotation_Glioma.png" height="347" width="570">
 </p><p><br>
-A progress bar will track the download process:
+As of geWorkbench 2.4.0, you will also be prompted to specify the type 
+of annotation file type.  The two supported annotation file types are
+</p>
+<ul><li> Affymetrix 3' Expression
+</li><li> Affymetrix Gene/Exon 1.0 ST
+</li></ul>
+<p>Here we select the 3' Expression format.
+</p><p><br>
+<img alt="Open File Select Annotation Type.png" src="caArray_files/Open_File_Select_Annotation_Type.png" height="126" width="331">
+</p><p><br>
+</p><p>A progress bar will track the download process:
 </p><p><img alt="OpenFile Remote Loading GliomaExpt.png" src="caArray_files/OpenFile_Remote_Loading_GliomaExpt.png" height="134" width="337">
 </p><p><br>
 </p><p>The resulting data set will appear in the Project Folders component.
@@ -146,7 +172,7 @@ The downloaded dataset is name for the experiment name shown in caArray.
 single dataset, and the individual arrays are listed in the Arrays 
 component:
 </p><p><br>
-<img alt="Open File Remote caArray merged node.png" src="caArray_files/Open_File_Remote_caArray_merged_node.png" height="326" width="230">
+<img alt="Open File caArray merged node.png" src="caArray_files/Open_File_caArray_merged_node.png" height="384" width="231">
 </p>
 <a name="Cannot_merge_different_array_types"></a><h2> <span class="mw-headline" id="Cannot_merge_different_array_types">Cannot merge different array types</span></h2>
 <p>geworkbench does not currently support merging data from arrays of 
@@ -157,13 +183,13 @@ merge is requested, the following error will appear:
 </p>
 <!-- 
 NewPP limit report
-Preprocessor node count: 38/1000000
-Post-expand include size: 1891/2097152 bytes
+Preprocessor node count: 46/1000000
+Post-expand include size: 1847/2097152 bytes
 Template argument size: 0/2097152 bytes
 Expensive parser function count: 0/100
 -->
 
-<!-- Saved in parser cache with key workbench:pcache:idhash:1810-0!1!0!!en!2!printable=1 and timestamp 20120312210258 -->
+<!-- Saved in parser cache with key workbench:pcache:idhash:1810-0!1!0!!en!2!printable=1 and timestamp 20120709185544 -->
 <div class="printfooter">
 Retrieved from "<a href="http://wiki.c2b2.columbia.edu/workbench/index.php/CaArray">http://wiki.c2b2.columbia.edu/workbench/index.php/CaArray</a>"</div>
 		<div id="catlinks" class="catlinks catlinks-allhidden"></div>		<!-- end content -->
@@ -174,7 +200,7 @@ Retrieved from "<a href="http://wiki.c2b2.columbia.edu/workbench/index.php/CaArr
 <div id="footer">
 	<div id="f-poweredbyico"><img src="caArray_files/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" height="31" width="88"></div>
 	<ul id="f-list">
-		<li id="lastmod"> This page was last modified on 12 March 2012, at 16:01.</li>
+		<li id="lastmod"> This page was last modified on 9 July 2012, at 13:54.</li>
 	</ul>
 </div>
 </div>
