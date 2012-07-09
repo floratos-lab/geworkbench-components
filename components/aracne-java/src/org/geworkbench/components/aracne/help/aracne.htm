@@ -48,6 +48,9 @@ various phenotypes (Basso et al. 2005).  For the "Adaptive Partitioning"
 included.  For the "Fixed Bandwidth" option, arrays in excess of 300 can
  lead to long computation times.  A subset of the B-Cell dataset, 
 derived from 100 arrays, is included with geWorkbench (Bcell-100.exp).
+</p><p>Within the constraints of available computational power and 
+memory, the more samples that are used, the greater the accuracy of the 
+mutual information calculation.
 </p><p>ARACNe can perform two separate calculations:
 </p>
 <ol><li> <b>Mutual Information</b>: The mutual information (MI) of one or more marker's expression profile(s) is calculated against all other active markers.
@@ -399,18 +402,23 @@ simply be ignored.  If ARACNe2 is run in COMPLETE or DISCOVERY mode this
 <p>The result of an ARACNe run is an adjacency matrix, placed as a new 
 data node in the Project Folders component as a child of the microarray 
 dataset from which it was generated.
-</p><p>The adjacency matrix contains one row for each "hub" marker for 
-which ARACNe was run.  In this row, all above-threshold interactions 
-with targets are listed, together with the MI value of each such 
-interaction.
+</p><p>The adjacency matrix contains one row for each "hub" marker for which ARACNe was run. 
+</p><p><b>IMPORTANT NOTE</b> - the row for a given hub may not contain 
+all of that hub's interactions.  Each edge is currently represented only
+ once.  If an edge exists between two hubs, it will appear on the line 
+of only one of those hubs.  It was early stated here that each line 
+always contained all interactions for that hub.
+</p><p>Above-threshold interactions with targets are listed, together with the MI value of each such interaction.
 </p><p>The adjacency matrix can be written to disk using either the 
 "Save" or the "Export" commands.  "Save" can be found by right-clicking 
 on the adjacency matrix node, and "Export" is available in the top level
  "File" menu.  The node to export must be selected.
 </p><p>As of release 2.2.1, the adjacency matrix written to disk will 
 have one line for each hub marker used in the analysis.  This line, as 
-described above, will contain all above-threshold interactions of the 
-hub with targets, together with the associated MI values.
+described above, will contain above-threshold interactions of the hub 
+with targets, together with the associated MI values.  However, as 
+mentioned, edges between two hubs appear on the line of only one of 
+those hubs.
 </p><p>The file format is described further in the <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/File_Formats" title="File Formats"> File Formats</a> chapter.
 </p><p>Prior to release 2.2.1, the adjacency matrix, if written to disk, was not ordered by hub marker.
 </p>
@@ -544,12 +552,12 @@ Protocols 1(2):663-672  (<a href="http://www.nature.com/nprot/journal/v1/n2/abs/
 <!-- 
 NewPP limit report
 Preprocessor node count: 166/1000000
-Post-expand include size: 1907/2097152 bytes
+Post-expand include size: 1847/2097152 bytes
 Template argument size: 0/2097152 bytes
 Expensive parser function count: 0/100
 -->
 
-<!-- Saved in parser cache with key workbench:pcache:idhash:1680-0!1!0!!en!2!printable=1 and timestamp 20120306191550 -->
+<!-- Saved in parser cache with key workbench:pcache:idhash:1680-0!1!0!!en!2!printable=1 and timestamp 20120709155757 -->
 <div class="printfooter">
 Retrieved from "<a href="http://wiki.c2b2.columbia.edu/workbench/index.php/ARACNe">http://wiki.c2b2.columbia.edu/workbench/index.php/ARACNe</a>"</div>
 		<div id="catlinks" class="catlinks catlinks-allhidden"></div>		<!-- end content -->
@@ -560,7 +568,7 @@ Retrieved from "<a href="http://wiki.c2b2.columbia.edu/workbench/index.php/ARACN
 <div id="footer">
 	<div id="f-poweredbyico"><img src="aracne_files/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" height="31" width="88"></div>
 	<ul id="f-list">
-		<li id="lastmod"> This page was last modified on 6 March 2012, at 14:14.</li>
+		<li id="lastmod"> This page was last modified on 9 July 2012, at 10:57.</li>
 	</ul>
 </div>
 </div>
