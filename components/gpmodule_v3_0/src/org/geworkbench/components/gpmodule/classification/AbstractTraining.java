@@ -13,6 +13,7 @@ import org.geworkbench.bison.annotation.DSAnnotationContext;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
+import org.geworkbench.bison.datastructure.bioobjects.SelectorResult;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
@@ -71,9 +72,58 @@ public abstract class AbstractTraining extends AbstractAnalysis implements Clust
 
             HistoryPanel.addToHistory(classifier, history);
             runClassifier(casePanel, controlPanel, testPanel, classifier);
-        }
+            String classifierName = classifier.getLabel();
+           
+            if(!(classifierName.equals("CART Classifier")||classifierName.equals("SVM Classifier"))) {
+            String his = generateHistory();
+            if(markers != null)
+            {
+                his += "\n  Markers activated (" + markers.size() + "): \n";
+                for (int i = 0; i < markers.size(); i++)
+                {
+    		        his += "\t\t" + markers.get(i).getLabel() + "\n";
+    		    }
+            }
+            else
+            {
+                his += "\n" + "No markers activated \n";
+            }
 
-        return null;
+            his += "\n  Arrays labeled Control (" + controlPanel.size() + "): \n";
+            for (DSMicroarray array : controlPanel)
+            {
+    		    his += "\t\t" + array.getLabel() + "\n";
+    	    }
+
+            his += "\n  Arrays labeled Case (" + casePanel.size() + "): \n";
+            for (DSMicroarray array : casePanel)
+            {
+    		    his += "\t\t" + array.getLabel() + "\n";
+    	    }
+
+            if(testPanel != null && testPanel.size() != 0)
+            {
+                his += "\n  Arrays labeled Test (" + testPanel.size() + "): \n";
+                for (DSMicroarray array : testPanel)
+                {
+    		        his += "\t\t" + array.getLabel() + "\n";
+    	        }
+            }
+            
+            HistoryPanel.addToHistory(classifier, his);
+            SelectorResult result;
+           	result = new SelectorResult(maSet,classifierName);
+   		
+    		AlgorithmExecutionResults results = new AlgorithmExecutionResults(true,
+    				classifier.getLabel(), result);
+    		HistoryPanel.addToHistory(result, his);
+    		
+
+    		return results;
+
+        	}
+        }
+        return null;      
     }
 
     public void runClassifier(DSPanel<DSMicroarray> casePanel, DSPanel<DSMicroarray> controlPanel, DSPanel<DSMicroarray> testPanel, CSClassifier classifier)
@@ -170,6 +220,9 @@ public abstract class AbstractTraining extends AbstractAnalysis implements Clust
         return AbstractAnalysis.TTEST_TYPE;
     }
 
+    protected String generateHistory() {
+    	return "";
+    }
 
     private String generateHistoryString(CSClassifier classifier, DSPanel<DSMicroarray> controlPanel,
                                          DSPanel<DSMicroarray> casePanel, DSPanel<DSMicroarray> testPanel,
