@@ -166,7 +166,6 @@ public class CARTTraining extends GPTraining implements TrainingTask
 
         if(testPanel == null || testPanel.size() == 0)
         {
-            publishProjectNodeAddedEvent(new ProjectNodeAddedEvent(classifier.getLabel(), null, classifier));
             return;
         }
 
@@ -192,7 +191,6 @@ public class CARTTraining extends GPTraining implements TrainingTask
             progressBar.stop();
         }
 
-        publishProjectNodeAddedEvent(new ProjectNodeAddedEvent(classifier.getLabel(), null, classifier));
     }
 
     public boolean isCancelled()

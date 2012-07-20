@@ -19,6 +19,7 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.bison.datastructure.properties.DSExtendable;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.builtin.projects.history.HistoryPanel;
@@ -66,25 +67,28 @@ public abstract class AbstractTraining extends AbstractAnalysis implements Clust
         addMicroarrayData(testPanel, testData, markers);
         CSClassifier classifier = trainClassifier(caseData, controlData);
 
+    	AlgorithmExecutionResults results = null;
+    	
         if (classifier != null)
         {
             String history = generateHistoryString(classifier, controlPanel, casePanel, testPanel, markers);
-            String parameters = generateParameterHistory();
-            HistoryPanel.addToHistory(classifier, history);         
             runClassifier(casePanel, controlPanel, testPanel, classifier);
             
-            if(!(parameters.equals("")))
+            DSExtendable result = null;
+        	String classifierName = classifier.getLabel();
+        	
+            if(classifier instanceof VisualGPClassifier)
             {
-            	String classifierName = classifier.getLabel();
-            	SelectorResult result = new SelectorResult(maSet,classifierName);
-            	AlgorithmExecutionResults results = new AlgorithmExecutionResults(true,
-    				classifierName, result);
-            	HistoryPanel.addToHistory(result, history);
-                		
-            	return results;
+            	result = classifier;
+            } 
+            else {
+            	result = new SelectorResult(maSet,classifierName);
             }
+        	results = new AlgorithmExecutionResults(true,
+				classifierName, result);
+        	HistoryPanel.addToHistory(result, history);
         }
-        return null;
+        return results;
     }
 
     public void runClassifier(DSPanel<DSMicroarray> casePanel, DSPanel<DSMicroarray> controlPanel, DSPanel<DSMicroarray> testPanel, CSClassifier classifier)
