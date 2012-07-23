@@ -25,16 +25,12 @@ import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
-import org.geworkbench.bison.datastructure.bioobjects.IdeaEdge;
-import org.geworkbench.bison.datastructure.bioobjects.IdeaEdge.InteractionType;
 import org.geworkbench.bison.datastructure.bioobjects.IdeaGLoc;
 import org.geworkbench.bison.datastructure.bioobjects.IdeaModule;
 import org.geworkbench.bison.datastructure.bioobjects.IdeaNode;
-import org.geworkbench.bison.datastructure.bioobjects.IdeaProbeGene;
 import org.geworkbench.bison.datastructure.bioobjects.IdeaResultDataSet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
@@ -126,32 +122,18 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 					"network file is invalid.", null);
 		}
 
-		TreeSet<Gene> preGeneList = new TreeSet<Gene>();
+		Map<Integer, List<DSGeneMarker>> preGeneList = new HashMap<Integer, List<DSGeneMarker>>();
 		for (IdeaNetworkEdge edge : network) {
-			preGeneList.add(new Gene(edge.getGene1()));
-			preGeneList.add(new Gene(edge.getGene2()));
+			preGeneList.put(edge.getGene1(), new ArrayList<DSGeneMarker>());
+			preGeneList.put(edge.getGene2(), new ArrayList<DSGeneMarker>());
 		}
 		
 		for (DSGeneMarker marker : datasetView.markers()) {
 			int id = marker.getGeneId();
 
-			for (Gene g : preGeneList) {
-				if (g.getGeneNo() == id) {
-					String s1 = g.getProbeIds() + marker.getLabel() + "\t";
-					g.setProbeIds(s1);
-					String s2 = g.getExpRows() + marker.getSerial() + "\t";
-					g.setExpRows(s2);
-					if (g.getMarkers() == null) {
-						DSItemList<DSGeneMarker> geneMarkers = new CSItemList<DSGeneMarker>();
-						geneMarkers.add(marker);
-						g.setMarkers(geneMarkers);
-					} else {
-						DSItemList<DSGeneMarker> geneMarkers = g.getMarkers();
-						geneMarkers.add(marker);
-						g.setMarkers(geneMarkers);
-					}
-					break;
-				}
+			List<DSGeneMarker> markers = preGeneList.get(id);
+			if (markers != null) {
+				markers.add(marker);
 			}
 		}
 
@@ -162,32 +144,16 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 
 		for (IdeaNetworkEdge edge : network) {
 
-			Gene gene1 = null;
-			Gene gene2 = null;
+			List<DSGeneMarker> markers1 = preGeneList.get(edge.getGene1());
+			List<DSGeneMarker> markers2 = preGeneList.get(edge.getGene2());
 
-			for (Gene g : preGeneList) {
-				if (g.getGeneNo() == edge.getGene1()) {
-					gene1 = g; 
-				} else if (g.getGeneNo() == edge.getGene2()) {
-					gene2 = g;
-				}
-			}
-			if((gene1!=null)&&(gene2!=null)){
-				if ((gene1.getMarkers() != null) && (gene2.getMarkers() != null)) {
-					for (DSGeneMarker marker1 : gene1.getMarkers()) {
-						for (DSGeneMarker marker2 : gene2.getMarkers()) {
-														
-								IdeaEdge anEdge = new IdeaEdge(edge.getGene1(),
-										edge.getGene2(), marker1, marker2,
-										marker1.getSerial(), marker2.getSerial(),
-										marker1.getLabel(), marker2.getLabel(),
-										edge.getInteractionType());
-								edgeIndex.add(anEdge);
-		
-								gene1.addEdge(anEdge);// add the edge to related
-														// gene in preGeneList
-								gene2.addEdge(anEdge);
-						}
+			if ((markers1 != null) && (markers2 != null)) {
+				for (DSGeneMarker marker1 : markers1) {
+					for (DSGeneMarker marker2 : markers2) {
+
+						IdeaEdge anEdge = new IdeaEdge(marker1, marker2,
+								edge.getInteractionType());
+						edgeIndex.add(anEdge);
 					}
 				}
 			}
@@ -199,13 +165,13 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 					"No overlap between network edges and data set, analysis aborted!", null);
 		}
 		
-		Phenotype phenotype = IDEAAnalysisPanel.getPhenotype();
+		Phenotype phenotype = IDEAAnalysisPanel.getPhenotype(); // never null
 		Set<Integer> includeSet=IDEAAnalysisPanel.preparePhenoSet(IDEAAnalysisPanel.getIncludeString());
 		phenotype.setIncludeList(includeSet);
 		Set<Integer> excludeSet=IDEAAnalysisPanel.preparePhenoSet(IDEAAnalysisPanel.getExcludeString());
 		phenotype.setExcludeList(excludeSet);
-		if ((phenotype == null)||IDEAAnalysisPanel.getIncludeString().equals("")){			
-			pbIdea.dispose();			
+		if (IDEAAnalysisPanel.getIncludeString().equals("")) {
+			pbIdea.dispose();
 			return new AlgorithmExecutionResults(false,
 					"phenotype data is invalid.", null);
 		}
@@ -216,30 +182,14 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 		}
 
 		try {
-			// ************Key process********************
-			NullDistribution nullDist = new NullDistribution(maSet, edgeIndex,					 
-					phenotype, this);
-			nullDist.calcNullDist();
-			if (this.stopAlgorithm) {
+			/* ============= key process =========== */
+			NullDistribution nullDist = new NullDistribution(this);
+			boolean finished = nullDist.calcNullDist(maSet, edgeIndex, pvalue,
+					phenotype);
+			if (!finished || this.stopAlgorithm) {
 				pbIdea.dispose();
 				return null;
 			}
-			edgeIndex = nullDist.getEdgeIndex();
-			
-			for (IdeaEdge anEdge : edgeIndex) {
-				
-				if (anEdge.getNormCorr() < pvalue / edgeIndex.size()) { // show
-																		// significant
-																		// edges
-					if (anEdge.getDeltaCorr() < 0)
-						anEdge.setLoc(true);// save the flag for significant edge
-					else if (anEdge.getDeltaCorr() > 0)
-						anEdge.setGoc(true);				
-				}
-			}		
-			
-			// *******************************************
-
 		} catch (MathException e) {
 			e.printStackTrace();
 			pbIdea.dispose();
@@ -286,26 +236,6 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 
 		Collections.sort(gocList, Collections.reverseOrder());
 
-		for (Gene g : preGeneList) {// edge in preGeneList need update from
-									// edgeIndex, because edgeIndex may be
-									// updated from null distribution
-			ArrayList<IdeaEdge> edges = new ArrayList<IdeaEdge>();
-			for (IdeaEdge anEdge : g.getEdges()) {
-				if (this.stopAlgorithm) {
-					pbIdea.dispose();
-					return null;
-				}
-				for (IdeaEdge eInEdgeIndex : edgeIndex) {					
-					if ((eInEdgeIndex.compareTo(anEdge) == 0)
-							&& (eInEdgeIndex.getGeneNo1() == g.getGeneNo())) {
-						edges.add(eInEdgeIndex);
-					}
-				}
-			}
-			g.setEdges(edges);// replace the old edges
-
-		}
-
 		TreeSet<IdeaProbeGene> probes = new TreeSet<IdeaProbeGene>();
 		/*
 		 * process probes, which is a alternative way to evaluate genes other
@@ -318,83 +248,40 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 			probes.add(p2);
 		}
 
-		for (IdeaProbeGene p : probes) {			
-			ArrayList<IdeaEdge> edges = new ArrayList<IdeaEdge>();
-			for (IdeaEdge e : edgeIndex) {
-				if ((p.getProbeId() == e.getProbeId1())
-						|| (p.getProbeId() == e.getProbeId2()))
-					edges.add(e);
-			}
-			p.setEdges(edges);
+		for (IdeaProbeGene p : probes) {
+			p.setEdges(edgeIndex);
 		}
 
 		if (this.stopAlgorithm) {
 			pbIdea.dispose();
 			return null;
 		}
-		for (IdeaProbeGene p : probes) { // enrichment to find the significant
-											// probe
-			int locs = 0;
-			int gocs = 0;
-			for (IdeaEdge anEdge : p.getEdges()) {
-				if (anEdge.isLoc()) {
-					locs++;
-				} else if (anEdge.isGoc()) {
-					gocs++;
-				}
-			}
-
-			p.setLocs(locs);
-			p.setGocs(gocs);
-
-		}	
-
-		if (this.stopAlgorithm) {
-			pbIdea.dispose();
-			return null;
-		}
+		
 		int N = edgeIndex.size();
 		FishersExactTest fe = new FishersExactTest(2 * N);
 
 		int Sl = locList.size();
 		int Sg = gocList.size();
+
 		// calculate LOC p-value using fisher exact test to evaluate entrez
-		// genes
-		for (Gene g : preGeneList) {
-			int H = g.getEdges().size();
-			if (g.getLocs() > 0) {
-				int Dl = g.getLocs();
-				double cumulativeP = fe.calculateRightSideOneTailedP(Dl, H - Dl, Sl - Dl, N
-						- Sl - H + Dl);
-				g.setCumLoc(cumulativeP);
-			}
-			if (g.getGocs() > 0) {
-				int Dg = g.getGocs();
-				double cumulativeP = fe.calculateRightSideOneTailedP(Dg, H - Dg, Sg - Dg, N
-						- Sg - H + Dg);
-				g.setCumGoc(cumulativeP);
-			}
-		}
 		try{
 			for (IdeaProbeGene p : probes) {
-				int H = p.getEdges().size();
+				int H = p.getEdgeCount();
+				// default values are 1
+				double cumLoc = 1;
+				double cumGoc = 1;
 				if (p.getLocs() > 0) { // calculate LOC p-value using fisher
 										// exact test to evaluate probe
 					int Dl = p.getLocs();
-					double cumulativeP = fe.calculateRightSideOneTailedP(Dl, H - Dl, Sl - Dl, N
+					cumLoc = fe.calculateRightSideOneTailedP(Dl, H - Dl, Sl - Dl, N
 							- Sl - H + Dl);
-					p.setCumLoc(cumulativeP);
 				}
 				if (p.getGocs() > 0) {
 					int Dg = p.getGocs();
-					double cumulativeP = fe.calculateRightSideOneTailedP(Dg, H - Dg, Sg - Dg, N
+					cumGoc = fe.calculateRightSideOneTailedP(Dg, H - Dg, Sg - Dg, N
 							- Sg - H + Dg);
-					p.setCumGoc(cumulativeP);
 				}
-				double locnes = -Math.log(p.getCumLoc());
-				double gocnes = -Math.log(p.getCumGoc());
-				double nes = locnes + gocnes;
-				p.setNes(nes);
+				p.updateNes(cumLoc, cumGoc);
 			}
 		}
 		catch(Exception e){
@@ -437,51 +324,20 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 		}
 		//probeNes->nodeResultList
 		List<IdeaNode> nodeResultList=new ArrayList<IdeaNode>();
-		for(IdeaProbeGene pg:probeNes){			
-			DSGeneMarker m = maSet.getMarkers().get(pg.getProbeId());
-
-			int locHits = 0;
-			int gocHits = 0;
-			for (IdeaEdge e : pg.getEdges()) {
-				if (e.getDeltaCorr() < 0)
-					locHits++;
-				else if (e.getDeltaCorr() > 0)
-					gocHits++;
-			}
-			double locnes = Math.abs(-Math.log(pg.getCumLoc()));
-			double gocnes =  Math.abs(-Math.log(pg.getCumGoc()));
-			if((locnes>0)||(gocnes>0)){
-				IdeaNode aNode=new IdeaNode(pg.getProbeId(), m.getGeneName(), "chromosomal", 
-						pg.getEdges().size(), Math.abs(pg.getNes()), pg.getLocs(), locHits, pg.getCumLoc(), 
-						locnes, pg.getGocs(), gocHits, pg.getCumGoc(), gocnes);
-				nodeResultList.add(aNode);
+		DSItemList<DSGeneMarker> markers = maSet.getMarkers();
+		for (IdeaProbeGene pg : probeNes) {
+			if (pg.isSignificant()) // FIXME inconsistent with remote result
+			{
+				nodeResultList.add(pg.getIdeaNode(markers));
 			}
 		}
-		//prepare moduleResultList
-		List<IdeaModule> moduleResultList=new ArrayList<IdeaModule>();
 		
+		//prepare moduleResultList
+		List<IdeaModule> moduleResultList = new ArrayList<IdeaModule>();
 		for (IdeaProbeGene p : probeNes) {// present significant node with its
 			// edges
-			if ((p.getCumLoc() < pvalue) || (p.getCumGoc() < pvalue)) {
-				ArrayList<IdeaEdge> pe=p.getEdges();
-				for (IdeaEdge e : pe) {					
-					String gLoc="";
-					String ppi = "";
-					if (e.isLoc()||e.isGoc()){
-						if (e.isLoc()) gLoc= "LoC";
-						if (e.isGoc()) gLoc="GoC";						
-					}
-					else 
-						gLoc="None";
-					if (e.getPpi() == InteractionType.PROTEIN_PROTEIN)
-						ppi = "ppi";
-					else if (e.getPpi() == InteractionType.PROTEIN_DNA)
-						ppi = "pdi";
-					
-					IdeaModule aModule=new IdeaModule(e.getProbeId1(),e.getProbeId2(),
-							ppi, gLoc);
-					moduleResultList.add(aModule);
-				}
+			if (p.isSignificant(pvalue)) {
+				moduleResultList.addAll(p.getModuleList());
 			}
 		}
 		if (this.stopAlgorithm) {
@@ -515,12 +371,11 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 
 	@Override
 	public String getAnalysisName() {
-		// TODO Auto-generated method stub
 		return "Idea";
 	}
 
 	@Override
-	protected Map<Serializable, Serializable> getBisonParameters() {		// TODO Auto-generated method stub
+	protected Map<Serializable, Serializable> getBisonParameters() {
 		
 		Map<Serializable, Serializable> bisonParameters = new HashMap<Serializable, Serializable>();
 		IDEAPanel paramPanel = (IDEAPanel) this.aspp;
@@ -539,19 +394,16 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 
 	@Override
 	public Class<?> getBisonReturnType() {
-		// TODO Auto-generated method stub
 		return IdeaResultDataSet.class;
 	}
 
 	@Override
 	protected boolean useMicroarraySetView() {
-		// TODO Auto-generated method stub
 		return true;
 	}
 
 	@Override
 	protected boolean useOtherDataSet() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -711,11 +563,10 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 		}
 	}
 	
-	
 	@SuppressWarnings({ "rawtypes" })
 	@Subscribe
 	public void receive(org.geworkbench.events.ProjectEvent e, Object source) {
-		if (e.getMessage().equals(org.geworkbench.events.ProjectEvent.SELECTED)){
+		if (e.getValue()==org.geworkbench.events.ProjectEvent.Message.SELECT){
 			DSDataSet dataSet = e.getDataSet();
 			if (dataSet instanceof DSMicroarraySet) {
 				this.IDEAAnalysisPanel.setMicroarraySet((DSMicroarraySet)dataSet);
@@ -729,7 +580,6 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
         if(dNode == null){
         	return;
         }
-        
        
         String currentTargetSet = this.IDEAAnalysisPanel.getSelectedAdjMatrix();
         this.IDEAAnalysisPanel.clearAdjMatrixCombobox();
@@ -747,6 +597,5 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
             }
         }
 	}
-
 	
 }

@@ -2,9 +2,7 @@ package org.geworkbench.components.idea;
 
 import java.io.Serializable;
 
-import javax.swing.JOptionPane;
-
-import org.geworkbench.bison.datastructure.bioobjects.IdeaEdge.InteractionType;
+import org.geworkbench.components.idea.IdeaEdge.InteractionType;
 
 /**
  * Data structure to hold the network edge information from parameter panel. 
@@ -15,38 +13,30 @@ import org.geworkbench.bison.datastructure.bioobjects.IdeaEdge.InteractionType;
 public class IdeaNetworkEdge implements Serializable {
 	
 	private static final long serialVersionUID = -5741396026577511626L;
-	private int geneId1;
-	private int geneId2;
-	private InteractionType interactionType;
-	
-	IdeaNetworkEdge(){
-		
-	}	
+	private final int geneId1;
+	private final int geneId2;
+	private final InteractionType interactionType;
 	
 	IdeaNetworkEdge(int node1, int node2){
 		geneId1=node1;
 		geneId2=node2;
-		setInteractionType(InteractionType.PROTEIN_DNA);	//defaut setting
+		interactionType = InteractionType.PROTEIN_DNA; // default
 	}
 
-	public boolean parseIdeaNetworkEdge(String line) {
-		String[] tokens = line.split("\\s");
-		try{
-			geneId1 = Integer.parseInt(tokens[0]);
-			geneId2 = Integer.parseInt(tokens[1]);
-			setInteractionType(stringToInteractionType(tokens[3]));
-		}
-		catch(Exception e){
-			JOptionPane.showMessageDialog(
-					null,
-					"network format error!",
-					"Parsing Error",
-					JOptionPane.ERROR_MESSAGE);
-			return false;
-		}
-		return true;
+	IdeaNetworkEdge(int node1, int node2, InteractionType interactionType) {
+		geneId1 = node1;
+		geneId2 = node2;
+		this.interactionType = interactionType;
 	}
 	
+	public static IdeaNetworkEdge parseIdeaNetworkEdge(String line) {
+		String[] tokens = line.split("\\s");
+		int geneId1 = Integer.parseInt(tokens[0]);
+		int geneId2 = Integer.parseInt(tokens[1]);
+		IdeaNetworkEdge e = new IdeaNetworkEdge(geneId1, geneId2,
+				stringToInteractionType(tokens[3]));
+		return e;
+	}
 	
 	private static InteractionType stringToInteractionType(String str) {
 		int ppiId = Integer.parseInt(str);
@@ -74,9 +64,9 @@ public class IdeaNetworkEdge implements Serializable {
 			return false;
 		}
 		IdeaNetworkEdge edge = (IdeaNetworkEdge)obj;
-		if(geneId1==edge.getGene1() && geneId2==edge.getGene2()) {
+		if(geneId1==edge.geneId1 && geneId2==edge.geneId2) {
 			return true;
-		} else if(geneId1==edge.getGene2() && geneId2==edge.getGene1()) {
+		} else if(geneId1==edge.geneId2 && geneId2==edge.geneId1) {
 			return true;
 		} else {
 			return false;
@@ -91,11 +81,7 @@ public class IdeaNetworkEdge implements Serializable {
 		return hash;
 	}
 
-	public void setInteractionType(InteractionType interactionType) {
-		this.interactionType = interactionType;
-	}
-
-	public InteractionType getInteractionType() {
+	public IdeaEdge.InteractionType getInteractionType() {
 		return interactionType;
 	}
 }
