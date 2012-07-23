@@ -127,6 +127,8 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 
 	public Set<Integer> preparePhenoSet(String in){
 		Set<Integer> oneSet=new HashSet<Integer>();
+		if(maSet==null) return oneSet;
+		
 		String[] tokens=in.split(",");
 		for(String s:tokens){
 			for(int i=0;i<maSet.size();i++){
@@ -702,18 +704,20 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 		BufferedReader br;
 		br = new BufferedReader(new FileReader(filename));
 		String line = br.readLine(); // skip the header line
+		networkList.clear();
 		networkList.add(line);
 		line = br.readLine();
 		networkList.add(line);
 		ideaNetwork = new ArrayList<IdeaNetworkEdge>();
-		IdeaNetworkEdge edge = new IdeaNetworkEdge();
-		while(line!=null && line.trim().length()>0) {			
-			if(edge.parseIdeaNetworkEdge(line)){
+		while(line!=null && line.trim().length()>0) {
+			try {
+				IdeaNetworkEdge edge = IdeaNetworkEdge.parseIdeaNetworkEdge(line);
 				ideaNetwork.add(edge);
 				line = br.readLine();
 				networkList.add(line);
-			}
-			else{
+			} catch(Exception e) {
+				JOptionPane.showMessageDialog(null, "network format error!",
+						"Parsing Error", JOptionPane.ERROR_MESSAGE);
 				networkField.setText("");
 				break;
 			}
@@ -818,6 +822,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 		}
 		
 		log.debug("network size is "+ideaNetwork.size());
+		networkList.clear();
 		for(IdeaNetworkEdge ie:ideaNetwork){			
 			networkList.add(ie.getGene1()+"\t"+ie.getGene2()+"\t1"+"\t0"+"\t0");
 		}
@@ -1047,9 +1052,9 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 		}
 	}
 	
-	public boolean chooseNetworkFromSet(String setLabel){
+	private boolean chooseNetworkFromSet(String setLabel){
 		for (AdjacencyMatrixDataSet adjSet : adjacencymatrixDataSets) {
-			if (adjSet.getLabel() == setLabel){
+			if (adjSet.getLabel().equals(setLabel)){
 				selectedAdjSet=adjSet;				
 				return true;
 			}
