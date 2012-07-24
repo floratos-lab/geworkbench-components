@@ -23,8 +23,7 @@ import javax.swing.JTextArea;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
-import javax.swing.table.TableModel;
-import javax.swing.table.TableRowSorter;
+import javax.swing.table.TableModel; 
 
 public class TableViewer extends JPanel {
 	private static final long serialVersionUID = -1164124089849089214L;
@@ -53,8 +52,7 @@ public class TableViewer extends JPanel {
 		model = new AnovaViewerTableModel();
 
 		table = new JTable(model);
-		TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(model);
-		table.setRowSorter(sorter);
+		table.setAutoCreateRowSorter(true);
 
 		Enumeration<TableColumn> columns = table.getColumnModel().getColumns();
 		while (columns.hasMoreElements()) {
@@ -95,13 +93,25 @@ public class TableViewer extends JPanel {
 		public Object getValueAt(int row, int col) {
 			if (data != null && row < data.length
 					&& col < data[row].length)
-				return data[row][col];
+                return data[row][col];			 
 			return null;
 		}
 
 		public String getColumnName(int index) {
 			return headerNames[index];
-		}
+		}		
+		
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		public Class getColumnClass(int column) {
+	        Class returnValue;
+	        if ((column >= 0) && (column < getColumnCount())) {
+	          returnValue = getValueAt(0, column).getClass();
+	        } else {
+	          returnValue = Object.class;
+	        }
+	        return returnValue;
+	      }
+		
 
 	}
 
