@@ -28,6 +28,6 @@
         
 	</component>
 
-	<plugin id="AnovaAnalysis" name="Anova Analysis" class="org.geworkbench.components.anova.AnovaAnalysis" source="anova"/>
+	<plugin id="AnovaAnalysis" name="ANOVA Analysis" class="org.geworkbench.components.anova.AnovaAnalysis" source="anova"/>
 
 </component-descriptor>
