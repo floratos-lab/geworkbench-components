@@ -167,6 +167,11 @@ public class PatternDiscoveryParamPanel extends AbstractSaveableParameterPanel {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				JCheckBox box = (JCheckBox)e.getSource();
+				if (!box.hasFocus()){
+					box.setSelected(!box.isSelected());
+					return;
+				}
 				if (jExactOnlyBox.isSelected()) {
 					jMatrixBox.setEnabled(false);
 					jSimThresholdBox.setEnabled(false);

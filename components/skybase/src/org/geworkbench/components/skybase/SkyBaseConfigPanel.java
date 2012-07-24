@@ -31,7 +31,7 @@ public class SkyBaseConfigPanel extends AbstractSaveableParameterPanel {
 	private JTextField mincovEdit = new JTextField();
 	private JTextField minsidEdit = new JTextField();
 	private JTextField rphitsEdit = new JTextField();
-	private JComboBox dbBox = new JComboBox(new String[]{"NESG", "PDB60"});
+	private JComboBox dbBox = new JComboBox(new String[]{"PDB60", "NESG"});
 
 	private double mincov = 75, minsid = 30; 
 	private int rphits = 10;
@@ -84,13 +84,13 @@ public class SkyBaseConfigPanel extends AbstractSaveableParameterPanel {
 	 */
 	private void jbInit() throws Exception {
 		FormLayout layout = new FormLayout(
-				"right:max(40dlu;pref), 8dlu, max(60dlu;pref)", "");
+				"right:max(40dlu;pref), 15dlu, max(70dlu;pref)", "");
 		DefaultFormBuilder builder = new DefaultFormBuilder(layout);
 		builder.setDefaultDialogBorder();
 		builder.appendSeparator("Default SkyBase parameters");
-		builder.append("% minimum alignment coverage", mincovEdit);
-		builder.append("% minimum sequence identity", minsidEdit);
-		builder.append("# most similar hits to report", rphitsEdit);
+		builder.append("The percentage of minimum sequence alignment coverage", mincovEdit);
+		builder.append("The percentage of minimum sequence identity", minsidEdit);
+		builder.append("The number of most similar hits to report", rphitsEdit);
 		builder.append("Homology Models SkyBase", dbBox);
 
 		this.add(builder.getPanel(), BorderLayout.CENTER);

@@ -224,7 +224,7 @@ public class MatrixReduceParamPanel extends AbstractSaveableParameterPanel{
 
 		rangeVerifier rvPV = new rangeVerifier();
 		rvPV.setrange(0.0, 1.0);
-		pValue.setText("0.001");
+		pValue.setValue(new Double(0.001));
 		pValue.setInputVerifier(rvPV);
 		rangeVerifierInt rvMM = new rangeVerifierInt();
 		rvMM.setrange(0, 20);

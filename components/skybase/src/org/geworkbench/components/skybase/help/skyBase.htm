@@ -1,0 +1,218 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html dir="ltr" lang="en"><head>
+<title>SkyBase - Workbench</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="generator" content="MediaWiki 1.16.0">
+<meta name="robots" content="noindex,follow">
+
+</head>
+<body class="mediawiki ltr ns-0 ns-subject page-SkyBase skin-monobook">
+<div id="globalWrapper">
+<div id="column-content"><div id="content">
+	<a id="top"></a>
+	
+	<h1 id="firstHeading" class="firstHeading">SkyBase</h1>
+	<div id="bodyContent">
+		<!-- start content -->
+<p><br>
+</p>
+<a name="Overview"></a><h1> <span class="mw-headline" id="Overview">Overview</span></h1>
+<p>SkyBase is a database that stores the homology models built by SkyLine analysis for 
+</p>
+<ul><li> structures in the <a href="http://www.rcsb.org/" class="external text" rel="nofollow">RCSB Protein Data Bank (PDB)</a> with a 60% redundancy cutoff (PDB60)
+</li><li> structures in the <a href="http://www.nesg.org/" class="external text" rel="nofollow">Northeast Structural Genomics Consortium</a> database
+</li></ul>
+<p>As of 7/18/2012, the databases have:
+</p>
+<ul><li> PDB60: 12,264 structures, 9,544,535 models.
+</li><li> NESG: 946 structures, 1,943,361 models. 
+</li></ul>
+<p>Users can search the database with their sequence of interest to find
+ homology models which meet user-defined alignment coverage and sequence
+ identity constraints.  
+</p>
+<a name="SkyBase_Web_Version"></a><h2> <span class="mw-headline" id="SkyBase_Web_Version">SkyBase Web Version</span></h2>
+<p>SkyBase can be used either within geWorkbench, or directly in a web 
+browser.  For more information about the web version, please see the 
+following two links.
+</p>
+<a name="SkyBase_Web_Tutorial"></a><h3> <span class="mw-headline" id="SkyBase_Web_Tutorial">SkyBase Web Tutorial</span></h3>
+<p><a href="http://skybase.c2b2.columbia.edu/nesg3/help/help.html" class="external free" rel="nofollow">http://skybase.c2b2.columbia.edu/nesg3/help/help.html</a>
+</p>
+<a name="SkyBase_Web_Search_Page"></a><h3> <span class="mw-headline" id="SkyBase_Web_Search_Page">SkyBase Web Search Page</span></h3>
+<p><a href="http://skybase.c2b2.columbia.edu/nesg3/nesg.php" class="external free" rel="nofollow">http://skybase.c2b2.columbia.edu/nesg3/nesg.php</a>
+</p>
+<a name="SkyBase_in_geWorkbench"></a><h1> <span class="mw-headline" id="SkyBase_in_geWorkbench">SkyBase in geWorkbench</span></h1>
+<a name="Parameters"></a><h2> <span class="mw-headline" id="Parameters">Parameters</span></h2>
+<p>BLAST is run using the query sequence to identify "hits" to existing models in the SkyBase database.
+</p>
+<a name=".25_Minimum_Alignment_Coverage"></a><h3> <span class="mw-headline" id=".25_Minimum_Alignment_Coverage">% Minimum Alignment Coverage</span></h3>
+<ul><li> Percentage of the hit sequence that the query sequence must align to, including similarity matches.
+</li><li> If the query sequence is shorter than hit sequence, sequence coverage is calculated for the query sequence.
+</li></ul>
+<a name=".25_Minimum_Sequence_Identity"></a><h3> <span class="mw-headline" id=".25_Minimum_Sequence_Identity">% Minimum Sequence Identity</span></h3>
+<p>Percentage of the hit sequence that the query sequence must have exact letter matches with.
+</p>
+<a name="Most_Similar_Hits_to_Report"></a><h3> <span class="mw-headline" id="Most_Similar_Hits_to_Report">Most Similar Hits to Report</span></h3>
+<p>The number of top hits to report, based on a calculated rank.  The 
+rank combines the model quality pG, the template coverage, and the 
+model-template sequence identity.
+</p>
+<ol><li> Models with a quality score &lt; 0.7 are discarded.
+</li><li> The remaining models are then binned by the quality score, pG, such that bin A &gt; bin B &gt; bin C:
+<ol><li> 0.9 &lt;= pG &lt; 1.0, bin A
+</li><li> 0.8 &lt;= pG &lt; 0.9, bin B
+</li><li> 0.7 &lt;= pG &lt; 0.8, bin C
+</li></ol>
+</li><li> Within each bin, ranks are further decided by sorting their template coverage; higher coverage gets higher rank
+</li><li> Within each bin, for any models with the same template 
+coverage, ranks are further decided by sorting the hits on their 
+sequence identity; higher identity gets higher rank.
+</li></ol>
+<p><br>
+The BLAST search with the parameters shown below will return the top 10 
+results that have at least a 75% sequence coverage of hit sequences (if 
+the query sequence is shorter than hit sequence, sequence coverage is 
+calculated for the query sequence) and over 30% sequence identity of the
+ two sequences.
+</p>
+<a name="Homology_Models_SkyBase"></a><h3> <span class="mw-headline" id="Homology_Models_SkyBase">Homology Models SkyBase</span></h3>
+<p>For details of the two supported homology model databases, please see <a href="http://skybase.c2b2.columbia.edu/nesg3/help/help.html" class="external free" rel="nofollow">http://skybase.c2b2.columbia.edu/nesg3/help/help.html</a>
+</p>
+<ul><li> <b>PDB60</b> (default) - models generated based on structures in the PDB with a 60% redundancy cutoff.
+</li><li> <b>NESG</b> - models generated based on structures in the Northeast Structural Genomics Consortium database (~670 structures).
+</li></ul>
+<p><br>
+<img alt="SkyBase Parameters.png" src="skyBase_files/SkyBase_Parameters.png" height="305" width="746">
+</p>
+<a name="Grid_Service"></a><h2> <span class="mw-headline" id="Grid_Service">Grid Service</span></h2>
+<p>No local service implementation of SkyBase is available in 
+geWorkbench.  Instead, an open grid service is used.  No username or 
+password is required.
+</p><p>In the Services tab, 
+</p>
+<ol><li> Click on "Search Grid Services".  This will retrieve the information for the SkyBase grid service from the index service.
+</li><li> Select the radio button in front of the SkyBase grid service.
+</li><li> Return to the "Parameters" tab.
+</li></ol>
+<p><br>
+<img alt="SkyBase Grid Service.png" src="skyBase_files/SkyBase_Grid_Service.png" height="356" width="665">
+</p>
+<a name="Running_a_SkyBase_query"></a><h2> <span class="mw-headline" id="Running_a_SkyBase_query">Running a SkyBase query</span></h2>
+<ol><li> Make sure SkyBase is loaded in the <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Component_Configuration_Manager" title="Component Configuration Manager"> Component Configuration Manager</a>.
+</li><li> Load a protein sequence file for which you wish to find homology models.
+</li><li> Select the SkyBase analysis component in the Control area of geWorkbench.
+</li><li> Set the parameters as desired.
+</li><li> Select the grid service in the "Services" tab.
+</li><li> Back on the Parameters tab, hit "Analyze".
+</li></ol>
+<a name="Viewing_SkyBase_Results"></a><h2> <span class="mw-headline" id="Viewing_SkyBase_Results">Viewing SkyBase Results</span></h2>
+<p><b>Note</b> - SkyLine results are maintained on the server, not in 
+geWorkbench.  Each time a different structure is selected for viewing, 
+its details will be retrieved from the SkyBase server.  While there is 
+currently no data deletion policy, data of interest should be saved to 
+disk or screenshots taken.
+</p><p><br>
+After query with the sequence for PDB structure "1e09", <a href="http://wiki.c2b2.columbia.edu/workbench/images/f/f1/1e09.fasta" class="internal" title="1e09.fasta"> 1e09.fasta</a>:
+</p><p><br>
+<img alt="SkyBase 1e09 full normal.png" src="skyBase_files/SkyBase_1e09_full_normal.png" height="529" width="1096">
+</p>
+<a name="Table"></a><h3> <span class="mw-headline" id="Table">Table</span></h3>
+<a name="Column_Headers"></a><h4> <span class="mw-headline" id="Column_Headers">Column Headers</span></h4>
+<ul><li>&nbsp;%Id Query-Model Sequence - Percent identity in the query-model sequence alignment.
+</li><li> Model Start-End
+</li><li> Query Start-End
+</li><li> Model SeqID
+</li><li> Model Sequence
+</li><li> Query Sequence
+</li><li> pG - a log-transformed, length-normalized integration over the residue-by-residue Prosa II profile [Sippl, 1993].
+</li><li> Coverage Template
+</li><li>&nbsp;%Id Template-Model Sequences - Percent identity in the template-model sequence alignment.
+</li><li> Template
+</li><li> Template Length
+</li><li> eValue
+</li><li> Model Length
+</li><li> Model Coverage
+</li><li> Model Species
+</li><li> Model Description
+</li><li> Model File
+</li><li> Template-Model Alignment
+</li></ul>
+<a name="Note_on_column_sorting"></a><h4> <span class="mw-headline" id="Note_on_column_sorting">Note on column sorting</span></h4>
+<p>In the initial display, the data is sorted in descending order on the
+ second column, "Id% query-model-sequence".  The table can be resorted 
+based on any column by clicking on that column's header.  Repeated 
+clicks on the same header will cycle through sorting the table in three 
+ways:
+</p>
+<ul><li> Original order (column 2, descending).
+</li><li> Ascending order of clicked-on column.
+</li><li> Descending order of clicked-on column.
+</li></ul>
+<a name="Table_Column_Details.2C_upper_left"></a><h4> <span class="mw-headline" id="Table_Column_Details.2C_upper_left">Table Column Details, upper left</span></h4>
+<p><img alt="SkyBase 1e09 upper left.png" src="skyBase_files/SkyBase_1e09_upper_left.png" height="200" width="1154">
+</p><p><br>
+</p>
+<a name="Table_Column_Details.2C_upper_right"></a><h4> <span class="mw-headline" id="Table_Column_Details.2C_upper_right">Table Column Details, upper right</span></h4>
+<p><img alt="SkyBase 1e09 upper right.png" src="skyBase_files/SkyBase_1e09_upper_right.png" height="199" width="1157">
+</p>
+<a name="Bar_Chart"></a><h3> <span class="mw-headline" id="Bar_Chart">Bar Chart</span></h3>
+<p>For each model, the bar chart plots several of the most important features for easy comparison:
+</p>
+<ul><li> <b>Model Quality, pG</b> - a log-transformed, length-normalized integration over the residue-by-residue Prosa II profile [Sippl, 1993]. 
+</li><li> <b>Template Coverage</b> - 
+</li><li> <b>Model-Template Sequence Identity</b> - Degree of identity between the model sequence and the structural template.
+</li><li> <b>Rank</b> - red line, not labeled.
+</li></ul>
+<p><img alt="SkyBase BarChart.png" src="skyBase_files/SkyBase_BarChart.png" height="254" width="786">
+</p>
+<a name="Alignments"></a><h3> <span class="mw-headline" id="Alignments">Alignments</span></h3>
+<p><b>Jalview</b> - Alignments between the model and the original 
+template sequence, and between the model and the query sequence, can be 
+viewed using the built-in Jalview multiple alignment viewer. <a href="http://www.jalview.org/" class="external free" rel="nofollow">http://www.jalview.org/</a>.  The residues are color-coded in the alignments.
+</p><p>This viewer offers a number of options for customizing the alignment view.
+</p>
+<a name="Model-template_alignment_.28VAT.29"></a><h4> <span class="mw-headline" id="Model-template_alignment_.28VAT.29">Model-template alignment (VAT)</span></h4>
+<p><img alt="SkyBase 1e09 VAT.png" src="skyBase_files/SkyBase_1e09_VAT.png" height="141" width="1092">
+</p><p><br>
+</p>
+<a name="Model-query_alignment_.28VAQ.29"></a><h4> <span class="mw-headline" id="Model-query_alignment_.28VAQ.29">Model-query alignment (VAQ)</span></h4>
+<p><img alt="SkyBase 1e09 VAQ.png" src="skyBase_files/SkyBase_1e09_VAQ.png" height="131" width="1087">
+</p><p><br>
+</p>
+<a name="Controls"></a><h3> <span class="mw-headline" id="Controls">Controls</span></h3>
+<ul><li> <b>ATP</b> - Add Structure to Project - The "ATP" button will 
+add the currently displayed protein structure file (PDB file) as a new 
+node to the Project in the Project Folders component.
+</li><li> <b>VAT</b> - View alignment between model and template - display the model-template sequence alignment in Jalview.
+</li><li> <b>VAQ</b> - View alignment between model and query - display the model-query sequence alignment in Jalview.
+</li></ul>
+<a name="References"></a><h1> <span class="mw-headline" id="References">References</span></h1>
+<p>Lee H, Li Z, Silkov A, Fischer M, Petrey D, Honig B, Murray D. (2010)
+ High-throughput computational structure-based characterization of 
+protein families: START domains and implications for structural 
+genomics.  J Struct Funct Genomics. 11(1):51-9.  <a href="http://www.ncbi.nlm.nih.gov/pubmed/20383749" class="external text" rel="nofollow">Link to paper</a>
+</p><p>Mirkovic N., Li Z., Parnassa A., Murray D. (2007) Strategies for 
+High-Throughput Comparative Modeling: Applications to Leverage Analysis 
+in Structural Genomics and Protein Family Organization. Proteins: 
+Structure, Function, and Bioinformatics 66:766-777. <a href="http://www.ncbi.nlm.nih.gov/pubmed/17154423" class="external text" rel="nofollow">link</a>.
+</p><p>Sippl MJ (1993) Recognition of errors in three-dimensional structures of proteins. Proteins. 17(4):355–62. <a href="http://www.ncbi.nlm.nih.gov/pubmed/8108378" class="external text" rel="nofollow">link</a>
+</p>
+<!-- 
+NewPP limit report
+Preprocessor node count: 98/1000000
+Post-expand include size: 1847/2097152 bytes
+Template argument size: 0/2097152 bytes
+Expensive parser function count: 0/100
+-->
+
+<!-- Saved in parser cache with key workbench:pcache:idhash:2492-0!1!0!!en!2!printable=1 and timestamp 20120718190514 -->
+<div class="visualClear"></div>
+<div id="footer">
+	<div id="f-poweredbyico"><img src="skyBase_files/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" height="31" width="88"></div>
+	<ul id="f-list">
+		<li id="lastmod"> This page was last modified on 18 July 2012, at 14:04.</li>
+	</ul>
+</div>
+</div>
+

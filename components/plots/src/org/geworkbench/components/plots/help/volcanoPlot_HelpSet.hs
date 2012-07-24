@@ -8,13 +8,13 @@
 	<!-- maps -->
 	<maps>
 		<homeID>overview</homeID>
-		<mapref location="VolcanoMap.jhm"/>
+		<mapref location="volcanoPlot_Map.jhm"/>
 	</maps>
 	<!-- views -->
 	<view>
 		<name>TOC</name>
 		<label>Volcano Plot</label>
 		<type>javax.help.TOCView</type>
-		<data>VolcanoTOC.xml</data>
+		<data>volcanoPlot_TOC.xml</data>
 	</view>
 </helpset>

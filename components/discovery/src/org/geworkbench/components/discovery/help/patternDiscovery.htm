@@ -74,21 +74,21 @@ Three options for specifying support are available via a pulldown menu:
 </li></ul>
 <a name="Exhaustive_tab"></a><h3> <span class="mw-headline" id="Exhaustive_tab">Exhaustive tab</span></h3>
 <p>Parameters specific to the "exhaustive" search algorithm can be set in this tab.
-</p><p><img alt="PatternDiscovery Params Exhaustive.png" src="patternDiscovery_files/PatternDiscovery_Params_Exhaustive.png" height="195" width="390">
+</p><p><img alt="PatternDiscovery Params Exhaustive.png" src="patternDiscovery_files/PatternDiscovery_Params_Exhaustive.png" height="194" width="402">
 </p>
 <ul><li> <b>Decrement support (%)</b> - sets the size of intervals by 
 which support level is decreased in successive searches (default is 5). 
  The decrease is multiplicative, e.g. if one enters 5%, support will be 
 reduce to 95% of its previous value at each step.
-</li><li> <b>Minimum Support (%)</b> - sets the lower limit on the percentage of sequences that must contain a specific motif (default is 10%).  
+</li><li> <b>Minimum Support (Number of Sequences)</b> - sets the lower limit on the number of sequences that must contain a specific motif (default is 10).  
+<ul><li> <b>Note</b> - In versions of geWorkbench prior to 2.2.1, if 
+a&nbsp;% sign was included in the minimum support text field, the 
+percentage entered was applied to the initial minimum support value.  
+For example, if the initial minimum support was 70%, and "10%" is 
+entered in this field, the final stopping value for the calculation 
+would be 7%.
 </li></ul>
-<p><b>Note</b> - Prior to version 2.2.1, if a&nbsp;% sign is included in
- the minimum support text field, the percentage entered will be applied 
-to the initial minimum support value.  For example, if the initial 
-minimum support is 70%, and "10%" is entered in this field, the final 
-stopping value for the calculation will be 7%.
-</p>
-<ul><li> <b>Minimum Pattern Number</b> - sets a lower limit on the number of motifs in a cluster (point at which support decrease stops).
+</li><li> <b>Minimum Pattern Number</b> - sets a lower limit on the number of motifs in a cluster (point at which support decrease stops).
 </li></ul>
 <a name="Limits"></a><h3> <span class="mw-headline" id="Limits">Limits</span></h3>
 <p><img alt="PatternDiscovery Params Limits.png" src="patternDiscovery_files/PatternDiscovery_Params_Limits.png" height="128" width="343">
@@ -308,33 +308,52 @@ number.  (However, note that it is passed to the Splash server as a
 double).
 </li></ul>
 <p><img alt="PatternDiscovery Params Advanced Matrix.png" src="patternDiscovery_files/PatternDiscovery_Params_Advanced_Matrix.png" height="178" width="322">
-</p><p>The results of repeating the same run as before but using BLOSUM50 are pictured above in <b>Viewing Results</b>.<br>
+</p><p>The results of repeating the same run as before but using BLOSUM50 are pictured above in <b>Viewing Results</b>.
+</p><p><br>
 </p>
-<p>
-  <a name="References"></a></p>
-<h2> <span class="mw-headline" id="References">References</span></h2>
+<a name="Versions_prior_to_geWorkbench_2.3.0"></a><h2> <span class="mw-headline" id="Versions_prior_to_geWorkbench_2.3.0">Versions prior to geWorkbench 2.3.0</span></h2>
+<a name="Layout"></a><h3> <span class="mw-headline" id="Layout">Layout</span></h3>
+<p>The Pattern Discovery component had a different layout prior to 
+release 2.3.0.  The controls and results viewing were placed together.
+</p><p>The Pattern discovery component control area had three sections. 
+</p>
+<ol><li> Run controls are shown at top, 
+</li><li> the hit display area is in the center (empty in the figure below), and 
+</li><li> the parameter settings are at bottom. 
+</li></ol>
+<p><img alt="PatternDiscovery Params Basic Norm.png" src="patternDiscovery_files/PatternDiscovery_Params_Basic_Norm.png" height="334" width="708">
+</p>
+<a name="Top-level_run_controls"></a><h3> <span class="mw-headline" id="Top-level_run_controls">Top-level run controls</span></h3>
+<p><img alt="PatternDiscovery Run Controls.png" src="patternDiscovery_files/PatternDiscovery_Run_Controls.png" height="76" width="702">
+</p>
+<ul><li> <b>Normal</b> - select the "normal" pattern discovery algorithm.
+</li><li> <b>Exhaustive</b> - select the "exhaustive" pattern discovery algorithm.   This takes much more time.
+</li></ul>
+<ul><li> <b>Curling arrow</b> - start a new pattern discovery run.
+</li><li> <b>Stop sign</b> - Cancel the current pattern discovery run
+</li><li> <b>File folder</b> - load a pattern file
+</li></ul>
+<ul><li> <b>Progress bar</b> - To the right of the control buttons is a progress bar that reports on the current stage of discovery being executed.
+</li></ul>
+<p><br>
+</p>
+<a name="References"></a><h2> <span class="mw-headline" id="References">References</span></h2>
 <p>Califano, A. (2000).  SPLASH: structural pattern localization analysis by sequential histograms.  Bioinformatics, Apr;<b>16</b>(4):341-57 (<a href="http://bioinformatics.oxfordjournals.org/cgi/content/abstract/16/4/341" class="external text" rel="nofollow">link to paper</a>).
 </p>
 <!-- 
 NewPP limit report
 Preprocessor node count: 118/1000000
-Post-expand include size: 1907/2097152 bytes
+Post-expand include size: 1847/2097152 bytes
 Template argument size: 0/2097152 bytes
 Expensive parser function count: 0/100
 -->
 
-<!-- Saved in parser cache with key workbench:pcache:idhash:1515-0!1!0!!en!2!printable=1 and timestamp 20120309171257 -->
-<div class="printfooter">
-Retrieved from "<a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Pattern_Discovery">http://wiki.c2b2.columbia.edu/workbench/index.php/Pattern_Discovery</a>"</div>
-		<div id="catlinks" class="catlinks catlinks-allhidden"></div>		<!-- end content -->
-				<div class="visualClear"></div>
-	</div>
-</div></div>
+<!-- Saved in parser cache with key workbench:pcache:idhash:1515-0!1!0!!en!2!printable=1 and timestamp 20120712155211 -->
 <div class="visualClear"></div>
 <div id="footer">
 	<div id="f-poweredbyico"><img src="patternDiscovery_files/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" height="31" width="88"></div>
 	<ul id="f-list">
-		<li id="lastmod"> This page was last modified on 9 March 2012, at 12:11.</li>
+		<li id="lastmod"> This page was last modified on 12 July 2012, at 10:23.</li>
 	</ul>
 </div>
 </div>

@@ -334,7 +334,7 @@ public class NetworkRedrawWindow {
 
 		if (value == 0) {
 			adjacencyMatrixdataSet = new AdjacencyMatrixDataSet(origMatrix,
-					0.5f, "Adjacency Matrix",
+					0.0f, "Adjacency Matrix",
 					CytoscapeWidget.getInstance().maSet.getLabel(),
 					CytoscapeWidget.getInstance().maSet);
  
@@ -356,7 +356,7 @@ public class NetworkRedrawWindow {
 
 						String interactionType = null;
 						String evidence = null;
-						String confidenceValue = "0.8";
+						String confidenceValue = null;
 
 						interactionType = edgeAttrs.getStringAttribute(edgeView
 								.getEdge().getIdentifier(), "type");

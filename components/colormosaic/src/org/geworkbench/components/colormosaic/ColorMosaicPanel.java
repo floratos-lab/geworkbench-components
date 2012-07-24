@@ -391,9 +391,9 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         jScrollPane.setCorner(JScrollPane.UPPER_LEFT_CORNER, new JComponent() {
 			private static final long serialVersionUID = 9052547911998188349L;
 			public void paint(Graphics g) {
-                setBackground(Color.WHITE);
+                g.setColor(Color.WHITE);
                 Rectangle clip = g.getClipBounds();
-                g.clearRect(clip.x, clip.y, clip.width, clip.height);
+                g.fillRect(clip.x, clip.y, clip.width, clip.height);
             }
         });
         colorMosaicImage.setPrintRatio(jTogglePrintRatio.isSelected());
@@ -795,6 +795,8 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         inches = d / (double) r - (double) rowSpace / (double) res[0];
 
         g2.translate(pf.getImageableX() * scaleX, pf.getImageableY() * scaleY);
+        int w = colorMosaicImage.geneWidth;
+        int h = colorMosaicImage.geneHeight;
         colorMosaicImage.setAutoWidth(inches, res[0]);
         System.out.print("Painting ... ");
         g2.translate(rowSpace, 0);
@@ -804,6 +806,8 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         g2.translate(rowSpace, 0);
         colorMosaicImage.paint(g2, res[0], false);
         System.out.println("Done");
+        colorMosaicImage.geneWidth = w;
+        colorMosaicImage.geneHeight = h;
         return Printable.PAGE_EXISTS;
     }
 

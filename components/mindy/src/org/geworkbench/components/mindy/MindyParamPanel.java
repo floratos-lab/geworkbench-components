@@ -710,7 +710,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 				this.modulatorsFrom.setSelectedIndex((Integer) value);
 			}
 			if (key.equals("modulatorsSet")) {
-				this.modulatorsSets.setSelectedIndex((Integer) value);
+				this.modulatorsSets.setSelectedItem((String) value);
 			}			
 			if (key.equals("targets")) {
 				this.targetList.setText((String) value);
@@ -719,7 +719,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 				this.targetsFrom.setSelectedIndex((Integer) value);
 			}
 			if (key.equals("targetSet")) {
-				this.targetsSets.setSelectedIndex((Integer) value);
+				this.targetsSets.setSelectedItem((String) value);
 			}
 			if (key.equals("annotations")) {
 				this.dpiAnnotationList.setText((String) value);
@@ -772,11 +772,13 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
 		parameters.put("modulators", this.modulatorList.getText());
 		parameters.put("modulatorFromType",
-				this.modulatorsFrom.getSelectedIndex());		 
-	    parameters.put("modulatorsSet", this.modulatorsSets.getSelectedIndex());
+				this.modulatorsFrom.getSelectedIndex());
+		if (modulatorsSets.getSelectedItem() != null)
+	         parameters.put("modulatorsSet", this.modulatorsSets.getSelectedItem().toString());
 		parameters.put("targets", this.targetList.getText());
 		parameters.put("targetFromType", this.targetsFrom.getSelectedIndex());	 
-		parameters.put("targetsSet", this.targetsSets.getSelectedIndex());
+		if (targetsSets.getSelectedItem() != null)
+		   parameters.put("targetsSet", this.targetsSets.getSelectedItem().toString());
 		parameters.put("annotations", this.dpiAnnotationList.getText());
 		parameters.put("tf", this.transcriptionFactor.getText());
 		parameters.put("fraction", (Integer) this.setFraction.getValue());

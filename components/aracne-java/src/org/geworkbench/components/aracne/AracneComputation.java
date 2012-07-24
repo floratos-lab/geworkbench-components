@@ -58,6 +58,8 @@ public class AracneComputation {
 			case COMPLETE: // do not use this mode, re-create the process
 				p.setMode(Parameter.MODE.PREPROCESSING);
 				hardenedAracne.run(convert(mSetView), p, 1, pThreshold);
+				if (hardenedAracne.cancelled)
+					return null;
 				p.setMode(Parameter.MODE.DISCOVERY);
 				return hardenedAracne.run(convert(mSetView), p,
 						bootstrapNumber, pThreshold);

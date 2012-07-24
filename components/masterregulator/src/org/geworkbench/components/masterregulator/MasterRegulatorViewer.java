@@ -85,11 +85,11 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 
 	TableViewer tv;
 	TableViewer tv2;
-	String[] columnNames = { "Master Regulator", "FET P-Value", "Genes in regulon",
-			"Genes in intersection set", "Mode" };
+	String[] columnNames = { "Master Regulator", "FET P-Value", "Markers in regulon",
+			"Markers in intersection set", "Mode" };
 	// for label with -log10 etc, need to do something so Excel does not interpret it as a formula...
 	// Here use leading space.
-	String[] detailColumnNames = { "Genes in intersection set",
+	String[] detailColumnNames = { "Markers in intersection set",
 			" -log10(P-value) * sign of t-value" };
 	DSMasterRagulatorResultSet<DSGeneMarker> MRAResultSet;
 	boolean useSymbol = true;
@@ -111,9 +111,9 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 	private JTable graphtable = new JTable(bgm);
 	private GraphTableModel gdm = new GraphTableModel(new Object[0][3], graphheader);
 	private JTable gradienttable = new JTable(gdm);
-	private JRadioButton modeAll = new JRadioButton("All");
-	private JRadioButton activator = new JRadioButton("Activator(+)");
-	private JRadioButton repressor = new JRadioButton("Repressor(-)");
+	private JRadioButton modeAll = new JRadioButton("Both");
+	private JRadioButton activator = new JRadioButton("Plus(+)");
+	private JRadioButton repressor = new JRadioButton("Minus(-)");
 	private JRadioButton regulonBar = new JRadioButton("Regulon");
 	private JRadioButton intersectionBar = new JRadioButton("Intersection Set");
 	private final JSplitPane jSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
@@ -284,7 +284,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		builder.nextLine();
 
 		// build the top-left panel
-		FormLayout summaryTFFormLayout = new FormLayout("53dlu,2dlu,68dlu,2dlu,70dlu,8dlu,20dlu,2dlu,23dlu,2dlu,50dlu,2dlu,55dlu,pref:grow",
+		FormLayout summaryTFFormLayout = new FormLayout("53dlu,2dlu,68dlu,2dlu,70dlu,8dlu,20dlu,2dlu,33dlu,2dlu,45dlu,2dlu,50dlu,pref:grow",
 				"20dlu, pref:grow");
 		DefaultFormBuilder summaryTFFormBuilder = new DefaultFormBuilder(
 				summaryTFFormLayout);
@@ -496,9 +496,6 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 			int totaltfs = tv.table.getRowCount();
 			if (totaltfs == 0) n = 0;
 			else if (n < 0 || n > totaltfs){
-				numtop.setText(Integer.toString(totaltfs));
-				JOptionPane.showMessageDialog(null, "Display top results number: 0 < n < "+totaltfs, 
-						"Display results for top", JOptionPane.WARNING_MESSAGE);
 				n = totaltfs;
 			}
 			if (h <= 0){

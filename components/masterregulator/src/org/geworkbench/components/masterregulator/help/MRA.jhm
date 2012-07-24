@@ -7,6 +7,7 @@
 <map version="1.0">
 
 	<mapID target="Overview" url="MasterRegulatorAnalysis.htm#Overview"/>
+	<mapID target="FET_method_details" url="MasterRegulatorAnalysis.htm#FET_method_details"/>
 	<mapID target="Setting_up_an_MRA_run" url="MasterRegulatorAnalysis.htm#Setting_up_an_MRA_run"/>
 	<mapID target="Viewing_MRA_analysis_results_FET_Method" url="MasterRegulatorAnalysis.htm#Viewing_MRA_analysis_results_.28FET_Method.29"/>
 	<mapID target="Dataset_History" url="MasterRegulatorAnalysis.htm#Dataset_History"/>

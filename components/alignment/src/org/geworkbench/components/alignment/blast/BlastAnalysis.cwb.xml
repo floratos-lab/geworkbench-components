@@ -15,7 +15,7 @@
         category="Analysis, Remote Access, Sequence"
         loadByDefault="true">
 		<required-component
-			class="org.geworkbench.components.alignment.panels.BlastViewComponent" />
+			class="org.geworkbench.components.alignment.BlastViewComponent" />
 		<required-component
 			class="org.geworkbench.components.sequences.SequenceViewAppComponent" />
 		<related-component class="org.geworkbench.components.promoter.PromoterView" />

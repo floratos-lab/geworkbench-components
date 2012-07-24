@@ -227,12 +227,16 @@ public class AnalysisPanel extends CommandBase implements
 
 		save.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				JButton button = (JButton)e.getSource();
+				if (!button.hasFocus()) return;
 				save_actionPerformed(e);
 			}
 
 		});
 		delete.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				JButton button = (JButton)e.getSource();
+				if (!button.hasFocus()) return;
 				delete_actionPerformed(e);
 			}
 
@@ -243,6 +247,8 @@ public class AnalysisPanel extends CommandBase implements
 
 		analyze.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				JButton button = (JButton)e.getSource();
+				if (!button.hasFocus()) return;
 				if(startAnalysis()) {
 					hideDialog();
 				}

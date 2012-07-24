@@ -14,7 +14,6 @@ import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
@@ -84,9 +83,9 @@ public class MicroarrayDisplay extends JPanel {
     	maSetView = microarraySetView;
     	uniqueMarkers = maSetView.getUniqueMarkers();
         
-    	DSMicroarraySet microarrays = microarraySetView.getMicroarraySet();
-        if (microarrays != null) {
-            int maxMarkerNo = microarrays.size();
+    	DSItemList<DSMicroarray> microarrays = microarraySetView.items();
+        if (microarrays != null && microarrays.size()>0) {
+            int maxMarkerNo = microarrays.get(0).getMarkerNo();
             if (maxMarkerNo > 0) {
                 rows = (int) Math.ceil(Math.sqrt((double) uniqueMarkers.size()));
                 cols = rows;

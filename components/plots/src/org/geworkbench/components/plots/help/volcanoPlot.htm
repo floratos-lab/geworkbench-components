@@ -1,0 +1,80 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html dir="ltr" lang="en"><head>
+<title>Volcano Plot - Workbench</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="generator" content="MediaWiki 1.16.0">
+<meta name="robots" content="noindex,follow">
+
+</head>
+<body class="mediawiki ltr ns-0 ns-subject page-Volcano_Plot skin-monobook">
+<div id="globalWrapper">
+<div id="column-content"><div id="content">
+	<a id="top"></a>
+	
+	<h1 id="firstHeading" class="firstHeading">Volcano Plot</h1>
+	<div id="bodyContent">
+		<!-- start content -->
+<p><br>
+</p>
+<a name="Overview"></a><h2> <span class="mw-headline" id="Overview">Overview</span></h2>
+<p><img alt="Volcano plot.png" src="volcanoPlot_files/Volcano_plot.png" height="541" width="827">
+</p><p><br>
+The Volcano Plot graphically depicts the results of the t-test for 
+differential expression.  It includes only markers which exceeded the 
+threshold for significance in the t-test.  The log2 fold change for each
+ marker is plotted against the -log10 of the P-value.
+</p><p>Markers for which no valid fold-change value could be calculated 
+(e.g. for the case of linear data the average of the case or control 
+values was negative) are omitted from the Volcano Plot.  However, all 
+such markers are included if the data is exported to file.
+</p><p>The Volcano Plot viewer is only available when a t-test result is selected in the Project Folders component.
+</p><p><br>
+</p>
+<a name="Fold_Change"></a><h2> <span class="mw-headline" id="Fold_Change">Fold Change</span></h2>
+<p>The method used to calculate fold change depends on whether the data 
+was marked as log2 transformed or not during the t-test using the "Data 
+is log2 transformed" box.
+</p>
+<ul><li> <b>Linear data</b> ("Data is log2 transformed" box <b>was not</b>
+ checked): the fold change is calculated, for each marker, as the Log2 
+transform of the average expression in the Case set divided by the 
+average expression in the control set, that is, 
+Log2(Avg(cases)/Avg(controls)) or Log2(Avg(cases)) - 
+Log2(Avg(controls)).  (Difference of logs of averaged values).
+</li></ul>
+<ul><li> <b>Log2 transformed data</b> ("Data is log2 transformed" box <b>was</b>
+ checked): In this case, for each marker, the average of the (log) case 
+values minus the average of the (log) control values is calculated, that
+ is, Avg(cases) - Avg(controls).  (Difference of averaged log values).
+</li></ul>
+<a name="Color_scheme"></a><h2> <span class="mw-headline" id="Color_scheme">Color scheme</span></h2>
+<p>The lower 2/3 of the absolute values of the (fold change) * 
+(significance) are colored in shades from light blue (lowest values) to 
+dark blue (highest values).  The highest 1/3 of such values are colored 
+from dark blue (lowest values) to red (highest values).
+</p>
+<a name="Export_Data"></a><h2> <span class="mw-headline" id="Export_Data">Export Data</span></h2>
+<p>Exports data for all markers in the t-test result node to a CSV format file.  
+</p><p>The column headers are: Probe Set Name, Gene Name, p-Value, Fold Change (log2).
+</p><p>Markers found significant in the t-test, but for which a fold 
+change value could not be calculated, are included in the export file as
+ "N/A".  They are not displayed in the Volcano Plot.
+</p>
+<!-- 
+NewPP limit report
+Preprocessor node count: 18/1000000
+Post-expand include size: 1847/2097152 bytes
+Template argument size: 0/2097152 bytes
+Expensive parser function count: 0/100
+-->
+
+<!-- Saved in parser cache with key workbench:pcache:idhash:2612-0!1!0!!en!2!printable=1 and timestamp 20120711221112 -->
+<div class="visualClear"></div>
+<div id="footer">
+	<div id="f-poweredbyico"><img src="volcanoPlot_files/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" height="31" width="88"></div>
+	<ul id="f-list">
+		<li id="lastmod"> This page was last modified on 11 July 2012, at 17:11.</li>
+	</ul>
+</div>
+</div>
+

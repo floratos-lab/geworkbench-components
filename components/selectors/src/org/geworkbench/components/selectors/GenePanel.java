@@ -534,6 +534,7 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 	public void receive(MarkerSelectedEvent event, Object source) {
 		JList list = itemAutoList.getList();
 		int index = itemList.indexOf(event.getMarker());
+		if(index<0) return;
 		list.setSelectedIndex(index);
 		list.scrollRectToVisible(list.getCellBounds(index, index));
 	}

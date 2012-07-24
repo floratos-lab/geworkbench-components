@@ -11,6 +11,8 @@ import java.awt.font.FontRenderContext;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.text.StringCharacterIterator;
+import java.text.AttributedString;
+import java.awt.font.TextAttribute;
 
 
 /**
@@ -147,6 +149,11 @@ public class CMHRuler extends JComponent {
 		}
 		if (clearArraynames)  return;
 		
+		AffineTransform hat = g.getTransform();
+		AffineTransform vat = new AffineTransform();
+		vat.rotate(-Math.PI / 2);
+		g.transform(vat);
+
 		for (int j = 0; j < chipNo; j++) {
 			DSMicroarray pl = colorMosaicImage.getPhenoLabel(j);
 			if (pl instanceof DSMicroarray) {
@@ -155,18 +162,18 @@ public class CMHRuler extends JComponent {
 						&& mArray.toString().toLowerCase().indexOf(colorMosaicImage.searchArray) >= 0) {
 			        ((Graphics2D)g).setComposite(colorMosaicImage.hltcomp);
 					g.setColor(Color.blue);
-					g.fillRect(j * colorMosaicImage.geneWidth, 0, colorMosaicImage.geneWidth, arrayNameLength);
+					g.fillRect(-arrayNameLength, j * colorMosaicImage.geneWidth, arrayNameLength, colorMosaicImage.geneWidth);
 				}
 				((Graphics2D)g).setComposite(colorMosaicImage.comp);
 				g.setColor(Color.black);
-				AffineTransform hat = g.getTransform();
-				AffineTransform vat = new AffineTransform();
-				vat.rotate(-Math.PI / 2);
-				g.transform(vat);
-				g.drawString(mArray.toString(), -arrayNameLength, (int) ((j + 0.7) * colorMosaicImage.geneWidth));
-				g.setTransform(hat);
+
+				AttributedString as = new AttributedString(mArray.toString());
+				as.addAttribute(TextAttribute.FONT, font);
+				as.addAttribute(TextAttribute.RUN_DIRECTION, TextAttribute.RUN_DIRECTION_LTR);
+				g.drawString(as.getIterator(), -arrayNameLength, (int) ((j + 0.7) * colorMosaicImage.geneWidth));
 			}
 		}
+		g.setTransform(hat);
     }
 
     private void jbInit() throws Exception {

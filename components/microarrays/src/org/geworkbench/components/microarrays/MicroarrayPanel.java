@@ -116,7 +116,7 @@ public class MicroarrayPanel implements
 
     @Subscribe public void receive(org.geworkbench.events.ProjectEvent projectEvent, Object source) {
 
-		if (projectEvent.getMessage().equals(ProjectEvent.CLEARED)) {
+		if (projectEvent.getValue()==ProjectEvent.Message.CLEAR) {
 			changeMicroArraySet(null);
 			mainPanel.repaint();
 			return;
@@ -388,6 +388,7 @@ public class MicroarrayPanel implements
 		if (e.getPanel() != null) {
 			DSPanel<DSGeneMarker> markerPanel = e.getPanel().activeSubset();
 			dataSetView.setMarkerPanel(markerPanel);
+			microarrayImageArea.setMicroarraySetView(dataSetView);
 			resetMicroarraySlider();
 			mainPanel.repaint();
 		}

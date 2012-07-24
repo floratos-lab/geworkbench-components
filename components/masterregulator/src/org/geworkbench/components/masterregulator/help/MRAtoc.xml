@@ -5,6 +5,7 @@
 	<tocitem text="Master Regulator Analysis">
 
 		<tocitem target="Overview" text="Overview"/>
+		<tocitem target="FET_method_details" text="FET method details"/>
 		<tocitem target="Setting_up_an_MRA_run" text="Setting up an MRA run"/>
 		<tocitem target="Viewing_MRA_analysis_results_FET_Method" text="Viewing MRA analysis results (FET_Method)"/>
 		<tocitem target="Dataset_History" text="Dataset History"/>

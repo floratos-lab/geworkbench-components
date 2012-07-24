@@ -19,22 +19,29 @@
 <a name="Overview"></a><h1> <span class="mw-headline" id="Overview">Overview</span></h1>
 <p>geWorkbench offers a selection of pluggable filters to assist in the 
 preparation of microarray gene expression data for analysis. 
-</p><p>Filtering can be used to remove low quality data or reduce the 
-size of the dataset by removing less interesting data.  Most geWorkbench
- filters allow the user to specify a minimum number or percentage of 
-arrays that must meet that filter's criterion before the marker will be 
-removed.
-</p><p>All filtering operations directly alter the loaded data set and 
-are not reversible.  A separate copy of the data is not generated.  
-Filtering operations do not respect any marker or array sets that may be
- activated; filtering always acts on the entire data set.
-</p><p>A microarray dataset must be loaded into the Project Folders component before filtering can be undertaken.
-</p><p>The filtering dialogs can be reached in two ways, either directly
- from the Project Folders component by a right-click menu on a 
-microarray dataset, 
+</p><p>Filtering can be used to remove low quality markers or reduce the
+ size of the dataset by removing less interesting markers.  Most 
+geWorkbench filters allow the user to specify a minimum number or 
+percentage of arrays in which the marker must meet that filter's 
+criterion before the marker will be removed.
+</p>
+<ul><li> All filtering operations directly alter the loaded data set and
+ are not reversible.  A separate copy of the data is not generated.  
+</li><li> Filtering operations do not respect any marker or array sets 
+that may be activated; filtering always acts on the entire data set.
+</li><li> A microarray dataset must be loaded into the Project Folders component before filtering can be undertaken.
+</li><li> Note - if a given marker is filtered out of the dataset, it 
+will also be removed from any set in the Markers component of which it 
+was a member.
+</li></ul>
+<p><br>
+The filtering dialogs can be reached in two ways, either directly from 
+the Project Folders component by a right-click menu on a microarray 
+dataset, 
 </p><p><img alt="Project Folders Filtering.png" src="filtering_files/Project_Folders_Filtering.png" height="359" width="406">
 </p><p><br>
 or through the Menu_Bar-&gt;Commands-&gt;Filtering submenu.
+</p><p><br>
 </p><p><br>
 <img alt="Menu Bar Commands Filtering.png" src="filtering_files/Menu_Bar_Commands_Filtering.png" height="191" width="418">
 </p>
@@ -323,23 +330,17 @@ methods are
 <!-- 
 NewPP limit report
 Preprocessor node count: 134/1000000
-Post-expand include size: 1907/2097152 bytes
+Post-expand include size: 1847/2097152 bytes
 Template argument size: 0/2097152 bytes
 Expensive parser function count: 0/100
 -->
 
-<!-- Saved in parser cache with key workbench:pcache:idhash:2108-0!1!0!!en!2!printable=1 and timestamp 20120309212408 -->
-<div class="printfooter">
-Retrieved from "<a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Filtering">http://wiki.c2b2.columbia.edu/workbench/index.php/Filtering</a>"</div>
-		<div id="catlinks" class="catlinks catlinks-allhidden"></div>		<!-- end content -->
-				<div class="visualClear"></div>
-	</div>
-</div></div>
+<!-- Saved in parser cache with key workbench:pcache:idhash:2108-0!1!0!!en!2!printable=1 and timestamp 20120710205120 -->
 <div class="visualClear"></div>
 <div id="footer">
 	<div id="f-poweredbyico"><img src="filtering_files/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" height="31" width="88"></div>
 	<ul id="f-list">
-		<li id="lastmod"> This page was last modified on 9 March 2012, at 16:23.</li>
+		<li id="lastmod"> This page was last modified on 10 July 2012, at 15:51.</li>
 	</ul>
 </div>
 </div>
