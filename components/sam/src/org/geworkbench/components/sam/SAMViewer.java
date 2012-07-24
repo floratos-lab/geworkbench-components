@@ -9,8 +9,13 @@ import java.awt.Stroke;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.Ellipse2D;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,8 +34,7 @@ import javax.swing.JSlider;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
-import javax.swing.event.ChangeEvent;
-import javax.swing.filechooser.FileFilter;
+import javax.swing.event.ChangeEvent; 
 import javax.swing.table.AbstractTableModel;
 
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
@@ -42,12 +46,15 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.A
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSAnnotPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSAnnotatedPanel;
+import org.geworkbench.builtin.projects.SaveFileFilterFactory;
+import org.geworkbench.builtin.projects.SaveFileFilterFactory.CustomFileFilter;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.events.SubpanelChangedEvent;
+import org.geworkbench.util.FilePathnameUtils;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -70,6 +77,9 @@ public class SAMViewer extends JPanel implements VisualPlugin{
 
 	private static final long serialVersionUID = -4629489912300556101L;
 	private final float DELTA_INIT=2.4f;
+	
+	private static final String lastDirConf = FilePathnameUtils.getUserSettingDirectoryPath()
+	+ "sam" + FilePathnameUtils.FILE_SEPARATOR + "lastDir.conf";
 	
 	private float delta=DELTA_INIT;
 	private float deltaInc=0.3f;
@@ -676,15 +686,32 @@ public class SAMViewer extends JPanel implements VisualPlugin{
 	private void saveTable(List<Dot> list){
 
 		JFileChooser fc = new JFileChooser();
-		fc.addChoosableFileFilter(new TXTFilter());
-        fc.setAcceptAllFileFilterUsed(false);
-		int returnVal = fc.showSaveDialog(SAMViewer.this);
-		String exportFileStr=fc.getSelectedFile().getPath();				
-		if (!exportFileStr.endsWith(".txt")&&!exportFileStr.endsWith(".TXT"))
-			exportFileStr += ".txt";
-		File exportFile=new File(exportFileStr);
+		CustomFileFilter filter = SaveFileFilterFactory.createCsvFileFilter();	
+		fc.setFileFilter(filter);
+		fc.setAcceptAllFileFilterUsed(false);
+		String lastDir = null;
+		if ((lastDir = getLastDir()) != null) {
+			fc.setCurrentDirectory(new File(lastDir));
+		}	 
+		 
+		String exportFile = null;			
+		if (JFileChooser.APPROVE_OPTION == fc
+				.showSaveDialog(null)) {
+			exportFile = fc.getSelectedFile().getPath();				
+			if (!filter.accept(new File(exportFile))) {
+				exportFile += "." + filter.getExtension();
+			}
 		
-		if (exportFile.exists()) {
+		
+		} else {
+			return;
+		}
+
+
+		saveLastDir(fc.getSelectedFile().getParent());		
+	 
+		
+		if (new File(exportFile).exists()) {
 			int n = JOptionPane.showConfirmDialog(
 					null,
 					"The file exists, are you sure to overwrite?",
@@ -694,10 +721,10 @@ public class SAMViewer extends JPanel implements VisualPlugin{
 				return;
 			}
 		}
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
+		 
 			String str = "";
 
-			str += "ProbeSet Id\tGene Sysmbol\tP-value\tFold x\tMI\tAnotation";
+			str += "ProbeSet Id,Gene Sysmbol,P-value,Fold x,Anotation";
 			for(Dot d: list){
 				String s="";
 				String markerLabel=d.getMarker().getLabel();				
@@ -710,8 +737,8 @@ public class SAMViewer extends JPanel implements VisualPlugin{
 					//e.printStackTrace();
 				}
 				
-				str+="\n"+d.getMarker().getLabel()+"\t"+d.getMarker().getGeneName()+"\t"+pvalue[d.getGeneRowNo()]
-						+"\t"+fold[d.getGeneRowNo()]+"\t"+s;
+				str += "\n" + d.getMarker().getLabel()+","+d.getMarker().getGeneName()+","+pvalue[d.getGeneRowNo()]
+						+","+fold[d.getGeneRowNo()]+",\""+ s+"\"";
 				
 				
 			}
@@ -719,47 +746,42 @@ public class SAMViewer extends JPanel implements VisualPlugin{
 			PrintWriter out = null;
 			try {
 				out = new PrintWriter(exportFile);
-				out.println(str);
+				out.print(str);
 			} catch (FileNotFoundException e1) {
 				e1.printStackTrace();
 			} finally {
+				if ( out != null)
 				out.close();
 			}
 			
-		}
+		 
 	
+	}	 
+	
+	private String getLastDir(){
+		String dir = null;
+		try {
+			File file = new File(lastDirConf);
+			if (file.exists()) {
+				BufferedReader br = new BufferedReader(new FileReader(file));
+				dir = br.readLine();
+				br.close();
+			}
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
+		return dir;
 	}
 	
-	
-	private class TXTFilter extends FileFilter {
-	    //Accept all directories and csv files.
-	    public boolean accept(File f) {
-	        if (f.isDirectory()) {
-	            return true;
-	        }
-	        String extension = getExtension(f);
-	        if (extension != null) {
-	            if (extension.equals("txt")) {
-	                    return true;
-	            } else {
-	                return false;
-	            }
-	        }
-	        return false;
-	    }
-	    public String getExtension(File f) {
-	        String ext = null;
-	        String s = f.getName();
-	        int i = s.lastIndexOf('.');
-	        if (i > 0 &&  i < s.length() - 1) {
-	            ext = s.substring(i+1).toLowerCase();
-	        }
-	        return ext;
-	    }
-	    //The description of this filter
-	    public String getDescription() {
-	        return "Tab-Delimited Data Files (*.txt)";
-	    }
+	private void saveLastDir(String dir){
+		//save as last used dir
+		try {
+			BufferedWriter br = new BufferedWriter(new FileWriter(lastDirConf));
+			br.write(dir);
+			br.close();
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
 	}
 	
 

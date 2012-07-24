@@ -21,6 +21,8 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.net.URLConnection;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -45,6 +47,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
+import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
 import org.apache.commons.lang.math.NumberUtils;
@@ -140,7 +143,9 @@ public class SkyBaseViewer implements VisualPlugin {
 	JComboBox alncombo[] = new JComboBox[2];
 	@SuppressWarnings("unchecked")
 	private Vector<String> vec[] = new Vector[2];
-	DefaultTableCellRenderer cellrdr = new DefaultTableCellRenderer();
+	private final NumberFormat dblformatter = new DecimalFormat("0.00");
+	private final NumberFormat decformatter = new DecimalFormat("0.0E00");
+	private final NumberFormat pctformatter = NumberFormat.getPercentInstance();
 
 	private String trimdot(String result) {
 		int i = result.indexOf(".");
@@ -341,13 +346,15 @@ public class SkyBaseViewer implements VisualPlugin {
 
 				table = new JTable(tableModel);
 
-				cellrdr.setHorizontalAlignment(JLabel.CENTER);
-				table.setDefaultRenderer(table.getColumnClass(0), cellrdr);
-				table.updateUI();
-
 				JTableHeader header = table.getTableHeader();
 				TableSorter ts = new TableSorter(tableModel, header);
 				table.setModel(ts);
+				CellRenderer renderer = new CellRenderer();
+				Enumeration<TableColumn> columns = table.getColumnModel().getColumns();
+				while(columns.hasMoreElements()){
+					columns.nextElement().setCellRenderer(renderer);
+				}
+				table.updateUI();
 
 				table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 				table.getSelectionModel().addListSelectionListener(
@@ -573,6 +580,32 @@ public class SkyBaseViewer implements VisualPlugin {
 		return mainPanel;
 	}
 
+	private class CellRenderer extends DefaultTableCellRenderer {
+		private static final long serialVersionUID = -1427727373354274060L;
+		public Component getTableCellRendererComponent(JTable table, Object value,
+				boolean isSelected, boolean hasFocus, int row, int col) {
+			if (col == 0)
+				setHorizontalAlignment(JLabel.CENTER);
+			try{
+				String colname = columnNames[col];
+				if (colname.equals("pG"))
+					setText((value == null) ? "" : dblformatter.format((Number)value));
+				else if (colname.equals("eValue"))
+					setText((value == null) ? "" : decformatter.format((Number)value));
+				else if (colname.startsWith("Id%") || colname.contains("Coverage"))
+					setText((value == null) ? "" : pctformatter.format((Number)value));
+				else setText((value == null) ? "" : value.toString());
+			}catch(Exception e){
+				setText((value == null) ? "" : value.toString());
+				e.printStackTrace();
+			}
+			if (table.isRowSelected(row))
+				setBackground(table.getSelectionBackground());
+			else setBackground(table.getBackground());
+			return this;
+	    }
+	}
+
 	/*
 	 * table model for skybase results
 	 */
@@ -601,12 +634,23 @@ public class SkyBaseViewer implements VisualPlugin {
 		public Object getValueAt(int row, int col) {
 			if (col == 0)
 				return Integer.valueOf((String) data[row][col]);
+			String colname = columnNames[col];
+			try{
+				if (colname.equals("pG"))
+					return Double.valueOf((String)data[row][col]);
+				if (colname.equals("eValue"))
+					return decformatter.parse(data[row][col].toString().toUpperCase()).doubleValue();
+				if (colname.endsWith("Length"))
+					return Integer.valueOf((String)data[row][col]);
+				if (colname.startsWith("Id%") || colname.contains("Coverage"))
+					return pctformatter.parse(data[row][col].toString()).doubleValue();
+			}catch(Exception e){
+				e.printStackTrace();
+			}
 			return data[row][col];
 		}
 
 		public Class<?> getColumnClass(int c) {
-			if (c == 0)
-				return Integer.class;
 			return getValueAt(0, c).getClass();
 		}
 

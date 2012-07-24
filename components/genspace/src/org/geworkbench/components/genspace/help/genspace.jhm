@@ -14,6 +14,7 @@
 	<mapID target="Looking_at_tool_statistics" url="genSpace.htm#Looking_at_tool_statistics"/>
 	<mapID target="Social_Center" url="genSpace.htm#Social_Center"/>
 	<mapID target="Workflow_Repository" url="genSpace.htm#Workflow_Repository"/>
+	<mapID target="Research_Notebook" url="genSpace.htm#Research_Notebook"/>
 	<mapID target="genSpace_Web_Portal" url="genSpace.htm#genSpace_Web_Portal"/>
 
 </map>

@@ -5,9 +5,11 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.font.TextAttribute;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.lang.reflect.Array;
+import java.text.AttributedString;
 
 import javax.swing.JPanel;
 
@@ -221,7 +223,10 @@ public class HierClusterLabels extends JPanel {
                         name = "Undefined";
                     }                     
                     
-                    g.drawString(name, -width, leftOffset + yRatio);
+    				AttributedString as = new AttributedString(name);
+    				as.addAttribute(TextAttribute.FONT, labelFont);
+    				as.addAttribute(TextAttribute.RUN_DIRECTION, TextAttribute.RUN_DIRECTION_LTR);
+                    g.drawString(as.getIterator(), -width, leftOffset + yRatio);
                     
                 }
 

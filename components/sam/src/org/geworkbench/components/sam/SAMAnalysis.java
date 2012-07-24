@@ -12,6 +12,8 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
@@ -46,7 +48,7 @@ import org.geworkbench.util.ProgressBar;
  */
 
 public class SAMAnalysis extends AbstractGridAnalysis implements
-		ClusteringAnalysis {
+		ClusteringAnalysis, Observer {
 
  	private static final long serialVersionUID = -1672201775884915447L;
  	
@@ -87,6 +89,11 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
  	
  	public SAMAnalysis() {		
 		setDefaultPanel(samPanel);
+	}
+ 	
+ 	@Override
+	public void update(Observable o, Object arg) {
+ 		this.stopAlgorithm = true;
 	}
  	
 	@Override
@@ -377,6 +384,8 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 		
 		while(!resultFile.exists()){			
 			 try{
+				    if (this.stopAlgorithm == true)
+				    	return null;
 			    	Thread.sleep(POLL_INTERVAL);			    	
 			    	
 			    	String err = null;
@@ -405,7 +414,8 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 		}
 		
 		
-		
+		if (this.stopAlgorithm == true)
+	    	return null;
 		SamResultData analysisResult=new SamResultData(maSet,"SAM result", data,
 				deltaInc, deltaMax,	dd, dbar, pvalue, fold, fdr);
 		AlgorithmExecutionResults results = new AlgorithmExecutionResults(true,

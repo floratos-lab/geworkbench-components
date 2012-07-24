@@ -464,7 +464,7 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 			}
 		} else {
 			JOptionPane.showMessageDialog(null,
-					"Please select more than one sets for this operation", "",
+					"Please select more than one set for this operation", "",
 					JOptionPane.ERROR_MESSAGE);
 			return;
 		}
@@ -511,7 +511,7 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 			}
 		} else {
 			JOptionPane.showMessageDialog(null,
-					"Please select more than one sets for this operation", "",
+					"Please select more than one set for this operation", "",
 					JOptionPane.ERROR_MESSAGE);
 			return;
 		}
@@ -558,7 +558,7 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 			}
 		} else {
 			JOptionPane.showMessageDialog(null,
-					"Please select more than one sets for this operation", "",
+					"Please select more than one set for this operation", "",
 					JOptionPane.ERROR_MESSAGE);
 			return;
 		}

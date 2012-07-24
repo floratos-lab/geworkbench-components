@@ -53,10 +53,22 @@ term’s parent terms.  A term may thus show significant
 over-representation through the cumulative effects of its children 
 rather than through genes assigned directly to it.
 </p><p><br>
-Note - If a marker has an annotation to a GO Term but has no gene 
-symbol, it will not be included in the "Reference Gene" list or the 
-"Changed Gene" list.
 </p>
+<ul><li> <b>Important Note on Annotation Files</b>
+<ul><li> The Gene Ontology Term Analysis component will automatically make use of <b>Affymetrix 3' Expression</b> microarray annotation data if it was loaded along with the microarray dataset.  
+</li><li> Although the Affymetrix Human Gene 1.0 ST and Human Exon 1.0 
+ST annotation files can be used by geWorkbench, they cannot currently be
+ used by the ontology analysis code. 
+</li><li> For any other microarray platform type except the Affymetrix 
+3' Expression format, the user must supply an alternate gene ontology 
+annotation file directly in the Ontologizer setup.  
+</li><li> Annotation files obtained from the GO Consortium (www.geneontology.org) can be loaded. 
+</li></ul>
+</li></ul>
+<ul><li> <b>Note</b> - If a marker has an annotation to a GO Term but 
+has no gene symbol, it will not be included in the "Reference Gene" list
+ or the "Changed Gene" list.
+</li></ul>
 <a name="Gene_Ontology_OBO_file_source"></a><h1> <span class="mw-headline" id="Gene_Ontology_OBO_file_source">Gene Ontology OBO file source</span></h1>
 <p>By default, each time geWorkbench starts, it downloads the latest 
 Gene Ontology OBO file from the geneontology.org website.  However, a 
@@ -111,13 +123,22 @@ alternate ontologies besides the three comprising the Gene Ontology.
 <p><img alt="GeneOntology Analysis Ontologizer2.png" src="goTermAnalysis_files/GeneOntology_Analysis_Ontologizer2.png" height="287" width="723">
 </p>
 <a name="Annotations"></a><h4> <span class="mw-headline" id="Annotations">Annotations</span></h4>
-<ul><li> <b>Use loaded annotations</b> - If an annotation file was read in when the microarray dataset was loaded, its name is displayed here.
+<p>The annotation file links individual genes and the GO terms they are 
+associated with.  The Ontologizer 2.0 code will automatically make use 
+of Affymetrix 3' Expression format annotation files.  For other 
+microarray platform types, the user will need to construct and/or 
+provide an alternate annotation file.  As of geWorkbench release 2.2.1, 
+annotation files obtained from  the GO Consortium (www.geneontology.org)
+ can be loaded in addition to Affymetrix annotation files.  However, the
+ user must ensure that the proper mapping of marker names is used 
+between the microarray data and the annotation file.  Please see <a href="http://compbio.charite.de/contao/index.php/howto.html" class="external free" rel="nofollow">http://compbio.charite.de/contao/index.php/howto.html</a> for further information.
+</p>
+<ul><li> <b>Use loaded annotations</b> - If an Affymetrix 3' Expression 
+format annotation file was read in when the microarray dataset was 
+loaded, its name is displayed here.
 </li><li> <b>Use alternate annotation file</b> - A new or alternate 
-annotation file can be read in by selecting this option.  As of release 
-2.2.1, annotation files obtained from  the GO Consortium 
-(www.geneontology.org) can be loaded in addition to Affymetrix 
-annotation files.
-</li><li> <b>Alternate annotation text field</b> - if an alternate annotation file is chosen, the file name will be display in this field.
+annotation file can be entered into the adjacent text field in by 
+selecting this option and choosing "Browse".  
 </li><li> <b>Browse</b> - this button brings up a file browser for choosing an annotation file.
 </li></ul>
 <a name="Enrichment_Method"></a><h4> <span class="mw-headline" id="Enrichment_Method">Enrichment Method</span></h4>
@@ -148,7 +169,7 @@ study set).  Here, we will run a simple t-test on two classes of
 cell-lines in the BCell-100.exp dataset.
 </p><p><br>
 </p>
-<ol><li> Load Bcell-100.exp
+<ol><li> Load Bcell-100.exp with its annotation file e.g. HG_U95Av2.na32.annot.csv.
 </li><li> Threshold normalizer: min threshold 1.0.
 </li><li> Log2 Normalize
 </li><li> In Arrays, select the "Class" list of array sets and activate GC B-cell and GC-Tumor (Case).
@@ -196,18 +217,12 @@ Template argument size: 0/2097152 bytes
 Expensive parser function count: 0/100
 -->
 
-<!-- Saved in parser cache with key workbench:pcache:idhash:2025-0!1!0!!en!2!printable=1 and timestamp 20120314163810 -->
-<div class="printfooter">
-Retrieved from "<a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Gene_Ontology_Term_Analysis">http://wiki.c2b2.columbia.edu/workbench/index.php/Gene_Ontology_Term_Analysis</a>"</div>
-		<div id="catlinks" class="catlinks catlinks-allhidden"></div>		<!-- end content -->
-				<div class="visualClear"></div>
-	</div>
-</div></div>
+<!-- Saved in parser cache with key workbench:pcache:idhash:2025-0!1!0!!en!2!printable=1 and timestamp 20120710195916 -->
 <div class="visualClear"></div>
 <div id="footer">
 	<div id="f-poweredbyico"><img src="goTermAnalysis_files/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" height="31" width="88"></div>
 	<ul id="f-list">
-		<li id="lastmod"> This page was last modified on 1 March 2012, at 18:16.</li>
+		<li id="lastmod"> This page was last modified on 10 July 2012, at 14:58.</li>
 	</ul>
 </div>
 </div>

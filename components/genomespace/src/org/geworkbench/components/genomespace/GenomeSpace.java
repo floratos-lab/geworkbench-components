@@ -15,6 +15,7 @@ import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -22,6 +23,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -29,6 +31,8 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTree;
+import javax.swing.event.MenuEvent;
+import javax.swing.event.MenuListener;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
@@ -39,6 +43,7 @@ import org.genomespace.client.ConfigurationUrls;
 import org.genomespace.client.DataManagerClient;
 import org.genomespace.client.GsSession;
 import org.genomespace.client.ui.GSLoginDialog;
+import org.genomespace.datamanager.core.GSDataFormat;
 import org.genomespace.datamanager.core.GSDirectoryListing;
 import org.genomespace.datamanager.core.GSFileMetadata;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
@@ -54,6 +59,9 @@ import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.parsers.DataSetFileFormat;
 import org.geworkbench.util.FilePathnameUtils;
+import org.geworkbench.util.ProgressDialog;
+import org.geworkbench.util.ProgressItem;
+import org.geworkbench.util.ProgressTask;
 
 /**
  * Integration of GenomeSpace from the Broad Institute
@@ -75,14 +83,16 @@ public class GenomeSpace implements VisualPlugin {
 	private JPopupMenu gsrootPopupMenu = new JPopupMenu();
 	private JMenuItem downloadItem = new JMenuItem("Download");
 	private JMenuItem deldirItem = new JMenuItem("Delete");
+	private JMenu convertItem = new JMenu("Convert to");
 	private JSplitPane mainpanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-	private static final String extension = ".exp";
+	private static final String expFormatName = "geWorkbench exp";
 	private List<ProjectTreeNode> dirnodes = new ArrayList<ProjectTreeNode>();
 	private static final String genomespaceUsrDir = FilePathnameUtils.getUserSettingDirectoryPath()
 														+ "genomespace" + FilePathnameUtils.FILE_SEPARATOR;
 	private static final String uploadDir   = genomespaceUsrDir + "upload" + FilePathnameUtils.FILE_SEPARATOR;
 	private static final String downloadDir = genomespaceUsrDir + "download" + FilePathnameUtils.FILE_SEPARATOR;
 	private static GSLoginDialog loginDialog = null;
+	private static ProgressDialog pd = ProgressDialog.create(ProgressDialog.NONMODAL_TYPE);
 
 	public GenomeSpace() {
 		JScrollPane jsp1 = new JScrollPane();
@@ -134,65 +144,8 @@ public class GenomeSpace implements VisualPlugin {
 		uploadItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (!validate(projectTree)) return;
-				ProjectTreeNode node = (ProjectTreeNode)projectTree.getSelectionPath().getLastPathComponent();
-				if (node instanceof DataSetNode){
-					DataSetNode dsnode = (DataSetNode)node;
-					if (dsnode.getDataset() instanceof DSMicroarraySet){
-						DSMicroarraySet mset = (DSMicroarraySet)dsnode.getDataset();
-
-						DataManagerClient dmClient = loginDialog.getGsSession().getDataManagerClient();
-
-						if (dirnodes.size()==0) refreshGSlist();
-						if (dirnodes.size()==0) return;
-						String[] dirs = new String[dirnodes.size()];
-						int i = 0;
-						for (ProjectTreeNode dirnode : dirnodes){
-							dirs[i++] = dirnode.getDescription();
-						}
-						String choice = (String)JOptionPane.showInputDialog(null, "Upload to", "Upload to GenomeSpace", 
-								JOptionPane.QUESTION_MESSAGE, null, dirs, dirs[0]);
-						if (choice == null) return;
-						ProjectTreeNode parentnode = null;
-						for (i = 0; i < dirs.length; i++){
-							if (choice.equals(dirs[i])){
-								parentnode = dirnodes.get(i);
-								break;
-							}
-						}
-						if (parentnode == null || dmClient.getMetadata(parentnode.getDescription())==null) {
-							JOptionPane.showMessageDialog(null, "Cannot upload file to GenomeSpace: destination directory not found");
-							return;
-						}
-
-						// check if the file to be uploaded exists on genome space
-						ProjectTreeNode newnode = null;
-						for (i = 0; i < parentnode.getChildCount(); i++){
-							ProjectTreeNode n = (ProjectTreeNode)parentnode.getChildAt(i);
-							if (n.getUserObject().equals(mset.getLabel())){
-								newnode = n;
-								break;
-							}
-						}
-
-						// upload local maset to genome space
-						String localfname = uploadDir + mset.getLabel(); 
-						mset.writeToFile(localfname);
-						File localfile = new File(localfname);
-						if (!localfile.exists()) {
-							JOptionPane.showMessageDialog(null, "Cannot upload file to GenomeSpace: local dataset file not found");
-							return;
-						}
-						GSFileMetadata filemeta = dmClient.uploadFile(localfile, dmClient.getMetadata(parentnode.getDescription()));
-						//FIXME: delete on exception
-						localfile.deleteOnExit();
-
-						if (newnode == null){
-							newnode = metaToNode(filemeta);
-							genomeTreeModel.insertNodeInto(newnode, parentnode, parentnode.getChildCount());
-						}
-						showNode(genomeTree, newnode);
-					}
-				}
+				UploadTask uploadTask = new UploadTask(ProgressItem.INDETERMINATE_TYPE, "Uploading...");
+		    	pd.executeTask(uploadTask);
 			}
 		});
 
@@ -222,30 +175,43 @@ public class GenomeSpace implements VisualPlugin {
 					JOptionPane.showMessageDialog(null, "Select a project node.", "Open File Error", JOptionPane.ERROR_MESSAGE);
 					return;
 				}
-				Thread t = new Thread(new Runnable(){
-					public void run(){
-						ProjectTreeNode node = (ProjectTreeNode)genomeTree.getSelectionPath().getLastPathComponent();
-						if (node.isLeaf() && ((String)node.getUserObject()).toLowerCase().endsWith(extension)) {
-							File targetfile = new File(downloadDir + node.getUserObject());
-	
-							DataManagerClient dmClient = loginDialog.getGsSession().getDataManagerClient();
-							GSFileMetadata meta = dmClient.getMetadata(node.getDescription());
-							dmClient.downloadFile(meta, targetfile, true);
-							//FIXME: delete on exception
-							targetfile.deleteOnExit();
 
-							try{
-								DataSetFileFormat fileFormat = new org.geworkbench.parsers.ExpressionFileFormat();
-								CSMicroarraySet dataSet = (CSMicroarraySet)fileFormat.getDataFile(targetfile);
-								publishProjectNodeAddedEvent(new ProjectNodeAddedEvent("", dataSet, null));
-							}catch(Exception e){
-								JOptionPane.showMessageDialog(null, "Cannot open "+node.getUserObject()+" in geworkbench",
-										"Open File Error", JOptionPane.ERROR_MESSAGE);
-							}
+				DownloadTask downloadTask = new DownloadTask(ProgressItem.INDETERMINATE_TYPE, "Downloading...");
+				pd.executeTask(downloadTask);
+			}
+		});
+
+		convertItem.addMenuListener(new MenuListener() {
+			public void menuCanceled(MenuEvent e) {
+				convertItem.removeAll();
+			}
+			public void menuDeselected(MenuEvent e) {
+				convertItem.removeAll();
+			}
+			public void menuSelected(MenuEvent e) {
+				
+				if (!validate(genomeTree)) return;
+				
+				ProjectTreeNode node = (ProjectTreeNode)genomeTree.getSelectionPath().getLastPathComponent();
+				if (node.isLeaf()) {
+					DataManagerClient dmClient = loginDialog.getGsSession().getDataManagerClient();
+					GSFileMetadata meta = dmClient.getMetadata(node.getDescription());
+					
+					//FIXME: check for null meta
+					GSDataFormat currentFormat = meta.getDataFormat();
+					for(GSDataFormat format : meta.getAvailableDataFormats()){
+						if (!format.equals(currentFormat)){
+							JMenuItem item = new JMenuItem(format.getName());
+							convertItem.add(item);
+							item.addActionListener(new ConvertActionListener(format));
 						}
 					}
-				});
-				t.start();
+					if (convertItem.getItemCount()==0){
+						JMenuItem none = new JMenuItem("none"); 
+						none.setEnabled(false);
+						convertItem.add(none);
+					}
+				}
 			}
 		});
 		
@@ -280,6 +246,7 @@ public class GenomeSpace implements VisualPlugin {
 		copyurlItem.addActionListener(new CopyurlActionListener());
 
 		gsfilePopupMenu.add(downloadItem);
+		gsfilePopupMenu.add(convertItem);
 		gsfilePopupMenu.add(renameItem);
 		gsfilePopupMenu.add(deleteItem);
 		gsfilePopupMenu.add(copyurlItem);
@@ -342,10 +309,20 @@ public class GenomeSpace implements VisualPlugin {
 						gsrootPopupMenu.show(genomeTree, e.getX(), e.getY());
 					} else if (mNode.isLeaf() && !mNode.getAllowsChildren()) {
 						gsfilePopupMenu.show(genomeTree, e.getX(), e.getY());
-						// exp data node only
-						if (!((String)mNode.getUserObject()).toLowerCase().endsWith(extension))
+						DataManagerClient dmClient = loginDialog.getGsSession().getDataManagerClient();
+						GSFileMetadata meta = dmClient.getMetadata(mNode.getDescription());
+						boolean downloadable = false;
+						for(GSDataFormat format : meta.getAvailableDataFormats()){
+							if (format.getName().equals(expFormatName))
+								downloadable = true;
+						}
+						if (!downloadable)
 							downloadItem.setEnabled(false);
 						else downloadItem.setEnabled(true);
+
+						if (meta.getAvailableDataFormats().size()<2)
+							convertItem.setEnabled(false);
+						else convertItem.setEnabled(true);
 					} else if (mNode.getAllowsChildren()){
 						gsdirPopupMenu.show(genomeTree, e.getX(), e.getY());
 						// cannot delete user's default dir or non-empty dir
@@ -548,5 +525,233 @@ public class GenomeSpace implements VisualPlugin {
 	 */
 	public Component getComponent() {
 		return mainpanel;
+	}
+	
+	private class UploadTask extends ProgressTask<ProjectTreeNode, Void>{
+		public UploadTask(int pbtype, String message){
+    		super(pbtype, message);
+    	}	
+		@Override
+    	protected ProjectTreeNode doInBackground(){
+			if (isCancelled()) return null;
+			ProjectTreeNode newnode = null;
+
+			ProjectTreeNode node = (ProjectTreeNode)projectTree.getSelectionPath().getLastPathComponent();
+			if (node instanceof DataSetNode){
+				DataSetNode dsnode = (DataSetNode)node;
+				if (dsnode.getDataset() instanceof DSMicroarraySet){
+					DSMicroarraySet mset = (DSMicroarraySet)dsnode.getDataset();
+
+					DataManagerClient dmClient = loginDialog.getGsSession().getDataManagerClient();
+
+					if (dirnodes.size()==0) refreshGSlist();
+					if (dirnodes.size()==0) return null;
+					String[] dirs = new String[dirnodes.size()];
+					int i = 0;
+					for (ProjectTreeNode dirnode : dirnodes){
+						dirs[i++] = dirnode.getDescription();
+					}
+					String choice = (String)JOptionPane.showInputDialog(null, "Upload to", "Upload to GenomeSpace", 
+							JOptionPane.QUESTION_MESSAGE, null, dirs, dirs[0]);
+					if (choice == null) return null;
+					ProjectTreeNode parentnode = null;
+					for (i = 0; i < dirs.length; i++){
+						if (choice.equals(dirs[i])){
+							parentnode = dirnodes.get(i);
+							break;
+						}
+					}
+					if (parentnode == null || dmClient.getMetadata(parentnode.getDescription())==null) {
+						JOptionPane.showMessageDialog(null, "Cannot upload file to GenomeSpace: destination directory not found");
+						return null;
+					}
+
+					// check if the file to be uploaded exists on genome space
+					for (i = 0; i < parentnode.getChildCount(); i++){
+						ProjectTreeNode n = (ProjectTreeNode)parentnode.getChildAt(i);
+						if (n.getUserObject().equals(mset.getLabel())){
+							newnode = n;
+							int response = JOptionPane.showConfirmDialog(null,
+									"Overwrite existing "+mset.getLabel()+" in genomespace?",
+									"Confirm Overwrite",
+									JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+							if (response == JOptionPane.YES_OPTION)
+								break;
+							else return null;
+						}
+					}
+
+					// upload local maset to genome space
+					String localfname = uploadDir + mset.getLabel(); 
+					mset.writeToFile(localfname);
+					File localfile = new File(localfname);
+					if (!localfile.exists()) {
+						JOptionPane.showMessageDialog(null, "Cannot upload file to GenomeSpace: local dataset file not found");
+						return null;
+					}
+					try{
+						GSFileMetadata filemeta = dmClient.uploadFile(localfile, dmClient.getMetadata(parentnode.getDescription()));
+						//FIXME: delete on exception
+						localfile.deleteOnExit();
+	
+						if (newnode == null){
+							newnode = metaToNode(filemeta);
+							genomeTreeModel.insertNodeInto(newnode, parentnode, parentnode.getChildCount());
+						}
+					}catch(Exception e){
+						JOptionPane.showMessageDialog(null, "Cannot upload "+mset.getLabel()+" to genomespace",
+								"Upload Error", JOptionPane.ERROR_MESSAGE);
+					}
+				}
+			}
+
+			return newnode;
+		}
+		@Override
+    	protected void done(){
+			pd.removeTask(this);
+			ProjectTreeNode newnode = null;
+			try{
+				newnode = get();
+			}catch(ExecutionException e){
+    			e.printStackTrace();
+    		}catch(InterruptedException e){
+    			e.printStackTrace();
+    		}
+    		if (newnode == null) return;
+			showNode(genomeTree, newnode);			
+		}
+	}
+
+	private class ConvertActionListener implements ActionListener{
+		private GSDataFormat format = null;
+		public ConvertActionListener(GSDataFormat fmt){
+			format = fmt;
+		}
+		public void actionPerformed(ActionEvent e){
+			if (!validate(genomeTree)) return;
+			ConvertTask convertTask = new ConvertTask(ProgressItem.INDETERMINATE_TYPE, "Converting...", format);
+			pd.executeTask(convertTask);
+		}
+	}
+
+	private class ConvertTask extends ProgressTask<ProjectTreeNode,Void>{
+		private GSDataFormat format = null;
+		public ConvertTask(int pbtype, String message, GSDataFormat fmt){
+    		super(pbtype, message);
+    		format = fmt;
+
+    	}	
+		@Override
+		protected ProjectTreeNode doInBackground(){
+			if (isCancelled()) return null;
+			ProjectTreeNode node = (ProjectTreeNode)genomeTree.getSelectionPath().getLastPathComponent();
+			ProjectTreeNode parent = (ProjectTreeNode)node.getParent();
+			DataManagerClient dmClient = loginDialog.getGsSession().getDataManagerClient();
+			GSFileMetadata source = dmClient.getMetadata(node.getDescription());
+			GSFileMetadata parentdir = dmClient.getMetadata(parent.getDescription());
+
+			if (source==null || parentdir==null) return null;
+			String newname = source.getName();
+			if (newname == null || newname.trim().isEmpty()) return null;
+			if (newname.contains("."))
+				newname = newname.substring(0, newname.lastIndexOf("."));
+			newname += "." + format.getFileExtension();
+			
+			// check if the file to be converted into exists on genome space
+			for (int i = 0; i < parent.getChildCount(); i++){
+				ProjectTreeNode n = (ProjectTreeNode)parent.getChildAt(i);
+				if (n.getUserObject().equals(newname)){
+					JOptionPane.showMessageDialog(null, "Cannot convert file in genomespace: "+newname+" already exists",
+							"Convertion Error", JOptionPane.ERROR_MESSAGE);
+					return null;
+				}
+			}
+			
+			try{
+				GSFileMetadata newGsFile = dmClient.copy(source, parentdir, newname, format);
+				if (newGsFile != null){
+					dmClient.delete(source);
+					node.setUserObject(newname);
+					node.setDescription(newGsFile.getPath());
+				}
+			}catch(Exception e){
+				JOptionPane.showMessageDialog(null, "Cannot convert "+node.getUserObject()+" to "+format.getName(),
+						"Convertion Error", JOptionPane.ERROR_MESSAGE);
+			}
+			return node;
+		}
+		@Override
+    	protected void done(){
+			pd.removeTask(this);
+			ProjectTreeNode node = null;
+			try{
+				node = get();
+			}catch(ExecutionException e){
+    			e.printStackTrace();
+    		}catch(InterruptedException e){
+    			e.printStackTrace();
+    		}
+    		if (node == null) return;
+    		genomeTreeModel.reload(node);
+			showNode(genomeTree, node);
+		}
+	}
+
+	private class DownloadTask extends ProgressTask<Void,Void>{
+		public DownloadTask(int pbtype, String message){
+    		super(pbtype, message);
+    	}	
+		@Override
+		protected Void doInBackground(){
+			if (isCancelled()) return null;
+			ProjectTreeNode node = (ProjectTreeNode)genomeTree.getSelectionPath().getLastPathComponent();
+			if (node.isLeaf()) {
+				DataManagerClient dmClient = loginDialog.getGsSession().getDataManagerClient();
+				GSFileMetadata meta = dmClient.getMetadata(node.getDescription());
+				GSDataFormat expFormat = null;
+				for(GSDataFormat format : meta.getAvailableDataFormats()){
+				    if(format.getName().equals("geWorkbench exp")){
+				        expFormat = format;
+				    }
+				}
+				if (expFormat == null) {
+					JOptionPane.showMessageDialog(null, "Cannot download "+node.getUserObject()+" in geworkbench format",
+							"No converter available", JOptionPane.ERROR_MESSAGE);
+					return null;
+				}
+				String targetname = (String)node.getUserObject();
+				if (targetname == null || targetname.trim().isEmpty()) return null;
+				if (meta.getDataFormat() != expFormat){
+					if (targetname.contains("."))
+						targetname = targetname.substring(0, targetname.lastIndexOf("."));
+					targetname += "." + expFormat.getFileExtension();
+				}
+				File targetfile = new File(downloadDir + targetname);
+				try{
+					dmClient.downloadFile(meta, expFormat, targetfile, true);
+					//FIXME: delete on exception
+					targetfile.deleteOnExit();
+				}catch(Exception e){
+					JOptionPane.showMessageDialog(null, "Cannot download "+node.getUserObject()+" to geworkbench",
+							"Download Error", JOptionPane.ERROR_MESSAGE);
+					return null;
+				}
+
+				try{
+					DataSetFileFormat fileFormat = new org.geworkbench.parsers.ExpressionFileFormat();
+					CSMicroarraySet dataSet = (CSMicroarraySet)fileFormat.getDataFile(targetfile);
+					publishProjectNodeAddedEvent(new ProjectNodeAddedEvent("", dataSet, null));
+				}catch(Exception e){
+					JOptionPane.showMessageDialog(null, "Cannot open "+node.getUserObject()+" in geworkbench",
+							"Open File Error", JOptionPane.ERROR_MESSAGE);
+				}
+			}
+			return null;
+		}
+		@Override
+    	protected void done(){
+			pd.removeTask(this);
+		}
 	}
 }

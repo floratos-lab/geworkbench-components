@@ -15,7 +15,9 @@ import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
+import javax.swing.InputVerifier;
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -27,8 +29,6 @@ import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.bison.model.analysis.ParameterPanelIncludingNormalized;
 import org.geworkbench.events.listeners.ParameterActionListener;
-import org.geworkbench.util.RegularExpressionVerifier;
-
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.FormLayout;
 
@@ -296,8 +296,14 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel implement
         allPerms.setEnabled(false);
         alpha.setValue(new Double(0.01));
         alpha.setMinimumSize(new Dimension(35, 20));
-     	alpha.setInputVerifier(new RegularExpressionVerifier(
-     				"(\\d){1,9}"));
+        alpha.setInputVerifier(new InputVerifier() {
+            public boolean verify(JComponent input) {
+              if (!(input instanceof JFormattedTextField))
+                return true;
+              return ((JFormattedTextField) input).isEditValid();
+            }
+          });
+        
         pvaluesByPerm.setText("permutation:");
         jPanel7.setBorder(BorderFactory.createEtchedBorder());
         jPanel7.setLayout(flowLayout1);
@@ -495,20 +501,27 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel implement
 	
 	@Override
 	public ParamValidationResults validateParameters() {
-
-		if(alpha.getValue() instanceof Double) {
-			if(((Double) alpha.getValue()) < 0 | ((Double) alpha.getValue()) > 1 ) { 
-				alpha.requestFocus();
-				return new ParamValidationResults(false,
-						"Please enter a valid Critical P-Value. Value can be anything between 0 and 1.");
-			}
-		}else if(alpha.getValue() instanceof Long) {
-			if(((Long) alpha.getValue()) < 0 | ((Long) alpha.getValue()) > 1 ) { 
-				alpha.requestFocus();
-				return new ParamValidationResults(false,
-						"Please enter a valid Critical P-Value. Value can be anything between 0 and 1.");
-			}	
+		
+		if(alpha.getInputVerifier().verify(alpha) == false) {
+			alpha.requestFocus();
+			return new ParamValidationResults(false,
+					"Please enter valid Critical P-Value.");
 		}
+		
+		if (alpha.getValue() instanceof Double) {
+            if(((Double) alpha.getValue()).doubleValue() < 0 || ((Double) alpha.getValue()).doubleValue() > 1) { 
+            		alpha.requestFocus();
+					return new ParamValidationResults(false,
+							"Please enter valid Critical P-Value.");
+			}
+		} else if (alpha.getValue() instanceof Long) {
+			if(((Long) alpha.getValue()).doubleValue() < 0 || ((Long) alpha.getValue()).doubleValue() > 1) { 
+        		alpha.requestFocus();
+				return new ParamValidationResults(false,
+						"Please enter valid Critical P-Value.");
+			}
+		} 
+		
 		return new ParamValidationResults(true, null);
 	}
 	

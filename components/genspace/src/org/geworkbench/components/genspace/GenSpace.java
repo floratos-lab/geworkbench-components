@@ -16,6 +16,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.apache.log4j.Logger;
+import org.geworkbench.components.genspace.server.stubs.User;
 import org.geworkbench.components.genspace.ui.SocialNetworksHome;
 import org.geworkbench.components.genspace.ui.StatusBar;
 import org.geworkbench.components.genspace.ui.UpdateablePanel;
@@ -96,7 +97,7 @@ public class GenSpace {
 	public static void bringUpProfile(Object o)
 	{
 		getInstance().jtp.setSelectedComponent(networksPanels.$$$getRootComponent$$$());
-//		networksPanels.bringUpProfile(u); //TODO
+		networksPanels.bringUpProfile((User) (o));
 	}
 	public static GenSpace getInstance() {
 		return instance;

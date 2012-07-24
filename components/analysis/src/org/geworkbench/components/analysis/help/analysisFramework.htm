@@ -21,8 +21,7 @@
 right quadrant of geWorkbench.  There they share a common framework and a
  common method for saving parameter settings.
 </p>
-<a name="Layout_of_analysis_components_.28as_of_geWorkbench_2.3.0.29"></a>
-<h2> <span class="mw-headline" id="Layout_of_analysis_components_.28as_of_geWorkbench_2.3.0.29">Layout of analysis components</span></h2>
+<a name="Layout_of_analysis_components_.28as_of_geWorkbench_2.3.0.29"></a><h2> <span class="mw-headline" id="Layout_of_analysis_components_.28as_of_geWorkbench_2.3.0.29">Layout of analysis components (as of geWorkbench 2.3.0)</span></h2>
 <p>Analysis actions are activated in one of two ways.
 </p>
 <ol><li> Right-click on a data node
@@ -39,7 +38,15 @@ dialog.
 </p><p><br>
 <img alt="ANOVA Parameters w.png" src="analysisFramework_files/ANOVA_Parameters_w.png" height="520" width="689">
 </p>
-<h2>&nbsp;</h2>
+<a name="Layout_of_the_analysis_framework_.28prior_to_geWorkbench_2.3.0.29"></a><h2> <span class="mw-headline" id="Layout_of_the_analysis_framework_.28prior_to_geWorkbench_2.3.0.29">Layout of the analysis framework (prior to geWorkbench 2.3.0)</span></h2>
+<p><img alt="T Analysis Params List.png" src="analysisFramework_files/T_Analysis_Params_List.png" height="311" width="655">
+</p><p><br>
+At upper left of the framework is a list of available analysis routines (as loaded using the <a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Tutorial_-_Component_Configuration_Manager" title="Tutorial - Component Configuration Manager" class="mw-redirect"> Component Configuration Manager</a>).
+  At upper right is a list (labeled "Saved settings list") which can 
+store named sets of customized parameter settings for each different 
+analysis.
+</p><p><br>
+</p>
 <a name="Analysis_Actions"></a><h2> <span class="mw-headline" id="Analysis_Actions">Analysis Actions</span></h2>
 <p>At right are three buttons shared by all analysis components:
 </p>
@@ -55,7 +62,7 @@ dialog.
 <p>Delete the currently highlighted settings entry from the list.
 </p><p><br>
 </p>
-<a name="Creating_saved_parameter_sets_.28as_of_geWorkbench_2.3.0.29"></a><h2> <span class="mw-headline" id="Creating_saved_parameter_sets_.28as_of_geWorkbench_2.3.0.29">Creating saved parameter sets</span></h2>
+<a name="Creating_saved_parameter_sets_.28as_of_geWorkbench_2.3.0.29"></a><h2> <span class="mw-headline" id="Creating_saved_parameter_sets_.28as_of_geWorkbench_2.3.0.29">Creating saved parameter sets (as of geWorkbench 2.3.0)</span></h2>
 <p>The current parameter settings can be saved by pushing the <b>Save Settings</b> button.  A dialog will appear asking for a name for the new set of saved parameters.
 </p><p><br>
 <img alt="Analysis Parameters Save.png" src="analysisFramework_files/Analysis_Parameters_Save.png" height="159" width="341">
@@ -66,16 +73,31 @@ dialog.
 If any parameters are then changed, the entry "Initial Settings" will no
  longer be selected in the list.  However, if it is chosen again, its 
 saved parameter settings will be restored.
-</p><p>&nbsp;</p>
-<p>&nbsp;</p>
-<a name="Interplay_of_parameters_and_list"></a><h2> <span class="mw-headline" id="Interplay_of_parameters_and_list">Interplay of parameters and list</span></h2>
-<p>The analysis parameters can be restored to their saved values by selecting the desired item on the list.
-</p><p>For most analysis components, when the parameters shown in the 
-graphical interface are made to exactly match those stored in a list 
-entry, that entry will be selected (highlighted).  If any change is made
- so that the parameters no longer match a stored entry, then no entry 
-will be highlighted.
+</p><p><br>
 </p>
+<a name="Creating_saved_parameter_sets_.28prior_to_geWorkbench_2.3.0.29"></a><h2> <span class="mw-headline" id="Creating_saved_parameter_sets_.28prior_to_geWorkbench_2.3.0.29">Creating saved parameter sets (prior to geWorkbench 2.3.0)</span></h2>
+<p>The current parameter settings can be saved by pushing the <b>Save Settings</b> button.  A dialog will appear asking for a name for the new set of saved parameters.
+</p><p><img alt="T Analysis Params Save.png" src="analysisFramework_files/T_Analysis_Params_Save.png" height="129" width="281">
+</p><p>In this figure, the default settings have been saved to a set called "Default Settings".
+</p><p><img alt="T Analysis Default Settings.png" src="analysisFramework_files/T_Analysis_Default_Settings.png" height="309" width="656">
+</p><p><br>
+The next figure illustrates changing a couple of parameters and saving them to a new set called "New Settings".
+</p><p><img alt="T Analysis Params New.png" src="analysisFramework_files/T_Analysis_Params_New.png" height="236" width="650">
+</p>
+<a name="Interplay_of_parameters_and_list"></a><h2> <span class="mw-headline" id="Interplay_of_parameters_and_list">Interplay of parameters and list</span></h2>
+<ul><li> The analysis parameters can be restored to their saved values by selecting the desired item on the list.
+</li></ul>
+<ul><li> When the parameters shown in the graphical interface match 
+those stored in a saved parameter list entry, that entry will be 
+selected (highlighted).  If any change is made so that the parameters no
+ longer match a stored entry, then no entry will be highlighted, except 
+that
+</li><li> text fields will only be checked if
+<ul><li> the user hits "Enter" in the changed text field or another text field in that component, or
+</li><li> the user clicks on a control such as a radio button that changes another parameter in the component.
+</li></ul>
+</li></ul>
+
 <!-- 
 NewPP limit report
 Preprocessor node count: 42/1000000
@@ -84,18 +106,12 @@ Template argument size: 0/2097152 bytes
 Expensive parser function count: 0/100
 -->
 
-<!-- Saved in parser cache with key workbench:pcache:idhash:1933-0!1!0!!en!2!printable=1 and timestamp 20120314212935 -->
-<div class="printfooter">
-Retrieved from "<a href="http://wiki.c2b2.columbia.edu/workbench/index.php/Analysis_Framework">http://wiki.c2b2.columbia.edu/workbench/index.php/Analysis_Framework</a>"</div>
-		<div id="catlinks" class="catlinks catlinks-allhidden"></div>		<!-- end content -->
-				<div class="visualClear"></div>
-	</div>
-</div></div>
+<!-- Saved in parser cache with key workbench:pcache:idhash:1933-0!1!0!!en!2!printable=1 and timestamp 20120712154853 -->
 <div class="visualClear"></div>
 <div id="footer">
 	<div id="f-poweredbyico"><img src="analysisFramework_files/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" height="31" width="88"></div>
 	<ul id="f-list">
-		<li id="lastmod"> This page was last modified on 29 February 2012, at 18:18.</li>
+		<li id="lastmod"> This page was last modified on 12 July 2012, at 10:41.</li>
 	</ul>
 </div>
 </div>
