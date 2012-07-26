@@ -30,7 +30,7 @@ public class ExampleComponent extends JPanel implements VisualPlugin {
 
 	private static final long serialVersionUID = -4565375519545129102L;
 
-	private DSMicroarraySet<?> microarraySet;
+	private DSMicroarraySet microarraySet;
 	private JLabel infoLabel = new JLabel("");
 
 	public ExampleComponent() {
@@ -70,7 +70,7 @@ public class ExampleComponent extends JPanel implements VisualPlugin {
 		DSDataSet<?> dataSet = event.getDataSet();
 		// We will act on this object if it is a DSMicroarraySet
 		if (dataSet instanceof DSMicroarraySet) {
-			microarraySet = (DSMicroarraySet<?>) dataSet;
+			microarraySet = (DSMicroarraySet) dataSet;
 			// We just received a new microarray set, so populate the info label
 			// with some basic stats.
 			String htmlText = "<html><body align='center'>" + "<h3 align='center'>"
