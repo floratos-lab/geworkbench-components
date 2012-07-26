@@ -32,7 +32,6 @@ import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
-import javax.swing.JToolBar;
 
 import org.apache.axis.types.URI.MalformedURIException;
 import org.apache.commons.lang.StringUtils;
@@ -187,7 +186,6 @@ public class AnalysisPanel extends CommandBase implements
 	private void init() throws Exception {
 		// this part used to be in MicroarrayViewEvent: initialize tool bar for 'all markers', 'all arrays'
 		mainPanel = new JPanel();
-		JToolBar jToolBar3 = new JToolBar();
 		mainPanel.setLayout(new BorderLayout());
 		chkAllMarkers.addActionListener(new ActionListener() {
 
@@ -205,9 +203,6 @@ public class AnalysisPanel extends CommandBase implements
 			}
 
 		});
-		jToolBar3.add(chkAllArrays, null);
-		jToolBar3.add(chkAllMarkers, null);
-		mainPanel.add(jToolBar3, java.awt.BorderLayout.SOUTH);
 
 		analysisPanel = new JPanel();
 		JScrollPane analysisScrollPane = new JScrollPane();
