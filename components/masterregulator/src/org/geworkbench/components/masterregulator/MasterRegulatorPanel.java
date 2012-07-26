@@ -1370,7 +1370,9 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 						.append( "\n\n\n" );			
 		}else
 		{
-		    histStr .append( "[PARA] Load Network: " + getAdjMatrixDataSet().getDataSetName()  ).append("\n");
+			AdjacencyMatrixDataSet set = getAdjMatrixDataSet();
+			String setname = (set != null) ? set.getDataSetName() : this.getNetworkFilename();
+		    histStr .append( "[PARA] Load Network: " + setname  ).append("\n");
 	  	    histStr .append( "[PARA] FET/GSEA p-value : " + getPValue() ).append("\n");		
 		    histStr .append( "[PARA] Minimum number of Targets : " + mintg.getText() ).append("\n");
 		    histStr .append( "[PARA] GSEA Tail : " + tail.getText() ).append("\n");
