@@ -10,11 +10,17 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -33,10 +39,15 @@ import java.util.Properties;
 import java.util.Vector;
 
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
@@ -56,10 +67,14 @@ import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.bioobjects.structure.CSProteinStructure;
 import org.geworkbench.bison.datastructure.bioobjects.structure.SkybaseResultSet;
+import org.geworkbench.builtin.projects.SaveFileFilterFactory;
+import org.geworkbench.builtin.projects.SaveFileFilterFactory.CsvFileFilter;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.engine.properties.PropertiesManager;
+import org.geworkbench.events.ImageSnapshotEvent;
 import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.util.FilePathnameUtils;
@@ -380,6 +395,16 @@ public class SkyBaseViewer implements VisualPlugin {
 				e.printStackTrace();
 			}
 
+			JPopupMenu popup = new JPopupMenu();
+			JMenuItem menuitem = new JMenuItem("Export to CSV");
+			menuitem.addActionListener(new ActionListener(){
+				public void actionPerformed(ActionEvent e) {
+					exportCSV(e);
+				}
+			});
+			popup.add(menuitem);
+			table.addMouseListener(new PopupListener(popup));
+
 			JScrollPane sp = new JScrollPane(table);
 			sp
 					.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -436,6 +461,85 @@ public class SkyBaseViewer implements VisualPlugin {
 			mPanel.add(sp);
 			mPanel.revalidate();
 			mPanel.repaint();
+		}
+	}
+
+	private class PopupListener extends MouseAdapter {
+        JPopupMenu popup;
+        PopupListener(JPopupMenu popupMenu) {
+            popup = popupMenu;
+        }
+        public void mousePressed(MouseEvent e) {
+            maybeShowPopup(e);
+        }
+        public void mouseReleased(MouseEvent e) {
+            maybeShowPopup(e);
+        }
+        private void maybeShowPopup(MouseEvent e) {
+            if (e.isPopupTrigger()) {
+                popup.show(e.getComponent(), e.getX(), e.getY());
+            }
+        }
+    }
+
+	private void exportCSV(ActionEvent e){
+		JFileChooser fileChooser = new JFileChooser();
+		PropertiesManager properties = PropertiesManager.getInstance();
+		String dirPropertyKey = "exportDir";
+		String dir = null;
+		try{
+			dir = properties.getProperty(this.getClass(),
+					dirPropertyKey, fileChooser.getCurrentDirectory().getPath());
+			fileChooser.setCurrentDirectory(new File(dir));
+		}catch(IOException ioe){
+			ioe.printStackTrace();
+		}
+
+		CsvFileFilter csvFileFilter = SaveFileFilterFactory.createCsvFileFilter();
+		fileChooser.setFileFilter(csvFileFilter);
+		int ret = fileChooser.showSaveDialog((Component)e.getSource());
+		if (ret == JFileChooser.APPROVE_OPTION) {
+			String newFileName = fileChooser.getSelectedFile().getAbsolutePath();
+			String newdir = fileChooser.getCurrentDirectory().getPath();
+			if (!dir.equals(newdir)){
+				try {
+					properties.setProperty(this.getClass(), dirPropertyKey, newdir);
+				} catch (IOException ioe) {
+					ioe.printStackTrace();
+				}
+			}
+			if (!csvFileFilter.accept(new File(newFileName)))
+				newFileName += "." + csvFileFilter.getExtension();
+			
+			File file = new File(newFileName);
+			if (file.exists()) {
+				int o = JOptionPane.showConfirmDialog(null, 
+						"The file already exists. Do you wish to overwrite it?",
+						"Replace the existing file?",
+						JOptionPane.YES_NO_OPTION);
+				if (o != JOptionPane.YES_OPTION) {
+					return;
+				}
+			}					
+			
+			try {
+				PrintWriter pw = new PrintWriter(file);
+				for (int i = 0; i < table.getColumnCount()-1; i++)
+					pw.print(table.getColumnName(i)+",");
+				pw.print(table.getColumnName(table.getColumnCount()-1));
+				pw.println();
+				for (int i = 0; i < table.getRowCount(); i++) {
+					for (int j = 0; j < table.getColumnCount()-1; j++)
+						pw.print(table.getModel().getValueAt(i, j)+",");
+					String alignment = (String)table.getModel().getValueAt(i, table.getColumnCount()-1);
+					alignment = alignment.replaceAll("\n", "\t");
+					pw.print(alignment);
+					pw.println();
+				}
+				pw.close();
+			} catch (FileNotFoundException e1) {
+				e1.printStackTrace();
+			}
 		}
 	}
 
@@ -835,7 +939,19 @@ public class SkyBaseViewer implements VisualPlugin {
 		legend.setPosition(RectangleEdge.TOP);
 		ch.addLegend(legend);
 
-		ChartPanel cp = new ChartPanel(ch);
+		cp = new ChartPanel(ch);
+		JPopupMenu pm = cp.getPopupMenu();
+		JMenuItem snapshot = new JMenuItem("Image Snapshot");
+		snapshot.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Image image = cp.getChart().createBufferedImage(cp.getWidth(), cp.getHeight());
+				if (image==null) return;
+				ImageIcon newIcon = new ImageIcon(image, "Skybase Models");
+		        ImageSnapshotEvent event = new ImageSnapshotEvent("Skybase Models", newIcon, ImageSnapshotEvent.Action.SAVE);
+		        publishImageSnapshotEvent(event);
+			}
+		});
+		pm.add(snapshot);
 		cp.setPreferredSize(prefsize);
 		cp.addChartMouseListener(new ChartMouseListener() {
 			public void chartMouseClicked(ChartMouseEvent ev) {
@@ -868,6 +984,13 @@ public class SkyBaseViewer implements VisualPlugin {
 		});
 		return cp;
 	}
+
+	@Publish
+    public org.geworkbench.events.ImageSnapshotEvent publishImageSnapshotEvent
+            (org.geworkbench.events.ImageSnapshotEvent
+                    event) {
+        return event;
+    }
 
 	/*
 	 * create category datasets for bar chart
