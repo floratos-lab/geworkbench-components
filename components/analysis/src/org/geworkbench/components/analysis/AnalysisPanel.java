@@ -66,7 +66,9 @@ import org.geworkbench.bison.model.analysis.ParameterPanel;
 import org.geworkbench.bison.model.analysis.ParameterPanelIncludingNormalized;
 import org.geworkbench.bison.model.analysis.ProteinSequenceAnalysis;
 import org.geworkbench.bison.model.analysis.ProteinStructureAnalysis;
+import org.geworkbench.builtin.projects.DataSetSubNode;
 import org.geworkbench.builtin.projects.ProjectPanel;
+import org.geworkbench.builtin.projects.ProjectTreeNode;
 import org.geworkbench.builtin.projects.history.HistoryPanel;
 import org.geworkbench.components.cagrid.gui.GridServicePanel;
 import org.geworkbench.engine.config.VisualPlugin;
@@ -777,7 +779,11 @@ public class AnalysisPanel extends CommandBase implements
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private DSMicroarraySetView getDataSetView() {
-		DSMicroarraySetView dataSetView = new CSMicroarraySetView(this.refMASet);
+		DSMicroarraySet microarraySet = null;
+		if(dataSet instanceof DSMicroarraySet) {
+			microarraySet = (DSMicroarraySet)this.dataSet;
+		}
+		DSMicroarraySetView dataSetView = new CSMicroarraySetView(microarraySet);
 		if (activatedMarkers != null && activatedMarkers.panels().size() > 0)
 			dataSetView.setMarkerPanel(activatedMarkers);
 		if (activatedArrays != null && activatedArrays.panels().size() > 0 && activatedArrays.size() > 0)
@@ -798,8 +804,7 @@ public class AnalysisPanel extends CommandBase implements
 	private boolean startAnalysis() {
 		DSDataSet<? extends DSBioObject> dataset = ProjectPanel.getInstance()
 				.getDataSet();
-		if ((refMASet == null && (refOtherSet == null || refOtherSet != dataset))
-				|| (refMASet !=null && refMASet != dataset) ) {
+		if (dataSet != dataset) { // FIXME why/how can this ever be different in the first place? which one is 'correct'?
 			JOptionPane
 					.showMessageDialog(
 							null,
@@ -830,26 +835,18 @@ public class AnalysisPanel extends CommandBase implements
 			onlyActivatedArrays = !chkAllArrays.isSelected();
 		}
 
-		if (selectedAnalysis == null
-				|| ((refMASet == null) && (refOtherSet == null))) {
+		if (selectedAnalysis == null || dataSet == null) {
+			log.warn("analysis or dataset is null");
 			return false;
 		}
 
-		AnalysisInvokedEvent event = null;
-		if (refOtherSet != null) { /*
-									 * added for analysis that do not take in
-									 * microarray data set
-									 */
-
-			event = new AnalysisInvokedEvent(
-					selectedAnalysis, "");
-			publishAnalysisInvokedEvent(event);
-		} else if ((maSetView != null) && (refMASet != null)) {
-			event = new AnalysisInvokedEvent(
-					selectedAnalysis, maSetView.getDataSet().getLabel());
-			publishAnalysisInvokedEvent(event);
+		String dataSetName = "";
+		if(dataSet instanceof DSMicroarraySet) {
+			dataSetName = maSetView.getDataSet().getLabel();
 		}
-		final AnalysisInvokedEvent invokeEvent = event;
+		final AnalysisInvokedEvent invokeEvent = new AnalysisInvokedEvent(
+				selectedAnalysis, dataSetName);
+		publishAnalysisInvokedEvent(invokeEvent);
 
 		ParamValidationResults pvr = selectedAnalysis.validateParameters();
 		if (!pvr.isValid()) {
@@ -887,7 +884,7 @@ public class AnalysisPanel extends CommandBase implements
 		AbstractGridAnalysis selectedGridAnalysis = (AbstractGridAnalysis) selectedAnalysis;
 
 		ParamValidationResults validResult = ((AbstractGridAnalysis) selectedAnalysis)
-				.validInputData(maSetView, refMASet);
+				.validInputData(maSetView, dataSet);
 		if (!validResult.isValid()) {
 			JOptionPane.showMessageDialog(null, validResult
 					.getMessage(), "Invalid Input Data",
@@ -933,7 +930,7 @@ public class AnalysisPanel extends CommandBase implements
 		pBar.reset();
 
 		List<Serializable> serviceParameterList = ((AbstractGridAnalysis) selectedGridAnalysis)
-				.handleBisonInputs(maSetView, refOtherSet);
+				.handleBisonInputs(maSetView, dataSet);
 
 		/* adding user info */
 		serviceParameterList.add(userInfo);
@@ -970,10 +967,12 @@ public class AnalysisPanel extends CommandBase implements
 		history += selectedGridAnalysis.createHistory()
 	            + NEWLINE;
 		
-		if (refOtherSet != null) {
-			history += selectedGridAnalysis.generateHistoryStringForGeneralDataSet(refOtherSet);
-		} else if (maSetView != null && refMASet != null) {
-			history += selectedGridAnalysis.generateHistoryForMaSetView(maSetView, selectedGridAnalysis.useMarkersFromSelector());
+		if (!(dataSet instanceof DSMicroarraySet)) {
+			history += selectedGridAnalysis
+					.generateHistoryStringForGeneralDataSet(dataSet);
+		} else if (maSetView != null) {
+			history += selectedGridAnalysis.generateHistoryForMaSetView(
+					maSetView, selectedGridAnalysis.useMarkersFromSelector());
 		}
 
 		ProjectPanel.getInstance().addPendingNode(gridEpr,
@@ -994,16 +993,16 @@ public class AnalysisPanel extends CommandBase implements
 		Long startTime =startDate.getTime();
 		
 		AlgorithmExecutionResults results = null;
-		if (refOtherSet != null) {
+		if (!(dataSet instanceof DSMicroarraySet)) {
 			// first case: analysis that does not take in microarray data set
-			if (refOtherSet instanceof CSSequenceSet)
-				((CSSequenceSet)refOtherSet).useMarkerPanel(!chkAllMarkers.isSelected());
-			results = selectedAnalysis.execute(refOtherSet);
-		} else if (maSetView != null && refMASet != null) {
+			if (dataSet instanceof CSSequenceSet)
+				((CSSequenceSet)dataSet).useMarkerPanel(!chkAllMarkers.isSelected());
+			results = selectedAnalysis.execute(dataSet);
+		} else if (maSetView != null && dataSet != null) {
 			// second case: analysis that takes microarray set 
 			if(selectedAnalysis instanceof AbstractGridAnalysis) {
 				ParamValidationResults validResult = ((AbstractGridAnalysis) selectedAnalysis)
-				.validInputData(maSetView, refMASet);
+				.validInputData(maSetView, dataSet);
 				if (!validResult.isValid()) {
 					JOptionPane.showMessageDialog(null, validResult.getMessage(),
 							"Invalid Input Data", JOptionPane.ERROR_MESSAGE);
@@ -1079,24 +1078,20 @@ public class AnalysisPanel extends CommandBase implements
 	private Class<?> currentDataType = null, lastDataType = null;
 	private HashMap<Class<?>, AbstractAnalysis> pidMap = new HashMap<Class<?>, AbstractAnalysis>();
 
-	@SuppressWarnings("rawtypes")
-	private DSDataSet refOtherSet = null;
+	private DSDataSet<?> dataSet = null; // FIXME even this may be unnecessary
 	/**
 	 * Refresh the list of available analyses.
 	 */
-	@SuppressWarnings({ "rawtypes" })
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Subscribe
 	public void receive(org.geworkbench.events.ProjectEvent event, Object source) {
 
-		// the first part used to be in MicroarrayViewEventBase
-		if (event.getMessage().equals(org.geworkbench.events.ProjectEvent.CLEARED)) {
-			refMASet = null;
+		if (event.getValue()==org.geworkbench.events.ProjectEvent.Message.CLEAR) {
+			dataSet = null;
 		} else {
 			DSDataSet<?> dataSet = event.getDataSet();
-			if (dataSet instanceof DSMicroarraySet) {
-				if (refMASet != dataSet) {
-					this.refMASet = (DSMicroarraySet) dataSet;					
-				}
+			if (this.dataSet != dataSet) {
+				this.dataSet = (DSDataSet<DSBioObject>) dataSet;					
 			}
 		}
 		
@@ -1104,13 +1099,11 @@ public class AnalysisPanel extends CommandBase implements
 		if(dataSet==null) return;
 		
 		clearMenuItems();
-		if ( dataSet instanceof DSMicroarraySet ) {
-			refOtherSet = null;
-		} else {
-			refOtherSet = dataSet;
-			refMASet = null;
-		}
-		if (event.getParent() == null  && !pendingNodeSelected()) { // if not a sub-node under DataSet node nor a pending node
+
+		ProjectTreeNode node = event.getTreeNode();
+
+		// if not a sub-node under DataSet node nor a pending node
+		if (!(node instanceof DataSetSubNode)  && !pendingNodeSelected()) { 
 			lastDataType = currentDataType;
 			currentDataType = event.getDataSet().getClass();
 			if (!pidMap.containsKey(currentDataType) || lastDataType != currentDataType)
@@ -1196,13 +1189,6 @@ public class AnalysisPanel extends CommandBase implements
 		return isLogNormalized;
 
 	}
-
-	////////////////////////////////////////////////////////////////////////////////////
-	// the following code used to be in MicroarrayViewEventBase. see bug 2743 note 10396
-	/**
-	 * The reference microarray set.
-	 */
-	private DSMicroarraySet refMASet = null;
 
 	private JCheckBox chkAllMarkers = new JCheckBox("All Markers", false);
 	private JCheckBox chkAllArrays = new JCheckBox("All Arrays", false);
