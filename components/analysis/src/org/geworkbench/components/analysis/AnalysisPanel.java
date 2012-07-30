@@ -777,43 +777,29 @@ public class AnalysisPanel extends CommandBase implements
 		}
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private DSMicroarraySetView getDataSetView() {
-		DSMicroarraySet microarraySet = null;
-		if(dataSet instanceof DSMicroarraySet) {
-			microarraySet = (DSMicroarraySet)this.dataSet;
-		}
-		DSMicroarraySetView dataSetView = new CSMicroarraySetView(microarraySet);
-		if (activatedMarkers != null && activatedMarkers.panels().size() > 0)
-			dataSetView.setMarkerPanel(activatedMarkers);
-		if (activatedArrays != null && activatedArrays.panels().size() > 0 && activatedArrays.size() > 0)
-			dataSetView.setItemPanel(activatedArrays);
-		dataSetView.useMarkerPanel(!chkAllMarkers.isSelected());
-		dataSetView.useItemPanel(!chkAllArrays.isSelected());
-
-		return dataSetView;
-	}
-
 	/**
 	 * Listener invoked when the "Analyze" button is pressed.
 	 * 
 	 * @param e
 	 * @return true if the analysis is actual started instead abort, e.g. for invalid input
 	 */
-	@SuppressWarnings("unchecked")
 	private boolean startAnalysis() {
-		DSDataSet<? extends DSBioObject> dataset = ProjectPanel.getInstance()
+		final DSDataSet<? extends DSBioObject> dataset = ProjectPanel.getInstance()
 				.getDataSet();
-		if (dataSet != dataset) { // FIXME why/how can this ever be different in the first place? which one is 'correct'?
-			JOptionPane
-					.showMessageDialog(
-							null,
-							"Dataset node is not currently selected. Please try to left click the data node first.",
-							"Data not selected",
-							JOptionPane.INFORMATION_MESSAGE);
-			return false;
+
+		DSMicroarraySet microarraySet = null;
+		if (dataset instanceof DSMicroarraySet) {
+			microarraySet = (DSMicroarraySet) dataset;
 		}
-		final DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView = getDataSetView();
+		final DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(
+				microarraySet);
+		if (activatedMarkers != null && activatedMarkers.panels().size() > 0)
+			maSetView.setMarkerPanel(activatedMarkers);
+		if (activatedArrays != null && activatedArrays.panels().size() > 0
+				&& activatedArrays.size() > 0)
+			maSetView.setItemPanel(activatedArrays);
+		maSetView.useMarkerPanel(!chkAllMarkers.isSelected());
+		maSetView.useItemPanel(!chkAllArrays.isSelected());
 
 		boolean onlyActivatedArrays = false;
 		if (currentParameterPanel instanceof ParameterPanelIncludingNormalized) {
@@ -835,13 +821,13 @@ public class AnalysisPanel extends CommandBase implements
 			onlyActivatedArrays = !chkAllArrays.isSelected();
 		}
 
-		if (selectedAnalysis == null || dataSet == null) {
+		if (selectedAnalysis == null || dataset == null) {
 			log.warn("analysis or dataset is null");
 			return false;
 		}
 
 		String dataSetName = "";
-		if(dataSet instanceof DSMicroarraySet) {
+		if(dataset instanceof DSMicroarraySet) {
 			dataSetName = maSetView.getDataSet().getLabel();
 		}
 		final AnalysisInvokedEvent invokeEvent = new AnalysisInvokedEvent(
@@ -861,9 +847,9 @@ public class AnalysisPanel extends CommandBase implements
 				public void run() {
 					/* check if we are dealing with a grid analysis */
 					if (isGridAnalysis()) {
-						submitAsCaGridService(invokeEvent, maSetView);
+						submitAsCaGridService(invokeEvent, dataset, maSetView);
 					} else {						
-						executeLocally(invokeEvent, maSetView);
+						executeLocally(invokeEvent, dataset, maSetView);
 					}
 					analyze.setEnabled(true);
 				}
@@ -876,6 +862,7 @@ public class AnalysisPanel extends CommandBase implements
 	}
 
 	private void submitAsCaGridService(final AnalysisInvokedEvent invokeEvent,
+			DSDataSet<? extends DSBioObject> dataset,
 			DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView) {
 
 		Date startDate = new Date();
@@ -884,7 +871,7 @@ public class AnalysisPanel extends CommandBase implements
 		AbstractGridAnalysis selectedGridAnalysis = (AbstractGridAnalysis) selectedAnalysis;
 
 		ParamValidationResults validResult = ((AbstractGridAnalysis) selectedAnalysis)
-				.validInputData(maSetView, dataSet);
+				.validInputData(maSetView, dataset);
 		if (!validResult.isValid()) {
 			JOptionPane.showMessageDialog(null, validResult
 					.getMessage(), "Invalid Input Data",
@@ -930,7 +917,7 @@ public class AnalysisPanel extends CommandBase implements
 		pBar.reset();
 
 		List<Serializable> serviceParameterList = ((AbstractGridAnalysis) selectedGridAnalysis)
-				.handleBisonInputs(maSetView, dataSet);
+				.handleBisonInputs(maSetView, dataset);
 
 		/* adding user info */
 		serviceParameterList.add(userInfo);
@@ -967,9 +954,9 @@ public class AnalysisPanel extends CommandBase implements
 		history += selectedGridAnalysis.createHistory()
 	            + NEWLINE;
 		
-		if (!(dataSet instanceof DSMicroarraySet)) {
+		if (!(dataset instanceof DSMicroarraySet)) {
 			history += selectedGridAnalysis
-					.generateHistoryStringForGeneralDataSet(dataSet);
+					.generateHistoryStringForGeneralDataSet(dataset);
 		} else if (maSetView != null) {
 			history += selectedGridAnalysis.generateHistoryForMaSetView(
 					maSetView, selectedGridAnalysis.useMarkersFromSelector());
@@ -987,22 +974,23 @@ public class AnalysisPanel extends CommandBase implements
 	// this method is only invoked form background thread
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void executeLocally(final AnalysisInvokedEvent invokeEvent,
+			DSDataSet<? extends DSBioObject> dataset,
 			DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView) {
 		
 		Date startDate = new Date();
 		Long startTime =startDate.getTime();
 		
 		AlgorithmExecutionResults results = null;
-		if (!(dataSet instanceof DSMicroarraySet)) {
+		if (!(dataset instanceof DSMicroarraySet)) {
 			// first case: analysis that does not take in microarray data set
-			if (dataSet instanceof CSSequenceSet)
-				((CSSequenceSet)dataSet).useMarkerPanel(!chkAllMarkers.isSelected());
-			results = selectedAnalysis.execute(dataSet);
-		} else if (maSetView != null && dataSet != null) {
+			if (dataset instanceof CSSequenceSet)
+				((CSSequenceSet)dataset).useMarkerPanel(!chkAllMarkers.isSelected());
+			results = selectedAnalysis.execute(dataset);
+		} else if (maSetView != null && dataset != null) {
 			// second case: analysis that takes microarray set 
 			if(selectedAnalysis instanceof AbstractGridAnalysis) {
 				ParamValidationResults validResult = ((AbstractGridAnalysis) selectedAnalysis)
-				.validInputData(maSetView, dataSet);
+				.validInputData(maSetView, dataset);
 				if (!validResult.isValid()) {
 					JOptionPane.showMessageDialog(null, validResult.getMessage(),
 							"Invalid Input Data", JOptionPane.ERROR_MESSAGE);
@@ -1078,39 +1066,31 @@ public class AnalysisPanel extends CommandBase implements
 	private Class<?> currentDataType = null, lastDataType = null;
 	private HashMap<Class<?>, AbstractAnalysis> pidMap = new HashMap<Class<?>, AbstractAnalysis>();
 
-	private DSDataSet<?> dataSet = null; // FIXME even this may be unnecessary
 	/**
 	 * Refresh the list of available analyses.
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({ "rawtypes" })
 	@Subscribe
 	public void receive(org.geworkbench.events.ProjectEvent event, Object source) {
 
-		if (event.getValue()==org.geworkbench.events.ProjectEvent.Message.CLEAR) {
-			dataSet = null;
-		} else {
-			DSDataSet<?> dataSet = event.getDataSet();
-			if (this.dataSet != dataSet) {
-				this.dataSet = (DSDataSet<DSBioObject>) dataSet;					
-			}
-		}
-		
 		DSDataSet dataSet = event.getDataSet();
-		if(dataSet==null) return;
+		if (dataSet == null || lastDataType == dataSet.getClass())
+			return;
 		
 		clearMenuItems();
+		lastDataType = null;
 
 		ProjectTreeNode node = event.getTreeNode();
 
 		// if not a sub-node under DataSet node nor a pending node
 		if (!(node instanceof DataSetSubNode)  && !pendingNodeSelected()) { 
 			lastDataType = currentDataType;
-			currentDataType = event.getDataSet().getClass();
+			currentDataType = dataSet.getClass();
 			if (!pidMap.containsKey(currentDataType) || lastDataType != currentDataType)
 				pidMap.put(currentDataType, null);
-			if (event.getDataSet().getClass().equals(CSProteinStructure.class)) {
+			if (currentDataType.equals(CSProteinStructure.class)) {
 				getAvailableAnalyses(ProteinStructureAnalysis.class);
-			} else if (event.getDataSet().getClass().equals(CSSequenceSet.class)) {
+			} else if (currentDataType.equals(CSSequenceSet.class)) {
 				getAvailableAnalyses(ProteinSequenceAnalysis.class);
 			} else {
 				getAvailableAnalyses(ClusteringAnalysis.class);
