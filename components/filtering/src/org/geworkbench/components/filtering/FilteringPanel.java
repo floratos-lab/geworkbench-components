@@ -108,6 +108,7 @@ public class FilteringPanel extends CommandBase implements VisualPlugin, ReHighl
 	JPanel jPanel1 = new JPanel();
 
 	public FilteringPanel() {
+		super("Filtering");
 		try {
 			jbInit();
 		} catch (Exception e) {
@@ -161,8 +162,6 @@ public class FilteringPanel extends CommandBase implements VisualPlugin, ReHighl
 		});
 
 		jPanel1.setLayout(new BoxLayout(jPanel1, BoxLayout.LINE_AXIS));
-
-		popMenuItem = "Filtering";
 
 		namedParameters.addActionListener(new ActionListener() {
 

@@ -22,7 +22,6 @@ import java.util.Map;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -111,7 +110,7 @@ public class AnalysisPanel extends CommandBase implements
 	private static final String SERVICE = "Service";
 	private static final String PARAMETERS = "Parameters";
 	private static final String USER_INFO = "userinfo";
-	private static final int ANALYSIS_TAB_COUNT = 1;
+
 	private static final String USER_INFO_DELIMIETER = "==";
 
 	private static final String NEWLINE = "\n";
@@ -127,20 +126,14 @@ public class AnalysisPanel extends CommandBase implements
 
 	private String userInfo = null;
 
-	/* user interface */
-	private JPanel analysisPanel = null;
-
-	private final ParameterPanel emptyParameterPanel = new ParameterPanel();;
-
-	private JPanel selectedAnalysisParameterPanel = null;
-
-	private ParameterPanel currentParameterPanel = null;
+	private final JPanel parameterPanel = new JPanel();
+	private ParameterPanel currentParameterPanel = new ParameterPanel(); // place holder
 
 	private JButton analyze = null;
 
 	private JTabbedPane jAnalysisTabbedPane = null;
 
-	private GridServicePanel jGridServicePanel = null;
+	final private GridServicePanel jGridServicePanel = new GridServicePanel(SERVICE);
 
 	private JButton save = null;
 	private JButton delete = null;
@@ -153,74 +146,24 @@ public class AnalysisPanel extends CommandBase implements
 	private JComboBox parameterComboBox = new JComboBox();
 
 	/**
-	 * Default Constructor
+	 * Default Constructor: initialize GUI.
 	 */
 	public AnalysisPanel() {
-		try {
-			init();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		super("Analysis");
 
-		/**
-		 * Resets the list of analysis.
-		 */
-		if (currentDataType == null)
-			return;
-		else {
-			log.error("I don't see how this can happen");
-			if (currentDataType.equals(CSProteinStructure.class)) {
-				getAvailableAnalyses(ProteinStructureAnalysis.class);
-			} else if (currentDataType.equals(CSSequenceSet.class)) {
-				getAvailableAnalyses(ProteinSequenceAnalysis.class);
-			} else {
-				getAvailableAnalyses(ClusteringAnalysis.class);
-			}
-		}
-	}
-
-	/**
-	 * initialize GUI
-	 * 
-	 * @throws Exception
-	 *             exception thrown during GUI construction
-	 */
-	private void init() throws Exception {
-		// this part used to be in MicroarrayViewEvent: initialize tool bar for 'all markers', 'all arrays'
 		mainPanel = new JPanel();
 		mainPanel.setLayout(new BorderLayout());
-		chkAllMarkers.addActionListener(new ActionListener() {
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				mainPanel.repaint();
-			}
-
-		});
-		chkAllArrays.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				mainPanel.repaint();
-			}
-
-		});
-
-		analysisPanel = new JPanel();
 		JScrollPane analysisScrollPane = new JScrollPane();
 
 		save = new JButton("Save Settings");
 		delete = new JButton("Delete Settings");
-		selectedAnalysisParameterPanel = new JPanel();
-		currentParameterPanel = emptyParameterPanel;
 
 		analyze = new JButton("Analyze");
 		/* Double it's width */
 		Dimension d = analyze.getPreferredSize();
 		d.setSize(d.getWidth() * 2, d.getHeight());
 		analyze.setPreferredSize(d);
-
-		analysisPanel.setLayout(new BorderLayout());
 
 		save.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -238,9 +181,6 @@ public class AnalysisPanel extends CommandBase implements
 			}
 
 		});
-
-		selectedAnalysisParameterPanel.setLayout(new BorderLayout());
-		currentParameterPanel.setLayout(new BorderLayout());
 
 		analyze.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -262,22 +202,12 @@ public class AnalysisPanel extends CommandBase implements
 		});
 		parameterComboBox.setAutoscrolls(true);
 
-		popMenuItem = "Analysis";
-		analysisPanel.add(analysisScrollPane, BorderLayout.CENTER);
-		
-		JPanel innerAnalysisPanel = new JPanel();
-		innerAnalysisPanel.setLayout(new BorderLayout());
-		analysisScrollPane.getViewport().add(innerAnalysisPanel, null);
 		JPanel analysisMainPanel = new JPanel();
 		analysisMainPanel.setLayout(new BoxLayout(analysisMainPanel, BoxLayout.Y_AXIS));
-		innerAnalysisPanel.add(analysisMainPanel, BorderLayout.CENTER);
+		analysisScrollPane.getViewport().add(analysisMainPanel, null);
 
-		selectedAnalysisParameterPanel.add(currentParameterPanel,
-				BorderLayout.CENTER);
-
-		JPanel parameterPanel = new JPanel();
 		parameterPanel.setLayout(new BorderLayout());
-		parameterPanel.add(selectedAnalysisParameterPanel, BorderLayout.CENTER);
+		parameterPanel.add(currentParameterPanel, BorderLayout.CENTER);
 
 		/* buttons */
 		save.setPreferredSize(analyze.getPreferredSize());
@@ -314,7 +244,7 @@ public class AnalysisPanel extends CommandBase implements
 		jAnalysisTabbedPane.setAlignmentX(Component.LEFT_ALIGNMENT);
 		analysisMainPanel.add(jAnalysisTabbedPane);
 
-		mainPanel.add(analysisPanel, BorderLayout.CENTER);
+		mainPanel.add(analysisScrollPane, BorderLayout.CENTER);
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -500,12 +430,11 @@ public class AnalysisPanel extends CommandBase implements
 	 *            parameter panel stored on the file system
 	 */
 	private void setParametersPanel(ParameterPanel parameterPanel) {
-		selectedAnalysisParameterPanel.remove(currentParameterPanel);
+		this.parameterPanel.remove(currentParameterPanel);
 		currentParameterPanel = parameterPanel;
-		selectedAnalysisParameterPanel.add(currentParameterPanel,
-				BorderLayout.CENTER);
-		analysisPanel.revalidate();
-		analysisPanel.repaint();
+		this.parameterPanel.add(currentParameterPanel, BorderLayout.CENTER);
+		mainPanel.revalidate();
+
 		if (currentParameterPanel instanceof AbstractSaveableParameterPanel)
 			((AbstractSaveableParameterPanel) currentParameterPanel)
 					.setParameterHighlightCallback(new HighlightCurrentParameterThread(
@@ -525,7 +454,7 @@ public class AnalysisPanel extends CommandBase implements
 			parameterComboBox.addItem(n);
 		}
 
-		analysisPanel.revalidate();
+		mainPanel.revalidate();
 		highlightCurrentParameterGroup();
 	}
 
@@ -549,7 +478,7 @@ public class AnalysisPanel extends CommandBase implements
 					.getNamedParameterSet(parametersNameList[i]));
 			parameter2.remove(ParameterKey.class.getSimpleName());
 			if (parameter1.equals(parameter2)) {
-				analysisPanel.revalidate();
+				mainPanel.revalidate();
 				parameterComboBox.setSelectedIndex(i+1);
 				/*
 				 * Since we don't allow duplicate parameter sets in the list, so
@@ -615,7 +544,7 @@ public class AnalysisPanel extends CommandBase implements
 			} else {
 				namedParameter = DEFAULT_PARAMETER_SETTING_NAME;
 			}
-			String paramName = JOptionPane.showInputDialog(analysisPanel,
+			String paramName = JOptionPane.showInputDialog(mainPanel,
 					namedParameter, namedParameter);
 			File checkFile = new File(selectedAnalysis.scrubFilename(paramName));
 			if (checkFile.exists()) {
@@ -648,8 +577,7 @@ public class AnalysisPanel extends CommandBase implements
 	 * @param e
 	 */
 	private void delete_actionPerformed(ActionEvent e) {
-		if (selectedAnalysis != null
-				&& this.parameterComboBox.getSelectedIndex() <= 0) {
+		if (this.parameterComboBox.getSelectedIndex() <= 0) {
 			JOptionPane.showMessageDialog(null,
 					"You must select a setting before you can delete it.",
 					"Canceled", JOptionPane.OK_OPTION);
@@ -659,7 +587,7 @@ public class AnalysisPanel extends CommandBase implements
 					"Deleting Saved Parameters", JOptionPane.YES_NO_OPTION,
 					JOptionPane.WARNING_MESSAGE);
 
-			if ((selectedAnalysis != null) && (choice == 0)
+			if ((choice == 0)
 					&& (this.parameterComboBox.getSelectedIndex() > 0)) {
 				log.info("Deleting saved parameters: "
 						+ (String) this.parameterComboBox.getSelectedItem());
@@ -671,6 +599,10 @@ public class AnalysisPanel extends CommandBase implements
 		}
 	}
 
+	// FIXME is pidMap useful at all?
+
+	// FIXME is this whole thing useful at all?
+	@Override
 	protected void setSelectedCommandByName(String commandName) {
 
 		delete.setEnabled(false);
@@ -684,13 +616,6 @@ public class AnalysisPanel extends CommandBase implements
 					.getNamesOfStoredParameterSets();
 			setNamedParameters(storedParameterSetNames);
 			setParametersPanel(paramPanel);
-
-			String className = paramPanel.getClass().getName();
-			if (className.equals("org.geworkbench.components.ttest.MultiTTestAnalysisPanel")
-					|| className.equals("org.geworkbench.components.ttest.TtestAnalysis"))
-				chkAllArrays.setVisible(false);
-			else
-				chkAllArrays.setVisible(true);
 
 			/*
 			 * If it's first time (means just after load from file) for this
@@ -707,7 +632,7 @@ public class AnalysisPanel extends CommandBase implements
 
 			save.setEnabled(true);
 		} else {
-			setParametersPanel(emptyParameterPanel);
+			setParametersPanel(new ParameterPanel()); // just a place holder
 			save.setEnabled(false);
 			/*
 			 * Since the analysis admits no parameters, there are no named
@@ -717,22 +642,18 @@ public class AnalysisPanel extends CommandBase implements
 		}
 
 		if (selectedAnalysis instanceof AbstractGridAnalysis) {
-			if (selectedAnalysis != pidMap.get(currentDataType)) {
-				jGridServicePanel = new GridServicePanel(SERVICE);
+			if (selectedAnalysis != pidMap.get(lastDataType)) {
 				jGridServicePanel.setAnalysisType(selectedAnalysis);
-				if (jAnalysisTabbedPane.getTabCount() > ANALYSIS_TAB_COUNT)
-					jAnalysisTabbedPane.remove(ANALYSIS_TAB_COUNT);
+//				jAnalysisTabbedPane.remove(jGridServicePanel);
+//				if (jAnalysisTabbedPane.getTabCount() > ANALYSIS_TAB_COUNT)
+//					jAnalysisTabbedPane.remove(ANALYSIS_TAB_COUNT);
 
 				jAnalysisTabbedPane.addTab("Services", jGridServicePanel);
 			}
 		} else {
 			jAnalysisTabbedPane.remove(jGridServicePanel);
-			jGridServicePanel = null; // TODO this is just a quick fix for bug
-			// 0001174, Quick fix made user input
-			// service information every time.
-			// Should have a better implementation.
 		}
-		pidMap.put(currentDataType, selectedAnalysis);
+		pidMap.put(lastDataType, selectedAnalysis);
 	}
 
 	/**
@@ -798,12 +719,8 @@ public class AnalysisPanel extends CommandBase implements
 		if (activatedArrays != null && activatedArrays.panels().size() > 0
 				&& activatedArrays.size() > 0)
 			maSetView.setItemPanel(activatedArrays);
-		maSetView.useMarkerPanel(!chkAllMarkers.isSelected());
-		maSetView.useItemPanel(!chkAllArrays.isSelected());
 
-		boolean onlyActivatedArrays = false;
 		if (currentParameterPanel instanceof ParameterPanelIncludingNormalized) {
-			onlyActivatedArrays = true;
 
 			ParameterPanelIncludingNormalized p = (ParameterPanelIncludingNormalized)currentParameterPanel;
 			boolean isLogNormalized = p.isLogNormalized();
@@ -817,8 +734,6 @@ public class AnalysisPanel extends CommandBase implements
 				if (result == JOptionPane.NO_OPTION)
 					return false;
 			}
-		} else {
-			onlyActivatedArrays = !chkAllArrays.isSelected();
 		}
 
 		if (selectedAnalysis == null || dataset == null) {
@@ -841,8 +756,7 @@ public class AnalysisPanel extends CommandBase implements
 			return false;
 		} else {
 			analyze.setEnabled(false);
-			maSetView.useMarkerPanel(!chkAllMarkers.isSelected());
-			maSetView.useItemPanel(onlyActivatedArrays);
+
 			Thread t = new Thread(new Runnable() {
 				public void run() {
 					/* check if we are dealing with a grid analysis */
@@ -972,7 +886,7 @@ public class AnalysisPanel extends CommandBase implements
 	}
 
 	// this method is only invoked form background thread
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({ "unchecked" })
 	private void executeLocally(final AnalysisInvokedEvent invokeEvent,
 			DSDataSet<? extends DSBioObject> dataset,
 			DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView) {
@@ -983,8 +897,6 @@ public class AnalysisPanel extends CommandBase implements
 		AlgorithmExecutionResults results = null;
 		if (!(dataset instanceof DSMicroarraySet)) {
 			// first case: analysis that does not take in microarray data set
-			if (dataset instanceof CSSequenceSet)
-				((CSSequenceSet)dataset).useMarkerPanel(!chkAllMarkers.isSelected());
 			results = selectedAnalysis.execute(dataset);
 		} else if (maSetView != null && dataset != null) {
 			// second case: analysis that takes microarray set 
@@ -1063,7 +975,7 @@ public class AnalysisPanel extends CommandBase implements
 		return analysisCompleteEvent;
 	}
 
-	private Class<?> currentDataType = null, lastDataType = null;
+	private Class<?> lastDataType = null;
 	private HashMap<Class<?>, AbstractAnalysis> pidMap = new HashMap<Class<?>, AbstractAnalysis>();
 
 	/**
@@ -1084,8 +996,7 @@ public class AnalysisPanel extends CommandBase implements
 
 		// if not a sub-node under DataSet node nor a pending node
 		if (!(node instanceof DataSetSubNode)  && !pendingNodeSelected()) { 
-			lastDataType = currentDataType;
-			currentDataType = dataSet.getClass();
+			Class<?> currentDataType = dataSet.getClass();
 			if (!pidMap.containsKey(currentDataType) || lastDataType != currentDataType)
 				pidMap.put(currentDataType, null);
 			if (currentDataType.equals(CSProteinStructure.class)) {
@@ -1096,6 +1007,7 @@ public class AnalysisPanel extends CommandBase implements
 				getAvailableAnalyses(ClusteringAnalysis.class);
 			}
 			updateMenuItems();
+			lastDataType = currentDataType;
 		}
 	}
 
@@ -1169,9 +1081,6 @@ public class AnalysisPanel extends CommandBase implements
 		return isLogNormalized;
 
 	}
-
-	private JCheckBox chkAllMarkers = new JCheckBox("All Markers", false);
-	private JCheckBox chkAllArrays = new JCheckBox("All Arrays", false);
 
 	private final String markerLabelPrefix = "  Markers: ";
 	private JLabel numMarkersSelectedLabel = new JLabel(markerLabelPrefix);
