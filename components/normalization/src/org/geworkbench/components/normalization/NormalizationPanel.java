@@ -106,6 +106,7 @@ public class NormalizationPanel extends CommandBase implements VisualPlugin, ReH
 	 * Default Constructor
 	 */
 	public NormalizationPanel() {
+		super("Normalization");
 		try {
 			jbInit();
 		} catch (Exception e) {
@@ -164,8 +165,6 @@ public class NormalizationPanel extends CommandBase implements VisualPlugin, ReH
 
 		});
 		jPanel1.setLayout(new BoxLayout(jPanel1, BoxLayout.LINE_AXIS));
-
-		popMenuItem = "Normalization";
 
 		namedParameters.addActionListener(new ActionListener() {
 
