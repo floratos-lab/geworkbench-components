@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
 import javax.swing.JTextField;
 import javax.swing.JLabel;
@@ -32,8 +33,7 @@ public class CoefficientOfVariationFilterPanel extends AbstractSaveableParameter
     final String MICROARRAY_OPTION = "Microarray average";
     final String IGNORE_OPTION = "Ignore";
 
-    private GridLayout gridLayout1 = new GridLayout();
-    private JLabel deviationLabel = new JLabel("Coefficient of variation bound");
+    private JLabel deviationLabel = new JLabel("Remove markers for which the Coefficient of Variation is less than");
     private JLabel missingValuesLabel = new JLabel("Missing values");
     private JTextField deviationCutoff = new JTextField();
     private JComboBox missingValuesSelection = new JComboBox(new String[]{MARKER_OPTION, MICROARRAY_OPTION, IGNORE_OPTION});
@@ -82,22 +82,32 @@ public class CoefficientOfVariationFilterPanel extends AbstractSaveableParameter
     }
 
     private void jbInit() throws Exception {
-        JPanel container = new JPanel();
-        gridLayout1.setColumns(2);
-        gridLayout1.setHgap(10);
-        gridLayout1.setRows(2);
-        gridLayout1.setVgap(10);
-        container.setLayout(gridLayout1);
-        container.add(deviationLabel);
-        container.add(deviationCutoff);
-        container.add(missingValuesLabel);
-        container.add(missingValuesSelection);
-        container.setPreferredSize(new Dimension(350, 55));
-        this.add(container);
-        deviationCutoff.setText("0.0");       
+        JPanel canvas = new JPanel();
+        canvas.setLayout(new BoxLayout(canvas, BoxLayout.LINE_AXIS));
+        
+        JPanel left = new JPanel();
+        left.setLayout(new BoxLayout(left, BoxLayout.PAGE_AXIS));
+        left.setPreferredSize(new Dimension(375,55));
+        
+        JPanel middle = new JPanel();
+        middle.setLayout(new BoxLayout(middle, BoxLayout.PAGE_AXIS));
+        middle.setPreferredSize(new Dimension(200,55));
+        
+        left.add(deviationLabel);
+        left.add(new JLabel("\n"));
+        left.add(missingValuesLabel);
+        middle.add(deviationCutoff);
+        middle.add(missingValuesSelection);
+        
+        canvas.add(left);
+        canvas.add(middle);
+        this.add(canvas);
+        
+        deviationCutoff.setText("0.0");
         ParameterActionListener parameterActionListener = new ParameterActionListener(this);
         missingValuesSelection.addActionListener(parameterActionListener);
         deviationCutoff.addActionListener(parameterActionListener);
+    	
    }
 
     /**

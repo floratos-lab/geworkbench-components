@@ -46,9 +46,9 @@ public class FilterOptionPanel extends JPanel {
 		super(new GridBagLayout());
 
 		percentRemovalButton = new JRadioButton(
-				"Remove the marker if the percentage of matching arrays is more than");
+				"Remove markers for which the percentage of matching arrays is greater than");
 		numberRemovalButton = new JRadioButton(
-				"Remove the marker if the number of matching arrays is more than");
+				"Remove markers for which the number of matching arrays is greater than");
 
 		percentField = new JTextField();
 		percentField.setText("40");
