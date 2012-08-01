@@ -106,8 +106,6 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 
 	private JLabel serviceLabel = null;
 
-	JDialog changeServicesDialog = null;
-
 	private List<String> contextList = new ArrayList<String>();
 	private List<VersionDescriptor> versionList = new ArrayList<VersionDescriptor>();
 
@@ -922,7 +920,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 
 		String host = ResultSetlUtil.getUrl();
 
-		changeServicesDialog = new JDialog();
+		final JDialog changeServicesDialog = new JDialog();
 
 		DefaultFormBuilder indexServerPanelBuilder = new DefaultFormBuilder(
 				new FormLayout("right:20dlu"));
