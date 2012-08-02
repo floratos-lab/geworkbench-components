@@ -145,15 +145,11 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	private Log log = LogFactory.getLog(CellularNetworkKnowledgeWidget.class);
 
-	private int timeout = 0;
-
-	private int interaction_flag = 1;
+	private int interaction_flag = 1; // FIXME what is the meaning of this? it points to suspicious design in InteractionsConnectionImpl
 
 	private static final String[] firstFourColumnLabels = new String[] {
 			Constants.MARKERLABEL, Constants.GENELABEL,
 			Constants.GENETYPELABEL, Constants.GOTERMCOLUMN };
-
-	private static final int ONE_SECOND = 1000;
 
 	private static String[] columnLabels = new String[] {
 			Constants.MARKERLABEL, Constants.GENELABEL,
@@ -243,12 +239,15 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 		GeneOntologyTree instance = GeneOntologyTree.getInstance();
 		if (instance == null) {
+			final int ONE_SECOND = 1000;
 			timer = new Timer(ONE_SECOND, this);
 			timer.start();
 		}
 	}
 
-	private Timer timer;
+	// the sole purpose of this timer is to update when GO tree is ready
+	// this cannot be deserialized
+	transient private Timer timer;
 
 	public Component getComponent() {
 		return this;
@@ -1735,7 +1734,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			iteractionsProp
 					.load(new FileInputStream(Constants.PROPERTIES_FILE));
 
-			timeout = new Integer(
+			int timeout = Integer.parseInt(
 					iteractionsProp
 							.getProperty(Constants.INTERACTIONS_SERVLET_CONNECTION_TIMEOUT));
 
