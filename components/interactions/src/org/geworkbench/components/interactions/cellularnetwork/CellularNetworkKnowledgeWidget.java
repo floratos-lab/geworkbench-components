@@ -1084,6 +1084,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	} // end of initComponents
 
+	private long maxX = 1;
 	/**
 	 * Generate the data to draw the curve.
 	 * 
@@ -1093,7 +1094,6 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	 * @param active
 	 * @return
 	 */
-
 	private XYSeriesCollection createCollection(double min, double max,
 			int selectedId, boolean active) {
 
@@ -1117,11 +1117,11 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 			CellularNetWorkElementInformation
 					.setSmallestIncrement(smallestIncrement);
-			CellularNetWorkElementInformation.setMaxX((long) maxX);
+			this.maxX = (int)maxX;
 
 		} else {
 			CellularNetWorkElementInformation.setSmallestIncrement(0.01);
-			CellularNetWorkElementInformation.setMaxX(1);
+			maxX = 1;
 		}
 
 		XYSeries dataSeries = new XYSeries("Total Distribution");
@@ -1226,8 +1226,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			return;
 		}
 		XYPlot plot = this.chart.getXYPlot();
-		double newSliderValue = newvalue * 100
-				/ CellularNetWorkElementInformation.getMaxX();
+		double newSliderValue = newvalue * 100 / maxX;
 		thresholdSlider.setValue((int) newSliderValue);
 		plot.setDomainCrosshairValue(newvalue);
 		for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {
@@ -1282,8 +1281,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		double threshhold = 0;
 		if (hits != null && hits.size() > 0)
 			threshhold = hits.get(0).getThreshold();
-		double newSliderValue = threshhold * 100
-				/ CellularNetWorkElementInformation.getMaxX();
+		double newSliderValue = threshhold * 100 / maxX;
 
 		thresholdSlider.setValue((int) newSliderValue);
 
@@ -1384,7 +1382,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			ValueAxis xAxis = xyPlot.getDomainAxis();
 			xAxis.setAutoRange(true);
 
-			if (CellularNetWorkElementInformation.getMaxX() <= 1)
+			if (maxX <= 1)
 				xAxis.setRange(0, 1);
 
 			// OPTIONAL CUSTOMISATION COMPLETED.
@@ -1401,9 +1399,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 						String s = myFormatter.format(aCrosshair);
 						thresholdTextField.setText(s);
 
-						double newSliderValue = aCrosshair
-								/ CellularNetWorkElementInformation.getMaxX()
-								* 100;
+						double newSliderValue = aCrosshair / maxX * 100;
 
 						thresholdSlider.setValue((int) newSliderValue);
 					}
@@ -1467,8 +1463,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		int value = thresholdSlider.getValue();
 		XYPlot plot = chart.getXYPlot();
 
-		double lowValue = (double) value
-				* CellularNetWorkElementInformation.getMaxX() / 100;
+		double lowValue = (double) value * maxX / 100;
 
 		plot.setDomainCrosshairValue(lowValue);
 		String s = myFormatter.format(lowValue);
