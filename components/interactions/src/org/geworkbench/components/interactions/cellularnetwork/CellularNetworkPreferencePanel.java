@@ -42,6 +42,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.geworkbench.engine.properties.PropertiesManager;
 import org.geworkbench.util.ResultSetlUtil;
+import org.geworkbench.util.UnAuthenticatedException;
 import org.geworkbench.util.Util;
 import org.geworkbench.util.network.CellularNetWorkElementInformation;
  
@@ -291,6 +292,12 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 								.getInteractomeDescription(selectedCoxtext);
 						versionList = interactionsConnection
 								.getVersionDescriptor(selectedCoxtext);
+					} catch (UnAuthenticatedException uae) {
+						JOptionPane
+								.showMessageDialog(
+										null,
+										"Unauthenticated Exception caught. Please check with the administrator of CNKB servlet.",
+										"Error", JOptionPane.ERROR_MESSAGE);
 					} catch (ConnectException ce) {
 						JOptionPane
 								.showMessageDialog(
@@ -377,6 +384,12 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 					networkAvailInteractionTypes
 							.addAll(displayAvailInteractionTypes);
 
+				} catch (UnAuthenticatedException uae) {
+					JOptionPane
+							.showMessageDialog(
+									null,
+									"Unauthenticated Exception caught. Please check with the administrator of CNKB servlet.",
+									"Error", JOptionPane.ERROR_MESSAGE);
 				} catch (ConnectException ce) {
 					JOptionPane
 							.showMessageDialog(
