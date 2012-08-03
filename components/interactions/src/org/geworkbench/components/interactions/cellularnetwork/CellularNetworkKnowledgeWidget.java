@@ -145,7 +145,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	private Log log = LogFactory.getLog(CellularNetworkKnowledgeWidget.class);
 
-	private int interaction_flag = 1; // FIXME what is the meaning of this? it points to suspicious design in InteractionsConnectionImpl
+	// this flag chooses one of the two ways of interpret interaction edges. currently only option 1 is used
+	private int interaction_flag = 1;
 
 	private static final String[] firstFourColumnLabels = new String[] {
 			Constants.MARKERLABEL, Constants.GENELABEL,
@@ -235,7 +236,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 		detailTable.getTableHeader().setEnabled(true);
 		detailTable.setDefaultRenderer(String.class, new ColorRenderer());
-		detailTable.setDefaultRenderer(Integer.class, new IntegerRenderer());
+		detailTable.setDefaultRenderer(Integer.class, new DetailTableIntegerRenderer(this));
 
 		GeneOntologyTree instance = GeneOntologyTree.getInstance();
 		if (instance == null) {
@@ -1975,108 +1976,14 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	}
 
-	private class IntegerRenderer extends JLabel implements TableCellRenderer {
+	public CellularNetWorkElementInformation getOneRow(int row) {
+		row = detailTable.convertRowIndexToModel(row);
 
-		private static final long serialVersionUID = 1399618132721043696L;
-
-		private Border unselectedBorder = null;
-
-		private Border selectedBorder = null;
-
-		public IntegerRenderer() {
-			setOpaque(true); // MUST do this for background to show up.
+		if (hits == null || row >= hits.size()) {
+			return null;
 		}
 
-		public Component getTableCellRendererComponent(JTable table,
-				Object color, boolean isSelected, boolean hasFocus, int row,
-				int column) {
-
-			row = detailTable.convertRowIndexToModel(row);
-			TableColumn tableColumn = detailTable.getColumnModel().getColumn(
-					column);
-
-			if (hits != null && hits.size() > row) {
-				CellularNetWorkElementInformation cellularNetWorkElementInformation = hits
-						.get(row);
-				boolean isDirty = cellularNetWorkElementInformation.isDirty();
-				if (isDirty) {
-					setBackground(table.getBackground());
-					setForeground(Color.red);
-					String headerStr = tableColumn.getHeaderValue().toString();
-					if (!jPreferencePanel
-							.getNetworkSelectedInteractionTypes()
-							.contains(
-									headerStr.substring(
-											0,
-
-											headerStr.length()
-													- Constants.COLUMNLABELPOSTFIX
-															.length()))) {
-						setBackground(Color.gray);
-					}
-					if (isSelected) {
-						if (selectedBorder == null) {
-							selectedBorder = BorderFactory.createMatteBorder(2,
-									5, 2, 5, table.getSelectionBackground());
-						}
-						setBorder(selectedBorder);
-
-						setText("<html><font color=blue><i>" + "Unknown"
-								+ "</i></font></html>");
-					} else {
-
-						setText("<html><font><i>" + "Unknown"
-								+ "</i></font></html>");
-						setToolTipText("Please push the Refresh button to retrieve related information.");
-						if (unselectedBorder == null) {
-							unselectedBorder = BorderFactory.createMatteBorder(
-									2, 5, 2, 5, table.getBackground());
-						}
-						setBorder(unselectedBorder);
-					}
-				} else {
-
-					setBackground(table.getBackground());
-					// setBackground(Color.white);
-					String headerStr = tableColumn.getHeaderValue().toString();
-					if (!jPreferencePanel
-							.getNetworkSelectedInteractionTypes()
-							.contains(
-									headerStr.substring(
-											0,
-
-											headerStr.length()
-													- Constants.COLUMNLABELPOSTFIX
-															.length()))) {
-						setBackground(Color.gray);
-					}
-
-					if (isSelected) {
-						if (selectedBorder == null) {
-							selectedBorder = BorderFactory.createMatteBorder(2,
-									5, 2, 5, table.getSelectionBackground());
-						}
-						setBorder(selectedBorder);
-
-						setText("<html><font color=blue><b>" + color
-								+ "</b></font></html>");
-						setToolTipText(color.toString());
-					} else {
-
-						setText("<html><font color=blue><b>" + color
-								+ "<b></font></html>");
-						if (unselectedBorder == null) {
-							unselectedBorder = BorderFactory.createMatteBorder(
-									2, 5, 2, 5, table.getBackground());
-						}
-						setBorder(unselectedBorder);
-						setToolTipText(color.toString());
-					}
-				}
-			}
-
-			return this;
-		}
+		return hits.get(row);
 	}
 
 	private class ColorRenderer extends JLabel implements TableCellRenderer {
