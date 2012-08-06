@@ -9,6 +9,7 @@ import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -33,17 +34,12 @@ import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.builtin.projects.history.HistoryPanel;
 import org.geworkbench.components.anova.gui.AnovaAnalysisPanel;
-import org.geworkbench.components.anova.gui.AnovaAnalysisPanel.FalseDiscoveryRateControl;
-import org.geworkbench.components.anova.gui.AnovaAnalysisPanel.PValueEstimation;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.events.SubpanelChangedEvent;
-import org.geworkbench.util.ProgressBar;
-import org.tigr.microarray.mev.cluster.algorithm.AbortException;
-import org.tigr.microarray.mev.cluster.algorithm.AlgorithmData;
-import org.tigr.microarray.mev.cluster.algorithm.AlgorithmException;
-import org.tigr.microarray.mev.cluster.algorithm.impl.OneWayANOVA;
-import org.tigr.microarray.mev.cluster.gui.impl.owa.OneWayANOVAInitBox;
-import org.tigr.util.FloatMatrix;
+import org.geworkbench.util.ProgressBar; 
+
+import org.geworkbench.components.anova.data.AnovaInput;
+import org.geworkbench.components.anova.data.AnovaOutput;
 
 /**
  * @author yc2480
@@ -52,7 +48,7 @@ import org.tigr.util.FloatMatrix;
 public class AnovaAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
 	private static final long serialVersionUID = 6660785761134949795L;
-	
+
 	private Log log = LogFactory.getLog(AnovaAnalysis.class);
 	private final String analysisName = "Anova";
 
@@ -61,6 +57,8 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 	 * execute() been called.
 	 */
 	private String GroupAndChipsString;
+
+	private transient ProgressBar pbAnova;
 
 	private AnovaAnalysisPanel anovaAnalysisPanel = new AnovaAnalysisPanel();
 
@@ -71,7 +69,8 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.geworkbench.bison.model.analysis.Analysis#execute(java.lang.Object)
+	 * @see
+	 * org.geworkbench.bison.model.analysis.Analysis#execute(java.lang.Object)
 	 */
 	@SuppressWarnings("unchecked")
 	public AlgorithmExecutionResults execute(Object input) {
@@ -100,7 +99,7 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 
 		int numGenes = 0;
 		int numSelectedGroups = 0;
-
+		DSItemList<DSGeneMarker> selectMarkers = null;
 		GroupAndChipsString = "";
 
 		DSItemList<DSPanel<DSMicroarray>> panels = view.getItemPanel().panels();
@@ -120,22 +119,21 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 		}
 		String[] labels = labelSet.toArray(new String[numSelectedGroups]);
 		String[] labels1 = new String[0];
-		numGenes = view.markers().size();
+
+		selectMarkers = view.markers();
+		numGenes = selectMarkers.size();
 		log.debug("NumGenes:" + numGenes);
+
 		/* Create panels and significant result sets to store results */
 		DSSignificanceResultSet<DSGeneMarker> sigSet = new CSSignificanceResultSet<DSGeneMarker>(
 				maSet, "Anova Analysis", labels1, labels, pvalueth);
-
-		AlgorithmData data = new AlgorithmData();
-
-		data.addParam("alpha", String.valueOf(pvalueth));
 
 		/*
 		 * use as an index points to all microarrays put in array A
 		 */
 		int globleArrayIndex = 0;
 
-		ArrayList<DSMicroarray> markerList = new ArrayList<DSMicroarray>();
+		ArrayList<DSMicroarray> microarrayList = new ArrayList<DSMicroarray>();
 		/*
 		 * calculating how many groups selected and arrays inside selected
 		 * groups
@@ -161,12 +159,12 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 					 * put member of each group into history
 					 */
 					GroupAndChipsString += "\t\t" + panelA.get(aIndex) + "\n";
-					if (markerList.contains(panelA.get(aIndex)))
+					if (microarrayList.contains(panelA.get(aIndex)))
 						return new AlgorithmExecutionResults(false,
-								"Same marker (" + panelA.get(aIndex)
+								"Same array (" + panelA.get(aIndex)
 										+ ") exists in multiple groups.", null);
 					else
-						markerList.add(panelA.get(aIndex));
+						microarrayList.add(panelA.get(aIndex));
 					/*
 					 * count total arrays in selected groups.
 					 */
@@ -190,218 +188,70 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 				/* for each marker in this array */
 				for (int k = 0; k < numGenes; k++) {
 					A[k][globleArrayIndex] = (float) panelA.get(aIndex)
-							.getMarkerValue(k).getValue();
+							.getMarkerValue(selectMarkers.get(k)).getValue();
+
 				}
 				groupAssignments[globleArrayIndex] = i + 1;
 				globleArrayIndex++;
 			}
 		}
 
-		/* call MeV's interface using their protocols */
-		FloatMatrix FM = new FloatMatrix(A);
+		AnovaInput anovaInput = new AnovaInput(A,groupAssignments, numGenes,
+			    numSelectedGroups, pvalueth, anovaAnalysisPanel.pValueEstimation.ordinal(),
+			    anovaAnalysisPanel.permutationsNumber, anovaAnalysisPanel.falseDiscoveryRateControl.ordinal(),
+			    anovaAnalysisPanel.falseSignificantGenesLimit);
+	 
+		final Anova anova = new Anova(anovaInput);
+		SwingUtilities.invokeLater(new Runnable() {
 
-		data.addMatrix("experiment", FM);
-		data.addIntArray("group-assignments", groupAssignments);
-		data.addParam("numGroups", String.valueOf(numSelectedGroups));
-
-		data
-				.addParam(
-						"usePerms",
-						String
-								.valueOf(anovaAnalysisPanel.pValueEstimation == PValueEstimation.permutation));
-
-		if (anovaAnalysisPanel.pValueEstimation == PValueEstimation.fdistribution) {
-
-		} else if (anovaAnalysisPanel.pValueEstimation == PValueEstimation.permutation) {
-			data.addParam("numPerms", String
-					.valueOf(anovaAnalysisPanel.permutationsNumber));
-			log.debug("numPerms:"
-					+ String.valueOf(anovaAnalysisPanel.permutationsNumber));
-			if (anovaAnalysisPanel.falseDiscoveryRateControl == FalseDiscoveryRateControl.number) {
-				data.addParam("falseNum", String.valueOf((new Float(
-						anovaAnalysisPanel.falseSignificantGenesLimit)).intValue()));
-			} else if (anovaAnalysisPanel.falseDiscoveryRateControl == FalseDiscoveryRateControl.proportion) {
-				data.addParam("falseProp", String
-						.valueOf(anovaAnalysisPanel.falseSignificantGenesLimit));
-			} else {
-				/*
-				 * user didn't select these two (which need to pass extra
-				 * parameters), so we don't need to do a thing.
-				 */
+			@Override
+			public void run() {
+				pbAnova = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
+				pbAnova.addObserver(new CancelObserver(anova));
+				pbAnova.setTitle("Anova Analysis");
+				pbAnova.setMessage("Calculating Anova, please wait...");
+				pbAnova.start();
 			}
-		} else {
-			log
-					.error("This shouldn't happen! I don't understand that PValueEstimation");
-		}
 
-		log.debug(anovaAnalysisPanel.falseDiscoveryRateControl);
-		if (anovaAnalysisPanel.falseDiscoveryRateControl == FalseDiscoveryRateControl.adjbonferroni) {
-			data.addParam("correction-method", String
-					.valueOf(OneWayANOVAInitBox.ADJ_BONFERRONI));
-		} else if (anovaAnalysisPanel.falseDiscoveryRateControl == FalseDiscoveryRateControl.bonferroni) {
-			data.addParam("correction-method", String
-					.valueOf(OneWayANOVAInitBox.STD_BONFERRONI));
-		} else if (anovaAnalysisPanel.falseDiscoveryRateControl == FalseDiscoveryRateControl.alpha) {
-			data.addParam("correction-method", String
-					.valueOf(OneWayANOVAInitBox.JUST_ALPHA));
-		} else if (anovaAnalysisPanel.falseDiscoveryRateControl == FalseDiscoveryRateControl.westfallyoung) {
-			data.addParam("correction-method", String
-					.valueOf(OneWayANOVAInitBox.MAX_T));
-		} else if (anovaAnalysisPanel.falseDiscoveryRateControl == FalseDiscoveryRateControl.number) {
-			data.addParam("correction-method", String
-					.valueOf(OneWayANOVAInitBox.FALSE_NUM));
-		} else if (anovaAnalysisPanel.falseDiscoveryRateControl == FalseDiscoveryRateControl.proportion) {
-			data.addParam("correction-method", String
-					.valueOf(OneWayANOVAInitBox.FALSE_PROP));
-		} else {
-			log
-					.error("This shouldn't happen! I don't understand that selection. It should be one of following: Alpha, Boferroni, Adj-Bonferroni, WestfallYoung, FalseNum, FalseProp.");
-		}
+		});
 
-		OneWayANOVA OWA = new OneWayANOVA();
-
-		final ProgressBar pb = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
-
-		pb.setTitle("Anova Analysis");
-		pb.setMessage("Calculating Anova, please wait...");
-		pb.start();
+		CSAnovaResultSet<DSGeneMarker> anovaResultSet = null;
 
 		try {
-			/* when user close the ProgressBar, call OWA.abort(); */
-			class AbortObserver implements Observer {
-				OneWayANOVA OWA = null;;
-
-				public AbortObserver(OneWayANOVA OWA) {
-					this.OWA = OWA;
+			AnovaOutput output = anova.execute();
+			if (output == null) {
+				if (pbAnova != null) {
+					pbAnova.dispose();
 				}
-
-				public void update(Observable o, Object arg) {
-					OWA.abort();
-				}
-			}
-			;
-			AbortObserver abortObserver = new AbortObserver(OWA);
-
-			pb.addObserver(abortObserver);
-
-			/* execute the OneWayAnova algorithm */
-			AlgorithmData result = OWA.execute(data);
-			/* get p-values in result */
-			FloatMatrix apFM = result.getMatrix("adjPValues");
-			FloatMatrix fFM = result.getMatrix("fValues");
-			FloatMatrix mFM = result.getMatrix("geneGroupMeansMatrix");
-			FloatMatrix sFM = result.getMatrix("geneGroupSDsMatrix");
-
-			/*
-			 * I need to know how many will pass the threshold to initialize the
-			 * array
-			 */
-			int significantMarkerIndex = 0;
-			for (int i = 0; i < apFM.getRowDimension(); i++) {
-				if (apFM.A[i][0] < pvalueth) {
-					significantMarkerIndex++;
-				}
+				return null; // cancelled
 			}
 
-			int totalSignificantMarkerNum = significantMarkerIndex;
-			totalSignificantMarkerNum = result.getCluster("cluster")
-					.getNodeList().getNode(0).getFeaturesIndexes().length;
-			log
-					.debug("totalSignificantMarkerNum: "
-							+ totalSignificantMarkerNum);
-			String[] significantMarkerNames = new String[totalSignificantMarkerNum];
-			significantMarkerIndex = 0;
-			for (int cx = 0; cx < totalSignificantMarkerNum; cx++) {
-				int i = result.getCluster("cluster").getNodeList().getNode(0)
-						.getFeaturesIndexes()[cx];
-				significantMarkerNames[significantMarkerIndex] = view.markers()
-						.get(i).getLabel();
-				significantMarkerIndex++;
-			}
-			/* output f-value, p-value, adj-p-value, mean, std */
-			float[] pValueCollection = new float[totalSignificantMarkerNum];
-			float[] adjustedPValueCollection = new float[totalSignificantMarkerNum];
-			float[] groupMeanCollectionForAllMarkers = new float[totalSignificantMarkerNum
-							* mFM.getColumnDimension()];
-			float[] groupStandardDiviationCollectionForAllMarkers = new float[totalSignificantMarkerNum
-							* mFM.getColumnDimension()];
-			float[] fValueCollection = new float[totalSignificantMarkerNum];
-			
+			int[] featuresIndexes = output.getFeaturesIndexes();
+			double[] significances = output.getSignificances();
+			String[] significantMarkerNames = new String[featuresIndexes.length];
 			DSAnnotatedPanel<DSGeneMarker, Float> panelSignificant = new CSAnnotPanel<DSGeneMarker, Float>(
 					"Significant Genes");
 
-			significantMarkerIndex = 0;
-			for (int i = 0; i < apFM.getRowDimension(); i++) {
-				/* check if this marker exist in the significant cluster. */
-				int[] aList = result.getCluster("cluster").getNodeList()
-						.getNode(0).getFeaturesIndexes();
-				boolean inTheList = false;
-				for (int cx = 0; cx < aList.length; cx++) {
-					if (aList[cx] == i) {
-						inTheList = true;
-					}
-				}
-				/*
-				 * if this marker exist in the significant cluster, then it's
-				 * significant.
-				 */
-				if (inTheList) {
-					DSGeneMarker item = view.markers().get(i);
-					log.debug("SignificantMarker: "
-							+ view.markers().get(i).getLabel()
-							+ ", with apFM: " + apFM.A[i][0]);
-					panelSignificant.add(item, new Float(apFM.A[i][0]));
-					double doubleSignificance = 0;
-					/*
-					 * we'll have float and double compare issue in
-					 * CSSifnificanceResultSet.setSignificance()
-					 */
-					if (apFM.A[i][0] == (float) pvalueth) {
-						/*
-						 * Manually set to pvalueth in double to fix bug 0001239
-						 * on Mantis. Then, minus a number which is less then
-						 * float can store to let it unequals to pvalue
-						 * threshold. (so we don't need to change
-						 * CSSignificanceResultSet.setSignificance() to
-						 * inclusive.)
-						 */
-						doubleSignificance = pvalueth - 0.000000001;
-					} else {
-						doubleSignificance = (double) apFM.A[i][0];
-					}
-					sigSet.setSignificance(item, doubleSignificance);
-					pValueCollection[significantMarkerIndex] = 
-							apFM.A[i][0];
-					adjustedPValueCollection[
-							significantMarkerIndex] = apFM.A[i][0];
-					fValueCollection[significantMarkerIndex] = 
-							fFM.A[i][0];
-					for (int j = 0; j < mFM.getColumnDimension(); j++) {
-						groupMeanCollectionForAllMarkers[j
-								* totalSignificantMarkerNum
-								+ significantMarkerIndex] = mFM.A[i][j];
-						groupStandardDiviationCollectionForAllMarkers[
-										j * totalSignificantMarkerNum
-												+ significantMarkerIndex] =
-										sFM.A[i][j];
-					}
-					significantMarkerIndex++;
-				}
+			for (int i = 0; i < featuresIndexes.length; i++) {
+				DSGeneMarker item = view.markers().get(featuresIndexes[i]);
+				log.debug("SignificantMarker: " + item.getLabel()
+						+ ", with apFM: " + significances[i]);
+				panelSignificant.add(item, new Float(significances[i]));
+				sigSet.setSignificance(item, significances[i]);
+				significantMarkerNames[i] = item.getLabel();
 			}
+
 			publishSubpanelChangedEvent(new SubpanelChangedEvent<DSGeneMarker>(
 					DSGeneMarker.class, panelSignificant,
 					SubpanelChangedEvent.NEW));
 
-			pb.stop();
 			/* add to Dataset History */
 			String history = generateHistoryString(view);
 			HistoryPanel.addToHistory(sigSet, history);
 
-			CSAnovaResultSet<DSGeneMarker> anovaResultSet = new CSAnovaResultSet<DSGeneMarker>(view,
-					"Anova Analysis Result Set", labels, significantMarkerNames,
-					anovaResult2result2DArray(pValueCollection, labels,
-							adjustedPValueCollection, fValueCollection, groupMeanCollectionForAllMarkers,
-							groupStandardDiviationCollectionForAllMarkers));
+			anovaResultSet = new CSAnovaResultSet<DSGeneMarker>(view,
+					"Anova Analysis Result Set", labels,
+					significantMarkerNames, output.getResult2DArray());
 			log.debug(significantMarkerNames.length
 					+ "Markers added to anovaResultSet.");
 			anovaResultSet.getSignificantMarkers().addAll(
@@ -413,75 +263,32 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 			/* add to Dataset History */
 			HistoryPanel.addToHistory(anovaResultSet, history);
 
-			AlgorithmExecutionResults results = new AlgorithmExecutionResults(true,
-					"Anova Analysis", anovaResultSet);
-			return results;
-
-		} catch (AbortException AE) {
-			pb.stop();
-			return new AlgorithmExecutionResults(false, "Analysis Aborted.",
-					null);
-		} catch (AlgorithmException AE) {
-			pb.stop();
-			AE.printStackTrace();
-			return new AlgorithmExecutionResults(false, "Analysis failed for "+AE,
-					null);
-		}
-
-	}
-
-	/**
-	 * 
-	 * @param anovaResult
-	 * @return
-	 */
-	private double[][] anovaResult2result2DArray(final float[] pValueCollection,
-			final String[] groupNameCollection,
-			final float[] adjustedPValueCollection,
-			final float[] fValueCollection,
-			final float[] groupMeanCollectionForAllMarkers,
-			final float[] groupStandardDiviationCollectionForAllMarkers) {
-		int arrayHeight = pValueCollection.length;
-
-		/*
-		 * each group needs two columns, plus pval, adjpval and fval.
-		 */
-		int arrayWidth = groupNameCollection.length * 2 + 3;
-
-		log.debug("result2DArray:" + arrayWidth + "*" + arrayHeight);
-
-		double[][] result2DArray = new double[arrayWidth][arrayHeight];
-
-		/* fill p-values */
-		for (int cx = 0; cx < arrayHeight; cx++) {
-			result2DArray[0][cx] = pValueCollection[cx];
-		}
-
-		/* fill adj-p-values */
-		for (int cx = 0; cx < arrayHeight; cx++) {
-			result2DArray[1][cx] = adjustedPValueCollection[cx];
-		}
-		/* fill f-values */
-		for (int cx = 0; cx < arrayHeight; cx++) {
-			result2DArray[2][cx] = fValueCollection[cx];
-		}
-		/* fill means */
-		for (int cx = 0; cx < arrayHeight; cx++) {
-			for (int cy = 0; cy < groupNameCollection.length; cy++) {
-				result2DArray[3 + cy * 2][cx] = groupMeanCollectionForAllMarkers[cy * arrayHeight
-						+ cx];
+		} catch (AnovaException e) {
+			if (pbAnova != null) {
+				pbAnova.dispose();
 			}
-		}
-		/* fill stds */
-		for (int cx = 0; cx < arrayHeight; cx++) {
-			for (int cy = 0; cy < groupNameCollection.length; cy++) {
-				result2DArray[4 + cy * 2][cx] = groupStandardDiviationCollectionForAllMarkers[cy
-						* arrayHeight + cx];
-			}
+			e.printStackTrace();
+			return new AlgorithmExecutionResults(false,
+					"Exception happened in anova computaiton: " + e, null);
 		}
 
-		return result2DArray;
-	}
+		SwingUtilities.invokeLater(new Runnable() {
+
+			@Override
+			public void run() {
+				if (pbAnova != null) {
+					pbAnova.dispose();
+				}
+			}
+
+		});
+
+		AlgorithmExecutionResults results = new AlgorithmExecutionResults(true,
+				"Anova Analysis", anovaResultSet);
+		return results;
+
+	}	 
+	 
 
 	/**
 	 * 
@@ -501,35 +308,34 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 	 */
 	private String generateHistoryString(
 			DSMicroarraySetView<DSGeneMarker, DSMicroarray> view) {
-		StringBuilder histStr = new StringBuilder("Generated with ANOVA run with parameters:\n");
-		histStr .append( "----------------------------------------\n" );
+		StringBuilder histStr = new StringBuilder(
+				"Generated with ANOVA run with parameters:\n");
+		histStr.append("----------------------------------------\n");
 		/* P Value Estimation */
-		histStr .append( "P Value estimation: " );
+		histStr.append("P Value estimation: ");
 		if (anovaAnalysisPanel.pValueEstimation == PValueEstimation.permutation) {
-			histStr .append( "Permutation\n" );
-			histStr .append( "Permutation#: " )
-					.append( anovaAnalysisPanel.permutationsNumber )
-							.append( "\n" );
+			histStr.append("Permutation\n");
+			histStr.append("Permutation#: ")
+					.append(anovaAnalysisPanel.permutationsNumber).append("\n");
 		} else {
-			histStr .append( "F-Distribution\n" );
+			histStr.append("F-Distribution\n");
 		}
 		/* P Value threshold */
-		histStr .append( "P Value threshold: " );
-		histStr .append( anovaAnalysisPanel.pValueThreshold )
-				.append( "\n" );
+		histStr.append("P Value threshold: ");
+		histStr.append(anovaAnalysisPanel.pValueThreshold).append("\n");
 
 		/* Correction type */
-		histStr .append( "correction-method: " );
-		histStr .append( anovaAnalysisPanel.falseDiscoveryRateControl.toString() )
-				.append( "\n" );
+		histStr.append("correction-method: ");
+		histStr.append(anovaAnalysisPanel.falseDiscoveryRateControl.toString())
+				.append("\n");
 
 		/* group names and markers */
 
-		histStr .append( GroupAndChipsString );
+		histStr.append(GroupAndChipsString);
 
-		histStr .append( view.markers().size() ) .append( " markers analyzed:\n" );
+		histStr.append(view.markers().size()).append(" markers analyzed:\n");
 		for (DSGeneMarker marker : view.markers()) {
-			histStr .append( "\t" ) .append( marker.getLabel() ) .append( "\n" );
+			histStr.append("\t").append(marker.getLabel()).append("\n");
 		}
 
 		return histStr.toString();
@@ -554,11 +360,15 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 	protected Map<Serializable, Serializable> getBisonParameters() {
 		Map<Serializable, Serializable> parameterMap = new HashMap<Serializable, Serializable>();
 		// FIXME caGrdi service code need to be updated accordingly
-		parameterMap.put("permutationsNumber", anovaAnalysisPanel.permutationsNumber);
-		parameterMap.put("falseSignificantGenesLimit", anovaAnalysisPanel.falseSignificantGenesLimit);
+		parameterMap.put("permutationsNumber",
+				anovaAnalysisPanel.permutationsNumber);
+		parameterMap.put("falseSignificantGenesLimit",
+				anovaAnalysisPanel.falseSignificantGenesLimit);
 		parameterMap.put("pValueThreshold", anovaAnalysisPanel.pValueThreshold);
-		parameterMap.put("falseDiscoveryRateControl", anovaAnalysisPanel.falseDiscoveryRateControl.toString());
-		parameterMap.put("pValueEstimation", anovaAnalysisPanel.pValueEstimation.toString());
+		parameterMap.put("falseDiscoveryRateControl",
+				anovaAnalysisPanel.falseDiscoveryRateControl.toString());
+		parameterMap.put("pValueEstimation",
+				anovaAnalysisPanel.pValueEstimation.toString());
 		return parameterMap;
 	}
 
@@ -595,8 +405,10 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.geworkbench.analysis.AbstractGridAnalysis#validInputData(org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView,
-	 *      org.geworkbench.bison.datastructure.biocollections.DSDataSet)
+	 * @see
+	 * org.geworkbench.analysis.AbstractGridAnalysis#validInputData(org.geworkbench
+	 * .bison.datastructure.biocollections.views.DSMicroarraySetView,
+	 * org.geworkbench.bison.datastructure.biocollections.DSDataSet)
 	 */
 	@Override
 	public ParamValidationResults validInputData(
@@ -624,6 +436,22 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 		}
 
 		return new ParamValidationResults(true, "No Error");
+	}
+
+	static private class CancelObserver implements Observer {
+		final private Anova anova;
+
+		CancelObserver(final Anova anova) {
+			super();
+			this.anova = anova;
+		}
+
+		@Override
+		public void update(Observable o, Object arg) {
+			anova.cancelled = true;
+			anova.OWA.abort();
+		}
+
 	}
 
 }
