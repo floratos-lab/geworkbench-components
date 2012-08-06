@@ -74,7 +74,6 @@ import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
-import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.GeneOntologyUtil;
 import org.geworkbench.bison.datastructure.bioobjects.markers.goterms.GOTerm;
 import org.geworkbench.bison.datastructure.bioobjects.markers.goterms.GeneOntologyTree;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
@@ -197,11 +196,10 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	private Vector<DSGeneMarker> selectedGenes = new Vector<DSGeneMarker>();
 
-	private Vector<Vector<Object>> cachedPreviewData = new Vector<Vector<Object>>();
-
 	private DSMicroarraySet dataset = null;
 
 	private final DetailTableModel detailTableModel;
+	private final DefaultTableModel activeMarkersTableModel = new ActiveMarkersTableModel(allGenes);
 
 	/**
 	 * Creates new form Interactions
@@ -1790,87 +1788,6 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		}
 
 	}
-
-	private DefaultTableModel activeMarkersTableModel = new DefaultTableModel() {
-
-		private static final long serialVersionUID = 2700694309070316774L;
-
-		@Override
-		public boolean isCellEditable(int r, int c) {
-			return false;
-		}
-
-		@Override
-		public int getColumnCount() {
-			return 3;
-		}
-
-		@Override
-		public int getRowCount() {
-			if (allGenes != null)
-				return allGenes.size();
-			return 0;
-		}
-
-		@Override
-		public String getColumnName(int index) {
-			switch (index) {
-			case 0:
-				return "Marker ";
-			case 1:
-				return "Gene";
-			case 2:
-				return "Type";
-
-			default:
-				return "";
-			}
-		}
-
-		@Override
-		synchronized public Object getValueAt(int row, int column) {
-			Thread.currentThread().setContextClassLoader(
-					CellularNetworkKnowledgeWidget.this.getClass()
-							.getClassLoader());
-			if (allGenes != null) {
-
-				DSGeneMarker value = allGenes.get(row);
-				if (value != null) {
-					switch (column) {
-					case 0: {
-
-						return value.getLabel();
-
-					}
-					case 1: {
-						if (value.getGeneName() != null) {
-							return value.getGeneName();
-						} else { // this should never happen
-							return null;
-						}
-					}
-					case 2: {
-						GeneOntologyTree instance = GeneOntologyTree
-								.getInstance();
-						if (instance == null)
-							return "pending";
-
-						return GeneOntologyUtil.checkMarkerFunctions(value);
-					}
-					case 3: {
-
-						return cachedPreviewData.get(row).get(3);
-					}
-					default:
-						return "loading ...";
-					}
-				}
-
-			}
-
-			return "loading ...";
-		}
-	};
 
 	// to support renderer
 	public CellularNetWorkElementInformation getOneRow(int row) {
