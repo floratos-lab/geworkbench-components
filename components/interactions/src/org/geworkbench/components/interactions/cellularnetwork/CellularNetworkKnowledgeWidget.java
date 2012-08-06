@@ -260,14 +260,6 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		}
 	}
 
-	/**
-	 * Create a popup menu to display the name of different Go Terms in 3
-	 * categories.
-	 * 
-	 * @param rowIndex
-	 * @param columnIndex
-	 * @return
-	 */
 	private JPopupMenu createSetPopMenu() {
 		JPopupMenu contextMenu = new JPopupMenu();
 		JMenuItem addToSetItemMenu = new JMenuItem();
@@ -345,14 +337,6 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		cnkbSelectionIndex++;
 	}
 
-	/**
-	 * Create a popup menu to display thge name of different Go Terms in 3
-	 * catagories.
-	 * 
-	 * @param rowIndex
-	 * @param columnIndex
-	 * @return
-	 */
 	private JPopupMenu createPopMenu(final int rowIndex, final int columnIndex,
 			final int[] selectedRows, final String tableName) {
 		JPopupMenu contextMenu = new JPopupMenu();
@@ -497,13 +481,6 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	}
 
-	/**
-	 * Create a popup menu to display thge name of different Go Terms in 3
-	 * catagories.
-	 * 
-	 * @param rowIndex
-	 * @return
-	 */
 	private JPopupMenu createGenePopMenu(final int rowIndex) {
 
 		JPopupMenu contextMenu = new JPopupMenu();
@@ -554,8 +531,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	}
 
 	/**
-	 * Create a popup menu to display thge name of different Go Terms in 3
-	 * catagories.
+	 * Create a popup menu to display the name of different Go Terms in 3
+	 * categories.
 	 * 
 	 * @param rowIndex
 	 * @param columnIndex
