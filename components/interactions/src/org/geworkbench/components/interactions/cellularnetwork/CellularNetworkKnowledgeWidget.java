@@ -201,6 +201,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	private DSMicroarraySet dataset = null;
 
+	private final DetailTableModel detailTableModel;
+
 	/**
 	 * Creates new form Interactions
 	 */
@@ -208,6 +210,17 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 		loadApplicationProperty();
 		initComponents();
+
+		tableColumns = new TableColumn[columnLabels.length];
+		detailTableModel = new DetailTableModel(this, CellularNetworkKnowledgeWidget.columnLabels);
+		detailTable.setModel(detailTableModel);
+
+		TableColumnModel model = detailTable.getColumnModel();
+		for (int i = 0; i < columnLabels.length; i++) {
+
+			tableColumns[i] = model.getColumn(i);
+		}
+
 		activatedMarkerTable.getTableHeader().setEnabled(true);
 		activatedMarkerTable.setPreferredScrollableViewportSize(new Dimension(
 				280, 100));
@@ -402,7 +415,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		}
 
 		activatedMarkerTable.revalidate();
-		previewTableModel.fireTableDataChanged();
+		detailTableModel.fireTableDataChanged();
 		detailTable.revalidate();
 
 	}
@@ -465,7 +478,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		}
 
 		activatedMarkerTable.revalidate();
-		previewTableModel.fireTableDataChanged();
+		detailTableModel.fireTableDataChanged();
 		detailTable.revalidate();
 
 	}
@@ -763,7 +776,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 						}
 						activatedMarkerTable.revalidate();
-						previewTableModel.fireTableDataChanged();
+						detailTableModel.fireTableDataChanged();
 						detailTable.revalidate();
 
 						drawPlot(createCollection(0, 1, 1, true), false, true);
@@ -868,7 +881,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 										marker));
 							}
 							activatedMarkerTable.revalidate();
-							previewTableModel.fireTableDataChanged();
+							detailTableModel.fireTableDataChanged();
 							detailTable.revalidate();
 
 						}
@@ -1056,15 +1069,6 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		for (int i = 0; i < displaySelectedInteractionTypes.size(); i++)
 			columnLabels[i + 4] = displaySelectedInteractionTypes.get(i)
 					+ Constants.COLUMNLABELPOSTFIX;
-		tableColumns = new TableColumn[columnLabels.length];
-		previewTableModel = new PreviewTableModel();
-		detailTable.setModel(previewTableModel);
-
-		TableColumnModel model = detailTable.getColumnModel();
-		for (int i = 0; i < columnLabels.length; i++) {
-
-			tableColumns[i] = model.getColumn(i);
-		}
 
 	} // end of initComponents
 
@@ -1217,7 +1221,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			cellularNetWorkElementInformation.setThreshold(newvalue);
 		}
 
-		previewTableModel.fireTableDataChanged();
+		detailTableModel.fireTableDataChanged();
 		detailTable.revalidate();
 	}
 
@@ -1251,7 +1255,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 		}
 
-		detailTable.tableChanged(new TableModelEvent(previewTableModel));
+		detailTable.tableChanged(new TableModelEvent(detailTableModel));
 		detailTable.repaint();
 
 		if (needRedraw) {
@@ -1458,7 +1462,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 		}
 
-		previewTableModel.fireTableDataChanged();
+		detailTableModel.fireTableDataChanged();
 		detailTable.revalidate();
 	}
 
@@ -1680,7 +1684,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 						updateProgressBar(1, "Stopped");
 					}
 
-					previewTableModel.fireTableDataChanged();
+					detailTableModel.fireTableDataChanged();
 					detailTable.revalidate();
 
 				} catch (java.util.ConcurrentModificationException ce) {
@@ -1738,6 +1742,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	}
 
+	// this method is invoked from two places. both are problematic.
+	// 1. from InitPrefWorker; 2. from CellularNetworkPreferencePanel.reInitPreferences();
 	public void initDetailTable() {
 
 		try {
@@ -1761,8 +1767,8 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 					columnLabels[i] = firstFourColumnLabels[i];
 			}
 
-			previewTableModel = new PreviewTableModel();
-			detailTable.setModel(previewTableModel);
+			detailTableModel.setColumnLabels(columnLabels);
+			detailTableModel.fireTableStructureChanged();
 			tableColumns = new TableColumn[columnLabels.length];
 			TableColumnModel model = detailTable.getColumnModel();
 			for (int i = 0; i < columnLabels.length; i++) {
@@ -1865,92 +1871,6 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			return "loading ...";
 		}
 	};
-
-	private PreviewTableModel previewTableModel = new PreviewTableModel();
-
-	private class PreviewTableModel extends DefaultTableModel
-
-	{
-
-		private static final long serialVersionUID = -3314439294428139176L;
-
-		@Override
-		public int getColumnCount() {
-			return columnLabels.length;
-		}
-
-		@Override
-		public int getRowCount() {
-
-			if (hits != null)
-				return hits.size();
-			return 0;
-		}
-
-		@Override
-		public String getColumnName(int index) {
-
-			if (index >= 0 && index < columnLabels.length)
-				return columnLabels[index];
-			else
-				return "";
-
-		}
-
-		/* get the Object data to be displayed at (row, col) in table */
-		@Override
-		public Object getValueAt(int row, int col) {
-
-			if (hits == null || hits.size() == 0)
-				return null;
-			CellularNetWorkElementInformation hit = hits.get(row);
-			/* display data depending on which column is chosen */
-			switch (col) {
-
-			case 0:
-				return hit.getdSGeneMarker().getLabel();
-			case 1:
-				return hit.getdSGeneMarker().getGeneName();
-			case 2:
-				return hit.getGeneType();
-			case 3:
-				return hit.getGoInfoStr();
-			default:
-				String interactionType = columnLabels[col].substring(0,
-						columnLabels[col].length() -
-
-						Constants.COLUMNLABELPOSTFIX.length());
-				Integer num = hit.getInteractionNum(interactionType);
-				if (num != null)
-					return num;
-				else
-					return 0;
-
-			}
-
-		}
-
-		/* returns the Class type of the column c */
-		@Override
-		public Class<?> getColumnClass(int c) {
-			if (getValueAt(0, c) != null) {
-				return getValueAt(0, c).getClass();
-			}
-			return String.class;
-		}
-
-		/*
-		 * returns if the cell is editable; returns false for all cells in
-		 * columns except column 6
-		 */
-		@Override
-		public boolean isCellEditable(int row, int col) {
-			// Note that the data/cell address is constant,
-			// no matter where the cell appears onscreen.
-			return false;
-		}
-
-	}
 
 	// to support renderer
 	public CellularNetWorkElementInformation getOneRow(int row) {
@@ -2104,7 +2024,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 			activeMarkersTableModel.fireTableDataChanged();
 
-			previewTableModel.fireTableDataChanged();
+			detailTableModel.fireTableDataChanged();
 			detailTable.revalidate();
 
 			checkSelectedTableWithNewDataSet(panel);
@@ -2279,7 +2199,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		GeneOntologyTree instance = GeneOntologyTree.getInstance();
 		if (instance != null) {
 			activeMarkersTableModel.fireTableDataChanged();
-			previewTableModel.fireTableDataChanged();
+			detailTableModel.fireTableDataChanged();
 
 			timer.stop();
 			timer = null;
