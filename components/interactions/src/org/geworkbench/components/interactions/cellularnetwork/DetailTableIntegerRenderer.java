@@ -37,22 +37,19 @@ class DetailTableIntegerRenderer extends JLabel implements TableCellRenderer {
 			return this;
 		}
 
-		boolean isDirty = element.isDirty();
 		setBackground(table.getBackground());
 
 		String tooltip = value.toString();
 		String selectedText = "<html><font color=blue><b>" + value
 				+ "</b></font></html>";
-		String unselectedText = "<html><font color=blue><b>" + value
-				+ "<b></font></html>";
+		String unselectedText = selectedText;
 
-		if (isDirty) {
+		if (element.isDirty()) {
 			setForeground(Color.red);
 
 			tooltip = "Please push the Refresh button to retrieve related information.";
-			selectedText = "<html><font color=blue><i>Unknown"
-					+ "</i></font></html>";
-			unselectedText = "<html><font><i>Unknown" + "</i></font></html>";
+			selectedText = "<html><font color=blue><i>Unknown</i></font></html>";
+			unselectedText = "<html><font><i>Unknown</i></font></html>";
 		}
 
 		if (isSelected) {
