@@ -38,7 +38,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.Vector;
 
-import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.CellEditor;
@@ -64,12 +63,10 @@ import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.Timer;
 import javax.swing.UIManager;
-import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
@@ -215,8 +212,6 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	private DSMicroarraySet dataset = null;
 
-	private Map<String, String> geneTypeMap = null;
-
 	/**
 	 * Creates new form Interactions
 	 */
@@ -235,7 +230,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				.setPreferredWidth(30);
 
 		detailTable.getTableHeader().setEnabled(true);
-		detailTable.setDefaultRenderer(String.class, new ColorRenderer());
+		detailTable.setDefaultRenderer(String.class, new DetailTableStringRenderer(this));
 		detailTable.setDefaultRenderer(Integer.class, new DetailTableIntegerRenderer(this));
 
 		GeneOntologyTree instance = GeneOntologyTree.getInstance();
@@ -640,7 +635,6 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	 */
 	private void initComponents() {
 
-		initGeneTypeMap();
 		Authenticator.setDefault(new BasicAuthenticator());
 		JPanel jPanel2 = new javax.swing.JPanel();
 		JPanel topPanel = new JPanel();
@@ -1755,13 +1749,6 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	}
 
-	private void initGeneTypeMap() {
-		geneTypeMap = new HashMap<String, String>();
-		geneTypeMap.put(Constants.TF, Constants.TRANSCRIPTION_FACTOR);
-		geneTypeMap.put(Constants.K, Constants.KINASE);
-		geneTypeMap.put(Constants.P, Constants.PHOSPHATASE);
-	}
-
 	public void initDetailTable() {
 
 		try {
@@ -1976,6 +1963,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	}
 
+	// to support renderer
 	public CellularNetWorkElementInformation getOneRow(int row) {
 		row = detailTable.convertRowIndexToModel(row);
 
@@ -1985,135 +1973,12 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 		return hits.get(row);
 	}
-
-	private class ColorRenderer extends JLabel implements TableCellRenderer {
-
-		private static final long serialVersionUID = 8232307195673766041L;
-
-		Border unselectedBorder = null;
-
-		Border selectedBorder = null;
-
-		public ColorRenderer() {
-
-			setOpaque(true); // MUST do this for background to show up.
-
-		}
-
-		private String insertLineBreaker(Object value) {
-			String toolTipText = "";
-			String str = null;
-			if (value == null)
-				return toolTipText;
-			str = value.toString();
-			if (str.length() <= 100)
-				toolTipText = str;
-			else {
-				int startIndex = 0;
-				while (startIndex < str.length()) {
-					int endIndex = startIndex + 100;
-					if (endIndex < str.length()) {
-						while (str.charAt(endIndex) != ' ') {
-							endIndex++;
-							if (endIndex == str.length()) {
-								endIndex--;
-								break;
-							}
-						}
-
-						toolTipText += str.substring(startIndex, endIndex)
-								+ "<br>";
-					} else
-						toolTipText += str.substring(startIndex, str.length());
-
-					startIndex = endIndex;
-				}
-			}
-
-			return toolTipText;
-		}
-
-		public Component getTableCellRendererComponent(JTable table,
-				Object color, boolean isSelected, boolean hasFocus, int row,
-				int column) {
-
-			row = detailTable.convertRowIndexToModel(row);
-			TableColumn tableColumn = detailTable.getColumnModel().getColumn(
-					column);
-			CellularNetWorkElementInformation cellularNetWorkElementInformation = null;
-			if (hits != null && hits.size() > row) {
-				cellularNetWorkElementInformation = hits.get(row);
-				if (cellularNetWorkElementInformation == null)
-					return this;
-				boolean isDirty = cellularNetWorkElementInformation.isDirty();
-				if (isDirty) {
-					if (isSelected) {
-						if (selectedBorder == null) {
-							selectedBorder = BorderFactory.createMatteBorder(2,
-									5, 2, 5, table.getSelectionBackground());
-						}
-						setBorder(selectedBorder);
-
-						setText("<html><font color=blue><i>" + color
-								+ "</i></font></html>");
-					} else {
-
-						setForeground(Color.black);
-
-						if (color != null)
-							setText("<html><font color=red><i>" + color
-									+ "</i></font></html>");
-						if (unselectedBorder == null) {
-							unselectedBorder = BorderFactory.createMatteBorder(
-									2, 5, 2, 5, table.getBackground());
-						}
-						setBorder(unselectedBorder);
-					}
-				} else {
-					if (isSelected) {
-						if (selectedBorder == null) {
-							selectedBorder = BorderFactory.createMatteBorder(2,
-									5, 2, 5, table.getSelectionBackground());
-						}
-						setBorder(selectedBorder);
-
-						setText("<html><font color=blue><b>" + color
-								+ "</b></font></html>");
-					} else {
-
-						setForeground(Color.black);
-						setText("<html><font color=blue><b>" + color
-								+ "<b></font></html>");
-						if (unselectedBorder == null) {
-							unselectedBorder = BorderFactory.createMatteBorder(
-									2, 5, 2, 5, table.getBackground());
-						}
-						setBorder(unselectedBorder);
-					}
-				}
-
-				String headerStr = tableColumn.getHeaderValue().toString();
-				if (headerStr.equalsIgnoreCase(Constants.GENETYPELABEL)) {
-					if (color != null
-							&& !color.toString().trim().equalsIgnoreCase("")) {
-						String s = geneTypeMap.get(color);
-						if (s != null)
-							color = s;
-					}
-				} else if (headerStr.equalsIgnoreCase(Constants.GENELABEL)) {
-					String[] list = AnnotationParser.getInfo(
-							cellularNetWorkElementInformation.getdSGeneMarker()
-									.getLabel(), AnnotationParser.DESCRIPTION);
-					if (list != null && list.length > 0)
-						color = list[0];
-				}
-				String toolTipText = insertLineBreaker(color);
-				setToolTipText("<html>" + toolTipText + "<html>");
-
-			}
-
-			return this;
-		}
+	
+	// to support renderer
+	public String getDetailTableHeader(int column) {
+		TableColumn tableColumn = detailTable.getColumnModel()
+				.getColumn(column);
+		return tableColumn.getHeaderValue().toString();
 	}
 
 	private class InitPrefWorker extends SwingWorker<Void, Void> implements
