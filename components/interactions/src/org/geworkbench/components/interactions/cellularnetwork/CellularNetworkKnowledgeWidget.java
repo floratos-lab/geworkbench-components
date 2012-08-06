@@ -194,8 +194,6 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	private JProgressBar jProgressBar1 = new JProgressBar();
 
-	private CreateNetworkHandler createNetworkHandler;
-
 	private JTextField thresholdTextField;
 
 	private JComboBox thresholdTypes = new JComboBox();
@@ -931,14 +929,37 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				.addActionListener(new java.awt.event.ActionListener() {
 					public void actionPerformed(java.awt.event.ActionEvent evt) {
 
+						double threshold = 0;
+						try {
+							threshold = Double.parseDouble(thresholdTextField
+									.getText().trim());
+						} catch (NumberFormatException e1) {
+							JOptionPane.showMessageDialog(null,
+									"The Threshold field is not a number.",
+									"Please check your input.",
+									JOptionPane.ERROR_MESSAGE);
+							return;
+						}
+						
 						createNetWorkButton.setEnabled(false);
 
 						ProgressBar createNetworkPb = null;
 						createNetworkPb = ProgressBar
 								.create(ProgressBar.INDETERMINATE_TYPE);
 
-						createNetworkHandler = new CreateNetworkHandler(
-								createNetworkPb);
+						boolean isRestrictToGenesPresentInMicroarray = jPreferencePanel
+								.isNetworkJCheckBox1Selected();
+						List<String> selectedTypes = jPreferencePanel
+								.getNetworkSelectedInteractionTypes();
+						String selectedContext = jPreferencePanel.getSelectedContext();
+						String selectedVersion = jPreferencePanel.getSelectedVersion();
+						NetworkCreator createNetworkHandler = new NetworkCreator(
+								createNetworkPb, createNetWorkButton,
+								threshold, dataset,
+								isRestrictToGenesPresentInMicroarray,
+								selectedTypes, selectedContext,
+								selectedVersion,
+								CellularNetworkKnowledgeWidget.this);
 						createNetworkHandler.start();
 
 						createNetworkPb.setTitle("Create network");
@@ -2009,36 +2030,57 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	}
 
-	private class CreateNetworkHandler extends Thread implements Observer {
-		AdjacencyMatrix matrix = null;
-		ProgressBar pb = null;
-		boolean cancel = false;
+	// the only reason to use raw Thread+Observer instead of, say, SwingWorker,
+	// is to use the existing progress bar code, which is shabby in the first
+	// place
+	private static class NetworkCreator extends Thread implements Observer {
+		static private Log log = LogFactory.getLog(NetworkCreator.class);
 
-		public CreateNetworkHandler(ProgressBar createNetworkPb) {
-			super();
+		final private List<CellularNetWorkElementInformation> list;
+		final private List<String> selectedTypes;
+		final private boolean isRestrictToGenesPresentInMicroarray;
+		final private DSMicroarraySet dataset;
+		final double threshold;
+		final JButton createNetWorkButton;
+		final ProgressBar pb;
+		boolean cancel = false;
+		
+		// only used for history info
+		final private String selectedContext;
+		final private String selectedVersion;
+		
+		// needed for (1) publishing event and (2) get hit list
+		final private CellularNetworkKnowledgeWidget widget;
+		
+		private AdjacencyMatrix matrix; // this is useful only for cancelling
+
+		public NetworkCreator(ProgressBar createNetworkPb,
+				final JButton createNetWorkButton, double threshold,
+				final DSMicroarraySet dataset,
+				final boolean isRestrictToGenesPresentInMicroarray,
+				final List<String> selectedTypes, final String selectedContext,
+				final String selectedVersion,
+				CellularNetworkKnowledgeWidget widget) {
+			this.dataset = dataset;
 			this.pb = createNetworkPb;
+			this.createNetWorkButton = createNetWorkButton;
+			this.threshold = threshold;
+			this.isRestrictToGenesPresentInMicroarray = isRestrictToGenesPresentInMicroarray;
+			this.selectedTypes = selectedTypes;
+
+			this.selectedContext = selectedContext;
+			this.selectedVersion = selectedVersion;
+
+			this.widget = widget;
+			list = widget.getHits();
 		}
 
 		public void run() {
 			pb.addObserver(this);
 			createNetworks();
-			// pb.dispose();
 		}
 
 		private void createNetworks() {
-
-			double threshold = 0;
-			try {
-				threshold = new Double(thresholdTextField.getText().trim());
-			} catch (NumberFormatException e1) {
-				createNetWorkButton.setEnabled(true);
-				pb.dispose();
-				JOptionPane.showMessageDialog(null,
-						"The Threshold field is not a number.",
-						"Please check your input.", JOptionPane.ERROR_MESSAGE);
-
-				return;
-			}
 
 			DSItemList<DSGeneMarker> markers = dataset.getMarkers();
 			DSItemList<DSGeneMarker> copy = new CSItemList<DSGeneMarker>();
@@ -2052,31 +2094,24 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			AdjacencyMatrix matrix = new AdjacencyMatrix(null,
 					CellularNetworkPreferencePanel.interactionTypeSifMap,
 					CellularNetworkPreferencePanel.interactionEvidenceMap);
-			setAdjacencyMatrix(matrix);
 			AdjacencyMatrixDataSet adjacencyMatrixdataSet = null;
 
 			int interactionNum = 0;
 			boolean createNetwork = false;
-			boolean needBreak = false;
+
 			boolean isGene2InMicroarray = true;
 			StringBuffer historyStr = new StringBuffer();
-			boolean isRestrictToGenesPresentInMicroarray = jPreferencePanel
-					.isNetworkJCheckBox1Selected();
 
 			short usedConfidenceType = CellularNetWorkElementInformation
 					.getUsedConfidenceType();
 
-			for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {
-				if (needBreak)
-					break;
-				if (cellularNetWorkElementInformation.isDirty() == true)
-					continue;
-				ArrayList<InteractionDetail> arrayList = cellularNetWorkElementInformation
-						.getSelectedInteractions(jPreferencePanel
-								.getNetworkSelectedInteractionTypes());
+			for (CellularNetWorkElementInformation cellularNetWorkElementInformation : list) {
+				if(cellularNetWorkElementInformation.isDirty()) continue;
 
-				List<String> networkSelectedInteractionTypes = jPreferencePanel
-						.getNetworkSelectedInteractionTypes();
+				ArrayList<InteractionDetail> arrayList = cellularNetWorkElementInformation
+						.getSelectedInteractions(selectedTypes);
+
+				List<String> networkSelectedInteractionTypes = selectedTypes;
 				if (networkSelectedInteractionTypes.size() > 0)
 					historyStr
 							.append("           ")
@@ -2112,11 +2147,9 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 						try {
 							marker.setGeneId(new Integer(mid2));
 						} catch (NumberFormatException ne) {
-							if (log.isErrorEnabled()) {
-								log.error("ms_id2 is expect to be an integer: "
+							log.error("ms_id2 is expect to be an integer: "
 										+ mid2
 										+ "This interaction is going to be dropped");
-							}
 							continue;
 						}
 						int index = Collections
@@ -2216,11 +2249,9 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 				String history = "Cellular Network Parameters: \n"
 						+ "      URL Used:     " + ResultSetlUtil.getUrl()
 						+ "\n" + "      Selected Interactome:     "
-						+ jPreferencePanel.getSelectedContext() + "\n"
-						+ "      Selected Version:     "
-						+ jPreferencePanel.getSelectedVersion() + "\n"
-						+ "      Threshold:     "
-						+ thresholdTextField.getText() + "\n"
+						+ selectedContext + "\n"
+						+ "      Selected Version:     " + selectedVersion
+						+ "\n" + "      Threshold:     " + threshold + "\n"
 						+ "      Selected Marker List: \n" + historyStr + "\n";
 				HistoryPanel.addToHistory(adjacencyMatrixdataSet, history);
 
@@ -2231,10 +2262,12 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 					pb.setMessage("Draw cytoscape graph ...");
 
 				}
-				publishProjectNodeAddedEvent(new ProjectNodeAddedEvent(
+				widget.publishProjectNodeAddedEvent(new ProjectNodeAddedEvent(
 						"Adjacency Matrix Added", null, adjacencyMatrixdataSet));
 
 			}
+
+			this.matrix = matrix;
 
 			if (!isCancelled()) {
 				log.info("task is completed");
@@ -2247,23 +2280,15 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 		}// end of createNetworks
 
-		private void setAdjacencyMatrix(AdjacencyMatrix matrix) {
-			this.matrix = matrix;
-		}
-
 		private boolean isCancelled() {
 			return this.cancel;
 		}
 
-		private void cancel(boolean cancel) {
-			this.cancel = cancel;
-		}
-
 		public void update(Observable o, Object arg) {
-			cancel(true);
+			cancel = true;
 			if (pb.getTitle().equals("Draw cytoscape graph")) {
 				pb.dispose();
-				publishAdjacencyMatrixCancelEvent(new AdjacencyMatrixCancelEvent(
+				widget.publishAdjacencyMatrixCancelEvent(new AdjacencyMatrixCancelEvent(
 						matrix));
 
 			} else {
