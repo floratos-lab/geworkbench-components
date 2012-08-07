@@ -46,7 +46,10 @@ public class TTestTest extends TestCase {
 
 		line = br.readLine();
 		SignificanceMethod m = SignificanceMethod.JUST_ALPHA;
-		if(line==null) throw new IOException("cannot read the choice of the method of calculate significance");
+		if(line==null) {
+			br.close();
+			throw new IOException("cannot read the choice of the method of calculate significance");
+		}
 		if(line.equals(SignificanceMethod.STD_BONFERRONI.toString())) {
 			m = SignificanceMethod.STD_BONFERRONI;
 		} else if(line.equals(SignificanceMethod.ADJ_BONFERRONI.toString())) {
@@ -57,7 +60,10 @@ public class TTestTest extends TestCase {
 			m = SignificanceMethod.MIN_P;
 		} 
 		line = br.readLine();
-		if(line==null) throw new IOException("cannot read alpha");
+		if(line==null) {
+			br.close();
+			throw new IOException("cannot read alpha");
+		}
 		double alpha = Double.parseDouble(line);
 		line = br.readLine();
 		boolean byPermutation = Boolean.parseBoolean(line);
@@ -66,10 +72,14 @@ public class TTestTest extends TestCase {
 		line = br.readLine();
 		boolean useAllCombinations = Boolean.parseBoolean(line);
 		line = br.readLine();
-		if(line==null) throw new IOException("cannot read number of combinations");
+		if(line==null) {
+			br.close();
+			throw new IOException("cannot read number of combinations");
+		}
 		int numberCombinations = Integer.parseInt(line);
 		line = br.readLine();
 		boolean isLogNormalized = Boolean.parseBoolean(line);
+		br.close();
 		
 		TTestInput input = new TTestInput(rowCount, caseCount, controlCount, caseArray, controlArray, m, alpha, byPermutation, useWelch, useAllCombinations, numberCombinations, isLogNormalized);
 		try {
@@ -602,7 +612,10 @@ public class TTestTest extends TestCase {
 			BufferedReader br = new BufferedReader(new FileReader(file));
 
 			String line = br.readLine();
-			if(line==null) throw new IOException("cannot read the choice of the method of calculate significance");
+			if(line==null) {
+				br.close();
+				throw new IOException("cannot read the choice of the method of calculate significance");
+			}
 			m = SignificanceMethod.JUST_ALPHA;
 			if(line.equals(SignificanceMethod.STD_BONFERRONI.toString())) {
 				m = SignificanceMethod.STD_BONFERRONI;
@@ -624,7 +637,8 @@ public class TTestTest extends TestCase {
 			line = br.readLine();
 			numberCombinations = Integer.parseInt(stripInlineComment(line));
 			line = br.readLine();
-			isLogNormalized = Boolean.parseBoolean(stripInlineComment(line));			
+			isLogNormalized = Boolean.parseBoolean(stripInlineComment(line));
+			br.close();
 		}
 		
 	}
@@ -669,6 +683,7 @@ public class TTestTest extends TestCase {
 			line = br.readLine();
 			i++;
 		}
+		br.close();
 	}
 	
 	private static String[] splitString(String line) {
