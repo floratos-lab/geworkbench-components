@@ -35,7 +35,6 @@ import org.geworkbench.components.gpmodule.classification.GPTraining;
 import org.geworkbench.components.gpmodule.classification.GPTrainingPanel;
 import org.geworkbench.components.gpmodule.classification.PredictionModel;
 import org.geworkbench.components.gpmodule.classification.PredictionResult;
-import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.util.ClassifierException;
 import org.geworkbench.util.ProgressBar;
 import org.geworkbench.util.TrainingProgressListener;
@@ -126,7 +125,6 @@ public class CARTTraining extends GPTraining implements TrainingTask
         return classifier;
     }
 
-    @SuppressWarnings("unchecked")
 	public void runClassifier(DSPanel<DSMicroarray> casePanel, DSPanel<DSMicroarray> controlPanel, DSPanel<DSMicroarray> testPanel, CSClassifier classifier)
     {
         ProgressBar progressBar;
