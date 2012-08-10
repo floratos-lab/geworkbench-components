@@ -374,27 +374,6 @@ public class PCA extends MicroarrayViewEventBase
                 }
             }
         });
-
-        jToolBar3.remove(chkAllArrays);
-        jToolBar3.remove(chkAllMarkers);
-
-        chkAllArrays.addActionListener( new ActionListener()
-        {
-            public void actionPerformed(ActionEvent event)
-            {
-                if(plottedComps != null && plottedComps.length >0)
-                    buildProjectionPlot(plottedComps);
-            }
-        });
-
-        chkAllMarkers.addActionListener( new ActionListener()
-        {
-            public void actionPerformed(ActionEvent event)
-            {
-                if(plottedComps != null && plottedComps.length >0)
-                    buildProjectionPlot(plottedComps);
-            }
-        });
         
         buildJToolBar3();
     }
@@ -671,7 +650,7 @@ public class PCA extends MicroarrayViewEventBase
         }
 
         ArrayList<String> group1List = new ArrayList<String>(dataLabelList);
-        if(pcaDataSet.getVariables().equals("experiments") && !chkAllMarkers.isSelected()
+        if(pcaDataSet.getVariables().equals("experiments")
                 && activatedMarkers != null && activatedMarkers.size() > 0 )
         {
             DSAnnotationContext<DSGeneMarker> context = CSAnnotationContextManager.getInstance().getCurrentContext(maSet.getMarkers());
@@ -700,7 +679,7 @@ public class PCA extends MicroarrayViewEventBase
                 }
             }
         }
-        else if(pcaDataSet.getVariables().equals("genes") && !chkAllArrays.isSelected()
+        else if(pcaDataSet.getVariables().equals("genes")
                  && activatedArrays != null && activatedArrays.size() > 0)
         {
             DSAnnotationContext<DSMicroarray> context = CSAnnotationContextManager.getInstance().getCurrentContext(maSet);
@@ -1064,20 +1043,10 @@ public class PCA extends MicroarrayViewEventBase
             jToolBar3.addSeparator(new Dimension(34, 0));
             jToolBar3.add(imageSnapshotButton);
             jToolBar3.add(Box.createHorizontalGlue());
-
-            if(pcaDataSet.getVariables().equals("genes"))
-            {
-                chkAllArrays.setSelected(false);
-                jToolBar3.add(chkAllArrays);
-            }
-            else
-            {
-                chkAllMarkers.setSelected(false);
-                jToolBar3.add(chkAllMarkers);
-            }
         }
-        else
+        else {
             jToolBar3.add(createButton);
+        }
 
         jToolBar3.repaint();
     }
