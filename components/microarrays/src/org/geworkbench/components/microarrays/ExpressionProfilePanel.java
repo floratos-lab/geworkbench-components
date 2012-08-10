@@ -141,8 +141,6 @@ public class ExpressionProfilePanel extends MicroarrayViewEventBase implements
 
 		jToolBar3.add(jEnabledBox);
 
-		chkAllMarkers.setSelected(false);
-		chkAllArrays.setSelected(false);
 	}
 
 	/**

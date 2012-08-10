@@ -40,7 +40,7 @@ public class SimpleTTest {
     }
 
     @SuppressWarnings("unchecked")
-	public double[] execute(Object input, boolean enableActiveMarkers) {
+	public double[] execute(Object input) {
 		reset();
 		if (input == null) {
 			return null;
@@ -55,7 +55,7 @@ public class SimpleTTest {
 		genes.addAll(data.markers());
 
 		data.useItemPanel(true);
-		data.useMarkerPanel(enableActiveMarkers);
+		data.useMarkerPanel(true);
 		item = data.markers();
 
 		int markers = genes.size();

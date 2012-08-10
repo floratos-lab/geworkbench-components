@@ -285,8 +285,6 @@ public class EVDPanel extends MicroarrayViewEventBase {
         rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
 
         mainPanel.add(graph, BorderLayout.CENTER);
-        chkAllMarkers.setSelected(false);
-        chkAllArrays.setSelected(false);
 
         markerSelectionPanel.setBorder(BorderFactory.createLineBorder(Color.
                 black));
@@ -471,7 +469,7 @@ public class EVDPanel extends MicroarrayViewEventBase {
     }
 
     private XYSeriesCollection createCollection(double min, double max,
-                                               int selectedId, boolean active) {
+                                               int selectedId) {
         PanelVisualPropertiesManager propertiesManager =
                 PanelVisualPropertiesManager.getInstance();
         //Temp changed. Need move into a new method to update.
@@ -528,7 +526,7 @@ public class EVDPanel extends MicroarrayViewEventBase {
             //drew active phenotpye data.
 
             int panelIndex = 0;
-            if (active && maSetView.size() > 0) {
+            if (maSetView.size() > 0) {
                 for (int pId = 0; pId < maSetView.getItemPanel().panels().size();
                      pId++) {
                     DSPanel<DSMicroarray>
@@ -790,7 +788,7 @@ public class EVDPanel extends MicroarrayViewEventBase {
                 jLeftBoundarySlider.setValue(0);
                 jRightBoundarySlider.setValue(0);
                 
-                drawPlot(createCollection(minExpressionValue, maxExpressionValue, mArrayId, !chkAllArrays.isSelected()),
+                drawPlot(createCollection(minExpressionValue, maxExpressionValue, mArrayId),
                         "EVD");
                 mainPanel.repaint();
             }
@@ -799,7 +797,7 @@ public class EVDPanel extends MicroarrayViewEventBase {
             jMASlider.setEnabled(false);
             SimpleTTest simpleTTest = new SimpleTTest();
 
-            double values[] = simpleTTest.execute(maSetView, !chkAllMarkers.isSelected());
+            double values[] = simpleTTest.execute(maSetView);
             double minT = simpleTTest.getMinT();
             double maxT = simpleTTest.getMaxT();
             DSItemList<DSGeneMarker> item = simpleTTest.getItem();
