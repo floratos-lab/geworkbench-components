@@ -16,7 +16,6 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
-import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -103,17 +102,6 @@ public class MicroarrayPanel implements
         resetMicroarraySlider();
     }
 
-    private void showAllMArrays(boolean showAll) {
-        dataSetView.useItemPanel(!showAll);
-        resetMicroarraySlider();
-        mainPanel.repaint();
-    }
-
-    private void showAllMarkers(boolean showAll) {
-        dataSetView.useMarkerPanel(!showAll);
-        mainPanel.repaint();
-    }
-
     @Subscribe public void receive(org.geworkbench.events.ProjectEvent projectEvent, Object source) {
 
 		if (projectEvent.getValue()==ProjectEvent.Message.CLEAR) {
@@ -139,9 +127,6 @@ public class MicroarrayPanel implements
     public Component getComponent() {
         return mainPanel;
     }
-
-    // Most of the code up to here used to in the original base MicroarrayVisualizer
-    ////////////////////////////////////////////////////////////////////////////////////
     
 	final private MicroarrayDisplay microarrayImageArea;
 
@@ -290,33 +275,13 @@ public class MicroarrayPanel implements
 		jSaveImageMenu.setText("Image Snapshot");
 		jSaveImageMenu.addActionListener(imageSnapshotListener);
 
-		final JCheckBox jShowAllMArrays = new JCheckBox();
-		jShowAllMArrays.setText("All Arrays");
-		jShowAllMArrays.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				showAllMArrays(jShowAllMArrays.isSelected());
-			}
-		});
-		jShowAllMArrays.setSelected(false);
-		
-		final JCheckBox jShowAllMarkers = new JCheckBox();
-		jShowAllMarkers.setText("All Markers");
-		jShowAllMarkers.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				showAllMarkers(jShowAllMarkers.isSelected());
-			}
-		});
-		jShowAllMarkers.setSelected(false);
-		
 		jMALabel.setEditable(false);		
 		jMALabel.setMinimumSize(new Dimension(40, 20));
 		
 		JToolBar jToolBar = new JToolBar();
 		mainPanel.add(jToolBar, BorderLayout.SOUTH);
 		jToolBar.setLayout(new BoxLayout(jToolBar, BoxLayout.X_AXIS));
-		jToolBar.add(jShowAllMArrays, null);
-		jToolBar.add(Box.createHorizontalStrut(5), null);
-		jToolBar.add(jShowAllMarkers, null);
+
 		jToolBar.add(Box.createGlue(), null);
 		jToolBar.add(jMALabel, null);
 		jToolBar.add(Box.createGlue(), null);
