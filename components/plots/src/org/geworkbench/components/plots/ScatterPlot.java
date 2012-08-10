@@ -97,6 +97,7 @@ import org.jfree.data.xy.XYSeriesCollection;
  * Scatter Plot component.
  *
  * @author John Watkinson
+ * @version $Id$
  */
 @AcceptTypes({DSMicroarraySet.class})
 public class ScatterPlot implements VisualPlugin {
@@ -116,8 +117,6 @@ public class ScatterPlot implements VisualPlugin {
     public enum PlotType {
         ARRAY, MARKER
     }
-
-    ;
 
     private static final int TAB_ARRAY = 0;
     // private static final int TAB_MARKER = 1;
@@ -723,8 +722,7 @@ public class ScatterPlot implements VisualPlugin {
     private JAutoList markerList;
     private JPanel chartPanel, topChartPanel, bottomChartPanel;
     private JCheckBox rankStatisticsCheckbox;
-    private JCheckBox allMarkersCheckBox;
-    private JCheckBox allArraysCheckBox;
+
     private JCheckBox referenceLineCheckBox;
     private JButton clearButton;
     private JButton printButton;
@@ -771,14 +769,7 @@ public class ScatterPlot implements VisualPlugin {
         makeDefaultMarkerList();
         tabbedPane.add("Array", microarrayList);
         tabbedPane.add("Marker", markerList);
-        JPanel checkboxPanel = new JPanel();
-        checkboxPanel.setLayout(new BoxLayout(checkboxPanel, BoxLayout.X_AXIS));
-        westPanel.add(checkboxPanel, BorderLayout.SOUTH);
-        allArraysCheckBox = new JCheckBox("All Arrays", false);
-        checkboxPanel.add(allArraysCheckBox);
-        checkboxPanel.add(Box.createHorizontalStrut(10));
-        allMarkersCheckBox = new JCheckBox("All Markers", false);
-        checkboxPanel.add(allMarkersCheckBox);
+
         // Right side:
         JPanel rightPanel = new JPanel(new BorderLayout());
         JPanel topPanel = new JPanel();
@@ -834,49 +825,8 @@ public class ScatterPlot implements VisualPlugin {
         popupMenu.add(xAxisItem);
         JMenuItem clearAllItem = new JMenuItem("Clear All", 'A');
         popupMenu.add(clearAllItem);
-        //// Add behavior
-        allMarkersCheckBox.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                if (e.getStateChange() == ItemEvent.DESELECTED) {
-                	if((limitMarkers == 0) && (dataSetView.getMarkerPanel() != null) && (dataSetView.getMarkerPanel().size() > 0)){
-                		dataSetView.useMarkerPanel(true);
-                		showAllMarkers = false;
-                		limitMarkers = dataSetView.getMarkerPanel().size();
-                		markerModel.refresh();
-                	}
-                } else {
-                	if(limitMarkers > 0){
-                		dataSetView.useMarkerPanel(false);
-                		showAllMarkers = true;
-                		limitMarkers = 0;
-                		markerModel.refresh();
-                	}
-                }   
-                updateBothTabs();                
-            }
-        });
-        allArraysCheckBox.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                if (e.getStateChange() == ItemEvent.DESELECTED) {
-                	if((limitArrays == 0) && (dataSetView.getItemPanel().size() > 0)){
-                		dataSetView.useItemPanel(true);
-                		showAllArrays = false;
-                		limitArrays = dataSetView.getItemPanel().size();
-                		microarrayModel.refresh();
-                	}
-                } else {
-                	if(limitArrays > 0){
-                		dataSetView.useItemPanel(false);
-                		showAllArrays = true;
-                		limitArrays = 0;
-                		microarrayModel.refresh();
-                	}
-                }
-                updateBothTabs(); 
-            }
-        });
+
         // Initially inactive
-        allArraysCheckBox.setEnabled(false);
         rankStatisticsCheckbox.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
                 // Update all charts
@@ -901,13 +851,9 @@ public class ScatterPlot implements VisualPlugin {
                 if (tabbedPane.getSelectedIndex() == TAB_ARRAY) {
                 	updateCharts(PlotType.ARRAY);
                     packChartPanel(PlotType.ARRAY);
-                    allArraysCheckBox.setEnabled(false);
-                    allMarkersCheckBox.setEnabled(true);
                 } else {
                 	updateCharts(PlotType.MARKER);
                     packChartPanel(PlotType.MARKER);
-                    allArraysCheckBox.setEnabled(true);
-                    allMarkersCheckBox.setEnabled(false);
                 }
                 ChartGroup group = chartGroups.get(getActivePlotType());
                 if (group.referenceLineEnabled) {
@@ -1280,13 +1226,9 @@ public class ScatterPlot implements VisualPlugin {
         if (tabbedPane.getSelectedIndex() == TAB_ARRAY) {
         	updateCharts(PlotType.ARRAY);
             packChartPanel(PlotType.ARRAY);
-            allArraysCheckBox.setEnabled(false);
-            allMarkersCheckBox.setEnabled(true);
         } else {
         	updateCharts(PlotType.MARKER);
             packChartPanel(PlotType.MARKER);
-            allArraysCheckBox.setEnabled(true);
-            allMarkersCheckBox.setEnabled(false);
         }        
     }
 
@@ -1371,7 +1313,7 @@ public class ScatterPlot implements VisualPlugin {
      */
     @Subscribe public void receive(org.geworkbench.events.GeneSelectorEvent e, Object source) {
     	if(e.getPanel() != null){    		
-    		if ((e.getPanel().size() > 0) && !allMarkersCheckBox.isSelected() && (limitMarkers != e.getPanel().size())){ 
+    		if ((e.getPanel().size() > 0) && (limitMarkers != e.getPanel().size())){ 
     			ChartGroup group = chartGroups.get(PlotType.MARKER);
     			if(group.charts.size() > 0){
     				ChartData cd = group.charts.get(0).chartData;
@@ -1396,22 +1338,16 @@ public class ScatterPlot implements VisualPlugin {
                 limitMarkers = dataSetView.getMarkerPanel().size();
                 markerModel.refresh();
                 updateBothTabs();
-            } 
-    		if((e.getPanel().size() > 0) && allMarkersCheckBox.isSelected() && (limitMarkers != e.getPanel().size())){
-                dataSetView.setMarkerPanel(e.getPanel());
-                updateBothTabs();
-    		}
-    		if(((e.getPanel().size() <= 0) || allMarkersCheckBox.isSelected()) && (limitMarkers > 0)) {
+            }
+
+    		if( (e.getPanel().size() <= 0) && (limitMarkers > 0)) {
             	dataSetView.useMarkerPanel(false);
             	showAllMarkers = true;
             	dataSetView.setMarkerPanel(null);
             	limitMarkers = 0;
             	markerModel.refresh();
             	updateBothTabs();
-            }     		  
-    		if((e.getPanel().size() <= 0) && allMarkersCheckBox.isSelected()) {
-    			updateBothTabs();
-    		}
+            }
     	}     	
     }
 
@@ -1425,7 +1361,7 @@ public class ScatterPlot implements VisualPlugin {
     @Subscribe public void receive(org.geworkbench.events.PhenotypeSelectorEvent<DSMicroarray> e, Object source) {   
         if (e.getTaggedItemSetTree() != null) {
     		DSPanel<DSMicroarray> activatedArrays = e.getTaggedItemSetTree().activeSubset();
-            if((activatedArrays != null) && (activatedArrays.size() > 0) && !allArraysCheckBox.isSelected() && (limitArrays != activatedArrays.size())){
+            if((activatedArrays != null) && (activatedArrays.size() > 0) && (limitArrays != activatedArrays.size())){
             	ChartGroup group = chartGroups.get(PlotType.ARRAY);
     			if(group.charts.size() > 0){
     				ChartData cd = group.charts.get(0).chartData;
@@ -1451,19 +1387,13 @@ public class ScatterPlot implements VisualPlugin {
 	            microarrayModel.refresh();
 	            updateBothTabs();
             } 
-            if((activatedArrays != null) && (activatedArrays.size() > 0) && allArraysCheckBox.isSelected() && (limitArrays != activatedArrays.size())){
-            	dataSetView.setItemPanel(activatedArrays);
-            	updateBothTabs();
-            }
-            if((((activatedArrays != null) && (activatedArrays.size() <= 0)) || allArraysCheckBox.isSelected()) && (limitArrays > 0)){
+            
+            if( ((activatedArrays != null) && (activatedArrays.size() <= 0)) && (limitArrays > 0) ) {
             	dataSetView.useItemPanel(false);
             	showAllArrays = true;
             	dataSetView.setItemPanel(null);
             	limitArrays = 0;
             	microarrayModel.refresh();
-            	updateBothTabs();
-            }    
-            if((activatedArrays != null) && (activatedArrays.size() <= 0) && allArraysCheckBox.isSelected()){
             	updateBothTabs();
             }
         }        
@@ -1482,8 +1412,7 @@ public class ScatterPlot implements VisualPlugin {
 		DSDataSet<? extends DSBioObject> dataFile = selection.getDataSet();
 
 		if (!(dataFile instanceof DSMicroarraySet)
-				|| e.getMessage().equals(
-						org.geworkbench.events.ProjectEvent.CLEARED)) {
+				|| e.getValue() == org.geworkbench.events.ProjectEvent.Message.CLEAR) {
 			dataSetView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(
 					null);
 		} else {
