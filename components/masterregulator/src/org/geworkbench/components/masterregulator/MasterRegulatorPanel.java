@@ -752,10 +752,10 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 
 		if (parameters.get("Fisher's Exact P Value") != null) {
 			double d = (Double) parameters.get("Fisher's Exact P Value");
-			if (d >= 0 && d <= 1)
+			//if (d >= 0 && d <= 1)
 			   setPValue(d);
-			else
-			   setPValue(0.01);
+			//else
+			//   setPValue(0.01);
 		}
 		if ((Boolean)parameters.get("twoFET"))
 			fet2Button.setSelected(true);
@@ -807,9 +807,9 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
     	if (sigGroups.getSelectedItem() != null)
 		answer.put("sigGroups", (String)sigGroups.getSelectedItem());
     	
-		if (getPValue() > 1 || getPValue() < 0)
-			answer.put("Fisher's Exact P Value", 0.01);
-		else
+		//if (getPValue() > 1 || getPValue() < 0)
+		//	answer.put("Fisher's Exact P Value", 0.01);
+		//else
 			answer.put("Fisher's Exact P Value", getPValue());
 		answer.put("twoFET", twoFET());
 		answer.put("standardBonferroni", standardBonferroni());
