@@ -1335,17 +1335,8 @@ public final class MasterRegulatorPanel extends AbstractSaveableParameterPanel {
 				.equalsIgnoreCase(AdjacencyMatrixDataSet.SIF_FORMART) && !networkFilename
 				.toLowerCase().endsWith(".sif"))
 				|| (networkFilename.toLowerCase().endsWith(".sif") && !selectedFormat
-						.equalsIgnoreCase(AdjacencyMatrixDataSet.SIF_FORMART))) {
-			String theMessage = "The network format selected may not match that of the file.  \nClick \"Cancel\" to terminate this process.";
-			Object[] optionChoices = { "Continue", "Cancel"};
-			int result = JOptionPane.showOptionDialog(
-				(Component) null, theMessage, "Warning",
-				JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE,
-				null, optionChoices, optionChoices[1]);
-			if (result == JOptionPane.NO_OPTION)
-				return false;
-
-		} else if (selectedFormat.equals(marina5colformat) && !is5colnetwork(networkTextField.getText(), 10)){
+						.equalsIgnoreCase(AdjacencyMatrixDataSet.SIF_FORMART))
+				||(selectedFormat.equals(marina5colformat) && !is5colnetwork(networkTextField.getText(), 10))){
 			JOptionPane.showMessageDialog(null,  "The network format selected does not match that of the file.",
 					"Format Error", JOptionPane.ERROR_MESSAGE);
 			return false;
