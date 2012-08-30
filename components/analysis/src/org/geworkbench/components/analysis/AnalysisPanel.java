@@ -1018,10 +1018,8 @@ public class AnalysisPanel extends CommandBase implements
 		boolean selectionChanged = true;
 		Analysis[] analyses = ComponentRegistry.getRegistry().getModules(analysisType);
 		availableCommands = new AbstractAnalysis[analyses.length];
-		System.out.println("available: "+availableCommands.length);
 		for (int i = 0; i < analyses.length; i++) {
 			availableCommands[i] = (AbstractAnalysis) analyses[i];
-			System.out.println(availableCommands[i].getLabel());
 			if (selectedAnalysis == availableCommands[i]) {
 				selectionChanged = false;
 			}
