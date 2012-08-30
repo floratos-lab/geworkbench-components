@@ -986,7 +986,7 @@ public class AnalysisPanel extends CommandBase implements
 	public void receive(org.geworkbench.events.ProjectEvent event, Object source) {
 
 		DSDataSet dataSet = event.getDataSet();
-		if (dataSet == null || lastDataType == dataSet.getClass())
+		if (dataSet == null)// || lastDataType == dataSet.getClass())
 			return;
 		
 		clearMenuItems();
@@ -1018,8 +1018,10 @@ public class AnalysisPanel extends CommandBase implements
 		boolean selectionChanged = true;
 		Analysis[] analyses = ComponentRegistry.getRegistry().getModules(analysisType);
 		availableCommands = new AbstractAnalysis[analyses.length];
+		System.out.println("available: "+availableCommands.length);
 		for (int i = 0; i < analyses.length; i++) {
 			availableCommands[i] = (AbstractAnalysis) analyses[i];
+			System.out.println(availableCommands[i].getLabel());
 			if (selectedAnalysis == availableCommands[i]) {
 				selectionChanged = false;
 			}
