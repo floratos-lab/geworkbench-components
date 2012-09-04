@@ -109,4 +109,52 @@ public class AnovaInput {
 		return this.falseSignificantGenesLimit;
 	}
 	
+	
+	@Override
+	public String toString() {
+		StringBuffer sb = new StringBuffer("Anova Input\n");
+		sb.append("A:").append("\n");
+		sb.append("{");
+		for (int i=0; i<A.length; i++)
+		{	sb.append("{");
+			for(int j=0; j<A[i].length; j++)
+			{	if (j == A[i].length - 1)
+				sb.append(A[i][j] + "f").append("}");
+				else
+					sb.append(A[i][j] + "f").append(",");
+		    }
+			if (i == A.length-1)
+				sb.append("}");
+			else
+				sb.append(",\n");
+		}
+			 
+		sb.append("\n");		 
+		sb.append("groupAssignments:").append(" \n");
+		sb.append("{");
+		for(int i=0; i<groupAssignments.length; i++)
+		{	if (i== groupAssignments.length - 1)
+			sb.append(groupAssignments[i]).append("}");
+			else
+				sb.append(groupAssignments[i]).append(",");
+	    }
+		sb.append("\n");
+		sb.append("numGenes:" + numGenes);
+		sb.append("\n");
+		sb.append("numSelectedGroups:" + numSelectedGroups);
+		sb.append("\n");
+		sb.append("pvalueth:" + pvalueth);
+		sb.append("\n");
+		sb.append("pValueEstimation:" + pValueEstimation);
+		sb.append("\n");
+		sb.append("permutationsNumber:" + permutationsNumber);
+		sb.append("\n");
+		sb.append("falseDiscoveryRateControl:" + falseDiscoveryRateControl);
+		sb.append("\n");
+		sb.append("falseSignificantGenesLimit:" + falseSignificantGenesLimit);
+		sb.append("\n");
+		return sb.toString();
+	}
+	
+	
 }

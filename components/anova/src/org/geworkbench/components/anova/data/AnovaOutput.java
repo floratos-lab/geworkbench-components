@@ -6,9 +6,12 @@ public class AnovaOutput {
 	private int[] featuresIndexes;
 	private double[] significances;	
 	
-	
-	public AnovaOutput(){};
-	
+	public AnovaOutput()
+	{
+		this.result2DArray = new double[0][0];	
+		this.featuresIndexes = new int[0];
+		this.significances = new double[0];	
+	}
 	public AnovaOutput(double[][] result2DArray, int[] featuresIndexes, double[] significances)  {
 		this.result2DArray = result2DArray;		 
 		this.featuresIndexes = featuresIndexes;
