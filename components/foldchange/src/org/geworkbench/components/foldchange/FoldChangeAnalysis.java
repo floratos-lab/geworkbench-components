@@ -73,23 +73,20 @@ public class FoldChangeAnalysis extends AbstractAnalysis implements
 		return localAnalysisType;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public AlgorithmExecutionResults execute(Object input) {
-		return calculate(input, false);
-	}
-
-	@SuppressWarnings("unchecked")
-	AlgorithmExecutionResults calculate(Object input,
-			boolean calledFromOtherComponent) {
-		
 		if (input == null || !(input instanceof DSMicroarraySetView)) {
+			log.error("Invalid input type");
 			return new AlgorithmExecutionResults(false, "Invalid input.", null);
 		}
 		
+		DSMicroarraySetView<? extends DSGeneMarker, ? extends DSMicroarray> view = (DSMicroarraySetView<? extends DSGeneMarker, ? extends DSMicroarray>) input;
+		return calculate(view, false);
+	}
 
-		DSMicroarraySetView<? extends DSGeneMarker, ? extends DSMicroarray> data = (DSMicroarraySetView<? extends DSGeneMarker, ? extends DSMicroarray>) input;
-		boolean allArrays = !data.useItemPanel();
-		log.info("All arrays: " + allArrays);
+	private AlgorithmExecutionResults calculate(DSMicroarraySetView<? extends DSGeneMarker, ? extends DSMicroarray> data,
+			boolean calledFromOtherComponent) {
 
 		numGenes = data.markers().size();
 		numExps = data.items().size();
@@ -126,12 +123,9 @@ public class FoldChangeAnalysis extends AbstractAnalysis implements
 		for (int i = 0; i < numExps; i++) {
 			DSMicroarray ma = data.items().get(i);
 			String[] labels = context.getLabelsForItem(ma);
-			if ((labels.length == 0) && allArrays) {
-				groupAssignments[i] = GROUP_B;
-				numberGroupB++;
-			}
+
 			for (String label : labels) {
-				if (context.isLabelActive(label) || allArrays) {
+				if (context.isLabelActive(label) ) {
 					String v = context.getClassForLabel(label);
 					if (v.equals(CSAnnotationContext.CLASS_CASE)) {
 						groupAssignments[i] = GROUP_A;
@@ -229,7 +223,7 @@ public class FoldChangeAnalysis extends AbstractAnalysis implements
 		groupAndChipsString += "\t case group(s): \n";
 		for (int i = 0; i < classLabels.length; i++) {
 			String label = classLabels[i];
-			if (context.isLabelActive(label) || !data.useItemPanel()) {
+			if (context.isLabelActive(label) ) {
 				caseSet.add(label);
 				groupAndChipsString += GenerateGroupAndChipsString(context
 						.getItemsWithLabel(label));
@@ -241,7 +235,7 @@ public class FoldChangeAnalysis extends AbstractAnalysis implements
 		groupAndChipsString += "\t control group(s): \n";
 		for (int i = 0; i < classLabels.length; i++) {
 			String label = classLabels[i];
-			if (context.isLabelActive(label) || !data.useItemPanel()) {
+			if (context.isLabelActive(label) ) {
 				controlSet.add(label);
 				groupAndChipsString += GenerateGroupAndChipsString(context
 						.getItemsWithLabel(label));

@@ -50,9 +50,6 @@ public class TAnalysis {
 	TAnalysis(final DSMicroarraySetView<DSGeneMarker, DSMicroarray> datasetView) throws TAnalysisException {
 		this.datasetView = datasetView;
 		
-		boolean allArrays = !datasetView.useItemPanel();
-		log.info("All arrays: " + allArrays);
-
 		numGenes = datasetView.markers().size();
 		numExps = datasetView.items().size();
 
@@ -69,12 +66,9 @@ public class TAnalysis {
 		for (int i = 0; i < numExps; i++) {
 			DSMicroarray ma = datasetView.items().get(i);
 			String[] labels = context.getLabelsForItem(ma);
-			if ((labels.length == 0) && allArrays) {
-				groupAssignments[i] = Group.CONTROL;
-				numberOfControl++;
-			}
+
 			for (String label : labels) {
-				if (context.isLabelActive(label) || allArrays) {
+				if (context.isLabelActive(label) ) {
 					String v = context.getClassForLabel(label);
 					if (v.equals(CSAnnotationContext.CLASS_CASE)) {
 						groupAssignments[i] = Group.CASE;
