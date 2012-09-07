@@ -78,7 +78,6 @@ public class BlastAnalysis extends AbstractAnalysis implements
 
 		sequenceDB = (DSSequenceSet<?>) input;
 
-		boolean activateMarkers = ((CSSequenceSet<?>) sequenceDB).useMarkerPanel();
 		DSAnnotationContextManager manager = CSAnnotationContextManager
 				.getInstance();
 		DSAnnotationContext<?> context = manager.getCurrentContext(sequenceDB
@@ -87,17 +86,13 @@ public class BlastAnalysis extends AbstractAnalysis implements
 		DSPanel<? extends DSGeneMarker> activatedMarkers = (DSPanel<? extends DSGeneMarker>) context
 				.getActiveItems().activeSubset();
 
-		if (activateMarkers) {
-			if (activatedMarkers != null && activatedMarkers.size() > 0) {
-				activeSequenceDB = (CSSequenceSet<CSSequence>) ((CSSequenceSet) sequenceDB)
-						.getActiveSequenceSet(activatedMarkers);
-			} else if (sequenceDB != null) {
+		if (activatedMarkers != null && activatedMarkers.size() > 0) {
+			activeSequenceDB = (CSSequenceSet<CSSequence>) ((CSSequenceSet) sequenceDB)
+					.getActiveSequenceSet(activatedMarkers);
+		} else if (sequenceDB != null) {
 
-				activeSequenceDB = (CSSequenceSet<CSSequence>) sequenceDB;
-			}
-
-		} else
 			activeSequenceDB = (CSSequenceSet<CSSequence>) sequenceDB;
+		}
 
 		ParameterSetting parameterSetting = blastAnalysisPanel
 				.collectParameters();
