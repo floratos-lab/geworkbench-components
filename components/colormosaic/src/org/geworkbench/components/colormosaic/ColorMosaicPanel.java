@@ -30,7 +30,6 @@ import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
@@ -122,8 +121,7 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
     private BorderLayout borderLayout2 = new BorderLayout();
     private CMHRuler colRuler = new CMHRuler(colorMosaicImage);
     private CMVRuler rowRuler = new CMVRuler(colorMosaicImage);
-    private JCheckBox jAllMArrays = new JCheckBox();
-    private JCheckBox jAllMarkers = new JCheckBox();
+
     private HashMap<String, ActionListener> listeners = new HashMap<String, ActionListener>();
     private JPopupMenu jCMMenu = new JPopupMenu();
 	private JMenuItem jZoomInItem = new JMenuItem();
@@ -322,13 +320,6 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         if(!significanceMode) jToggleSortButton.setEnabled(false);
         
         jScrollPane.getViewport().setBackground(Color.white);
-        jAllMArrays.setSelected(false);
-        jAllMArrays.setText("All arrays");
-        jAllMArrays.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                jAllMArrays_actionPerformed(e);
-            }
-        });
         
 		exportButton.setMargin(new Insets(2, 3, 2, 3));
         exportButton.addActionListener(new ActionListener() {
@@ -343,13 +334,6 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         exportButton.setEnabled(false);
         jExportItem.setEnabled(false);
         
-        jAllMarkers.setSelected(false);
-        jAllMarkers.setText("All Markers");
-        jAllMarkers.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                jAllMarkers_actionPerformed(e);
-            }
-        });
         mainPanel.add(jToolBar1, BorderLayout.NORTH);
         jToolBar1.add(printBtn, null);
         jToolBar1.add(jHideMaskedBtn, null);
@@ -372,9 +356,6 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         mainPanel.add(jScrollPane, BorderLayout.CENTER);
         JToolBar jToolBar2 = new JToolBar();
         jToolBar2.add(exportButton, null);
-        jToolBar2.addSeparator();
-        jToolBar2.add(jAllMArrays, null);
-        jToolBar2.add(jAllMarkers, null);
         jToolBar2.addSeparator();
         jToolBar2.add(jLabel5, null);
         jToolBar2.add(jIntensitySlider);
@@ -552,17 +533,17 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
             } else {
                 clearMosaic();
             } 
-            if(jAllMarkers.isSelected() || ((colorMosaicImage.getPanel() != null) && (colorMosaicImage.getPanel().size() > 0))){        
-            	colorMosaicImage.showAllMarkers(jAllMarkers.isSelected());
+            if( (colorMosaicImage.getPanel() != null) && (colorMosaicImage.getPanel().size() > 0) ){        
+            	colorMosaicImage.showAllMarkers(false);
             }
-            if(jAllMArrays.isSelected() || ((colorMosaicImage.getMArrayPanel() != null) && (colorMosaicImage.getMArrayPanel().size() > 0))){
-            	colorMosaicImage.showAllMArrays(jAllMArrays.isSelected());
+            if( (colorMosaicImage.getMArrayPanel() != null) && (colorMosaicImage.getMArrayPanel().size() > 0) ){
+            	colorMosaicImage.showAllMArrays(false);
             	
             }
-            if(!jAllMarkers.isSelected() && ((colorMosaicImage.getPanel() == null) || (colorMosaicImage.getPanel().size() <= 0))){
+            if( (colorMosaicImage.getPanel() == null) || (colorMosaicImage.getPanel().size() <= 0) ){
             	colorMosaicImage.showAllMarkers(true);
             }            
-            if(!jAllMArrays.isSelected() && ((colorMosaicImage.getMArrayPanel() == null) || (colorMosaicImage.getMArrayPanel().size() <= 0))){
+            if( (colorMosaicImage.getMArrayPanel() == null) || (colorMosaicImage.getMArrayPanel().size() <= 0) ){
             	colorMosaicImage.showAllMArrays(true);
             }
             revalidate();
@@ -645,7 +626,7 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
 			
 			List<DSGeneMarker> markers = markerSet;
 			DSPanel<DSGeneMarker> mp = colorMosaicImage.getPanel();
-			if (mp!=null && mp.size()>0 && !jAllMarkers.isSelected()) markers = mp;
+			if ( mp!=null && mp.size()>0 ) markers = mp;
 
 			int markerNo = markers.size();
 			if (colorMosaicImage.significanceResultSet != null)
@@ -834,37 +815,8 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
             }
         }
     }
-
-    private void jAllMArrays_actionPerformed(ActionEvent e) {        
-        if(!jAllMArrays.isSelected() && ((colorMosaicImage.getMArrayPanel() == null) || (colorMosaicImage.getMArrayPanel().size() <= 0))){
-        	colorMosaicImage.showAllMArrays(true);
-        } else {
-        	colorMosaicImage.showAllMArrays(jAllMArrays.isSelected());
-        }
-        if(!jAllMarkers.isSelected() && ((colorMosaicImage.getPanel() == null) || (colorMosaicImage.getPanel().size() <= 0))){
-        	colorMosaicImage.showAllMarkers(true);
-        } else {
-        	colorMosaicImage.showAllMarkers(jAllMarkers.isSelected());
-        }
-        colRuler.revalidate();
-        mainPanel.repaint();
-    }
-
-    private void jAllMarkers_actionPerformed(ActionEvent e) {        
-        if(!jAllMarkers.isSelected() && ((colorMosaicImage.getPanel() == null) || (colorMosaicImage.getPanel().size() <= 0))){
-        	colorMosaicImage.showAllMarkers(true);
-        } else {
-        	colorMosaicImage.showAllMarkers(jAllMarkers.isSelected());
-        }
-        if(!jAllMArrays.isSelected() && ((colorMosaicImage.getMArrayPanel() == null) || (colorMosaicImage.getMArrayPanel().size() <= 0))){
-        	colorMosaicImage.showAllMArrays(true);
-        } else {
-        	colorMosaicImage.showAllMArrays(jAllMArrays.isSelected());
-        }
-        rowRuler.revalidate();
-        mainPanel.repaint();
-    }
-
+    
+    @Override
     public Component getComponent() {
         return mainPanel;
     }
@@ -920,13 +872,9 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
 		setMarkerPanel(genePanel);
 		sortByTValue(genePanel);
 		// Force all arrays and all markers off
-		jAllMArrays.setSelected(false);
-		colorMosaicImage.showAllMArrays(jAllMArrays.isSelected());
-		jAllMarkers.setSelected(false);
-		colorMosaicImage.showAllMarkers(jAllMarkers.isSelected());
+		colorMosaicImage.showAllMArrays(false);
+		colorMosaicImage.showAllMarkers(false);
 		jHideMaskedBtn.setSelected(true);
-		jAllMArrays.setEnabled(false);
-		jAllMarkers.setEnabled(false);
 
 		setSignificance(sigSet);
 		displayMosaic();
@@ -938,8 +886,7 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
     @Subscribe public void receive(ProjectEvent projectEvent, Object source) {
         final DSDataSet<?> dataFile = projectEvent.getDataSet();
         significanceMode = false;
-        jAllMArrays.setEnabled(true);
-        jAllMarkers.setEnabled(true);
+
         if (dataFile != null) {
             if (dataFile instanceof DSMicroarraySet) {
                 jToggleSortButton.setEnabled(false);
@@ -958,8 +905,6 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
                 	colorMosaicImage.clearSignificanceResultSet();
                     colorMosaicImage.showAllMArrays(true); 
                     colorMosaicImage.showAllMarkers(true);
-                    jAllMArrays.setEnabled(true);
-                   jAllMarkers.setEnabled(true);
                 }
                 org.geworkbench.bison.util.colorcontext.ColorContext colorContext = (org.geworkbench.bison.util.colorcontext.ColorContext) set
     			.getObject(org.geworkbench.bison.util.colorcontext.ColorContext.class);
@@ -1011,10 +956,7 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
         if (significanceMode || e == null) {
             return;
         }
-        if (jAllMArrays.isEnabled()==false)
-        	colorMosaicImage.microarrayPanel = null;
-        if (jAllMarkers.isEnabled()==false)
-        	setMarkerPanel(null);
+
         DSPanel<DSMicroarray> pl = e.getTaggedItemSetTree();
         setMicroarrayPanel(pl);    
         jHideMaskedBtn_actionPerformed(); 
