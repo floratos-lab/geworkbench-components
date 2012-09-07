@@ -26,7 +26,6 @@ import javax.swing.BoxLayout;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -147,9 +146,6 @@ public class GenericDisplayPanel extends JPanel {
     private JAutoList goldStrList;
     private JPanel chartPanel, topChartPanel, bottomChartPanel;
 
-    private JCheckBox allMarkersCheckBox;
-    private JCheckBox allArraysCheckBox;
-
     private JButton clearButton;
     private JButton printButton;
     private JButton createMatrixtButton;
@@ -246,13 +242,7 @@ public class GenericDisplayPanel extends JPanel {
         goldListPanel.add(goldStrList, BorderLayout.CENTER);
         performancePanel.add(evidenceListPanel);
         performancePanel.add(goldListPanel);
-        JPanel checkboxPanel = new JPanel();
-        checkboxPanel.setLayout(new BoxLayout(checkboxPanel, BoxLayout.X_AXIS));
-        allArraysCheckBox = new JCheckBox("All Arrays", false);
-        checkboxPanel.add(allArraysCheckBox);
-        checkboxPanel.add(Box.createHorizontalStrut(10));
-        allMarkersCheckBox = new JCheckBox("All Markers", false);
-        checkboxPanel.add(allMarkersCheckBox);
+
         // Right side:
         JPanel rightPanel = new JPanel(new BorderLayout());
         JPanel topPanel = new JPanel();
