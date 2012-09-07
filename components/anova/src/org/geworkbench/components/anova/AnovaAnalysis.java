@@ -201,6 +201,8 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 			    anovaAnalysisPanel.permutationsNumber, anovaAnalysisPanel.falseDiscoveryRateControl.ordinal(),
 			    anovaAnalysisPanel.falseSignificantGenesLimit);
 	 
+		//System.out.println(anovaInput.toString());
+		
 		final Anova anova = new Anova(anovaInput);
 		SwingUtilities.invokeLater(new Runnable() {
 
@@ -258,7 +260,9 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 					sigSet.getSignificantMarkers());
 			log.debug(sigSet.getSignificantMarkers().size()
 					+ "Markers added to anovaResultSet.getSignificantMarkers().");
-			anovaResultSet.sortMarkersBySignificance();
+			
+			if (significantMarkerNames.length > 0)
+			    anovaResultSet.sortMarkersBySignificance();
 
 			/* add to Dataset History */
 			HistoryPanel.addToHistory(anovaResultSet, history);
