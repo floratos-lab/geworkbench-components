@@ -80,7 +80,6 @@ public class MicroarrayPanel implements
 		mArraySet = maSet;
         dataSetView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(maSet);
 		dataSetView.useMarkerPanel(true);
-        dataSetView.useItemPanel(true);
 
 		microarrayImageArea.setMicroarraySetView(dataSetView);
 		
@@ -145,7 +144,6 @@ public class MicroarrayPanel implements
 		dataSetView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(null);
 		microarrayImageArea = new MicroarrayDisplay(dataSetView);
 		dataSetView.useMarkerPanel(true);
-        dataSetView.useItemPanel(true);
 		try {
 			jbInit();
 		} catch (Exception e) {

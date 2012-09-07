@@ -1380,7 +1380,6 @@ public class ScatterPlot implements VisualPlugin {
 		            	}
             		}
     			}
-            	dataSetView.useItemPanel(true);
             	showAllArrays = false;
 	            dataSetView.setItemPanel(activatedArrays);
 	            limitArrays = dataSetView.getItemPanel().size();
@@ -1388,14 +1387,6 @@ public class ScatterPlot implements VisualPlugin {
 	            updateBothTabs();
             } 
             
-            if( ((activatedArrays != null) && (activatedArrays.size() <= 0)) && (limitArrays > 0) ) {
-            	dataSetView.useItemPanel(false);
-            	showAllArrays = true;
-            	dataSetView.setItemPanel(null);
-            	limitArrays = 0;
-            	microarrayModel.refresh();
-            	updateBothTabs();
-            }
         }        
     }
 
