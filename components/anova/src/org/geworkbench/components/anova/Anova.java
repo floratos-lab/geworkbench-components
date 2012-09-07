@@ -191,7 +191,11 @@ public class Anova   {
 					adjustedPValueCollection, fValueCollection, groupMeanCollectionForAllMarkers,
 					groupStandardDiviationCollectionForAllMarkers);
 			
-			AnovaOutput output = new AnovaOutput(result2DArray, aList, doubleSignificances);
+			AnovaOutput output =  null;		
+			if (aList.length > 0)
+			   output = new AnovaOutput(result2DArray, aList, doubleSignificances);		 
+			else
+			   output = new AnovaOutput();
 			  
 			return output;
 
