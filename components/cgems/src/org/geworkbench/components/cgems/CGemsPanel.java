@@ -829,7 +829,6 @@ public class CGemsPanel implements VisualPlugin {
 			DSMicroarraySetView<DSGeneMarker, DSMicroarray> maView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(
 					maSet);
 			maView.setMarkerPanel(e.getPanel());
-			maView.useMarkerPanel(true);
 			if (maView.getMarkerPanel().activeSubset().size() == 0) {
 				selectedMarkerInfo = new CSItemList<DSGeneMarker>();
 			} else {

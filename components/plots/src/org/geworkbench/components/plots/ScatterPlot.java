@@ -1311,7 +1311,6 @@ public class ScatterPlot implements VisualPlugin {
 		            	}
             		}
     			}
-            	dataSetView.useMarkerPanel(true);
             	showAllMarkers = false;
                 dataSetView.setMarkerPanel(e.getPanel());
                 limitMarkers = dataSetView.getMarkerPanel().size();
@@ -1320,7 +1319,6 @@ public class ScatterPlot implements VisualPlugin {
             }
 
     		if( (e.getPanel().size() <= 0) && (limitMarkers > 0)) {
-            	dataSetView.useMarkerPanel(false);
             	showAllMarkers = true;
             	dataSetView.setMarkerPanel(null);
             	limitMarkers = 0;
@@ -1366,6 +1364,13 @@ public class ScatterPlot implements VisualPlugin {
 	            updateBothTabs();
             } 
             
+            if( ((activatedArrays != null) && (activatedArrays.size() <= 0)) && (limitArrays > 0) ) {
+            	showAllArrays = true;
+            	dataSetView.setItemPanel(null);
+            	limitArrays = 0;
+            	microarrayModel.refresh();
+            	updateBothTabs();
+            }
         }        
     }
 

@@ -221,7 +221,6 @@ public class VolcanoPlot implements VisualPlugin {
         DSMicroarraySetView<DSGeneMarker, DSMicroarray> dataSetView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(set);
         dataSetView.getMarkerPanel().panels().add(significantGenes);
         dataSetView.setItemPanel(itemPanel);
-        dataSetView.useMarkerPanel(true);
         log.debug("Generating graph.");
         generateChartAndDisplay(dataSetView);
     }

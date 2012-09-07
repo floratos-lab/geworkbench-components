@@ -1206,7 +1206,6 @@ public class AnnotationsPanel2 implements VisualPlugin{
 			DSPanel<DSGeneMarker> markerPanel = e.getPanel().activeSubset();
             DSMicroarraySetView<DSGeneMarker, DSMicroarray> maView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(maSet);
             maView.setMarkerPanel(markerPanel);
-            maView.useMarkerPanel(true);
             if (maView.getMarkerPanel().activeSubset().size() == 0) {
                 selectedMarkerInfo = new CSItemList<DSGeneMarker>();
             } else {

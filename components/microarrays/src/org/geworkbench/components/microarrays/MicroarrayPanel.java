@@ -79,7 +79,6 @@ public class MicroarrayPanel implements
     private final void changeMicroArraySet(DSMicroarraySet maSet) {
 		mArraySet = maSet;
         dataSetView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(maSet);
-		dataSetView.useMarkerPanel(true);
 
 		microarrayImageArea.setMicroarraySetView(dataSetView);
 		
@@ -143,7 +142,6 @@ public class MicroarrayPanel implements
 	public MicroarrayPanel() {
 		dataSetView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(null);
 		microarrayImageArea = new MicroarrayDisplay(dataSetView);
-		dataSetView.useMarkerPanel(true);
 		try {
 			jbInit();
 		} catch (Exception e) {
