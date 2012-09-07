@@ -17,10 +17,7 @@ import javax.swing.SwingUtilities;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
-import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
-import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.ProjectSelection;
@@ -159,11 +156,6 @@ public class MindyVisualComponent implements VisualPlugin, java.util.Observer {
 			mindyPlugin = new MindyPlugin(mindyData, this);
 			mindyPlugin.populateTableTab();
 			mindyPlugin.populateModulatorModel();
-
-			// Incorporate selections from marker set selection panel
-			DSMicroarraySetView<DSGeneMarker, DSMicroarray> maView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(
-					dataSet.getData().getArraySet());
-			maView.useMarkerPanel(true);
 
 			// Register the mindy plugin with our hashtable for keeping
 			// track

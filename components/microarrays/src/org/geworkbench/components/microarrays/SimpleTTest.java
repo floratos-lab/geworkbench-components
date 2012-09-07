@@ -54,7 +54,6 @@ public class SimpleTTest {
 
 		genes.addAll(data.markers());
 
-		data.useMarkerPanel(true);
 		item = data.markers();
 
 		int markers = genes.size();

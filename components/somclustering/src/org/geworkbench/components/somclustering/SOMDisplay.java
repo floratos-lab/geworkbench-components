@@ -276,9 +276,6 @@ public class SOMDisplay implements VisualPlugin, MenuListener,
 					mInfos.setActive(true);
 					arrays.setActive(true);
 					subSet.setMarkerPanel(mInfos);
-					if (mInfos.size() > 0) {
-						subSet.useMarkerPanel(true);
-					}
 
 					subSet.setItemPanel(arrays);
 

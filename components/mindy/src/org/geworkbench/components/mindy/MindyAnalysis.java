@@ -575,10 +575,10 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 		if (params.getTargetsFrom().getSelectedItem().toString()
 				.equals(MindyParamPanel.FROM_ALL)
 				|| params.getTargetGeneList() == null
-				|| params.getTargetGeneList().size() == 0)
-			maSetView.useMarkerPanel(false);
-		else
-			useMarkersFromSelector(false);
+				|| params.getTargetGeneList().size() == 0) {
+		} else {
+			useMarkersFromSelector(false); // TODO checking the meaning of this
+		}
 		return super.generateHistoryForMaSetView(maSetView,
 				useMarkersFromSelector());
 	}
