@@ -76,11 +76,9 @@ public class PatternDiscoveryAnalysis extends AbstractAnalysis implements
 		sequenceDB = (DSSequenceSet) input;
 		
 		String selectedAlgo = patternPanel.getSelectedAlgorithmName();
-		boolean activateMarkers = false;
+
 		DSPanel<? extends DSGeneMarker> activatedMarkers = null;
 		if(sequenceDB!=null) {
-			activateMarkers = ((CSSequenceSet) sequenceDB).useMarkerPanel();
-
 			DSAnnotationContextManager manager = CSAnnotationContextManager
 					.getInstance();
 			DSAnnotationContext context = manager.getCurrentContext(sequenceDB
@@ -89,16 +87,13 @@ public class PatternDiscoveryAnalysis extends AbstractAnalysis implements
 					.getActiveItems().activeSubset();
 		}
 
-		if (activateMarkers) {
-			if (activatedMarkers != null && activatedMarkers.size() > 0) {
-				activeSequenceDB = (CSSequenceSet) ((CSSequenceSet) sequenceDB)
-						.getActiveSequenceSet(activatedMarkers);
-			} else {
-				activeSequenceDB = (CSSequenceSet) sequenceDB;
-			}
+		if (activatedMarkers != null && activatedMarkers.size() > 0) {
+			activeSequenceDB = (CSSequenceSet) ((CSSequenceSet) sequenceDB)
+					.getActiveSequenceSet(activatedMarkers);
 		} else {
 			activeSequenceDB = (CSSequenceSet) sequenceDB;
 		}
+
 		// select the algorithm to run
 		boolean exhaustive = false;
 		String algorithmName = REGULAR;
