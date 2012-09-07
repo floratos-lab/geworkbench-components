@@ -86,9 +86,7 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 		}
 		log.debug("input: " + input);
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> inputSetView = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
-		DSPanel<DSMicroarray> arraySet = null;
-		if (inputSetView.useItemPanel())
-			arraySet = inputSetView.getItemPanel();
+		DSPanel<DSMicroarray> arraySet = inputSetView.getItemPanel();
 
 		// Mindy parameter validation always returns true
 		// (the method is not overrode from AbstractAnalysis)
@@ -649,12 +647,11 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 		DSMicroarraySet mSet = null;
 		mSet = maSetView.getMicroarraySet();
 		int numMAs = mSet.size();
-		if (maSetView.useItemPanel()) {
-			// if no selection get all arrays
-			int numMAsSelect = maSetView.getItemPanel().size();
-			if (numMAsSelect != 0) {
-				numMAs = numMAsSelect;
-			}
+
+		// if no selection get all arrays
+		int numMAsSelect = maSetView.getItemPanel().size();
+		if (numMAsSelect != 0) {
+			numMAs = numMAsSelect;
 		}
 
 		if (numMAs < 4) {

@@ -187,32 +187,26 @@ public class ScatterPlot implements VisualPlugin {
             if (dataSetView.getMicroarraySet() == null) {
                 return 0;
             }
-            if(dataSetView.useItemPanel()){
-            	DSPanel<DSMicroarray> ap = dataSetView.getItemPanel();
-            	if((ap != null) && (ap.size() > 0)){
-            		return ap.size();
-            	} else {
-            		return 0;
-            	}
-            } else {
-            	return dataSetView.getMicroarraySet().size();
-            }            
+
+           	DSPanel<DSMicroarray> ap = dataSetView.getItemPanel();
+           	if((ap != null) && (ap.size() > 0)){
+           		return ap.size();
+           	} else {
+           		return 0;
+           	}
         }
 
         public Object getElementAt(int index) {
             if (dataSetView.getMicroarraySet() == null) {
                 return null;
             }
-            if(dataSetView.useItemPanel()){
-            	DSPanel<DSMicroarray> ap = dataSetView.getItemPanel();
-            	if((ap != null) && (ap.size() > 0) && (index < ap.size())){
-            		return ap.get(index).getLabel();
-            	} else {
-            		return null;
-            	}
-            } else {
-            	return dataSetView.getMicroarraySet().get(index).getLabel();
-            }
+
+           	DSPanel<DSMicroarray> ap = dataSetView.getItemPanel();
+           	if((ap != null) && (ap.size() > 0) && (index < ap.size())){
+           		return ap.get(index).getLabel();
+           	} else {
+           		return null;
+           	}
         }
 
         /**
@@ -222,11 +216,7 @@ public class ScatterPlot implements VisualPlugin {
             if (dataSetView.getMicroarraySet() == null) {
                 fireContentsChanged(this, 0, 0);
             } else {
-            	if(dataSetView.useItemPanel()){
-            		fireContentsChanged(this, 0, dataSetView.getItemPanel().size() - 1);
-            	} else {
-            		fireContentsChanged(this, 0, dataSetView.getMicroarraySet().size() - 1);
-            	}
+           		fireContentsChanged(this, 0, dataSetView.getItemPanel().size() - 1);
             }
         }
 

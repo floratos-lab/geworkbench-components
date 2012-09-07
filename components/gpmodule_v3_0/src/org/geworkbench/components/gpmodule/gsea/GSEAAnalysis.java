@@ -373,7 +373,7 @@ public class GSEAAnalysis extends GPAnalysis
                       }
                   }
 
-                  if (view.useItemPanel() && !(view.getItemPanel().size() == 0)) {
+                  if ( !(view.getItemPanel().size() == 0)) {
                       CSAnnotationContextManager manager = CSAnnotationContextManager
                               .getInstance();
                       CSAnnotationContext<DSMicroarray> context = (CSAnnotationContext<DSMicroarray>) manager

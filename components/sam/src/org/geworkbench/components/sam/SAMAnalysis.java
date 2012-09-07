@@ -96,17 +96,17 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
  		this.stopAlgorithm = true;
 	}
  	
+	@SuppressWarnings("unchecked")
 	@Override
 	public AlgorithmExecutionResults execute(Object input) {
 		
 		if (input == null || !(input instanceof DSMicroarraySetView)) {
+			log.error("Invalid input type");
 			return new AlgorithmExecutionResults(false, "Invalid input.", null);
 		}
 		
 		
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> data = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
-		boolean allArrays = !data.useItemPanel();
-		log.info("All arrays: " + allArrays);
 
 		numGenes = data.markers().size();
 		numExps = data.items().size();
@@ -190,12 +190,9 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 		for (int i = 0; i < numExps; i++) {
 			DSMicroarray ma = data.items().get(i);
 			String[] labels = context.getLabelsForItem(ma);
-			if ((labels.length == 0) && allArrays) {
-				groupAssignments[i] = GROUP_CONTROL;
-				numControl++;
-			}
+
 			for (String label : labels) {
-				if (context.isLabelActive(label) || allArrays) {
+				if (context.isLabelActive(label) ) {
 					String v = context.getClassForLabel(label);
 					if (v.equals(CSAnnotationContext.CLASS_CASE)) {
 						groupAssignments[i] = GROUP_CASE;
@@ -246,7 +243,7 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 		groupAndChipsString += "\t case group(s): \n";
 		for (int i = 0; i < classLabels.length; i++) {
 			String label = classLabels[i];
-			if (context.isLabelActive(label) || !data.useItemPanel()) {
+			if (context.isLabelActive(label) ) {
 				caseSet.add(label);
 				groupAndChipsString += GenerateGroupAndChipsString(context
 						.getItemsWithLabel(label));
@@ -258,7 +255,7 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 		groupAndChipsString += "\t control group(s): \n";
 		for (int i = 0; i < classLabels.length; i++) {
 			String label = classLabels[i];
-			if (context.isLabelActive(label) || !data.useItemPanel()) {
+			if (context.isLabelActive(label) ) {
 				controlSet.add(label);
 				groupAndChipsString += GenerateGroupAndChipsString(context
 						.getItemsWithLabel(label));
@@ -460,6 +457,7 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 			rowTotal++;
 			line=br.readLine();	
 		}
+		br.close();
 		rowTotal--; // skip the header line
 		float[] out=new float[rowTotal];
 		
@@ -481,6 +479,7 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 			line=br.readLine();
 			i++;			
 		}
+		br.close();
 		
 		return out;
 	}	
@@ -569,7 +568,6 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 		SAMPanel paramPanel = (SAMPanel) aspp;
 		
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> view = maSetView;
-		boolean allArrays = !view.useItemPanel();
 		
 		numGenes = view.markers().size();
 		numExps = view.items().size();
@@ -593,12 +591,9 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 		for (int i = 0; i < numExps; i++) {
 			DSMicroarray ma = view.items().get(i);
 			String[] labels = context.getLabelsForItem(ma);
-			if ((labels.length == 0) && allArrays) {
-				groupAssignments[i] = GROUP_CONTROL;
-				numControl++;
-			}
+
 			for (String label : labels) {
-				if (context.isLabelActive(label) || allArrays) {
+				if (context.isLabelActive(label) ) {
 					String v = context.getClassForLabel(label);
 					if (v.equals(CSAnnotationContext.CLASS_CASE)) {
 						groupAssignments[i] = GROUP_CASE;

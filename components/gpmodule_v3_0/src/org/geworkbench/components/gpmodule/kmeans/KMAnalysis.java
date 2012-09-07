@@ -78,12 +78,11 @@ public class KMAnalysis extends GPAnalysis{
 	public AlgorithmExecutionResults execute(Object input) {
 		
 		if ( !(input instanceof DSMicroarraySetView)) {
+			log.error("Invalid input type");
 			return new AlgorithmExecutionResults(false, "Invalid input.", null);
 		}
 		
 		DSMicroarraySetView<? extends DSGeneMarker, ? extends DSMicroarray> data = (DSMicroarraySetView<? extends DSGeneMarker, ? extends DSMicroarray>) input;
-		boolean allArrays = !data.useItemPanel();
-		log.debug("All arrays: " + allArrays);
 		
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> view = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
 		
