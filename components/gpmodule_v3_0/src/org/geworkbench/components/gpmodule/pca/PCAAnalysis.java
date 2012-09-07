@@ -149,13 +149,16 @@ public class PCAAnalysis extends GPAnalysis {
 			progress.setProgress("Creating GCT File");
 			String history = generateHistoryString(view);
 
+			DSItemList<DSGeneMarker> markers = view.markers();
+			DSItemList<DSMicroarray> arrays = view.items();
 			if (((PCAAnalysisPanel) panel).getVariables().equals("genes")) {
-				view.useItemPanel(false);
-			} else
-				view.useMarkerPanel(false);
+				arrays = view.getDataSet();
+			} else {
+				markers = view.getMicroarraySet().getMarkers();
+			}
 
-			String gctFileName = createGCTFile("pcaDataset", view.markers(),
-					view.items()).getAbsolutePath();
+			String gctFileName = createGCTFile("pcaDataset", markers,
+					arrays).getAbsolutePath();
 			
 			String clusterBy = "rows";
 

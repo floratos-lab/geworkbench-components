@@ -281,9 +281,6 @@ public class SOMDisplay implements VisualPlugin, MenuListener,
 					}
 
 					subSet.setItemPanel(arrays);
-					if (arrays.size() > 0) {
-						subSet.useItemPanel(true);
-					}
 
 					plot.setChips(subSet);
 				} else {

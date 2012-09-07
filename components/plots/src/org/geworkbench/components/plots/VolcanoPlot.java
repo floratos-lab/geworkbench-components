@@ -222,7 +222,6 @@ public class VolcanoPlot implements VisualPlugin {
         dataSetView.getMarkerPanel().panels().add(significantGenes);
         dataSetView.setItemPanel(itemPanel);
         dataSetView.useMarkerPanel(true);
-        dataSetView.useItemPanel(true);
         log.debug("Generating graph.");
         generateChartAndDisplay(dataSetView);
     }
