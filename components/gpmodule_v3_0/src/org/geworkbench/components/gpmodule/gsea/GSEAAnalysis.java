@@ -342,7 +342,7 @@ public class GSEAAnalysis extends GPAnalysis
                   history += "Gene set Database: " + ((org.geworkbench.components.gpmodule.gsea.GSEAAnalysisPanel) panel).getGsDatabase()
                           + "\n";
 
-                  if (view.useMarkerPanel() && !(view.getMarkerPanel().size() == 0)) {
+                  if ( !(view.getMarkerPanel().size() == 0)) {
                       DSAnnotationContext<DSGeneMarker> context = CSAnnotationContextManager
                               .getInstance().getCurrentContext(
                                       view.getMicroarraySet().getMarkers());

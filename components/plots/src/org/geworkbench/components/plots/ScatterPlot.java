@@ -131,33 +131,26 @@ public class ScatterPlot implements VisualPlugin {
             if (dataSetView.getMicroarraySet() == null) {
                 return 0;
             }
-            if(dataSetView.useMarkerPanel()){
-            	DSPanel<DSGeneMarker> mp = dataSetView.getMarkerPanel();
-            	if((mp != null) && (mp.size() > 0)) {      
-                	return mp.size();
-            	} else {
-            		return 0;
-            	}
-            } else {
-            	return dataSetView.getMicroarraySet().getMarkers().size();
-            }
-            
+
+			DSPanel<DSGeneMarker> mp = dataSetView.getMarkerPanel();
+			if ((mp != null) && (mp.size() > 0)) {
+				return mp.size();
+			} else {
+				return 0;
+			}
         }
 
         public Object getElementAt(int index) {
             if (dataSetView.getMicroarraySet() == null) {
                 return null;
             }
-            if(dataSetView.useMarkerPanel()){
-            	DSPanel<DSGeneMarker> mp = dataSetView.getMarkerPanel();
-            	if((mp != null) && (mp.size() > 0) && (index < mp.size())) {      
-                	return mp.get(index);
-            	} else {
-            		return null;
-            	}
-            } else {
-            	return dataSetView.getMicroarraySet().getMarkers().get(index);
-            }
+
+			DSPanel<DSGeneMarker> mp = dataSetView.getMarkerPanel();
+			if ((mp != null) && (mp.size() > 0) && (index < mp.size())) {
+				return mp.get(index);
+			} else {
+				return null;
+			}
         }
 
         /**
@@ -167,11 +160,7 @@ public class ScatterPlot implements VisualPlugin {
             if (dataSetView.getMicroarraySet() == null) {
                 fireContentsChanged(this, 0, 0);
             } else {
-            	if(dataSetView.useMarkerPanel()) {
-            		fireContentsChanged(this, 0, dataSetView.getMarkerPanel().size() - 1);
-            	} else {
-            		fireContentsChanged(this, 0, dataSetView.getMicroarraySet().getMarkers().size() - 1);
-            	}
+           		fireContentsChanged(this, 0, dataSetView.getMarkerPanel().size() - 1);
             }
         }
 
@@ -1457,7 +1446,7 @@ public class ScatterPlot implements VisualPlugin {
         ArrayList<ArrayList<RankSorter>> xyPoints = new ArrayList<ArrayList<org.geworkbench.util.pathwaydecoder.RankSorter>>();
         for (int i = 0; i < microarrayNo; i++) {
             xyValues[i] = new org.geworkbench.util.pathwaydecoder.RankSorter();
-            if (dataSetView.useMarkerPanel() && (currentXMarker != null) && (currentYMarker != null) ){
+            if ( (currentXMarker != null) && (currentYMarker != null) ){
             	xyValues[i].x = dataSetView.getMicroarraySet().getValue(currentXMarker, i);
             	xyValues[i].y = dataSetView.getMicroarraySet().getValue(currentYMarker, i);
             }else{
@@ -1575,7 +1564,7 @@ public class ScatterPlot implements VisualPlugin {
         }
         String label1 = "";
         String label2 = "";
-		if (dataSetView.useMarkerPanel() && (currentXMarker != null) && (currentYMarker != null)){
+		if ( (currentXMarker != null) && (currentYMarker != null)){
 			label1 = currentXMarker.getLabel();
 			label2 = currentYMarker.getLabel();
         }else{
