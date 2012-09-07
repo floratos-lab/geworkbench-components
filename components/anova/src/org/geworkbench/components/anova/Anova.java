@@ -100,8 +100,11 @@ public class Anova   {
 			data.addParam("correction-method", String
 					.valueOf(OneWayANOVAInitBox.MAX_T));
 		} else if (falseDiscoveryRateControl == FalseDiscoveryRateControl.number.ordinal()) {
-			data.addParam("correction-method", String
-					.valueOf(OneWayANOVAInitBox.FALSE_NUM));
+			if (falseSignificantGenesLimit > numGenes)					 
+				  data.addParam("falseNum", String.valueOf(numGenes));
+				else
+			      data.addParam("falseNum", String.valueOf((new Float(
+								falseSignificantGenesLimit)).intValue()));
 		} else if (falseDiscoveryRateControl == FalseDiscoveryRateControl.proportion.ordinal()) {
 			data.addParam("correction-method", String
 					.valueOf(OneWayANOVAInitBox.FALSE_PROP));
