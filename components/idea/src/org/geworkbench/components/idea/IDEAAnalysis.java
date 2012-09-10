@@ -347,7 +347,7 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 		IdeaResultDataSet analysisResult = new IdeaResultDataSet(maSet,
 				"IDEA Analysis Result",locResultList, gocResultList, nodeResultList, moduleResultList,pvalue);
 		String stemp = generateHistoryString()+"\n";
-		HistoryPanel.addToHistory(analysisResult, stemp+ this.generateHistoryForMaSetView(datasetView,true));
+		HistoryPanel.addToHistory(analysisResult, stemp+ this.generateHistoryForMaSetView(datasetView));
 
 		AlgorithmExecutionResults results = new AlgorithmExecutionResults(true,
 				"Idea Analysis", analysisResult);

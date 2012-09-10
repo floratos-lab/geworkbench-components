@@ -873,7 +873,7 @@ public class AnalysisPanel extends CommandBase implements
 					.generateHistoryStringForGeneralDataSet(dataset);
 		} else if (maSetView != null) {
 			history += selectedGridAnalysis.generateHistoryForMaSetView(
-					maSetView, selectedGridAnalysis.useMarkersFromSelector());
+					maSetView);
 		}
 
 		ProjectPanel.getInstance().addPendingNode(gridEpr,

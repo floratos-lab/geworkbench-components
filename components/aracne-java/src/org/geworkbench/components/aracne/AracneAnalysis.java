@@ -180,7 +180,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 							.getMicroarraySet());
 			StringBuilder paramDescB = new StringBuilder(
 					"Generated with ARACNE run with data:\n");
-			paramDescB.append(this.generateHistoryForMaSetView(mSetView, this.useMarkersFromSelector()));
+			paramDescB.append(this.generateHistoryForMaSetView(mSetView));
 			String s=prune?"yes":"no";
 			HistoryPanel.addToHistory(dataSet,
 					"Generated with ARACNE run with paramters:\n"
