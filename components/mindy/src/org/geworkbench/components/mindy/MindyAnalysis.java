@@ -219,8 +219,7 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 		progressBar.setMessage("Running MINDY Algorithm");
 
 		String history = params.getDataSetHistory()
-				+ generateHistoryForMaSetView(inputSetView,
-						useMarkersFromSelector());
+				+ generateHistoryForMaSetView(inputSetView);
 
 		log.debug("Running MINDY algorithm...");
 		cancelled = false;
@@ -559,28 +558,6 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 	@Override
 	public String getAnalysisName() {
 		return analysisName;
-	}
-
-	/**
-	 * 
-	 * @param maSetView
-	 * @return
-	 */
-	@Override
-	public String generateHistoryForMaSetView(
-			DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView,
-			boolean useMarkersFromSelector) {
-		useMarkersFromSelector(true);
-		MindyParamPanel params = (MindyParamPanel) aspp;
-		if (params.getTargetsFrom().getSelectedItem().toString()
-				.equals(MindyParamPanel.FROM_ALL)
-				|| params.getTargetGeneList() == null
-				|| params.getTargetGeneList().size() == 0) {
-		} else {
-			useMarkersFromSelector(false); // TODO checking the meaning of this
-		}
-		return super.generateHistoryForMaSetView(maSetView,
-				useMarkersFromSelector());
 	}
 
 	@Override

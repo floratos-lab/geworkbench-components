@@ -492,7 +492,7 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
 			   histStr .append( "[PARA] Multiple Testing Correction: No correction\n");			
 		histStr .append( "[PARA] Master Regulators: " + mraAnalysisPanel.getTranscriptionFactor() ).append("\n");
 		histStr .append( "[PARA] Signature Markers: " + mraAnalysisPanel.getSigMarkers() ).append("\n\n\n");
-		histStr.append(generateHistoryForMaSetView(view, useMarkersFromSelector()));
+		histStr.append(generateHistoryForMaSetView(view));
 		
 		return histStr.toString();
 	}
