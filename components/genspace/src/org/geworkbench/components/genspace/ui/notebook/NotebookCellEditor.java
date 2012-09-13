@@ -1,19 +1,12 @@
 package org.geworkbench.components.genspace.ui.notebook;
 
 import java.awt.BorderLayout;
-import java.awt.Button;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.font.FontRenderContext;
-import java.awt.font.LineBreakMeasurer;
-import java.text.AttributedCharacterIterator;
-import java.text.AttributedString;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.EventObject;
@@ -23,7 +16,6 @@ import javax.swing.AbstractCellEditor;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -43,6 +35,9 @@ import org.geworkbench.components.genspace.server.stubs.AnalysisEventParameter;
 
 
 public class NotebookCellEditor extends AbstractCellEditor implements TableCellEditor, ActionListener {
+
+	private static final long serialVersionUID = -8030893125935988646L;
+	
 	JPanel secondPanel;
 	JPanel panel;
 	JPanel buttonPanel;
