@@ -13,13 +13,10 @@ import java.awt.font.FontRenderContext;
 import java.awt.font.LineBreakMeasurer;
 import java.text.AttributedCharacterIterator;
 import java.text.AttributedString;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -36,6 +33,9 @@ import org.geworkbench.components.genspace.server.stubs.Tool;
 import org.geworkbench.components.genspace.ui.UpdateablePanel;
 
 public class NotebookPanel extends JPanel implements ActionListener, UpdateablePanel {
+	
+	private static final long serialVersionUID = 4604438849449980438L;
+	
 	public TableCellRenderer MyCellRenderer = new NotebookCellRenderer();
 	public TableCellEditor MyCellEditor;
 
@@ -145,7 +145,7 @@ public class NotebookPanel extends JPanel implements ActionListener, UpdateableP
 		JButton searchButton = new JButton("Search");
 		searchButton.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent event) {
-				ItemSelectable searchName = (ItemSelectable) event.getSource();
+				//ItemSelectable searchName = (ItemSelectable) event.getSource();
 				String query = searchBox.getText();
 				setSearchTerm(query);
 				List<AnalysisEvent> searchQueryList = GenSpaceServerFactory.getPrivUsageFacade().getMyNotes(searchTerm, sortByMethod); // same
@@ -163,7 +163,7 @@ public class NotebookPanel extends JPanel implements ActionListener, UpdateableP
 		searchPanel.add(searchLabel, BorderLayout.NORTH);
 		searchPanel.add(searchBox, BorderLayout.CENTER);
 		searchPanel.add(searchButton, BorderLayout.EAST);
-		SimpleDateFormat format = new SimpleDateFormat("F/M/yy h:mm a");
+		//SimpleDateFormat format = new SimpleDateFormat("F/M/yy h:mm a");
 		noteList.setSize(800, 600);
 		noteList.getColumnModel().getColumn(0).setCellRenderer(MyCellRenderer);
 		noteList.getColumnModel().getColumn(0).setCellEditor(new NotebookCellEditor(noteList));
