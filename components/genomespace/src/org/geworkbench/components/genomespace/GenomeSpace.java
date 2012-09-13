@@ -68,7 +68,7 @@ import org.geworkbench.util.ProgressTask;
  * $Id$
  */
 public class GenomeSpace implements VisualPlugin {
-	private static final long serialVersionUID = 5650211312752970371L;
+
 	private static Log log = LogFactory.getLog(GenomeSpace.class);
 	private JButton loginbutton = new JButton("Login");
 	private static ProjectTreeNode genomeRoot = new ProjectTreeNode("GenomeSpace");
