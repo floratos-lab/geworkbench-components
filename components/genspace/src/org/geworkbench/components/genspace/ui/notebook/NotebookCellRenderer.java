@@ -1,7 +1,7 @@
 package org.geworkbench.components.genspace.ui.notebook;
-import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Font;
 import java.awt.font.FontRenderContext;
 import java.awt.font.LineBreakMeasurer;
 import java.text.AttributedCharacterIterator;
@@ -9,8 +9,12 @@ import java.text.AttributedString;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import javax.swing.*;
-import javax.swing.border.BevelBorder;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 import javax.xml.bind.DatatypeConverter;
@@ -19,15 +23,6 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import org.geworkbench.components.genspace.server.stubs.AnalysisEvent;
 
 public class NotebookCellRenderer implements TableCellRenderer{
-
-
-	private int rows;
-	private int lines;
-
-	public void getRows(int rows)
-	{
-		this.rows = rows;
-	}
 
 	private Date convertToDate(XMLGregorianCalendar cal) {
 		return DatatypeConverter.parseDateTime(cal.toXMLFormat()).getTime();
@@ -70,7 +65,7 @@ public class NotebookCellRenderer implements TableCellRenderer{
 
 	public void setLines(int lines)
 	{
-		this.lines = lines;
+//		this.lines = lines;
 	}
 
 	public static int countLines(JTextArea textArea) {
