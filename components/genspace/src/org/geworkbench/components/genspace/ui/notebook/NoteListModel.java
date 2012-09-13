@@ -1,8 +1,6 @@
 package org.geworkbench.components.genspace.ui.notebook;
 import java.util.List;
 
-import javax.swing.ListModel;
-import javax.swing.event.ListDataListener;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
@@ -12,6 +10,8 @@ import org.geworkbench.components.genspace.server.stubs.AnalysisEvent;
 
 public class NoteListModel extends AbstractTableModel implements TableModel{
 
+	private static final long serialVersionUID = 4162759562607434407L;
+	
 	private List <AnalysisEvent>myList;
 
 	
