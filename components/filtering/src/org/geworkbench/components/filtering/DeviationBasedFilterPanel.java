@@ -1,7 +1,6 @@
 package org.geworkbench.components.filtering;
 
 import java.awt.Dimension;
-import java.awt.GridLayout;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;

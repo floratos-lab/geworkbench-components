@@ -1,7 +1,6 @@
 package org.geworkbench.components.filtering;
 
 import java.awt.Dimension;
-import java.awt.GridLayout;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -10,9 +9,9 @@ import java.util.Set;
 
 import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
-import javax.swing.JTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

@@ -64,7 +64,6 @@ public class CELImageViewerComponent extends JPanel implements VisualPlugin {
 		return this;
 	}
 
-	@SuppressWarnings("unchecked")	// event.getDataSet();
 	@Subscribe
 	public void receive(ProjectEvent event, Object source) {
 		DSDataSet<? extends DSBioObject> dataSet = event.getDataSet();
