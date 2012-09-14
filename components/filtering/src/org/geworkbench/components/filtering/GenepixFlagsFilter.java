@@ -17,6 +17,7 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
 import org.geworkbench.bison.model.analysis.FilteringAnalysis;
 import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.events.ProjectEvent;
 
 /**
  * <p>Copyright: Copyright (c) 2005</p>
@@ -82,7 +83,7 @@ public class GenepixFlagsFilter extends FilteringAnalysis {
         Set<String> flagSet = new TreeSet<String>();
         int unflaggedProbeNum = 0;
         flagsProbeNum.clear();
-        if (e.getMessage().equals(org.geworkbench.events.ProjectEvent.CLEARED)) {
+        if (e.getValue()==ProjectEvent.Message.CLEAR) {
             ((GenepixFlagsFilterPanel) aspp).setFlagInfoPanel();
         } else {
             DSDataSet<?> dataSet = e.getDataSet();

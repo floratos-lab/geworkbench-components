@@ -47,6 +47,7 @@ import javax.swing.ListModel;
 import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
 import org.geworkbench.bison.annotation.CSAnnotationContext;
@@ -60,6 +61,9 @@ import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.datastructure.properties.DSSequential;
+import org.geworkbench.builtin.projects.DataSetNode;
+import org.geworkbench.builtin.projects.DataSetSubNode;
+import org.geworkbench.builtin.projects.ProjectTreeNode;
 import org.geworkbench.engine.config.MenuListener;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.Asynchronous;
@@ -953,7 +957,7 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 	 */
 	@Subscribe(Asynchronous.class)
 	public void receive(ProjectEvent projectEvent, Object source) {
-		if (projectEvent.getMessage().equals(ProjectEvent.CLEARED)) {
+		if (projectEvent.getValue()==ProjectEvent.Message.CLEAR) {
 			dataSetCleared();
 		}
 		DSDataSet<?> dataSet = projectEvent.getDataSet();
@@ -964,8 +968,14 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 			dataSetCleared();
 		}
 		if (!processed) {
-			dataSet = projectEvent.getParent();
-			if (dataSet != null) {
+			TreeNode parent = null;
+			ProjectTreeNode treeNode = projectEvent.getTreeNode();
+			if (treeNode instanceof DataSetSubNode) {
+				DataSetSubNode subNode = (DataSetSubNode) treeNode;
+				parent = subNode.getParent();
+			}
+			if (parent instanceof DataSetNode) {
+				dataSet = ((DataSetNode) parent).getDataset();
 				dataSetChanged(dataSet);
 				itemAutoList.getList().clearSelection();
 			}
