@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
@@ -17,7 +16,6 @@ import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.bison.model.analysis.Analysis;
 import org.geworkbench.components.genspace.server.stubs.Transaction;
 import org.geworkbench.components.genspace.server.stubs.Workflow;
-import org.geworkbench.events.AnalysisAbortEvent;
 import org.geworkbench.events.AnalysisInvokedEvent;
 
 /**

@@ -23,17 +23,16 @@ package org.geworkbench.components.genspace;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-//import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
-//import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
-//import org.geworkbench.components.genspace.server.stubs.ProteinSequence;
-//import org.geworkbench.components.genspace.ui.SequenceAlignmentPanel;
-//import org.geworkbench.components.genspace.ui.SequenceAlignmentPanel.MSARecommenderCallback;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.AnalysisAbortEvent;
 import org.geworkbench.events.AnalysisCompleteEvent;
 import org.geworkbench.events.AnalysisInvokedEvent;
 import org.geworkbench.events.EventHandler;
-import org.geworkbench.events.ProjectEvent;
+//import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
+//import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
+//import org.geworkbench.components.genspace.server.stubs.ProteinSequence;
+//import org.geworkbench.components.genspace.ui.SequenceAlignmentPanel;
+//import org.geworkbench.components.genspace.ui.SequenceAlignmentPanel.MSARecommenderCallback;
 
 /**
  * Captures all events with an associated {@link EventHandler} defined.
