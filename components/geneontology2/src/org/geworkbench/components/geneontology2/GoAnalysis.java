@@ -33,6 +33,7 @@ import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.GoAnalysisResult;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
+import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
@@ -120,6 +121,7 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 			String[] changedGenesArray = parameterPanel.getChangedGeneList();
 			if (changedGenesArray == null || changedGenesArray.length == 0) {
 				progressBar.dispose();
+				pw.close();
 				return new AlgorithmExecutionResults(false,
 						"Study set is empty.", null);
 			}
@@ -327,10 +329,9 @@ public class GoAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 
 	
 	/* this is needed to catch the current dataset and consequently the loaded annotation */
-	@SuppressWarnings("unchecked")
 	@Subscribe
 	public void receive(ProjectEvent e, Object source) {
-		DSDataSet<? extends DSMicroarray> dataset = e.getDataSet();
+		DSDataSet<? extends DSBioObject> dataset = e.getDataSet();
 		if ((dataset != null) && (dataset instanceof CSMicroarraySet)) {
 			CSMicroarraySet d =(CSMicroarraySet)dataset;
 			parameterPanel.setDataset(d);
