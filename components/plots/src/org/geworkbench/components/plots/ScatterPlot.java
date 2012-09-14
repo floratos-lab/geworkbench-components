@@ -56,6 +56,7 @@ import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetV
 import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.builtin.projects.ProjectPanel;
@@ -1320,7 +1321,7 @@ public class ScatterPlot implements VisualPlugin {
 
     		if( (e.getPanel().size() <= 0) && (limitMarkers > 0)) {
             	showAllMarkers = true;
-            	dataSetView.setMarkerPanel(null);
+            	dataSetView.setMarkerPanel(new CSPanel<DSGeneMarker>(""));
             	limitMarkers = 0;
             	markerModel.refresh();
             	updateBothTabs();
