@@ -25,6 +25,7 @@ import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
+import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSTTestResultSet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
@@ -190,7 +191,7 @@ public class VolcanoPlot implements VisualPlugin {
 	@SuppressWarnings("unchecked")
 	@Subscribe
 	public void receive(ProjectEvent e, Object source) {
-		DSDataSet<DSMicroarray> dataFile = e.getDataSet();
+		DSDataSet<? extends DSBioObject> dataFile = e.getDataSet();
 
 		if (dataFile instanceof CSTTestResultSet) {
 			significance = (CSTTestResultSet<DSGeneMarker>) dataFile;
