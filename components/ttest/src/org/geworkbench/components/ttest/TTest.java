@@ -86,58 +86,48 @@ public class TTest {
 		
 		switch (significanceMethod) {
 		case JUST_ALPHA:
-		case STD_BONFERRONI:
-		case ADJ_BONFERRONI:
-			try {
-				pValue = getPValue(tValue);
-			} catch (IllegalArgumentException e) {
-				e.printStackTrace();
-				throw new TTestException(e.getMessage());
-			} catch (MathException e) {
-				e.printStackTrace();
-				throw new TTestException(e.getMessage());
+			pValue = getPValue(tValue);
+			if(pValue==null) return null; // cancelled
+			for (int i = 0; i < rowCount; i++) {
+				if (pValue[i] <= alpha) {
+					significanceIndexList.add(i);
+				}
 			}
-			if(pValue==null) return null;
+			break;
+		case STD_BONFERRONI:
+			pValue = getPValue(tValue);
+			if(pValue==null) return null; // cancelled
+			for (int i = 0; i < rowCount; i++) {
+				if (pValue[i] <= alpha / rowCount) {
+					significanceIndexList.add(i);
+				}
+			}
+			break;
+		case ADJ_BONFERRONI:
+			pValue = getPValue(tValue);
+			if(pValue==null) return null; // cancelled
+			NaturalRanking ranking = new NaturalRanking(NaNStrategy.MINIMAL,
+					TiesStrategy.SEQUENTIAL);
+			double[] absoluateTValue = new double[tValue.length];
+			for (int i = 0; i < tValue.length; i++) {
+				absoluateTValue[i] = Math.abs(tValue[i]);
+			}
+			double[] ranks = ranking.rank(absoluateTValue);
+			int[] rank2Index = new int[ranks.length];
+			for (int i = 0; i < rank2Index.length; i++) {
+				rank2Index[(int) (ranks[i] - 1)] = i;
+			}
 
-			// three different ways to decide significance
-			switch (significanceMethod) {
-			case JUST_ALPHA:
-				for (int i = 0; i < rowCount; i++) {
-					if (pValue[i] <= alpha) {
-						significanceIndexList.add(i);
-					}
-				}
-				break;
-			case STD_BONFERRONI:
-				for (int i = 0; i < rowCount; i++) {
-					if (pValue[i] <= alpha / rowCount) {
-						significanceIndexList.add(i);
-					}
-				}
-				break;
-			case ADJ_BONFERRONI:
-				NaturalRanking ranking = new NaturalRanking(
-						NaNStrategy.MINIMAL, TiesStrategy.SEQUENTIAL);
-				double[] absoluateTValue = new double[tValue.length];
-				for(int i=0; i<tValue.length; i++) {
-					absoluateTValue[i] = Math.abs( tValue[i] );
-				}
-				double[] ranks = ranking.rank(absoluateTValue);
-				int[] rank2Index = new int[ranks.length];
-				for (int i = 0; i < rank2Index.length; i++) {
-					rank2Index[(int) (ranks[i] - 1)] = i;
-				}
+			int n = rowCount;
+			for (int rank = rowCount - 1; rank >= 0; rank--) {
+				int i = rank2Index[rank];
 
-				int n = rowCount;
-				for (int rank = rowCount - 1; rank >= 0; rank--) {
-					int i = rank2Index[rank];
-
-					if (pValue[i] <= alpha / n) {
-						significanceIndexList.add(i);
-					}
-					if (rank > 0 && absoluateTValue[i] > absoluateTValue[rank2Index[rank - 1]]) {
-						n--;
-					}
+				if (pValue[i] <= alpha / n) {
+					significanceIndexList.add(i);
+				}
+				if (rank > 0
+						&& absoluateTValue[i] > absoluateTValue[rank2Index[rank - 1]]) {
+					n--;
 				}
 			}
 			break;
@@ -172,7 +162,8 @@ public class TTest {
 				significanceCount, significanceIndex);
 	}
 
-	private double[] getPValue(double[] tValue) throws IllegalArgumentException, MathException {
+	// common part among three different ways to decide significance
+	private double[] getPValue(double[] tValue) throws TTestException {
 		double[] pValue = new double[rowCount];
 		for (int i = 0; i < rowCount; i++) {
 			if(cancelled) return null;
@@ -188,11 +179,20 @@ public class TTest {
 
 			} else {
 
-				if (useWelch) {
-					pValue[i] = TestUtils.tTest(caseArray[i], controlArray[i]);
-				} else {
-					pValue[i] = TestUtils.homoscedasticTTest(caseArray[i],
-							controlArray[i]);
+				try {
+					if (useWelch) {
+						pValue[i] = TestUtils.tTest(caseArray[i],
+								controlArray[i]);
+					} else {
+						pValue[i] = TestUtils.homoscedasticTTest(caseArray[i],
+								controlArray[i]);
+					}
+				} catch (IllegalArgumentException e) {
+					e.printStackTrace();
+					throw new TTestException(e.getMessage());
+				} catch (MathException e) {
+					e.printStackTrace();
+					throw new TTestException(e.getMessage());
 				}
 			}
 		}
