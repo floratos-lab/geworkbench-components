@@ -67,14 +67,19 @@ public class AlgorithmMatcher {
 		}
 
     	List<DatabaseInfo> proteinList = new ArrayList<DatabaseInfo>();  
-    	List<DatabaseInfo> nucleotideList = new ArrayList<DatabaseInfo>();  
-    	for(DatabaseInfo d: databaseList) {
-    		if(d.getType().equals("protein"))proteinList.add(d);
-    		else if(d.getType().equals("nucleotide"))nucleotideList.add(d);
-    		else {
-    			log.error("wrong type "+d.getType()+" "+d.abbreviation);
-    		}
-    	}
+    	List<DatabaseInfo> nucleotideList = new ArrayList<DatabaseInfo>();
+		if (databaseList != null) {
+			for (DatabaseInfo d : databaseList) {
+				if (d.getType().equals("protein"))
+					proteinList.add(d);
+				else if (d.getType().equals("nucleotide"))
+					nucleotideList.add(d);
+				else {
+					log.error("wrong type " + d.getType() + " "
+							+ d.abbreviation);
+				}
+			}
+		}
     	proteinDBdescriptionArray  = new String[proteinList.size()][2];
     	int i = 0;
 		for(DatabaseInfo d: proteinList) {
@@ -527,7 +532,7 @@ public class AlgorithmMatcher {
                 if (ps.isExcludeUncultureOn()){
                 	cmd += "&EXCLUDE_SEQ_UNCULT=yes";
                 }
-                if (!(ps.getEntrezQuery()==null)||(ps.getEntrezQuery().trim()!="")){
+                if (!(ps.getEntrezQuery()==null)||(ps.getEntrezQuery().trim().length()!=0)){
                 	String entrezQuery = ps.getEntrezQuery();
                 	try {
                 		entrezQuery = URLEncoder.encode(entrezQuery, "UTF-8");
@@ -536,10 +541,10 @@ public class AlgorithmMatcher {
         		    }                 	
                 	cmd += "&EQ_TEXT="+entrezQuery;
                 }
-                if (!(ps.getFromQuery()==null)||(ps.getFromQuery().trim()!="")){
+                if (!(ps.getFromQuery()==null)||(ps.getFromQuery().trim().length()!=0)){
                 	cmd += "&QUERY_FROM="+ps.getFromQuery();
                 }
-                if (!(ps.getToQuery()==null)||(ps.getToQuery().trim()!="")){
+                if (!(ps.getToQuery()==null)||(ps.getToQuery().trim().length()!=0)){
                 	cmd += "&QUERY_TO="+ps.getToQuery();
                 }
                 

@@ -247,10 +247,11 @@ public class RemoteBlast {
 				BufferedReader in = new BufferedReader(new InputStreamReader(
 						stream));
 				String line = in.readLine();
-				StringBuilder sb = new StringBuilder(line);
-				while ((line = in.readLine()) != null) {
+				StringBuilder sb = new StringBuilder();
+				while (line != null) {
 					line = updateImageLink(line);
 					sb.append(line).append(System.getProperty("line.separator"));
+					line = in.readLine();
 				}
 				stream.close();
 				

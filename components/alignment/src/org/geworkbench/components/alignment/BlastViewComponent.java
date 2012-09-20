@@ -623,6 +623,7 @@ public class BlastViewComponent implements VisualPlugin {
 
 							if (progressMonitor.isCanceled()) {
 								empty = true;
+								out.close();
 								return null;
 							}
 							if (hit.getInclude()) {
