@@ -184,13 +184,13 @@ public class NCBIBlastParser {
 					line = br.readLine();
 				}
 
-				if (line.startsWith(ALU_DETAIL_LEADING)) {
+				if (line!=null && line.startsWith(ALU_DETAIL_LEADING)) {
 					line = line.substring(ALU_DETAIL_LEADING.length()-1);
 				}
 
 				/* parsing detailed alignments Each has <PRE></PRE> */
-				while (line != null && line.trim().startsWith(">")
-						|| line.trim().startsWith("Database")) {
+				while (line != null && (line.trim().startsWith(">")
+						|| line.trim().startsWith("Database")) ) {
 
 					if (line.trim().startsWith("Database")) {
 						endofResult = true;
@@ -198,10 +198,12 @@ public class NCBIBlastParser {
 					}
 
 					StringBuffer detaillines = new StringBuffer("<PRE>").append(line);
-					line = br.readLine().trim();
+					line = br.readLine();
 
+					if(line!=null) line = line.trim();
+					
 					boolean additionalDetail = false;
-					if (line.trim().startsWith("Score")) {
+					if (line!=null && line.trim().startsWith("Score")) {
 						index--;
 						additionalDetail = true;
 
@@ -212,7 +214,7 @@ public class NCBIBlastParser {
 					boolean getStartPoint = true;
 					StringBuffer subject = new StringBuffer();
 					int endPoint = 0;
-					while (!(line.trim().startsWith(">"))) {
+					while (line!=null && !(line.trim().startsWith(">"))) {
 
 						if (line.startsWith("</form>")) {
 							// end of the useful information for one blast.
@@ -264,8 +266,10 @@ public class NCBIBlastParser {
 						}
 
 						String s = br.readLine();
-						line = s.trim();
-						if (!line.startsWith(">")) {
+						if (s != null) {
+							line = s.trim();
+						}
+						if (s != null && !line.startsWith(">")) {
 							detaillines.append(s).append(NEWLINESIGN);
 						}
 					}
@@ -294,6 +298,7 @@ public class NCBIBlastParser {
 				blastDataset.add(hits);
 				count++;
 			} while (count < totalSequenceNum);
+			br.close();
 			return blastDataset;
 		} catch (FileNotFoundException e) {
 			log.error("file "+filename+"not found.");
