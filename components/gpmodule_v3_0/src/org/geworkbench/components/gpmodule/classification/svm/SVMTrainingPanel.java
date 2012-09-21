@@ -39,6 +39,7 @@ public class SVMTrainingPanel extends GPTrainingPanel
     public SVMTrainingPanel(SVMTraining svmTraining)
     {
         super(svmTraining.getLabel());
+        this.hasParametersToSave(false);
         // svmTraining is ignored
     }
 
