@@ -245,6 +245,7 @@ public class AnalysisPanel extends CommandBase implements
 		analysisMainPanel.add(jAnalysisTabbedPane);
 
 		mainPanel.add(analysisScrollPane, BorderLayout.CENTER);
+		
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -432,13 +433,15 @@ public class AnalysisPanel extends CommandBase implements
 	private void setParametersPanel(ParameterPanel parameterPanel) {
 		this.parameterPanel.remove(currentParameterPanel);
 		currentParameterPanel = parameterPanel;
-		this.parameterPanel.add(currentParameterPanel, BorderLayout.CENTER);
+		this.parameterPanel.add(currentParameterPanel, BorderLayout.CENTER);	
 		mainPanel.revalidate();
 
 		if (currentParameterPanel instanceof AbstractSaveableParameterPanel)
 			((AbstractSaveableParameterPanel) currentParameterPanel)
 					.setParameterHighlightCallback(new HighlightCurrentParameterThread(
 							this));
+
+	
 	}
 
 	/**
@@ -608,7 +611,7 @@ public class AnalysisPanel extends CommandBase implements
 		delete.setEnabled(false);
 
 		selectedAnalysis = getCommandByName(commandName);
-
+		
 		/* Set the parameters panel for the selected analysis. */
 		ParameterPanel paramPanel = selectedAnalysis.getParameterPanel();
 		if (paramPanel != null) {
@@ -630,7 +633,14 @@ public class AnalysisPanel extends CommandBase implements
 				}
 			}
 
-			save.setEnabled(true);
+
+			if (paramPanel.hasParametersToSave())
+				save.setEnabled(true);
+			else			 
+				save.setEnabled(false);			 
+			 
+			
+			
 		} else {
 			setParametersPanel(new ParameterPanel()); // just a place holder
 			save.setEnabled(false);
