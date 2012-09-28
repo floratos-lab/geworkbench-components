@@ -43,12 +43,16 @@ public class FilterOptionPanel extends JPanel {
 	public static int arrayNumber = 0;
 
 	FilterOptionPanel() {
+		this("matching");
+	}
+	
+	FilterOptionPanel(String matching) {
 		super(new GridBagLayout());
 
 		percentRemovalButton = new JRadioButton(
-				"Remove markers for which the percentage of matching arrays is greater than");
+				"Remove markers for which the percentage of "+matching+" arrays is greater than");
 		numberRemovalButton = new JRadioButton(
-				"Remove markers for which the number of matching arrays is greater than");
+				"Remove markers for which the number of "+matching+" arrays is greater than");
 
 		percentField = new JTextField();
 		percentField.setText("40");
