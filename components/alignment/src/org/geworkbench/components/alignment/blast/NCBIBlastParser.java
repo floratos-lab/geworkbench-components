@@ -28,7 +28,7 @@ import org.geworkbench.bison.datastructure.bioobjects.sequence.BlastObj;
  * BlastObj objects.
  */
 public class NCBIBlastParser {
-	Log log = LogFactory.getLog(NCBIBlastParser.class);
+	static Log log = LogFactory.getLog(NCBIBlastParser.class);
 
 	private int totalSequenceNum = 0;
 	private String filename;
@@ -88,7 +88,7 @@ public class NCBIBlastParser {
 				while (line != null) {
 
 					if (line
-							.startsWith("Sequences producing significant alignments:")) {
+							.startsWith("<caption>Sequences producing significant alignments:</caption>")) {
 						hitsFound = true;
 						break;
 					}
@@ -106,9 +106,12 @@ public class NCBIBlastParser {
 
 				/* parsing section of the blast Hit info text */
 				line = br.readLine();
+				while(!line.equals("</thead>")) { // skip table header
+					line = br.readLine();
+				}
 				line = br.readLine();
 				int hitCount = 0;
-				while (line != null && !line.trim().startsWith("</pre>")) {
+				while (line != null && !line.trim().startsWith("</tbody>")) {
 					hitCount++;
 					totalHitCount++;
 					if (hitCount > HIT_NUMBER_LIMIT) {
@@ -124,41 +127,44 @@ public class NCBIBlastParser {
 						firstUrl = m.group(1);
 					}
 
-					String id = null;
 					String name = null;
 					String description = null;
 					String score = null;
 					String evalue = null;
-					
-					String[] tagSeparated = line.split("\\<(/?[^\\>]+)\\>"); // separated by HTML tag
-					if(tagSeparated.length==5) { // for most databases
-						String[] fields = tagSeparated[1].split("\\|");
-						id = fields[0];
-						name = fields[1]; // next field is fact the second of the name, ignored in the previous/current behavior
-						description = tagSeparated[2].trim();
-						score = tagSeparated[3].trim();
-						evalue = tagSeparated[4].trim();
+
+					line = readTR(br);
+					String[] tagSeparated = getTD(line);
+					final int NUMBER_FIELDS = 8;;
+					//String[] tagSeparated = line.split("\\<(/?[^\\>]+)\\>"); // separated by HTML tag
+					if(tagSeparated.length==NUMBER_FIELDS) { // for most databases
+						name = tagSeparated[0];
+						description = tagSeparated[1].trim();
+						score = tagSeparated[3].trim(); // FIXME total core, or max score tagSeparated[2], where is this used? 
+						evalue = tagSeparated[5].trim();
 						String[] tokens=evalue.split("\\s");
 						evalue=tokens[0];
 					} else if(tagSeparated.length==3) { // for database alu (without HTML links)
+						// FIXME this case is not fixed yet
 						String[] fields = tagSeparated[0].split("\\|");
-						id = fields[0];
+						//id = fields[0];
 						int firstSpace = fields[2].indexOf(" ");
 						name = fields[1]+":"+fields[2].substring(0, firstSpace);
 						description = fields[2].trim().substring(firstSpace);
 						score = tagSeparated[1].trim();
 						evalue = tagSeparated[2].trim();
+					} else if(tagSeparated.length==0) { // after reading all <tr>....</tr>
+						continue;
 					} else {
 						log.error("unexcepted HTML tag count " + tagSeparated.length);
 						line = br.readLine();
 						continue;
 					}
 
-					each = new BlastObj(true, id, name, description, score,
+					each = new BlastObj(true, null, name, description, score,
 							evalue); // create new BlastObj for hit
 
 					try {
-						each.setInfoURL(new URL(firstUrl));
+						each.setInfoURL(new URL(firstUrl)); // FIXME this field may not be used for anything
 						String s = firstUrl.replaceAll("GenPept", "fasta");
 						s = s.replaceAll("GenBank", "fasta");
 						each.setSeqURL(new URL(s));
@@ -168,7 +174,7 @@ public class NCBIBlastParser {
 
 					hits.add(each);
 
-					line = br.readLine();
+					//line = br.readLine();
 				} // end of processing summary.
 
 				index = 0;
@@ -197,6 +203,7 @@ public class NCBIBlastParser {
 						break;
 					}
 
+					String dbId = getDbId(line);
 					StringBuffer detaillines = new StringBuffer("<PRE>").append(line);
 					line = br.readLine();
 
@@ -210,6 +217,7 @@ public class NCBIBlastParser {
 					}
 					// get BlastObj hit for which alignment is for
 					each = hits.get(index);
+					each.setDatabaseID( dbId );
 					// skip the beginning description
 					boolean getStartPoint = true;
 					StringBuffer subject = new StringBuffer();
@@ -308,6 +316,62 @@ public class NCBIBlastParser {
 			return null;
 		}
 
+	}
+
+	static private String getDbId(String line) {
+		// (1) first URL (2) anchor text
+		Pattern p = Pattern
+				.compile(".+?\\<a\\s.+?href=\"(http:.+?)\"\\s\\>(.+?)\\</a\\>.+?");
+		Matcher m = p.matcher(line);
+		if (m.matches()) {
+			String id = m.group(2);
+			return id.split("\\|")[0];
+		} else {
+			log.error("no anchor matched: " + line);
+			return null;
+		}
+	}
+
+	static private String[] getTD(String line) {
+		if (line == null)
+			return new String[0];
+		int index1 = line.toLowerCase().indexOf("<td");
+		int index2 = line.toLowerCase().lastIndexOf("</td>");
+		if (index1 < 0) {
+			return new String[0];
+		} else if (index2 >= 0) {
+			line = line.substring(index1, index2);
+		} else {
+			line = line.substring(index1);
+		}
+		// separated by </td><td...>
+		String[] td = line.split("\\</[tT][dD]>\\s*<[tT][dD][^\\>]*>"); 
+		for (int i = 0; i < td.length; i++) {
+			td[i] = td[i].replaceAll("\\<(/?[^\\>]+)\\>", ""); // remove all HTML tag
+		}
+		return td;
+	}
+
+	// assume the <tr> tag has been read, meaning it is already after <tr>
+	static private String readTR(BufferedReader br) {
+		final String END_TAG = "</form><!-- this is the end tag for the <form in blastcgi templates -->";
+
+		try {
+			String line = br.readLine();
+			StringBuffer sb = new StringBuffer();
+			while (line != null && !line.toLowerCase().contains("</tr>") && !line.startsWith(END_TAG) ) {
+				sb.append(line);
+				line = br.readLine();
+			}
+			if (line != null && line.toLowerCase().contains("</tr>")) {
+				sb.append(line
+						.substring(0, line.toLowerCase().indexOf("</tr>")));
+			}
+			return sb.toString();
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	/**
