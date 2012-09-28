@@ -134,9 +134,9 @@ public class NCBIBlastParser {
 
 					line = readTR(br);
 					String[] tagSeparated = getTD(line);
-					final int NUMBER_FIELDS = 8;;
+					final int NUMBER_FIELDS = 7; // the number of fields could be 8 if there is an optional last column, the 'Links' icons
 					//String[] tagSeparated = line.split("\\<(/?[^\\>]+)\\>"); // separated by HTML tag
-					if(tagSeparated.length==NUMBER_FIELDS) { // for most databases
+					if(tagSeparated.length>=NUMBER_FIELDS) { // for most databases
 						name = tagSeparated[0];
 						description = tagSeparated[1].trim();
 						score = tagSeparated[3].trim(); // FIXME total core, or max score tagSeparated[2], where is this used? 
