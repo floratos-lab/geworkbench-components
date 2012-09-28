@@ -42,7 +42,7 @@ public class MissingValuesFilterPanel extends AbstractSaveableParameterPanel {
 
     }
 
-    private FilterOptionPanel filterOptionPanel = new FilterOptionPanel();
+    private FilterOptionPanel filterOptionPanel = new FilterOptionPanel("missing");
 
     private void jbInit() throws Exception {
         JPanel container = new JPanel();
