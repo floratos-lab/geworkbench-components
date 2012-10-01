@@ -10,7 +10,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
@@ -129,29 +128,17 @@ public class NCBIBlastParser {
 
 					String name = null;
 					String description = null;
-					String score = null;
 					String evalue = null;
 
 					line = readTR(br);
 					String[] tagSeparated = getTD(line);
 					final int NUMBER_FIELDS = 7; // the number of fields could be 8 if there is an optional last column, the 'Links' icons
-					//String[] tagSeparated = line.split("\\<(/?[^\\>]+)\\>"); // separated by HTML tag
 					if(tagSeparated.length>=NUMBER_FIELDS) { // for most databases
 						name = tagSeparated[0];
 						description = tagSeparated[1].trim();
-						score = tagSeparated[3].trim(); // FIXME total core, or max score tagSeparated[2], where is this used? 
 						evalue = tagSeparated[5].trim();
 						String[] tokens=evalue.split("\\s");
 						evalue=tokens[0];
-					} else if(tagSeparated.length==3) { // for database alu (without HTML links)
-						// FIXME this case is not fixed yet
-						String[] fields = tagSeparated[0].split("\\|");
-						//id = fields[0];
-						int firstSpace = fields[2].indexOf(" ");
-						name = fields[1]+":"+fields[2].substring(0, firstSpace);
-						description = fields[2].trim().substring(firstSpace);
-						score = tagSeparated[1].trim();
-						evalue = tagSeparated[2].trim();
 					} else if(tagSeparated.length==0) { // after reading all <tr>....</tr>
 						continue;
 					} else {
@@ -160,38 +147,27 @@ public class NCBIBlastParser {
 						continue;
 					}
 
-					each = new BlastObj(true, null, name, description, score,
-							evalue); // create new BlastObj for hit
+					each = new BlastObj(true, null, name, description, evalue);
 
-					try {
-						each.setInfoURL(new URL(firstUrl)); // FIXME this field may not be used for anything
+					if(firstUrl!=null) {
 						String s = firstUrl.replaceAll("GenPept", "fasta");
 						s = s.replaceAll("GenBank", "fasta");
 						each.setSeqURL(new URL(s));
-					} catch (MalformedURLException e) {
-						// ignore if URL is valid, e.g. null or the reason
 					}
 
 					hits.add(each);
 
-					//line = br.readLine();
 				} // end of processing summary.
 
 				index = 0;
 
 				boolean endofResult = false;
-				final String ALU_DETAIL_LEADING = "<pre><script src=\"blastResult.js\"></script>>";
 				while (line != null) {
 					line = line.trim();
-					if (line.startsWith("Database") || line.startsWith(">")
-							|| line.startsWith(ALU_DETAIL_LEADING)) {
+					if (line.startsWith("Database") || line.startsWith(">")) {
 						break;
 					}
 					line = br.readLine();
-				}
-
-				if (line!=null && line.startsWith(ALU_DETAIL_LEADING)) {
-					line = line.substring(ALU_DETAIL_LEADING.length()-1);
 				}
 
 				/* parsing detailed alignments Each has <PRE></PRE> */
@@ -282,8 +258,6 @@ public class NCBIBlastParser {
 						}
 					}
 					each.setEndPoint(endPoint);
-//					each.setAlignmentLength(Math.abs(each.getStartPoint()
-//							- each.getEndPoint()) + 1);
 					each.setSubject(subject.toString());
 
 					detaillines.append("</PRE>");
