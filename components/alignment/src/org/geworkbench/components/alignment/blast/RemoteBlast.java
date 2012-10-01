@@ -8,8 +8,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -137,28 +135,6 @@ public class RemoteBlast {
 			return null;
 	}
 
-	/**
-	 * Get the error message from one line of NCBI response.
-	 *
-	 * @param line
-	 * @return the error message if the line contains one; otherwise return null
-	 * @throws UnsupportedEncodingException
-	 */
-	private static String getErrorMessage(String line)
-			throws UnsupportedEncodingException {
-		String urlString = getWrappedSubtring(line,
-				"var myncbi_cu = unescape('", "');");
-		if (urlString != null) {
-			// need to decode twice to make it really clear of %
-			String error = getWrappedSubtring(URLDecoder.decode(URLDecoder
-					.decode(urlString, "UTF-8"), "UTF-8"), "&ERROR=", "&EXPECT");
-			if (error != null)
-				return error.replace("+", " ");
-		}
-		return null;
-	}
-
-
 	String submitBlast() throws NcbiResponseException {
 		HttpClient client = new HttpClient();
 		DefaultHttpMethodRetryHandler retryhandler = new DefaultHttpMethodRetryHandler(
@@ -199,7 +175,9 @@ public class RemoteBlast {
 					}
 
 					// check error response.
-					String errorMessage = getErrorMessage(line);
+					String errorMessage = getWrappedSubtring(line,
+							"<li class=\"error\"><p class=\"error\">",
+							"</p></li>");
 					if (errorMessage != null)
 						throw new NcbiResponseException(errorMessage);
 
