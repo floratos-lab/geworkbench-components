@@ -22,9 +22,14 @@ import javax.swing.JPanel;
 
 import org.geworkbench.bison.algorithm.classification.CSVisualClassifier;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.bison.datastructure.biocollections.PredictionModel;
+import org.geworkbench.bison.datastructure.biocollections.SVMResultSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.components.gpmodule.GPDataset;
+import org.geworkbench.components.gpmodule.classification.PredictionResult;
 import org.geworkbench.components.gpmodule.classification.VisualGPClassifier;
+import org.geworkbench.components.gpmodule.classification.svm.SVMClassifier;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
@@ -35,7 +40,7 @@ import org.geworkbench.engine.management.Subscribe;
  *@version $Id$
  */
 
-@AcceptTypes( {CSVisualClassifier.class})
+@AcceptTypes( {CSVisualClassifier.class, SVMResultSet.class})
 public class GPClassificationVisualComponent implements VisualPlugin
 {
     public static SortedMap<String, DSMicroarraySet> microarraySets = new TreeMap<String, DSMicroarraySet>();
@@ -93,11 +98,14 @@ public class GPClassificationVisualComponent implements VisualPlugin
     public void receive(org.geworkbench.events.ProjectEvent e, Object source)
     {
         DSDataSet<?> dataSet = e.getDataSet();
-        if(dataSet != null && dataSet instanceof VisualGPClassifier)
+        if(dataSet != null && (dataSet instanceof VisualGPClassifier || dataSet instanceof SVMResultSet))
         {
             component.removeAll();
 
-            VisualGPClassifier gpVisClassifier = (VisualGPClassifier)dataSet;
+            VisualGPClassifier gpVisClassifier;
+            if (dataSet instanceof SVMResultSet) 
+            	gpVisClassifier = convertSVMResultSetToClassifier((SVMResultSet)dataSet);
+            else gpVisClassifier = (VisualGPClassifier)dataSet;
 
             gpClassVisPanel = new GPClassificationVisualizationPanel(gpVisClassifier, this);
             gpClassVisPanel.setBorder(BorderFactory.createEmptyBorder());
@@ -114,6 +122,24 @@ public class GPClassificationVisualComponent implements VisualPlugin
 		}
     }
 
+    private SVMClassifier convertSVMResultSetToClassifier(SVMResultSet result) {
+    	if (result == null) return null;
+		SVMClassifier svmClassifier = new SVMClassifier(result.getParentDataSet(), 
+				result.getLabel(), result.getClassifications(), result.getPredictionModel(),
+				new GPDataset(result.getData(), result.getRowNames(), result.getColumnNames()),
+				result.getCasePanel(), result.getControlPanel());
+		svmClassifier.setPassword(result.getPassword());
+
+		PredictionModel trainModel = result.getTrainPredResultModel();
+		PredictionModel testModel  = result.getTestPredResultModel();
+		if (trainModel != null)
+			svmClassifier.setTrainPredResult(new PredictionResult(trainModel.getPredModelFile()));
+		if (testModel != null)
+			svmClassifier.setTestPredResult(new PredictionResult(testModel.getPredModelFile()));
+
+		return svmClassifier;
+	}
+    
     @Publish
     public org.geworkbench.events.SubpanelChangedEvent<DSMicroarray> publishSubpanelChangedEvent(org.geworkbench.events.SubpanelChangedEvent<DSMicroarray> event)
     {

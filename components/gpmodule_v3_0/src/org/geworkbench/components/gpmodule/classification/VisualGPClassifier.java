@@ -13,6 +13,7 @@ package org.geworkbench.components.gpmodule.classification;
 
 import org.geworkbench.components.gpmodule.GPDataset;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.bison.datastructure.biocollections.PredictionModel;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.genepattern.webservice.Parameter;

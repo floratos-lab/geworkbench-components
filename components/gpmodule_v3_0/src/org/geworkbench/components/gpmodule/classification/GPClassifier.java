@@ -33,6 +33,7 @@ import org.genepattern.webservice.JobResult;
 import org.genepattern.webservice.Parameter;
 import org.geworkbench.bison.algorithm.classification.CSVisualClassifier;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.bison.datastructure.biocollections.PredictionModel;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.components.gpmodule.GPDataset;
@@ -66,6 +67,14 @@ public abstract class GPClassifier extends CSVisualClassifier
     public void setPassword(String password)
     {
         this.password = password;
+    }
+
+    public String getPassword(){
+    	return password;
+    }
+
+    public PredictionModel getPredictionModel(){
+    	return predModel;
     }
 
     protected File createTestGCTFile(String fileName, final List<float[]> trainingSet)
@@ -232,5 +241,9 @@ public abstract class GPClassifier extends CSVisualClassifier
         int predClassIndx = result.getColumn("Predicted Class");
 
         return result.getValueAt(0, predClassIndx);
+    }
+
+    public GPDataset getGPDataset(){
+    	return dataset;
     }
 }

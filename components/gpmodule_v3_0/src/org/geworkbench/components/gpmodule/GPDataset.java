@@ -82,4 +82,7 @@ public class GPDataset extends AbstractDataset
     {
         return columnNames;
     }
+    public List<float[]> getData(){
+    	return data;
+    }
 }

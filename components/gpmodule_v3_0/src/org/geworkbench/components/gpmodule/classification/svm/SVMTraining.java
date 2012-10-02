@@ -26,13 +26,16 @@ import org.geworkbench.bison.algorithm.classification.CSClassifier;
 import org.geworkbench.bison.annotation.CSAnnotationContext;
 import org.geworkbench.bison.annotation.CSAnnotationContextManager;
 import org.geworkbench.bison.annotation.DSAnnotationContext;
+import org.geworkbench.bison.datastructure.biocollections.PredictionModel;
+import org.geworkbench.bison.datastructure.biocollections.SVMResultSet;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.components.gpmodule.GPDataset;
 import org.geworkbench.components.gpmodule.classification.GPClassificationUtils;
 import org.geworkbench.components.gpmodule.classification.GPTraining;
-import org.geworkbench.components.gpmodule.classification.PredictionModel;
 import org.geworkbench.components.gpmodule.classification.PredictionResult;
 import org.geworkbench.util.ClassifierException;
 import org.geworkbench.util.ProgressBar;
@@ -56,6 +59,42 @@ public class SVMTraining extends GPTraining implements TrainingTask
     {
         panel = new SVMTrainingPanel(this);
         setDefaultPanel(panel);
+    }
+
+    @SuppressWarnings("unchecked")
+	public AlgorithmExecutionResults execute(Object input) {
+    	AlgorithmExecutionResults results = super.execute(input);
+    	if (results == null) return null;
+
+    	Object classifier = results.getResults();
+    	if (classifier == null) return results;
+
+    	if(classifier instanceof SVMClassifier){
+    		SVMClassifier svmClassifier = (SVMClassifier)classifier;
+    		SVMResultSet svmResult = convertClassifierToSVMResultSet(svmClassifier);
+    		results = new AlgorithmExecutionResults(true, svmClassifier.getLabel(), svmResult);
+    	}
+        return results;
+    }
+
+    private SVMResultSet convertClassifierToSVMResultSet(SVMClassifier classifier){
+    	if (classifier == null) return null;
+    	GPDataset dataset = classifier.getGPDataset();
+
+    	SVMResultSet svmResult = new SVMResultSet((DSMicroarraySet)classifier.getParentDataSet(),
+    			classifier.getLabel(), classifier.getClassifications(), classifier.getPredictionModel(), 
+    			dataset.getData(), dataset.getRowNames(), dataset.getColumnNames(),
+    			classifier.getCasePanel(), classifier.getControlPanel());
+    	svmResult.setPassword(classifier.getPassword());
+ 
+    	PredictionResult trainResult = classifier.getTrainPredResult();
+    	PredictionResult testResult  = classifier.getTestPredResult();
+    	if (trainResult != null)
+    		svmResult.setTrainPredResultModel(trainResult.getPredictionModel());
+    	if (testResult != null)
+    		svmResult.setTestPredResultModel(testResult.getPredictionModel());
+
+    	return svmResult;
     }
 
     protected CSClassifier trainClassifier(List<float[]> caseData, List<float[]> controlData, List<String> featureNames,

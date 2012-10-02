@@ -12,6 +12,7 @@
 package org.geworkbench.components.gpmodule.classification;
 
 import org.genepattern.io.odf.*;
+import org.geworkbench.bison.datastructure.biocollections.PredictionModel;
 
 import java.io.File;
 
@@ -21,11 +22,14 @@ import java.io.File;
 public class PredictionResult
 {
     private OdfObject odfObject;
+    private PredictionModel model;
 
     public PredictionResult(File fileName)
     {
         try
         {
+            model = new PredictionModel(fileName);
+
             odfObject = new OdfObject(fileName.getAbsolutePath());
             fileName.delete();
         }
@@ -48,5 +52,9 @@ public class PredictionResult
     public int getNumRows()
     {
         return odfObject.getRowCount();
+    }
+    
+    public PredictionModel getPredictionModel(){
+    	return model;
     }
 }

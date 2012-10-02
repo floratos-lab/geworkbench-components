@@ -32,6 +32,7 @@ import org.genepattern.webservice.JobResult;
 import org.genepattern.webservice.Parameter;
 import org.genepattern.webservice.WebServiceException;
 import org.geworkbench.bison.algorithm.classification.CSClassifier;
+import org.geworkbench.bison.datastructure.biocollections.PredictionModel;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
