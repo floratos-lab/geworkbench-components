@@ -11,6 +11,8 @@ import java.util.Vector;
 
 import javax.swing.JOptionPane;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.bison.annotation.CSAnnotationContextManager;
 import org.geworkbench.bison.annotation.DSAnnotationContext;
@@ -20,7 +22,7 @@ import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSe
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.BlastObj;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSAlignmentResultSet;
-import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence; 
+import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
@@ -42,10 +44,10 @@ import org.geworkbench.util.ProgressBar;
  */
 public class BlastAnalysis extends AbstractAnalysis implements
 		ProteinSequenceAnalysis {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+
+	private static final long serialVersionUID = -7530924672555933168L;
+
+	private static Log log = LogFactory.getLog(BlastAnalysis.class);
 
 	private BlastAnalysisPanel blastAnalysisPanel = null;
 
@@ -127,6 +129,8 @@ public class BlastAnalysis extends AbstractAnalysis implements
 				RemoteBlast blast;
 				DSSequenceSet<? extends DSSequence> parentSequenceSet = sequenceDB;
 
+				// TODO use List instead of ArrayList
+				ArrayList<Vector<BlastObj>> blastDataSet = new ArrayList<Vector<BlastObj>>();
 				for (CSSequence sequence : activeSequenceDB) {
 					if (this.stopAlgorithm) {
 						return new AlgorithmExecutionResults(false,
@@ -193,6 +197,16 @@ public class BlastAnalysis extends AbstractAnalysis implements
 						return new AlgorithmExecutionResults(false, msg, null);
 
 					}
+					
+					Vector<BlastObj> oneSequenceResult = new BlastXmlParser(
+							BLAST_rid, parameterSetting.getMaxTargetNumber())
+							.getResult();
+					if (oneSequenceResult != null) {
+						blastDataSet.add(oneSequenceResult);
+					} else {
+						log.warn("null result for sequence " + sequence
+								+ " RID=" + BLAST_rid);
+					}
 				}
 				if (this.stopAlgorithm) {
 				 
@@ -236,8 +250,8 @@ public class BlastAnalysis extends AbstractAnalysis implements
 				}
 				
 				NCBIBlastParser nbp = new NCBIBlastParser(sequenceDB.size(),
-						outputFile);
-			 	ArrayList<Vector<BlastObj>> blastDataSet = nbp.parseResults();
+						outputFile, blastDataSet);
+			 	nbp.parseResults(); // this is to parse the detail from the saved file
               
 				
 
@@ -289,11 +303,9 @@ public class BlastAnalysis extends AbstractAnalysis implements
 				line = br.readLine();
 			}
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return "FileNotFoundException in parsing error";
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return "IOException in parsing error";
 		} finally {

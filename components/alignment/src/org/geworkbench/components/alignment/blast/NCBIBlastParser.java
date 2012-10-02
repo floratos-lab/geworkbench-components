@@ -31,19 +31,22 @@ public class NCBIBlastParser {
 
 	private int totalSequenceNum = 0;
 	private String filename;
+	final private ArrayList<Vector<BlastObj>> blastResultSet;
 
 	/**
 	 * Creates a new BlastParser with querySeq and filename set to specified
 	 * ProtSeq and String value. Also creates a new hits Vector.
+	 * @param blastResultSet 
 	 * 
 	 * @param the
 	 *            ProtSeq to set querySeq to.
 	 * @param the
 	 *            String to set filename to.
 	 */
-	public NCBIBlastParser(final int totalSequenceNum, final String filename) {
+	public NCBIBlastParser(final int totalSequenceNum, final String filename, ArrayList<Vector<BlastObj>> blastResultSet) {
 		this.totalSequenceNum = totalSequenceNum;
 		this.filename = filename;
+		this.blastResultSet = blastResultSet; // this already contains the hits; file is used to get the 'detail' part 
 	}
 
 	final private static String NEWLINESIGN = "<BR>";
@@ -53,34 +56,24 @@ public class NCBIBlastParser {
 	private boolean hitOverLimit = false;
 
 	/**
-	 * Reads in Blast results from file and parses data into BlastObj objects.
+	 * Reads in Blast results from file and parses the additional detail into BlastObj objects.
 	 */
-	public ArrayList<Vector<BlastObj>> parseResults() {
-		/**
-		 * The new BlastDataSet Array
-		 */
-		ArrayList<Vector<BlastObj>> blastDataset = new ArrayList<Vector<BlastObj>>(
-				10);
+	public void parseResults() {
 
 		totalHitCount = 0;
 		StringTokenizer st;
-		BlastObj each;
-		int index = 0;
 
 		File file = new File(filename);
 		// server failure
 		if (file.length() < 600) {
 			log.warn("No hit found. try again.");
-			return null;
+			return;
 		}
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(filename));
 			String line = br.readLine();
 			int count = 0;
-			do {
-				// A Vector of Strings representing each Blast hit by Accession
-				// number.
-				Vector<BlastObj> hits = new Vector<BlastObj>();
+			do { // loop through each sequence (they are all saved in one file
 				boolean hitsFound = false;
 				// loop to proceed to beginning of hit list from Blast output
 				// file
@@ -91,7 +84,7 @@ public class NCBIBlastParser {
 						hitsFound = true;
 						break;
 					}
-					if (line.contains("No significant similarity found.")) {
+					if (line.contains("No significant similarity found.")) { // TODO this case is not tested
 						hitsFound = false;
 						break;
 					}
@@ -103,63 +96,18 @@ public class NCBIBlastParser {
 					continue;
 				}
 
-				/* parsing section of the blast Hit info text */
+				/* skip the summary part */
 				line = br.readLine();
-				while(!line.equals("</thead>")) { // skip table header
+				while(line!=null && !line.equals("</thead>")) { // skip table header
 					line = br.readLine();
 				}
-				line = br.readLine();
-				int hitCount = 0;
 				while (line != null && !line.trim().startsWith("</tbody>")) {
-					hitCount++;
-					totalHitCount++;
-					if (hitCount > HIT_NUMBER_LIMIT) {
-						hitOverLimit = true;
-						line = br.readLine();
-						continue; // skip further parsing the summary section
-					}
-					
-					Pattern p = Pattern.compile(".+?href=\"(http:.+?)\".+"); // first URL
-					Matcher m = p.matcher(line);
-					String firstUrl = null;
-					if (m.matches()) {
-						firstUrl = m.group(1);
-					}
+					line = br.readLine();
+				}
 
-					String name = null;
-					String description = null;
-					String evalue = null;
-
-					line = readTR(br);
-					String[] tagSeparated = getTD(line);
-					final int NUMBER_FIELDS = 7; // the number of fields could be 8 if there is an optional last column, the 'Links' icons
-					if(tagSeparated.length>=NUMBER_FIELDS) { // for most databases
-						name = tagSeparated[0];
-						description = tagSeparated[1].trim();
-						evalue = tagSeparated[5].trim();
-						String[] tokens=evalue.split("\\s");
-						evalue=tokens[0];
-					} else if(tagSeparated.length==0) { // after reading all <tr>....</tr>
-						continue;
-					} else {
-						log.error("unexcepted HTML tag count " + tagSeparated.length);
-						line = br.readLine();
-						continue;
-					}
-
-					each = new BlastObj(true, null, name, description, evalue);
-
-					if(firstUrl!=null) {
-						String s = firstUrl.replaceAll("GenPept", "fasta");
-						s = s.replaceAll("GenBank", "fasta");
-						each.setSeqURL(new URL(s));
-					}
-
-					hits.add(each);
-
-				} // end of processing summary.
-
-				index = 0;
+				Vector<BlastObj> hits = blastResultSet.get(count);
+				totalHitCount += hits.size();
+				int index = 0;
 
 				boolean endofResult = false;
 				while (line != null) {
@@ -179,7 +127,20 @@ public class NCBIBlastParser {
 						break;
 					}
 
-					String dbId = getDbId(line);
+					// get BlastObj hit for which alignment this is for
+					BlastObj each = hits.get(index);
+					Pattern urlPattern = Pattern.compile(".+?href=\"(http:.+?)\".+"); // first URL
+					Matcher match = urlPattern.matcher(line);
+					String firstUrl = null;
+					if (match.matches()) {
+						firstUrl = match.group(1);
+					}
+					if(firstUrl!=null) {
+						String s = firstUrl.replaceAll("GenPept", "fasta");
+						s = s.replaceAll("GenBank", "fasta");
+						each.setSeqURL(new URL(s));
+					}
+
 					StringBuffer detaillines = new StringBuffer("<PRE>").append(line);
 					line = br.readLine();
 
@@ -191,9 +152,7 @@ public class NCBIBlastParser {
 						additionalDetail = true;
 
 					}
-					// get BlastObj hit for which alignment is for
-					each = hits.get(index);
-					each.setDatabaseID( dbId );
+
 					// skip the beginning description
 					boolean getStartPoint = true;
 					StringBuffer subject = new StringBuffer();
@@ -206,6 +165,7 @@ public class NCBIBlastParser {
 							break;
 						}
 
+						// get the start point, end point and length
 						if (line.startsWith("Length=")) {
 							String[] lengthVal = line.split("=");
 							each.setLength(new Integer(lengthVal[1].trim())
@@ -228,7 +188,6 @@ public class NCBIBlastParser {
 							}
 
 						}
-						// get the start point, end point and length
 
 						if (line.trim().startsWith("Sbjct")) {
 							st = new StringTokenizer(line);
@@ -277,75 +236,17 @@ public class NCBIBlastParser {
 				}
 				line = br.readLine();
 
-				blastDataset.add(hits);
 				count++;
 			} while (count < totalSequenceNum);
 			br.close();
-			return blastDataset;
 		} catch (FileNotFoundException e) {
 			log.error("file "+filename+"not found.");
-			return null;
+			return;
 		} catch (IOException e) {
 			e.printStackTrace();
-			return null;
+			return;
 		}
 
-	}
-
-	static private String getDbId(String line) {
-		// (1) first URL (2) anchor text
-		Pattern p = Pattern
-				.compile(".+?\\<a\\s.+?href=\"(http:.+?)\"\\s\\>(.+?)\\</a\\>.+?");
-		Matcher m = p.matcher(line);
-		if (m.matches()) {
-			String id = m.group(2);
-			return id.split("\\|")[0];
-		} else {
-			log.error("no anchor matched: " + line);
-			return null;
-		}
-	}
-
-	static private String[] getTD(String line) {
-		if (line == null)
-			return new String[0];
-		int index1 = line.toLowerCase().indexOf("<td");
-		int index2 = line.toLowerCase().lastIndexOf("</td>");
-		if (index1 < 0) {
-			return new String[0];
-		} else if (index2 >= 0) {
-			line = line.substring(index1, index2);
-		} else {
-			line = line.substring(index1);
-		}
-		// separated by </td><td...>
-		String[] td = line.split("\\</[tT][dD]>\\s*<[tT][dD][^\\>]*>"); 
-		for (int i = 0; i < td.length; i++) {
-			td[i] = td[i].replaceAll("\\<(/?[^\\>]+)\\>", ""); // remove all HTML tag
-		}
-		return td;
-	}
-
-	// assume the <tr> tag has been read, meaning it is already after <tr>
-	static private String readTR(BufferedReader br) {
-		final String END_TAG = "</form><!-- this is the end tag for the <form in blastcgi templates -->";
-
-		try {
-			String line = br.readLine();
-			StringBuffer sb = new StringBuffer();
-			while (line != null && !line.toLowerCase().contains("</tr>") && !line.startsWith(END_TAG) ) {
-				sb.append(line);
-				line = br.readLine();
-			}
-			if (line != null && line.toLowerCase().contains("</tr>")) {
-				sb.append(line
-						.substring(0, line.toLowerCase().indexOf("</tr>")));
-			}
-			return sb.toString();
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		}
 	}
 
 	/**
@@ -362,6 +263,7 @@ public class NCBIBlastParser {
 		return "Total hits for all sequences: " + totalHitCount + ".";
 	}
 	
+	// TODO CSAlignmentResultSet constructor should be simplified so the unnecessary method could be eliminated
 	public int getHitCount(){
 		return totalHitCount;
 	}
