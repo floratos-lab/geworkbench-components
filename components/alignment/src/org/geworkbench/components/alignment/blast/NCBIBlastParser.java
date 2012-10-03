@@ -11,7 +11,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,7 +30,7 @@ public class NCBIBlastParser {
 
 	private int totalSequenceNum = 0;
 	private String filename;
-	final private ArrayList<Vector<BlastObj>> blastResultSet;
+	final private List<Vector<BlastObj>> blastResultSet;
 
 	/**
 	 * Creates a new BlastParser with querySeq and filename set to specified
@@ -42,24 +42,18 @@ public class NCBIBlastParser {
 	 * @param the
 	 *            String to set filename to.
 	 */
-	public NCBIBlastParser(final int totalSequenceNum, final String filename, ArrayList<Vector<BlastObj>> blastResultSet) {
+	public NCBIBlastParser(final int totalSequenceNum, final String filename, List<Vector<BlastObj>> blastResultSet) {
 		this.totalSequenceNum = totalSequenceNum;
 		this.filename = filename;
 		this.blastResultSet = blastResultSet; // this already contains the hits; file is used to get the 'detail' part 
 	}
 
 	final private static String NEWLINESIGN = "<BR>";
-	final private static int HIT_NUMBER_LIMIT = 250;
-
-	private int totalHitCount = 0;
-	private boolean hitOverLimit = false;
 
 	/**
 	 * Reads in Blast results from file and parses the additional detail into BlastObj objects.
 	 */
 	public void parseResults() {
-
-		totalHitCount = 0;
 
 		File file = new File(filename);
 		// server failure
@@ -82,7 +76,8 @@ public class NCBIBlastParser {
 						hitsFound = true;
 						break;
 					}
-					if (line.contains("No significant similarity found.")) { // TODO this case is not tested
+					if (line.contains("<span class=\"ui-ncbitoggler-master-text\">Alignments</span>")) {
+						// the summary (description) part is passed and no alignment is shown
 						hitsFound = false;
 						break;
 					}
@@ -104,25 +99,18 @@ public class NCBIBlastParser {
 				}
 
 				Vector<BlastObj> hits = blastResultSet.get(count);
-				totalHitCount += hits.size();
 				int index = 0;
 
 				boolean endofResult = false;
-				while (line != null) {
-					line = line.trim();
-					if (line.startsWith("Database") || line.startsWith(">")) {
-						break;
-					}
+				while (!"<pre>".equals(line)) {
 					line = br.readLine();
 				}
 
 				/* parsing detailed alignments Each has <PRE></PRE> */
-				while (line != null && (line.trim().startsWith(">")
-						|| line.trim().startsWith("Database")) ) {
+				while (!"</pre>".equals(line)) {
 
-					if (line.trim().startsWith("Database")) {
-						endofResult = true;
-						break;
+					while (line!=null && !line.trim().startsWith(">")) {
+						line = br.readLine();
 					}
 
 					// get BlastObj hit for which alignment this is for
@@ -136,14 +124,16 @@ public class NCBIBlastParser {
 					if(firstUrl!=null) {
 						String s = firstUrl.replaceAll("GenPept", "fasta");
 						s = s.replaceAll("GenBank", "fasta");
-						each.setSeqURL(new URL(s));
+						if(each.getSeqURL()!=null) {
+							log.warn("trying to set seqURL again: "+each.getName());
+						} else {
+							each.setSeqURL(new URL(s));
+						}
 					}
 
 					StringBuffer detaillines = new StringBuffer("<PRE>").append(line);
 					line = br.readLine();
 
-					if(line!=null) line = line.trim();
-					
 					while (line!=null && !(line.trim().startsWith(">"))) {
 
 						if (line.startsWith("</form>")) {
@@ -152,10 +142,8 @@ public class NCBIBlastParser {
 							break;
 						}
 
+						detaillines.append(line).append(NEWLINESIGN);
 						line = br.readLine();
-						if (line != null && !line.trim().startsWith(">")) {
-							detaillines.append(line.trim()).append(NEWLINESIGN);
-						}
 					}
 
 					detaillines.append("</PRE>");
@@ -183,24 +171,5 @@ public class NCBIBlastParser {
 		}
 
 	}
-
-	/**
-	 * getSummary
-	 * 
-	 * @return String
-	 */
-	public String getSummary() {
-		if (hitOverLimit) {
-			return "Some sequences have more than 250 hits, only the first "
-					+ HIT_NUMBER_LIMIT + " hits are displayed. Total hits: "
-					+ totalHitCount + ".";
-		}
-		return "Total hits for all sequences: " + totalHitCount + ".";
-	}
 	
-	// TODO CSAlignmentResultSet constructor should be simplified so the unnecessary method could be eliminated
-	public int getHitCount(){
-		return totalHitCount;
-	}
-
 }
