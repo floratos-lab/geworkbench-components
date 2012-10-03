@@ -12,7 +12,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.StringTokenizer;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -61,7 +60,6 @@ public class NCBIBlastParser {
 	public void parseResults() {
 
 		totalHitCount = 0;
-		StringTokenizer st;
 
 		File file = new File(filename);
 		// server failure
@@ -146,17 +144,6 @@ public class NCBIBlastParser {
 
 					if(line!=null) line = line.trim();
 					
-					boolean additionalDetail = false;
-					if (line!=null && line.trim().startsWith("Score")) {
-						index--;
-						additionalDetail = true;
-
-					}
-
-					// skip the beginning description
-					boolean getStartPoint = true;
-					StringBuffer subject = new StringBuffer();
-					int endPoint = 0;
 					while (line!=null && !(line.trim().startsWith(">"))) {
 
 						if (line.startsWith("</form>")) {
@@ -165,66 +152,14 @@ public class NCBIBlastParser {
 							break;
 						}
 
-						// get the start point, end point and length
-						if (line.startsWith("Length=")) {
-							String[] lengthVal = line.split("=");
-							each.setLength(new Integer(lengthVal[1].trim())
-									.intValue());
-						}
-						final Pattern p = Pattern
-								.compile("Identities\\s*=\\s*\\d+/(\\d+)\\s*.\\((\\d+)%\\).+");
-						Matcher m = p.matcher(line);
-						if (m.matches()) {
-							if (0 == each.getAlignmentLength()) {
-								String alignmentLengthString = m.group(1);
-								int alignmentLength = Integer
-										.parseInt(alignmentLengthString);
-								each.setAlignmentLength(alignmentLength);
-							}
-							if (0 == each.getPercentAligned()) {
-								String percentString = m.group(2);
-								each.setPercentAligned(new Integer(
-										percentString).intValue());
-							}
-
-						}
-
-						if (line.trim().startsWith("Sbjct")) {
-							st = new StringTokenizer(line);
-							st.nextToken();
-							if (getStartPoint) {
-								if(0==each.getStartPoint())
-									each.setStartPoint(Integer.valueOf(
-										st.nextToken()).intValue());
-								getStartPoint = false;
-							} else {
-								st.nextToken();
-							}
-							// concat the aligned parts and get rid of "-"
-							subject = subject.append(st.nextToken().replaceAll(
-									"-", ""));
-
-							endPoint = Integer.valueOf(st.nextToken())
-									.intValue();
-						}
-
-						String s = br.readLine();
-						if (s != null) {
-							line = s.trim();
-						}
-						if (s != null && !line.startsWith(">")) {
-							detaillines.append(s).append(NEWLINESIGN);
+						line = br.readLine();
+						if (line != null && !line.trim().startsWith(">")) {
+							detaillines.append(line.trim()).append(NEWLINESIGN);
 						}
 					}
-					each.setEndPoint(endPoint);
-					each.setSubject(subject.toString());
 
 					detaillines.append("</PRE>");
 
-					if (additionalDetail) {
-						String previousDetail = each.getDetailedAlignment();
-						detaillines =  detaillines.insert(0, previousDetail);
-					}
 					each.setDetailedAlignment(detaillines.toString());
 
 					index++;
