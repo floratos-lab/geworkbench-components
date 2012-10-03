@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.JOptionPane;
@@ -129,8 +130,7 @@ public class BlastAnalysis extends AbstractAnalysis implements
 				RemoteBlast blast;
 				DSSequenceSet<? extends DSSequence> parentSequenceSet = sequenceDB;
 
-				// TODO use List instead of ArrayList
-				ArrayList<Vector<BlastObj>> blastDataSet = new ArrayList<Vector<BlastObj>>();
+				List<Vector<BlastObj>> blastDataSet = new ArrayList<Vector<BlastObj>>();
 				for (CSSequence sequence : activeSequenceDB) {
 					if (this.stopAlgorithm) {
 						return new AlgorithmExecutionResults(false,
@@ -252,12 +252,11 @@ public class BlastAnalysis extends AbstractAnalysis implements
 				NCBIBlastParser nbp = new NCBIBlastParser(sequenceDB.size(),
 						outputFile, blastDataSet);
 			 	nbp.parseResults(); // this is to parse the detail from the saved file
-              
-				
 
 				CSAlignmentResultSet blastResult = new CSAlignmentResultSet(
-						outputFile, blastDataSet, nbp.getSummary(), nbp.getHitCount(), activeSequenceDB.getFASTAFileName(),
-						activeSequenceDB, parentSequenceSet);
+						outputFile, blastDataSet,
+						activeSequenceDB.getFASTAFileName(), activeSequenceDB,
+						parentSequenceSet);
 				blastResult.setLabel(BlastAnalysisPanel.NCBILABEL);
  
 				if (this.stopAlgorithm) {				 

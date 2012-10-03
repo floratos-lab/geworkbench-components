@@ -12,6 +12,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.AbstractListModel;
@@ -223,7 +224,7 @@ public class BlastViewComponent implements VisualPlugin {
 		// Get the sequenceDb from DAncillaryDataset, not from project.
 		DSSequenceSet<? extends DSSequence> sequenceDB = resultSet
 				.getBlastedParentDataSet();
-		ArrayList<Vector<BlastObj>> blastDataSet = resultSet.getBlastDataSet();
+		List<Vector<BlastObj>> blastDataSet = resultSet.getBlastDataSet();
 
 		// if (sequenceDB instanceof CSSequenceSet) // always true
 		this.sequenceDB = sequenceDB;
@@ -301,7 +302,7 @@ public class BlastViewComponent implements VisualPlugin {
 	private GeneListModel geneListModel = new GeneListModel();
 	private JSplitPane rightPanel = new JSplitPane();
 	private DSSequenceSet<? extends DSSequence> sequenceDB;
-	private ArrayList<Vector<BlastObj>> blastDataSet = new ArrayList<Vector<BlastObj>>();
+	private List<Vector<BlastObj>> blastDataSet = new ArrayList<Vector<BlastObj>>();
 	private final double jSplitPane1DividerLocation = 0.5;
 	
 	private void selectInputSequence(int selecIndext) {
