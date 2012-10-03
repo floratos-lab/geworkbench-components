@@ -32,7 +32,7 @@ import org.xml.sax.SAXParseException;
  * The parser to retrieve the BLAST result in XML format.
  * 
  * @author zji
- * 
+ * @version $Id$
  */
 public class BlastXmlParser {
 	private static Log log = LogFactory.getLog(BlastXmlParser.class);
@@ -102,7 +102,7 @@ public class BlastXmlParser {
 				String name = ((Node) accessionText.item(0)).getNodeValue()
 						.trim();
 
-				// this is not at the same level as the previous ones
+				// the following are not at the same level as the previous ones
 				// it is at Hit_hsps -> Hsp - >Hsp_evalue
 				// without formal schema, let's assume everything we handle
 				// here is one in each Hit
@@ -113,8 +113,45 @@ public class BlastXmlParser {
 				NodeList evalueText = evalueElement.getChildNodes();
 				String evalue = ((Node) evalueText.item(0)).getNodeValue()
 						.trim();
+
+				NodeList fromList = hitElement
+						.getElementsByTagName("Hsp_hit-from");
+				Element fromElement = (Element) fromList.item(0);
+				NodeList fromText = fromElement.getChildNodes();
+				String from = ((Node) fromText.item(0)).getNodeValue().trim();
+				int startPoint = Integer.parseInt(from);
+
+				NodeList lengthList = hitElement
+						.getElementsByTagName("Hsp_align-len");
+				Element lengthElement = (Element) lengthList.item(0);
+				NodeList lengthText = lengthElement.getChildNodes();
+				String length = ((Node) lengthText.item(0)).getNodeValue()
+						.trim();
+				int alignmentLength = Integer.parseInt(length);
+
+				NodeList subjectList = hitElement
+						.getElementsByTagName("Hsp_hseq");
+				Element subjectElement = (Element) subjectList.item(0);
+				NodeList subjectText = subjectElement.getChildNodes();
+				String subject = ((Node) subjectText.item(0)).getNodeValue()
+						.trim();
+
+				NodeList identityList = hitElement
+						.getElementsByTagName("Hsp_identity");
+				Element identityElement = (Element) identityList.item(0);
+				NodeList identityText = identityElement.getChildNodes();
+				String identity = ((Node) identityText.item(0)).getNodeValue()
+						.trim();
+				int identityCount = Integer.parseInt(identity);
+				int percentage = (int) Math.round(100. * identityCount
+						/ alignmentLength);
+				if (percentage == 100) { // don't round to 100% if it is not really
+					percentage = 100 * identityCount / alignmentLength;
+				}
+
 				BlastObj blastObj = new BlastObj(dbId, name, description,
-						evalue);
+						evalue, startPoint, alignmentLength,
+						subject.replaceAll("-", ""), percentage);
 				vector.add(blastObj);
 			}// end of for loop of all 'Hit' element
 
