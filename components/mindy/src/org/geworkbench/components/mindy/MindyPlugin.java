@@ -957,7 +957,7 @@ public class MindyPlugin extends JPanel {
 	private boolean processCursor() {
 		boolean result = true;
 
-		org.geworkbench.util.Cursor cursor = checkCursor();
+		org.geworkbench.components.mindy.Cursor cursor = checkCursor();
 		if(cursor == null){
 			return false;
 		}
@@ -968,7 +968,7 @@ public class MindyPlugin extends JPanel {
 	}
 
 
-	private boolean startCursor(org.geworkbench.util.Cursor cursor) {
+	private boolean startCursor(org.geworkbench.components.mindy.Cursor cursor) {
 		boolean result = true;
 
 		try{
@@ -982,8 +982,8 @@ public class MindyPlugin extends JPanel {
 	}
 
 
-	private org.geworkbench.util.Cursor checkCursor() {
-		org.geworkbench.util.Cursor cursor = org.geworkbench.util.Cursor
+	private org.geworkbench.components.mindy.Cursor checkCursor() {
+		org.geworkbench.components.mindy.Cursor cursor = org.geworkbench.components.mindy.Cursor
 				.getCursor();
 		if (cursor.isStarted() && !cursor.isFinished()) {
 			return null;
@@ -1099,7 +1099,7 @@ public class MindyPlugin extends JPanel {
 			mindyData.setFilteredModulatorInfoMap(tmpFilteredModulatorInfoMap);
 
 			// heat map tab
-			org.geworkbench.util.Cursor cursor = checkCursor();
+			org.geworkbench.components.mindy.Cursor cursor = checkCursor();
 			if(cursor == null){
 				return;
 			}
@@ -1410,7 +1410,7 @@ public class MindyPlugin extends JPanel {
 	}
 
 	static public void setCursorFinished() {
-		org.geworkbench.util.Cursor cursor = org.geworkbench.util.Cursor
+		org.geworkbench.components.mindy.Cursor cursor = org.geworkbench.components.mindy.Cursor
 				.getCursor();
 		if ((cursor.getAssociatedComponent() != null) && cursor.isStarted()
 				&& !cursor.isFinished()) {

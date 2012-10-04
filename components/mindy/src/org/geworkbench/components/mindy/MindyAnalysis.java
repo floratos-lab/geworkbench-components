@@ -473,10 +473,10 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 	}
 	
 	private static final int ONE_SECOND = 1000;
-	public static volatile boolean cancelled = false;
+	private volatile boolean cancelled = false;
 	
 	@SuppressWarnings("deprecation")
-	private static MindyResults run(final MicroarraySet microarraySet,
+	private MindyResults run(final MicroarraySet microarraySet,
 			final Marker tf, final ArrayList<Marker> modulators,
 			final ArrayList<Marker> dpiAnnots, final boolean fullSetMI,
 			final float fullSetThreshold, final boolean subsetMI,
