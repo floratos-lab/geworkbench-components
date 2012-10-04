@@ -242,6 +242,7 @@ public class HouseKeepingGeneNormalizerPanel extends AbstractSaveableParameterPa
             String line = null;
             if (selectedModel.size() == 0) {
                 reportError("No gene is selected", null);
+                writer.close();
                 return;
             }
 
