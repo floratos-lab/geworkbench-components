@@ -701,8 +701,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 	}
 	
 	private void getNetworkFromLabFile(String filename) throws IOException{
-		BufferedReader br;
-		br = new BufferedReader(new FileReader(filename));
+		BufferedReader br = new BufferedReader(new FileReader(filename));
 		String line = br.readLine(); // skip the header line
 		networkList.clear();
 		networkList.add(line);
@@ -722,6 +721,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 				break;
 			}
 		}
+		br.close();
 	}
 	
 	//prepare networkList and ideaNetwork from project adjacencyMatrix
@@ -848,8 +848,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 	        	String filename = fc.getSelectedFile().getAbsolutePath();			
 				String filepath = fc.getCurrentDirectory().getCanonicalPath();
 	            setLastDirectory(filepath);	           
-	            BufferedReader br;
-	    		br = new BufferedReader(new FileReader(filename));	    		
+	            BufferedReader br = new BufferedReader(new FileReader(filename));	    		
 	    		String line = br.readLine();
 	    		String text="";
 	    		int invalidArrayNo=0;
@@ -863,6 +862,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 	    			}
 	    			line = br.readLine();
 	    		}
+	    		br.close();
 	    		if(invalidArrayNo!=0){
 	    			JOptionPane.showMessageDialog(
 							null,
