@@ -846,6 +846,7 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 					StringBuffer sb = new StringBuffer();
 					if (line == null) {
 						referenceList.setText(sb.toString());
+						br.close();
 						return;
 					}
 					sb.append(line);

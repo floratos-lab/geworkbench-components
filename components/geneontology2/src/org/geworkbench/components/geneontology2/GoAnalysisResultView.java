@@ -640,7 +640,7 @@ public class GoAnalysisResultView extends JPanel implements VisualPlugin {
 			treePathList.add(sibling);
 			List<GoTreeNode> list = searchMatchingNode(treePathList, searchText);
 			if(list!=null) {
-				treePathList = list;
+				// found
 				return;
 			} else {
 				treePathList.remove(sibling);
