@@ -21,10 +21,9 @@ import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.CSAnovaResultSet;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.CSSignificanceResultSet;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.CSAnovaResultSet; 
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
+ 
 import org.geworkbench.bison.datastructure.complex.panels.CSAnnotPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSAnnotatedPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
@@ -103,31 +102,16 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 		GroupAndChipsString = "";
 
 		DSItemList<DSPanel<DSMicroarray>> panels = view.getItemPanel().panels();
-		Iterator<DSPanel<DSMicroarray>> groups = panels.iterator();
-		while (groups.hasNext()) {
-			DSPanel<DSMicroarray> panelA = groups.next();
-			if (panelA.isActive()) {
-				numSelectedGroups++;
-				labelSet.add(panelA.getLabel());
-			}
-		}
-
-		numSelectedGroups = labelSet.size();
-		if (numSelectedGroups < 3) {
-			return new AlgorithmExecutionResults(false,
-					"A minimum of 3 array groups must be activated.", null);
-		}
+		Iterator<DSPanel<DSMicroarray>> groups = panels.iterator();		 
+		
+		numSelectedGroups = panels.size();
 		String[] labels = labelSet.toArray(new String[numSelectedGroups]);
-		String[] labels1 = new String[0];
-
+	 
 		selectMarkers = view.markers();
 		numGenes = selectMarkers.size();
 		log.debug("NumGenes:" + numGenes);
 
-		/* Create panels and significant result sets to store results */
-		DSSignificanceResultSet<DSGeneMarker> sigSet = new CSSignificanceResultSet<DSGeneMarker>(
-				maSet, "Anova Analysis", labels1, labels, pvalueth);
-
+	
 		/*
 		 * use as an index points to all microarrays put in array A
 		 */
@@ -142,19 +126,18 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 		groups = panels.iterator();
 		/* for each group */
 		for (int i = 0; i < numSelectedGroups; i++) {
-			String labelA = labels[i];
+			
 			DSPanel<DSMicroarray> panelA = groups.next();
+			 labels[i] = panelA.getLabel();
 			/* put group label into history */
-			GroupAndChipsString += "\tGroup " + labelA + " (" + panelA.size()
-					+ " chips)" + ":\n";
-			;
-
-			if (panelA.isActive()) {
-				int aSize = panelA.size();
-				/*
-				 * for each array in this group
-				 */
-				for (int aIndex = 0; aIndex < aSize; aIndex++) {
+			GroupAndChipsString += "\tGroup " + labels[i] + " (" + panelA.size()
+					+ " chips)" + ":\n";		 
+		 
+			int aSize = panelA.size();
+			/*
+			 * for each array in this group
+			 */
+			for (int aIndex = 0; aIndex < aSize; aIndex++) {
 					/*
 					 * put member of each group into history
 					 */
@@ -169,9 +152,10 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 					 * count total arrays in selected groups.
 					 */
 					globleArrayIndex++;
-				}
-			}
+		    }
+			 
 		}
+	 
 		/* fill microarray view data into array A, and assign groups */
 		int[] groupAssignments = new int[globleArrayIndex];
 		float[][] A = new float[numGenes][globleArrayIndex];
@@ -188,13 +172,13 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 				/* for each marker in this array */
 				for (int k = 0; k < numGenes; k++) {
 					A[k][globleArrayIndex] = (float) panelA.get(aIndex)
-							.getMarkerValue(selectMarkers.get(k)).getValue();
-
+							.getMarkerValue(selectMarkers.get(k)).getValue();					 
 				}
 				groupAssignments[globleArrayIndex] = i + 1;
 				globleArrayIndex++;
 			}
 		}
+		
 
 		AnovaInput anovaInput = new AnovaInput(A,groupAssignments, numGenes,
 			    numSelectedGroups, pvalueth, anovaAnalysisPanel.pValueEstimation.ordinal(),
@@ -227,6 +211,9 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 				}
 				return null; // cancelled
 			}
+			
+			
+			//System.out.println(output.toString());
 
 			int[] featuresIndexes = output.getFeaturesIndexes();
 			double[] significances = output.getSignificances();
@@ -238,8 +225,7 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 				DSGeneMarker item = view.markers().get(featuresIndexes[i]);
 				log.debug("SignificantMarker: " + item.getLabel()
 						+ ", with apFM: " + significances[i]);
-				panelSignificant.add(item, new Float(significances[i]));
-				sigSet.setSignificance(item, significances[i]);
+				panelSignificant.add(item, new Float(significances[i]));				 
 				significantMarkerNames[i] = item.getLabel();
 			}
 
@@ -249,17 +235,19 @@ public class AnovaAnalysis extends AbstractGridAnalysis implements
 
 			/* add to Dataset History */
 			String history = generateHistoryString(view);
-			HistoryPanel.addToHistory(sigSet, history);
-
+		 
 			anovaResultSet = new CSAnovaResultSet<DSGeneMarker>(view,
-					"Anova Analysis Result Set", labels,
+					"Anova Analysis Result Set", labels, pvalueth,
 					significantMarkerNames, output.getResult2DArray());
 			log.debug(significantMarkerNames.length
-					+ "Markers added to anovaResultSet.");
-			anovaResultSet.getSignificantMarkers().addAll(
-					sigSet.getSignificantMarkers());
-			log.debug(sigSet.getSignificantMarkers().size()
-					+ "Markers added to anovaResultSet.getSignificantMarkers().");
+					+ " Markers added to anovaResultSet.");
+		 
+			for (int cx = 0; cx < significantMarkerNames.length; cx++) {
+				DSGeneMarker marker = (DSGeneMarker) view.allMarkers().get(
+						significantMarkerNames[cx]);
+				anovaResultSet.setSignificance(marker,
+						anovaResultSet.getSignificance(marker));
+			}
 			
 			if (significantMarkerNames.length > 0)
 			    anovaResultSet.sortMarkersBySignificance();
