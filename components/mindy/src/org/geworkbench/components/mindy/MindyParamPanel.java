@@ -337,6 +337,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 							geneListBuilder.append(hub + ", ");
 							hub = reader.readLine();
 						}
+						reader.close();
 
 						String geneString = geneListBuilder.toString();
 						String s = geneString.substring(0,
@@ -384,6 +385,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 							geneListBuilder.append(line + ", ");
 							line = reader.readLine();
 						}
+						reader.close();
 						String geneString = geneListBuilder.toString();
 						String s = geneString.substring(0,
 								geneString.length() - 2);
@@ -518,6 +520,7 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 							geneListBuilder.append(hub + ", ");
 							hub = reader.readLine();
 						}
+						reader.close();
 						String geneString = geneListBuilder.toString();
 						String s = geneString.substring(0,
 								geneString.length() - 2);
