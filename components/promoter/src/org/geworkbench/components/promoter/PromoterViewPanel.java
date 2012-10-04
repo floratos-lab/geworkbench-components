@@ -1166,16 +1166,28 @@ public final class PromoterViewPanel extends JPanel {
             try {
                 br = new BufferedReader(new FileReader(file));
                 String line = br.readLine();
-                if(line==null) throw new IOException("Unexpected end of file "+file);
+                if(line==null) {
+                	br.close();
+                	throw new IOException("Unexpected end of file "+file);
+                }
                 String[] a = line.trim().split("\t");
                 line = br.readLine();
-                if(line==null) throw new IOException("Unexpected end of file "+file);
+                if(line==null) {
+                	br.close();
+                	throw new IOException("Unexpected end of file "+file);
+                }
                 String[] c = line.trim().split("\t");
                 line = br.readLine();
-                if(line==null) throw new IOException("Unexpected end of file "+file);
+                if(line==null) {
+                	br.close();
+                	throw new IOException("Unexpected end of file "+file);
+                }
                 String[] g = line.trim().split("\t");
                 line = br.readLine();
-                if(line==null) throw new IOException("Unexpected end of file "+file);
+                if(line==null) {
+                	br.close();
+                	throw new IOException("Unexpected end of file "+file);
+                }
                 String[] t = line.trim().split("\t");
                 br.close();
 
