@@ -389,6 +389,7 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 							regulatorListBuilder.append(reg + ", ");
 							reg = reader.readLine();
 						}
+						reader.close();
 
 						String regulatorString = regulatorListBuilder
 								.toString();
@@ -444,6 +445,7 @@ public class MedusaParamPanel extends AbstractSaveableParameterPanel implements
 							targetListBuilder.append(tar + ", ");
 							tar = reader.readLine();
 						}
+						reader.close();
 
 						String targetString = targetListBuilder.toString();
 						targetTextField.setText(targetString.substring(0,

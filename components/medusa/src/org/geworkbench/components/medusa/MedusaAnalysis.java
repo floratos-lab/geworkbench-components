@@ -104,6 +104,7 @@ public class MedusaAnalysis extends AbstractGridAnalysis implements
 			byte[] buffer = new byte[(int)featuresFile.length()];
 			BufferedInputStream bis = new BufferedInputStream(new FileInputStream(featuresFilePath));
 			bis.read(buffer);
+			bis.close();
 			featuresFileContent=new String(buffer);
 			featuresFileName=featuresFile.getName();
 		}catch(Exception e){

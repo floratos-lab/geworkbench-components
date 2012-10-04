@@ -319,6 +319,7 @@ public class MedusaVisualComponent implements VisualPlugin {
 		byte[] decodedInput = Base64.decodeBase64(encodedInput.getBytes());
 		FileOutputStream out = new FileOutputStream(decodedFile);
 		out.write(decodedInput);
+		out.close();
 	}
 
 }
