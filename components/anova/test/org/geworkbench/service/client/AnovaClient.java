@@ -1,6 +1,6 @@
 package org.geworkbench.service.client;
 
-import javax.xml.namespace.QName;
+//import javax.xml.namespace.QName;
 
 //import org.apache.axiom.om.OMElement;
 //import org.apache.axis2.AxisFault;
