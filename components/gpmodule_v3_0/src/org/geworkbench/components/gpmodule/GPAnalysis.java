@@ -326,6 +326,7 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
                 sb.append(line);
                 sb.append("\n");
             }
+            reader.close();
 
             if(just_pref_warning)
                 return true;

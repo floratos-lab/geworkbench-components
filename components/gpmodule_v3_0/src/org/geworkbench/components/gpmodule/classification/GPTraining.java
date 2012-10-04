@@ -232,10 +232,12 @@ public abstract class GPTraining extends AbstractTraining
             {
                 if(!featureNames.contains(feature))
                 {
+                	bufReader.close();
                     throw new ClassifierException("Marker: " + feature + " in "+ filename
                                 + "\nnot found in training data");
                 }
             }
+            bufReader.close();
         }
         catch(IOException e)
         {
