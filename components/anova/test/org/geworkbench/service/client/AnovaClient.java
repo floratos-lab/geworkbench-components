@@ -2,11 +2,11 @@ package org.geworkbench.service.client;
 
 import javax.xml.namespace.QName;
 
-import org.apache.axiom.om.OMElement;
-import org.apache.axis2.AxisFault;
-import org.apache.axis2.addressing.EndpointReference;
-import org.apache.axis2.client.Options;
-import org.apache.axis2.rpc.client.RPCServiceClient;
+//import org.apache.axiom.om.OMElement;
+//import org.apache.axis2.AxisFault;
+//import org.apache.axis2.addressing.EndpointReference;
+//import org.apache.axis2.client.Options;
+//import org.apache.axis2.rpc.client.RPCServiceClient;
 import org.geworkbench.components.anova.data.AnovaInput;
 import org.geworkbench.components.anova.data.AnovaOutput;
 import org.geworkbench.components.anova.Anova;
@@ -163,14 +163,14 @@ float falseSignificantGenesLimit = 121;
 	 * @throws AxisFault
 	 */
 	
-	public void runAnova()
+	/*public void runAnova()
 	{
 		for(int i=0; i<1; i++)
 		{	
 			AnovaThread t = new AnovaThread();
 		    t.start();
 		}
-	}
+	}*/
 	
 	public void runAnovaLocal()
 	{
@@ -184,12 +184,12 @@ float falseSignificantGenesLimit = 121;
 	public static void main(String[] args1) {		 
      
 		AnovaClient ac = new AnovaClient();
-		//ac.runAnovaLocal();
-		ac.runAnova();
+		ac.runAnovaLocal();
+		//ac.runAnova();
 	}
 	
 	
-	private class AnovaThread extends Thread {
+	/*private class AnovaThread extends Thread {
 
 		 
 		public void run() {
@@ -258,7 +258,7 @@ float falseSignificantGenesLimit = 121;
 				e.printStackTrace();
 			}
 		}
-	}
+	}*/
 	
 	private class AnovaLocalThread extends Thread {
 
