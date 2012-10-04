@@ -1,4 +1,4 @@
-package org.geworkbench.components.anova;
+package org.geworkbench.components.anova; 
  
 import org.geworkbench.components.anova.data.AnovaInput;
 import org.geworkbench.components.anova.data.AnovaOutput;
@@ -33,7 +33,7 @@ public class Anova   {
 	
 
 	public Anova(AnovaInput input) {
-		 this.A = input.getA();
+		 this.A = input.getA();		
 		 this.groupAssignments = input.getGroupAssignments();
 		 this.numGenes = input.getNumGenes();
 		 this.numSelectedGroups = input.getNumSelectedGroups();
@@ -46,7 +46,8 @@ public class Anova   {
 
 	public AnovaOutput execute() throws AnovaException {	 
 		 
-		cancelled = false;
+		cancelled = false;		
+	 
 		AlgorithmData data = new AlgorithmData();
 		data.addParam("alpha", String.valueOf(pvalueth));	  
 
