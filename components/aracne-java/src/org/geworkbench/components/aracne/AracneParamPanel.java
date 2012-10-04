@@ -304,6 +304,7 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 	
 	                    String geneString = geneListBuilder.toString();
 	                    hubMarkerList.setText(geneString.substring(0, geneString.length() - 2));
+	                    reader.close();
                     }
 
                 } catch (IOException e) {
@@ -333,6 +334,7 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 	
 	                    String geneString = geneListBuilder.toString();
 	                    targetList.setText(geneString.substring(0, geneString.length() - 2));
+	                    reader.close();
             		}
                 } catch (IOException e) {
                     log.error(e);
