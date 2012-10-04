@@ -61,7 +61,6 @@ public class SVMTraining extends GPTraining implements TrainingTask
         setDefaultPanel(panel);
     }
 
-    @SuppressWarnings("unchecked")
 	public AlgorithmExecutionResults execute(Object input) {
     	AlgorithmExecutionResults results = super.execute(input);
     	if (results == null) return null;
