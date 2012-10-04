@@ -397,6 +397,7 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 						}
 						line = in.readLine();
 					}
+					in.close();
 					if (gene != null) {
 						sequenceMap
 								.put(gene, sequence.toString().toUpperCase());
