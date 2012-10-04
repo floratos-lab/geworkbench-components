@@ -310,11 +310,13 @@ public class EvidenceIntegrationParamPanel extends AbstractSaveableParameterPane
                             evidence.addEdge(Integer.parseInt(splits[0].trim()), Integer.parseInt(splits[1].trim()), Float.parseFloat(splits[2].trim()));
                         } catch (NumberFormatException e) {
                             JOptionPane.showConfirmDialog(null, "There is a problem to parse the file, the line cannot be parsed correctly: " + line);
+                            reader.close();
                             return null;
                         }
                     }
                     line = reader.readLine();
                 }
+                reader.close();
                 return evidence;
             }
 
@@ -342,6 +344,7 @@ public class EvidenceIntegrationParamPanel extends AbstractSaveableParameterPane
                 }
                 line = reader.readLine();
             }
+            reader.close();
             return evidence;
         }
         return null;
