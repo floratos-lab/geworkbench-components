@@ -371,6 +371,13 @@ public class BlastViewComponent implements VisualPlugin {
 					singleAlignmentArea.setCaretPosition(0);
 
 				}
+				else
+				{
+					 
+					singleAlignmentArea.setText("No hits found");
+					singleAlignmentArea.setCaretPosition(0);
+				 
+				}
 
 			}
 		}
