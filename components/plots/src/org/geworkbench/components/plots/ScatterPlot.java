@@ -1367,7 +1367,7 @@ public class ScatterPlot implements VisualPlugin {
             
             if( ((activatedArrays != null) && (activatedArrays.size() <= 0)) && (limitArrays > 0) ) {
             	showAllArrays = true;
-            	dataSetView.setItemPanel(null);
+            	dataSetView.setItemPanel(new CSPanel<DSMicroarray>(""));
             	limitArrays = 0;
             	microarrayModel.refresh();
             	updateBothTabs();
