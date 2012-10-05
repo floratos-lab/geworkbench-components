@@ -232,7 +232,7 @@ public class BlastViewComponent implements VisualPlugin {
 
 		this.blastDataSet = blastDataSet;
 		if (markerList != null && blastDataSet != null && sequenceDB != null) {
-			markerList.setHighlightedIndex(sequenceDB.size() - 1);
+			markerList.setHighlightedIndex(0);
 		}
 
 		summaryStr = resultSet.getSummary();
@@ -248,6 +248,7 @@ public class BlastViewComponent implements VisualPlugin {
 			addAlignedButton.setEnabled(false);
 		} else {
 			// set SummaryPanel On
+			
 			resetButton.setEnabled(true);
 			allButton.setEnabled(true);
 			AddSequenceToProjectButton.setEnabled(true);
