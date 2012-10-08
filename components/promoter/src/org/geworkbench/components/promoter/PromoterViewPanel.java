@@ -75,7 +75,6 @@ import org.geworkbench.bison.datastructure.complex.pattern.DSPatternMatch;
 import org.geworkbench.bison.datastructure.complex.pattern.sequence.CSSeqRegistration;
 import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.util.FilePathnameUtils;
-import org.geworkbench.util.RandomSequenceGenerator;
 import org.geworkbench.util.associationdiscovery.statistics.ClusterStatistics;
 import org.geworkbench.util.patterns.PatternLocations;
 import org.geworkbench.util.patterns.PatternOperations;
