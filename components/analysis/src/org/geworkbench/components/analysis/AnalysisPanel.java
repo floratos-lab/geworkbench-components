@@ -133,7 +133,7 @@ public class AnalysisPanel extends CommandBase implements
 
 	private JTabbedPane jAnalysisTabbedPane = null;
 
-	final private GridServicePanel jGridServicePanel = new GridServicePanel(SERVICE);
+    private GridServicePanel jGridServicePanel = null;
 
 	private JButton save = null;
 	private JButton delete = null;
@@ -652,15 +652,14 @@ public class AnalysisPanel extends CommandBase implements
 		}
 
 		if (selectedAnalysis instanceof AbstractGridAnalysis) {
-			if (selectedAnalysis != pidMap.get(lastDataType)) {
+			if (selectedAnalysis != pidMap.get(lastDataType)) {			 
+				if (jGridServicePanel != null)
+				   jAnalysisTabbedPane.remove(jGridServicePanel);
+				jGridServicePanel = new GridServicePanel(SERVICE);
 				jGridServicePanel.setAnalysisType(selectedAnalysis);
-//				jAnalysisTabbedPane.remove(jGridServicePanel);
-//				if (jAnalysisTabbedPane.getTabCount() > ANALYSIS_TAB_COUNT)
-//					jAnalysisTabbedPane.remove(ANALYSIS_TAB_COUNT);
-
 				jAnalysisTabbedPane.addTab("Services", jGridServicePanel);
 			}
-		} else {
+		} else {		 
 			jAnalysisTabbedPane.remove(jGridServicePanel);
 		}
 		pidMap.put(lastDataType, selectedAnalysis);
