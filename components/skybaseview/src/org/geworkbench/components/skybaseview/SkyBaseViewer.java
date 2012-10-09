@@ -210,9 +210,6 @@ public class SkyBaseViewer implements VisualPlugin {
 		alnt.removeAll();
 		alnq.removeAll();
 
-		JPanel jp = new JPanel();
-		jp.setLayout(new BoxLayout(jp, BoxLayout.LINE_AXIS));
-
 		if (result == null || !result.endsWith(".blout.hits")) {
 			mPanel.add(new JTextArea("No Blast Results Found in SkyBase!"));
 			mPanel.add(new JTextArea(""));
@@ -406,16 +403,29 @@ public class SkyBaseViewer implements VisualPlugin {
 			table.addMouseListener(new PopupListener(popup));
 
 			JScrollPane sp = new JScrollPane(table);
-			sp
-					.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-			sp
-					.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+			sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+			sp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
-			JScrollPane sp2 = new JScrollPane(cp);
-			jp.add(sp2);
+			JPanel bottompane = new JPanel(new BorderLayout());
+			bottompane.add(sp, BorderLayout.CENTER);
+			JButton exportBtn = new JButton("Export Table to CSV");
+			exportBtn.addActionListener(new ActionListener(){
+				public void actionPerformed(ActionEvent e){
+					exportCSV(e);
+				}
+			});
+			JPanel btnpanel = new JPanel();
+			btnpanel.add(exportBtn);
+			bottompane.add(btnpanel, BorderLayout.SOUTH);
 
-			JPanel jp2 = new JPanel(new BorderLayout());
-			jp2.add(jmolPanel, BorderLayout.CENTER);
+			JPanel toppane = new JPanel();
+			toppane.setLayout(new BoxLayout(toppane, BoxLayout.LINE_AXIS));
+
+			JScrollPane leftpane = new JScrollPane(cp);
+			toppane.add(leftpane);
+
+			JPanel rightpane = new JPanel(new BorderLayout());
+			rightpane.add(jmolPanel, BorderLayout.CENTER);
 
 			JPanel buttons = new JPanel();
 			seqlb.setText(seqid);
@@ -454,11 +464,11 @@ public class SkyBaseViewer implements VisualPlugin {
 			});
 			buttons.add(q_alnview);
 
-			jp2.add(buttons, BorderLayout.SOUTH);
-			jp.add(jp2);
+			rightpane.add(buttons, BorderLayout.SOUTH);
+			toppane.add(rightpane);
 
-			mPanel.add(jp);
-			mPanel.add(sp);
+			mPanel.add(toppane);
+			mPanel.add(bottompane);
 			mPanel.revalidate();
 			mPanel.repaint();
 		}
@@ -529,8 +539,21 @@ public class SkyBaseViewer implements VisualPlugin {
 				pw.print(table.getColumnName(table.getColumnCount()-1));
 				pw.println();
 				for (int i = 0; i < table.getRowCount(); i++) {
-					for (int j = 0; j < table.getColumnCount()-1; j++)
-						pw.print(table.getModel().getValueAt(i, j)+",");
+					for (int j = 0; j < table.getColumnCount()-1; j++){
+						Object value = table.getModel().getValueAt(i, j);
+						String strval = "";
+						if (value != null){
+							String colname = columnNames[j];
+							if (colname.equals("pG"))
+								strval = dblformatter.format((Number)value);
+							else if (colname.equals("eValue"))
+								strval = decformatter.format((Number)value);
+							else if (colname.startsWith("Id%") || colname.contains("Coverage"))
+								strval = pctformatter.format((Number)value);
+							else strval = value.toString();
+						}
+						pw.print(strval+",");
+					}
 					String alignment = (String)table.getModel().getValueAt(i, table.getColumnCount()-1);
 					alignment = alignment.replaceAll("\n", "\t");
 					pw.print(alignment);
@@ -690,18 +713,16 @@ public class SkyBaseViewer implements VisualPlugin {
 				boolean isSelected, boolean hasFocus, int row, int col) {
 			if (col == 0)
 				setHorizontalAlignment(JLabel.CENTER);
-			try{
+			if (value == null) setText("");
+			else{
 				String colname = columnNames[col];
 				if (colname.equals("pG"))
-					setText((value == null) ? "" : dblformatter.format((Number)value));
+					setText(dblformatter.format((Number)value));
 				else if (colname.equals("eValue"))
-					setText((value == null) ? "" : decformatter.format((Number)value));
+					setText(decformatter.format((Number)value));
 				else if (colname.startsWith("Id%") || colname.contains("Coverage"))
-					setText((value == null) ? "" : pctformatter.format((Number)value));
-				else setText((value == null) ? "" : value.toString());
-			}catch(Exception e){
-				setText((value == null) ? "" : value.toString());
-				e.printStackTrace();
+					setText(pctformatter.format((Number)value));
+				else setText(value.toString());
 			}
 			if (table.isRowSelected(row))
 				setBackground(table.getSelectionBackground());
