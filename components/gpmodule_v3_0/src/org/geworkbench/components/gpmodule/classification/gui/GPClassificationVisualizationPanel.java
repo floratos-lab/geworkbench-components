@@ -476,7 +476,8 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
                     }
                 }
 
-                maSetNodeComboBox.setMaximumSize(maSetNodeComboBox.getPreferredSize());                
+                Dimension pref = maSetNodeComboBox.getPreferredSize();
+                maSetNodeComboBox.setMaximumSize(new Dimension(pref.width+3, pref.height));                
             }
         });
 
@@ -525,7 +526,8 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
                     TreePath path = maSetGroupTree.getNextMatch(labelItems.get(i), 0, Position.Bias.Forward);
                     maSetGroupTree.addSelectionPath(path);
                 }
-                maSetComboBox.setMaximumSize(maSetComboBox.getPreferredSize());                                
+                Dimension pref = maSetComboBox.getPreferredSize();
+                maSetComboBox.setMaximumSize(new Dimension(pref.width+3, pref.height));                                
             }
         });
 

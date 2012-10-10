@@ -19,6 +19,7 @@ import java.util.TreeMap;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
+import javax.swing.tree.TreeNode;
 
 import org.geworkbench.bison.algorithm.classification.CSVisualClassifier;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
@@ -26,6 +27,9 @@ import org.geworkbench.bison.datastructure.biocollections.PredictionModel;
 import org.geworkbench.bison.datastructure.biocollections.SVMResultSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.builtin.projects.DataSetNode;
+import org.geworkbench.builtin.projects.ProjectPanel;
+import org.geworkbench.builtin.projects.ProjectTreeNode;
 import org.geworkbench.components.gpmodule.GPDataset;
 import org.geworkbench.components.gpmodule.classification.PredictionResult;
 import org.geworkbench.components.gpmodule.classification.VisualGPClassifier;
@@ -118,7 +122,22 @@ public class GPClassificationVisualComponent implements VisualPlugin
 
         if (dataSet instanceof DSMicroarraySet)
         {
-            microarraySets.put(dataSet.getDataSetName(), (DSMicroarraySet)dataSet);
+        	microarraySets.clear();
+        	ProjectTreeNode root = ProjectPanel.getInstance().getRoot();
+        	for (int i = 0; i < root.getChildCount(); i++){
+        		TreeNode projNode = root.getChildAt(i);
+        		for (int j = 0; j < projNode.getChildCount(); j++){
+        			TreeNode dataNode = projNode.getChildAt(j);
+        			if (dataNode instanceof DataSetNode){
+        				DSDataSet<?> dset = ((DataSetNode)dataNode).getDataset();
+        				if (dset instanceof DSMicroarraySet){
+        					DSMicroarraySet mset = (DSMicroarraySet)dset;
+            				microarraySets.put(mset.getDataSetName(), mset);
+        				}
+        			}
+        		}
+        	}
+
 		}
     }
 
