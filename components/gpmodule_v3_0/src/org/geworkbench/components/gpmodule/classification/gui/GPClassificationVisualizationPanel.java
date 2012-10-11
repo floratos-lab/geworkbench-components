@@ -456,8 +456,7 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
                     return;
 
                 JComboBox comboBox = (JComboBox)event.getSource();
-                String microarraySetName = (String)comboBox.getSelectedItem();
-                DSMicroarraySet microarraySet = GPClassificationVisualComponent.microarraySets.get(microarraySetName);
+                DSMicroarraySet microarraySet = ((StringSet)comboBox.getSelectedItem()).maSet;
 
                 maSetComboBox.removeAllItems();
 
@@ -503,8 +502,7 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
                 JComboBox comboBox = (JComboBox)event.getSource();
                 String contextName = (String)comboBox.getSelectedItem();
 
-                String microarraySetName = (String)maSetNodeComboBox.getSelectedItem();
-                DSMicroarraySet microarraySet = GPClassificationVisualComponent.microarraySets.get(microarraySetName);
+                DSMicroarraySet microarraySet = ((StringSet)maSetNodeComboBox.getSelectedItem()).maSet;
                 CSAnnotationContextManager manager = CSAnnotationContextManager.getInstance();
 
                 DSAnnotationContext<?> context = manager.getContext(microarraySet, contextName);
@@ -584,7 +582,7 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
                     @SuppressWarnings({ "rawtypes", "unchecked" })
 					public void run()
                     {
-                        DSMicroarraySet maSet = GPClassificationVisualComponent.microarraySets.get(maSetNodeComboBox.getSelectedItem());
+                        DSMicroarraySet maSet = ((StringSet)maSetNodeComboBox.getSelectedItem()).maSet;
                         CSAnnotationContextManager manager = CSAnnotationContextManager.getInstance();
 
                         String context = (String)maSetComboBox.getSelectedItem();
@@ -652,18 +650,28 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
         jPanel.add(testButton);
         testDataPanel.add(jPanel);
 
-        Iterator<String> it = GPClassificationVisualComponent.microarraySets.keySet().iterator();
+        Iterator<DSMicroarraySet> it = GPClassificationVisualComponent.microarraySets.iterator();
         while(it.hasNext())
         {
-            String key = it.next();
-            DSMicroarraySet microarraySet = GPClassificationVisualComponent.microarraySets.get(key);
-            maSetNodeComboBox.addItem(microarraySet.getDataSetName());
+            DSMicroarraySet microarraySet = it.next();
+            StringSet strset = new StringSet(microarraySet);
+            maSetNodeComboBox.addItem(strset);
 
-            if(microarraySet.getDataSetName().equals(visualGPClassifier.getParentDataSet().getDataSetName()))
+            if(microarraySet.getID().equals(visualGPClassifier.getParentDataSet().getID()))
             {
-                maSetNodeComboBox.setSelectedItem(microarraySet.getDataSetName());
+                maSetNodeComboBox.setSelectedItem(strset);
             }
         }
+    }
+    
+    private class StringSet{
+    	DSMicroarraySet maSet;
+    	String name;
+    	public StringSet(DSMicroarraySet set){
+    		maSet = set;
+    		name = set.getDataSetName();
+    	}
+    	public String toString(){ return name; }
     }
 
     public void itemStateChanged(ItemEvent event)

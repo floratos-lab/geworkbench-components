@@ -13,9 +13,7 @@ package org.geworkbench.components.gpmodule.classification.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.util.Iterator;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
@@ -47,7 +45,7 @@ import org.geworkbench.engine.management.Subscribe;
 @AcceptTypes( {CSVisualClassifier.class, SVMResultSet.class})
 public class GPClassificationVisualComponent implements VisualPlugin
 {
-    public static SortedMap<String, DSMicroarraySet> microarraySets = new TreeMap<String, DSMicroarraySet>();
+    public static ArrayList<DSMicroarraySet> microarraySets = new ArrayList<DSMicroarraySet>();
 
     protected JPanel component;
     protected GPClassificationVisualizationPanel gpClassVisPanel;
@@ -63,47 +61,27 @@ public class GPClassificationVisualComponent implements VisualPlugin
     }
 
     @Subscribe
-    public void receive(org.geworkbench.events.ProjectNodeRemovedEvent e, Object source)
-    {
-        DSDataSet<?> dataSet = e.getDataSet();
-
-        if (dataSet instanceof DSMicroarraySet)
-        {
-            microarraySets.remove(dataSet.getDataSetName());
-		}
-	}
-
-    @Subscribe
-    public void receive(org.geworkbench.events.ProjectNodeRenamedEvent e, Object source)
-    {
-        DSDataSet<?> dataSet = e.getDataSet();
-
-        if (dataSet instanceof DSMicroarraySet)
-        {
-            String oldName = e.getOldName();
-            Iterator<String> it = microarraySets.keySet().iterator();
-            while(it.hasNext())
-            {
-                String key = it.next();
-                DSMicroarraySet microarraySet = (DSMicroarraySet)microarraySets.get(key);
-
-                if(oldName.equals(microarraySet.getDataSetName()))
-                {
-                    microarraySets.remove(microarraySet.getDataSetName());
-                    break;
-                }
-            }
-
-            microarraySets.put(dataSet.getDataSetName(), (DSMicroarraySet)dataSet);
-		}
-	}
-
-    @Subscribe
     public void receive(org.geworkbench.events.ProjectEvent e, Object source)
     {
         DSDataSet<?> dataSet = e.getDataSet();
         if(dataSet != null && (dataSet instanceof VisualGPClassifier || dataSet instanceof SVMResultSet))
         {
+        	microarraySets.clear();
+        	ProjectTreeNode root = ProjectPanel.getInstance().getRoot();
+        	for (int i = 0; i < root.getChildCount(); i++){
+        		TreeNode projNode = root.getChildAt(i);
+        		for (int j = 0; j < projNode.getChildCount(); j++){
+        			TreeNode dataNode = projNode.getChildAt(j);
+        			if (dataNode instanceof DataSetNode){
+        				DSDataSet<?> dset = ((DataSetNode)dataNode).getDataset();
+        				if (dset instanceof DSMicroarraySet){
+        					DSMicroarraySet mset = (DSMicroarraySet)dset;
+            				microarraySets.add(mset);
+        				}
+        			}
+        		}
+        	}
+
             component.removeAll();
 
             VisualGPClassifier gpVisClassifier;
@@ -120,25 +98,6 @@ public class GPClassificationVisualComponent implements VisualPlugin
 		    component.repaint();
         }
 
-        if (dataSet instanceof DSMicroarraySet)
-        {
-        	microarraySets.clear();
-        	ProjectTreeNode root = ProjectPanel.getInstance().getRoot();
-        	for (int i = 0; i < root.getChildCount(); i++){
-        		TreeNode projNode = root.getChildAt(i);
-        		for (int j = 0; j < projNode.getChildCount(); j++){
-        			TreeNode dataNode = projNode.getChildAt(j);
-        			if (dataNode instanceof DataSetNode){
-        				DSDataSet<?> dset = ((DataSetNode)dataNode).getDataset();
-        				if (dset instanceof DSMicroarraySet){
-        					DSMicroarraySet mset = (DSMicroarraySet)dset;
-            				microarraySets.put(mset.getDataSetName(), mset);
-        				}
-        			}
-        		}
-        	}
-
-		}
     }
 
     private SVMClassifier convertSVMResultSetToClassifier(SVMResultSet result) {
