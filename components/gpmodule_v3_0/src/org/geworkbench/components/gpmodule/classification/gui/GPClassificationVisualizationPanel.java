@@ -114,7 +114,7 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
     private ChartPanel chartPanel;
     private JFreeChart curveChart;
     private JSplitPane testMainPanel;
-    private static Map <String, List<String>> testLabels = new HashMap<String, List<String>>();
+    private static Map <DSMicroarraySet, Map<String, List<String>>> maTestLabels = new HashMap<DSMicroarraySet, Map<String, List<String>>>(); 
     private GPTreeModel treeModel;
     private JXTable trainResultsTable;
     private JXTable testResultsTable;
@@ -507,6 +507,12 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
 
                 DSAnnotationContext<?> context = manager.getContext(microarraySet, contextName);
 
+                Map <String, List<String>> testLabels = null;
+                if (!maTestLabels.containsKey(microarraySet)){
+                	testLabels = new HashMap<String, List<String>>();
+                	maTestLabels.put(microarraySet, testLabels);
+                }else testLabels = maTestLabels.get(microarraySet);
+
                 List<String> labelItems = testLabels.get(context.getName());
                 if(labelItems == null || labelItems.isEmpty())
                 {
@@ -587,6 +593,12 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
 
                         String context = (String)maSetComboBox.getSelectedItem();
                         DSAnnotationContext<DSMicroarray> selectedContext = manager.getContext(maSet, context);
+
+                        Map <String, List<String>> testLabels = null;
+                        if (!maTestLabels.containsKey(maSet)){
+                        	testLabels = new HashMap<String, List<String>>();
+                        	maTestLabels.put(maSet, testLabels);
+                        }else testLabels = maTestLabels.get(maSet);
 
                         testLabels.clear();
                         TreePath[] labels = maSetGroupTree.getSelectionPaths();
