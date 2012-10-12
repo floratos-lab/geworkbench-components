@@ -55,12 +55,14 @@ import org.geworkbench.bison.annotation.CSAnnotationContextManager;
 import org.geworkbench.bison.annotation.DSAnnotationContext;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceResultSet;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.bison.util.colorcontext.ColorContext;
 import org.geworkbench.engine.config.MenuListener;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
@@ -865,6 +867,12 @@ public class ColorMosaicPanel implements Printable, VisualPlugin, MenuListener {
 		}
 
 		setMicroarrayPanel(phenoPanel);
+		//Keep fixed marker ranges for significance resultset 
+		CSMicroarraySetView<DSGeneMarker, DSMicroarray> view = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(set);
+		view.setItemPanel(phenoPanel);
+		ColorContext colorContext = (ColorContext)set.getObject(ColorContext.class);
+		if (colorContext!= null) colorContext.updateContext(view);
+
 		// Markers
 		CSPanel<DSGeneMarker> genePanel = new CSPanel<DSGeneMarker>("Markers");
 		sigSet.getSignificantMarkers().setActive(true);
