@@ -49,25 +49,26 @@ public class GPHelpPanel extends JSplitPane
         leftComponent.setLayout(bLayout);
 
         initClassDescPanel();
-        JButton classifierButton = new JButton(label);
-        classifierButton.setText("<html><center>" + label + "</center></html>");
-        classifierButton.setMinimumSize(new Dimension(145, 27));
-        classifierButton.setPreferredSize(new Dimension(145, 27));
-        classifierButton.setMaximumSize(new Dimension(145, 27));
-        classifierButton.addActionListener( new ActionListener()
-        {
-            public void actionPerformed(ActionEvent event)
-            {
-                remove(getRightComponent());
-                setRightComponent(classDescPanel);
-            }
-        });
-
-        leftComponent.add(Box.createRigidArea(new Dimension(1, 8)));
-        leftComponent.add(classifierButton);
 
         if(this.paramDescFile != null)
         {
+            JButton classifierButton = new JButton(label);
+            classifierButton.setText("<html><center>" + label + "</center></html>");
+            classifierButton.setMinimumSize(new Dimension(145, 27));
+            classifierButton.setPreferredSize(new Dimension(145, 27));
+            classifierButton.setMaximumSize(new Dimension(145, 27));
+            classifierButton.addActionListener( new ActionListener()
+            {
+                public void actionPerformed(ActionEvent event)
+                {
+                    remove(getRightComponent());
+                    setRightComponent(classDescPanel);
+                }
+            });
+
+            leftComponent.add(Box.createRigidArea(new Dimension(1, 8)));
+            leftComponent.add(classifierButton);
+            
             initParamDescPanel();
 
             JButton parameterButton = new JButton("Parameters");
