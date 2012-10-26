@@ -17,7 +17,7 @@
 			</html>
 		]]></license>
 			
-		<online-help helpSet="org/geworkbench/components/skybase/help/skybase_HelpSet.hs"/>
+		<online-help helpSet="org/geworkbench/components/skybase/help/skyBase_HelpSet.hs"/>
 	</component>
 
   <plugin id="SkyBaseAnalysis" name="SkyBase Analysis" class="org.geworkbench.components.skybase.SkyBaseAnalysis" source="skybase"/>
