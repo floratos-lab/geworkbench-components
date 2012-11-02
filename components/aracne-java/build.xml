@@ -24,7 +24,9 @@
 	<property name="dest.dir.classes" value="${dest.dir}/${service.name}" />
 	<property name="dest.dir.lib" value="${dest.dir}/lib" />	
 	<property name="axis2.home" value="C:/axis2-1.6.2" />
-	<property name="repository.path" value="${axis2.home}/repository" />
+	<property environment="env" />
+	<property name="tomcat.dir" value="C:\apache-tomcat-5.5.27" />
+	<property name="repository.path" value="${tomcat.dir}\webapps\axis2\WEB-INF\services" />
 
 	<path id="build.class.path">
 		<fileset dir="${axis2.home}/lib">
@@ -69,7 +71,7 @@
 		
 		<jar basedir="${dest.dir.classes}" destfile="${dest.dir}/${service.name}.aar" />
 
-		<copy file="${dest.dir}/${service.name}.aar" tofile="${repository.path}/services/${service.name}.aar" overwrite="true" />
+		<copy file="${dest.dir}/${service.name}.aar" tofile="${repository.path}/${service.name}.aar" overwrite="true" />
 		
 	</target>
 
