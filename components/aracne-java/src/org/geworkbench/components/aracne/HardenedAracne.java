@@ -50,6 +50,7 @@ public class HardenedAracne {
 		public void run() {
 			// TODO to catch the unexpected exception from aracne library, we need to add some field in  UnsafeToStopThread
 			result =  Aracne.run(microarraySet, parameter);
+		 
 		}
 		
 	}
@@ -100,7 +101,7 @@ public class HardenedAracne {
 			graph[i] = runSingleAracne(m, param);
 			bootstrapId++;
 		}
-
+		
 		return consensusNetwork(graph, parameter, pThreshold);
 	}
 

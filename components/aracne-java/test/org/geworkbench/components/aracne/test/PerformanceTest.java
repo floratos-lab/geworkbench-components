@@ -19,6 +19,7 @@ import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.parsers.ExpressionFileFormat;
+import org.geworkbench.parsers.InputFileFormatException; 
 import org.geworkbench.util.Util;
 
 import wb.data.Marker;
@@ -37,8 +38,9 @@ public class PerformanceTest {
 	/**
 	 * @param args
 	 * @throws IOException
+	 * @throws InputFileFormatException 
 	 */
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, InputFileFormatException {
 		DSMicroarraySet dataset = (DSMicroarraySet) new ExpressionFileFormat()
 				.getDataFile(new File(
 				// "C:\\Users\\zji\\Desktop\\ARACNE_testing\\Bcell-100.exp"));
@@ -47,8 +49,8 @@ public class PerformanceTest {
 				dataset);
 		// set the following to be true should not have effect, just to make
 		// everything is the same as running within geWorkbench
-		microarraySetView.useItemPanel(true);
-		microarraySetView.useMarkerPanel(true);
+		//microarraySetView.useItemPanel(true);
+		//microarraySetView.useMarkerPanel(true);
 
 		final Parameter p = new Parameter();
 		List<String> hubGeneList = readHubGeneList(dataset);

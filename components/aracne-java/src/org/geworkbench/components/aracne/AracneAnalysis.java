@@ -7,8 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.Vector;
-
+ 
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
@@ -36,9 +35,12 @@ import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.util.ProgressBar;
+ 
+import org.geworkbench.components.aracne.data.AracneInput;
+import org.geworkbench.components.aracne.data.AracneOutput;
+import org.geworkbench.components.aracne.data.AracneGraphEdge;
 
-import wb.plugins.aracne.GraphEdge;
-import wb.plugins.aracne.WeightedGraph;
+ 
 import edu.columbia.c2b2.aracne.Parameter;
 
 /**
@@ -54,7 +56,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 
 	static Log log = LogFactory.getLog(AracneAnalysis.class);
 
-	private AdjacencyMatrixDataSet adjMatrix;
+	 
 	private final String analysisName = "Aracne";
 	/**
 	 *
@@ -78,29 +80,10 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 		AracneParamPanel params = (AracneParamPanel) aspp;
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> mSetView = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
 
-		final Parameter p = new Parameter();
-		if (params.isHubListSpecified()) {
-			if (params.getHubGeneList() == null
-					|| params.getHubGeneList().size() == 0) {
-				JOptionPane.showMessageDialog(null,
-						"You did not load any genes as hub markers.");
-				return null;
-			}
-
+		final AracneInput aracneInput = new AracneInput();
+		if (params.isHubListSpecified()) {			 
 			ArrayList<String> hubGeneList = params.getHubGeneList();
-			for (String modGene : hubGeneList) {
-				DSGeneMarker marker = mSetView.markers().get(modGene);
-				if (marker == null) {
-					log.info("Couldn't find marker " + modGene
-							+ " specified as hub gene in microarray set.");
-					JOptionPane.showMessageDialog(null, "Couldn't find marker "
-							+ modGene
-							+ " specified as hub gene in microarray set.");
-					return null;
-				}
-			}
-
-			p.setSubnet(new Vector<String>(hubGeneList));
+			aracneInput.setHubGeneList(hubGeneList.toArray(new String[0]));
 		} else {
 			int n = JOptionPane.showConfirmDialog(
 				    null,
@@ -111,71 +94,86 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 				return null;
 
 		}
-		if (params.isThresholdMI()) {
-			p.setThreshold(params.getThreshold());
-		} else {
-	    	if (!params.noCorrection() && mSetView != null && mSetView.markers().size() > 0)
-	    		p.setPvalue(params.getThreshold() / mSetView.markers().size());
-	    	else
-	    		p.setPvalue(params.getThreshold());
-		}
-		if (params.isKernelWidthSpecified()) {
-			p.setSigma(params.getKernelWidth());
-		}
-		if (params.isDPIToleranceSpecified()) {
-			p.setEps(params.getDPITolerance());
-		}
-		if (params.isTargetListSpecified()) {
-			if (params.getTargetGenes() == null
-					|| params.getTargetGenes().size() == 0) {
-				JOptionPane.showMessageDialog(null,
-						"You did not load any target genes.");
-				return null;
-			}
-			p.setTf_list(new Vector<String>(params.getTargetGenes()));
-		}
-		if (adjMatrix != null) {
-			p.setPrecomputedAdjacencies(convert(adjMatrix, mSetView));
-			adjMatrix = null;
-		}
-
-		Parameter.ALGORITHM algor = params.getAlgorithm();
-		p.setAlgorithm(algor);
-
-		Parameter.MODE mode = params.getMode();
-		p.setMode(mode);
-
-		String dataSetName = mSetView.getDataSet().getDataSetName();
-		String DATASETNAME_ALGORITHM_kernel_file = params.getKernelFile(dataSetName);
-		String DATASETNAME_ALGORITHM_threshold_file = params.getThresholdFile(dataSetName);
-
-		p.setKernelFile(DATASETNAME_ALGORITHM_kernel_file);
-		p.setThresholdFile(DATASETNAME_ALGORITHM_threshold_file);
-
-		int bs = params.getBootstrapNumber();
-		double pt = params.getConsensusThreshold();
-		if (bs <= 0 || pt <= 0 || pt > 1)
-			return null;
 		
-		AracneComputation aracneComputation = new AracneComputation(mSetView, p, bs, pt);
+		aracneInput.setIsThresholdMI(params.isThresholdMI());
+		aracneInput.setThreshold(params.getThreshold());
+		aracneInput.setNoCorrection(params.noCorrection());
+		aracneInput.setIsKernelWidthSpecified(params.isKernelWidthSpecified());
+		aracneInput.setKernelWidth(params.getKernelWidth());
+		aracneInput.setIsDPIToleranceSpecified(params.isDPIToleranceSpecified());
+		aracneInput.setDPITolerance(params.getDPITolerance());
+		
+		if (params.isTargetListSpecified()) {			 
+			aracneInput.setTargetGeneList(params.getTargetGenes().toArray(new String[0]));
+		}
+		 
+		aracneInput.setAlgorithm(params.getAlgorithmAsString());		 
+		aracneInput.setMode(params.getModeAsString());
+		String dataSetName = mSetView.getDataSet().getDataSetName();
+		aracneInput.setDataSetName(dataSetName);
+		aracneInput.setDataSetIdentifier(mSetView.getDataSet().getID());
+	 
+		int bs = params.getBootstrapNumber();
+		float pt = (float)params.getConsensusThreshold();
+	 
+		aracneInput.setBootstrapNumber(bs);
+		aracneInput.setConsensusThreshold(pt);
+		
+		String[] markers = new String[mSetView.markers().size()];		
+		int i =0, j=0;
+		for (DSGeneMarker marker : mSetView.markers()) {
+			markers[i++] = marker.getLabel();
+		}
+		aracneInput.setMarkers(markers);
+		
+		DSItemList<DSMicroarray> arrays = mSetView.items();
+		String[] arrayNames = new String[arrays.size()];
+		float[][] markerValues = new float[arrayNames.length][markers.length];
+		i = 0;	 
+		for (DSMicroarray microarray : arrays) {	
+			j = 0;
+			for (DSGeneMarker marker : mSetView.markers()) {
+				markerValues[i][j++] = (float) microarray.getMarkerValue(marker)
+						.getValue();
+			}
+			arrayNames[i++] = microarray.getLabel();
+		}
+		
+		aracneInput.setMicroarrayNames(arrayNames);
+		aracneInput.setMarkerValues(markerValues);
+		
+		System.out.println(aracneInput.toString());
+		
+		AracneComputation aracneComputation = new AracneComputation(aracneInput);
 		
         ProgressBar progressBar = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
 		progressBar.addObserver(new CancelObserver(aracneComputation));
 		progressBar.setTitle("ARACNE");
 		progressBar.setMessage("ARACNE Process Running");
 		progressBar.start();
-
-		WeightedGraph weightedGraph = aracneComputation.execute();
-		
+		AracneOutput aracneOutput;
+		try
+        {
+		    aracneOutput = aracneComputation.execute();
+        }
+        catch (AracneException e) {
+			if (progressBar != null) {
+				progressBar.dispose();
+			}
+			e.printStackTrace();
+			return new AlgorithmExecutionResults(false,
+					"Exception happened in aracne computaiton: " + e, null);
+		}
+        
 		progressBar.stop();
-		if(weightedGraph==null) { // likely cancelled
+		if(aracneOutput==null) { // likely cancelled
 			return null;
 		}
 		
-		if (weightedGraph.getEdges().size() > 0) {
+		if (aracneOutput.getGraphEdges().length > 0) {
 			boolean prune = params.isPrune();
 			AdjacencyMatrixDataSet dataSet = new AdjacencyMatrixDataSet(
-					convert(weightedGraph, p, mSetView.getMicroarraySet(), prune),
+					convert(aracneOutput, params.getHubGeneList(), mSetView.getMicroarraySet(), prune),
 					0, "Adjacency Matrix", "ARACNE Set", mSetView
 							.getMicroarraySet());
 			StringBuilder paramDescB = new StringBuilder(
@@ -184,10 +182,10 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 			String s=prune?"yes":"no";
 			HistoryPanel.addToHistory(dataSet,
 					"Generated with ARACNE run with paramters:\n"
-							+ p.getParamterDescription()
+							+ aracneOutput.getParamterDescription()
 							+ dpiTargetListDescription()+"\n"
 							+ "[PARA] Merge multiple probesets: "+ s+"\n"
-							+ hubMarkersDescription(p)
+							+ hubMarkersDescription(params.getHubGeneList())
 							+ paramDescB.toString());
 			return new AlgorithmExecutionResults(true, "ARACNE Done.", dataSet);
 
@@ -225,9 +223,8 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 	 * this is not included in Parameter's implement, which is outside this
 	 * package
 	 */
-	private final String hubMarkersDescription(Parameter p) {
-		StringBuilder builder = new StringBuilder();
-		Vector<String> subnet = p.getSubnet();
+	private final String hubMarkersDescription(ArrayList<String> subnet) {
+		StringBuilder builder = new StringBuilder();		 
 		if (subnet.size() == 0)
 			return "";
 		builder.append("[PARA] Hub markers: " + subnet.get(0));
@@ -237,40 +234,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 		return builder.toString();
 	}
 	
-	/**
-	 *
-	 * @param adjMatrix
-	 * @param mSet
-	 * @return
-	 */
-	private WeightedGraph convert(AdjacencyMatrixDataSet adjMatrix,
-			DSMicroarraySetView<DSGeneMarker, DSMicroarray> mSet) {
-		WeightedGraph graph = new WeightedGraph(adjMatrix.getNetworkName());
-		AdjacencyMatrix matrix = adjMatrix.getMatrix();
-
-		DSItemList<DSGeneMarker> markers = mSet.markers();
-		for (DSGeneMarker marker : markers) {
-			log.debug(marker.getLabel() + "added");
-			graph.addEdge(marker.getLabel(), marker.getLabel(), 0);
-		}
-		for (AdjacencyMatrix.Edge edge : matrix.getEdges()) {
-			if (edge.node1.type==NodeType.MARKER) {
-				DSGeneMarker gene1 = edge.node1.marker;
-				if (edge.node2.type==NodeType.MARKER) {
-					DSGeneMarker destGene = edge.node2.marker;
-					graph.addEdge(gene1.getLabel(), destGene.getLabel(),
-							edge.info.value);
-				} else {
-					log.debug("Gene with index " + edge.node2
-							+ " not found in selected genes, skipping.");
-				}
-			} else {
-				log.debug("Gene with index " + edge.node1
-						+ " not found in selected genes, skipping.");
-			}
-		}
-		return graph;
-	}
+	 
 
 	/**
 	 * Convert the result from aracne-java to an AdjacencyMatrix object.
@@ -279,18 +243,19 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 	 * @param mSet
 	 * @return
 	 */
-	private static AdjacencyMatrix convert(WeightedGraph graph, Parameter p,
+	private static AdjacencyMatrix convert(AracneOutput aracneOutput, ArrayList<String> hubGeneList,
 			DSMicroarraySet mSet, boolean prune) {
 		AdjacencyMatrix matrix = new AdjacencyMatrix(null);
-
-		Vector<String> subnet = p.getSubnet();
-
+		AracneGraphEdge[] aracneGraphEdges= aracneOutput.getGraphEdges();
+	    if (aracneGraphEdges == null || aracneGraphEdges.length == 0)
+	    	return matrix;
+	    
 		int nEdge = 0;
-		for (GraphEdge graphEdge : graph.getEdges()) {
-			DSGeneMarker marker1 = mSet.getMarkers().get(graphEdge.getNode1());
-			DSGeneMarker marker2 = mSet.getMarkers().get(graphEdge.getNode2());
+		for (int i=0; i<aracneGraphEdges.length; i++) {
+			DSGeneMarker marker1 = mSet.getMarkers().get(aracneGraphEdges[i].getNode1());
+			DSGeneMarker marker2 = mSet.getMarkers().get(aracneGraphEdges[i].getNode2());
 			
-			if (!subnet.contains(marker1.getLabel())) {
+			if (!hubGeneList.contains(marker1.getLabel())) {
 				DSGeneMarker m = marker1;
 				marker1 = marker2;
 				marker2 = m;
@@ -300,13 +265,13 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 			if (!prune) {
 				node1 = new AdjacencyMatrix.Node(marker1);
 				node2 = new AdjacencyMatrix.Node(marker2);
-				matrix.add(node1, node2, graphEdge.getWeight(), null);
+				matrix.add(node1, node2, aracneGraphEdges[i].getWeight(), null);
 			} else {
 				node1 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL,
 						marker1.getGeneName());
 				node2 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL,
 						marker2.getGeneName());
-				matrix.add(node1, node2, graphEdge.getWeight());
+				matrix.add(node1, node2, aracneGraphEdges[i].getWeight());
 			}
 			nEdge++;
 		}
@@ -399,6 +364,16 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 						"DPI Tolerance should be a float number between 0.0 and 1.0.");
 			}
 			;
+		}
+		
+		if (params.isTargetListSpecified()) {
+			if (params.getTargetGenes() == null
+					|| params.getTargetGenes().size() == 0) {
+				return new ParamValidationResults(false,
+						"You did not load any target genes.");
+				 
+			}
+			 
 		}
 		
 		if (params.getBootstrapNumber() <= 0) {
@@ -571,7 +546,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 									+ " specified as hub gene in microarray set.");
 				}
 			}
-		}
+		} 
 
 		if(maSetView.size()<MINIMUM_ARRAY_NUMBER) {
 			int n = JOptionPane.showConfirmDialog(
