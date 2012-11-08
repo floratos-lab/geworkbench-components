@@ -1,30 +1,14 @@
-<!--
-  ~ Licensed to the Apache Software Foundation (ASF) under one
-  ~ or more contributor license agreements. See the NOTICE file
-  ~ distributed with this work for additional information
-  ~ regarding copyright ownership. The ASF licenses this file
-  ~ to you under the Apache License, Version 2.0 (the
-  ~ "License"); you may not use this file except in compliance
-  ~ with the License. You may obtain a copy of the License at
-  ~
-  ~ http://www.apache.org/licenses/LICENSE-2.0
-  ~
-  ~ Unless required by applicable law or agreed to in writing,
-  ~ software distributed under the License is distributed on an
-  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-  ~ KIND, either express or implied. See the License for the
-  ~ specific language governing permissions and limitations
-  ~ under the License.
-  -->
-
-<project name="pojoguide" basedir="." default="generate.service">
+ 
+<project name="AnovaService" basedir="." default="generate.service">
 
 	<property name="service.name" value="AnovaService" />
 	<property name="dest.dir" value="build" />
 	<property name="dest.dir.classes" value="${dest.dir}/${service.name}" />
 	<property name="dest.dir.lib" value="${dest.dir}/lib" />	
-	<property name="axis2.home" value="C:/axis2-1.6.2" />
-	<property name="repository.path" value="${axis2.home}/repository" />
+	<property environment="env"/>
+       <property name="axis2.home" value="${env.AXIS2_HOME}" />
+       <property name="tomcat.dir" value="${env.CATALINA_HOME}"/>
+	<property name="repository.path" value="${tomcat.dir}\webapps\axis2\WEB-INF\services" />
 
 	<path id="build.class.path">
 		<fileset dir="${axis2.home}/lib">
@@ -45,9 +29,7 @@
 
 	</path>
 	<target name="clean">
-		<delete dir="${dest.dir}" />
-		<!-- TODO -->
-		<delete dir="src" includes="sample/pojo/stub/**"/>
+		<delete dir="${dest.dir}" />		 
 	</target>
 
 	<target name="prepare">
@@ -59,17 +41,14 @@
 
 	<target name="generate.service" depends="clean,prepare">
 
-		<copy file="src/META-INF/services.xml" tofile="${dest.dir.classes}/META-INF/services.xml" overwrite="true" />
-
-		<!-- javac srcdir="src" destdir="${dest.dir.classes}" includes="sample/pojo/service/**,sample/pojo/data/**" -->
-		<!-- org/geworkbench/util/** -->
+		<copy file="src/META-INF/services.xml" tofile="${dest.dir.classes}/META-INF/services.xml" overwrite="true" />	 
 		<javac srcdir="src" destdir="${dest.dir.classes}" includes="org/geworkbench/components/anova/service/**,org/geworkbench/components/anova/data/**">
 			<classpath refid="build.class.path" />
 		</javac>
 		
 		<jar basedir="${dest.dir.classes}" destfile="${dest.dir}/${service.name}.aar" />
 
-		<copy file="${dest.dir}/${service.name}.aar" tofile="${repository.path}/services/${service.name}.aar" overwrite="true" />
+		<copy file="${dest.dir}/${service.name}.aar" tofile="${repository.path}/${service.name}.aar" overwrite="true" />
 		
 	</target>
 
