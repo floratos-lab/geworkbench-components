@@ -142,7 +142,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 		aracneInput.setMicroarrayNames(arrayNames);
 		aracneInput.setMarkerValues(markerValues);
 		
-		System.out.println(aracneInput.toString());
+		//System.out.println(aracneInput.toString());
 		
 		AracneComputation aracneComputation = new AracneComputation(aracneInput);
 		
