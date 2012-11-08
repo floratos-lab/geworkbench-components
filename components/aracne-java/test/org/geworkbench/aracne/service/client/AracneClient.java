@@ -2,7 +2,11 @@ package org.geworkbench.aracne.service.client;
 
 import javax.xml.namespace.QName;
 
- 
+//import org.apache.axiom.om.OMElement;
+//import org.apache.axis2.AxisFault;
+//import org.apache.axis2.addressing.EndpointReference;
+//import org.apache.axis2.client.Options;
+//import org.apache.axis2.rpc.client.RPCServiceClient;
 import org.geworkbench.components.aracne.data.AracneInput;
 import org.geworkbench.components.aracne.data.AracneOutput;
 import org.geworkbench.components.aracne.AracneComputation;
@@ -12,7 +16,7 @@ import org.geworkbench.components.aracne.AracneException;
 public class AracneClient {
 	 
 	String dataSetName = "web100.exp";
-	String dataSetIdentifier = "-2144751240";
+	String dataSetIdentifier = "240";
 	String[] hubGeneList = {"31358_at","31359_at","31360_at"};
 	String mode = "Discovery";
 	String algorithm = "Adaptive Partitioning";
@@ -103,14 +107,14 @@ public class AracneClient {
 	 * @throws AxisFault
 	 */
 	
-	/*public void runaracne()
+	/*public void runAracne()
 	{
 		for(int i=0; i<1; i++)
 		{	
 			aracneThread t = new aracneThread();
 		    t.start();
 		}
-	}*/
+	} */
 	
 	public void runAranceLocal()
 	{
@@ -125,7 +129,7 @@ public class AracneClient {
      
 		AracneClient ac = new AracneClient();
 		ac.runAranceLocal();
-		//ac.runaracne();
+		//ac.runAracne();
 	}
 	
 	
@@ -137,17 +141,16 @@ public class AracneClient {
 			System.out.println("Start service ..." + new java.util.Date());
 			
 
-			aracneInput input = new aracneInput();
-			input.setA(A);
-			input.setFalseDiscoveryRateControl(falseDiscoveryRateControl);
-			input.setFalseSignificantGenesLimit(falseSignificantGenesLimit);
-			input.setGroupAssignments(groupAssignments);
-			input.setNumGenes(numGenes);
-			input.setNumSelectedGroups(numSelectedGroups);
-			input.setPermutationsNumber(permutationsNumber);
-			input.setPValueEstimation(pValueEstimation);
-			input.setPvalueth(pvalueth);
+			AracneInput input = new AracneInput(dataSetName, dataSetIdentifier, hubGeneList, mode,
+					algorithm, isKernelWidthSpecified,
+					kernelWidth, isThresholdMI, noCorrection,
+				    threshold, isDPIToleranceSpecified,
+					dPITolerance, targetGeneList,
+					bootstrapNumber, consensusThreshold, markers,
+					microarrayNames,
+					markerValues);
 			 
+			 System.out.println(input.toString());
 			RPCServiceClient serviceClient;
 			
 			try {
@@ -156,28 +159,28 @@ public class AracneClient {
 				Options options = serviceClient.getOptions();
 
 				EndpointReference targetEPR = new EndpointReference(
-						"http://156.145.28.209:8080/axis2/services/aracneService");
+						"http://afdev.c2b2.columbia.edu:9090/axis2/services/AracneService");
 				options.setTo(targetEPR);
 
+				long soTimeout = 2 * 24 * 60 * 60 * 1000; // 2 days
+				options.setTimeOutInMilliSeconds(soTimeout);
+				
+				
 				// notice that that namespace is in the required form
 				QName opName = new QName(
 						"http://service.aracne.components.geworkbench.org",
 						"execute");
 				Object[] args = new Object[] { input };
 
-				Class<?>[] returnType = new Class[] { aracneOutput.class };
+				Class<?>[] returnType = new Class[] { AracneOutput.class };
 
 				Object[] response = serviceClient.invokeBlocking(opName, args,
 						returnType);
 				
-				aracneOutput output = (aracneOutput) response[0];
+				AracneOutput output = (AracneOutput) response[0];
 				System.out.println(output.toString());	
 				System.out.println("Finished service ..." + new java.util.Date());
-				
-				int[] featuresIndexes = output.getFeaturesIndexes();
-				double[] significances = output.getSignificances();
-				String[] significantMarkerNames = new String[featuresIndexes.length];
-				
+			 
 				
 			} catch (AxisFault e) {
 				// TODO Auto-generated catch block
