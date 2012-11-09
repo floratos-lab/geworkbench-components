@@ -95,7 +95,7 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
     private JTextField hubMarkerList = new JTextField(DEFAULT_HUB);
     private JTextField kernelWidth = new JTextField("0.1");
     private JTextField threshold = new JTextField("0.01");
-    private JTextField dpiTolerance = new JTextField("0.1");
+    private JTextField dpiTolerance = new JTextField("0");
     //private JCheckBox targetCheckbox = new JCheckBox();
     private JComboBox dpiTargetCombo=new JComboBox(new String[]{DPI_NONE, FROM_SETS, FROM_FILE});
     private JComboBox targetSetCombo=new JComboBox();
