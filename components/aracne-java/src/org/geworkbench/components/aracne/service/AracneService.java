@@ -7,7 +7,7 @@ import org.geworkbench.components.aracne.AracneComputation;
 
 public class AracneService {
 
-	public AracneOutput execute(AracneInput input) {
+	public AracneOutput execute(AracneInput input) throws AracneException{
 		 
 		try {
 			AracneOutput output = null;
@@ -18,9 +18,8 @@ public class AracneService {
 				e.printStackTrace();
 			}
 			return output;
-		} catch (AracneException e) {
-			e.printStackTrace();
-			return null;
+		} catch (AracneException e) {			 
+			throw new  AracneException(e.getMessage());
 		}
 	}
 }

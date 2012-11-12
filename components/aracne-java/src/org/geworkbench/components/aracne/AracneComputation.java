@@ -51,7 +51,7 @@ public class AracneComputation {
 		try {
 			
 			
-			//validateAracneInput();
+			validateAracneInput();
 			MicroarraySet microarraySet = getMicroarraySet();
 			final Parameter p = getParamter(); 	
 			int bootstrapNumber = aracneInput.getBootstrapNumber();
@@ -72,10 +72,12 @@ public class AracneComputation {
 				return convert(hardenedAracne.run(microarraySet, p, bootstrapNumber,
 						pThreshold), p.getParamterDescription());
 			}
+		}catch (AracneException e) {			 
+			throw new AracneException(e.getMessage());
 		}catch (Exception e) {
-			log.warn("Exception caught in ARACNe run: " + e.toString());
-			throw new AracneException(e.toString());
-		}
+		    log.warn("Exception caught in ARACNe run: " + e.getMessage());
+		    throw new AracneException(e.getMessage());
+	    }
 		return null;
 	}
 
@@ -248,7 +250,7 @@ public class AracneComputation {
 			AracneGraphEdge aracneGraphEdge = new AracneGraphEdge(graphEdge.getNode1(),graphEdge.getNode2(),  graphEdge.getWeight());
 			aracneGraphEdges[nEdge] = aracneGraphEdge;
 			nEdge++;
-		}
+		} 
 		log.debug("edge count " + nEdge);
 		return new AracneOutput(aracneGraphEdges, paramterDescription);
 	}
