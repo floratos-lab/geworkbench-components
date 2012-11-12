@@ -34,18 +34,21 @@
 	</target>
 
 	<target name="prepare">
-		<mkdir dir="${dest.dir}" />
-		<mkdir dir="${dest.dir}/lib" />
+		<mkdir dir="${dest.dir}" />		
 		<mkdir dir="${dest.dir.classes}" />
 		<mkdir dir="${dest.dir.classes}/META-INF" />
+                <mkdir dir="${dest.dir.classes}/lib" />
 	</target>
 
 	<target name="generate.service" depends="clean,prepare">
 
 		<copy file="src/META-INF/services.xml" tofile="${dest.dir.classes}/META-INF/services.xml" overwrite="true" />
-
-		<!-- javac srcdir="src" destdir="${dest.dir.classes}" includes="sample/pojo/service/**,sample/pojo/data/**" -->
-		<!-- org/geworkbench/util/** -->
+                <copy toDir="${dest.dir.classes}/lib" overwrite="true">
+			<fileset dir="lib">
+				<include name="*.jar" />				 
+			</fileset>			 
+		</copy>
+		 
 		<javac srcdir="src" destdir="${dest.dir.classes}" includes="org/geworkbench/components/aracne/service/**,org/geworkbench/components/aracne/data/**">
 			<classpath refid="build.class.path" />
 		</javac>
@@ -66,20 +69,19 @@
 
 		</target>
 
-		<target name="rpc.client.compile">
-			<!--<javac srcdir="src" destdir="${dest.dir.classes}" includes="sample/pojo/rpcclient/**,sample/pojo/data/**">-->
-			<javac srcdir="src" destdir="${dest.dir.classes}" includes="test/org/geworkbench/service/client/**"> 
-			    <classpath refid="build.class.path" />
-			</javac>
-		</target>
+ 	<target name="rpc.client.compile">
+ 			<javac srcdir="test" destdir="${dest.dir.classes}" includes="org/geworkbench/aracne/service/client/**,org/geworkbench/components/aracne/data/**">
+ 				<classpath refid="build.class.path" />
+ 			</javac>
+ 		</target>
 
-		<target name="rpc.client.jar">
-			<jar basedir="${dest.dir.classes}" destfile="${dest.dir.lib}/rpc-client.jar" includes="sample/pojo/rpcclient/**,sample/pojo/data/**" />
-		</target>
+ 		<target name="rpc.client.jar">
+ 			<jar basedir="${dest.dir.classes}" destfile="${dest.dir.lib}/rpc-client.jar" includes="org/geworkbench/aracne/service/client/**,org/geworkbench/components/aracne/data/**" />
+ 		</target>
 
-		<target name="rpc.client.run">
-			<java classname="org.geworkbench.service.client.AracneClient" fork="true"> 	 
-				<classpath refid="client.class.path" />
-			</java>
-	</target>
+ 		<target name="rpc.client.run">
+ 			<java classname="org.geworkbench.aracne.service.client.AracneClient" fork="true">
+ 				<classpath refid="client.class.path" />
+ 			</java>
+ 		</target>
 </project>
