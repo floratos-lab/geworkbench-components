@@ -32,5 +32,7 @@
 	<classpathentry kind="lib" path="lib/org.genomespace.jersey-apache-client-1.5.jar"/>
 	<classpathentry kind="lib" path="lib/stax-api-1.0-2.jar"/>
 	<classpathentry kind="lib" path="lib/org.apache.servicemix.bundles.aws-java-sdk-1.3.0_1.jar"/>
+	<classpathentry kind="lib" path="lib/com.springsource.org.apache.httpcomponents.httpclient-4.1.1.jar"/>
+	<classpathentry kind="lib" path="lib/com.springsource.org.apache.httpcomponents.httpcore-4.1.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
