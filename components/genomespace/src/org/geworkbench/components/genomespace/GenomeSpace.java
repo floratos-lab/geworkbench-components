@@ -589,6 +589,8 @@ public class GenomeSpace implements VisualPlugin {
 						JOptionPane.showMessageDialog(null, "Cannot upload file to GenomeSpace: local dataset file not found");
 						return null;
 					}
+					String saxdriver = System.getProperty("org.xml.sax.driver");
+					System.setProperty("org.xml.sax.driver", "com.sun.org.apache.xerces.internal.parsers.SAXParser");
 					try{
 						GSFileMetadata filemeta = dmClient.uploadFile(localfile, dmClient.getMetadata(parentnode.getDescription()));
 						//FIXME: delete on exception
@@ -602,6 +604,7 @@ public class GenomeSpace implements VisualPlugin {
 						JOptionPane.showMessageDialog(null, "Cannot upload "+mset.getLabel()+" to genomespace",
 								"Upload Error", JOptionPane.ERROR_MESSAGE);
 					}
+					System.setProperty("org.xml.sax.driver", saxdriver);
 				}
 			}
 
