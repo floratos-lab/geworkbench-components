@@ -292,7 +292,7 @@ public class MasterRegulatorAnalysis extends AbstractGridAnalysis implements
 				//now we got w in genesInTargetList
 				int w = mraAnalysisPanel.twoFET()?a1.size():genesInTargetList.size();
 				
-				//calculate P-value by using Fishe's Exact test
+				//calculate P-value by using Fisher's Exact test
 				int a=w;
 				int b=y-w;
 				int c=z-w;
