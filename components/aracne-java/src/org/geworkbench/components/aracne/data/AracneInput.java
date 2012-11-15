@@ -170,7 +170,7 @@ public class AracneInput {
 		this.consensusThreshold = consensusThreshold;
 	}
 
-	public double getConsensusThreshold() {
+	public float getConsensusThreshold() {
 		return this.consensusThreshold;
 	}
 	 

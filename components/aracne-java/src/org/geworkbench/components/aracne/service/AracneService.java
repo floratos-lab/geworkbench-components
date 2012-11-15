@@ -10,13 +10,9 @@ public class AracneService {
 	public AracneOutput execute(AracneInput input) throws AracneException{
 		 
 		try {
-			AracneOutput output = null;
-			try {
-			  output = new AracneComputation(
-					input).execute();
-			} catch (NullPointerException e) {
-				e.printStackTrace();
-			}
+			AracneOutput output = null;			 
+			output = new AracneComputation(
+					input).execute();			 
 			return output;
 		} catch (AracneException e) {			 
 			throw new  AracneException(e.getMessage());
