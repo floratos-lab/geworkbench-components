@@ -26,7 +26,7 @@ public class EIProgress extends JDialog {
         setLayout(new BorderLayout());
         setModal(true);
         setTitle("Evidence Integration Running");
-        setSize(300, 50);
+//        setSize(300, 50);
         setLocation((int) (getToolkit().getScreenSize().getWidth() - getWidth()) / 2, (int) (getToolkit().getScreenSize().getHeight() - getHeight()) / 2);
         JProgressBar progress = new JProgressBar();
         progress.setIndeterminate(true);
@@ -49,6 +49,7 @@ public class EIProgress extends JDialog {
             }
         });
 
+        pack();
         eiThread.start();
     }
 
