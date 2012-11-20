@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
@@ -219,7 +220,7 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 		progressBar.setMessage("Running MINDY Algorithm");
 
 		String history = params.getDataSetHistory()
-				+ generateHistoryForMaSetView(inputSetView);
+				+ generateHistoryForMicrorraySet(mSet);
 
 		log.debug("Running MINDY algorithm...");
 		cancelled = false;
@@ -273,6 +274,39 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 		return new AlgorithmExecutionResults(true, "Mindy Result Added", mindyDataSet);
 	}
 
+	static private String generateHistoryForMicrorraySet(
+			DSMicroarraySet microarraySet) {
+		StringBuilder ans = new StringBuilder(
+				"=The MicroarraySet used for analysis: ");
+		final String NEWLINE = "\n";
+		ans.append(NEWLINE);
+		try {
+			ans.append("==Used Microarrays [").append(microarraySet.size())
+					.append("]==").append(NEWLINE);
+			for (Iterator<DSMicroarray> iterator = microarraySet.iterator(); iterator
+					.hasNext();) {
+				DSMicroarray array = iterator.next();
+				ans.append("\t").append(array.getLabel()).append(NEWLINE);
+			}
+
+			ans.append("==End of Microarray Sets==").append(NEWLINE);
+
+			DSItemList<DSGeneMarker> markers = microarraySet.getMarkers();
+			ans.append("==Used Markers [").append(markers.size())
+					.append("]==\n");
+			for (DSGeneMarker marker : markers) {
+				ans.append("\t").append(marker.getLabel()).append("\n");
+			}
+
+			ans.append("==End of Used Markers==").append(NEWLINE);
+		} catch (ClassCastException cce) {
+			/* it's not a DSPanel, we generate nothing for panel part */
+			log.error(cce);
+		}
+		ans.append("=End of MicroarraySet data=");
+		return ans.toString();
+	}
+	
 	/**
 	 * Receives GeneSelectorEvents from the framework (i.e. the Selector Panel)
 	 * 
