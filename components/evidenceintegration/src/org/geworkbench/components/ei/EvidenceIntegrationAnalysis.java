@@ -1,18 +1,14 @@
 package org.geworkbench.components.ei;
 
-import java.io.Serializable;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractAnalysis;
-import org.geworkbench.analysis.AbstractGridAnalysis;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
@@ -20,7 +16,6 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
-import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.builtin.projects.DataSetNode;
 import org.geworkbench.builtin.projects.DataSetSubNode;
 import org.geworkbench.builtin.projects.ProjectPanel;
@@ -36,14 +31,13 @@ import edu.columbia.c2b2.evidenceinegration.EvidenceIntegration;
  * @author mhall
  * @version $Id$
  */
-public class EvidenceIntegrationAnalysis extends AbstractGridAnalysis implements ClusteringAnalysis {
+public class EvidenceIntegrationAnalysis extends AbstractAnalysis implements ClusteringAnalysis {
 
 	private static final long serialVersionUID = 7288801656726834224L;
 	
 	public static final String DB_URL = "jdbc:mysql://afdev.c2b2.columbia.edu:3306/evidence_integration";
     public static final String DB_USERNAME = "evidence_integ";
     public static final String DB_PASSWORD = "S@cUrE_aR@a56";
-    private final String analysisName = "EvidenceIntegration";
 
     EvidenceIntegration eiEngine = new EvidenceIntegration(DB_URL, DB_USERNAME, DB_PASSWORD);
 
@@ -59,21 +53,6 @@ public class EvidenceIntegrationAnalysis extends AbstractGridAnalysis implements
 
     public int getAnalysisType() {
         return AbstractAnalysis.ZERO_TYPE;
-    }
-
-    public Map<Serializable, Serializable> getBisonParameters() {
-        return null;
-    }
-
-    ;
-
-    /*
-      * (non-Javadoc)
-      * @see org.geworkbench.analysis.AbstractGridAnalysis#getAnalysisName()
-      */
-    @Override
-    public String getAnalysisName() {
-        return analysisName;
     }
 
     public AlgorithmExecutionResults execute(Object input) {
@@ -206,41 +185,5 @@ public class EvidenceIntegrationAnalysis extends AbstractGridAnalysis implements
         }
 
     }
-    
-    /*
-     * (non-Javadoc)
-     * @see org.geworkbench.analysis.AbstractGridAnalysis#getBisonReturnType()
-     */
-	@Override
-	public Class<?> getBisonReturnType() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see org.geworkbench.analysis.AbstractGridAnalysis#useMicroarraySetView()
-	 */
-	@Override
-	protected boolean useMicroarraySetView() {
-		return true;
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see org.geworkbench.analysis.AbstractGridAnalysis#useOtherDataSet()
-	 */
-	@Override
-	protected boolean useOtherDataSet() {
-		return false;
-	}
-
-	@Override
-	public ParamValidationResults validInputData(
-			DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView,
-			DSDataSet<?> refMASet) {
-		// TODO Auto-generated method stub
-		return new ParamValidationResults(true,"Not Checked.");
-	}
 
 }
