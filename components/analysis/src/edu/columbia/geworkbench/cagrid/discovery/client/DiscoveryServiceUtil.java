@@ -42,7 +42,7 @@ public class DiscoveryServiceUtil {
 	 * @return
 	 * @throws Exception
 	 */
-	public static EndpointReferenceType[] getServices(String indexServiceUrl, String dispatcherUrl,
+	public static EndpointReferenceType[] getServices(String indexServiceUrl,
 			String search) throws Exception {
 
 		EndpointReferenceType[] allServices = null;

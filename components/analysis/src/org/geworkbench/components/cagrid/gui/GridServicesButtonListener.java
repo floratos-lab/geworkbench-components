@@ -36,13 +36,13 @@ import gov.nih.nci.cagrid.metadata.ServiceMetadata;
 public class GridServicesButtonListener implements ActionListener {
 	private static Log log = LogFactory.getLog(GridServicesButtonListener.class);
 
-	private IndexServiceSelectionButtonListener indexServiceSelectionButtonListener = null;
+	private final IndexServiceSelectionButtonListener indexServiceSelectionButtonListener;
 
-	private String selectedAnalysisType = null;
+	private final String searchString;
 
-	private ButtonGroup servicesButtonGroup = null;
+	private final ButtonGroup servicesButtonGroup;
 
-	private GridServicePanel gridServicePanel = null;
+	private final GridServicePanel gridServicePanel;
 
 	/**
 	 * 
@@ -53,12 +53,14 @@ public class GridServicesButtonListener implements ActionListener {
 	public GridServicesButtonListener(
 			final GridServicePanel gridServicePanel,
 			final IndexServiceSelectionButtonListener indexServiceSelectionButtonListener,
-			final ButtonGroup servicesButtonGroup
+			final ButtonGroup servicesButtonGroup,
+			final String searchString
 			) {
 		super();
 		this.gridServicePanel = gridServicePanel;
 		this.indexServiceSelectionButtonListener = indexServiceSelectionButtonListener;
 		this.servicesButtonGroup = servicesButtonGroup;
+		this.searchString = searchString;
 	}
 
 	/*
@@ -79,8 +81,8 @@ public class GridServicesButtonListener implements ActionListener {
 				String indexServerUrl = gridServicePanel.getIndexServerUrl();
 				EndpointReferenceType[] services = null;
 				try {
-					services = DiscoveryServiceUtil.getServices(indexServerUrl,gridServicePanel.getDispatcherUrl(),
-							selectedAnalysisType);
+					services = DiscoveryServiceUtil.getServices(indexServerUrl,
+							searchString);
 				} catch (Exception e) {
 					final JLabel linkedLabel = new JLabel("<html>No service running. Please check with the administrator of your grid infrastructure. For services hosted by the geWorkbench team you can inquire at the geWorkbench <A href=https://cabig-kc.nci.nih.gov/Molecular/forums/viewforum.php?f=10&sid=237690e6926a15d8062491481120867a>KC Forum</a></html>");
 					linkedLabel.addMouseListener(new MouseListener() {
@@ -180,14 +182,6 @@ public class GridServicesButtonListener implements ActionListener {
 		t.setPriority(Thread.MIN_PRIORITY);
 		t.start();
 
-	}
-
-	/**
-	 * 
-	 * @param selectedAnalysisType
-	 */
-	public void setSelectedAnalysisType(String selectedAnalysisType) {
-		this.selectedAnalysisType = selectedAnalysisType;
 	}
 
 	public String getServiceUrl() {

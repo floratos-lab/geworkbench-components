@@ -6,8 +6,6 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
-import java.util.Collection;
-import java.util.HashSet;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -20,10 +18,8 @@ import javax.swing.JSplitPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.border.BevelBorder;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.analysis.AbstractAnalysis;
 import org.ginkgo.labs.gui.SwingUtil;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
@@ -39,8 +35,6 @@ public class GridServicePanel extends JPanel {
 
 	private static Log log = LogFactory.getLog(GridServicePanel.class);
 
-	private static Collection<String> analysisSet = new HashSet<String>();
-
 	private GridServicesButtonListener gridServicesButtonListener;
 
 	DefaultFormBuilder serviceDetailsBuilder = null;
@@ -49,27 +43,9 @@ public class GridServicePanel extends JPanel {
 
 	private JRadioButton localButton = new JRadioButton("Local");
 
-	public GridServicePanel(String name) {
+	public GridServicePanel(final String analysisName) {
 		super();
-		setName(name);
 		setLayout(new BorderLayout());
-
-		analysisSet.add("Hierarchical");
-		analysisSet.add("Som");
-		analysisSet.add("Aracne");
-		analysisSet.add("EIGrid");
-		analysisSet.add("NetBoost");
-		analysisSet.add("Anova");
-		analysisSet.add("MatrixREDUCE");
-		analysisSet.add("Mindy");
-		analysisSet.add("Evidence");
-		analysisSet.add("Medusa");
-		analysisSet.add("MarkUs");
-		analysisSet.add("SkyLine");
-		analysisSet.add("SkyBase");
-		analysisSet.add("MRA");
-		analysisSet.add("Idea");
-		analysisSet.add("Sam");
 
 		/* part A */
 		DefaultFormBuilder indexServiceBuilder = new DefaultFormBuilder(
@@ -155,7 +131,8 @@ public class GridServicePanel extends JPanel {
 			= new IndexServiceSelectionButtonListener(this);
 
 		gridServicesButtonListener = new GridServicesButtonListener(this,
-				indexServiceSelectionButtonListener, buttonGroup);
+				indexServiceSelectionButtonListener, buttonGroup,
+				analysisName);
 		getServicesButton.addActionListener(gridServicesButtonListener);
 
 		/* add A, B, and C to the main (this) */
@@ -170,6 +147,7 @@ public class GridServicePanel extends JPanel {
 		jSplitPane1.add(urlServiceBuilderScrollPane, JSplitPane.TOP);
 
 		this.revalidate();
+		log.debug("GridServicePanel constructed");
 	}
 
 	/**
@@ -195,23 +173,6 @@ public class GridServicePanel extends JPanel {
 		urlServiceBuilder.append("Research Center Name");
 		urlServiceBuilder.append("Description");
 		return urlServiceBuilder;
-	}
-
-	/**
-	 * 
-	 * @param analysisType
-	 */
-	public void setAnalysisType(AbstractAnalysis analysisType) {
-
-		for (String type : analysisSet) {
-			if (StringUtils.lowerCase(analysisType.getLabel()).contains(
-					StringUtils.lowerCase(type))) {
-				log.info("Analysis is " + type);
-				gridServicesButtonListener.setSelectedAnalysisType(type);
-				break;
-			}
-		}
-
 	}
 
 	public boolean isCaGridVersion() {

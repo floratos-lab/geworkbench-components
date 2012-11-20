@@ -107,7 +107,6 @@ public class AnalysisPanel extends CommandBase implements
 
 	/* static variables */
 	private static final String DEFAULT_PARAMETER_SETTING_NAME = "New Parameter Setting Name";
-	private static final String SERVICE = "Service";
 	private static final String PARAMETERS = "Parameters";
 	private static final String USER_INFO = "userinfo";
 
@@ -655,8 +654,7 @@ public class AnalysisPanel extends CommandBase implements
 			if (selectedAnalysis != pidMap.get(lastDataType)) {			 
 				if (jGridServicePanel != null)
 				   jAnalysisTabbedPane.remove(jGridServicePanel);
-				jGridServicePanel = new GridServicePanel(SERVICE);
-				jGridServicePanel.setAnalysisType(selectedAnalysis);
+				jGridServicePanel = new GridServicePanel( ((AbstractGridAnalysis)selectedAnalysis).getAnalysisName() );
 				jAnalysisTabbedPane.addTab("Services", jGridServicePanel);
 			}
 		} else {		 
@@ -999,7 +997,6 @@ public class AnalysisPanel extends CommandBase implements
 			return;
 		
 		clearMenuItems();
-		lastDataType = null;
 
 		ProjectTreeNode node = event.getTreeNode();
 
