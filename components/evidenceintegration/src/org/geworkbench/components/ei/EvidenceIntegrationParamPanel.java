@@ -68,7 +68,7 @@ public class EvidenceIntegrationParamPanel extends AbstractSaveableParameterPane
     public EvidenceIntegrationParamPanel(HashMap<Integer, String> goldStandardSources) {
 
         this.setLayout(new BorderLayout());
-        this.setPreferredSize(new Dimension(0, 100));
+        this.setPreferredSize(new Dimension(600, 400));
 
 
         final JPanel mainDialogPanel = new JPanel();
