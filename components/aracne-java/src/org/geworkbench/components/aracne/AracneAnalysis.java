@@ -353,8 +353,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 		}
 		if (params.isDPIToleranceSpecified()) {
 			try {
-				if ((params.getDPITolerance() != Float.NaN)
-						&& (0 <= params.getDPITolerance())
+				if ( (0 <= params.getDPITolerance())
 						&& (params.getDPITolerance() <= 1)) {
 				} else
 					return new ParamValidationResults(false,
