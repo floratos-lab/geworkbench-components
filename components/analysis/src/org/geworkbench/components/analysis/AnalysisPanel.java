@@ -659,6 +659,7 @@ public class AnalysisPanel extends CommandBase implements
 			}
 		} else {		 
 			jAnalysisTabbedPane.remove(jGridServicePanel);
+			jGridServicePanel = null; // prevent remembering the last grid panel in case we switch from grid to local
 		}
 		pidMap.put(lastDataType, selectedAnalysis);
 	}
