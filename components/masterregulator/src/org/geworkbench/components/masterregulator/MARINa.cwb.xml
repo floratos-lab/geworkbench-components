@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
+
+	<component  name="MRA-MARINa"
+		class="org.geworkbench.components.masterregulator.MARINa"
+		version="1.0"
+		author="Califano lab (C2B2)"
+		authorURL="http://wiki.c2b2.columbia.edu/califanolab/index.php/Califano_Info"
+		toolURL="http://psb.stanford.edu/psb-online/proceedings/psb09/lim.pdf"
+		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Master_Regulator_Analysis"							
+		description="The Master Regulator Analysis (MRA) component attempts
+ to identify transcription factors which control the regulation of a set
+ of differentially expressed target genes (TGs).  Differential expression
+ is determined using a t-test on microarray gene expression profiles from
+ 2 cellular phenotypes, e.g. experimental and control."
+		category="Analysis, Network, Microarray"
+	 >
+		<required-component class="org.geworkbench.components.masterregulator.MasterRegulatorViewer" />
+		<required-component class="org.geworkbench.components.masterregulator.MasterRegulatorTableViewer" />
+		<license><![CDATA[
+			<html><head><meta http-equiv=Content-Type content="text/html; charset=windows-1252"></head>
+				<body>----</body>
+			</html>
+		]]></license>
+
+        <online-help helpSet="org/geworkbench/components/masterregulator/help/MRAHelpSet.hs"/>
+
+	</component>
+
+	<plugin id="MRA-MARINa" name="MRA-MARINa" class="org.geworkbench.components.masterregulator.MARINa" source="masterregulator"/>
+
+</component-descriptor>
