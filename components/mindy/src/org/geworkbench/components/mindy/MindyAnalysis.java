@@ -274,6 +274,11 @@ public class MindyAnalysis extends AbstractGridAnalysis implements
 		return new AlgorithmExecutionResults(true, "Mindy Result Added", mindyDataSet);
 	}
 
+	@Override
+	public String generateHistoryForMaSetView(DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView) {
+		return generateHistoryForMicrorraySet(maSetView.getMicroarraySet());
+	}
+	
 	static private String generateHistoryForMicrorraySet(
 			DSMicroarraySet microarraySet) {
 		StringBuilder ans = new StringBuilder(
