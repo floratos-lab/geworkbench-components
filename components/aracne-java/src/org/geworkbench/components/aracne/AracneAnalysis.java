@@ -17,6 +17,7 @@ import org.geworkbench.analysis.AbstractGridAnalysis;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
+import org.geworkbench.bison.datastructure.biocollections.AracneResult;
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
@@ -172,10 +173,10 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 		
 		if (aracneOutput.getGraphEdges().length > 0) {
 			boolean prune = params.isPrune();
-			AdjacencyMatrixDataSet dataSet = new AdjacencyMatrixDataSet(
+			AracneResult dataSet = new AracneResult(
 					convert(aracneOutput, params.getHubGeneList(), mSetView.getMicroarraySet(), prune),
 					0, "Adjacency Matrix", "ARACNE Set", mSetView
-							.getMicroarraySet());
+							.getMicroarraySet(), params.getHubGeneList());
 			StringBuilder paramDescB = new StringBuilder(
 					"Generated with ARACNE run with data:\n");
 			paramDescB.append(this.generateHistoryForMaSetView(mSetView));
@@ -635,8 +636,9 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 
 	@Override
 	public DSAncillaryDataSet<? extends DSBioObject> postProcessResult(Object object) {
-		return new AdjacencyMatrixDataSet((AdjacencyMatrix) object, 0,
-				"Adjacency Matrix", "from caGrid service", null); // parent is not needed to be known at this point
+		AracneParamPanel params = (AracneParamPanel) aspp;
+		return new AracneResult((AdjacencyMatrix) object, 0,
+				"Adjacency Matrix", "from caGrid service", null, params.getHubGeneList()); // parent is not needed to be known at this point
 	}
 
 }
