@@ -371,7 +371,7 @@ public class CaArray2Component implements VisualPlugin {
 		} // loop of all hybridizations
 
 		microarraySet.setLabel(experimentName);
-		ProjectPanel.getInstance().addProjectNode(microarraySet, null);
+		ProjectPanel.getInstance().addDSMicroarraySet(microarraySet);
 	}
 
 	// the event that data has been retrieved
