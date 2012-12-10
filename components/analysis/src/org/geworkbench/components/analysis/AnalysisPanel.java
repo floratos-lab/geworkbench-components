@@ -960,7 +960,7 @@ public class AnalysisPanel extends CommandBase implements
 			history += "\nTotal elapsed time: " + DurationFormatUtils.formatDurationHMS(elapsedTime);
 			HistoryPanel.addToHistory(dataSet, history);
 			
-			ProjectPanel.getInstance().addProjectNode(null, dataSet);
+			ProjectPanel.getInstance().addDataSetSubNode(dataSet);
 		}
 		if (resultObject instanceof Hashtable) {
 			DSPanel<DSGeneMarker> panel = ((Hashtable<?, DSPanel<DSGeneMarker>>) resultObject)

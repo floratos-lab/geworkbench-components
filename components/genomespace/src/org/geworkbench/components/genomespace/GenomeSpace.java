@@ -49,7 +49,6 @@ import org.genomespace.datamanager.core.GSFileMetadata;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.builtin.projects.DataSetNode;
-import org.geworkbench.builtin.projects.ProjectNode;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.ProjectSelection;
 import org.geworkbench.builtin.projects.ProjectTreeNode;
@@ -170,11 +169,7 @@ public class GenomeSpace implements VisualPlugin {
 		downloadItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (!validate(genomeTree)) return;
-				if (projectTree.getSelectionCount() != 1
-						|| !(projectTree.getSelectionPath().getLastPathComponent() instanceof ProjectNode)) {
-					JOptionPane.showMessageDialog(null, "Select a project node.", "Open File Error", JOptionPane.ERROR_MESSAGE);
-					return;
-				}
+				// we used to check to make sure a project node is selected before continuing. not necessary anymore.
 
 				DownloadTask downloadTask = new DownloadTask(ProgressItem.INDETERMINATE_TYPE, "Downloading...");
 				pd.executeTask(downloadTask);
