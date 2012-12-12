@@ -17,7 +17,6 @@ import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
-import javax.swing.tree.TreeNode;
 
 import org.geworkbench.bison.algorithm.classification.CSVisualClassifier;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
@@ -27,7 +26,6 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.builtin.projects.DataSetNode;
 import org.geworkbench.builtin.projects.ProjectPanel;
-import org.geworkbench.builtin.projects.ProjectTreeNode;
 import org.geworkbench.components.gpmodule.GPDataset;
 import org.geworkbench.components.gpmodule.classification.PredictionResult;
 import org.geworkbench.components.gpmodule.classification.VisualGPClassifier;
@@ -67,19 +65,12 @@ public class GPClassificationVisualComponent implements VisualPlugin
         if(dataSet != null && (dataSet instanceof VisualGPClassifier || dataSet instanceof SVMResultSet))
         {
         	microarraySets.clear();
-        	ProjectTreeNode root = ProjectPanel.getInstance().getRoot();
-        	for (int i = 0; i < root.getChildCount(); i++){
-        		TreeNode projNode = root.getChildAt(i);
-        		for (int j = 0; j < projNode.getChildCount(); j++){
-        			TreeNode dataNode = projNode.getChildAt(j);
-        			if (dataNode instanceof DataSetNode){
-        				DSDataSet<?> dset = ((DataSetNode)dataNode).getDataset();
-        				if (dset instanceof DSMicroarraySet){
-        					DSMicroarraySet mset = (DSMicroarraySet)dset;
-            				microarraySets.add(mset);
-        				}
-        			}
-        		}
+        	for(DataSetNode dataNode : ProjectPanel.getInstance().getTopLevelDataSetNodes() ) {
+				DSDataSet<?> dset = ((DataSetNode)dataNode).getDataset();
+				if (dset instanceof DSMicroarraySet){
+					DSMicroarraySet mset = (DSMicroarraySet)dset;
+    				microarraySets.add(mset);
+				}
         	}
 
             component.removeAll();
