@@ -8,6 +8,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.io.Serializable;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -15,15 +16,16 @@ import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
-import javax.swing.InputVerifier;
 import javax.swing.JCheckBox;
-import javax.swing.JComponent;
 import javax.swing.JFormattedTextField;
+import javax.swing.JFormattedTextField.AbstractFormatter;
+import javax.swing.JFormattedTextField.AbstractFormatterFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
+import javax.swing.text.InternationalFormatter;
 
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
@@ -70,7 +72,7 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel implement
     private JLabel jLabel3 = new JLabel();
     private JPanel jPanel7 = new JPanel();
     private JRadioButton pvaluesByPerm = new JRadioButton();
-    private JFormattedTextField alpha = new JFormattedTextField(new DecimalFormat("0.###E00"));
+    private JFormattedTextField alpha = new JFormattedTextField();
     private GridBagLayout gridBagLayout1 = new GridBagLayout();
     private JRadioButton allPerms = new JRadioButton();
     private JPanel jPanel6 = new JPanel();
@@ -139,7 +141,11 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel implement
 				logCheckbox.setSelected((Boolean)value);
 			}
 			if (key.equals("alpha")){
-				alpha.setValue((Number)value);
+				try {
+					alpha.setValue((Number)value);
+				}catch(Exception e) {
+					e.printStackTrace();
+				}
 			}
 			if (key.equals("noCorrection")){
 				noCorrection.setSelected((Boolean)value);
@@ -200,7 +206,7 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel implement
         else if (alpha.getValue() instanceof Long)
             return ((Long) alpha.getValue()).doubleValue();
         else
-            return Double.parseDouble(alpha.getText());
+            return 3.00; 
     }
 
     public int getSignificanceMethod() {
@@ -296,14 +302,19 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel implement
         allPerms.setEnabled(false);
         alpha.setValue(new Double(0.01));
         alpha.setMinimumSize(new Dimension(35, 20));
-        alpha.setInputVerifier(new InputVerifier() {
-            public boolean verify(JComponent input) {
-              if (!(input instanceof JFormattedTextField))
-                return true;
-              return ((JFormattedTextField) input).isEditValid();
+        alpha.setFormatterFactory(new AbstractFormatterFactory() {
+
+            public AbstractFormatter getFormatter(JFormattedTextField tf) {
+                NumberFormat format = DecimalFormat.getInstance();
+                format.setMinimumFractionDigits(2);
+                InternationalFormatter formatter = new InternationalFormatter(format);
+                formatter.setMinimum(0.00);
+                formatter.setMaximum(1.00);
+                formatter.setAllowsInvalid(false);
+                return formatter;
             }
-          });
-        
+        });
+       
         pvaluesByPerm.setText("permutation:");
         jPanel7.setBorder(BorderFactory.createEtchedBorder());
         jPanel7.setLayout(flowLayout1);
@@ -501,27 +512,6 @@ public class TtestAnalysisPanel extends AbstractSaveableParameterPanel implement
 	
 	@Override
 	public ParamValidationResults validateParameters() {
-		
-		if(alpha.getInputVerifier().verify(alpha) == false) {
-			alpha.requestFocus();
-			return new ParamValidationResults(false,
-					"Please enter valid Critical P-Value.");
-		}
-		
-		if (alpha.getValue() instanceof Double) {
-            if(((Double) alpha.getValue()).doubleValue() < 0 || ((Double) alpha.getValue()).doubleValue() > 1) { 
-            		alpha.requestFocus();
-					return new ParamValidationResults(false,
-							"Please enter valid Critical P-Value.");
-			}
-		} else if (alpha.getValue() instanceof Long) {
-			if(((Long) alpha.getValue()).doubleValue() < 0 || ((Long) alpha.getValue()).doubleValue() > 1) { 
-        		alpha.requestFocus();
-				return new ParamValidationResults(false,
-						"Please enter valid Critical P-Value.");
-			}
-		} 
-		
 		return new ParamValidationResults(true, null);
 	}
 	
