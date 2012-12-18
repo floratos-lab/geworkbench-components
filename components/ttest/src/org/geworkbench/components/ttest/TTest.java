@@ -15,7 +15,8 @@ import org.apache.commons.math.stat.ranking.NaNStrategy;
 import org.apache.commons.math.stat.ranking.NaturalRanking;
 import org.apache.commons.math.stat.ranking.TiesStrategy;
 import org.apache.commons.math.util.MathUtils;
-import org.geworkbench.util.Combinations;
+import org.geworkbench.components.ttest.data.TTestInput;
+import org.geworkbench.components.ttest.data.TTestOutput;
 
 /**
  * @author zji

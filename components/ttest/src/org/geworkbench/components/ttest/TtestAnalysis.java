@@ -28,6 +28,8 @@ import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
 import org.geworkbench.builtin.projects.history.HistoryPanel;
+import org.geworkbench.components.ttest.data.TTestInput;
+import org.geworkbench.components.ttest.data.TTestOutput;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.util.ProgressBar;
