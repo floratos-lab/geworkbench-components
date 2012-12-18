@@ -1,4 +1,4 @@
-package org.geworkbench.components.ttest;
+package org.geworkbench.components.ttest.data;
 
 /* Fields complete. */
 public class TTestOutput {
@@ -11,7 +11,7 @@ public class TTestOutput {
 	private final int rowCount; // same as from input
 	private final int significanceCount;
 
-	TTestOutput(int rowCount, double[] tValue, double[] pValue,
+	public TTestOutput(int rowCount, double[] tValue, double[] pValue,
 			double[] foldChange, int significanceCount, int[] significanceIndex) {
 		this.rowCount = rowCount;
 		this.tValue = tValue;

@@ -12,8 +12,8 @@ import junit.framework.TestCase;
 import org.geworkbench.components.ttest.SignificanceMethod;
 import org.geworkbench.components.ttest.TTest;
 import org.geworkbench.components.ttest.TTestException;
-import org.geworkbench.components.ttest.TTestInput;
-import org.geworkbench.components.ttest.TTestOutput;
+import org.geworkbench.components.ttest.data.TTestInput;
+import org.geworkbench.components.ttest.data.TTestOutput;
 
 public class TTestTest extends TestCase {
 
