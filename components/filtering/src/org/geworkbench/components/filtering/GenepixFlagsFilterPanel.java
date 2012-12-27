@@ -202,17 +202,6 @@ public class GenepixFlagsFilterPanel extends AbstractSaveableParameterPanel {
 
     /**
      * setFlagInfoPanel
-     */
-    public void setFlagInfoPanel() {
-         container.removeAll();
-        container.add(new JLabel(nonApplicableReminder));
-        //container.add(Box.createVerticalGlue());
-        revalidate();
-        repaint();
-    }
-
-    /**
-     * setFlagInfoPanel
      *
      * @param aString String
      */

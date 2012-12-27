@@ -17,7 +17,6 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMutableMarkerValue;
 import org.geworkbench.bison.model.analysis.FilteringAnalysis;
 import org.geworkbench.engine.management.Subscribe;
-import org.geworkbench.events.ProjectEvent;
 
 /**
  * <p>Copyright: Copyright (c) 2005</p>
@@ -78,81 +77,75 @@ public class GenepixFlagsFilter extends FilteringAnalysis {
      *
      * @param e ProjectEvent
      */
-    @Subscribe public void receive(org.geworkbench.events.ProjectEvent e,
-                                   Object source) {
-        Set<String> flagSet = new TreeSet<String>();
-        int unflaggedProbeNum = 0;
-        flagsProbeNum.clear();
-        if (e.getValue()==ProjectEvent.Message.CLEAR) {
-            ((GenepixFlagsFilterPanel) aspp).setFlagInfoPanel();
-        } else {
-            DSDataSet<?> dataSet = e.getDataSet();
-            if(dataSet==null){
+	@Subscribe
+	public void receive(org.geworkbench.events.ProjectEvent e, Object source) {
+		Set<String> flagSet = new TreeSet<String>();
+		int unflaggedProbeNum = 0;
+		flagsProbeNum.clear();
 
-                ((GenepixFlagsFilterPanel) aspp).setFlagInfoPanel(
-                         "The data format is: null.");
+		DSDataSet<?> dataSet = e.getDataSet();
+		if (dataSet == null) {
 
-            }else if (dataSet instanceof CSMicroarraySet) {
-                String compatibilityLabel = ((CSMicroarraySet) dataSet).
-                                            getCompatibilityLabel();
-                CSMicroarraySet maSet = (CSMicroarraySet) dataSet;
-                if (compatibilityLabel != null && compatibilityLabel.equals("Genepix")) {
-                    int markerCount = maSet.getMarkers().size();
-                    int arrayCount = maSet.size();
-                    for (int i = 0; i < arrayCount; i++) {
-                        DSMicroarray mArray = (DSMicroarray) maSet.get(i);
-                        unflaggedProbeNum = 0;
-                        for (int j = 0; j < markerCount; ++j) {
-                            DSMutableMarkerValue mv = (DSMutableMarkerValue)
-                                    mArray.
-                                    getMarkerValue(j);
-                            if ((mv instanceof DSGenepixMarkerValue)) {
-                                String flag = ((CSGenepixMarkerValue) mv).
-                                              getFlag();
-                                if (!mv.isMissing() && !flag.equals("0")) {
-                                    flagSet.add(flag);
-                                    if (flagsProbeNum.containsKey(flag)) {
-                                        Integer integer = (Integer)
-                                                flagsProbeNum.get(flag);
-                                        integer++;
-                                        flagsProbeNum.put(flag, integer);
+			((GenepixFlagsFilterPanel) aspp)
+					.setFlagInfoPanel("The data format is: null.");
 
-                                    } else {
-                                        flagsProbeNum.put(flag, new Integer(1));
-                                    }
+		} else if (dataSet instanceof CSMicroarraySet) {
+			String compatibilityLabel = ((CSMicroarraySet) dataSet)
+					.getCompatibilityLabel();
+			CSMicroarraySet maSet = (CSMicroarraySet) dataSet;
+			if (compatibilityLabel != null
+					&& compatibilityLabel.equals("Genepix")) {
+				int markerCount = maSet.getMarkers().size();
+				int arrayCount = maSet.size();
+				for (int i = 0; i < arrayCount; i++) {
+					DSMicroarray mArray = (DSMicroarray) maSet.get(i);
+					unflaggedProbeNum = 0;
+					for (int j = 0; j < markerCount; ++j) {
+						DSMutableMarkerValue mv = (DSMutableMarkerValue) mArray
+								.getMarkerValue(j);
+						if ((mv instanceof DSGenepixMarkerValue)) {
+							String flag = ((CSGenepixMarkerValue) mv).getFlag();
+							if (!mv.isMissing() && !flag.equals("0")) {
+								flagSet.add(flag);
+								if (flagsProbeNum.containsKey(flag)) {
+									Integer integer = (Integer) flagsProbeNum
+											.get(flag);
+									integer++;
+									flagsProbeNum.put(flag, integer);
 
-                                } else {
-                                    unflaggedProbeNum++;
-                                }
-                            }
-                        }
-                    }
-                    if (flagSet.size() > 0) {
+								} else {
+									flagsProbeNum.put(flag, new Integer(1));
+								}
 
-                        ((GenepixFlagsFilterPanel) aspp).setFlagInfoPanel(
-                                flagSet);
-                        ((GenepixFlagsFilterPanel) aspp).setUnflaggedProbeNum(
-                                unflaggedProbeNum);
-                        ((GenepixFlagsFilterPanel) aspp).setflaggedProbeNum(
-                                flagsProbeNum);
-                    } else {
-                        ((GenepixFlagsFilterPanel) aspp).setFlagInfoPanel("it contains only unflagged data.");
-                    }
-                } else {
-                    ((GenepixFlagsFilterPanel) aspp).setFlagInfoPanel(
-                            "The data format is: " + compatibilityLabel);
+							} else {
+								unflaggedProbeNum++;
+							}
+						}
+					}
+				}
+				if (flagSet.size() > 0) {
 
-                }
-            }else {
-                String datatype = dataSet.getCompatibilityLabel();
-                    ((GenepixFlagsFilterPanel) aspp).setFlagInfoPanel(
-                         "The data format is: " +  datatype);
+					((GenepixFlagsFilterPanel) aspp).setFlagInfoPanel(flagSet);
+					((GenepixFlagsFilterPanel) aspp)
+							.setUnflaggedProbeNum(unflaggedProbeNum);
+					((GenepixFlagsFilterPanel) aspp)
+							.setflaggedProbeNum(flagsProbeNum);
+				} else {
+					((GenepixFlagsFilterPanel) aspp)
+							.setFlagInfoPanel("it contains only unflagged data.");
+				}
+			} else {
+				((GenepixFlagsFilterPanel) aspp)
+						.setFlagInfoPanel("The data format is: "
+								+ compatibilityLabel);
 
-                }
-
-
-            }
-    }
+			}
+		} else {
+			String datatype = dataSet.getCompatibilityLabel();
+			((GenepixFlagsFilterPanel) aspp)
+					.setFlagInfoPanel("The data format is: " + datatype);
+		}
+	}
 
     // We override here the method AbstractAnalysis.saveParametersUnderName(String name)
     // to prohibit saving the "parameters" panel as this is not appropriate for

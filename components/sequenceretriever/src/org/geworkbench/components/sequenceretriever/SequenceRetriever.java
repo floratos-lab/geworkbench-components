@@ -834,21 +834,12 @@ public class SequenceRetriever implements VisualPlugin {
 	@Subscribe
 	public void receive(org.geworkbench.events.ProjectEvent e, Object source) {
 
-		log.debug("Source object " + source);
-
-		if (e.getValue()==org.geworkbench.events.ProjectEvent.Message.CLEAR) {
-			refMASet = null;
-			cleanUpAll();
-
-		} else {
-			DSDataSet dataSet = e.getDataSet();
-			if (dataSet instanceof DSMicroarraySet) {
-				if (refMASet != dataSet) {
-					this.refMASet = (DSMicroarraySet) dataSet;
-					cleanUpAll();
-				}
+		DSDataSet dataSet = e.getDataSet();
+		if (dataSet instanceof DSMicroarraySet) {
+			if (refMASet != dataSet) {
+				this.refMASet = (DSMicroarraySet) dataSet;
+				cleanUpAll();
 			}
-
 		}
 	}
 
