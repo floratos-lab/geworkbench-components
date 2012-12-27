@@ -1387,8 +1387,7 @@ public class ScatterPlot implements VisualPlugin {
 		ProjectSelection selection = ((ProjectPanel) source).getSelection();
 		DSDataSet<? extends DSBioObject> dataFile = selection.getDataSet();
 
-		if (!(dataFile instanceof DSMicroarraySet)
-				|| e.getValue() == org.geworkbench.events.ProjectEvent.Message.CLEAR) {
+		if (!(dataFile instanceof DSMicroarraySet)) {
 			dataSetView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(
 					null);
 		} else {

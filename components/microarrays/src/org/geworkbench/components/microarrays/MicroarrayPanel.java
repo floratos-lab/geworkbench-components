@@ -45,7 +45,6 @@ import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.ImageSnapshotEvent;
 import org.geworkbench.events.MarkerSelectedEvent;
 import org.geworkbench.events.PhenotypeSelectorEvent;
-import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.events.SingleMicroarrayEvent;
 import org.geworkbench.util.ColorScale;
 
@@ -102,12 +101,6 @@ public class MicroarrayPanel implements
 
     @Subscribe public void receive(org.geworkbench.events.ProjectEvent projectEvent, Object source) {
 
-		if (projectEvent.getValue()==ProjectEvent.Message.CLEAR) {
-			changeMicroArraySet(null);
-			mainPanel.repaint();
-			return;
-		}
-		
 		ProjectSelection selection = ((ProjectPanel) source).getSelection();
 		DSDataSet<?> dataSet = selection.getDataSet();
 		if (dataSet instanceof DSMicroarraySet) {

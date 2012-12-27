@@ -957,9 +957,7 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 	 */
 	@Subscribe(Asynchronous.class)
 	public void receive(ProjectEvent projectEvent, Object source) {
-		if (projectEvent.getValue()==ProjectEvent.Message.CLEAR) {
-			dataSetCleared();
-		}
+
 		DSDataSet<?> dataSet = projectEvent.getDataSet();
 		boolean processed = false;
 		if (dataSet != null) {
