@@ -566,13 +566,11 @@ public class IDEAAnalysis extends AbstractGridAnalysis implements
 	@SuppressWarnings({ "rawtypes" })
 	@Subscribe
 	public void receive(org.geworkbench.events.ProjectEvent e, Object source) {
-		if (e.getValue()==org.geworkbench.events.ProjectEvent.Message.SELECT){
-			DSDataSet dataSet = e.getDataSet();
-			if (dataSet instanceof DSMicroarraySet) {
-				this.IDEAAnalysisPanel.setMicroarraySet((DSMicroarraySet)dataSet);
-			}else{
-				this.IDEAAnalysisPanel.setMicroarraySet(null);
-			}
+		DSDataSet dataSet = e.getDataSet();
+		if (dataSet instanceof DSMicroarraySet) {
+			this.IDEAAnalysisPanel.setMicroarraySet((DSMicroarraySet) dataSet);
+		} else {
+			this.IDEAAnalysisPanel.setMicroarraySet(null);
 		}
 
         ProjectSelection selection = ((ProjectPanel) source).getSelection();
