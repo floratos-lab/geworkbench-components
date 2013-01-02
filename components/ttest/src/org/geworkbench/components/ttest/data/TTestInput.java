@@ -23,6 +23,9 @@ public class TTestInput {
 
 	private boolean isLogNormalized; // only affect folder change
 	
+	public TTestInput() {
+	};
+	
 	public TTestInput(int rowCount, int caseCount, int controlCount, double[][] caseArray, double[][]controlArray,
 			SignificanceMethod significanceMethod, double alpha, boolean byPermutation, boolean useWelch, boolean useAllCombinations, int numberCombinations,
 			boolean isLogNormalized) {
