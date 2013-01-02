@@ -45,22 +45,22 @@ public class TTest {
 	volatile boolean cancelled;
 	
 	public TTest(TTestInput input) {
-		rowCount = input.rowCount;
-		caseCount = input.caseCount;
-		controlCount = input.controlCount;
+		rowCount = input.getRowCount();
+		caseCount = input.getCaseCount();
+		controlCount = input.getControlCount();
 		
-		caseArray = input.caseArray;
-		controlArray = input.controlArray;
+		caseArray = input.getCaseArray();
+		controlArray = input.getControlArray();
 		
 		// options (control parameters)
-		significanceMethod = input.significanceMethod;
-		byPermutation = input.byPermutation;
-		useWelch = input.useWelch;
-		useAllCombinations = input.useAllCombinations;
-		numberCombinations = input.numberCombinations;
-		alpha = input.alpha;
+		significanceMethod = input.getSignificanceMethod();
+		byPermutation = input.isByPermutation();
+		useWelch = input.isUseWelch();
+		useAllCombinations = input.isUseAllCombinations();
+		numberCombinations = input.getNumberCombinations();
+		alpha = input.getAlpha();
 
-		isLogNormalized = input.isLogNormalized; // only affect folder change
+		isLogNormalized = input.isLogNormalized(); // only affect folder change
 	}
 	
 	public TTestOutput execute() throws TTestException {
