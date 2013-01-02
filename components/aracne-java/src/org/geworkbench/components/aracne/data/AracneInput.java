@@ -106,7 +106,7 @@ public class AracneInput {
 		this.kernelWidth = kernelWidth;
 	}
 
-	public double getKernelWidth() {
+	public float getKernelWidth() {
 		return this.kernelWidth;
 	}
 
