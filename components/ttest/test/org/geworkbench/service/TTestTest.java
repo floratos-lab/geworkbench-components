@@ -45,18 +45,18 @@ public class TTestTest extends TestCase {
 		}
 
 		line = br.readLine();
-		SignificanceMethod m = SignificanceMethod.JUST_ALPHA;
+		int m = SignificanceMethod.JUST_ALPHA;
 		if(line==null) {
 			br.close();
 			throw new IOException("cannot read the choice of the method of calculate significance");
 		}
-		if(line.equals(SignificanceMethod.STD_BONFERRONI.toString())) {
+		if(line.equals(SignificanceMethod.STD_BONFERRONI)) {
 			m = SignificanceMethod.STD_BONFERRONI;
-		} else if(line.equals(SignificanceMethod.ADJ_BONFERRONI.toString())) {
+		} else if(line.equals(SignificanceMethod.ADJ_BONFERRONI)) {
 			m = SignificanceMethod.ADJ_BONFERRONI;
-		} else if(line.equals(SignificanceMethod.MAX_T.toString())) {
+		} else if(line.equals(SignificanceMethod.MAX_T)) {
 			m = SignificanceMethod.MAX_T;
-		} else if(line.equals(SignificanceMethod.MIN_P.toString())) {
+		} else if(line.equals(SignificanceMethod.MIN_P)) {
 			m = SignificanceMethod.MIN_P;
 		} 
 		line = br.readLine();
@@ -123,7 +123,7 @@ public class TTestTest extends TestCase {
 		
 		// parameter file
 		Parameter parameter = new Parameter(new File("parameters1.txt"));
-		SignificanceMethod m = parameter.m;
+		int m = parameter.m;
 		double alpha = parameter.alpha;
 		boolean byPermutation = parameter.byPermutation;
 		boolean useWelch = parameter.useWelch;
@@ -179,7 +179,7 @@ public class TTestTest extends TestCase {
 		
 		// parameter file
 		Parameter parameter = new Parameter(new File("parameters2.txt"));
-		SignificanceMethod m = parameter.m;
+		int m = parameter.m;
 		double alpha = parameter.alpha;
 		boolean byPermutation = parameter.byPermutation;
 		boolean useWelch = parameter.useWelch;
@@ -235,7 +235,7 @@ public class TTestTest extends TestCase {
 		
 		// parameter file
 		Parameter parameter = new Parameter(new File("parameters3.txt"));
-		SignificanceMethod m = parameter.m;
+		int m = parameter.m;
 		double alpha = parameter.alpha;
 		boolean byPermutation = parameter.byPermutation;
 		boolean useWelch = parameter.useWelch;
@@ -294,7 +294,7 @@ public class TTestTest extends TestCase {
 		
 		// parameter file
 		Parameter parameter = new Parameter(new File("parameters4.txt"));
-		SignificanceMethod m = parameter.m;
+		int m = parameter.m;
 		double alpha = parameter.alpha;
 		boolean byPermutation = parameter.byPermutation;
 		boolean useWelch = parameter.useWelch;
@@ -350,7 +350,7 @@ public class TTestTest extends TestCase {
 		
 		// parameter file
 		Parameter parameter = new Parameter(new File("parameters5.txt"));
-		SignificanceMethod m = parameter.m;
+		int m = parameter.m;
 		double alpha = parameter.alpha;
 		boolean byPermutation = parameter.byPermutation;
 		boolean useWelch = parameter.useWelch;
@@ -406,7 +406,7 @@ public class TTestTest extends TestCase {
 		
 		// parameter file
 		Parameter parameter = new Parameter(new File("parameters6.txt"));
-		SignificanceMethod m = parameter.m;
+		int m = parameter.m;
 		double alpha = parameter.alpha;
 		boolean byPermutation = parameter.byPermutation;
 		boolean useWelch = parameter.useWelch;
@@ -462,7 +462,7 @@ public class TTestTest extends TestCase {
 		
 		// parameter file
 		Parameter parameter = new Parameter(new File("parameters7.txt"));
-		SignificanceMethod m = parameter.m;
+		int m = parameter.m;
 		double alpha = parameter.alpha;
 		boolean byPermutation = parameter.byPermutation;
 		boolean useWelch = parameter.useWelch;
@@ -518,7 +518,7 @@ public class TTestTest extends TestCase {
 		
 		// parameter file
 		Parameter parameter = new Parameter(new File("parameters8.txt"));
-		SignificanceMethod m = parameter.m;
+		int m = parameter.m;
 		double alpha = parameter.alpha;
 		boolean byPermutation = parameter.byPermutation;
 		boolean useWelch = parameter.useWelch;
@@ -574,7 +574,7 @@ public class TTestTest extends TestCase {
 		
 		// parameter file
 		Parameter parameter = new Parameter(new File("parameters9.txt"));
-		SignificanceMethod m = parameter.m;
+		int m = parameter.m;
 		double alpha = parameter.alpha;
 		boolean byPermutation = parameter.byPermutation;
 		boolean useWelch = parameter.useWelch;
@@ -599,7 +599,7 @@ public class TTestTest extends TestCase {
 	}
 	
 	private static class Parameter {
-		SignificanceMethod m;
+		int m;
 		double alpha;
 		boolean byPermutation;
 		boolean useWelch;
@@ -617,13 +617,13 @@ public class TTestTest extends TestCase {
 				throw new IOException("cannot read the choice of the method of calculate significance");
 			}
 			m = SignificanceMethod.JUST_ALPHA;
-			if(line.equals(SignificanceMethod.STD_BONFERRONI.toString())) {
+			if(line.equals("STD_BONFERRONI")) {
 				m = SignificanceMethod.STD_BONFERRONI;
-			} else if(line.equals(SignificanceMethod.ADJ_BONFERRONI.toString())) {
+			} else if(line.equals("ADJ_BONFERRONI")) {
 				m = SignificanceMethod.ADJ_BONFERRONI;
-			} else if(line.equals(SignificanceMethod.MAX_T.toString())) {
+			} else if(line.equals("MAX_T")) {
 				m = SignificanceMethod.MAX_T;
-			} else if(line.equals(SignificanceMethod.MIN_P.toString())) {
+			} else if(line.equals("MIN_P")) {
 				m = SignificanceMethod.MIN_P;
 			} 
 			line = br.readLine();
