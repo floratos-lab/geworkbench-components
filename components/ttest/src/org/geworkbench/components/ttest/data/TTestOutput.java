@@ -36,4 +36,28 @@ public class TTestOutput {
 		return sb.toString();
 	}
 
+	public int[] getSignificanceIndex() {
+		return significanceIndex;
+	}
+
+	public double[] gettValue() {
+		return tValue;
+	}
+
+	public double[] getpValue() {
+		return pValue;
+	}
+
+	public double[] getFoldChange() {
+		return foldChange;
+	}
+
+	public int getRowCount() {
+		return rowCount;
+	}
+
+	public int getSignificanceCount() {
+		return significanceCount;
+	}
+
 }
