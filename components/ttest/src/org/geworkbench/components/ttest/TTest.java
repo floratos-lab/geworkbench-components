@@ -34,7 +34,7 @@ public class TTest {
 	// options. please some of them are supposed to be ignored depending on
 	// other ones
 	// approximately in the order that affects the algorithm flow more
-	final SignificanceMethod significanceMethod;
+	final int significanceMethod;
 	final boolean byPermutation;
 	final double alpha;
 	final boolean useWelch; // only affect the calculation of DF. thus orthogonal to other parameters
@@ -86,7 +86,7 @@ public class TTest {
 		}
 		
 		switch (significanceMethod) {
-		case JUST_ALPHA:
+		case 0:
 			pValue = getPValue(tValue);
 			if(pValue==null) return null; // cancelled
 			for (int i = 0; i < rowCount; i++) {
@@ -95,7 +95,7 @@ public class TTest {
 				}
 			}
 			break;
-		case STD_BONFERRONI:
+		case 1:
 			pValue = getPValue(tValue);
 			if(pValue==null) return null; // cancelled
 			for (int i = 0; i < rowCount; i++) {
@@ -104,7 +104,7 @@ public class TTest {
 				}
 			}
 			break;
-		case ADJ_BONFERRONI:
+		case 2:
 			pValue = getPValue(tValue);
 			if(pValue==null) return null; // cancelled
 			NaturalRanking ranking = new NaturalRanking(NaNStrategy.MINIMAL,
@@ -132,7 +132,7 @@ public class TTest {
 				}
 			}
 			break;
-		case MIN_P:
+		case 3:
 			pValue = getPValueWithMinPMethod(tValue);
 			for (int i = 0; i < rowCount; i++) {
 				if(pValue[i] < alpha) {
@@ -140,7 +140,7 @@ public class TTest {
 				}
 			}
 			break;
-		case MAX_T:
+		case 4:
 			pValue = getPValueWithMaxTMethod(tValue);
 			for (int i = 0; i < rowCount; i++) {
 				if(pValue[i] < alpha) {
