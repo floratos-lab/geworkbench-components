@@ -2,15 +2,18 @@ package org.geworkbench.components.ttest.data;
 
 /* Fields complete. */
 public class TTestOutput {
-	public final int[] significanceIndex; // [significanceCount]
-	public final double[] tValue; // [rowCount]
-	public final double[] pValue; // [rowCount]
+	public int[] significanceIndex; // [significanceCount]
+	public double[] tValue; // [rowCount]
+	public double[] pValue; // [rowCount]
 
-	public final double[] foldChange; // [rowCount]
+	public double[] foldChange; // [rowCount]
 
-	private final int rowCount; // same as from input
-	private final int significanceCount;
+	private int rowCount; // same as from input
+	private int significanceCount;
 
+	public TTestOutput(){
+	}
+	
 	public TTestOutput(int rowCount, double[] tValue, double[] pValue,
 			double[] foldChange, int significanceCount, int[] significanceIndex) {
 		this.rowCount = rowCount;
