@@ -263,6 +263,17 @@ public class NormalizationPanel extends CommandBase implements VisualPlugin, ReH
 		}
 	}
 
+	@SuppressWarnings("rawtypes")
+	@Subscribe
+	public void receive(org.geworkbench.events.CCMUpdateEvent pe, Object source) {
+		Class<? extends DSDataSet> dataSetType = pe.getDataSetType();
+		if (dataSetType != null && DSMicroarraySet.class.isAssignableFrom(dataSetType) && !pendingNodeSelected()) {
+			clearMenuItems();
+			getAvailableNormalizers();
+			updateMenuItems();
+		}
+	}
+	
 	/**
 	 * Queries the extension point <code>normalizers</code> within the
 	 * <code>PluginRegistry </code> for available normalizer-type plugins.

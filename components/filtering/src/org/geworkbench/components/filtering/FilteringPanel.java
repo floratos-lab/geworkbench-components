@@ -300,20 +300,23 @@ public class FilteringPanel extends CommandBase implements VisualPlugin, ReHighl
 		}
 	}
 
+	@SuppressWarnings("rawtypes")
+	@Subscribe
+	public void receive(org.geworkbench.events.CCMUpdateEvent pe, Object source) {
+		Class<? extends DSDataSet> dataSetType = pe.getDataSetType();
+		if (dataSetType != null && DSMicroarraySet.class.isAssignableFrom(dataSetType) && !pendingNodeSelected()) {
+			clearMenuItems();
+			getAvailableFilters();
+			updateMenuItems();
+		}
+	}
+	
 	/**
 	 * Queries the extension point <code>filters</code> within the
 	 * <code>ComponentRegistry </code> for available filter-type plugins.
 	 * 
-	 * This method gets invoked every time that the analysis pane gets the
-	 * focus, in order to get the most recent list of filters: given dynamic
-	 * loading of components this approach guarantees that any new plugins
-	 * loaded between uses of the filtering panel, will be correctly picked up.
-	 * 
-	 * @return <code>true</code> if the most recently used filter is found in
-	 *         the <code>ComponentRegistry </code>. <code>fales</code>,
-	 *         otherwise.
 	 */
-	public void getAvailableFilters() {
+	private void getAvailableFilters() {
 		/* To check if the last used normalizer is still available. */
 		boolean selectionChanged = true;
 		/* Populate 'availableFilters[]' from ComponentRegistry. */

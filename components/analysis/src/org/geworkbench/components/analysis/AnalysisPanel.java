@@ -1017,6 +1017,32 @@ public class AnalysisPanel extends CommandBase implements
 			lastDataType = currentDataType;
 		}
 	}
+	 
+	@SuppressWarnings({ "rawtypes" })
+	@Subscribe
+	public void receive(org.geworkbench.events.CCMUpdateEvent event, Object source) {
+
+		Class<? extends DSDataSet> currentDataType = event.getDataSetType();
+		if (currentDataType == null)
+			return;
+		
+		clearMenuItems();
+
+		// if not a pending node is selected
+		if (!pendingNodeSelected()) {
+			if (!pidMap.containsKey(currentDataType) || lastDataType != currentDataType)
+				pidMap.put(currentDataType, null);
+			if (currentDataType.equals(CSProteinStructure.class)) {
+				getAvailableAnalyses(ProteinStructureAnalysis.class);
+			} else if (currentDataType.equals(CSSequenceSet.class)) {
+				getAvailableAnalyses(ProteinSequenceAnalysis.class);
+			} else {
+				getAvailableAnalyses(ClusteringAnalysis.class);
+			}
+			updateMenuItems();
+			lastDataType = currentDataType;
+		}
+	}
 
 	/**
 	 * Get Analysis of given type.
