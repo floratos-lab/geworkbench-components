@@ -63,4 +63,28 @@ public class TTestOutput {
 		return significanceCount;
 	}
 
+	public void setSignificanceIndex(int[] significanceIndex) {
+		this.significanceIndex = significanceIndex;
+	}
+
+	public void settValue(double[] tValue) {
+		this.tValue = tValue;
+	}
+
+	public void setpValue(double[] pValue) {
+		this.pValue = pValue;
+	}
+
+	public void setFoldChange(double[] foldChange) {
+		this.foldChange = foldChange;
+	}
+
+	public void setRowCount(int rowCount) {
+		this.rowCount = rowCount;
+	}
+
+	public void setSignificanceCount(int significanceCount) {
+		this.significanceCount = significanceCount;
+	}
+
 }
