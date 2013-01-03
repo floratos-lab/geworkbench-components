@@ -1,7 +1,5 @@
 package org.geworkbench.components.ttest.data;
 
-import org.geworkbench.components.ttest.SignificanceMethod;
-
 /* Fields complete. */
 public class TTestInput {
 	private double[][] caseArray; // [rowCount][caseCount]
@@ -14,7 +12,7 @@ public class TTestInput {
 	// options. please some of them are supposed to be ignored depending on
 	// other ones
 	// approximately in the order that affects the algorithm flow more
-	private SignificanceMethod significanceMethod;
+	private int significanceMethod;
 	private boolean byPermutation;
 	private double alpha;
 	private boolean useWelch; // only affect the calculation of DF. thus orthogonal to other parameters
@@ -27,7 +25,7 @@ public class TTestInput {
 	};
 	
 	public TTestInput(int rowCount, int caseCount, int controlCount, double[][] caseArray, double[][]controlArray,
-			SignificanceMethod significanceMethod, double alpha, boolean byPermutation, boolean useWelch, boolean useAllCombinations, int numberCombinations,
+			int significanceMethod, double alpha, boolean byPermutation, boolean useWelch, boolean useAllCombinations, int numberCombinations,
 			boolean isLogNormalized) {
 		// data
 		this.rowCount = rowCount;
@@ -86,11 +84,11 @@ public class TTestInput {
 		this.controlCount = controlCount;
 	}
 
-	public SignificanceMethod getSignificanceMethod() {
+	public int getSignificanceMethod() {
 		return significanceMethod;
 	}
 
-	public void setSignificanceMethod(SignificanceMethod significanceMethod) {
+	public void setSignificanceMethod(int significanceMethod) {
 		this.significanceMethod = significanceMethod;
 	}
 

@@ -242,7 +242,7 @@ public class TtestAnalysis extends AbstractAnalysis implements
 		groupAndChipsString = totalSelectedGroup + " groups analyzed:\n"
 				+ groupAndChipsString;
 
-		SignificanceMethod m;
+		int m;
 		switch(significanceMethod) {
 		case TtestAnalysisPanel.JUST_ALPHA: m = SignificanceMethod.JUST_ALPHA; break;
 		case TtestAnalysisPanel.STD_BONFERRONI: m = SignificanceMethod.STD_BONFERRONI; break;
