@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
+
+	<component name="LINCS Query Interface" class="org.geworkbench.components.lincs.LincsInterface"
+		version="1.0" author="geWorkbench Development Team"
+		authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
+		toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
+		category="Network, Remote Access" loadByDefault="false">
+	</component>
+
+	<plugin id="Lincs" name="LINCS Query Interface" class="org.geworkbench.components.lincs.LincsInterface"
+		source="lincs">
+		<gui-area name="VisualArea" />
+	</plugin>
+
+</component-descriptor>
