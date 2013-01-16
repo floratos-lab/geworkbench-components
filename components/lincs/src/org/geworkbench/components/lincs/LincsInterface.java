@@ -3,8 +3,8 @@
  */
 package org.geworkbench.components.lincs;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -18,6 +18,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 
@@ -56,6 +57,8 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 		queryTypePanel.add(experimental);
 		queryTypePanel.add(computational);
 
+		final Lincs lincs = new Lincs(null, null, null);
+		
 		queryConditionPanel.setLayout(new GridLayout(2, 7));
 		queryConditionPanel.add(new JLabel("Tissue Type"));
 		queryConditionPanel.add(new JLabel("Cell Line"));
@@ -64,7 +67,8 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 		queryConditionPanel.add(new JLabel("Assay Type"));
 		queryConditionPanel.add(new JLabel("Synergy Measurement Type"));
 		queryConditionPanel.add(new JLabel(""));
-		final JComboBox tissueTypeBox = new JComboBox();
+		final JComboBox tissueTypeBox = new JComboBox(lincs.getAllTissueNames());
+		tissueTypeBox.insertItemAt("All", 0);
 		final JComboBox cellLineBox = new JComboBox();
 		final JComboBox drug1Box = new JComboBox();
 		final JComboBox drug2Box = new JComboBox();
@@ -78,8 +82,23 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 		queryConditionPanel.add(assayTypeBox);
 		queryConditionPanel.add(synergyMeasuremetnTypeBox);
 		queryConditionPanel.add(onlyTitration);
-		queryConditionPanel.setPreferredSize(new Dimension(0, 100));
+//		queryConditionPanel.setMaximumSize(new Dimension(1000, 100));
 
+		// dynamic dependency parts
+		tissueTypeBox.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String[] s = lincs.getAllCellLineNamesForTissueType((String)tissueTypeBox.getSelectedItem());
+				cellLineBox.removeAllItems();
+				cellLineBox.addItem("All");
+				for(String cellLine : s) {
+					cellLineBox.addItem(cellLine);
+				}
+			}
+			
+		});
+		
 		JCheckBox maxResult = new JCheckBox("Max results");
 		JTextField maxResultNumber = new JTextField("10", 10);
 		JButton searchButton = new JButton("Search");
@@ -114,9 +133,10 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 		resetButton.addActionListener(dummyListener);
 
 		JTable resultTable = new JTable(new QueryResultTableModel());
-		queryResultPanel.add(resultTable);
+		queryResultPanel.setLayout(new BorderLayout());
+		queryResultPanel.add(new JScrollPane(resultTable), BorderLayout.CENTER);
 		
-		final JComboBox plotOptions = new JComboBox();
+		final JComboBox plotOptions = new JComboBox(new String[]{"Heatmap", "what else"});
 		JButton plotButton = new JButton("Plot");
 		JButton exportButton = new JButton("Export");
 		resultProcessingPanel.add(new JLabel("Plot options:"));
