@@ -15,8 +15,7 @@
  the set of genes regulated by a particular transcription factor."
 				category="Visualizer, Network, Microarray"				
 	 >
-		<required-component class="org.geworkbench.components.masterregulator.MasterRegulatorAnalysis" />
-		<required-component class="org.geworkbench.components.masterregulator.MasterRegulatorTableViewer" />
+		<required-component class="org.geworkbench.components.masterregulator.MRA" />
 		<license><![CDATA[
 			<html><head><meta http-equiv=Content-Type content="text/html; charset=windows-1252"></head>
 				<body>----</body>
