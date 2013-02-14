@@ -11,11 +11,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.Observer;
 import java.util.regex.Pattern;
 
 import javax.swing.JCheckBox;
@@ -23,8 +20,7 @@ import javax.swing.JOptionPane;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.analysis.AbstractGridAnalysis;
-import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
@@ -33,19 +29,18 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
 import org.geworkbench.bison.model.analysis.ClusteringAnalysis;
-import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.builtin.projects.history.HistoryPanel;
 import org.geworkbench.engine.preferences.GlobalPreferences;
 import org.geworkbench.parsers.TabDelimitedDataMatrixFileFormat;
 import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbench.util.ProgressBar;
 
-public class ViperAnalysis extends AbstractGridAnalysis implements
+public class ViperAnalysis extends AbstractAnalysis implements
 		ClusteringAnalysis {
 	 
  	private static final long serialVersionUID = -1672201775884915447L;
  	private static Log log = LogFactory.getLog(ViperAnalysis.class);
-	private final String analysisName = "Viper";
+	//private final String analysisName = "Viper";
 
  	private static final String R_SCRIPTS="viper_starter.r";
 	private static final String DEFAULT_COMPONENTS_DIR = "components";
@@ -397,6 +392,7 @@ public class ViperAnalysis extends AbstractGridAnalysis implements
 		return null;
 	}
 
+	/*
 	@Override
 	public String getAnalysisName() {
 		// TODO Auto-generated method stub
@@ -463,6 +459,7 @@ public class ViperAnalysis extends AbstractGridAnalysis implements
 
 		return new ParamValidationResults(true,"No Error");
 	}//end of validInputData
+	*/
 	
 	public static class StreamGobbler extends Thread
 	{
