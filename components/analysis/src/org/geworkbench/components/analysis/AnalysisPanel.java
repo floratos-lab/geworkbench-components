@@ -962,7 +962,24 @@ public class AnalysisPanel extends CommandBase implements
 			
 			ProjectPanel.getInstance().addDataSetSubNode(dataSet);
 		}
-		if (resultObject instanceof Hashtable) {
+		else if (resultObject instanceof DSMicroarraySet){
+			DSMicroarraySet dataSet = (DSMicroarraySet) resultObject;		
+			
+			//add start/end time to history
+			String history = "Analysis started at: " + Util.formatDateStandard(startDate) +  NEWLINE;
+			HistoryPanel.addBeforeToHistory(dataSet, history);
+			 
+			Date endDate = new Date();
+			long endTime = endDate.getTime();
+			history = "\nAnalysis finished at: "
+					+ Util.formatDateStandard(endDate) + NEWLINE;			 
+			long elapsedTime = endTime - startTime;
+			history += "\nTotal elapsed time: " + DurationFormatUtils.formatDurationHMS(elapsedTime);
+			HistoryPanel.addToHistory(dataSet, history);
+			
+			ProjectPanel.getInstance().addProcessedMaSet(dataSet);
+		}
+		else if (resultObject instanceof Hashtable) {
 			DSPanel<DSGeneMarker> panel = ((Hashtable<?, DSPanel<DSGeneMarker>>) resultObject)
 					.get("Significant Genes");
 			if (panel != null) {
