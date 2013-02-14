@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.geworkbench.service.lincs.*;
 import org.geworkbench.service.lincs.data.xsd.ComputationalData;
+import org.geworkbench.service.lincs.data.xsd.ExperimentalData;;
 
 /**
  * Java client for LINCS web services.
@@ -116,6 +117,26 @@ public class Lincs {
 		return names;
 	}
 	
+	
+	
+	
+	List<ExperimentalData> getExperimentalData(List<String>tissueTypes, List<String>cellLineNames, List<String>drug1Names, List<String>drug2Names, List<String>measurementTypes,  List<String>assayTypes) {
+
+		 
+		return  lincsService.getLincsServiceHttpSoap11Endpoint()
+				.getExperimentalData(tissueTypes, cellLineNames, drug1Names, drug2Names, measurementTypes, assayTypes);
+         
+	}
+	
+	List<ExperimentalData> getExperimentalData(List<String>tissueTypes, List<String>cellLineNames, List<String>drug1Names, List<String>drug2Names, List<String>measurmentTypes,  List<String>assayTypes, boolean onlyTitration, int rowLimit) {
+
+		 
+		return  lincsService.getLincsServiceHttpSoap11Endpoint()
+				.getExperimentalDataWithLimit(tissueTypes, cellLineNames, drug1Names, drug2Names, measurmentTypes, assayTypes, onlyTitration, rowLimit);
+         
+	}
+	
+	
 	List<ComputationalData> getComputationalData(List<String>tissueTypes, List<String>cellLineNames, List<String>drug1Names, List<String>drug2Names, List<String>similarityAlgorithms) {
 
 		 
@@ -124,7 +145,7 @@ public class Lincs {
          
 	}
 	
-	List<ComputationalData> getComputationalDataWithLimit(List<String>tissueTypes, List<String>cellLineNames, List<String>drug1Names, List<String>drug2Names, List<String>similarityAlgorithms, int rowLimit) {
+	List<ComputationalData> getComputationalData(List<String>tissueTypes, List<String>cellLineNames, List<String>drug1Names, List<String>drug2Names, List<String>similarityAlgorithms, int rowLimit) {
 
 		return lincsService.getLincsServiceHttpSoap11Endpoint()
 				.getComputationalDataWithLimit(tissueTypes, cellLineNames, drug1Names, drug2Names, similarityAlgorithms, rowLimit);
