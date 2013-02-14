@@ -41,7 +41,7 @@ import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbench.util.ProgressBar;
 
 public class ViperAnalysis extends AbstractGridAnalysis implements
-		ClusteringAnalysis, Observer {
+		ClusteringAnalysis {
 	 
  	private static final long serialVersionUID = -1672201775884915447L;
  	private static Log log = LogFactory.getLog(ViperAnalysis.class);
@@ -125,7 +125,6 @@ public class ViperAnalysis extends AbstractGridAnalysis implements
 		pbar.setTitle("Viper Analysis");
 		pbar.setMessage("Viper analysis: started");
 		pbar.start();
-		this.stopAlgorithm = false;
 
 		DSMicroarraySet maSet = data.getMicroarraySet();
 		String setName = maSet.getDataSetName();
@@ -184,9 +183,6 @@ public class ViperAnalysis extends AbstractGridAnalysis implements
 	    	pbar.dispose();
 	    	return new AlgorithmExecutionResults(false, "Viper analysis returns no result", null);				    	
 	    }
-		
-		if (this.stopAlgorithm == true)
-	    	return null;
 
 		HashMap<String, ArrayList<String>> geneIdToMarkers = mapGeneIdToMarkers(maSet);
 		String tfaFname = dataDir + setName + tfaExt;
