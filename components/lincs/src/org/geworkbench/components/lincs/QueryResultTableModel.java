@@ -1,11 +1,17 @@
 package org.geworkbench.components.lincs;
 
+import java.awt.BorderLayout;
+import java.util.Enumeration;
 import java.util.Vector;
 
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableColumn;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+ 
 
 public class QueryResultTableModel extends AbstractTableModel {
 
@@ -13,38 +19,70 @@ public class QueryResultTableModel extends AbstractTableModel {
 
 	private Log log = LogFactory.getLog(QueryResultTableModel.class);
 
-	final int COLUMN_COUNT = 9;
-
-	// TODO populate the content
-	public void setValues(Vector<String[]> data) {
+	private Object[][] data;
+	private String[] columnNames;
+	
+	
+	/** Creates a new instance of TableViewer */
+	public QueryResultTableModel() {
 	}
 
-	int rowCount = 10; // FIXME 10 only for test. initially it should be 0.
-
+	/**
+	 * Creates a new TableViewer with header names and data.
+	 * 
+	 * @param headerNames
+	 *            Header name strings.
+	 * @param data
+	 *            table data
+	 */
+	public QueryResultTableModel(final String[] columnNames, final Object[][] data) {
+		this.data = data;
+		this.columnNames = columnNames;	 
+	}
+	
+  
 	@Override
 	public int getRowCount() {
-		log.debug("getting row count");
-		return rowCount;
+		if (data == null)
+			return 0;
+		else
+			return data.length;
 	}
 
 	@Override
 	public int getColumnCount() {
-		return COLUMN_COUNT;
+		if (columnNames != null)
+		   return columnNames.length;
+		else
+		return 0;
 	}
 
 	// TODO get the content
 	@Override
-	public Object getValueAt(int rowIndex, int columnIndex) {
-		return "NOT IMPLEMENTED YET";
+	public Object getValueAt(int row, int col) {
+		if (data != null && row < data.length
+				&& col < data[row].length)
+            return data[row][col];			 
+		return null;
 	}
 
 	@Override
 	public String getColumnName(int col) {
 		return columnNames[col];
 	}
-
-	private static String[] columnNames = { "Tissue Type", "Cell Line",
-			"Drug 1", "Drug 2", "Assay Type", "Synergy Measurement Type",
-			"Score", "P-value", "Titration Curve" };
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public Class getColumnClass(int column) {
+        Class returnValue;
+        if ((column >= 0) && (column < getColumnCount())) {
+          returnValue = getValueAt(0, column).getClass();
+        } else {
+          returnValue = Object.class;
+        }
+        return returnValue;
+      }
+	
 
 }
+	
+ 
