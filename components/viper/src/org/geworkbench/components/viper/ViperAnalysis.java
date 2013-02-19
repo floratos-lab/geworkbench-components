@@ -24,7 +24,6 @@ import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.markers.annotationparser.AnnotationParser;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
@@ -179,7 +178,7 @@ public class ViperAnalysis extends AbstractAnalysis implements
 	    	return new AlgorithmExecutionResults(false, "Viper analysis returns no result", null);				    	
 	    }
 
-		HashMap<String, ArrayList<String>> geneIdToMarkers = mapGeneIdToMarkers(maSet);
+		HashMap<String, String> geneIdToMarkers = mapGeneIdToMarkers(maSet);
 		String tfaFname = dataDir + setName + tfaExt;
 		File tfaFile = new File(tfaFname);
 		convertRMA(rmaFile, tfaFile, geneIdToMarkers);
@@ -274,7 +273,7 @@ public class ViperAnalysis extends AbstractAnalysis implements
 		}
 	}
 	
-	private void convertRMA(File rmaFile, File tfaFile, HashMap<String, ArrayList<String>> geneIdToMarkers){
+	private void convertRMA(File rmaFile, File tfaFile, HashMap<String, String> geneIdToMarkers){
 		BufferedWriter bw = null;
 		BufferedReader br = null;
 		try{
@@ -286,13 +285,13 @@ public class ViperAnalysis extends AbstractAnalysis implements
 			bw.newLine();
 			while((line=br.readLine())!=null){
 				String[] toks = line.split("\t", 2);
-				String marker = toks[0];
-				//FIXME: toks[0] is geneid - should be replaced with marker id
-				/*ArrayList<String> markers = geneIdToMarkers.get(marker);
-				//first marker for the geneid
-				if (markers != null) marker = markers.get(0);*/
-				bw.write(marker + "\t" + toks[1]);
-				bw.newLine();
+				String marker = geneIdToMarkers.get(toks[0].trim());
+				if (marker == null){
+					log.warn("unable to find gene symbol for entrez id: "+toks[0]);
+				}else{
+					bw.write(marker + "\t" + toks[1]);
+					bw.newLine();
+				}
 			}
 		}catch(Exception e){
 			e.printStackTrace();
@@ -309,21 +308,26 @@ public class ViperAnalysis extends AbstractAnalysis implements
 		tfaFile.deleteOnExit();
 	}
 	
-	//FIXME: should be replaced with real geneid to markers conversion
-	private HashMap<String, ArrayList<String>> mapGeneIdToMarkers(DSMicroarraySet dataset){
-		HashMap<String, ArrayList<String>> geneIdToMarkers = new HashMap<String, ArrayList<String>>();
-		for (DSGeneMarker marker : dataset.getMarkers()){
-			String[] geneids = AnnotationParser.getInfo(marker.getLabel(), AnnotationParser.LOCUSLINK);
-			String geneid = "";
-			if (geneids!=null) {
-				//first geneid for the marker
-				geneid = geneids[0];
-				ArrayList<String> markers = new ArrayList<String>();
-				if (geneIdToMarkers.containsKey(geneid))
-					markers = geneIdToMarkers.get(geneid);
-				else
-					geneIdToMarkers.put(geneid, markers);
-				markers.add(marker.getLabel());
+	private HashMap<String, String> mapGeneIdToMarkers(DSMicroarraySet dataset){
+		HashMap<String, String> geneIdToMarkers = new HashMap<String, String>();
+		BufferedReader br = null;
+		try{
+			br = new BufferedReader(new FileReader(scriptDir+"entrez_to_symbol.tab"));
+			String line = br.readLine();
+			while((line = br.readLine())!=null){
+				String[] toks = line.split("\t", 2);
+				String entrez = toks[0].trim();
+				String symbol = toks[1].trim();
+				if (entrez.length()>0)
+					geneIdToMarkers.put(entrez, symbol);
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}finally{
+			try{
+				if (br!=null) br.close();
+			}catch(Exception e){
+				e.printStackTrace();
 			}
 		}
 		return geneIdToMarkers;
@@ -395,7 +399,6 @@ public class ViperAnalysis extends AbstractAnalysis implements
 	/*
 	@Override
 	public String getAnalysisName() {
-		// TODO Auto-generated method stub
 		return analysisName;
 	}
 
