@@ -3,6 +3,9 @@
  */
 package org.geworkbench.components.lincs;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.util.List;
 import java.util.ArrayList;
 import java.awt.BorderLayout;
@@ -42,6 +45,8 @@ import org.geworkbench.service.lincs.data.xsd.ComputationalData;
 public class LincsInterface extends JPanel implements VisualPlugin {
 
 	private static final long serialVersionUID = 5478648745183665385L;
+
+	private static final Log log = LogFactory.getLog(LincsInterface.class);
 
 	private final static String[] experimentalColumnNames = { "Tissue Type",
 			"Cell Line", "Drug 1", "Drug 2", "Assay Type",
@@ -132,8 +137,22 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 
 		queryConditionPanel2.setLayout(new GridLayout(1, 7));
 
+		List<String> tissueTypeList = null;
+		List<String> drug1List = null;
+		List<String> assayTypeList = null;
+		List<String> synergyMeasuremetnTypeList = null;
+		List<String> similarityAlgorithmList = null;
+		try {
+			tissueTypeList = lincs.getAllTissueNames();
+			drug1List = lincs.GetDrug1NamesFromExperimental(null, null);
+			assayTypeList = lincs.getAllAssayTypeNames();
+			synergyMeasuremetnTypeList = lincs.getAllMeasurementTypeNames();
+			similarityAlgorithmList = lincs.getALLSimilarAlgorithmNames();
+		} catch (Exception ex) {
+			log.error(ex.getMessage());
+		}
 		final JList tissueTypeBox = new JList();
-		List<String> tissueTypeList = lincs.getAllTissueNames();
+
 		final JScrollPane tissueTypeBoxPanel = buildJListPanel(tissueTypeList,
 				tissueTypeBox);
 
@@ -141,8 +160,6 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 		final JScrollPane cellLineBoxPanel = buildJListPanel(null, cellLineBox);
 		cellLineBox.setEnabled(false);
 
-		List<String> drug1List = lincs
-				.GetDrug1NamesFromExperimental(null, null);
 		final JScrollPane drug1BoxPanel = buildFilterJListPanel(drug1List,
 				drug1Box);
 
@@ -151,19 +168,17 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 		drug2Box.setEnabled(false);
 
 		final JList assayTypeBox = new JList();
-		List<String> assayTypeList = lincs.getAllAssayTypeNames();
+
 		final JScrollPane assayTypeBoxPanel = buildJListPanel(assayTypeList,
 				assayTypeBox);
 
 		final JList synergyMeasurementTypeBox = new JList();
-		List<String> synergyMeasuremetnTypeList = lincs
-				.getAllMeasurementTypeNames();
+
 		final JScrollPane synergyMeasuremetnTypeBoxPanel = buildJListPanel(
 				synergyMeasuremetnTypeList, synergyMeasurementTypeBox);
 
 		final JList similarityAlgorithmTypeBox = new JList();
-		List<String> similarityAlgorithmList = lincs
-				.getALLSimilarAlgorithmNames();
+
 		final JScrollPane similarityAlgorithmTypeBoxPanel = buildJListPanel(
 				similarityAlgorithmList, similarityAlgorithmTypeBox);
 
@@ -183,18 +198,27 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 
 				if (e.getValueIsAdjusting()) {
 					List<String> selectedTissueList = getSelectedValues(tissueTypeBox);
-					List<String> cellLineDataList = lincs
-							.getAllCellLineNamesForTissueTypes(selectedTissueList);
+					List<String> cellLineDataList = null;
+					List<String> drug1DataList = null;
+					try {
+						cellLineDataList = lincs
+								.getAllCellLineNamesForTissueTypes(selectedTissueList);
+
+						if (experimental.isSelected() == true)
+							drug1DataList = lincs
+									.GetDrug1NamesFromExperimental(
+											selectedTissueList, null);
+						else
+							drug1DataList = lincs
+									.getDrug1NamesFromComputational(
+											selectedTissueList, null);
+					} catch (Exception ex) {
+						log.error(ex.getMessage());
+					}
 					cellLineBox.setEnabled(true);
 					cellLineBox.setModel(new LincsListModel(cellLineDataList));
 					cellLineBox.clearSelection();
-					List<String> drug1DataList = null;
-					if (experimental.isSelected() == true)
-						drug1DataList = lincs.GetDrug1NamesFromExperimental(
-								selectedTissueList, null);
-					else
-						drug1DataList = lincs.getDrug1NamesFromComputational(
-								selectedTissueList, null);
+
 					for (int i = 0; i < drug1DataList.size(); i++)
 						drug1Box.addItem(drug1DataList.get(i));
 					drug1Box.clearSelection();
@@ -216,12 +240,20 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 					List<String> selectedCellLineList = getSelectedValues(cellLineBox);
 
 					List<String> drug1DataList = null;
-					if (experimental.isSelected() == true)
-						drug1DataList = lincs.GetDrug1NamesFromExperimental(
-								selectedTissueList, selectedCellLineList);
-					else
-						drug1DataList = lincs.getDrug1NamesFromComputational(
-								selectedTissueList, selectedCellLineList);
+					try {
+						if (experimental.isSelected() == true)
+							drug1DataList = lincs
+									.GetDrug1NamesFromExperimental(
+											selectedTissueList,
+											selectedCellLineList);
+						else
+							drug1DataList = lincs
+									.getDrug1NamesFromComputational(
+											selectedTissueList,
+											selectedCellLineList);
+					} catch (Exception ex) {
+						log.error(ex.getMessage());
+					}
 					for (int i = 0; i < drug1DataList.size(); i++)
 						drug1Box.addItem(drug1DataList.get(i));
 
@@ -244,15 +276,23 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 					List<String> selectedDrug1List = getSelectedValues(drug1Box);
 
 					List<String> drug2DataList = null;
-					if (experimental.isSelected() == true)
-						drug2DataList = lincs.GetDrug2NamesFromExperimental(
-								selectedTissueList, selectedCellLineList,
-								selectedDrug1List);
-					else
-						drug2DataList = lincs.getDrug2NamesFromComputational(
-								selectedTissueList, selectedCellLineList,
-								selectedDrug1List);
+					try {
 
+						if (experimental.isSelected() == true)
+							drug2DataList = lincs
+									.GetDrug2NamesFromExperimental(
+											selectedTissueList,
+											selectedCellLineList,
+											selectedDrug1List);
+						else
+							drug2DataList = lincs
+									.getDrug2NamesFromComputational(
+											selectedTissueList,
+											selectedCellLineList,
+											selectedDrug1List);
+					} catch (Exception ex) {
+						log.error(ex.getMessage());
+					}
 					drug2Box.setModel(new LincsListModel(drug2DataList));
 					drug2Box.setEnabled(true);
 				}
@@ -343,11 +383,11 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 				if ((tissueTypes == null || tissueTypes.isEmpty())
 						&& (cellLineNames == null || cellLineNames.isEmpty())
 						&& (drug1Names == null || drug1Names.isEmpty())) {
-					
+
 					JOptionPane.showMessageDialog(null,
-					"Please select Tissue Type or Cell Line or Drug1.");
+							"Please select Tissue Type or Cell Line or Drug1.");
 					return;
-			 
+
 				}
 				if (maxResult.isSelected()) {
 					try {
@@ -361,28 +401,31 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 					}
 				}
 
-				if (experimental.isSelected()) {
-					List<String> assayTypes = getSelectedValues(assayTypeBox);
-					List<String> measurementTypes = getSelectedValues(synergyMeasurementTypeBox);
-					List<ExperimentalData> dataList = lincs
-							.getExperimentalData(tissueTypes, cellLineNames,
-									drug1Names, drug2Names, measurementTypes,
-									assayTypes, onlyTitration.isSelected(),
-									rowLimit);
-					Object[][] objects = convertExperimentalData(dataList);
-					resultTable.setModel(new QueryResultTableModel(
-							experimentalColumnNames, objects));
-				} else {
-					List<String> similarityAlgorithmTypes = getSelectedValues(similarityAlgorithmTypeBox);
-					List<ComputationalData> dataList = lincs
-							.getComputationalData(tissueTypes, cellLineNames,
-									drug1Names, drug2Names,
-									similarityAlgorithmTypes, rowLimit);
-					Object[][] objects = convertComputationalData(dataList);
-					resultTable.setModel(new QueryResultTableModel(
-							computationalColumnNames, objects));
+				try {
+					if (experimental.isSelected()) {
+						List<String> assayTypes = getSelectedValues(assayTypeBox);
+						List<String> measurementTypes = getSelectedValues(synergyMeasurementTypeBox);
+						List<ExperimentalData> dataList = lincs
+								.getExperimentalData(tissueTypes,
+										cellLineNames, drug1Names, drug2Names,
+										measurementTypes, assayTypes,
+										onlyTitration.isSelected(), rowLimit);
+						Object[][] objects = convertExperimentalData(dataList);
+						resultTable.setModel(new QueryResultTableModel(
+								experimentalColumnNames, objects));
+					} else {
+						List<String> similarityAlgorithmTypes = getSelectedValues(similarityAlgorithmTypeBox);
+						List<ComputationalData> dataList = lincs
+								.getComputationalData(tissueTypes,
+										cellLineNames, drug1Names, drug2Names,
+										similarityAlgorithmTypes, rowLimit);
+						Object[][] objects = convertComputationalData(dataList);
+						resultTable.setModel(new QueryResultTableModel(
+								computationalColumnNames, objects));
+					}
+				} catch (Exception ex) {
+					log.error(ex.getMessage());
 				}
-
 			}
 
 		});
@@ -404,20 +447,23 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 				cellLineBox.setModel(new LincsListModel(null));
 				drug2Box.setModel(new LincsListModel(null));
 				List<String> drug1DataList = null;
-				if (experimental.isSelected() == true) {
-					drug1DataList = lincs.GetDrug1NamesFromExperimental(null,
-							null);
-					resultTable.setModel(new QueryResultTableModel(
-							experimentalColumnNames, null));
-				} else {
-					drug1DataList = lincs.getDrug1NamesFromComputational(null,
-							null);
-					resultTable.setModel(new QueryResultTableModel(
-							computationalColumnNames, null));
+				try {
+					if (experimental.isSelected() == true) {
+						drug1DataList = lincs.GetDrug1NamesFromExperimental(
+								null, null);
+						resultTable.setModel(new QueryResultTableModel(
+								experimentalColumnNames, null));
+					} else {
+						drug1DataList = lincs.getDrug1NamesFromComputational(
+								null, null);
+						resultTable.setModel(new QueryResultTableModel(
+								computationalColumnNames, null));
+					}
+					for (int i = 0; i < drug1DataList.size(); i++)
+						drug1Box.addItem(drug1DataList.get(i));
+				} catch (Exception ex) {
+					log.error(ex.getMessage());
 				}
-				for (int i = 0; i < drug1DataList.size(); i++)
-					drug1Box.addItem(drug1DataList.get(i));
-
 			}
 
 		});
