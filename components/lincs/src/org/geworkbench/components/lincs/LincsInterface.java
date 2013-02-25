@@ -37,7 +37,6 @@ import javax.swing.JTextField;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.service.lincs.data.xsd.ExperimentalData;
 import org.geworkbench.service.lincs.data.xsd.ComputationalData;
- 
 
 /**
  * @author zji
@@ -57,33 +56,34 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 			"Cell Line", "Drug 1", "Drug 2", "Similarity Algorithm", "Score",
 			"P-value" };
 
-	/*
-	 * final JList tissueTypeBox = null; final JList cellLineBox = null; final
-	 * JList drug1Box = null; final JList drug2Box = null; final JList
-	 * assayTypeBox = null; final JScrollPane assayTypeBoxPanel = null; final
-	 * JList synergyMeasuremetnTypeBox =null; final JScrollPane
-	 * synergyMeasuremetnTypeBoxPanel = null; final JList
-	 * similarityAlgorithmTypeBox = null;
-	 * 
-	 * final JCheckBox onlyTitration = null;
-	 * 
-	 * final JPanel queryTypePanel = null; final JPanel queryConditionPanel1 =
-	 * null; final JPanel queryConditionPanel2 = null;
-	 * 
-	 * final JPanel queryCommandPanel = null; final JPanel queryResultPanel =
-	 * null; final JPanel resultProcessingPanel = null;
-	 */
+	private JPanel queryTypePanel = new JPanel();
+	private JPanel queryConditionPanel1 = new JPanel();
+	private JPanel queryConditionPanel2 = new JPanel();
+
+	private JPanel queryCommandPanel = new JPanel();
+	private JPanel queryResultPanel = new JPanel();
+	private JPanel resultProcessingPanel = new JPanel();
+	private JRadioButton experimental = new JRadioButton("Experimental");
+	private JRadioButton computational = new JRadioButton("Computational");
+	private FilteredJList drug1Box = new FilteredJList();
+	private JTextField drug1Search = drug1Box.getFilterField();
+	private JList tissueTypeBox = new JList();
+	private Lincs lincs = null;
+	private JList cellLineBox = null;
+	private JList drug2Box = null;
+	private JList assayTypeBox = null;
+	private JList synergyMeasurementTypeBox = null;
+	private JList similarityAlgorithmTypeBox = null;
+	private JCheckBox onlyTitration = null;
+	private JCheckBox maxResult = null;
+	private JTextField maxResultNumber = null;
+	private JButton searchButton = null;
+	private JButton resetButton = null;
+	private JCheckBox colorGradient = null;
+	private JTable resultTable = null;
 
 	public LincsInterface() {
 		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
-
-		final JPanel queryTypePanel = new JPanel();
-		final JPanel queryConditionPanel1 = new JPanel();
-		final JPanel queryConditionPanel2 = new JPanel();
-
-		final JPanel queryCommandPanel = new JPanel();
-		final JPanel queryResultPanel = new JPanel();
-		final JPanel resultProcessingPanel = new JPanel();
 
 		add(queryTypePanel);
 		add(queryConditionPanel1);
@@ -93,9 +93,8 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 		add(queryResultPanel);
 		add(resultProcessingPanel);
 
-		final JRadioButton experimental = new JRadioButton("Experimental");
 		experimental.setSelected(true);
-		final JRadioButton computational = new JRadioButton("Computational");
+
 		ButtonGroup group = new ButtonGroup();
 		group.add(experimental);
 		group.add(computational);
@@ -103,12 +102,12 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 		queryTypePanel.add(experimental);
 		queryTypePanel.add(computational);
 
-		final Lincs lincs = new Lincs("http://156.145.28.209:8080/axis2/services/LincsService?wsdl", null, null);
+		lincs = new Lincs(
+				"http://156.145.28.209:8080/axis2/services/LincsService?wsdl",
+				null, null);
 
 		queryConditionPanel1.setLayout(new GridLayout(2, 7));
 
-		final FilteredJList drug1Box = new FilteredJList();
-		final JTextField drug1Search = drug1Box.getFilterField();
 		final JLabel tissueTypeLabel = new JLabel("Tissue Type");
 		final JLabel cellLineLabel = new JLabel("Cell Line");
 		final JLabel drug1Label = new JLabel("Drug 1");
@@ -152,38 +151,35 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 		} catch (Exception ex) {
 			log.error(ex.getMessage());
 		}
-		final JList tissueTypeBox = new JList();
 
 		final JScrollPane tissueTypeBoxPanel = buildJListPanel(tissueTypeList,
 				tissueTypeBox);
 
-		final JList cellLineBox = new JList();
+		cellLineBox = new JList();
 		final JScrollPane cellLineBoxPanel = buildJListPanel(null, cellLineBox);
 		cellLineBox.setEnabled(false);
 
 		final JScrollPane drug1BoxPanel = buildFilterJListPanel(drug1List,
 				drug1Box);
 
-		final JList drug2Box = new JList();
+		drug2Box = new JList();
 		final JScrollPane drug2BoxPanel = buildJListPanel(null, drug2Box);
 		drug2Box.setEnabled(false);
 
-		final JList assayTypeBox = new JList();
-
+		assayTypeBox = new JList();
 		final JScrollPane assayTypeBoxPanel = buildJListPanel(assayTypeList,
 				assayTypeBox);
 
-		final JList synergyMeasurementTypeBox = new JList();
-
+		synergyMeasurementTypeBox = new JList();
 		final JScrollPane synergyMeasuremetnTypeBoxPanel = buildJListPanel(
 				synergyMeasuremetnTypeList, synergyMeasurementTypeBox);
 
-		final JList similarityAlgorithmTypeBox = new JList();
+		similarityAlgorithmTypeBox = new JList();
 
 		final JScrollPane similarityAlgorithmTypeBoxPanel = buildJListPanel(
 				similarityAlgorithmList, similarityAlgorithmTypeBox);
 
-		final JCheckBox onlyTitration = new JCheckBox("Only with titration");
+		onlyTitration = new JCheckBox("Only with titration");
 		queryConditionPanel2.add(tissueTypeBoxPanel);
 		queryConditionPanel2.add(cellLineBoxPanel);
 		queryConditionPanel2.add(drug1BoxPanel);
@@ -219,7 +215,7 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 					cellLineBox.setEnabled(true);
 					cellLineBox.setModel(new LincsListModel(cellLineDataList));
 					cellLineBox.clearSelection();
-
+					drug1Box.removeAllItems();
 					for (int i = 0; i < drug1DataList.size(); i++)
 						drug1Box.addItem(drug1DataList.get(i));
 					drug1Box.clearSelection();
@@ -301,18 +297,18 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 
 		});
 
-		final JCheckBox maxResult = new JCheckBox("Max results");
-		final JTextField maxResultNumber = new JTextField("10", 10);
-		JButton searchButton = new JButton("Search");
-		JButton resetButton = new JButton("Reset");
-		JCheckBox colorGradient = new JCheckBox("Color gradient for Score");
+		maxResult = new JCheckBox("Max results");
+		maxResultNumber = new JTextField("10", 10);
+		searchButton = new JButton("Search");
+		resetButton = new JButton("Reset");
+		colorGradient = new JCheckBox("Color gradient for Score");
 		queryCommandPanel.add(maxResult);
 		queryCommandPanel.add(maxResultNumber);
 		queryCommandPanel.add(searchButton);
 		queryCommandPanel.add(resetButton);
 		queryCommandPanel.add(colorGradient);
 
-		final JTable resultTable = new JTable(new QueryResultTableModel(
+		resultTable = new JTable(new QueryResultTableModel(
 				experimentalColumnNames, null));
 		queryResultPanel.setLayout(new BorderLayout());
 		queryResultPanel.add(new JScrollPane(resultTable), BorderLayout.CENTER);
@@ -347,6 +343,8 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 				resultTable.setModel(new QueryResultTableModel(
 						computationalColumnNames, null));
 
+				reset();
+
 			}
 		});
 
@@ -363,9 +361,10 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 				queryConditionPanel2.add(synergyMeasuremetnTypeBoxPanel, 5);
 				queryConditionPanel1.updateUI();
 				queryConditionPanel2.updateUI();
-
 				resultTable.setModel(new QueryResultTableModel(
 						experimentalColumnNames, null));
+
+				reset();
 			}
 		});
 
@@ -435,36 +434,7 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				tissueTypeBox.clearSelection();
-				cellLineBox.clearSelection();
-				drug1Box.clearSelection();
-				drug2Box.clearSelection();
-				assayTypeBox.clearSelection();
-				synergyMeasurementTypeBox.clearSelection();
-				similarityAlgorithmTypeBox.clearSelection();
-				onlyTitration.setSelected(false);
-				maxResult.setSelected(false);
-				maxResultNumber.setText("10");
-				cellLineBox.setModel(new LincsListModel(null));
-				drug2Box.setModel(new LincsListModel(null));
-				List<String> drug1DataList = null;
-				try {
-					if (experimental.isSelected() == true) {
-						drug1DataList = lincs.GetDrug1NamesFromExperimental(
-								null, null);
-						resultTable.setModel(new QueryResultTableModel(
-								experimentalColumnNames, null));
-					} else {
-						drug1DataList = lincs.getDrug1NamesFromComputational(
-								null, null);
-						resultTable.setModel(new QueryResultTableModel(
-								computationalColumnNames, null));
-					}
-					for (int i = 0; i < drug1DataList.size(); i++)
-						drug1Box.addItem(drug1DataList.get(i));
-				} catch (Exception ex) {
-					log.error(ex.getMessage());
-				}
+				reset();
 			}
 
 		});
@@ -483,6 +453,40 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 			JOptionPane.showMessageDialog(null, "nothing implemented");
 		}
 	};
+
+	private void reset() {
+		tissueTypeBox.clearSelection();
+		cellLineBox.clearSelection();
+		drug1Box.clearSelection();
+		drug2Box.clearSelection();
+		assayTypeBox.clearSelection();
+		synergyMeasurementTypeBox.clearSelection();
+		similarityAlgorithmTypeBox.clearSelection();
+		onlyTitration.setSelected(false);
+		maxResult.setSelected(false);
+		maxResultNumber.setText("10");
+		cellLineBox.setModel(new LincsListModel(null));
+		drug2Box.setModel(new LincsListModel(null));
+		List<String> drug1DataList = null;
+		try {
+			if (experimental.isSelected() == true) {
+				drug1DataList = lincs.GetDrug1NamesFromExperimental(null, null);
+				resultTable.setModel(new QueryResultTableModel(
+						experimentalColumnNames, null));
+			} else {
+				drug1DataList = lincs
+						.getDrug1NamesFromComputational(null, null);
+				resultTable.setModel(new QueryResultTableModel(
+						computationalColumnNames, null));
+			}
+			drug1Box.removeAllItems();
+			for (int i = 0; i < drug1DataList.size(); i++)
+				drug1Box.addItem(drug1DataList.get(i));
+		} catch (Exception ex) {
+			log.error(ex.getMessage());
+		}
+
+	}
 
 	private class LincsListModel extends AbstractListModel implements ListModel {
 
@@ -562,10 +566,9 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 			objects[i][4] = dataList.get(i).getAssayType();
 			objects[i][5] = dataList.get(i).getMeasurementType();
 			objects[i][6] = dataList.get(i).getScore();
-			objects[i][7] = dataList.get(i).getPvalue();		 
+			objects[i][7] = dataList.get(i).getPvalue();
 			objects[i][8] = "view";
-			 
-			 
+
 		}
 
 		return objects;

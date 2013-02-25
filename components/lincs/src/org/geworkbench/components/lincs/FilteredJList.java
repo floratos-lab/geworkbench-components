@@ -47,8 +47,13 @@ public class FilteredJList extends JList {
 
 	public void addItem(String o) {
 		((FilterModel) getModel()).addElement(o);
+	}	
+	
+	public void removeAllItems() {
+		((FilterModel) getModel()).clear();
 	}
-
+	
+	
 	public JTextField getFilterField() {
 		return filterField;
 	}
@@ -81,12 +86,19 @@ public class FilteredJList extends JList {
 		public int getSize() {
 			return filterItems.size();
 		}
+		
+		public void clear()
+		{
+			items.clear();
+			filterItems.clear();
+		}
 
 		public void addElement(String o) {
 			items.add(o);
 			refilter();
 
 		}
+	
 
 		private void refilter() {
 			filterItems.clear();
