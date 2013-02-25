@@ -561,12 +561,11 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 			objects[i][3] = dataList.get(i).getCompound2();
 			objects[i][4] = dataList.get(i).getAssayType();
 			objects[i][5] = dataList.get(i).getMeasurementType();
-			objects[i][6] = dataList.get(i).getPvalue();
-			objects[i][7] = dataList.get(i).getScore();
-			if (dataList.get(i).getLevelTwoTitrationId() > 0)
-				objects[i][8] = "<html><font color=blue><b>view</b></font></html>";
-			else
-				objects[i][8] = "<html><font color=grey><b>view</b></font></html>";
+			objects[i][6] = dataList.get(i).getScore();
+			objects[i][7] = dataList.get(i).getPvalue();		 
+			objects[i][8] = "view";
+			 
+			 
 		}
 
 		return objects;
