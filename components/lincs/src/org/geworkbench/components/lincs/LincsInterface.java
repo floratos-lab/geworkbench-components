@@ -13,8 +13,9 @@ import java.awt.Component;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.BorderLayout;
 
-import javax.swing.BoxLayout;
+import javax.swing.BoxLayout; 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -91,7 +92,7 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 		add(queryConditionPanel2);
 
 		add(queryCommandPanel);
-		add(queryResultPanel);
+		//add(queryResultPanel);
 		//add(resultProcessingPanel);
 		//add(resultTable);
 
@@ -311,11 +312,13 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 		queryCommandPanel.add(colorGradient);
 		resultTable = new TableViewer(experimentalColumnNames, null);
 		add(resultTable);
+		add(resultProcessingPanel);
+		
 		/*resultTable = new JTable(new QueryResultTableModel(
 				experimentalColumnNames, null));
 		resultTable.setAutoCreateRowSorter(true);*/
 		
-		//queryResultPanel.setLayout(new BorderLayout());
+		queryResultPanel.setLayout(new BorderLayout());
 		//queryResultPanel.add(new JScrollPane(resultTable), BorderLayout.CENTER); 
 
 		plotOptions = new JComboBox(new String[] { "Heatmap",
@@ -343,12 +346,8 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 				queryConditionPanel2.add(similarityAlgorithmTypeBoxPanel, 4);
 
 				queryConditionPanel1.updateUI();
-				queryConditionPanel2.updateUI();
-
-				//.setModel(new QueryResultTableModel(
-					//	computationalColumnNames, null));
-				
-
+				queryConditionPanel2.updateUI();		 
+				onlyTitration.setEnabled(false);
 				reset();
 
 			}
@@ -367,13 +366,7 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 				queryConditionPanel2.add(synergyMeasuremetnTypeBoxPanel, 5);
 				queryConditionPanel1.updateUI();
 				queryConditionPanel2.updateUI();
-				remove(resultTable);
-				resultTable = new TableViewer(experimentalColumnNames, null);
-				add(resultTable);
-				resultTable.updateUI();
-				//resultTable.setModel(new QueryResultTableModel(
-				//		experimentalColumnNames, null));
-
+				onlyTitration.setEnabled(true);
 				reset();
 			}
 		});
@@ -422,10 +415,8 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 										onlyTitration.isSelected(), rowLimit);
 						Object[][] objects = convertExperimentalData(dataList);
 						 
-						remove(resultTable);
-						resultTable = new TableViewer(experimentalColumnNames, objects);
-						add(resultTable);
-						resultTable.updateUI();
+						updateResultTable(experimentalColumnNames, objects);
+						 
 					 
 					} else {
 						List<String> similarityAlgorithmTypes = getSelectedValues(similarityAlgorithmTypeBox);
@@ -435,10 +426,8 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 										similarityAlgorithmTypes, rowLimit);
 						Object[][] objects = convertComputationalData(dataList);
 						 
-						remove(resultTable);
-						resultTable = new TableViewer(computationalColumnNames, objects);
-						add(resultTable);
-						resultTable.updateUI();
+						updateResultTable(computationalColumnNames, objects);
+					 
 					 
 					}
 				} catch (Exception ex) {
@@ -490,19 +479,13 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 			if (experimental.isSelected() == true) {
 				drug1DataList = lincs.GetDrug1NamesFromExperimental(null, null);
 			 
-				remove(resultTable);
-				resultTable = new TableViewer(experimentalColumnNames, null);
-				add(resultTable);
-				resultTable.updateUI();
+				updateResultTable(experimentalColumnNames, null);
 				//resultTable.setModel(new QueryResultTableModel(
 				//		experimentalColumnNames, null));
 			} else {
 				drug1DataList = lincs
 						.getDrug1NamesFromComputational(null, null);
-				remove(resultTable);
-				resultTable = new TableViewer(computationalColumnNames, null);
-				add(resultTable);
-				resultTable.updateUI();
+				updateResultTable(computationalColumnNames, null);
 				//resultTable.setModel(new QueryResultTableModel(
 				//		computationalColumnNames, null));
 			}
@@ -618,7 +601,17 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 		}
 
 		return objects;
-	}	 
+	}	
 	
+	private void updateResultTable(String[] columnNames,  Object[][] data)
+	{
+		remove(resultTable);
+		remove(resultProcessingPanel);
+		resultTable = new TableViewer(columnNames, data);
+		add(resultTable);
+		add(resultTable);
+		add(resultProcessingPanel);
+		resultTable.updateUI();
+	}
 
 }
