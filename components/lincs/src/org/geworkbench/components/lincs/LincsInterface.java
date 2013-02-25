@@ -37,6 +37,7 @@ import javax.swing.JTextField;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.service.lincs.data.xsd.ExperimentalData;
 import org.geworkbench.service.lincs.data.xsd.ComputationalData;
+ 
 
 /**
  * @author zji
@@ -102,7 +103,7 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 		queryTypePanel.add(experimental);
 		queryTypePanel.add(computational);
 
-		final Lincs lincs = new Lincs(null, null, null);
+		final Lincs lincs = new Lincs("http://156.145.28.209:8080/axis2/services/LincsService?wsdl", null, null);
 
 		queryConditionPanel1.setLayout(new GridLayout(2, 7));
 
