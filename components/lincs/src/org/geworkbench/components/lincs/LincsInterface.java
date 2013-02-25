@@ -8,8 +8,8 @@ import org.apache.commons.logging.LogFactory;
 
 import java.util.List;
 import java.util.ArrayList;
-import java.awt.BorderLayout;
-import java.awt.Component;
+ 
+import java.awt.Component; 
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -23,17 +23,17 @@ import javax.swing.JList;
 import javax.swing.AbstractListModel;
 import javax.swing.ListModel;
 import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
+import javax.swing.event.ListSelectionListener; 
 import javax.swing.ListSelectionModel;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.JTable;
+import javax.swing.ScrollPaneConstants; 
 import javax.swing.JTextField;
 
+ 
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.service.lincs.data.xsd.ExperimentalData;
 import org.geworkbench.service.lincs.data.xsd.ComputationalData;
@@ -80,8 +80,9 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 	private JButton searchButton = null;
 	private JButton resetButton = null;
 	private JCheckBox colorGradient = null;
-	private JTable resultTable = null;
-
+	private TableViewer resultTable = null;
+	private JComboBox plotOptions = null;
+	
 	public LincsInterface() {
 		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 
@@ -91,7 +92,8 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 
 		add(queryCommandPanel);
 		add(queryResultPanel);
-		add(resultProcessingPanel);
+		//add(resultProcessingPanel);
+		//add(resultTable);
 
 		experimental.setSelected(true);
 
@@ -307,13 +309,16 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 		queryCommandPanel.add(searchButton);
 		queryCommandPanel.add(resetButton);
 		queryCommandPanel.add(colorGradient);
-
-		resultTable = new JTable(new QueryResultTableModel(
+		resultTable = new TableViewer(experimentalColumnNames, null);
+		add(resultTable);
+		/*resultTable = new JTable(new QueryResultTableModel(
 				experimentalColumnNames, null));
-		queryResultPanel.setLayout(new BorderLayout());
-		queryResultPanel.add(new JScrollPane(resultTable), BorderLayout.CENTER);
+		resultTable.setAutoCreateRowSorter(true);*/
+		
+		//queryResultPanel.setLayout(new BorderLayout());
+		//queryResultPanel.add(new JScrollPane(resultTable), BorderLayout.CENTER); 
 
-		final JComboBox plotOptions = new JComboBox(new String[] { "Heatmap",
+		plotOptions = new JComboBox(new String[] { "Heatmap",
 				"what else" });
 		JButton plotButton = new JButton("Plot");
 		JButton exportButton = new JButton("Export");
@@ -340,8 +345,9 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 				queryConditionPanel1.updateUI();
 				queryConditionPanel2.updateUI();
 
-				resultTable.setModel(new QueryResultTableModel(
-						computationalColumnNames, null));
+				//.setModel(new QueryResultTableModel(
+					//	computationalColumnNames, null));
+				
 
 				reset();
 
@@ -361,8 +367,12 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 				queryConditionPanel2.add(synergyMeasuremetnTypeBoxPanel, 5);
 				queryConditionPanel1.updateUI();
 				queryConditionPanel2.updateUI();
-				resultTable.setModel(new QueryResultTableModel(
-						experimentalColumnNames, null));
+				remove(resultTable);
+				resultTable = new TableViewer(experimentalColumnNames, null);
+				add(resultTable);
+				resultTable.updateUI();
+				//resultTable.setModel(new QueryResultTableModel(
+				//		experimentalColumnNames, null));
 
 				reset();
 			}
@@ -411,8 +421,12 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 										measurementTypes, assayTypes,
 										onlyTitration.isSelected(), rowLimit);
 						Object[][] objects = convertExperimentalData(dataList);
-						resultTable.setModel(new QueryResultTableModel(
-								experimentalColumnNames, objects));
+						 
+						remove(resultTable);
+						resultTable = new TableViewer(experimentalColumnNames, objects);
+						add(resultTable);
+						resultTable.updateUI();
+					 
 					} else {
 						List<String> similarityAlgorithmTypes = getSelectedValues(similarityAlgorithmTypeBox);
 						List<ComputationalData> dataList = lincs
@@ -420,8 +434,12 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 										cellLineNames, drug1Names, drug2Names,
 										similarityAlgorithmTypes, rowLimit);
 						Object[][] objects = convertComputationalData(dataList);
-						resultTable.setModel(new QueryResultTableModel(
-								computationalColumnNames, objects));
+						 
+						remove(resultTable);
+						resultTable = new TableViewer(computationalColumnNames, objects);
+						add(resultTable);
+						resultTable.updateUI();
+					 
 					}
 				} catch (Exception ex) {
 					log.error(ex.getMessage());
@@ -471,13 +489,22 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 		try {
 			if (experimental.isSelected() == true) {
 				drug1DataList = lincs.GetDrug1NamesFromExperimental(null, null);
-				resultTable.setModel(new QueryResultTableModel(
-						experimentalColumnNames, null));
+			 
+				remove(resultTable);
+				resultTable = new TableViewer(experimentalColumnNames, null);
+				add(resultTable);
+				resultTable.updateUI();
+				//resultTable.setModel(new QueryResultTableModel(
+				//		experimentalColumnNames, null));
 			} else {
 				drug1DataList = lincs
 						.getDrug1NamesFromComputational(null, null);
-				resultTable.setModel(new QueryResultTableModel(
-						computationalColumnNames, null));
+				remove(resultTable);
+				resultTable = new TableViewer(computationalColumnNames, null);
+				add(resultTable);
+				resultTable.updateUI();
+				//resultTable.setModel(new QueryResultTableModel(
+				//		computationalColumnNames, null));
 			}
 			drug1Box.removeAllItems();
 			for (int i = 0; i < drug1DataList.size(); i++)
@@ -563,7 +590,8 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 			objects[i][1] = dataList.get(i).getCellLineName();
 			objects[i][2] = dataList.get(i).getCompound1();
 			objects[i][3] = dataList.get(i).getCompound2();
-			objects[i][4] = dataList.get(i).getAssayType();
+			//objects[i][4] = dataList.get(i).getAssayType();
+			objects[i][4] = "";
 			objects[i][5] = dataList.get(i).getMeasurementType();
 			objects[i][6] = dataList.get(i).getScore();
 			objects[i][7] = dataList.get(i).getPvalue();
@@ -590,6 +618,7 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 		}
 
 		return objects;
-	}
+	}	 
+	
 
 }
