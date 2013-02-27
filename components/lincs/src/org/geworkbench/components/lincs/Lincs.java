@@ -13,7 +13,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.service.lincs.LincsService;
 import org.geworkbench.service.lincs.data.xsd.ComputationalData;
-import org.geworkbench.service.lincs.data.xsd.ExperimentalData;;
+import org.geworkbench.service.lincs.data.xsd.ExperimentalData;
+
+import org.geworkbench.service.lincs.LincsServiceException_Exception;;
 
 /**
  * Java client for LINCS web services.
@@ -46,7 +48,7 @@ public class Lincs {
 	
      
 
-	public List<String> getAllTissueNames() throws Exception {
+	public List<String> getAllTissueNames() throws LincsServiceException_Exception {
 		List<String> names = null;
 	 
 		names = lincsService.getLincsServiceHttpSoap11Endpoint()
@@ -56,7 +58,7 @@ public class Lincs {
 
 	}
 
-	public List<String> getAllCellLineNamesForTissueTypes(List<String> tissueTypes) throws Exception {
+	public List<String> getAllCellLineNamesForTissueTypes(List<String> tissueTypes) throws LincsServiceException_Exception {
 		List<String> names = null;
 	 
 		names =  lincsService.getLincsServiceHttpSoap11Endpoint()
@@ -65,7 +67,7 @@ public class Lincs {
 		return names;
 	}
 
-	public List<String> getAllAssayTypeNames()  throws Exception {
+	public List<String> getAllAssayTypeNames()  throws LincsServiceException_Exception {
 
 		List<String> names = null;
 		names =  lincsService.getLincsServiceHttpSoap11Endpoint()
@@ -75,7 +77,7 @@ public class Lincs {
 
 	}
 
-	public List<String> getAllMeasurementTypeNames()  throws Exception {
+	public List<String> getAllMeasurementTypeNames()  throws LincsServiceException_Exception {
 
 		List<String> names = null;
 		names =  lincsService.getLincsServiceHttpSoap11Endpoint()
@@ -84,7 +86,7 @@ public class Lincs {
 		return names;
 	}
 
-	public List<String> getALLSimilarAlgorithmNames()  throws Exception {
+	public List<String> getALLSimilarAlgorithmNames()  throws LincsServiceException_Exception {
 
 		List<String> names = null;
 		names =  lincsService.getLincsServiceHttpSoap11Endpoint()
@@ -94,7 +96,7 @@ public class Lincs {
 
 	}
 	
-	public List<String> GetCompound1NamesFromExperimental(List<String> tyssueTypes, List<String>cellLines) throws Exception {
+	public List<String> GetCompound1NamesFromExperimental(List<String> tyssueTypes, List<String>cellLines) throws LincsServiceException_Exception {
 
 		List<String> names = null;
 		names =  lincsService.getLincsServiceHttpSoap11Endpoint()
@@ -104,16 +106,16 @@ public class Lincs {
 		return names;
 	}
 	
-	public List<String> GetCompound2NamesFromExperimental(List<String> tissueTypes, List<String>cellLines, List<String> drug1Names) throws Exception {
+	public List<String> GetCompound2NamesFromExperimental(List<String> tissueTypes, List<String>cellLines, List<String> compound1Names) throws LincsServiceException_Exception {
 
 		List<String> names = null;
 		names =  lincsService.getLincsServiceHttpSoap11Endpoint()
-				.getCompound2NamesFromExperimental(convertToString(tissueTypes), convertToString(cellLines), convertToString(drug1Names)) ;
+				.getCompound2NamesFromExperimental(convertToString(tissueTypes), convertToString(cellLines), convertToString(compound1Names)) ;
 	 
 		return names;
 	}
 	
-	public List<String> getCompound1NamesFromComputational(List<String> tissueTypes, List<String>cellLines) throws Exception {
+	public List<String> getCompound1NamesFromComputational(List<String> tissueTypes, List<String>cellLines) throws LincsServiceException_Exception {
 
 		List<String> names = null;
 		names =  lincsService.getLincsServiceHttpSoap11Endpoint().getCompound1NamesFromComputational(convertToString(tissueTypes),convertToString(cellLines));
@@ -121,11 +123,11 @@ public class Lincs {
 		return names;
 	}
 	
-	public List<String> getCompound2NamesFromComputational(List<String> tyssueTypes, List<String>cellLines, List<String> drug1Names) throws Exception {
+	public List<String> getCompound2NamesFromComputational(List<String> tyssueTypes, List<String>cellLines, List<String> compound1Names) throws LincsServiceException_Exception {
 
 		List<String> names = null;
 		names = lincsService.getLincsServiceHttpSoap11Endpoint()
-				.getCompound2NamesFromComputational(convertToString(tyssueTypes), convertToString(cellLines), convertToString(drug1Names)) ;
+				.getCompound2NamesFromComputational(convertToString(tyssueTypes), convertToString(cellLines), convertToString(compound1Names)) ;
 	 
 		return names;
 	}
@@ -133,35 +135,35 @@ public class Lincs {
 	
 	
 	
-	public List<ExperimentalData> getExperimentalData(List<String>tissueTypes, List<String>cellLineNames, List<String>drug1Names, List<String>drug2Names, List<String>measurementTypes,  List<String>assayTypes) throws Exception {
+	public List<ExperimentalData> getExperimentalData(List<String>tissueTypes, List<String>cellLineNames, List<String>compound1Names, List<String>compound2Names, List<String>measurementTypes,  List<String>assayTypes) throws LincsServiceException_Exception {
 
 		 
 		return  lincsService.getLincsServiceHttpSoap11Endpoint()
-				.getExperimentalData(convertToString(tissueTypes), convertToString(cellLineNames), convertToString(drug1Names), convertToString(drug2Names), convertToString(measurementTypes), convertToString(assayTypes));
+				.getExperimentalData(convertToString(tissueTypes), convertToString(cellLineNames), convertToString(compound1Names), convertToString(compound2Names), convertToString(measurementTypes), convertToString(assayTypes));
          
 	}
 	
-	public List<ExperimentalData> getExperimentalData(List<String>tissueTypes, List<String>cellLineNames, List<String>drug1Names, List<String>drug2Names, List<String>measurmentTypes,  List<String>assayTypes, boolean onlyTitration, int rowLimit) throws Exception {
+	public List<ExperimentalData> getExperimentalData(List<String>tissueTypes, List<String>cellLineNames, List<String>compound1Names, List<String>compound2Names, List<String>measurmentTypes,  List<String>assayTypes, boolean onlyTitration, int rowLimit) throws LincsServiceException_Exception {
 
 		 
 		return  lincsService.getLincsServiceHttpSoap11Endpoint()
-				.getExperimentalDataWithLimit(convertToString(tissueTypes), convertToString(cellLineNames), convertToString(drug1Names), convertToString(drug2Names), convertToString(measurmentTypes), convertToString(assayTypes), onlyTitration, rowLimit);
+				.getExperimentalDataWithLimit(convertToString(tissueTypes), convertToString(cellLineNames), convertToString(compound1Names), convertToString(compound2Names), convertToString(measurmentTypes), convertToString(assayTypes), onlyTitration, rowLimit);
          
 	}
 	
 	
-	public List<ComputationalData> getComputationalData(List<String>tissueTypes, List<String>cellLineNames, List<String>drug1Names, List<String>drug2Names, List<String>similarityAlgorithms) throws Exception {
+	public List<ComputationalData> getComputationalData(List<String>tissueTypes, List<String>cellLineNames, List<String>compound1Names, List<String>compound2Names, List<String>similarityAlgorithms) throws LincsServiceException_Exception {
 
 		 
 		return  lincsService.getLincsServiceHttpSoap11Endpoint()
-				.getComputationalData(convertToString(tissueTypes), convertToString(cellLineNames), convertToString(drug1Names), convertToString(drug2Names), convertToString(similarityAlgorithms));
+				.getComputationalData(convertToString(tissueTypes), convertToString(cellLineNames), convertToString(compound1Names), convertToString(compound2Names), convertToString(similarityAlgorithms));
          
 	}
 	
-	public List<ComputationalData> getComputationalData(List<String>tissueTypes, List<String>cellLineNames, List<String>drug1Names, List<String>drug2Names, List<String>similarityAlgorithms, int rowLimit) throws Exception {
+	public List<ComputationalData> getComputationalData(List<String>tissueTypes, List<String>cellLineNames, List<String>compound1Names, List<String>compound2Names, List<String>similarityAlgorithms, int rowLimit) throws LincsServiceException_Exception {
 
 		return lincsService.getLincsServiceHttpSoap11Endpoint()
-				.getComputationalDataWithLimit(convertToString(tissueTypes), convertToString(cellLineNames), convertToString(drug1Names), convertToString(drug2Names), convertToString(similarityAlgorithms), rowLimit);
+				.getComputationalDataWithLimit(convertToString(tissueTypes), convertToString(cellLineNames), convertToString(compound1Names), convertToString(compound2Names), convertToString(similarityAlgorithms), rowLimit);
 
 	}
 	
