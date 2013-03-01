@@ -941,9 +941,25 @@ public class CytoscapeWidget implements VisualPlugin {
 
 		// number.
 		// 3) FINISH event
-		if (maSet != null) {
+		if (maSet != null)  
+		{	
 			view = Cytoscape.createNetworkView(cytoNetwork, maSet.getLabel());
+			view.addGraphViewChangeListener(new GraphViewChangeListener() {
+				public void graphViewChanged(
+						GraphViewChangeEvent graphViewChangeEvent) {
+					cyNetWorkView_graphViewChanged(graphViewChangeEvent);
+				}
+			});
 
+			view.getComponent().addMouseListener(
+					new ExpandMenuListener(CytoscapeWidget.this));
+
+		
+		
+		}
+		else		 
+			view = Cytoscape.createNetworkView(cytoNetwork, adjSet.getLabel());
+			 
 			NodeAppearanceCalculator nac = visualStyle
 					.getNodeAppearanceCalculator();
 			ObjectMapping oMapping = nac.getCalculator(
@@ -958,19 +974,11 @@ public class CytoscapeWidget implements VisualPlugin {
 			}
 			view.applyVizmapper(visualStyle);
 
-			view.addGraphViewChangeListener(new GraphViewChangeListener() {
-				public void graphViewChanged(
-						GraphViewChangeEvent graphViewChangeEvent) {
-					cyNetWorkView_graphViewChanged(graphViewChangeEvent);
-				}
-			});
-
-			view.getComponent().addMouseListener(
-					new ExpandMenuListener(CytoscapeWidget.this));
-
+		
 			log.info("DrawAction finished.");
 			resetNetwork();
-		}
+		 
+		
 
 	}
 
