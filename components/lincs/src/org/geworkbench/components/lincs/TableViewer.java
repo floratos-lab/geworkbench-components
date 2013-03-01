@@ -67,6 +67,22 @@ public class TableViewer extends JPanel {
 	public JTable getTable() {
 		return this.table;
 	}
+	
+	/**
+	 * Returns the table.
+	 * 
+	 * @return table component
+	 */
+	public Object[][] getData() {
+		return data;
+	}
+	public int getHeaderNameIndex(String name) {
+		
+		 for(int i =0; i<headerNames.length; i++)
+		      if (headerNames[i].equalsIgnoreCase(name))
+		    	  return i;
+		 return -1;
+	}
 
 	/**
 	 * Internal Classes

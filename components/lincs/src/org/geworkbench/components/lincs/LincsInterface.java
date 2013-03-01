@@ -6,8 +6,10 @@ package org.geworkbench.components.lincs;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+ 
 import java.util.List;
 import java.util.ArrayList;
+ 
  
 import java.awt.Component; 
 import java.awt.GridLayout;
@@ -35,10 +37,16 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.JTextField;
 
  
+import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
+import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
+import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType; 
+import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.engine.config.VisualPlugin;
+import org.geworkbench.engine.management.Publish;
+import org.geworkbench.events.ProjectNodeAddedEvent;
 import org.geworkbench.service.lincs.data.xsd.ExperimentalData;
 import org.geworkbench.service.lincs.data.xsd.ComputationalData;
-
+ 
 /**
  * @author zji
  * 
@@ -57,6 +65,9 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 			"Cell Line", "Drug 1", "Drug 2", "Similarity Algorithm", "Score",
 			"P-value" };
 
+	private final static String NETWORK = "Network";
+	private final static String HEATMAP = "Heatmap";
+	
 	private JPanel queryTypePanel = new JPanel();
 	private JPanel queryConditionPanel1 = new JPanel();
 	private JPanel queryConditionPanel2 = new JPanel();
@@ -83,6 +94,7 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 	private JCheckBox colorGradient = null;
 	private TableViewer resultTable = null;
 	private JComboBox plotOptions = null;
+	 
 	
 	public LincsInterface() {
 		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
@@ -247,13 +259,14 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 											selectedTissueList,
 											selectedCellLineList));
 						else
-							addAll(drug1DataList = lincs
+							drug1DataList = addAll(lincs
 									.getCompound1NamesFromComputational(
 											selectedTissueList,
 											selectedCellLineList));
 					} catch (Exception ex) {
 						log.error(ex.getMessage());
 					}
+					drug1Box.removeAllItems();
 					for (int i = 0; i < drug1DataList.size(); i++)
 						drug1Box.addItem(drug1DataList.get(i));
 
@@ -321,8 +334,8 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 		queryResultPanel.setLayout(new BorderLayout());
 		//queryResultPanel.add(new JScrollPane(resultTable), BorderLayout.CENTER); 
 
-		plotOptions = new JComboBox(new String[] { "Heatmap",
-				"what else" });
+		plotOptions = new JComboBox(new String[] { HEATMAP,
+				NETWORK });
 		JButton plotButton = new JButton("Plot");
 		JButton exportButton = new JButton("Export");
 		resultProcessingPanel.add(new JLabel("Plot options:"));
@@ -330,7 +343,7 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 		resultProcessingPanel.add(plotButton);
 		resultProcessingPanel.add(exportButton);
 
-		plotButton.addActionListener(dummyListener);
+		plotButton.addActionListener(plotListener);
 		exportButton.addActionListener(dummyListener);
 
 		computational.addActionListener(new ActionListener() {
@@ -460,11 +473,13 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 			JOptionPane.showMessageDialog(null, "nothing implemented");
 		}
 	};
+	
 
 	private void reset() {
 		tissueTypeBox.clearSelection();
 		cellLineBox.clearSelection();
 		drug1Box.clearSelection();
+		drug1Box.getFilterField().setText("");
 		drug2Box.clearSelection();
 		assayTypeBox.clearSelection();
 		synergyMeasurementTypeBox.clearSelection();
@@ -618,5 +633,70 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 				   list.add(0, "All");
 		return list;
 	}
+	
+	
+
+	private ActionListener plotListener = new ActionListener() {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (plotOptions.getSelectedItem().toString().equals(HEATMAP))
+			{
+			 
+			}else if (plotOptions.getSelectedItem().toString().equals(NETWORK))
+			{
+				createNetwork();
+			}
+		}
+	};
+	
+	private void createNetwork()
+	{
+		AdjacencyMatrix matrix = new AdjacencyMatrix("Adjacency Matrix");
+		AdjacencyMatrixDataSet adjacencyMatrixdataSet = null;
+		Object[][] data = resultTable.getData();
+	        
+		if (data == null | data.length == 0)
+		{	JOptionPane.showMessageDialog(null,
+					"No interactions exist in the current database.",
+					"Empty Set", JOptionPane.ERROR_MESSAGE);
+		    return ;
+		}
+			
+        int drug1Index = resultTable.getHeaderNameIndex("Drug 1");
+        int drug2Index = resultTable.getHeaderNameIndex("Drug 2");
+        int scoreIndex = resultTable.getHeaderNameIndex("Score");
+		for (int i=0; i<data.length; i++) {
+			AdjacencyMatrix.Node node1, node2;
+			 
+		    
+				node1 = new AdjacencyMatrix.Node(NodeType.STRING,
+						data[i][drug1Index].toString());
+				node2 = new AdjacencyMatrix.Node(NodeType.STRING,
+						data[i][drug2Index].toString());
+			//	matrix.add(node1, node2, new Float(data[i][scoreIndex].toString()).floatValue());	
+				matrix.add(node1, node2, new Float(i).floatValue());		 
+			 
+		}  
+		 
+		 
+		adjacencyMatrixdataSet = new AdjacencyMatrixDataSet(matrix,
+					0, "Adjacency Matrix", "Lincs", null);
+
+		 
+		ProjectPanel.getInstance().addDataSetNode(adjacencyMatrixdataSet);
+	  
+
+	}
+
+
+@Publish
+public ProjectNodeAddedEvent publishProjectNodeAddedEvent(
+			ProjectNodeAddedEvent pe) {
+		return pe;
+}
+	
+	
+	
 
 }
