@@ -76,6 +76,10 @@ public class ViperAnalysis extends AbstractAnalysis implements
 
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> data = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
 
+		DSMicroarraySet maSet = data.getMicroarraySet();
+		if (maSet.getAnnotationFileName()==null && !intPat.matcher(maSet.getMarkers().get(0).getLabel()).matches())
+			return new AlgorithmExecutionResults(false, "Please load annotation file first.", null);
+
 		//missing marker values not allowed
 		if (containsMissingValues(data))
 			return new AlgorithmExecutionResults(false,
@@ -112,15 +116,22 @@ public class ViperAnalysis extends AbstractAnalysis implements
 		else{
 			File rExeFile=new File(rExe);
 			if(!rExeFile.exists())
-				return new AlgorithmExecutionResults(false, "Rscript.exe not exist. Please check it's location at Tools->Preference->R location.", null);
+				return new AlgorithmExecutionResults(false, "Rscript.exe not exist. Please check its location at Tools->Preference->R location.", null);
 		}
 		
+		String rLibPath = GlobalPreferences.getInstance().getRLibPath();
+		if (rLibPath.trim().length()>0){
+			File rLibFile=new File(rLibPath);
+			if(!rLibFile.exists() || !rLibFile.isDirectory() || !rLibFile.canWrite())
+				return new AlgorithmExecutionResults(false, "R package directory " + rLibPath+" is not valid.\nPlease leave it blank "+
+						"or provide a valid writable user directory at Tools->Preference->R package directory.", null);
+		}
+
 		ProgressBar pbar = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
 		pbar.setTitle("Viper Analysis");
 		pbar.setMessage("Viper analysis: started");
 		pbar.start();
 
-		DSMicroarraySet maSet = data.getMicroarraySet();
 		String setName = maSet.getDataSetName();
 		int index = setName.lastIndexOf(extSeparator);
 		if (index >= 0) setName = setName.substring(0, index);
@@ -140,7 +151,8 @@ public class ViperAnalysis extends AbstractAnalysis implements
 			outFname,
 			((ViperPanel) aspp).getRegulon(),
 			((ViperPanel) aspp).getRegType(),
-			((ViperPanel) aspp).getMethod()
+			((ViperPanel) aspp).getMethod(),
+			rLibPath
 		};
 		
 		pbar.setMessage("Viper analysis: computing the association scores");
@@ -151,7 +163,7 @@ public class ViperAnalysis extends AbstractAnalysis implements
 			fos = new FileOutputStream(logFile);
 			Process proc = Runtime.getRuntime().exec(commands);
 
-			StreamGobbler errorGobbler = new StreamGobbler(proc.getErrorStream(), "ERROR", fos);
+			StreamGobbler errorGobbler = new StreamGobbler(proc.getErrorStream(), "INFO", fos);
 			StreamGobbler outputGobbler = new StreamGobbler(proc.getInputStream(), "OUTPUT", fos);
 			errorGobbler.start();
 			outputGobbler.start();
@@ -175,6 +187,10 @@ public class ViperAnalysis extends AbstractAnalysis implements
 		File rmaFile = new File(outFname);
 		if (err != null || !rmaFile.exists()){
 	    	pbar.dispose();
+	    	if (err!=null && err.contains("Error in install.packages"))
+	    		return new AlgorithmExecutionResults(false, 
+	    				"Unable to install viper package into a system directory.\n"+
+	    				"Please provide a valid writable user directory at Tools->Preference->R package directory.", null);
 	    	return new AlgorithmExecutionResults(false, "Viper analysis returns no result", null);				    	
 	    }
 
@@ -483,27 +499,32 @@ public class ViperAnalysis extends AbstractAnalysis implements
 	    
 	    public void run()
 	    {
-	        try
-	        {
-	            PrintWriter pw = null;
+            PrintWriter pw = null;
+            BufferedReader br = null;
+	        try {
 	            if (os != null)
-	                pw = new PrintWriter(os);
+	                pw = new PrintWriter(os, true);
 	                
 	            InputStreamReader isr = new InputStreamReader(is);
-	            BufferedReader br = new BufferedReader(isr);
+	            br = new BufferedReader(isr);
 	            String line=null;
 	            while ( (line = br.readLine()) != null)
 	            {
-	                if (pw != null)
+	                if (pw != null){
 	                    pw.println(line);
+	                }
 	                System.out.println(type + ">" + line);    
 	            }
-	            if (pw != null)
-	                pw.flush();
-	        } catch (IOException ioe)
-	            {
+	        } catch (IOException ioe) {
 	            ioe.printStackTrace();  
+	        } finally {
+	        	try{
+		        	if (pw!=null) pw.close();
+	        		if (br!=null) br.close();
+	            }catch(Exception e){
+	            	e.printStackTrace();
 	            }
+	        }
 	    }
 	}
 }
