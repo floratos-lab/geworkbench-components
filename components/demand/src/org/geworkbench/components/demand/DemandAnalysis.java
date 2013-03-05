@@ -109,7 +109,7 @@ public class DemandAnalysis extends AbstractAnalysis implements
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> data = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
 		DSMicroarraySet maSet = data.getMicroarraySet();
 		if (maSet.getAnnotationFileName()==null)
-			return new AlgorithmExecutionResults(false, "Demand analysis needs annotation file. Please load it first.", null);
+			return new AlgorithmExecutionResults(false, "Please load annotation file first.", null);
 
 		//missing marker values not allowed
 		if (containsMissingValues(data))
@@ -210,7 +210,7 @@ public class DemandAnalysis extends AbstractAnalysis implements
 			fos = new FileOutputStream(logFile);
 			Process proc = Runtime.getRuntime().exec(commands);
 
-			StreamGobbler errorGobbler = new StreamGobbler(proc.getErrorStream(), "ERROR", fos);
+			StreamGobbler errorGobbler = new StreamGobbler(proc.getErrorStream(), "INFO", fos);
 			StreamGobbler outputGobbler = new StreamGobbler(proc.getInputStream(), "OUTPUT", fos);
 			errorGobbler.start();
 			outputGobbler.start();
@@ -624,27 +624,32 @@ public class DemandAnalysis extends AbstractAnalysis implements
 	    
 	    public void run()
 	    {
-	        try
-	        {
-	            PrintWriter pw = null;
+            PrintWriter pw = null;
+            BufferedReader br = null;
+	        try {
 	            if (os != null)
-	                pw = new PrintWriter(os);
+	                pw = new PrintWriter(os, true);
 	                
 	            InputStreamReader isr = new InputStreamReader(is);
-	            BufferedReader br = new BufferedReader(isr);
+	            br = new BufferedReader(isr);
 	            String line=null;
 	            while ( (line = br.readLine()) != null)
 	            {
-	                if (pw != null)
+	                if (pw != null){
 	                    pw.println(line);
+	                }
 	                System.out.println(type + ">" + line);    
 	            }
-	            if (pw != null)
-	                pw.flush();
-	        } catch (IOException ioe)
-	            {
+	        } catch (IOException ioe) {
 	            ioe.printStackTrace();  
+	        } finally {
+	        	try{
+		        	if (pw!=null) pw.close();
+	        		if (br!=null) br.close();
+	            }catch(Exception e){
+	            	e.printStackTrace();
 	            }
+	        }
 	    }
 	}
 	
