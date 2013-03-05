@@ -204,7 +204,7 @@ public class ViperAnalysis extends AbstractAnalysis implements
 		pbar.setMessage("Viper analysis: reading output tfa file");
 		DSMicroarraySet analysisResult = null;
 		try{
-			analysisResult = (DSMicroarraySet)new TabDelimitedDataMatrixFileFormat().getDataFile(tfaFile);
+			analysisResult = (DSMicroarraySet)new TabDelimitedDataMatrixFileFormat().getDataFileSkipAnnotation(tfaFile);
 		}catch(Exception e){
 			e.printStackTrace();
 		}
