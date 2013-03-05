@@ -674,8 +674,8 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 						data[i][drug1Index].toString());
 				node2 = new AdjacencyMatrix.Node(NodeType.STRING,
 						data[i][drug2Index].toString());
-			//	matrix.add(node1, node2, new Float(data[i][scoreIndex].toString()).floatValue());	
-				matrix.add(node1, node2, new Float(i).floatValue());		 
+				matrix.add(node1, node2, new Float(data[i][scoreIndex].toString()).floatValue());	
+				 	 
 			 
 		}  
 		 
