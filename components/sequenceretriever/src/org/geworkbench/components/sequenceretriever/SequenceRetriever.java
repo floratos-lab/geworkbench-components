@@ -205,7 +205,7 @@ public class SequenceRetriever implements VisualPlugin {
 
 		JButton jActivateBttn = new JButton();
 		jActivateBttn.setToolTipText("Add a data node to current project");
-		jActivateBttn.setText("Add To Project");
+		jActivateBttn.setText("Add To Workspace");
 		jActivateBttn.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				jActivateBttn_actionPerformed(e);
