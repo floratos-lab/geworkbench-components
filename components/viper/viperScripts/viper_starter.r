@@ -1,11 +1,14 @@
 args <- commandArgs(TRUE)
 
 package	<- args[1]
-expfile		<- args[2]
-outfile		<- args[3]
+expfile	<- args[2]
+outfile	<- args[3]
 regulon	<- args[4]
 regtype	<- args[5]
-mtd			<- args[6]
+mtd		<- args[6]
+userLib	<- args[7]
+
+if (!is.na(userLib))  .libPaths(userLib)
 
 if (!("viper" %in% installed.packages()[, "Package"])){
    res <- try(install.packages(package, repos=NULL, type="source"))
