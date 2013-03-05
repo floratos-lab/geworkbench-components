@@ -93,6 +93,7 @@ import cytoscape.visual.VisualMappingManager;
 import cytoscape.visual.VisualPropertyType;
 import cytoscape.visual.VisualStyle;
 import cytoscape.visual.calculators.Calculator;
+import cytoscape.visual.calculators.BasicCalculator;
 import cytoscape.visual.mappings.DiscreteMapping;
 import cytoscape.visual.mappings.ObjectMapping;
 import cytoscape.visual.mappings.PassThroughMapping; 
@@ -157,7 +158,7 @@ public class CytoscapeWidget implements VisualPlugin {
 	private AdjacencyMatrixDataSet adjSet = null;
 	private Set<String> dataSetIDs = new HashSet<String>();
 	private volatile Set<Integer> cancelList = new HashSet<Integer>();
-	private DiscreteMapping nodeDm = null, edgeDm = null;
+	private DiscreteMapping nodeDm = null, edgeDm = null, edgeWidthDm = null;
 
 	private int shapeIndex = 0;
 	private NodeShape[] shapes = { NodeShape.HEXAGON, NodeShape.RECT,
@@ -602,6 +603,7 @@ public class CytoscapeWidget implements VisualPlugin {
 			e.setIdentifier(n1.getIdentifier() + " () " + n2.getIdentifier());
 			Cytoscape.getEdgeAttributes().setAttribute(e.getIdentifier(),
 					"confidence value", new Float(value).toString());
+		 
 			if (evidenceDesc != null)
 				Cytoscape.getEdgeAttributes().setAttribute(e.getIdentifier(),
 						"evidence source", evidenceDesc);
@@ -764,6 +766,9 @@ public class CytoscapeWidget implements VisualPlugin {
 			if (publishEnabled)
 				this.setNodeSelectColorToDefault();
 
+			if (maSet == null)
+				return;
+				
 			DSPanel<DSGeneMarker> selectedMarkers = new CSPanel<DSGeneMarker>(
 					"Selected Genes", "Cytoscape");
 
@@ -850,7 +855,7 @@ public class CytoscapeWidget implements VisualPlugin {
 			}
 		}
 		edgeDm.setControllingAttributeName("type", cytoNetwork, false);
-
+ 
 		for (VisualStyle vs : catalog.getVisualStyles()) {
 			vs.getNodeAppearanceCalculator().setCalculator((nc));
 			vs.getEdgeAppearanceCalculator().setCalculator(ec);
@@ -872,6 +877,7 @@ public class CytoscapeWidget implements VisualPlugin {
 	private void receiveMatrix(int adjMatrixId) {
 		// 1) RECEIVE event
 
+		
 		String name = adjSet.getNetworkName();
 		String tmpname = adjSet.getMatrix().getLabel();
 		if ((tmpname != null) && (!name.contains(tmpname))) {
@@ -888,7 +894,7 @@ public class CytoscapeWidget implements VisualPlugin {
 		adjSet.setNetworkName(name);
 
 		cytoNetwork = Cytoscape.createNetwork(name);
-
+	
 		try {
 			JInternalFrame[] frames = Cytoscape.getDesktop()
 					.getNetworkViewManager().getDesktopPane().getAllFrames();
@@ -911,11 +917,12 @@ public class CytoscapeWidget implements VisualPlugin {
 
 		}
 
+		
 		CalculatorCatalog catalog = Cytoscape.getVisualMappingManager()
-				.getCalculatorCatalog();
-		VisualStyle visualStyle = new VisualStyle(catalog
-				.getVisualStyle("Nested Network Style"), name + " Style");
-
+		.getCalculatorCatalog();
+        VisualStyle visualStyle = new VisualStyle(catalog
+		.getVisualStyle("Nested Network Style"), name + " Style");
+     
 		try {
 			catalog.addVisualStyle(visualStyle);
 		} catch (DuplicateCalculatorNameException ex) {
@@ -944,12 +951,7 @@ public class CytoscapeWidget implements VisualPlugin {
 		if (maSet != null)  
 		{	
 			view = Cytoscape.createNetworkView(cytoNetwork, maSet.getLabel());
-			view.addGraphViewChangeListener(new GraphViewChangeListener() {
-				public void graphViewChanged(
-						GraphViewChangeEvent graphViewChangeEvent) {
-					cyNetWorkView_graphViewChanged(graphViewChangeEvent);
-				}
-			});
+			
 
 			view.getComponent().addMouseListener(
 					new ExpandMenuListener(CytoscapeWidget.this));
@@ -958,7 +960,41 @@ public class CytoscapeWidget implements VisualPlugin {
 		
 		}
 		else		 
+		{ 
 			view = Cytoscape.createNetworkView(cytoNetwork, adjSet.getLabel());
+			
+            edgeWidthDm = new DiscreteMapping(java.lang.Number.class, "confidence value");
+	        Calculator edgeWidthCalc = new BasicCalculator("EdgeWidthMapping", edgeWidthDm,
+			               VisualPropertyType.EDGE_LINE_WIDTH);    
+	        
+	        visualStyle.getEdgeAppearanceCalculator().setCalculator(edgeWidthCalc);
+	        int powerNum  = getMaxconfidenceLog10Val().intValue();
+	        double divident = Math.pow(10, powerNum);
+	        Iterator<?> edgeIter = view.getEdgeViewsIterator();
+	        CyAttributes edgeAttrs = Cytoscape.getEdgeAttributes();
+
+	        while (edgeIter.hasNext()) {
+				EdgeView edgeView = (EdgeView) edgeIter.next();			 
+				String confidenceValue = edgeAttrs.getStringAttribute(edgeView
+						.getEdge().getIdentifier(), "confidence value");
+				float value = new Float(confidenceValue).floatValue();
+				if (edgeWidthDm.getMapValue(confidenceValue) == null) 
+				     edgeWidthDm.putMapValue(confidenceValue, (value/divident));
+				
+			}
+		 
+	        
+	        
+	        
+	        
+	        
+		}
+		view.addGraphViewChangeListener(new GraphViewChangeListener() {
+			public void graphViewChanged(
+					GraphViewChangeEvent graphViewChangeEvent) {
+				cyNetWorkView_graphViewChanged(graphViewChangeEvent);
+			}
+		});
 			 
 			NodeAppearanceCalculator nac = visualStyle
 					.getNodeAppearanceCalculator();
@@ -1098,7 +1134,7 @@ public class CytoscapeWidget implements VisualPlugin {
 
 			Iterator<?> edgeIter = view.getEdgeViewsIterator();
 			while (edgeIter.hasNext()) {
-				EdgeView edgeView = (EdgeView) edgeIter.next();
+				EdgeView edgeView = (EdgeView) edgeIter.next();			 
 				view.showGraphObject(edgeView);
 			}
 			Cytoscape.getDesktop().getCytoPanel(SwingConstants.WEST).setSelectedIndex(0);
@@ -1127,5 +1163,25 @@ public class CytoscapeWidget implements VisualPlugin {
 		}
 		return selectedMarkers;
 	}
+	
+	private Double getMaxconfidenceLog10Val()
+	{
+		   Iterator<?> edgeIter = view.getEdgeViewsIterator();
+	        CyAttributes edgeAttrs = Cytoscape.getEdgeAttributes();
+	        float maxValue = 0;
+	        while (edgeIter.hasNext()) {
+				EdgeView edgeView = (EdgeView) edgeIter.next();			 
+				String confidenceValue = edgeAttrs.getStringAttribute(edgeView
+						.getEdge().getIdentifier(), "confidence value");
+				float value = new Float(confidenceValue).floatValue();
+				if (value >= maxValue)
+					maxValue = value;
+			}
+	        
+	        double logValue = Math.log10(new Float(maxValue).doubleValue());
+	        
+	        return new Double(logValue);
+	}
+	
 
 }
