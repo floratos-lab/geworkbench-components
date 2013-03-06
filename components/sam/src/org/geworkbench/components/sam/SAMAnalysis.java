@@ -51,13 +51,14 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis, Observer {
 
  	private static final long serialVersionUID = -1672201775884915447L;
+ 	public static final String FILE_SEPARATOR = System.getProperty("file.separator");
  	
  	private static final String SAMROOT = "/samdata/";	//it should be replaced.
  	private static String r_root="";
  	private static final String R_SCRIPTS="samtry.r";
  	
  	private String samdir = SAMROOT;
- 	private final String samOutFolder = "output\\";
+ 	private final String samOutFolder = "output" + FILE_SEPARATOR;
  	
  	private String logfile = "err.log";
 
@@ -83,7 +84,7 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
  	private final long POLL_INTERVAL = 5000; //5 seconds 
  	
  	private static final String lastConf = FilePathnameUtils.getUserSettingDirectoryPath()
- 			+ "sam" + FilePathnameUtils.FILE_SEPARATOR + "last.conf";
+ 			+ "sam" + FILE_SEPARATOR + "last.conf";
  	
  	private SAMPanel samPanel=new SAMPanel();
  	
@@ -122,14 +123,14 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 		}		
 		
 		String currdir=System.getProperty("user.dir");		
-		String predir=currdir+"\\data\\sam";
+		String predir=currdir+FILE_SEPARATOR+"data"+FILE_SEPARATOR+"sam";
 		
 		File prefile=new File(predir);
 		if(!prefile.exists()){
 			if(!(prefile ).mkdir())
 				return new AlgorithmExecutionResults(false, "Cannot create directory at "+predir, null);
 		}
-		samdir=predir+"\\";
+		samdir=predir+FILE_SEPARATOR;
 		String samOutput=samdir+samOutFolder;
 		
 		String noShow=getLast();
