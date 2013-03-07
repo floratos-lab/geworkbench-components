@@ -55,6 +55,7 @@ import org.geworkbench.bison.annotation.CSAnnotationContextManager;
 import org.geworkbench.bison.annotation.DSAnnotationContext;
 import org.geworkbench.bison.annotation.DSAnnotationContextManager;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
@@ -63,6 +64,7 @@ import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.datastructure.properties.DSSequential;
 import org.geworkbench.builtin.projects.DataSetNode;
 import org.geworkbench.builtin.projects.DataSetSubNode;
+import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.ProjectTreeNode;
 import org.geworkbench.engine.config.MenuListener;
 import org.geworkbench.engine.config.VisualPlugin;
@@ -979,6 +981,23 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 			}
 		} else {
 			itemAutoList.getList().clearSelection();
+		}
+	}
+
+	@SuppressWarnings("rawtypes")
+	@Subscribe
+	public void receive(org.geworkbench.events.CCMUpdateEvent pe, Object source) {
+		Class<? extends DSDataSet> dataSetType = pe.getDataSetType();
+		if (dataSetType != null
+				&& DSMicroarraySet.class.isAssignableFrom(dataSetType)) {
+			ProjectTreeNode treeNode = ProjectPanel.getInstance()
+					.getSelection().getSelectedNode();
+			if (treeNode instanceof DataSetNode) {
+				DSDataSet<? extends DSBioObject> dataSet = ((DataSetNode) treeNode)
+						.getDataset();
+				dataSetChanged(dataSet);
+				itemAutoList.getList().clearSelection();
+			}
 		}
 	}
 
