@@ -51,6 +51,7 @@ public class FilteredJList extends JList {
 	
 	public void removeAllItems() {
 		((FilterModel) getModel()).clear();
+		setModel(new FilterModel());
 	}
 	
 	
