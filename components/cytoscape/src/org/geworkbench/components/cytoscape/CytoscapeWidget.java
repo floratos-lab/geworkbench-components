@@ -968,8 +968,10 @@ public class CytoscapeWidget implements VisualPlugin {
 			               VisualPropertyType.EDGE_LINE_WIDTH);    
 	        
 	        visualStyle.getEdgeAppearanceCalculator().setCalculator(edgeWidthCalc);
-	        int powerNum  = getMaxconfidenceLog10Val().intValue();
-	        double divident = Math.pow(10, powerNum);
+	        float[] maxMinValues = getMaxMinVal();
+	        float minValue = maxMinValues[1];
+	        float maxValue = maxMinValues[0];
+	        double divisor = getDivisorValue(maxValue, minValue);
 	        Iterator<?> edgeIter = view.getEdgeViewsIterator();
 	        CyAttributes edgeAttrs = Cytoscape.getEdgeAttributes();
 
@@ -979,7 +981,7 @@ public class CytoscapeWidget implements VisualPlugin {
 						.getEdge().getIdentifier(), "confidence value");
 				float value = new Float(confidenceValue).floatValue();
 				if (edgeWidthDm.getMapValue(confidenceValue) == null) 
-				     edgeWidthDm.putMapValue(confidenceValue, (value/divident));
+				     edgeWidthDm.putMapValue(confidenceValue, ((value-minValue)/divisor));
 				
 			}
 		 
@@ -1163,25 +1165,45 @@ public class CytoscapeWidget implements VisualPlugin {
 		}
 		return selectedMarkers;
 	}
+	 
 	
-	private Double getMaxconfidenceLog10Val()
+	private double getDivisorValue(float maxValue, float minValue)
+	{ 
+		 double divisor = (maxValue - minValue)/3;
+		  
+	     return divisor;
+	}
+	private float[] getMaxMinVal()
 	{
+		   float[] values = new float[2];
 		   Iterator<?> edgeIter = view.getEdgeViewsIterator();
 	        CyAttributes edgeAttrs = Cytoscape.getEdgeAttributes();
-	        float maxValue = 0;
-	        while (edgeIter.hasNext()) {
+	        float maxValue = 0;	  
+	        float minValue = 0;
+	        int i = 0;
+	        while (edgeIter.hasNext()) {	         
 				EdgeView edgeView = (EdgeView) edgeIter.next();			 
 				String confidenceValue = edgeAttrs.getStringAttribute(edgeView
 						.getEdge().getIdentifier(), "confidence value");
 				float value = new Float(confidenceValue).floatValue();
-				if (value >= maxValue)
+				if (i == 0)
+				{
 					maxValue = value;
+					minValue = value;
+					i++;
+					continue;
+				}
+				if (value > maxValue)
+					maxValue = value;	
+				if (value < minValue)
+					minValue = value;
+				i++;
 			}
+	        values[0] = maxValue;
 	        
-	        double logValue = Math.log10(new Float(maxValue).doubleValue());
+	        values[1] = minValue;
 	        
-	        return new Double(logValue);
+	        return  values;
 	}
-	
 
 }
