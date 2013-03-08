@@ -124,7 +124,7 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 		queryTypePanel.add(computational);
 
 		lincs = new Lincs(
-				"http://156.145.28.209:8080/axis2/services/LincsService?wsdl",
+				"http://afdev.c2b2.columbia.edu:9090/axis2/services/LincsService?wsdl",
 				null, null);
 
 		queryConditionPanel1.setLayout(new GridLayout(2, 7));
