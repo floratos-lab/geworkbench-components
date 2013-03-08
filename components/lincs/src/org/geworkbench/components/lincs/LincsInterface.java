@@ -6,7 +6,7 @@ package org.geworkbench.components.lincs;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
- 
+import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
  
@@ -16,6 +16,10 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.BorderLayout;
+ 
+import java.io.BufferedWriter;
+import java.io.File; 
+import java.io.FileWriter;
 
 import javax.swing.BoxLayout; 
 import javax.swing.ButtonGroup;
@@ -40,12 +44,14 @@ import javax.swing.JTextField;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType; 
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.builtin.projects.ProjectPanel;
-import org.geworkbench.engine.config.VisualPlugin;
-import org.geworkbench.engine.management.Publish;
-import org.geworkbench.events.ProjectNodeAddedEvent;
+ 
+import org.geworkbench.engine.config.VisualPlugin; 
+import org.geworkbench.parsers.TabDelimitedDataMatrixFileFormat;
 import org.geworkbench.service.lincs.data.xsd.ExperimentalData;
 import org.geworkbench.service.lincs.data.xsd.ComputationalData;
+import org.geworkbench.util.FilePathnameUtils;
  
 /**
  * @author zji
@@ -94,8 +100,10 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 	private JCheckBox colorGradient = null;
 	private TableViewer resultTable = null;
 	private JComboBox plotOptions = null;
-	 
-	
+ 
+ 	private static final String lincsDir = FilePathnameUtils.getUserSettingDirectoryPath()
+ 			+ "lincs" + FilePathnameUtils.FILE_SEPARATOR;
+  
 	public LincsInterface() {
 		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 
@@ -104,9 +112,7 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 		add(queryConditionPanel2);
 
 		add(queryCommandPanel);
-		//add(queryResultPanel);
-		//add(resultProcessingPanel);
-		//add(resultTable);
+	 
 
 		experimental.setSelected(true);
 
@@ -642,7 +648,7 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 		public void actionPerformed(ActionEvent e) {
 			if (plotOptions.getSelectedItem().toString().equals(HEATMAP))
 			{
-			 
+				createHeatmap();
 			}else if (plotOptions.getSelectedItem().toString().equals(NETWORK))
 			{
 				createNetwork();
@@ -690,13 +696,83 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 	}
 
 
-@Publish
-public ProjectNodeAddedEvent publishProjectNodeAddedEvent(
-			ProjectNodeAddedEvent pe) {
-		return pe;
-}
+	private void convertToTabDelimitedDataMatrix(String verticalDataType, String horizontalDataType, File tfaFile)
+	{
+		List<String> verticalNames = new ArrayList<String>();
+		List<String> horizontalNames = new ArrayList<String>();
+		
+		Object[][] data = resultTable.getData();		
+		int verticalDataTypeIndex = resultTable.getHeaderNameIndex("Drug 1");
+	    int horizontalDataTypeIndex = resultTable.getHeaderNameIndex("Drug 2");
+	    int scoreIndex = resultTable.getHeaderNameIndex("Score");
+	    for (int i=0; i<data.length; i++) {
+			String verticalName, horizontalName;		    
+			verticalName = data[i][verticalDataTypeIndex].toString();
+			horizontalName = data[i][horizontalDataTypeIndex].toString();
+			if (!verticalNames.contains(verticalName))
+				verticalNames.add(verticalName);
+			if (!horizontalNames.contains(horizontalName))
+				horizontalNames.add(horizontalName);
+	    }
+	    float[][] scoreMatrix = new float[verticalNames.size()][horizontalNames.size()];
+	    Collections.sort(verticalNames);
+	    Collections.sort(horizontalNames);
+	    for (int i=0; i<data.length; i++) {
+	    	String verticalName = data[i][verticalDataTypeIndex].toString();
+			String horizontalName = data[i][horizontalDataTypeIndex].toString();
+	    	 
+			scoreMatrix[verticalNames.indexOf(verticalName)][horizontalNames.indexOf(horizontalName)] = 
+				new Float(data[i][scoreIndex].toString()).floatValue();
+			 
+		}
+	    
+	    BufferedWriter bw = null;
+	 
+		try{
+			 
+			bw = new BufferedWriter(new FileWriter(tfaFile));
+			 
+			bw.write("name");
+			for (int i=0; i<horizontalNames.size(); i++)
+			bw.write("\t" + horizontalNames.get(i));
+			bw.newLine();
+			for(int i=0; i<verticalNames.size(); i++){				 
+			   bw.write(verticalNames.get(i) + "\t");
+			   for(int j=0; j<horizontalNames.size(); j++)
+				   bw.write(scoreMatrix[i][j] + "\t");
+			   bw.newLine();
+				 
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}finally{
+			try{
+				 
+				if (bw!=null) bw.close();
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+		}		 
+		tfaFile.deleteOnExit();
+	}
 	
+	 
 	
+	private  void createHeatmap()
+	{
+		 String tfaFname = lincsDir + "lincs_tfa.txt";
+		 File tfaFile = new File(tfaFname);
+		 convertToTabDelimitedDataMatrix("drug 1", "drug 2",tfaFile );
+			DSMicroarraySet dataSet = null;
+		try{		 
+			dataSet = (DSMicroarraySet)new TabDelimitedDataMatrixFileFormat().getDataFileSkipAnnotation(tfaFile);
+			ProjectPanel.getInstance().addProcessedMaSet(dataSet);
+			 
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+
+	}
 	
 
 }
