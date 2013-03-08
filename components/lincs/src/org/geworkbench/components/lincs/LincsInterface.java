@@ -275,7 +275,7 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 					drug1Box.removeAllItems();
 					for (int i = 0; i < drug1DataList.size(); i++)
 						drug1Box.addItem(drug1DataList.get(i));
-
+					drug1Box.ensureIndexIsVisible(0);
 					drug1Box.clearSelection();
 					drug2Box.clearSelection();
 					drug2Box.setModel(new LincsListModel(null));
@@ -314,6 +314,7 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 					}
 					drug2Box.setModel(new LincsListModel(drug2DataList));
 					drug2Box.setEnabled(true);
+					drug2Box.ensureIndexIsVisible(0);
 				}
 			}
 
