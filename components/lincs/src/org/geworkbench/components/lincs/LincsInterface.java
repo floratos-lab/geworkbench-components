@@ -9,16 +9,21 @@ import org.apache.commons.logging.LogFactory;
 import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Properties;
  
  
 import java.awt.Component; 
-import java.awt.GridLayout;
+import java.awt.GridLayout; 
+import java.awt.Point; 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.BorderLayout;
  
 import java.io.BufferedWriter;
 import java.io.File; 
+import java.io.FileInputStream;
 import java.io.FileWriter;
 
 import javax.swing.BoxLayout; 
@@ -27,7 +32,8 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JList;
-import javax.swing.AbstractListModel;
+import javax.swing.AbstractListModel; 
+import javax.swing.JTable;
 import javax.swing.ListModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener; 
@@ -44,14 +50,15 @@ import javax.swing.JTextField;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType; 
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.builtin.projects.ProjectPanel;
- 
-import org.geworkbench.engine.config.VisualPlugin; 
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet; 
+import org.geworkbench.builtin.projects.ProjectPanel; 
+import org.geworkbench.engine.config.VisualPlugin;  
 import org.geworkbench.parsers.TabDelimitedDataMatrixFileFormat;
 import org.geworkbench.service.lincs.data.xsd.ExperimentalData;
 import org.geworkbench.service.lincs.data.xsd.ComputationalData;
 import org.geworkbench.util.FilePathnameUtils;
+ 
+ 
  
 /**
  * @author zji
@@ -73,6 +80,9 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 
 	private final static String NETWORK = "Network";
 	private final static String HEATMAP = "Heatmap";
+	
+	public static final String PROPERTIES_FILE = "conf/application.properties";
+	public static final String LINCS_WEB_SERVICE_URL = "lincs_web_services_url";
 	
 	private JPanel queryTypePanel = new JPanel();
 	private JPanel queryConditionPanel1 = new JPanel();
@@ -122,10 +132,9 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 		queryTypePanel.add(new JLabel("Query Type"));
 		queryTypePanel.add(experimental);
 		queryTypePanel.add(computational);
-
-		lincs = new Lincs(
-				"http://afdev.c2b2.columbia.edu:9090/axis2/services/LincsService?wsdl",
-				null, null);
+        String url = getLincsWsdlUrl();
+		//String url = "http://156.145.28.209:8080/axis2/services/LincsService?wsdl";
+		lincs = new Lincs(url,null, null);
 
 		queryConditionPanel1.setLayout(new GridLayout(2, 7));
 
@@ -465,6 +474,26 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 			}
 
 		});
+		
+		resultTable.addMouseListener(new MouseAdapter() {
+			
+			public void mouseClicked(MouseEvent e) {
+				log.info("test");
+				if (e.getClickCount() == 2) {				 
+					JTable target = (JTable) e.getSource();					 
+					Point p = new Point(e.getX(), e.getY());
+					int col = target.columnAtPoint(p);
+					int row = target.rowAtPoint(p);
+					log.info(resultTable.getData()[row][col]);
+					 
+				}
+			}
+ 
+ 
+
+		});
+
+		
 
 	}
 
@@ -590,12 +619,19 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 		Object[][] objects = new Object[dataList.size()][9];
 		for (int i = 0; i < dataList.size(); i++) {
 			objects[i][0] = dataList.get(i).getTissueType();
+			if (objects[i][0] == null)
+				objects[i][0] = "";
 			objects[i][1] = dataList.get(i).getCellLineName();
+			if (objects[i][1] == null)
+				objects[i][1] = "";
 			objects[i][2] = dataList.get(i).getCompound1();
-			objects[i][3] = dataList.get(i).getCompound2();
-			//objects[i][4] = dataList.get(i).getAssayType();
-			objects[i][4] = "";
+			objects[i][3] = dataList.get(i).getCompound2();			 
+			objects[i][4] = dataList.get(i).getAssayType();	
+			if (objects[i][4] == null)
+				objects[i][4] = "";
 			objects[i][5] = dataList.get(i).getMeasurementType();
+			if (objects[i][5] == null)
+				objects[i][5] = "";
 			objects[i][6] = dataList.get(i).getScore();
 			objects[i][7] = dataList.get(i).getPvalue();
 			objects[i][8] = "view";
@@ -611,10 +647,16 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 		Object[][] objects = new Object[dataList.size()][7];
 		for (int i = 0; i < dataList.size(); i++) {
 			objects[i][0] = dataList.get(i).getTissueType();
+			if (objects[i][0] == null)
+				objects[i][0] = "";
 			objects[i][1] = dataList.get(i).getCellLineName();
+			if (objects[i][1] == null)
+				objects[i][1] = "";
 			objects[i][2] = dataList.get(i).getCompound1();
 			objects[i][3] = dataList.get(i).getCompound2();
 			objects[i][4] = dataList.get(i).getSimilarityAlgorithm();
+			if (objects[i][4] == null)
+				objects[i][4] = "";
 			objects[i][6] = dataList.get(i).getPvalue();
 			objects[i][7] = dataList.get(i).getScore();
 
@@ -774,6 +816,32 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 		}
 
 	}
+	 
+   private String getLincsWsdlUrl() {
+	        String lincsUrl = null;
+	        Properties lincsProp = new Properties();
+			try {
+				lincsProp
+						.load(new FileInputStream(PROPERTIES_FILE));
+			 
+				lincsUrl = lincsProp
+				.getProperty(LINCS_WEB_SERVICE_URL);
+				
+				 
+			} catch (java.io.IOException ie) {
+				log.error(ie.getMessage());
+			} catch (Exception e) {
+				log.error(e.getMessage());
+			}
+			if (lincsUrl == null
+					|| lincsUrl.trim().equals("")) {
+
+				lincsUrl = "http://afdev.c2b2.columbia.edu:9090/axis2/services/LincsService?wsdl";
+			}
+			return lincsUrl;
+		}
+	
+	
 	
 
 }

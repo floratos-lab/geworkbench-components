@@ -115,9 +115,10 @@ public class TableViewer extends JPanel {
 		
 		@SuppressWarnings({ "rawtypes", "unchecked" })
 		public Class getColumnClass(int column) {
-	        Class returnValue;
+	        Class returnValue = null;
 	        if ((column >= 0) && (column < getColumnCount())) {
-	          returnValue = getValueAt(0, column).getClass();
+	          if (getValueAt(0, column) != null)
+	            returnValue = getValueAt(0, column).getClass();
 	        } else {
 	          returnValue = Object.class;
 	        }
@@ -153,8 +154,13 @@ public class TableViewer extends JPanel {
 					value = String.format("%.2E", value);
 				else
 					value = String.format("%.2f", value);
-			}
+			}			
 			super.setValue(value);
+			if (value != null && value.toString().equalsIgnoreCase("view"))
+			{
+				setText("<html><font color=blue><b>" + value
+				+ "</b></font></html>");
+			}
 		}
 	}
 	
