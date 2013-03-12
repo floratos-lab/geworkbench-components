@@ -341,12 +341,7 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 		queryCommandPanel.add(colorGradient);
 		resultTable = new TableViewer(experimentalColumnNames, null);
 		add(resultTable);
-		add(resultProcessingPanel);
-		
-		/*resultTable = new JTable(new QueryResultTableModel(
-				experimentalColumnNames, null));
-		resultTable.setAutoCreateRowSorter(true);*/
-		
+		add(resultProcessingPanel);	 
 		queryResultPanel.setLayout(new BorderLayout());
 		//queryResultPanel.add(new JScrollPane(resultTable), BorderLayout.CENTER); 
 
@@ -473,25 +468,7 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 				reset();
 			}
 
-		});
-		
-		resultTable.addMouseListener(new MouseAdapter() {
-			
-			public void mouseClicked(MouseEvent e) {
-				log.info("test");
-				if (e.getClickCount() == 2) {				 
-					JTable target = (JTable) e.getSource();					 
-					Point p = new Point(e.getX(), e.getY());
-					int col = target.columnAtPoint(p);
-					int row = target.rowAtPoint(p);
-					log.info(resultTable.getData()[row][col]);
-					 
-				}
-			}
- 
- 
-
-		});
+		});	
 
 		
 
@@ -730,7 +707,7 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 		 
 		 
 		adjacencyMatrixdataSet = new AdjacencyMatrixDataSet(matrix,
-					0, "Adjacency Matrix", "Lincs", null);
+					-1000000000, "Adjacency Matrix", "Lincs", null);
 
 		 
 		ProjectPanel.getInstance().addDataSetNode(adjacencyMatrixdataSet);

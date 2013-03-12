@@ -10,6 +10,9 @@ package org.geworkbench.components.lincs;
  */
 import java.awt.BorderLayout; 
 import java.awt.Component; 
+import java.awt.Point;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Enumeration; 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -57,6 +60,28 @@ public class TableViewer extends JPanel {
 
 		setLayout(new BorderLayout());
 		add(new JScrollPane(table), BorderLayout.CENTER);
+		
+        table.addMouseListener(new MouseAdapter() {
+			
+			public void mouseClicked(MouseEvent e) {
+			 
+				if (e.getClickCount() == 2) {				 
+					JTable target = (JTable) e.getSource();					 
+					Point p = new Point(e.getX(), e.getY());
+					int col = target.columnAtPoint(p);
+					int row = target.rowAtPoint(p);
+					if (data[row][col].toString().equalsIgnoreCase("view"))
+					{  System.out.println(data[row][col]);
+					    new TitrationCurveWindow();
+					}
+					 
+				}
+			}
+			
+			 
+
+		});  
+		
 	}
 
 	/**
@@ -65,7 +90,7 @@ public class TableViewer extends JPanel {
 	 * @return table component
 	 */
 	public JTable getTable() {
-		return this.table;
+		return table;
 	}
 	
 	/**
