@@ -71,7 +71,7 @@ public class TableViewer extends JPanel {
 					int col = target.columnAtPoint(p);
 					int row = target.rowAtPoint(p);
 					if (data[row][col].toString().equalsIgnoreCase("view"))
-					{  System.out.println(data[row][col]);
+					{   
 					    new TitrationCurveWindow();
 					}
 					 
