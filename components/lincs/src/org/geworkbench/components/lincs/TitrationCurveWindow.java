@@ -3,23 +3,16 @@ package org.geworkbench.components.lincs;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JLabel;
+import javax.swing.JPanel; 
 import java.awt.Graphics;
  
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.imageio.ImageIO;
- 
-
 import java.awt.Dimension;  
- 
-import java.awt.Image;  
-  
-import javax.swing.ImageIcon;  
+import java.io.File;
+import java.io.IOException; 
+import javax.imageio.ImageIO;
+
+   
  
 import org.geworkbench.util.FilePathnameUtils;
 
