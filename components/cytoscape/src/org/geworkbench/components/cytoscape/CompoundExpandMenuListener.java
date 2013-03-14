@@ -7,6 +7,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList; 
 import java.util.HashSet;
 import java.util.List; 
@@ -30,16 +31,12 @@ import ding.view.NodeContextMenuListener;
 
 public class CompoundExpandMenuListener implements NodeContextMenuListener,
 		MouseListener {
-	final static Log log = LogFactory.getLog(CompoundExpandMenuListener.class);
-    //final static String PUBCHEM_URL= "http://www.ncbi.nlm.nih.gov/pccompound/?db=pccompound&term=";
+	final static Log log = LogFactory.getLog(CompoundExpandMenuListener.class);  
     final static String PUBCHEM_URL= "http://www.ncbi.nlm.nih.gov/pccompound/?db=pccompound&term=";
     final static String DRUGBANK_URL= "http://www.drugbank.ca/search?query=";
  
 
 	public CompoundExpandMenuListener() {
-	 
-		 
-
 	}
 
 	/**
@@ -49,7 +46,7 @@ public class CompoundExpandMenuListener implements NodeContextMenuListener,
 	 *            popup menu to add the Bypass menu
 	 */
 	public void addNodeContextMenuItems(final NodeView nodeView, JPopupMenu menu) {
-		try{
+	 
 		if (menu == null) {
 			menu = new JPopupMenu();
 		}
@@ -64,10 +61,17 @@ public class CompoundExpandMenuListener implements NodeContextMenuListener,
 		JMenu menuItemCompound = new JMenu("Compound databases");
 	 
 		linkOutMenu.add(menuItemCompound);
-		JMenuItem menuItemPubchem = new JMenuItem(new LinkOutActionListener("Pubchem", PUBCHEM_URL  + URLEncoder.encode(nodeId, "UTF-8")));		
-		JMenuItem menuItemDrugbank = new JMenuItem(new LinkOutActionListener("Drugbank",  DRUGBANK_URL  + URLEncoder.encode(nodeId, "UTF-8")));
-        menuItemCompound.add(menuItemPubchem);
-        menuItemCompound.add(menuItemDrugbank);
+		 
+		JMenuItem menuItemPubchem = null;
+		JMenuItem menuItemDrugbank = null;
+		try {
+			menuItemPubchem = new JMenuItem(new LinkOutActionListener("Pubchem", PUBCHEM_URL  + URLEncoder.encode(nodeId, "UTF-8")));
+		    menuItemDrugbank = new JMenuItem(new LinkOutActionListener("Drugbank",  DRUGBANK_URL  + URLEncoder.encode(nodeId, "UTF-8")));
+			menuItemCompound.add(menuItemPubchem);
+		    menuItemCompound.add(menuItemDrugbank);
+		} catch (UnsupportedEncodingException e) {
+			 log.error(e.getMessage());
+		}    
         
 		JMenu addToSetMenu = new JMenu("Add to set ");
 		JMenuItem menuItemIntersection = new JMenuItem(new IntersectionAction(
@@ -77,9 +81,7 @@ public class CompoundExpandMenuListener implements NodeContextMenuListener,
 		addToSetMenu.add(menuItemUnion);
 		menu.add(linkOutMenu);
 		menu.add(addToSetMenu);
-		
-		}catch(Exception ex)
-		{}
+	 
 	}
 
 	public void mousePressed(MouseEvent e) {

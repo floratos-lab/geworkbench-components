@@ -956,7 +956,7 @@ public class CytoscapeWidget implements VisualPlugin {
 						new ExpandMenuListener(CytoscapeWidget.this));
 		
 		}
-		else if (maSet == null  )	 
+		else if (maSet == null && adjSet.getNetworkName().contains("Lincs"))	 
 		{ 
 			view = Cytoscape.createNetworkView(cytoNetwork, adjSet.getLabel());
 			
