@@ -118,10 +118,6 @@ public class CytoscapeWidget implements VisualPlugin {
 
 	private class GenewaysNetworkListener implements PropertyChangeListener {
 		public void propertyChange(PropertyChangeEvent evnt) {
-			if (evnt.getPropertyName() == cytoscape.view.CytoscapeDesktop.NETWORK_VIEW_CREATED) {
-				Cytoscape.getCurrentNetworkView().addNodeContextMenuListener(
-						new ExpandMenuListener(CytoscapeWidget.this));
-			}
 			log.debug(evnt.getPropertyName());
 
 			/*
@@ -956,10 +952,11 @@ public class CytoscapeWidget implements VisualPlugin {
 			view.getComponent().addMouseListener(
 					new ExpandMenuListener(CytoscapeWidget.this));
 
-		
+			Cytoscape.getCurrentNetworkView().addNodeContextMenuListener(
+						new ExpandMenuListener(CytoscapeWidget.this));
 		
 		}
-		else		 
+		else if (maSet == null  )	 
 		{ 
 			view = Cytoscape.createNetworkView(cytoNetwork, adjSet.getLabel());
 			
@@ -986,7 +983,8 @@ public class CytoscapeWidget implements VisualPlugin {
 			}
 		 
 	        
-	        
+	        Cytoscape.getCurrentNetworkView().addNodeContextMenuListener(
+					new CompoundExpandMenuListener());
 	        
 	        
 	        
