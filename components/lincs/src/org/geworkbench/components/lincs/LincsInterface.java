@@ -404,15 +404,7 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 				List<String> drug1Names = getSelectedValues(drug1Box);
 				List<String> drug2Names = getSelectedValues(drug2Box);
 
-				if ((tissueTypes == null || tissueTypes.isEmpty())
-						&& (cellLineNames == null || cellLineNames.isEmpty())
-						&& (drug1Names == null || drug1Names.isEmpty())) {
-
-					JOptionPane.showMessageDialog(null,
-							"Please select Tissue Type or Cell Line or Drug1.");
-					return;
-
-				}
+			
 				if (maxResult.isSelected()) {
 					try {
 						rowLimit = new Integer(maxResultNumber.getText().trim())
@@ -429,6 +421,22 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 					if (experimental.isSelected()) {
 						List<String> assayTypes = getSelectedValues(assayTypeBox);
 						List<String> measurementTypes = getSelectedValues(synergyMeasurementTypeBox);
+						if ((tissueTypes == null || tissueTypes.isEmpty())
+								&& (cellLineNames == null || cellLineNames.isEmpty())
+								&& (drug1Names == null || drug1Names.isEmpty())
+								&& (drug2Names == null || drug2Names.isEmpty())
+								&& (assayTypes == null || assayTypes.isEmpty())
+								&& (measurementTypes == null || measurementTypes.isEmpty())
+								&& (!maxResult.isSelected() || rowLimit == 0)) {
+
+							JOptionPane.showMessageDialog(null,
+									"Please select at least one constrain.");
+							return;
+
+						}
+						
+						
+						
 						List<ExperimentalData> dataList = lincs
 								.getExperimentalData(tissueTypes,
 										cellLineNames, drug1Names, drug2Names,
@@ -441,6 +449,19 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 					 
 					} else {
 						List<String> similarityAlgorithmTypes = getSelectedValues(similarityAlgorithmTypeBox);
+						if ((tissueTypes == null || tissueTypes.isEmpty())
+								&& (cellLineNames == null || cellLineNames.isEmpty())
+								&& (drug1Names == null || drug1Names.isEmpty())
+								&& (drug2Names == null || drug2Names.isEmpty())
+								&& (similarityAlgorithmTypes == null || similarityAlgorithmTypes.isEmpty())								 
+								&& (!maxResult.isSelected() || rowLimit == 0)) {
+
+							JOptionPane.showMessageDialog(null,
+									"Please select at least one constrain.");
+							return;
+
+						}
+						
 						List<ComputationalData> dataList = lincs
 								.getComputationalData(tissueTypes,
 										cellLineNames, drug1Names, drug2Names,
@@ -679,7 +700,7 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 		AdjacencyMatrixDataSet adjacencyMatrixdataSet = null;
 		Object[][] data = resultTable.getData();
 	        
-		if (data == null | data.length == 0)
+		if (data == null || data.length == 0)
 		{	JOptionPane.showMessageDialog(null,
 					"No interactions exist in the current database.",
 					"Empty Set", JOptionPane.ERROR_MESSAGE);
@@ -810,7 +831,7 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 			if (lincsUrl == null
 					|| lincsUrl.trim().equals("")) {
 
-				lincsUrl = "http://afdev.c2b2.columbia.edu:9090/axis2/services/LincsService?wsdl";
+				lincsUrl = "http://lincsdataservice.c2b2.columbia.edu/axis2/services/LincsService?wsdl";
 			}
 			return lincsUrl;
 		}
