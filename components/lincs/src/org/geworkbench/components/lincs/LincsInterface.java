@@ -228,8 +228,8 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 					List<String> cellLineDataList = null;
 					List<String> drug1DataList = null;
 					try {
-						if (selectedTissueList != null)
-							cellLineDataList = addAll(lincs
+					 
+						cellLineDataList = addAll(lincs
 									.getAllCellLineNamesForTissueTypes(selectedTissueList));
 
 						if (experimental.isSelected() == true)
@@ -244,8 +244,11 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 						log.error(ex.getMessage());
 					}
 
-					cellLineBox.setEnabled(true);
-					cellLineBox.setModel(new LincsListModel(cellLineDataList));
+					if (tissueTypeBox.getSelectedValues() != null && tissueTypeBox.getSelectedValues().length > 0)
+						cellLineBox.setModel(new LincsListModel(cellLineDataList));
+					else
+						cellLineBox.setModel(new LincsListModel(null));
+					cellLineBox.setEnabled(true);					 
 					cellLineBox.clearSelection();
 					drug1Box.removeAllItems();
 					for (int i = 0; i < drug1DataList.size(); i++)
@@ -310,7 +313,7 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 					List<String> drug2DataList = null;
 					try {
 
-						if (selectedDrug1List != null) {
+						 
 							if (experimental.isSelected() == true)
 								drug2DataList = addAll(lincs
 										.GetCompound2NamesFromExperimental(
@@ -323,11 +326,14 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 												selectedTissueList,
 												selectedCellLineList,
 												selectedDrug1List));
-						}
+						 
 					} catch (Exception ex) {
 						log.error(ex.getMessage());
 					}
-					drug2Box.setModel(new LincsListModel(drug2DataList));
+					if (drug1Box.getSelectedValues() != null && drug1Box.getSelectedValues().length > 0)
+					       drug2Box.setModel(new LincsListModel(drug2DataList));
+					else
+						  drug2Box.setModel(new LincsListModel(null));
 					drug2Box.setEnabled(true);
 					drug2Box.ensureIndexIsVisible(0);
 				}
@@ -635,7 +641,8 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 	private List<String> getSelectedValues(JList aJList) {
 		Object[] selectedValues = (Object[]) aJList.getSelectedValues();
 		List<String> selectedList = null;
-		if (selectedValues != null && selectedValues.length > 0) {
+		if (selectedValues != null && selectedValues.length > 0
+				&& !selectedValues[0].toString().equalsIgnoreCase("All")) {
 			selectedList = new ArrayList<String>();
 			for (int i = 0; i < selectedValues.length; i++)
 				selectedList.add(selectedValues[i].toString());
