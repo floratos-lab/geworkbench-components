@@ -56,8 +56,8 @@ public class ViperPanel extends AbstractSaveableParameterPanel {
 
         builder.appendSeparator("Viper Parameters");
 
-        builder.append("Clustering Method", regulon);
-        builder.append("Clustering Metric", method);
+        builder.append("Select Regulon", regulon);
+        builder.append("Select Method", method);
         this.add(builder.getPanel());
 
         ParameterActionListener parameterActionListener = new ParameterActionListener(this);
