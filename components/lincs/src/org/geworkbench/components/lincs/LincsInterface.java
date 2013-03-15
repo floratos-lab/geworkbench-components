@@ -455,11 +455,9 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 								.getExperimentalData(tissueTypes,
 										cellLineNames, drug1Names, drug2Names,
 										measurementTypes, assayTypes,
-										onlyTitration.isSelected(), rowLimit);
+										onlyTitration.isSelected(), rowLimit);						
 						Object[][] objects = convertExperimentalData(dataList);
-
-						updateResultTable(experimentalColumnNames, objects);
-
+						updateResultTable(experimentalColumnNames, objects);						 
 					} else {
 						List<String> similarityAlgorithmTypes = getSelectedValues(similarityAlgorithmTypeBox);
 						if ((tissueTypes == null || tissueTypes.isEmpty())
@@ -488,6 +486,13 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 					}
 				} catch (Exception ex) {
 					log.error(ex.getMessage());
+				}
+				
+				if (resultTable.getData() == null || resultTable.getData().length == 0) {
+					JOptionPane.showMessageDialog(null,
+							"There is no row in the database for your query.",
+							"Empty Set", JOptionPane.INFORMATION_MESSAGE);
+					return;
 				}
 			}
 
@@ -722,6 +727,13 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			if (resultTable.getData() == null || resultTable.getData().length == 0) {
+				JOptionPane.showMessageDialog(null,
+						"There is no row to perform plot.",
+						"Empty Set", JOptionPane.INFORMATION_MESSAGE);
+				return;
+			}
+
 			if (plotOptions.getSelectedItem().toString().equals(HEATMAP)) {
 				createHeatmap();
 			} else if (plotOptions.getSelectedItem().toString().equals(NETWORK)) {
@@ -733,15 +745,7 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 	private void createNetwork() {
 		AdjacencyMatrix matrix = new AdjacencyMatrix("Adjacency Matrix");
 		AdjacencyMatrixDataSet adjacencyMatrixdataSet = null;
-		Object[][] data = resultTable.getData();
-
-		if (data == null || data.length == 0) {
-			JOptionPane.showMessageDialog(null,
-					"No interactions exist in the current database.",
-					"Empty Set", JOptionPane.ERROR_MESSAGE);
-			return;
-		}
-
+		Object[][] data = resultTable.getData();	
 		int drug1Index = resultTable.getHeaderNameIndex("Drug 1");
 		int drug2Index = resultTable.getHeaderNameIndex("Drug 2");
 		int scoreIndex = resultTable.getHeaderNameIndex("Score");
@@ -827,7 +831,7 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 		tfaFile.deleteOnExit();
 	}
 
-	private void createHeatmap() {
+	private void createHeatmap() {		
 		String tfaFname = lincsDir + "lincs_tfa.txt";
 		File tfaFile = new File(tfaFname);
 		convertToTabDelimitedDataMatrix("drug 1", "drug 2", tfaFile);
