@@ -55,7 +55,8 @@ public class CompoundExpandMenuListener implements NodeContextMenuListener,
         menu.remove(count-1);
         menu.remove(count-2);
         
-        String nodeId = nodeView.getNode().getIdentifier().trim();
+        String nodeId = "\"" + nodeView.getNode().getIdentifier().trim() + "\"";
+        
         JMenu linkOutMenu = new JMenu("LinkOut");
         
 		JMenu menuItemCompound = new JMenu("Compound databases");
