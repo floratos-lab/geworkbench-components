@@ -66,10 +66,10 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 
 	private final static String[] experimentalColumnNames = { "Tissue Type",
 			"Cell Line", "Drug 1", "Drug 2", "Assay Type",
-			"Synergy Measurement Type", "Score", "P-value", "Titration Curve" };
+			"Synergy Measurement Type", "Score", "Score Error", "P-value", "Titration Curve" };
 
 	private final static String[] computationalColumnNames = { "Tissue Type",
-			"Cell Line", "Drug 1", "Drug 2", "Similarity Algorithm", "Score",
+			"Cell Line", "Drug 1", "Drug 2", "Similarity Algorithm", "Score", 
 			"P-value" };
 
 	private final static String NETWORK = "Network";
@@ -109,6 +109,9 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 			.getUserSettingDirectoryPath()
 			+ "lincs"
 			+ FilePathnameUtils.FILE_SEPARATOR;
+	
+	private final String[] hideColumns =  {"P-value"};
+	
 
 	public LincsInterface() {
 		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
@@ -351,7 +354,7 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 		queryCommandPanel.add(searchButton);
 		queryCommandPanel.add(resetButton);
 		queryCommandPanel.add(colorGradient);
-		resultTable = new TableViewer(experimentalColumnNames, null);
+		resultTable = new TableViewer(experimentalColumnNames, null, hideColumns);
 		add(resultTable);
 		add(resultProcessingPanel);
 		queryResultPanel.setLayout(new BorderLayout());
@@ -658,7 +661,7 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 	private Object[][] convertExperimentalData(List<ExperimentalData> dataList) {
 		if (dataList == null || dataList.size() <= 0)
 			return null;
-		Object[][] objects = new Object[dataList.size()][9];
+		Object[][] objects = new Object[dataList.size()][experimentalColumnNames.length];
 		for (int i = 0; i < dataList.size(); i++) {
 			objects[i][0] = dataList.get(i).getTissueType();
 			if (objects[i][0] == null)
@@ -675,8 +678,9 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 			if (objects[i][5] == null)
 				objects[i][5] = "";
 			objects[i][6] = dataList.get(i).getScore();
-			objects[i][7] = dataList.get(i).getPvalue();
-			objects[i][8] = "view";
+			objects[i][7] = dataList.get(i).getScoreError();
+			objects[i][8] = dataList.get(i).getPvalue();
+			objects[i][9] = "view";
 
 		}
 
@@ -686,7 +690,7 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 	private Object[][] convertComputationalData(List<ComputationalData> dataList) {
 		if (dataList == null || dataList.size() <= 0)
 			return null;
-		Object[][] objects = new Object[dataList.size()][7];
+		Object[][] objects = new Object[dataList.size()][computationalColumnNames.length];
 		for (int i = 0; i < dataList.size(); i++) {
 			objects[i][0] = dataList.get(i).getTissueType();
 			if (objects[i][0] == null)
@@ -699,8 +703,8 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 			objects[i][4] = dataList.get(i).getSimilarityAlgorithm();
 			if (objects[i][4] == null)
 				objects[i][4] = "";
-			objects[i][6] = dataList.get(i).getPvalue();
-			objects[i][7] = dataList.get(i).getScore();
+			objects[i][5] = dataList.get(i).getPvalue();
+			objects[i][6] = dataList.get(i).getScore();
 
 		}
 
@@ -710,7 +714,10 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 	private void updateResultTable(String[] columnNames, Object[][] data) {
 		remove(resultTable);
 		remove(resultProcessingPanel);
-		resultTable = new TableViewer(columnNames, data);
+		if (experimental.isSelected() == true) 
+		    resultTable = new TableViewer(columnNames, data, hideColumns);
+		else
+			resultTable = new TableViewer(columnNames, data);
 		add(resultTable);
 		add(resultTable);
 		add(resultProcessingPanel);
