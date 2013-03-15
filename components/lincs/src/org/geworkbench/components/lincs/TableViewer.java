@@ -45,7 +45,19 @@ public class TableViewer extends JPanel {
 	 * @param data
 	 *            table data
 	 */
-	public TableViewer(final String[] headerNames, final Object[][] data) {
+	
+    public TableViewer(final String[] headerNames, final Object[][] data) {		
+		initTable(headerNames, data, null);		
+	}
+	 
+	public TableViewer(final String[] headerNames, final Object[][] data, String[] hideColumns) {
+		
+		initTable(headerNames, data, hideColumns);
+		
+	}
+	
+	private void initTable(final String[] headerNames, final Object[][] data, String[] hideColumns)
+	{
 		this.data = data;
 		this.headerNames = headerNames;
 		model = new LincsViewerTableModel();
@@ -53,6 +65,14 @@ public class TableViewer extends JPanel {
 		table = new JTable(model);
 		table.setAutoCreateRowSorter(true);
 
+		if (hideColumns != null)
+		for(int i =0; i<hideColumns.length; i++)
+		{
+			table.getColumnModel().getColumn(getHeaderNameIndex(hideColumns[i])).setMaxWidth(0);
+		    table.getColumnModel().getColumn(getHeaderNameIndex(hideColumns[i])).setMinWidth(0);
+		    table.getColumnModel().getColumn(getHeaderNameIndex(hideColumns[i])).setPreferredWidth(0);
+		}
+		
 		Enumeration<TableColumn> columns = table.getColumnModel().getColumns();
 		while (columns.hasMoreElements()) {
 			columns.nextElement().setCellRenderer(new CellRenderer());
