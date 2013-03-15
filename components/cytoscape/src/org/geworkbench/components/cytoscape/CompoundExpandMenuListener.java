@@ -66,8 +66,8 @@ public class CompoundExpandMenuListener implements NodeContextMenuListener,
 		JMenuItem menuItemPubchem = null;
 		JMenuItem menuItemDrugbank = null;
 		try {
-			menuItemPubchem = new JMenuItem(new LinkOutActionListener("Pubchem", PUBCHEM_URL  + URLEncoder.encode(nodeId, "UTF-8")));
-		    menuItemDrugbank = new JMenuItem(new LinkOutActionListener("Drugbank",  DRUGBANK_URL  + URLEncoder.encode(nodeId, "UTF-8")));
+			menuItemPubchem = new JMenuItem(new LinkOutAction("Pubchem", PUBCHEM_URL  + URLEncoder.encode(nodeId, "UTF-8")));
+		    menuItemDrugbank = new JMenuItem(new LinkOutAction("Drugbank",  DRUGBANK_URL  + URLEncoder.encode(nodeId, "UTF-8")));
 			menuItemCompound.add(menuItemPubchem);
 		    menuItemCompound.add(menuItemDrugbank);
 		} catch (UnsupportedEncodingException e) {
@@ -239,12 +239,12 @@ public class CompoundExpandMenuListener implements NodeContextMenuListener,
 		}
 	}
 
-	class LinkOutActionListener extends AbstractAction {
+	class LinkOutAction extends AbstractAction {
  
 		private static final long serialVersionUID = 1L;
 		String urlStr = "";
 
-		public LinkOutActionListener(String name, String urlStr) {
+		public LinkOutAction(String name, String urlStr) {
 			super(name);
 			this.urlStr = urlStr;
 		}
