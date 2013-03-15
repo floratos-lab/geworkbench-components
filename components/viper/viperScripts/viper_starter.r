@@ -17,7 +17,7 @@ if (!("viper" %in% installed.packages()[, "Package"])){
 
 library(viper)
 
-expset <- as.matrix(read.table(file=expfile, header=TRUE, row.names=1, sep="\t"))
+expset <- as.matrix(read.table(file=expfile, header=TRUE, row.names=1, sep="\t", check.names=FALSE))
 
 regfile <- paste(path.package(package='viper'), "/data/", regulon, ".rda", sep="")
 load(regfile)
