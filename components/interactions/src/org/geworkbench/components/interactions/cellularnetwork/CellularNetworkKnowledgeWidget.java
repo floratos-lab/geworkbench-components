@@ -1151,8 +1151,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 				} finally {
 					// try to close connection
-					isQueryRuning = false;
-					interactionsConnection.closeDbConnection();
+					isQueryRuning = false;				 
 					refreshButton.setEnabled(true);
 				}
 			}
