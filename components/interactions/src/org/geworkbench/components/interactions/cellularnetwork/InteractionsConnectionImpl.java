@@ -29,6 +29,24 @@ public class InteractionsConnectionImpl {
 
 	private static final String ENTREZ_GENE = "Entrez Gene";
 
+	
+	public List<InteractionDetail> getInteractionsByEntrezIdOrGeneSymbol_1(
+			DSGeneMarker marker, String context, String version)
+			throws UnAuthenticatedException, ConnectException,
+			SocketTimeoutException, IOException {
+		    return  getInteractionsByEntrezIdOrGeneSymbol_1(
+					marker, context, version, null);
+	}
+	
+	
+	public List<InteractionDetail> getInteractionsByEntrezIdOrGeneSymbol_2(
+			DSGeneMarker marker, String context, String version)
+			throws UnAuthenticatedException, ConnectException,
+			SocketTimeoutException, IOException {
+		    return  getInteractionsByEntrezIdOrGeneSymbol_2(
+					marker, context, version, null);
+	}
+	
 	/**
 	 * This is similar to getInteractionsByEntrezIdOrGeneSymbol_2 and currently
 	 * NOT used. The difference is that this version only retains the 'edges'
@@ -36,7 +54,7 @@ public class InteractionsConnectionImpl {
 	 * that includes the queried marker but does not connect directly.
 	 */
 	public List<InteractionDetail> getInteractionsByEntrezIdOrGeneSymbol_1(
-			DSGeneMarker marker, String context, String version)
+			DSGeneMarker marker, String context, String version, String userInfo)
 			throws UnAuthenticatedException, ConnectException,
 			SocketTimeoutException, IOException {
 
@@ -48,8 +66,8 @@ public class InteractionsConnectionImpl {
 				+ Constants.DEL + msid1 + Constants.DEL + geneName1
 				+ Constants.DEL + context + Constants.DEL + version;
 
-		ResultSetlUtil rs = ResultSetlUtil.executeQuery(methodAndParams,
-				ResultSetlUtil.getUrl());
+		ResultSetlUtil rs = ResultSetlUtil.executeQueryWithUserInfo(methodAndParams,
+				ResultSetlUtil.getUrl(), userInfo);
 		String previousInteractionId = null;
 		boolean firstHit = true;
 		while (rs.next()) {
@@ -123,7 +141,7 @@ public class InteractionsConnectionImpl {
 	 * connected directly.
 	 */
 	public List<InteractionDetail> getInteractionsByEntrezIdOrGeneSymbol_2(
-			DSGeneMarker marker, String context, String version)
+			DSGeneMarker marker, String context, String version, String userInfo)
 			throws UnAuthenticatedException, ConnectException,
 			SocketTimeoutException, IOException {
 
@@ -136,8 +154,8 @@ public class InteractionsConnectionImpl {
 				+ Constants.DEL + marker_msid + Constants.DEL + marker_geneName
 				+ Constants.DEL + context + Constants.DEL + version;
 
-		ResultSetlUtil rs = ResultSetlUtil.executeQuery(methodAndParams,
-				ResultSetlUtil.getUrl());
+		ResultSetlUtil rs = ResultSetlUtil.executeQueryWithUserInfo(methodAndParams,
+				ResultSetlUtil.getUrl(), userInfo);
 
 		String previousInteractionId = null;
 		List<InteractionParticipant> participantList = new ArrayList<InteractionParticipant>();
@@ -387,18 +405,7 @@ public class InteractionsConnectionImpl {
 		return arrayList;
 	}
 
-	/*
-	 * Send a request via servlet to force closing the database connection. The
-	 * use of this is not very clear.
-	 */
-	public void closeDbConnection() {
-		try {
-			ResultSetlUtil.executeQuery("closeDbConnection",
-					ResultSetlUtil.getUrl());
-		} catch (Exception se) {
-			se.printStackTrace();
-		}
-	}
+	 
 
 	public String getInteractomeDescription(String interactomeName)
 			throws ConnectException, SocketTimeoutException, IOException,
