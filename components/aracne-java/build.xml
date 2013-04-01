@@ -57,7 +57,7 @@
 
 		<copy toDir="${tomcat.dir}/bin" overwrite="true">
 			<fileset dir=".">
-				<include name="*.txt" />
+				<include name="Bcell-100.exp_ARACNe_*.txt" />
 			</fileset>
 		</copy>
 
