@@ -125,6 +125,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	private JButton createNetWorkButton;
 
 	private ThrottleGraph throttleGraph;
+	private CellularNetworkPreference tgPreference;
 
 	private CellularNetworkPreferencePanel jPreferencePanel;
 
@@ -242,7 +243,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 									0,
 									columnName.length()
 											- Constants.COLUMNLABELPOSTFIX
-													.length()));
+													.length()), tgPreference.getSelectedConfidenceType());
 					if (arrayList == null || arrayList.size() <= 0) {
 						continue;
 					}
@@ -925,8 +926,10 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		if (jPreferencePanel.isGoTermJCheckBoxSelected())
 			model.addColumn(tableColumns[3]);
 
-		List<String> displaySelectedInteractionTypes = jPreferencePanel
-				.getDisplaySelectedInteractionTypes();
+		//List<String> displaySelectedInteractionTypes = jPreferencePanel
+		//		.getDisplaySelectedInteractionTypes();
+		List<String> displaySelectedInteractionTypes = getTgPreference().getDisplaySelectedInteractionTypes();
+		
 		for (int i = 4; i < columnLabels.length; i++) {
 
 			if (displaySelectedInteractionTypes.contains(columnLabels[i]
@@ -1117,7 +1120,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 							}
 							cellularNetWorkElementInformation.setDirty(false);
 							cellularNetWorkElementInformation
-									.setInteractionDetails(interactionDetails);
+									.setInteractionDetails(interactionDetails, tgPreference);
 
 						} else {
 							hasRereivedRecord = true;
@@ -1125,7 +1128,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 					}
 
-					List<Short> confidenceTypeList = CellularNetWorkElementInformation
+					List<Short> confidenceTypeList = tgPreference
 							.getConfidenceTypeList();
 					throttleGraph.refreshThresholdTypes(confidenceTypeList, hasRereivedRecord);
 
@@ -1360,11 +1363,19 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			cnkbSelectionIndex = (Integer) (dataset
 					.getValuesForName(Constants.CNKB_SELECTION_INDEX)[0]);
 
-			if (dataset.getValuesForName(Constants.CNKB_PREFERENCE) == null)
-				dataset.addNameValuePair(Constants.CNKB_PREFERENCE,
+			if (dataset.getValuesForName(Constants.CNKB_PREFERENCE) == null)		 
+			{	dataset.addNameValuePair(Constants.CNKB_PREFERENCE,
 						new CellularNetworkPreference("Throttle Graph"));
-			throttleGraph.setPreference((CellularNetworkPreference) dataset
-					.getValuesForName(Constants.CNKB_PREFERENCE)[0]);
+			    tgPreference = (CellularNetworkPreference)dataset
+                      .getValuesForName(Constants.CNKB_PREFERENCE)[0];
+			    tgPreference.getDisplaySelectedInteractionTypes().addAll(jPreferencePanel.getDisplaySelectedInteractionTypes());
+			
+			}
+			else
+			    tgPreference = (CellularNetworkPreference) dataset
+			                  .getValuesForName(Constants.CNKB_PREFERENCE)[0];
+			  
+			throttleGraph.setPreference(tgPreference);
 
 			needDraw = true;
 
@@ -1397,14 +1408,15 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 			activeMarkersTableModel.fireTableDataChanged();
 
+			updateColumnPref();
 			detailTableModel.fireTableDataChanged();
 			detailTable.revalidate();
 
 			checkSelectedTableWithNewDataSet(panel);
-
+		
 			if (needDraw == true || hits == null || hits.size() == 0
 					|| hits.size() != currentCount) {
-				throttleGraph.repaint(false, true);
+				throttleGraph.repaint(true, true);
 			}
 
 		}
@@ -1495,7 +1507,7 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 
 	// following four methods are used by ThrottleGraph only
 	List<String> getDisplaySelectedInteractionTypes() {
-		return jPreferencePanel.getDisplaySelectedInteractionTypes();
+		return tgPreference.getDisplaySelectedInteractionTypes();
 	}
 
 	String getSelectedContext() {
@@ -1506,8 +1518,15 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		return jPreferencePanel.getSelectedVersion();
 	}	
 	
+	CellularNetworkPreference getTgPreference()
+	{
+		return tgPreference;
+	}
+	
 	void detailTableDataChanged() {
 		detailTableModel.fireTableDataChanged();
 		detailTable.revalidate();
 	}
+	
+	
 }

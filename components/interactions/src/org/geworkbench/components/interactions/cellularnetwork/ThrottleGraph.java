@@ -135,16 +135,16 @@ public class ThrottleGraph extends JPanel {
 		graphToolBar.add(thresholdTypes);
 
 		thresholdTypes.addItemListener(new ItemListener() {
-			public void itemStateChanged(ItemEvent itemEvent) {
-
+			public void itemStateChanged(ItemEvent itemEvent) {	
+			 
 				if (thresholdTypes.getSelectedItem() != null) {
 					String type = CellularNetworkPreferencePanel.interactionConfidenceTypeMap
 							.get(thresholdTypes.getSelectedItem().toString());
-					CellularNetWorkElementInformation
-							.setUsedConfidenceType(new Short(type));
+					tgPreference
+							.setSelectedConfidenceType(new Short(type));
 
-					// drawPlot(createCollection(0, 1, 1, true), false, true);
-					// throttlePanel.repaint();
+					//drawPlot(createCollection(0, 1, 1, true), false, true);
+					//repaint();
 
 				}
 
@@ -206,7 +206,7 @@ public class ThrottleGraph extends JPanel {
 	// this is invoked from CellularNetworkWidget only
 	void repaint(boolean needRedraw, boolean needCreateLegendItems) {
 		drawPlot(createCollection(0, 1, 1, true), needRedraw,
-				needCreateLegendItems);
+				needCreateLegendItems);		
 		super.repaint();
 	}
 
@@ -229,24 +229,24 @@ public class ThrottleGraph extends JPanel {
 		} else {
 			this.legendList.clear();
 			thresholdTypes.removeAllItems();
-			CellularNetWorkElementInformation.clearConfidenceTypes();
+			tgPreference.clearConfidenceTypes();			 
 		}
 
-		double maxConfidenceValue = CellularNetWorkElementInformation
-				.getMaxConfidenceValue();
-		if (maxConfidenceValue > 1) {
+		Double maxConfidenceValue = tgPreference
+				.getMaxConfidenceValue(tgPreference.getSelectedConfidenceType());
+		if (maxConfidenceValue != null && maxConfidenceValue > 1) {
 			int a = (int) Math.log10(maxConfidenceValue);
 			double b = maxConfidenceValue / (Math.pow(10, a));
 			double maxX = Math.round(b);
 			maxX = maxX * (Math.pow(10, a));
 			long smallestIncrement = (long) maxX / 100;
 
-			CellularNetWorkElementInformation
+			tgPreference
 					.setSmallestIncrement(smallestIncrement);
 			this.maxX = (int) maxX;
 
 		} else {
-			CellularNetWorkElementInformation.setSmallestIncrement(0.01);
+			tgPreference.setSmallestIncrement(0.01);
 			maxX = 1;
 		}
 
@@ -283,14 +283,14 @@ public class ThrottleGraph extends JPanel {
 						continue;
 					needDraw = true;
 					int[] distributionArray = cellularNetWorkElementInformation
-							.getDistribution(displaySelectedInteractionTypes);
+							.getDistribution(displaySelectedInteractionTypes, tgPreference.getSelectedConfidenceType(), tgPreference.getSmallestIncrement());
 
 					for (int i = 0; i < binSize; i++)
 						basketValues[i] += distributionArray[i];
 
 					for (String interactionType : displaySelectedInteractionTypes) {
 						int[] interactionDistribution = cellularNetWorkElementInformation
-								.getInteractionDistribution(interactionType);
+								.getInteractionDistribution(interactionType, tgPreference.getSelectedConfidenceType(), tgPreference.getSmallestIncrement());
 						int[] interactionBasketValues = interactionBasketValuesMap
 								.get(interactionType);
 						for (int i = 0; i < binSize; i++)
@@ -304,14 +304,14 @@ public class ThrottleGraph extends JPanel {
 			for (int i = 0; i < binSize; i++) {
 				dataSeries.add(
 						i
-								* CellularNetWorkElementInformation
+								* tgPreference
 										.getSmallestIncrement(),
 						basketValues[i]);
 
 				for (String interactionType : displaySelectedInteractionTypes) {
 					(interactionDataSeriesMap.get(interactionType)).add(
 							i
-									* CellularNetWorkElementInformation
+									* tgPreference
 											.getSmallestIncrement(),
 							interactionBasketValuesMap.get(interactionType)[i]);
 				}
@@ -328,7 +328,7 @@ public class ThrottleGraph extends JPanel {
 			} else {
 				this.legendList.clear();
 				thresholdTypes.removeAllItems();
-				CellularNetWorkElementInformation.clearConfidenceTypes();
+				tgPreference.clearConfidenceTypes();
 			}
 
 		} catch (IndexOutOfBoundsException e) {
@@ -357,7 +357,7 @@ public class ThrottleGraph extends JPanel {
 		plot.setDomainCrosshairValue(newvalue);
 		Vector<CellularNetWorkElementInformation> hits = widget.getHits();
 		for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {
-			cellularNetWorkElementInformation.setThreshold(newvalue);
+			cellularNetWorkElementInformation.setThreshold(newvalue, tgPreference.getSelectedConfidenceType());
 		}
 
 		widget.detailTableDataChanged();
@@ -390,7 +390,10 @@ public class ThrottleGraph extends JPanel {
 			} else
 				tgPreference.setTitle("Throttle Graph");
 
-			Object selectedType = thresholdTypes.getSelectedItem();
+			String selectedType = null;
+			if (tgPreference.getSelectedConfidenceType() != null)
+				selectedType = CellularNetworkPreferencePanel.interactionConfidenceTypeMap
+			               .get(tgPreference.getSelectedConfidenceType().toString());
 			String xAxisLabel = "likelihood";
 			if (selectedType != null && !selectedType.toString().equals(""))
 				xAxisLabel = selectedType.toString();
@@ -438,7 +441,7 @@ public class ThrottleGraph extends JPanel {
 								+ xStr
 								+ ", "
 								+ myFormatter.format(x
-										+ CellularNetWorkElementInformation
+										+ tgPreference
 												.getSmallestIncrement())
 								+ "], " + (int) y + ")";
 					}
@@ -547,7 +550,7 @@ public class ThrottleGraph extends JPanel {
 
 		Vector<CellularNetWorkElementInformation> hits = widget.getHits();
 		for (CellularNetWorkElementInformation cellularNetWorkElementInformation : hits) {
-			cellularNetWorkElementInformation.setThreshold(lowValue);
+			cellularNetWorkElementInformation.setThreshold(lowValue, tgPreference.getSelectedConfidenceType());
 
 		}
 
@@ -700,6 +703,7 @@ public class ThrottleGraph extends JPanel {
 	// invoked from CellularNetworkWidget in one place only
 	public void setPreference(
 			CellularNetworkPreference cellularNetworkPreference) {
-		tgPreference = cellularNetworkPreference;
+		tgPreference = cellularNetworkPreference;	
+		refreshThresholdTypes(tgPreference.getConfidenceTypeList(), false);
 	}
 }
