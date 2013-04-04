@@ -103,15 +103,15 @@ class NetworkCreator extends Thread implements Observer {
 		boolean isGene2InMicroarray = true;
 		StringBuffer historyStr = new StringBuffer();
 
-		short usedConfidenceType = CellularNetWorkElementInformation
-				.getUsedConfidenceType();
+		short selectedConfidenceType = widget.getTgPreference().getSelectedConfidenceType();
+ 
 
 		for (CellularNetWorkElementInformation cellularNetWorkElementInformation : list) {
 			if (cellularNetWorkElementInformation.isDirty())
 				continue;
 
 			ArrayList<InteractionDetail> arrayList = cellularNetWorkElementInformation
-					.getSelectedInteractions(selectedTypes);
+					.getSelectedInteractions(selectedTypes, selectedConfidenceType);
 
 			List<String> networkSelectedInteractionTypes = selectedTypes;
 			if (networkSelectedInteractionTypes.size() > 0)
@@ -219,7 +219,7 @@ class NetworkCreator extends Thread implements Observer {
 						node1,
 						node2,
 						new Float(interactionDetail
-								.getConfidenceValue(usedConfidenceType)),
+								.getConfidenceValue(selectedConfidenceType)),
 						shortNameType, interactionDetail.getEvidenceId());
 
 				interactionNum++;

@@ -372,10 +372,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 					return;
 				InteractionsConnectionImpl interactionsConnection = new InteractionsConnectionImpl();
 				try {
-					
-					if (CellularNetWorkElementInformation.getConfidenceTypeList() != null)
-					   CellularNetWorkElementInformation.clearConfidenceTypes();;
-					 
+				 
 					displayAvailInteractionTypes = interactionsConnection
 							.getInteractionTypesByInteractomeVersion(context,
 									version);
@@ -419,6 +416,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 					return;
 				}
 				
+				 
 				displaySelectedInteractionTypes.clear();
 				networkSelectedInteractionTypes.clear();
 				HashMap<String, List<String>> selectedInteractionTypeLists = selectedInteractionTypeMap.get(context+Constants.DEL+version);
@@ -426,7 +424,10 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 				{
 					List<String> list1 = selectedInteractionTypeLists.get(Constants.DISPLAYSELECTEDINTERACTIONTYPE);
 					if (list1 != null)
-						displaySelectedInteractionTypes.addAll(list1);
+					{	displaySelectedInteractionTypes.addAll(list1);
+					c.getTgPreference().getDisplaySelectedInteractionTypes().clear();
+					    c.getTgPreference().getDisplaySelectedInteractionTypes().addAll(list1);
+					}
 					List<String> list2 = selectedInteractionTypeLists.get(Constants.NETWORKSELECTEDINTERACTIONTYPE);
 					if (list2 != null)
 						networkSelectedInteractionTypes.addAll(list2);
@@ -474,6 +475,8 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 						populatesNetworkPrefFromColumnPref();
 					}
 					updateSelectedInteractionTypesMap();
+					c.getTgPreference().getDisplaySelectedInteractionTypes().clear();
+					c.getTgPreference().getDisplaySelectedInteractionTypes().addAll(displaySelectedInteractionTypes);
 					c.updateColumnPref();
 				}
 			}
@@ -515,6 +518,8 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 						populatesNetworkPrefFromColumnPref();
 					}
 					updateSelectedInteractionTypesMap();
+					c.getTgPreference().getDisplaySelectedInteractionTypes().clear();
+					c.getTgPreference().getDisplaySelectedInteractionTypes().addAll(displaySelectedInteractionTypes);
 					c.updateColumnPref();
 				}
 			}
@@ -558,6 +563,8 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 					populatesNetworkPrefFromColumnPref();
 				}
 				updateSelectedInteractionTypesMap();
+				c.getTgPreference().getDisplaySelectedInteractionTypes().clear();
+				c.getTgPreference().getDisplaySelectedInteractionTypes().addAll(displaySelectedInteractionTypes);
 				c.updateColumnPref();
 
 			}
@@ -595,6 +602,8 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 					populatesNetworkPrefFromColumnPref();
 				}
 				updateSelectedInteractionTypesMap();
+				c.getTgPreference().getDisplaySelectedInteractionTypes().clear();
+				c.getTgPreference().getDisplaySelectedInteractionTypes().addAll(displaySelectedInteractionTypes);
 				c.updateColumnPref();
 
 			}
@@ -639,8 +648,6 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 		add(buildColumnDisplayPreferencesPanel(), BorderLayout.CENTER);
 		add(buildNetworkGenerationPreferencesPanel(), BorderLayout.SOUTH);
         
-		// displaySelectedInteractionTypes.add(Constants.PROTEIN_DNA);
-		// displaySelectedInteractionTypes.add(Constants.PROTEIN_PROTEIN);
 		readInteractionTypesProperties();
 
 	}
@@ -796,7 +803,13 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 			if (interactionStr != null && !interactionStr.trim().equals("")) {
 				displaySelectedInteractionTypes.clear();
 				displaySelectedInteractionTypes
-						.addAll(processInteractionStr(interactionStr.trim()));
+						.addAll(processInteractionStr(interactionStr.trim()));			    
+				if (c.getTgPreference() != null)
+				{
+					c.getTgPreference().getDisplaySelectedInteractionTypes().clear();
+			        c.getTgPreference().getDisplaySelectedInteractionTypes().addAll(displaySelectedInteractionTypes);
+		
+				}
 			}
 			interactionStr = pm.getProperty(this.getClass(),
 					Constants.NETWORKSELECTEDINTERACTIONTYPE, null);
@@ -818,7 +831,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 		List<String> listNotInDatanase = new ArrayList<String>();
 		for (String s : displaySelectedInteractionTypes) {
 			if (displayAvailInteractionTypes.contains(s))
-				displayAvailInteractionTypes.remove(s);
+			 	displayAvailInteractionTypes.remove(s);			 
 			else {
 				if (!listNotInDatanase.contains(s))
 					listNotInDatanase.add(s);
@@ -836,7 +849,8 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 			}
 		}
 		if (listNotInDatanase.size() > 0) {
-			displaySelectedInteractionTypes.removeAll(listNotInDatanase);
+			displaySelectedInteractionTypes.removeAll(listNotInDatanase);			   
+			c.getTgPreference().getDisplaySelectedInteractionTypes().removeAll(listNotInDatanase);;
 			networkSelectedInteractionTypes.removeAll(listNotInDatanase);
 			 
 		}
@@ -1080,6 +1094,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 			allInteractionTypes.clear();
 			displayAvailInteractionTypes.clear();
 			displaySelectedInteractionTypes.clear();
+			c.getTgPreference().getDisplaySelectedInteractionTypes().clear();
 			networkAvailInteractionTypes.clear();
 			networkSelectedInteractionTypes.clear();
 
@@ -1221,6 +1236,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 			versionJList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
 			displaySelectedInteractionTypes.clear();
+			c.getTgPreference().getDisplaySelectedInteractionTypes().clear();
 			networkSelectedInteractionTypes.clear();
 			selectedInteractionTypeMap.clear();
 			
