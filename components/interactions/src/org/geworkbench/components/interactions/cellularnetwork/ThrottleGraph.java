@@ -239,7 +239,7 @@ public class ThrottleGraph extends JPanel {
 			double b = maxConfidenceValue / (Math.pow(10, a));
 			double maxX = Math.round(b);
 			maxX = maxX * (Math.pow(10, a));
-			long smallestIncrement = (long) maxX / 100;
+			double smallestIncrement = maxX / 100;
 
 			tgPreference
 					.setSmallestIncrement(smallestIncrement);
