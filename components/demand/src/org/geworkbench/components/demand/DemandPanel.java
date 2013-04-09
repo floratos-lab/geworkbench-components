@@ -65,7 +65,11 @@ public class DemandPanel extends AbstractSaveableParameterPanel{
 	private static final String[] NETWORK_FROM	=	{FROM_PROJECT, FROM_FILE};
 	private static final String[] DRUG_FROM		=	{FROM_SETS, FROM_FILE};
 	private static final String[] CTRL_FROM		=	{FROM_SETS, FROM_FILE};
-	private static final String[] DEFAULT_SET	=	{ " " };	
+	private static final String[] DEFAULT_SET	=	{ " " };
+	private static final String NETWORK_HR		= "Demand Network: ";
+	private static final String DRUG_HR			= "Demand Drugs: ";
+	private static final String CTRL_HR			= "Demand Controls: ";
+	private static final String SERVICE_HR		= "Demand Service: ";
 	
 	private JLabel networkLabel		=	new JLabel("Load Network");
 	private JLabel drugLabel		=	new JLabel("Drug Arrays");
@@ -91,6 +95,11 @@ public class DemandPanel extends AbstractSaveableParameterPanel{
 	
 	private static final String lastDirConf = FilePathnameUtils.getUserSettingDirectoryPath()
 			+ "demand" + FilePathnameUtils.FILE_SEPARATOR + "lastDir.conf";
+	
+    private static final String[] SERVICES	= { "local service", "web service" };
+
+    private JComboBox service = new JComboBox(SERVICES);
+
 	
 	public DemandPanel() {
 		try {
@@ -124,6 +133,9 @@ public class DemandPanel extends AbstractSaveableParameterPanel{
 		builder.setDefaultDialogBorder();
 
 		builder.appendSeparator("Demand Parameters");			
+		builder.append("Select service", service);
+		builder.nextLine();
+
 		builder.append(networkLabel);
 		builder.append(networkFrom);			
 		builder.append(networkMatrix);
@@ -259,13 +271,18 @@ public class DemandPanel extends AbstractSaveableParameterPanel{
 		networkField.addActionListener(parameterActionListener);	
 		drugField.addActionListener(parameterActionListener);
 		ctrlField.addActionListener(parameterActionListener);
+		service.addActionListener(parameterActionListener);
 	}
 	
 	void setMicroarraySet(DSMicroarraySet maSet){
 		this.maSet = maSet;
 	}	
 	
-	@Override
+    public String getService() {
+        return (String)service.getSelectedItem();
+    }
+
+    @Override
 	public void setParameters(Map<Serializable, Serializable> parameters) {
 		if (getStopNotifyAnalysisPanelTemporaryFlag() == true || parameters == null)
     		return;
@@ -277,14 +294,17 @@ public class DemandPanel extends AbstractSaveableParameterPanel{
 			Object key = parameter.getKey();
 			Object value = parameter.getValue();
 
-			if (key.equals("networkText")) {
+			if (key.equals(NETWORK_HR)) {
 				networkField.setText((String)value);
 			}			
-			if (key.equals("drugText")) {
+			else if (key.equals(DRUG_HR)) {
 				drugField.setText((String)value);
 			}
-			if (key.equals("ctrlText")) {
+			else if (key.equals(CTRL_HR)) {
 				ctrlField.setText((String)value);
+			}
+			else if (key.equals(SERVICE_HR)){
+				service.setSelectedItem(value);
 			}
 		}
 		String networkText = parameters.get("networkText")==null?null:parameters.get("networkText").toString();		 
@@ -317,9 +337,14 @@ public class DemandPanel extends AbstractSaveableParameterPanel{
 
 		// set the Map with the parameter values retrieved from GUI
 		// component
-		parameters.put("networkText", networkField.getText());
-		parameters.put("drugText",drugField.getText());
-		parameters.put("ctrlText", ctrlField.getText());		
+		parameters.put(SERVICE_HR, getService());
+		String selected = (String) networkFrom.getSelectedItem();
+		if (StringUtils.equals(selected, FROM_PROJECT))
+			parameters.put(NETWORK_HR, getSelectedAdjMatrix());
+		else
+			parameters.put(NETWORK_HR, networkField.getText());
+		parameters.put(DRUG_HR,drugField.getText());
+		parameters.put(CTRL_HR, ctrlField.getText());	
 		return parameters;
 	}	
 
@@ -331,21 +356,18 @@ public class DemandPanel extends AbstractSaveableParameterPanel{
 
 	@Override
 	public String getDataSetHistory() {
-		StringBuilder histStr = new StringBuilder("");
-		histStr.append("Demand Analysis parameters:\n");
-		histStr.append("----------------------------------------");
-		String selected = (String) networkFrom.getSelectedItem();
-		if (StringUtils.equals(selected, FROM_PROJECT)){
-			histStr.append("\nNetwork: "+getSelectedAdjMatrix());
+		String histStr = "";
+		Map<Serializable, Serializable> pMap = getParameters();
+		histStr += "Demand Analysis parameters:\n";
+		histStr += "----------------------------------------\n";
+		for (Iterator<Map.Entry<Serializable, Serializable>> iterator = pMap
+				.entrySet().iterator(); iterator.hasNext();) {
+			Map.Entry<Serializable, Serializable> parameter = iterator.next();
+			Object key = parameter.getKey();
+			Object value = parameter.getValue();
+			histStr += key.toString() + value.toString() + "\n";
 		}
-		else
-			histStr.append("\nNetwork: "+networkField.getText());	
-		String drugStr=drugField.getText();		
-		histStr.append("\nDrug samples: "+drugStr);
-		String ctrlStr=ctrlField.getText();
-		histStr.append("\nCtrl samples: "+ctrlStr);	
-		histStr.append("\n\n");
-		return histStr.toString();
+		return histStr;
 	}
 	
 	private String getLastDir(){
