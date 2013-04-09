@@ -21,13 +21,16 @@ public class ViperPanel extends AbstractSaveableParameterPanel {
 	
 	private static final String REGULON_HR = "Viper Regulon: ";
 	private static final String METHOD_HR = "Viper Method: ";
+	private static final String SERVICE_HR = "Viper Service: ";
 
 	private static final String[] REGULONS  = { "hl60_cmap2_tf_regulon", "mcf7_cmap2_tf_regulon", "pc3_cmap2_tf_regulon" };
 	private static final String[] REG_TYPES = { "hl60regul", "mcf7regul", "pc3regul" };
 	private static final String[] METHODS   = { "none", "scale", "rank", "mad", "ttest" };
+    private static final String[] SERVICES	= { "local service", "web service" };
 
 	private JComboBox regulon = new JComboBox(REGULONS);
     private JComboBox method = new JComboBox(METHODS);
+    private JComboBox service = new JComboBox(SERVICES);
 
     /**
      * Default Constructor
@@ -56,6 +59,7 @@ public class ViperPanel extends AbstractSaveableParameterPanel {
 
         builder.appendSeparator("Viper Parameters");
 
+        builder.append("Select service", service);
         builder.append("Select Regulon", regulon);
         builder.append("Select Method", method);
         this.add(builder.getPanel());
@@ -64,6 +68,7 @@ public class ViperPanel extends AbstractSaveableParameterPanel {
         
         regulon.addActionListener(parameterActionListener);
         method.addActionListener(parameterActionListener);
+        service.addActionListener(parameterActionListener);
     }
     
     /**
@@ -86,6 +91,10 @@ public class ViperPanel extends AbstractSaveableParameterPanel {
      */
     public String getMethod() {
         return (String)method.getSelectedItem();
+    }
+    
+    public String getService() {
+        return (String)service.getSelectedItem();
     }
 
     /**
@@ -119,6 +128,9 @@ public class ViperPanel extends AbstractSaveableParameterPanel {
 			else if (key.equals(METHOD_HR)){
 				method.setSelectedItem(value);
 			}
+			else if (key.equals(SERVICE_HR)){
+				service.setSelectedItem(value);
+			}
 		}
         stopNotifyAnalysisPanelTemporary(false);
     }
@@ -135,7 +147,7 @@ public class ViperPanel extends AbstractSaveableParameterPanel {
 		String histStr = "";
 		Map<Serializable, Serializable> pMap = getParameters();
 		// Header, could be moved to AbstractAnalysis.java
-		histStr += "Viper Analysis run with parameters:"
+		histStr += "Viper Analysis parameters:"
 				+ NEWLINE;
 		histStr += "----------------------------------------"
 				+ NEWLINE;
@@ -153,8 +165,8 @@ public class ViperPanel extends AbstractSaveableParameterPanel {
 		
 		Map<Serializable, Serializable> parameters = new HashMap<Serializable, Serializable>();
 
+		parameters.put(SERVICE_HR, getService());
 		parameters.put(REGULON_HR, getRegulon());
-
 		parameters.put(METHOD_HR, getMethod());
 
 		return parameters;
