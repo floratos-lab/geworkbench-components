@@ -15,12 +15,14 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Random;
 import java.util.Scanner;
 import java.util.Set;
 
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 
+import org.apache.axis2.AxisFault;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -83,7 +85,9 @@ public class DemandAnalysis extends AbstractAnalysis implements
  	
  	private static final String lastConf = FilePathnameUtils.getUserSettingDirectoryPath()
  			+ analysisName + FilePathnameUtils.FILE_SEPARATOR + "last.conf";
-
+ 	private static final Random random = new Random();
+ 	private DemandAxisClient client = null;
+ 	
 	public DemandAnalysis(){
 		setDefaultPanel(demandPanel);
 		String componentsDir = System.getProperty(COMPONENTS_DIR_PROPERTY);
@@ -91,6 +95,7 @@ public class DemandAnalysis extends AbstractAnalysis implements
 			componentsDir = DEFAULT_COMPONENTS_DIR;
 		}
 		scriptDir = componentsDir + "/" + analysisName + "/demandScripts/";
+		client = new DemandAxisClient();
 	}
 
 
@@ -153,6 +158,16 @@ public class DemandAnalysis extends AbstractAnalysis implements
 				return new AlgorithmExecutionResults(false, "Rscript.exe not exist. Please check it's location at Tools->Preference->R location.", null);
 		}
 		
+		String localDataDir = dataDir;
+		String service = ((DemandPanel)aspp).getService();
+		if (service.equals("web service")){
+			localDataDir = dataDir + "web" + random.nextInt(Short.MAX_VALUE) + "/";
+			File webDir = new File(localDataDir);
+			if (!webDir.exists() && !webDir.mkdir())
+				return new AlgorithmExecutionResults(false, "Local data dir for demand cannot be created: "+localDataDir, null);
+			webDir.deleteOnExit();
+		}
+
 		ProgressBar pbar = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
 		pbar.setTitle("Demand Analysis");
 		pbar.setMessage("Demand analysis: preparing input files for R");
@@ -162,13 +177,13 @@ public class DemandAnalysis extends AbstractAnalysis implements
 		int index = setName.lastIndexOf(extSeparator);
 		if (index >= 0) setName = setName.substring(0, index);
 		
-		String expFname = dataDir + setName + expExt;
+		String expFname = localDataDir + setName + expExt;
 		File expFile = new File(expFname);
 		writeExpset(maSet, expFile);
 		if(!expFile.exists())
 			return new AlgorithmExecutionResults(false, "Expset data file for demand does not exist.", null);
 		
-		String nwFname = dataDir + setName + nwExt;
+		String nwFname = localDataDir + setName + nwExt;
 		File nwFile = new File(nwFname);
 		if (demandPanel.useLabFormat()){
 			nwFname = demandPanel.getLoadedNetworkFileName();
@@ -178,59 +193,84 @@ public class DemandAnalysis extends AbstractAnalysis implements
 		if(!nwFile.exists())
 			return new AlgorithmExecutionResults(false, "Network file for demand does not exist.", null);
 
-		String annoFname = dataDir + setName + annoExt;
+		String annoFname = localDataDir + setName + annoExt;
 		File annoFile = new File(annoFname);
 		writeAnnoFile(maSet, annoFile);
 		if(!annoFile.exists())
 			return new AlgorithmExecutionResults(false, "Annotation file for demand does not exist.", null);
 		
-		String spFname = dataDir + setName + spExt;
+		String spFname = localDataDir + setName + spExt;
 		File spFile = new File(spFname);
 		writeSampleInfo(spFile, drugSet, ctrlSet);
 		if(!spFile.exists())
 			return new AlgorithmExecutionResults(false, "Sample info file for demand does not exist.", null);
 
-		String resultDir = dataDir + resDir;
+		String resultDir = localDataDir + resDir;
+		File rDir = new File(resultDir);
+		if (!rDir.exists() && !rDir.mkdir())
+			return new AlgorithmExecutionResults(false, "Local result dir for demand cannot be created: "+resultDir, null);
+		rDir.deleteOnExit();
 
-		String paramFname = dataDir + parName;
-		File paramFile = new File(paramFname);
-		writeParamFile(paramFile, expFname, nwFname, annoFname, spFname, resultDir);
-
-		String[] commands = new String[]{
-				rExe,
-				scriptDir + R_SCRIPTS,
-				paramFname};
-		
-		pbar.setMessage("Demand analysis: computing results");
-		String logFname = dataDir + setName + logExt;
-		File logFile = new File(logFname);
-
-		FileOutputStream fos = null;
-        try {
-			fos = new FileOutputStream(logFile);
-			Process proc = Runtime.getRuntime().exec(commands);
-
-			StreamGobbler errorGobbler = new StreamGobbler(proc.getErrorStream(), "INFO", fos);
-			StreamGobbler outputGobbler = new StreamGobbler(proc.getInputStream(), "OUTPUT", fos);
-			errorGobbler.start();
-			outputGobbler.start();
-
-			int exitVal = proc.waitFor();
-			log.info("ExitValue: " + exitVal);
-			fos.flush();
-		} catch (Exception t) {
-			pbar.dispose();
-			t.printStackTrace();
-			return new AlgorithmExecutionResults(false, "error running R scripts.", null);
-		}finally{
+		String err = null;
+		if (service.equals("web service")){
+			pbar.setMessage("Demand web service: computing results");
 			try{
-				if (fos!=null) fos.close();
-			}catch(IOException e){
-				e.printStackTrace();
+				String serviceAddress = client.findService("demand");
+				if (serviceAddress == null) 
+					return new AlgorithmExecutionResults(false, "cannot find demand web service.", null);
+				log.info("Discovered demand web service: "+serviceAddress);
+				
+				err = client.executeDemand(
+						serviceAddress, setName, expFname, nwFname, annoFname, spFname, resultDir
+				);
+				if (err!=null) log.debug(err);
+			}catch(AxisFault af){
+				pbar.dispose();
+				af.printStackTrace();
+				return new AlgorithmExecutionResults(false, "error executing viper web service.", null);
 			}
-		}
+		}else{
+		
+			String paramFname = localDataDir + parName;
+			File paramFile = new File(paramFname);
+			writeParamFile(paramFile, expFname, nwFname, annoFname, spFname, resultDir);
 
-		String err = runError(logFile);
+			String[] commands = new String[]{
+					rExe,
+					scriptDir + R_SCRIPTS,
+					paramFname};
+			
+			pbar.setMessage("Demand analysis: computing results");
+			String logFname = localDataDir + setName + logExt;
+			File logFile = new File(logFname);
+	
+			FileOutputStream fos = null;
+	        try {
+				fos = new FileOutputStream(logFile);
+				Process proc = Runtime.getRuntime().exec(commands);
+	
+				StreamGobbler errorGobbler = new StreamGobbler(proc.getErrorStream(), "INFO", fos);
+				StreamGobbler outputGobbler = new StreamGobbler(proc.getInputStream(), "OUTPUT", fos);
+				errorGobbler.start();
+				outputGobbler.start();
+	
+				int exitVal = proc.waitFor();
+				log.info("ExitValue: " + exitVal);
+				fos.flush();
+			} catch (Exception t) {
+				pbar.dispose();
+				t.printStackTrace();
+				return new AlgorithmExecutionResults(false, "error running R scripts.", null);
+			}finally{
+				try{
+					if (fos!=null) fos.close();
+				}catch(IOException e){
+					e.printStackTrace();
+				}
+			}
+
+			err = runError(logFile);
+		}
 		String resFname 	=	resultDir + resFile;
 		File resultFile 	=	new File(resFname);
 		String resEdgeFname	=	resultDir + resEdge;
