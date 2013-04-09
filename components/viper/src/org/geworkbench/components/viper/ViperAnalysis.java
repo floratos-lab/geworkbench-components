@@ -13,11 +13,13 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 import java.util.regex.Pattern;
 
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 
+import org.apache.axis2.AxisFault;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractAnalysis;
@@ -55,6 +57,8 @@ public class ViperAnalysis extends AbstractAnalysis implements
  	private static final String lastConf = FilePathnameUtils.getUserSettingDirectoryPath()
  			+ "viper" + FilePathnameUtils.FILE_SEPARATOR + "last.conf";
  	private ViperPanel viperPanel=new ViperPanel();
+ 	private static final Random random = new Random();
+ 	private ViperAxisClient client = null;
 
 	public ViperAnalysis() {		
 		setDefaultPanel(viperPanel);
@@ -63,6 +67,7 @@ public class ViperAnalysis extends AbstractAnalysis implements
 			componentsDir = DEFAULT_COMPONENTS_DIR;
 		}
 		scriptDir = componentsDir + "/viper/viperScripts/";
+		client = new ViperAxisClient();
 	}
 
 	@Override
@@ -119,7 +124,20 @@ public class ViperAnalysis extends AbstractAnalysis implements
 				return new AlgorithmExecutionResults(false, "Rscript.exe not exist. Please check its location at Tools->Preference->R location.", null);
 		}
 		
-		String rLibPath = GlobalPreferences.getInstance().getRLibPath();
+		String rLibPath = "";
+		String localDataDir = dataDir;
+		String service = ((ViperPanel)aspp).getService();
+		if (service.equals("local service")){
+			rLibPath = GlobalPreferences.getInstance().getRLibPath();
+		} else {
+			localDataDir = dataDir + "web" + random.nextInt(Short.MAX_VALUE) + "/";
+			File webDir = new File(localDataDir);
+			if (!webDir.exists()) {
+				if (!webDir.mkdir())
+					return new AlgorithmExecutionResults(false, "Local data dir for viper cannot be created: "+localDataDir, null);
+			}
+			webDir.deleteOnExit();
+		}
 		if (rLibPath.trim().length()>0){
 			File rLibFile=new File(rLibPath);
 			if(!rLibFile.exists() || !rLibFile.isDirectory() || !rLibFile.canWrite())
@@ -136,54 +154,82 @@ public class ViperAnalysis extends AbstractAnalysis implements
 		int index = setName.lastIndexOf(extSeparator);
 		if (index >= 0) setName = setName.substring(0, index);
 
-		String expFname = dataDir + setName + expExt;
+		String expFname = localDataDir + setName + expExt;
 		File expFile = new File(expFname);
 		writeDataset(maSet, expFile);
 		if(!expFile.exists())
 			return new AlgorithmExecutionResults(false, "Expset data file for viper does not exist.", null);
 		
-		String outFname = dataDir + setName + rmaExt;
-		String[] commands = new String[]{
-			rExe,
-			scriptDir + R_SCRIPTS,
-			scriptDir + "viper.tar.gz",
-			expFname,
-			outFname,
-			((ViperPanel) aspp).getRegulon(),
-			((ViperPanel) aspp).getRegType(),
-			((ViperPanel) aspp).getMethod(),
-			rLibPath
-		};
+		String outFname = localDataDir + setName + rmaExt;
 		
-		pbar.setMessage("Viper analysis: computing the association scores");
-		String logFname = dataDir + setName + logExt;
-		File logFile = new File(logFname);
-		FileOutputStream fos = null;
-        try {
-			fos = new FileOutputStream(logFile);
-			Process proc = Runtime.getRuntime().exec(commands);
-
-			StreamGobbler errorGobbler = new StreamGobbler(proc.getErrorStream(), "INFO", fos);
-			StreamGobbler outputGobbler = new StreamGobbler(proc.getInputStream(), "OUTPUT", fos);
-			errorGobbler.start();
-			outputGobbler.start();
-
-			int exitVal = proc.waitFor();
-			log.info("ExitValue: " + exitVal);
-			fos.flush();
-		} catch (Exception t) {
-			pbar.dispose();
-			t.printStackTrace();
-			return new AlgorithmExecutionResults(false, "error running R scripts.", null);
-		}finally{
+		String err = null;
+		if (service.equals("web service")){
+			pbar.setMessage("Viper web service: computing the association scores");
 			try{
-				if (fos!=null) fos.close();
-			}catch(IOException e){
-				e.printStackTrace();
+				String serviceAddress = client.findService("viper");
+				if (serviceAddress == null) 
+					return new AlgorithmExecutionResults(false, "cannot find viper web service.", null);
+				log.info("Discovered viper web service: "+serviceAddress);
+				
+				err = client.executeViper(
+					serviceAddress,
+					expFname, 
+					outFname,
+					((ViperPanel) aspp).getRegulon(),
+					((ViperPanel) aspp).getRegType(),
+					((ViperPanel) aspp).getMethod(),
+					rLibPath
+				);
+				if (err!=null) log.debug(err);
+			}catch(AxisFault af){
+				pbar.dispose();
+				af.printStackTrace();
+				return new AlgorithmExecutionResults(false, "error executing viper web service.", null);
 			}
-		}
+		}else{
 		
-		String err = runError(logFile);
+			String[] commands = new String[]{
+				rExe,
+				scriptDir + R_SCRIPTS,
+				scriptDir + "viper.tar.gz",
+				expFname,
+				outFname,
+				((ViperPanel) aspp).getRegulon(),
+				((ViperPanel) aspp).getRegType(),
+				((ViperPanel) aspp).getMethod(),
+				rLibPath
+			};
+			
+			pbar.setMessage("Viper analysis: computing the association scores");
+			String logFname = localDataDir + setName + logExt;
+			File logFile = new File(logFname);
+			FileOutputStream fos = null;
+	        try {
+				fos = new FileOutputStream(logFile);
+				Process proc = Runtime.getRuntime().exec(commands);
+	
+				StreamGobbler errorGobbler = new StreamGobbler(proc.getErrorStream(), "INFO", fos);
+				StreamGobbler outputGobbler = new StreamGobbler(proc.getInputStream(), "OUTPUT", fos);
+				errorGobbler.start();
+				outputGobbler.start();
+	
+				int exitVal = proc.waitFor();
+				log.info("ExitValue: " + exitVal);
+				fos.flush();
+			} catch (Exception t) {
+				pbar.dispose();
+				t.printStackTrace();
+				return new AlgorithmExecutionResults(false, "error running R scripts.", null);
+			}finally{
+				try{
+					if (fos!=null) fos.close();
+				}catch(IOException e){
+					e.printStackTrace();
+				}
+			}
+			
+			err = runError(logFile);
+		}
 		File rmaFile = new File(outFname);
 		if (err != null || !rmaFile.exists()){
 	    	pbar.dispose();
@@ -195,7 +241,7 @@ public class ViperAnalysis extends AbstractAnalysis implements
 	    }
 
 		HashMap<String, String> geneIdToMarkers = mapGeneIdToMarkers(maSet);
-		String tfaFname = dataDir + setName + tfaExt;
+		String tfaFname = localDataDir + setName + tfaExt;
 		File tfaFile = new File(tfaFname);
 		convertRMA(rmaFile, tfaFile, geneIdToMarkers);
 		if(!tfaFile.exists())
