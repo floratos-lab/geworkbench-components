@@ -334,6 +334,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 
 			public void valueChanged(ListSelectionEvent e) {
 				 
+				 
 				Object selectedVersion = versionJList.getSelectedValue();
 				String context = null;
 				String version = null;
@@ -418,14 +419,14 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 				
 				 
 				displaySelectedInteractionTypes.clear();
+				c.getTgPreference().getDisplaySelectedInteractionTypes().clear();
 				networkSelectedInteractionTypes.clear();
 				HashMap<String, List<String>> selectedInteractionTypeLists = selectedInteractionTypeMap.get(context+Constants.DEL+version);
 				if (selectedInteractionTypeLists != null)
 				{
 					List<String> list1 = selectedInteractionTypeLists.get(Constants.DISPLAYSELECTEDINTERACTIONTYPE);
 					if (list1 != null)
-					{	displaySelectedInteractionTypes.addAll(list1);
-					c.getTgPreference().getDisplaySelectedInteractionTypes().clear();
+					{	displaySelectedInteractionTypes.addAll(list1);					  
 					    c.getTgPreference().getDisplaySelectedInteractionTypes().addAll(list1);
 					}
 					List<String> list2 = selectedInteractionTypeLists.get(Constants.NETWORKSELECTEDINTERACTIONTYPE);
