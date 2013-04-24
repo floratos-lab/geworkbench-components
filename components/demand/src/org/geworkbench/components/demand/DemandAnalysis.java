@@ -289,10 +289,8 @@ public class DemandAnalysis extends AbstractAnalysis implements
 		Object[][] edata = getResult(resultEdgeFile, edgeStrCol);
 		Object[][] mdata = getResult(resultModFile, modStrCol);
 		
-		DSDemandResultSet analysisResult = new CSDemandResultSet(maSet, "DEMAND Result");
-		analysisResult.setResult(rdata);
-		analysisResult.setEdge(edata);
-		analysisResult.setModule(mdata);
+		DSDemandResultSet analysisResult = new CSDemandResultSet(maSet, "DEMAND Result",
+				rdata, edata, mdata);
 		AlgorithmExecutionResults results = new AlgorithmExecutionResults(true,
 				"Demand Analysis", analysisResult);
 		
@@ -400,7 +398,6 @@ public class DemandAnalysis extends AbstractAnalysis implements
 	}
 
 	// write simplified annotation file: Entrez.Gene,Gene.Symbol,Chromosomal.Location
-	@SuppressWarnings("unused")
 	private void writeAnnoFile(DSMicroarraySet dataset, File annoFile){
 		Scanner in = null;
 		BufferedWriter bw = null;
