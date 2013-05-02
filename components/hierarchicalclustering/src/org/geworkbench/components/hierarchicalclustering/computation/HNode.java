@@ -1,20 +1,25 @@
-package org.geworkbench.components.hierarchicalclustering;
+package org.geworkbench.components.hierarchicalclustering.computation;
 
+import java.io.Serializable;
 import java.util.Set;
 
 /**
  * @author John Watkinson
  * @version $Id$
  */
-public class HNode {
-
-    private Set<String> items;
+public class HNode implements  Serializable {
+ 
+	private static final long serialVersionUID = -5341700067900832231L;
+	
+	private Set<String> items;
     private int id;
     private HNode left;
     private HNode right;
     private int depth;
     private double height;
 
+    public HNode(){};
+    
     public HNode(final int id, final Set<String> items, final HNode left, final HNode right, final double height) {
         this.id = id;
         this.items = items;
