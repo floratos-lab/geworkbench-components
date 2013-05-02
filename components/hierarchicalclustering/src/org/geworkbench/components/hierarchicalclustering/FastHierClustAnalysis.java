@@ -30,11 +30,12 @@ import org.geworkbench.bison.model.analysis.ParamValidationResults;
 import org.geworkbench.bison.model.clusters.CSHierClusterDataSet;
 import org.geworkbench.bison.model.clusters.HierCluster;
 import org.geworkbench.builtin.projects.history.HistoryPanel;
-import org.geworkbench.util.CorrelationDistance;
-import org.geworkbench.util.Distance;
-import org.geworkbench.util.EuclideanDistance;
+import org.geworkbench.components.hierarchicalclustering.computation.DistanceType;
+import org.geworkbench.components.hierarchicalclustering.computation.HNode;
+import org.geworkbench.components.hierarchicalclustering.computation.HierarchicalClustering;
+import org.geworkbench.components.hierarchicalclustering.computation.Linkage;
+import org.geworkbench.components.hierarchicalclustering.data.HierClusterInput;
 import org.geworkbench.util.ProgressBar;
-import org.geworkbench.util.SpearmanRankDistance;
  
 
 /**
@@ -86,17 +87,24 @@ public class FastHierClustAnalysis extends AbstractGridAnalysis implements
 		int metric = ((HierClustPanel) aspp).getDistanceMetric();
 
 		double[][] matrix = geValues(data);
-		final Distance[] distances = { EuclideanDistance.instance,
-				CorrelationDistance.instance, SpearmanRankDistance.instance };
-		Distance distanceMetric = distances[metric];
-		ClusteringAlgorithm.Linkage linkageType = null;
+		 
+		String distanceType = null;
+		String linkageType = null;
 		switch(method) {
-		case 0: linkageType = ClusteringAlgorithm.Linkage.SINGLE; break;
-		case 1: linkageType = ClusteringAlgorithm.Linkage.AVERAGE; break;
-		case 2: linkageType = ClusteringAlgorithm.Linkage.COMPLETE; break;
+		case 0: linkageType = Linkage.SINGLE.name(); break;
+		case 1: linkageType = Linkage.AVERAGE.name(); break;
+		case 2: linkageType = Linkage.COMPLETE.name(); break;
 		default: log.error("error in linkage type");
 		}
-		final HierarchicalClustering hierarchicalClustering = new HierarchicalClustering(linkageType);
+		
+		switch(metric) {
+		case 0: distanceType = DistanceType.EUCLIDEAN.name(); break;
+		case 1: distanceType = DistanceType.CORRELATION.name(); break;
+		case 2: distanceType = DistanceType.SPEARMANRANK.name(); break;
+		default: log.error("error in linkage type");
+		}
+		HierClusterInput hierClusterInput = new HierClusterInput(matrix, linkageType, distanceType) ;
+		final HierarchicalClustering hierarchicalClustering = new HierarchicalClustering(hierClusterInput);
 
 		SwingUtilities.invokeLater(new Runnable() {
 
@@ -119,20 +127,21 @@ public class FastHierClustAnalysis extends AbstractGridAnalysis implements
 			if (dimension == 2) {
 				
 				HierClusterFactory cluster = new HierClusterFactory.Gene(data.markers());
-				resultClusters[0] = hierarchicalClustering.compute(matrix,
-						cluster, distanceMetric);
-	
+				resultClusters[0] = convertCluster(cluster, hierarchicalClustering.compute());
+						 
 				cluster = new HierClusterFactory.Microarray(data.items());
-				resultClusters[1] = hierarchicalClustering.compute(getTranspose(matrix),
-						cluster, distanceMetric);
+				hierarchicalClustering.setMatrix(getTranspose(matrix));
+				resultClusters[1] = convertCluster(cluster,hierarchicalClustering.compute());
+						 
 			} else if (dimension == 1) {
 				HierClusterFactory cluster = new HierClusterFactory.Microarray(data.items());
-				resultClusters[1] = hierarchicalClustering.compute(getTranspose(matrix),
-						cluster, distanceMetric);
+				hierarchicalClustering.setMatrix(getTranspose(matrix));
+				resultClusters[1] = convertCluster(cluster,hierarchicalClustering.compute());
+						 
 			} else if (dimension == 0) {
 				HierClusterFactory cluster = new HierClusterFactory.Gene(data.markers());
-				resultClusters[0] = hierarchicalClustering.compute(matrix,
-						cluster, distanceMetric);
+				resultClusters[0] = convertCluster(cluster,hierarchicalClustering.compute());
+						 
 			}
 
 		} catch (OutOfMemoryError e) {
@@ -200,6 +209,8 @@ public class FastHierClustAnalysis extends AbstractGridAnalysis implements
 		
 		return new AlgorithmExecutionResults(true, "No errors.", dataSet);
 	}
+	
+	 
 
 	private transient ProgressBar pb;
 
@@ -408,5 +419,30 @@ public class FastHierClustAnalysis extends AbstractGridAnalysis implements
 
 		return new ParamValidationResults(true,"No Error");
 	}
+	
+	/**
+     * 
+     * @param analysis
+     * @param factory
+     * @param node
+     * @param pb
+     * @return
+     */
+    private HierCluster convertCluster(HierClusterFactory factory, HNode node) {
+        if (node.isLeafNode()) {
+            return factory.newLeaf(Integer.parseInt(node.getLeafItem()));
+        } else {
+        	
+        	HierCluster left = convertCluster(factory, node.getLeft());
+            HierCluster right = convertCluster(factory, node.getRight());
+            HierCluster cluster = factory.newCluster();
+            cluster.setDepth(Math.max(left.getDepth(), right.getDepth()) + 1);
+            cluster.setHeight(node.getHeight());
+            cluster.addNode(left, 0);
+            cluster.addNode(right, 0);
+            return cluster;
+        }
+    }
+	
     
 }

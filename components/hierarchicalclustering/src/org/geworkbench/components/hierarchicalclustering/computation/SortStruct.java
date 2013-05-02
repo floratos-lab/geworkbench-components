@@ -1,4 +1,4 @@
-package org.geworkbench.components.hierarchicalclustering;
+package org.geworkbench.components.hierarchicalclustering.computation;
 
 /**
  * @author zji

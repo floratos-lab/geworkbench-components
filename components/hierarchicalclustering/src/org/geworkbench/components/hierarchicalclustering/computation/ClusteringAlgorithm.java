@@ -1,4 +1,4 @@
-package org.geworkbench.components.hierarchicalclustering;
+package org.geworkbench.components.hierarchicalclustering.computation;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,7 +8,6 @@ import java.util.TreeSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.util.Distance;
 
 /**
  * @author John Watkinson
@@ -18,11 +17,7 @@ public class ClusteringAlgorithm {
 
     static Log log = LogFactory.getLog(ClusteringAlgorithm.class); 
     
-    public enum Linkage {
-        SINGLE,
-        AVERAGE,
-        COMPLETE
-    }
+    
    
     private Distance distance;
     private Linkage linkage;
