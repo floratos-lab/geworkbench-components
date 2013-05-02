@@ -4,5 +4,5 @@
 		<messageReceiver mep="http://www.w3.org/2004/08/wsdl/in-only" class="org.apache.axis2.rpc.receivers.RPCInOnlyMessageReceiver" />
 		<messageReceiver mep="http://www.w3.org/2004/08/wsdl/in-out" class="org.apache.axis2.rpc.receivers.RPCMessageReceiver" />
 	</messageReceivers>
-	<parameter name="ServiceClass">org.geworkbench.components.anova.service.HierClusterService</parameter>
+	<parameter name="ServiceClass">org.geworkbench.components.hierarchicalclustering.service.HierClusterService</parameter>
 </service>
