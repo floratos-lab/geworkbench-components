@@ -158,6 +158,7 @@ public class DemandPanel extends AbstractSaveableParameterPanel{
 		builder.nextLine();			
 		
 		builder.append(sampleInfoLoadButton);
+		builder.append(new JLabel("(The underlying computational code is under development and subjects to change.)"), 7);
 		builder.nextLine();
 		
 		this.add(builder.getPanel());
