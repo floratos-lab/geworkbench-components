@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.swing.JComboBox;
+import javax.swing.JLabel;
 
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
@@ -62,6 +63,7 @@ public class ViperPanel extends AbstractSaveableParameterPanel {
         builder.append("Select service", service);
         builder.append("Select Regulon", regulon);
         builder.append("Select Method", method);
+        builder.append(new JLabel("<html>(The underlying computational code is under<br> development and subjects to change.)<html>"), 4);
         this.add(builder.getPanel());
 
         ParameterActionListener parameterActionListener = new ParameterActionListener(this);
