@@ -14,10 +14,7 @@
 		<fileset dir="${axis2.home}/lib">
 			<include name="*.jar" />
 		</fileset>
-		<fileset dir="lib">
-			<!-- its own lib -->
-			<include name="*.jar" />
-		</fileset>
+		 
 	</path>
 
 	<path id="client.class.path">
@@ -44,11 +41,7 @@
 	<target name="generate.service" depends="clean,prepare">
 
 		<copy file="src/META-INF/services.xml" tofile="${dest.dir.classes}/META-INF/services.xml" overwrite="true" />
-		<copy toDir="${dest.dir.classes}/lib" overwrite="true">
-			<fileset dir="lib">
-				<include name="*.jar" />
-			</fileset>
-		</copy>
+		 
 		 
 		<javac srcdir="src" destdir="${dest.dir.classes}" includes="org/geworkbench/components/hierarchicalclustering/service/**,org/geworkbench/components/hierarchicalclustering/data/**">
 			<classpath refid="build.class.path" />
