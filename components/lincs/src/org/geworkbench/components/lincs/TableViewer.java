@@ -198,7 +198,7 @@ public class TableViewer extends JPanel {
 				if (((Number) value).doubleValue() < 0.1)
 					value = String.format("%.2E", value);
 				else
-					value = String.format("%.2f", value);
+					value = String.format("%.8f", value);
 			}			
 			super.setValue(value);
 			if (value != null && value.toString().equalsIgnoreCase("view"))
