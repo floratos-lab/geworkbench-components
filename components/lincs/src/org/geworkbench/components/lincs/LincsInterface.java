@@ -179,7 +179,7 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 			synergyMeasuremetnTypeList = addAll(lincs
 					.getAllMeasurementTypeNames());
 			similarityAlgorithmList = addAll(lincs
-					.getALLSimilarAlgorithmNames());
+					.getAllMeasurementTypeNames());
 		} catch (Exception ex) {
 			log.error(ex.getMessage());
 		}
