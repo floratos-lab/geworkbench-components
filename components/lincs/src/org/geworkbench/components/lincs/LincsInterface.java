@@ -703,8 +703,8 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 			objects[i][4] = dataList.get(i).getSimilarityAlgorithm();
 			if (objects[i][4] == null)
 				objects[i][4] = "";
-			objects[i][5] = dataList.get(i).getPvalue();
-			objects[i][6] = dataList.get(i).getScore();
+			objects[i][5] = dataList.get(i).getScore();
+			objects[i][6] = dataList.get(i).getPvalue();			 
 
 		}
 
@@ -718,7 +718,7 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 		    resultTable = new TableViewer(columnNames, data, hideColumns);
 		else
 			resultTable = new TableViewer(columnNames, data);
-		add(resultTable);
+		 
 		add(resultTable);
 		add(resultProcessingPanel);
 		resultTable.updateUI();
