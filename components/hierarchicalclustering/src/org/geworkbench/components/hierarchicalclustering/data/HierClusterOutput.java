@@ -1,15 +1,11 @@
 package org.geworkbench.components.hierarchicalclustering.data;
 
  
-import java.io.Serializable;
-
- 
 import org.geworkbench.components.hierarchicalclustering.computation.HNode;
   
 
-public class HierClusterOutput implements  Serializable {
- 
-	private static final long serialVersionUID = -1310527094480912866L;
+public class HierClusterOutput { 
+	 
 	private  byte[] hnode;
  
 	public HierClusterOutput(){};
