@@ -179,7 +179,7 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 			synergyMeasuremetnTypeList = addAll(lincs
 					.getAllMeasurementTypeNames());
 			similarityAlgorithmList = addAll(lincs
-					.getAllMeasurementTypeNames());
+					.getALLSimilarAlgorithmNames());
 		} catch (Exception ex) {
 			log.error(ex.getMessage());
 		}
@@ -434,26 +434,19 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 					}
 				}
 
+				if ((drug1Names == null || drug1Names.isEmpty())
+						&& (drug2Names == null || drug2Names.isEmpty())
+						 ) {
+
+					JOptionPane.showMessageDialog(null,
+							"Please select at least one constrain of drugs.");
+					return;
+
+				}
 				try {
 					if (experimental.isSelected()) {
 						List<String> assayTypes = getSelectedValues(assayTypeBox);
 						List<String> measurementTypes = getSelectedValues(synergyMeasurementTypeBox);
-						if ((tissueTypes == null || tissueTypes.isEmpty())
-								&& (cellLineNames == null || cellLineNames
-										.isEmpty())
-								&& (drug1Names == null || drug1Names.isEmpty())
-								&& (drug2Names == null || drug2Names.isEmpty())
-								&& (assayTypes == null || assayTypes.isEmpty())
-								&& (measurementTypes == null || measurementTypes
-										.isEmpty())
-								&& (!maxResult.isSelected() || rowLimit == 0)) {
-
-							JOptionPane.showMessageDialog(null,
-									"Please select at least one constrain.");
-							return;
-
-						}
-
 						List<ExperimentalData> dataList = lincs
 								.getExperimentalData(tissueTypes,
 										cellLineNames, drug1Names, drug2Names,
@@ -463,21 +456,7 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 						updateResultTable(experimentalColumnNames, objects);						 
 					} else {
 						List<String> similarityAlgorithmTypes = getSelectedValues(similarityAlgorithmTypeBox);
-						if ((tissueTypes == null || tissueTypes.isEmpty())
-								&& (cellLineNames == null || cellLineNames
-										.isEmpty())
-								&& (drug1Names == null || drug1Names.isEmpty())
-								&& (drug2Names == null || drug2Names.isEmpty())
-								&& (similarityAlgorithmTypes == null || similarityAlgorithmTypes
-										.isEmpty())
-								&& (!maxResult.isSelected() || rowLimit == 0)) {
-
-							JOptionPane.showMessageDialog(null,
-									"Please select at least one constrain.");
-							return;
-
-						}
-
+						 
 						List<ComputationalData> dataList = lincs
 								.getComputationalData(tissueTypes,
 										cellLineNames, drug1Names, drug2Names,
@@ -702,10 +681,13 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 			objects[i][3] = dataList.get(i).getCompound2();
 			objects[i][4] = dataList.get(i).getSimilarityAlgorithm();
 			if (objects[i][4] == null)
-				objects[i][4] = "";
+				objects[i][4] = "";			 
 			objects[i][5] = dataList.get(i).getScore();
+			if (objects[i][5] == null)
+				objects[i][5] = "";
 			objects[i][6] = dataList.get(i).getPvalue();			 
-
+			if (objects[i][6] == null)
+				objects[i][6] = "";
 		}
 
 		return objects;
