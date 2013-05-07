@@ -439,7 +439,7 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 						 ) {
 
 					JOptionPane.showMessageDialog(null,
-							"Please select at least one constrain of drugs.");
+							"Please select at least one constraint of drugs.");
 					return;
 
 				}
