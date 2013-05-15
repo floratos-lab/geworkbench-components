@@ -1,7 +1,6 @@
 package org.geworkbench.components.hierarchicalclustering.service;
 
 import org.geworkbench.components.hierarchicalclustering.computation.HNode;
-import org.geworkbench.components.hierarchicalclustering.computation.HierClusterException;
 import org.geworkbench.components.hierarchicalclustering.computation.HierarchicalClustering;
 import org.geworkbench.components.hierarchicalclustering.computation.ObjectConversion;
 import org.geworkbench.components.hierarchicalclustering.data.HierClusterInput;
