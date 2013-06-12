@@ -60,7 +60,7 @@ public class ViperPanel extends AbstractSaveableParameterPanel {
 
         builder.appendSeparator("Viper Parameters");
 
-        builder.append("Select service", service);
+        builder.append("Select Service", service);
         builder.append("Select Regulon", regulon);
         builder.append("Select Method", method);
         builder.append(new JLabel("<html>(The underlying computational code is under<br> development and subjects to change.)<html>"), 4);
