@@ -133,7 +133,7 @@ public class DemandPanel extends AbstractSaveableParameterPanel{
 		builder.setDefaultDialogBorder();
 
 		builder.appendSeparator("Demand Parameters");			
-		builder.append("Select service", service);
+		builder.append("Select Service", service);
 		builder.nextLine();
 
 		builder.append(networkLabel);
