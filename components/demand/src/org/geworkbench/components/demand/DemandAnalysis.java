@@ -174,6 +174,7 @@ public class DemandAnalysis extends AbstractAnalysis implements
 		pbar.start();
 
 		String setName = maSet.getDataSetName();
+		setName = setName.replaceAll(" ", "_");
 		int index = setName.lastIndexOf(extSeparator);
 		if (index >= 0) setName = setName.substring(0, index);
 		
@@ -227,7 +228,7 @@ public class DemandAnalysis extends AbstractAnalysis implements
 			}catch(AxisFault af){
 				pbar.dispose();
 				af.printStackTrace();
-				return new AlgorithmExecutionResults(false, "error executing viper web service.", null);
+				return new AlgorithmExecutionResults(false, "error executing demand web service.", null);
 			}
 		}else{
 		
