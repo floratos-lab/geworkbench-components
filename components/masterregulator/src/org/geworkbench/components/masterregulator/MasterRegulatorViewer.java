@@ -115,7 +115,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 	private JRadioButton activator = new JRadioButton("Plus(+)");
 	private JRadioButton repressor = new JRadioButton("Minus(-)");
 	private JRadioButton regulonBar = new JRadioButton("Regulon");
-	private JRadioButton intersectionBar = new JRadioButton("Intersection Set");
+	protected JRadioButton intersectionBar = new JRadioButton("Intersection Set");
 	private final JSplitPane jSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 	private boolean shown = false;
 
@@ -150,7 +150,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		DefaultFormBuilder builder = new DefaultFormBuilder(layout);
 
 		FormLayout headerLayout = new FormLayout(
-				"40dlu,0dlu,45dlu,8dlu,48dlu,0dlu,20dlu,8dlu,35dlu,0dlu,20dlu,8dlu,26dlu,1dlu,40dlu,2dlu,61dlu",
+				"40dlu,0dlu,45dlu,8dlu,48dlu,0dlu,20dlu,8dlu,35dlu,0dlu,20dlu,8dlu,26dlu,1dlu,40dlu,2dlu,90dlu",
 				"20dlu");
 		DefaultFormBuilder headerBuilder = new DefaultFormBuilder(headerLayout);
 		ActionListener actionListener = new ActionListener() {
@@ -432,7 +432,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		tfAHolder.setValue(null);
 	}
 
-	private void updateTable() {
+	protected void updateTable() {
 		if (!shown && jSplitPane.getHeight()>0){
 			jSplitPane.setDividerLocation(0.78);
 			shown = true;
@@ -448,7 +448,9 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 			if (selectedtfAmode == DSMasterRagulatorResultSet.ACTIVATOR)
 				clearSelection();
 		}
-		Object data[][] = new Object[markers.size()][5];
+		int ncols = tv.headerNames.length;
+		int modeCol = ncols - 1;
+		Object data[][] = new Object[markers.size()][ncols];
 		int cx = 0;
 		ButtonGroup group1 = new ButtonGroup();
 		for (DSGeneMarker tfA : markers) {
@@ -472,13 +474,17 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 			data[cx][1] = MRAResultSet.getPValue(tfA);
 			data[cx][2] = MRAResultSet.getGenesInRegulon(tfA).size();
 			data[cx][3] = MRAResultSet.getGenesInTargetList(tfA).size();
-			data[cx][4] = MRAResultSet.getMode(tfA);
+			data[cx][modeCol] = MRAResultSet.getMode(tfA);
+			if(ncols > 5){
+				data[cx][4] = MRAResultSet.getOddRatio(tfA);
+				data[cx][5] = MRAResultSet.getNES(tfA);
+			}
 			cx++;
 		}
 		// myTableModel.updateData(data);
 		tv.setTableModel(data);
 		((DefaultViewerTableModel) tv.model).sort(1); //sort by p-values
-		tv.table.getColumnModel().getColumn(4).setMaxWidth(40); // mode width
+		tv.table.getColumnModel().getColumn(modeCol).setMaxWidth(40); // mode width
 
 		tv.updateUI();
 		tv.setMRViewer(this);
@@ -511,6 +517,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		}
 
 		Object[][] graphdata = new Object[n][3];
+		int modeCol = tv.headerNames.length - 1;
 		for (int i = 0; i < n; i++){
 			JRadioButton button = (JRadioButton)tv.getTable().getValueAt(i, 0);
 			graphdata[i][0] = button.getText();
@@ -519,7 +526,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 			gv.setTFA(MRAResultSet, MRAResultSet.getTFs().get(button.getName()), regulonBar.isSelected());
 			gv.updateUI();
 			graphdata[i][1] = gv;
-			graphdata[i][2] = tv.getTable().getValueAt(i, 4);
+			graphdata[i][2] = tv.getTable().getValueAt(i, modeCol);
 		}
 
 		bgm.setDataVector(graphdata, graphheader);
@@ -641,7 +648,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		return this;
 	}
 
-	private void updateSelectedTF(
+	protected void updateSelectedTF(
 			DSMasterRagulatorResultSet<DSGeneMarker> mraResultSet,
 			DSGeneMarker tfA, TableViewer tv) {
 		boolean usePValue = true;

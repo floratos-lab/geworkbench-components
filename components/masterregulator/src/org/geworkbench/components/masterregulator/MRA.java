@@ -418,7 +418,7 @@ public class MRA extends AbstractAnalysis implements
 		return transcriptionFactors;
 	}
 	
-	private void sortByValue(final Map<DSGeneMarker, Double> values,
+	static void sortByValue(final Map<DSGeneMarker, Double> values,
 			DSMasterRagulatorResultSet<DSGeneMarker> mraResultSet){
 		Map<DSGeneMarker, Integer> gene2rankMap = new HashMap<DSGeneMarker, Integer>();
 		List<DSGeneMarker> genes = new ArrayList<DSGeneMarker>();
