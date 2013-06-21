@@ -697,7 +697,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 
 				}
 
-				if (needRemove) {
+				/*if (needRemove) {
 					JOptionPane
 
 							.showMessageDialog(
@@ -706,7 +706,7 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 											+ contextProperty
 											+ " is not in current database, so it is deleted from preference setting.",
 									"Info", JOptionPane.INFORMATION_MESSAGE);
-				}
+				}*/
 
 			}
 
