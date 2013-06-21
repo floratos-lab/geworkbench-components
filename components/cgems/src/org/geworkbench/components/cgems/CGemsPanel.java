@@ -47,7 +47,6 @@ import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
-import org.geworkbench.events.AnnotationsEvent;
 import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.MarkerSelectedEvent;
 import org.geworkbench.events.ProjectEvent;
@@ -785,11 +784,6 @@ public class CGemsPanel implements VisualPlugin {
 		}
 		showSnpData();
 		// searchSNPAssociationFinding();
-	}
-
-	@Publish
-	public AnnotationsEvent publishAnnotationsEvent(AnnotationsEvent ae) {
-		return ae;
 	}
 
 	@Publish
