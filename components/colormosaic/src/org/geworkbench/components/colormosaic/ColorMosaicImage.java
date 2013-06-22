@@ -17,6 +17,8 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.awt.BasicStroke;
+import java.awt.Stroke;
 
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -97,8 +99,8 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 	private int oldRes = DEFAULTRES;
 	private int fontSize = 0;
 	private int textSize = 0;
-	private ColorMosaicPanel parent = null;
-	
+	private BasicColorMosaicPanel parent = null;
+	//private ColorMosaicPanel_orig parent = null;
 	private boolean showAllMarkers = true;
 	private boolean showSignal = false;
 	private DecimalFormat format = new DecimalFormat("0.#E00");
@@ -241,9 +243,19 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 							mkInfo, (float) intensity);
 					g.setColor(color);
 					g.fillRect(x, y, width, geneHeight);
+					if (parent.levelTwoIds != null && parent.levelTwoIds[stats.getSerial()][j] > 0)
+					{
+						Graphics2D g2 = (Graphics2D) g;
+					    g.setColor(Color.black);
+					    Stroke oldStroke = g2.getStroke();
+					    g2.setStroke(new BasicStroke(2));
+					    g2.drawRect(x, y, width, geneHeight);
+					    g2.setStroke(oldStroke);
+					}
 					if (j == 0) {
+						
 						g.setColor(Color.black);
-						g.fillRect(x, y, 2, geneHeight);
+						g.fillRect(x, y, 2, geneHeight);					 
 					} else if (j == chipNo - 1) {
 						g.setColor(Color.black);
 						g.fillRect(x + geneWidth - 1, y, 2, geneHeight);
@@ -359,7 +371,7 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 		});
 	}
 
-	private void this_mouseMoved(MouseEvent e) {
+	protected void this_mouseMoved(MouseEvent e) {
 		markerId = this.getGeneId(e);
 		microarrayId = this.getChipId(e);
 		if ((markerId >= 0) && (microarrayId >= 0)) {
@@ -385,12 +397,25 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 					DSGeneMarker mInfo = microarraySet.getMarkers().get(
 							markerId);
 					DSMicroarray marray = microarraySet.get(microarrayId);
-					String toolTipText = "<html>Chip: " + marray.getLabel()
+					if (parent.variableNames != null)
+					{
+						String toolTipText = "<html>" + parent.variableNames[0]+ ": "+ marray.getLabel()
+						+ "<br>" + parent.variableNames[1] + ": " + mInfo.getLabel()
+						+ "<br>" + "Score: "
+						+ marray.getMarkerValue(mInfo).getValue() 
+						+ "<br>" + "P-value: " + parent.pValues[markerId][microarrayId]
+						+ "</html>";
+				        setToolTipText(toolTipText);
+					}
+					else
+					{
+					    String toolTipText = "<html>Chip: " + marray.getLabel()
 							+ "<br>" + "Marker: " + mInfo.getLabel()
 							+ "<br>" + "Signal: "
 							+ marray.getMarkerValue(mInfo).getValue()
 							+ "</html>";
-					setToolTipText(toolTipText);
+					    setToolTipText(toolTipText);
+					}
 				} else {
 					this.setToolTipText(null);
 				}
@@ -511,7 +536,8 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 		g.setColor(Color.black);
 		g.drawLine(x, y + geneHeight - 1, x + width - 1, y + geneHeight - 1);
 		g.drawLine(x + width - 1, y, x + width - 1, y + geneHeight - 1);
-
+		//Graphics2D g2 = (Graphics2D) g;
+		//g2.setStroke(new BasicStroke(11));
 		this.revalidate();
 		this.repaint();
 	}
@@ -589,7 +615,7 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 		recomputeDimensions();
 	}
 
-	private void this_mouseClicked(MouseEvent e) {
+	protected void this_mouseClicked(MouseEvent e) {
 		if (e.isMetaDown()) {
 			popupMenu.show(this, e.getX(), e.getY());
 		}
@@ -607,9 +633,16 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 			PhenotypeSelectedEvent pse = new PhenotypeSelectedEvent(microarray);
 			parent.publishPhenotypeSelectedEvent(pse);
 		}
+		
+		if (parent.levelTwoIds != null && parent.levelTwoIds[geneId][microarrayId] > 0 )
+		{
+			
+		}
+			
+		
 	}
 
-	private int getChipId(MouseEvent e) {
+	protected int getChipId(MouseEvent e) {
 		int x = e.getX();
 		int chipProxyId = (x - gutter) * 1 / geneWidth;
 
@@ -624,7 +657,7 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 		return pl.getSerial();
 	}
 
-	private int getGeneId(MouseEvent e) {
+	protected int getGeneId(MouseEvent e) {
 		int y = e.getY();
 		int geneProxyId = (y - gutter) / geneHeight;
 		if (geneProxyId >= 0) {
@@ -886,7 +919,7 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 		recomputeDimensions();
 	}
 
-	void setParent(ColorMosaicPanel parent) {
+	void setParent(BasicColorMosaicPanel parent) {
 		this.parent = parent;
 	}
 
