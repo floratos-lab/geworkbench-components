@@ -49,8 +49,8 @@ import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeTy
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.lincs.LincsDataSet;
 import org.geworkbench.bison.util.colorcontext.ColorContext;
-import org.geworkbench.builtin.projects.ProjectPanel;
-import org.geworkbench.engine.config.VisualPlugin;
+import org.geworkbench.builtin.projects.ProjectPanel; 
+import org.geworkbench.engine.config.VisualPlugin; 
 import org.geworkbench.parsers.TabDelimitedDataMatrixFileFormat;
 import org.geworkbench.service.lincs.data.xsd.ExperimentalData;
 import org.geworkbench.service.lincs.data.xsd.ComputationalData;
@@ -115,7 +115,7 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 			+ FilePathnameUtils.FILE_SEPARATOR;	
  
 	List<String> hideColumnList = new ArrayList<String>();
-
+ 
 	public LincsInterface() {
 		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 
@@ -1041,6 +1041,6 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 	{
 		return lincs;
 	}
-      
-
+	
+	 
 }
