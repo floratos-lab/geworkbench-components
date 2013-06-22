@@ -14,6 +14,9 @@ import org.apache.commons.logging.LogFactory;
 import org.geworkbench.service.lincs.LincsService;
 import org.geworkbench.service.lincs.data.xsd.ComputationalData;
 import org.geworkbench.service.lincs.data.xsd.ExperimentalData;
+import org.geworkbench.service.lincs.data.xsd.FmoaData;
+import org.geworkbench.service.lincs.data.xsd.CnkbInteractionData;
+import org.geworkbench.service.lincs.data.xsd.GeneRank;
 
 import org.geworkbench.service.lincs.LincsServiceException_Exception;;
 
@@ -164,6 +167,27 @@ public class Lincs {
 
 		return lincsService.getLincsServiceHttpSoap11Endpoint()
 				.getComputationalDataWithLimit(convertToString(tissueTypes), convertToString(cellLineNames), convertToString(compound1Names), convertToString(compound2Names), convertToString(similarityAlgorithms), rowLimit);
+
+	}
+	
+	public CnkbInteractionData getInteractionData(long geneId, String geneSymbol, long interactomeVersionId) throws LincsServiceException_Exception {
+
+		return lincsService.getLincsServiceHttpSoap11Endpoint().
+		     getInteractionData(geneId, geneSymbol, interactomeVersionId);				 
+	}
+	
+	
+	public List<GeneRank> getGeneRankData(String geneIds, long compoundId, long differentialExpressionRunId) throws LincsServiceException_Exception {
+
+		return lincsService.getLincsServiceHttpSoap11Endpoint()
+		   .getGeneRankData(geneIds, compoundId, differentialExpressionRunId);
+		     			 
+	}
+	
+	public FmoaData getFmoaData(String compoundName, long fmoaId) throws LincsServiceException_Exception {
+
+		return lincsService.getLincsServiceHttpSoap11Endpoint()
+				.getFmoaData(compoundName, fmoaId);
 
 	}
 	

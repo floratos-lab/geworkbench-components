@@ -4,7 +4,7 @@
 package org.geworkbench.components.lincs;
 
 /**
- * @author yc2480
+ * @author my2248
  * @version $Id: TableViewer.java 9733 2012-07-24 13:42:11Z zji $
  * 
  */
@@ -13,15 +13,24 @@ import java.awt.Component;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Enumeration; 
+import java.util.List;
+ 
+ 
+import javax.swing.JFileChooser; 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
  
+import javax.swing.filechooser.FileFilter;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
-import javax.swing.table.TableModel; 
+import javax.swing.table.TableModel;  
 
 public class TableViewer extends JPanel {
  
@@ -50,13 +59,13 @@ public class TableViewer extends JPanel {
 		initTable(headerNames, data, null);		
 	}
 	 
-	public TableViewer(final String[] headerNames, final Object[][] data, String[] hideColumns) {
+	public TableViewer(final String[] headerNames, final Object[][] data, List<String> hideColumns) {
 		
 		initTable(headerNames, data, hideColumns);
 		
 	}
 	
-	private void initTable(final String[] headerNames, final Object[][] data, String[] hideColumns)
+	private void initTable(final String[] headerNames, final Object[][] data, List<String> hideColumns)
 	{
 		this.data = data;
 		this.headerNames = headerNames;
@@ -66,11 +75,11 @@ public class TableViewer extends JPanel {
 		table.setAutoCreateRowSorter(true);
 
 		if (hideColumns != null)
-		for(int i =0; i<hideColumns.length; i++)
+		for(int i =0; i<hideColumns.size(); i++)
 		{
-			table.getColumnModel().getColumn(getHeaderNameIndex(hideColumns[i])).setMaxWidth(0);
-		    table.getColumnModel().getColumn(getHeaderNameIndex(hideColumns[i])).setMinWidth(0);
-		    table.getColumnModel().getColumn(getHeaderNameIndex(hideColumns[i])).setPreferredWidth(0);
+			table.getColumnModel().getColumn(getHeaderNameIndex(hideColumns.get(i))).setMaxWidth(0);
+		    table.getColumnModel().getColumn(getHeaderNameIndex(hideColumns.get(i))).setMinWidth(0);
+		    table.getColumnModel().getColumn(getHeaderNameIndex(hideColumns.get(i))).setPreferredWidth(0);
 		}
 		
 		Enumeration<TableColumn> columns = table.getColumnModel().getColumns();
@@ -90,9 +99,15 @@ public class TableViewer extends JPanel {
 					Point p = new Point(e.getX(), e.getY());
 					int col = target.columnAtPoint(p);
 					int row = target.rowAtPoint(p);
-					if (data[row][col].toString().equalsIgnoreCase("view"))
+					if (data[row][col] instanceof ValueObject )
 					{   
-					    new TitrationCurveWindow();
+						ValueObject v = (ValueObject)data[row][col];
+						if (v.getReferenceId() > 0 && v.toString().equalsIgnoreCase("view"))
+					       new TitrationCurveWindow(v.getReferenceId());
+						else
+						{
+							new FmoaDisplayWindow(v.getValue().toString(), v.getReferenceId());
+						}
 					}
 					 
 				}
@@ -158,9 +173,12 @@ public class TableViewer extends JPanel {
 			return headerNames[index];
 		}		
 		
+		
 		@SuppressWarnings({ "rawtypes", "unchecked" })
 		public Class getColumnClass(int column) {
 	        Class returnValue = null;
+	        if (getColumnName(column).equalsIgnoreCase("Include"))
+	        	return Boolean.class;
 	        if ((column >= 0) && (column < getColumnCount())) {
 	          if (getValueAt(0, column) != null)
 	            returnValue = getValueAt(0, column).getClass();
@@ -200,13 +218,129 @@ public class TableViewer extends JPanel {
 				else
 					value = String.format("%.8f", value);
 			}			
-			super.setValue(value);
-			if (value != null && value.toString().equalsIgnoreCase("view"))
+			super.setValue(value);			 
+			if (value != null && (value instanceof ValueObject) )
 			{
-				setText("<html><font color=blue><b>" + value
-				+ "</b></font></html>");
+				ValueObject v = (ValueObject)value;
+				if (v.getReferenceId() > 0)
+				   setText("<html><font color=blue><u><b>" + value.toString() + "</b></u></font></html>");
+				 
 			}
 		}
+	}
+	
+	 
+	static void export(JTable aTable, List<String> hideColumns, Component parent) {
+		JFileChooser jFC = new JFileChooser();
+
+		// We remove "all files" from filter, since we only allow CSV format
+		FileFilter ft = jFC.getAcceptAllFileFilter();
+		jFC.removeChoosableFileFilter(ft);
+
+		TabularFileFilter filter = new TabularFileFilter();
+		jFC.setFileFilter(filter);
+
+		int returnVal = jFC.showSaveDialog(parent);
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			try {
+				String tabFilename;
+				tabFilename = jFC.getSelectedFile().getAbsolutePath();
+				if (!tabFilename.toLowerCase().endsWith(
+						"." + filter.getExtension().toLowerCase())) {
+					tabFilename += "." + filter.getExtension();
+				}
+				BufferedWriter out = new BufferedWriter(new FileWriter(
+						tabFilename));
+				out.write(toCVS(aTable, hideColumns));
+				out.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	
+	private static class TabularFileFilter extends FileFilter {
+		public String getDescription() {
+			return "CSV Files";
+		}
+
+		public boolean accept(File f) {
+			String name = f.getName();
+			boolean tabFile = name.endsWith("csv") || name.endsWith("CSV");
+			if (f.isDirectory() || tabFile) {
+				return true;
+			}
+
+			return false;
+		}
+
+		public String getExtension() {
+			return "csv";
+		}
+
+	}
+
+	private static String toCVS(JTable aTable, List<String> hideColumns) {
+		String answer = "";
+
+		boolean newLine = true;   
+		//print header
+		for (int cx = 0; cx < aTable.getColumnCount(); cx++) {
+			if (newLine) {
+				if (hideColumns != null && !hideColumns.contains(aTable.getColumnName(cx)))
+				{
+					newLine = false;
+					answer += "\"" + aTable.getColumnName(cx) + "\"";
+				}
+			} else {
+				if (hideColumns != null && !hideColumns.contains(aTable.getColumnName(cx)))
+				{
+					answer += ",";
+					 answer += "\"" + aTable.getColumnName(cx) + "\"";
+				}
+			}
+			 
+		}
+		answer += "\n";
+		newLine = true;
+
+		// print the table
+		for (int cx = 0; cx < aTable.getRowCount(); cx++) {
+			if (! isInclude(aTable, cx))
+				continue;
+			for (int cy = 0; cy < aTable.getColumnCount(); cy++) {				
+				if (newLine) {					
+					if (hideColumns != null && !hideColumns.contains(aTable.getColumnName(cy)))
+					{   
+						newLine = false;
+						answer += "\"" + aTable.getValueAt(cx, cy) + "\"";
+					}
+				} else {
+					if (hideColumns != null && !hideColumns.contains(aTable.getColumnName(cy)))
+					{   
+						answer += ",";
+						answer += "\"" + aTable.getValueAt(cx, cy) + "\"";
+					}
+					
+				}
+				
+			}
+			answer += "\n";
+			newLine = true;
+		}
+		return answer;
+	}
+	
+	//this is used for fmoa data table
+    static boolean isInclude(JTable aTable, int row)
+	{
+		boolean includeFlag = true;
+		if( aTable.getModel().getValueAt(row, 3) instanceof Boolean )
+		{
+			includeFlag =  ((Boolean) aTable.getModel().getValueAt(row, 3)).booleanValue();
+		}
+		return includeFlag;
 	}
 	
 }
