@@ -47,6 +47,8 @@ import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.biocollections.lincs.LincsDataSet;
+import org.geworkbench.bison.util.colorcontext.ColorContext;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.parsers.TabDelimitedDataMatrixFileFormat;
@@ -89,8 +91,7 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 	private JRadioButton computational = new JRadioButton("Computational");
 	private FilteredJList drug1Box = new FilteredJList();
 	private JTextField drug1Search = drug1Box.getFilterField();
-	private JList tissueTypeBox = null;
-	private Lincs lincs = null;
+	private JList tissueTypeBox = null;	
 	private JList cellLineBox = null;
 	private JList drug2Box = null;
 	private JList assayTypeBox = null;
@@ -104,18 +105,23 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 	private JCheckBox colorGradient = null;
 	private TableViewer resultTable = null;
 	private JComboBox plotOptions = null;
-
+	
+	private List<String> freeVariables;
+	
+	private static Lincs lincs = null;
 	private static final String lincsDir = FilePathnameUtils
 			.getUserSettingDirectoryPath()
 			+ "lincs"
-			+ FilePathnameUtils.FILE_SEPARATOR;
-	
-	private final String[] hideColumns =  {"P-value"};
-	
+			+ FilePathnameUtils.FILE_SEPARATOR;	
+ 
+	List<String> hideColumnList = new ArrayList<String>();
 
 	public LincsInterface() {
 		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 
+		//temp do this, if data is there, then may be take out
+		hideColumnList.add("P-value");
+		
 		add(queryTypePanel);
 		add(queryConditionPanel1);
 		add(queryConditionPanel2);
@@ -354,7 +360,7 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 		queryCommandPanel.add(searchButton);
 		queryCommandPanel.add(resetButton);
 		queryCommandPanel.add(colorGradient);
-		resultTable = new TableViewer(experimentalColumnNames, null, hideColumns);
+		resultTable = new TableViewer(experimentalColumnNames, null, hideColumnList);
 		add(resultTable);
 		add(resultProcessingPanel);
 		queryResultPanel.setLayout(new BorderLayout());
@@ -363,13 +369,36 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 
 		plotOptions = new JComboBox(new String[] { HEATMAP, NETWORK });
 		JButton plotButton = new JButton("Plot");
+		final JCheckBox limitNetwork = new JCheckBox("Limit network to multiply-connected pairs");
+		limitNetwork.setEnabled(false);
 		JButton exportButton = new JButton("Export");
+	    exportButton.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					List<String> hideColumns = new ArrayList<String>();
+					hideColumns.add("Include");
+					TableViewer.export(resultTable.getTable(), hideColumns, resultTable);
+				}
+		});
+	        
 		resultProcessingPanel.add(new JLabel("Plot options:"));
 		resultProcessingPanel.add(plotOptions);
 		resultProcessingPanel.add(plotButton);
+		resultProcessingPanel.add(limitNetwork);
 		resultProcessingPanel.add(exportButton);
 
+		plotOptions.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {				 
+				 
+				if (plotOptions.getSelectedItem().toString().equals(HEATMAP)) {
+					limitNetwork.setEnabled(false);
+				} else if (plotOptions.getSelectedItem().toString().equals(NETWORK)) {
+					limitNetwork.setEnabled(true);
+				}
+			}
+		});
 		plotButton.addActionListener(plotListener);
+		
 		exportButton.addActionListener(dummyListener);
 
 		computational.addActionListener(new ActionListener() {
@@ -476,6 +505,8 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 							"Empty Set", JOptionPane.INFORMATION_MESSAGE);
 					return;
 				}
+				freeVariables = getFreeVariables();
+				
 			}
 
 		});
@@ -659,7 +690,8 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 			objects[i][6] = dataList.get(i).getScore();
 			objects[i][7] = dataList.get(i).getScoreError();
 			objects[i][8] = dataList.get(i).getPvalue();
-			objects[i][9] = "view";
+		 
+			objects[i][9] = new ValueObject("view",dataList.get(i).getLevelTwoTitrationId());
 
 		}
 
@@ -677,8 +709,8 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 			objects[i][1] = dataList.get(i).getCellLineName();
 			if (objects[i][1] == null)
 				objects[i][1] = "";
-			objects[i][2] = dataList.get(i).getCompound1();
-			objects[i][3] = dataList.get(i).getCompound2();
+			objects[i][2] = new ValueObject(dataList.get(i).getCompound1(), dataList.get(i).getCompound1FmoaRunId());
+			objects[i][3] = new ValueObject(dataList.get(i).getCompound2(), dataList.get(i).getCompound2FmoaRunId());
 			objects[i][4] = dataList.get(i).getSimilarityAlgorithm();
 			if (objects[i][4] == null)
 				objects[i][4] = "";			 
@@ -696,8 +728,8 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 	private void updateResultTable(String[] columnNames, Object[][] data) {
 		remove(resultTable);
 		remove(resultProcessingPanel);
-		if (experimental.isSelected() == true) 
-		    resultTable = new TableViewer(columnNames, data, hideColumns);
+		if (experimental.isSelected() == true) 		 
+		    resultTable = new TableViewer(columnNames, data, hideColumnList);		 
 		else
 			resultTable = new TableViewer(columnNames, data);
 		 
@@ -722,7 +754,7 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 						"Empty Set", JOptionPane.INFORMATION_MESSAGE);
 				return;
 			}
-
+            
 			if (plotOptions.getSelectedItem().toString().equals(HEATMAP)) {
 				createHeatmap();
 			} else if (plotOptions.getSelectedItem().toString().equals(NETWORK)) {
@@ -752,19 +784,19 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 
 		adjacencyMatrixdataSet = new AdjacencyMatrixDataSet(matrix,
 				-1000000000, "Adjacency Matrix", "Lincs", null);
-
+	 
 		ProjectPanel.getInstance().addDataSetNode(adjacencyMatrixdataSet);
 
 	}
 
-	private void convertToTabDelimitedDataMatrix(String verticalDataType,
-			String horizontalDataType, File tfaFile) {
+	private void convertToTabDelimitedDataMatrix(String horizontalDataType, String verticalDataType,
+			 File tfaFile) {
 		List<String> verticalNames = new ArrayList<String>();
 		List<String> horizontalNames = new ArrayList<String>();
 
 		Object[][] data = resultTable.getData();
-		int verticalDataTypeIndex = resultTable.getHeaderNameIndex("Drug 1");
-		int horizontalDataTypeIndex = resultTable.getHeaderNameIndex("Drug 2");
+		int horizontalDataTypeIndex = resultTable.getHeaderNameIndex(horizontalDataType);
+		int verticalDataTypeIndex = resultTable.getHeaderNameIndex(verticalDataType);
 		int scoreIndex = resultTable.getHeaderNameIndex("Score");
 		for (int i = 0; i < data.length; i++) {
 			String verticalName, horizontalName;
@@ -775,7 +807,7 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 			if (!horizontalNames.contains(horizontalName))
 				horizontalNames.add(horizontalName);
 		}
-		float[][] scoreMatrix = new float[verticalNames.size()][horizontalNames
+		double[][] scoreMatrix = new double[verticalNames.size()][horizontalNames
 				.size()];
 		Collections.sort(verticalNames);
 		Collections.sort(horizontalNames);
@@ -784,8 +816,8 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 			String horizontalName = data[i][horizontalDataTypeIndex].toString();
 
 			scoreMatrix[verticalNames.indexOf(verticalName)][horizontalNames
-					.indexOf(horizontalName)] = new Float(
-					data[i][scoreIndex].toString()).floatValue();
+					.indexOf(horizontalName)] = new Double(
+					data[i][scoreIndex].toString()).doubleValue();
 
 		}
 
@@ -820,15 +852,61 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 		tfaFile.deleteOnExit();
 	}
 
-	private void createHeatmap() {		
+	private void createHeatmap() {
+		
+		if (freeVariables.size() !=  2)
+		{
+			JOptionPane.showMessageDialog(null,
+			"Plot Error:  there must be exactly two free variables to create a plot");
+	        return;
+		}
+		
+		
 		String tfaFname = lincsDir + "lincs_tfa.txt";
 		File tfaFile = new File(tfaFname);
-		convertToTabDelimitedDataMatrix("drug 1", "drug 2", tfaFile);
+		convertToTabDelimitedDataMatrix(freeVariables.get(0), freeVariables.get(1), tfaFile);
 		DSMicroarraySet dataSet = null;
 		try {
 			dataSet = (DSMicroarraySet) new TabDelimitedDataMatrixFileFormat()
-					.getDataFileSkipAnnotation(tfaFile);
-			ProjectPanel.getInstance().addProcessedMaSet(dataSet);
+					.getDataFileSkipAnnotation(tfaFile);			 
+			LincsDataSet lincsDataSet = new LincsDataSet(dataSet, "Lincs Data");
+			List<String> tissueNames = getSelectedValues(tissueTypeBox);
+		    if (tissueNames != null && tissueNames.size()== 1)
+		    	lincsDataSet.setTissue(tissueNames.get(0));
+			List<String> cellLineNames = getSelectedValues(cellLineBox);
+		    if (cellLineNames != null && cellLineNames.size()== 1)
+		    	lincsDataSet.setCellLine(cellLineNames.get(0));
+			List<String> drug1Names = getSelectedValues(drug1Box);
+			if (drug1Names != null && drug1Names.size() == 1)
+				lincsDataSet.setDrug1(drug1Names.get(0));
+			List<String> drug2Names = getSelectedValues(drug2Box);
+			if (drug2Names != null && drug2Names.size()== 1)
+				lincsDataSet.setDrug2(drug2Names.get(0));
+			lincsDataSet.setPvalues(createDoubleValueMatrix(freeVariables.get(0), freeVariables.get(1),"P-value"));
+		    if (experimental.isSelected()) {
+				List<String> assayTypes = getSelectedValues(assayTypeBox);
+				if (assayTypes != null && assayTypes.size() == 1)
+					lincsDataSet.setAssayType(assayTypes.get(0));
+				List<String> measurementTypes = getSelectedValues(synergyMeasurementTypeBox);
+				if (measurementTypes != null && measurementTypes.size()== 1)
+					lincsDataSet.setMeasurement(measurementTypes.get(0));
+				lincsDataSet.setLevelTwoIds(createLongValueMatrix(freeVariables.get(0), freeVariables.get(1),"Titration Curve"));
+			}
+			else
+			{
+				List<String> similarityAlgorithmTypes = getSelectedValues(similarityAlgorithmTypeBox);
+				if (similarityAlgorithmTypes != null && similarityAlgorithmTypes.size()== 1)
+					lincsDataSet.setMeasurement(similarityAlgorithmTypes.get(0));
+			}			
+		    lincsDataSet.isExperimental(experimental.isSelected());
+		    lincsDataSet.setFreeVariableNames(freeVariables.toArray(new String[0]));
+			//ProjectPanel.getInstance().addProcessedMaSet(dataSet);
+			ColorContext context = new org.geworkbench.bison.util.colorcontext.DefaultColorContext();
+			dataSet.addObject(ColorContext.class, context);
+			ProjectPanel.updateColorContext(dataSet);			
+			ProjectPanel.getInstance().addDataSetNode(lincsDataSet);
+			
+			
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -836,6 +914,109 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 
 	}
 
+	private List<String> getFreeVariables()	{
+		List<String> freeVariables = new ArrayList<String>();
+		List<String> cellLineNames = getSelectedValues(cellLineBox);
+	    if (cellLineNames == null || cellLineNames.size()> 1)
+	    	freeVariables.add("Cell Line");
+		List<String> drug1Names = getSelectedValues(drug1Box);
+		if (drug1Names == null || drug1Names.size()> 1)
+	    	freeVariables.add("Drug 1");
+		List<String> drug2Names = getSelectedValues(drug2Box);
+		if (drug2Names == null || drug2Names.size()> 1)
+	    	freeVariables.add("Drug 2");
+		if (experimental.isSelected()) {
+			List<String> assayTypes = getSelectedValues(assayTypeBox);
+			if (assayTypes == null || assayTypes.size()> 1)
+		    	freeVariables.add("Assay Type");
+			List<String> measurementTypes = getSelectedValues(synergyMeasurementTypeBox);
+			if (measurementTypes == null || measurementTypes.size()> 1)
+		    	freeVariables.add("Synergy Measurement Type");
+		}
+		else
+		{
+			List<String> similarityAlgorithmTypes = getSelectedValues(similarityAlgorithmTypeBox);
+			if (similarityAlgorithmTypes == null || similarityAlgorithmTypes.size()> 1)
+		    	freeVariables.add("Similarity Algorithm");
+		}
+		
+		return freeVariables;
+	}
+	
+	private double[][] createDoubleValueMatrix(String horizontalDataType, String verticalDataType, String valueType)
+	{
+		List<String> verticalNames = new ArrayList<String>();
+		List<String> horizontalNames = new ArrayList<String>();
+
+		Object[][] data = resultTable.getData();
+		int horizontalDataTypeIndex = resultTable.getHeaderNameIndex(horizontalDataType);
+		int verticalDataTypeIndex = resultTable.getHeaderNameIndex(verticalDataType);
+		int valueIndex = resultTable.getHeaderNameIndex(valueType);
+		for (int i = 0; i < data.length; i++) {
+			String verticalName, horizontalName;
+			verticalName = data[i][verticalDataTypeIndex].toString();
+			horizontalName = data[i][horizontalDataTypeIndex].toString();
+			if (!verticalNames.contains(verticalName))
+				verticalNames.add(verticalName);
+			if (!horizontalNames.contains(horizontalName))
+				horizontalNames.add(horizontalName);
+		}
+		double[][] valueMatrix = new double[verticalNames.size()][horizontalNames
+				.size()];
+		Collections.sort(verticalNames);
+		Collections.sort(horizontalNames);
+		for (int i = 0; i < data.length; i++) {
+			String verticalName = data[i][verticalDataTypeIndex].toString();
+			String horizontalName = data[i][horizontalDataTypeIndex].toString();
+ 
+			valueMatrix[verticalNames.indexOf(verticalName)][horizontalNames
+				.indexOf(horizontalName)] =  new Double(data[i][valueIndex].toString()).doubleValue();
+
+		}
+		
+		return valueMatrix;
+
+	}
+	
+	private long[][] createLongValueMatrix(String horizontalDataType, String verticalDataType, String valueType)
+	{
+		List<String> verticalNames = new ArrayList<String>();
+		List<String> horizontalNames = new ArrayList<String>();
+
+		Object[][] data = resultTable.getData();
+		int horizontalDataTypeIndex = resultTable.getHeaderNameIndex(horizontalDataType);
+		int verticalDataTypeIndex = resultTable.getHeaderNameIndex(verticalDataType);
+		int valueIndex = resultTable.getHeaderNameIndex(valueType);
+		for (int i = 0; i < data.length; i++) {
+			String verticalName, horizontalName;
+			verticalName = data[i][verticalDataTypeIndex].toString();
+			horizontalName = data[i][horizontalDataTypeIndex].toString();
+			if (!verticalNames.contains(verticalName))
+				verticalNames.add(verticalName);
+			if (!horizontalNames.contains(horizontalName))
+				horizontalNames.add(horizontalName);
+		}
+		long[][] valueMatrix = new long[verticalNames.size()][horizontalNames
+				.size()];
+		Collections.sort(verticalNames);
+		Collections.sort(horizontalNames);
+		for (int i = 0; i < data.length; i++) {
+			String verticalName = data[i][verticalDataTypeIndex].toString();
+			String horizontalName = data[i][horizontalDataTypeIndex].toString();
+
+			if ( data[i][valueIndex] instanceof ValueObject)
+			   valueMatrix[verticalNames.indexOf(verticalName)][horizontalNames
+					.indexOf(horizontalName)] =  
+					((ValueObject)data[i][valueIndex]).getReferenceId();
+			else
+				valueMatrix[verticalNames.indexOf(verticalName)][horizontalNames
+				.indexOf(horizontalName)] =  new Long(data[i][valueIndex].toString()).longValue();
+
+		}
+		
+		return valueMatrix;
+
+	}
 	private String getLincsWsdlUrl() {
 		String lincsUrl = null;
 		Properties lincsProp = new Properties();
@@ -855,5 +1036,11 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 		}
 		return lincsUrl;
 	}
+	
+	protected static Lincs getLincsService()
+	{
+		return lincs;
+	}
+      
 
 }

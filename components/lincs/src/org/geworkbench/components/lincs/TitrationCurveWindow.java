@@ -25,8 +25,10 @@ public class TitrationCurveWindow {
 
 	private JFrame frame;
 	private JPanel topPanel;
-
-	public TitrationCurveWindow() {
+    private Long levelTwoId;
+	
+	public TitrationCurveWindow(Long levelTwoId) {
+		this.levelTwoId = levelTwoId;
 		initComponents();
 	}
 
