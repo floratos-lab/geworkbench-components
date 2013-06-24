@@ -97,8 +97,6 @@ public class TTestResultSelectionPanel extends JPanel {
 	private void selectButtonActionPerformed() {
 		
 		// clear all node color
-		CyNetworkView view = Cytoscape.getCurrentNetworkView();
-		
 		
 		String selectedTTestName = list.getSelectedValue().toString().trim();
 		Map<String, List<Object>> tTestResultSetColorMap = new HashMap<String, List<Object>>();
@@ -109,7 +107,8 @@ public class TTestResultSelectionPanel extends JPanel {
 		
 		tTestResultSetColorMap = getTTestResultSetColorMap(ttestResultSet);
 		
-		if (view != null && Cytoscape.getCurrentNetwork() != null) {
+		CyNetworkView view = Cytoscape.getCurrentNetworkView();
+	    if (view != null && Cytoscape.getCurrentNetwork() != null) {
 			CyAttributes attrs = Cytoscape.getNodeAttributes();			 
 			Iterator<?> iter = view.getNodeViewsIterator();
 			CytoscapeWidget.getInstance().publishEnabled = false;
@@ -132,9 +131,8 @@ public class TTestResultSelectionPanel extends JPanel {
 					    nodeView.unselect();
 		
 			}	
-			Cytoscape.getCurrentNetworkView().redrawGraph(false, true);
-			//CytoscapeWidget.getInstance().getComponent().repaint();
-			CytoscapeWidget.getInstance().publishEnabled = true;
+			Cytoscape.getCurrentNetworkView().redrawGraph(false, true);			 
+			CytoscapeWidget.getInstance().publishEnabled = true; 
 		}		
 		
 		this.parent.dispose();
@@ -176,7 +174,7 @@ public class TTestResultSelectionPanel extends JPanel {
 			String name = m.getShortName().trim().toUpperCase();
 			int rank = Gene2RankMap.get(m);
 			Double tValue = ttestResultSet.getTValue(m);	
-			Color c = calculateColor(keys.length, numOfPositiveTValues,minTValue, maxTValue, rank, tValue);			 
+			Color c = CytoscapeUtil.calculateColor(keys.length, numOfPositiveTValues,minTValue, maxTValue, rank, tValue);			 
 			List<Object> list = new ArrayList<Object>();
 			list.add(tValue);
 			list.add(c);		 
@@ -210,33 +208,7 @@ public class TTestResultSelectionPanel extends JPanel {
 			return false;
 	}
 	
-	private Color calculateColor(int numMarkers, int numOfPositiveTValues, double minTValue, double maxTValue, int rank, double tValue){
-		int maxAbs = (int)Math.max(Math.abs(minTValue),Math.abs(maxTValue));
-		//System.out.println(numMarkers+","+minTValue+","+maxTValue+","+rank+","+tValue);
-		int disToZero = 0;
-		Color result = null;
 	 
-		if (maxAbs!=0){
-			int colorindex = (int)(255 * (tValue) /Math.abs(maxAbs));
-			if (colorindex < 0){
-				colorindex = Math.abs(colorindex);
-				if (colorindex > 255) colorindex =255;
-				result = (new Color(255-colorindex,255-colorindex,255));
-			}else if (colorindex <= 255){
-				result= (new Color(255, 255 - colorindex,
-						255 - colorindex));
-			}else{ // if (colorindex > 255)
-				colorindex = 255;
-				result= (new Color(255, 255 - colorindex,
-						255 - colorindex));
-			}
-			log.debug("Distance to Zero: "+disToZero);
-			log.debug("color index: "+colorindex);
-		}
-		return result;
-	}
-	
-	
    
 	ListModel listModel = new AbstractListModel() {	 
 	 
