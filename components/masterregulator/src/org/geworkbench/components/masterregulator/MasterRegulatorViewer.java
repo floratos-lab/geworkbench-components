@@ -348,7 +348,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 	        @Override
 	  
 	        public void mouseReleased(MouseEvent e) {	        	
-	            if (e.isPopupTrigger() && e.getComponent() instanceof JTable ) {
+	            if (e.isMetaDown() && e.getComponent() instanceof JTable ) {
 	                JPopupMenu popup = createSavePopUp();
 	                popup.show(e.getComponent(), e.getX(), e.getY());
 	            }
