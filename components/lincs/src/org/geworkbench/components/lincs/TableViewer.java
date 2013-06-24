@@ -32,6 +32,8 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;  
 
+import org.geworkbench.util.TitrationChoiceWindow;
+
 public class TableViewer extends JPanel {
  
 	 
@@ -103,7 +105,7 @@ public class TableViewer extends JPanel {
 					{   
 						ValueObject v = (ValueObject)data[row][col];
 						if (v.getReferenceId() > 0 && v.toString().equalsIgnoreCase("view"))
-					       new TitrationCurveWindow(v.getReferenceId());
+					           TitrationChoiceWindow.load(v.getReferenceId());
 						else
 						{
 							new FmoaDisplayWindow(v.getValue().toString(), v.getReferenceId());
@@ -192,8 +194,7 @@ public class TableViewer extends JPanel {
 	}
 
 	private class CellRenderer extends DefaultTableCellRenderer {
-		private static final long serialVersionUID = -2697909778548788305L;
-	 
+		private static final long serialVersionUID = -2697909778548788305L;	 
 
 		/**
 		 * Renders basic data input types JLabel, Color,
@@ -257,8 +258,7 @@ public class TableViewer extends JPanel {
 				e.printStackTrace();
 			}
 		}
-	}
-	
+	}	
 	
 	private static class TabularFileFilter extends FileFilter {
 		public String getDescription() {

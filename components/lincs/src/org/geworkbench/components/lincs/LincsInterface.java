@@ -371,6 +371,7 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 		JButton plotButton = new JButton("Plot");
 		final JCheckBox limitNetwork = new JCheckBox("Limit network to multiply-connected pairs");
 		limitNetwork.setEnabled(false);
+		limitNetwork.setVisible(false);
 		JButton exportButton = new JButton("Export");
 	    exportButton.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
