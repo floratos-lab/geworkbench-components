@@ -14,6 +14,8 @@
  and marker display is ordered by p-value in ascending order
  (from most significant to least significant)."
 		category="Visualizer, Microarray" loadByDefault="true">
+		
+	 
 		<license><![CDATA[
 			<html><head><meta http-equiv=Content-Type content="text/html; charset=windows-1252"></head>
 				<body>----</body>
