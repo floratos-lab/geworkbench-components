@@ -295,13 +295,13 @@ public class FmoaDisplayWindow  {
 						.create(ProgressBar.INDETERMINATE_TYPE);
 
 		    	NetworkCreator createNetworkHandler = new NetworkCreator(
-		    			geneList, fmoaData.getInteractomeVersionId(), networkButton, showDiffExpr.isSelected(), createNetworkPb);
+		    			geneList, fmoaData.getCompoundId(), fmoaData.getDiffExpressionRunId(), fmoaData.getInteractomeVersionId(), networkButton, showDiffExpr.isSelected(), createNetworkPb);
 					 
 				createNetworkHandler.start();
 
 				createNetworkPb.setTitle("Create network");
 				createNetworkPb.setMessage("Create network...");
-				createNetworkPb.setModal(true);
+				createNetworkPb.setModal(false);
 				createNetworkPb.start();
 				
 		    	 

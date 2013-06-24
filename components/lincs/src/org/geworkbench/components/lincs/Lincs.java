@@ -5,6 +5,7 @@ package org.geworkbench.components.lincs;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.xml.namespace.QName;
@@ -17,6 +18,7 @@ import org.geworkbench.service.lincs.data.xsd.ExperimentalData;
 import org.geworkbench.service.lincs.data.xsd.FmoaData;
 import org.geworkbench.service.lincs.data.xsd.CnkbInteractionData;
 import org.geworkbench.service.lincs.data.xsd.GeneRank;
+import org.geworkbench.service.lincs.data.xsd.InteractionType;
 
 import org.geworkbench.service.lincs.LincsServiceException_Exception;;
 
@@ -182,6 +184,17 @@ public class Lincs {
 		return lincsService.getLincsServiceHttpSoap11Endpoint()
 		   .getGeneRankData(geneIds, compoundId, differentialExpressionRunId);
 		     			 
+	}
+	
+	public HashMap<String, String> getInteractionTypeMap() throws LincsServiceException_Exception {
+		HashMap<String, String> map = new HashMap<String, String>();
+		List<InteractionType> dataList = lincsService.getLincsServiceHttpSoap11Endpoint().getInteractionTypes();
+		for(InteractionType data : dataList)
+		{
+			map.put(data.getInteractionType(), data.getShortName());
+			map.put(data.getShortName(), data.getInteractionType());
+		}
+		return map;
 	}
 	
 	public FmoaData getFmoaData(String compoundName, long fmoaId) throws LincsServiceException_Exception {
