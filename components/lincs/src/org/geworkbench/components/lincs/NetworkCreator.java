@@ -123,7 +123,7 @@ class NetworkCreator extends Thread implements Observer {
 				if (this.isShowDiffExpr)
 					matrix.setGeneRankingMap(getGeneRankMap(matrix, geneIdToSymbol));
 				adjacencyMatrixdataSet = new AdjacencyMatrixDataSet(matrix, 0,
-						"Adjacency Matrix", "Fmoa Data", null);
+						"Adjacency Matrix", "Lincs Fmoa Data", null);
 
 				if (isCancelled())
 					return;
