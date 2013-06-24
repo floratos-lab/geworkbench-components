@@ -956,8 +956,9 @@ public class CytoscapeWidget implements VisualPlugin {
 						new ExpandMenuListener(CytoscapeWidget.this));
 		
 		}
-		else if (maSet == null && adjSet.getNetworkName().contains("Lincs"))	 
+		else if (maSet == null && adjSet.getNetworkName().contains("Lincs"))
 		{ 
+			
 			view = Cytoscape.createNetworkView(cytoNetwork, adjSet.getLabel());
 			
             edgeWidthDm = new DiscreteMapping(java.lang.Number.class, "confidence value");
@@ -982,8 +983,11 @@ public class CytoscapeWidget implements VisualPlugin {
 				
 			}
 		 
-	        
-	        Cytoscape.getCurrentNetworkView().addNodeContextMenuListener(
+	        if (adjSet.getNetworkName().contains("Fmoa"))
+	        	Cytoscape.getCurrentNetworkView().addNodeContextMenuListener(
+						new ExpandMenuListener(CytoscapeWidget.this));
+	        else
+	            Cytoscape.getCurrentNetworkView().addNodeContextMenuListener(
 					new CompoundExpandMenuListener());
 	        
 	        
