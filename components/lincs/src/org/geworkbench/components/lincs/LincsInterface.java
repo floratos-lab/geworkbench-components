@@ -785,7 +785,8 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 		adjacencyMatrixdataSet = new AdjacencyMatrixDataSet(matrix,
 				-1000000000, "Adjacency Matrix", "Lincs", null);
 	 
-		ProjectPanel.getInstance().addDataSetNode(adjacencyMatrixdataSet);
+		ProjectPanel.getInstance().getSelection().clearNodeSelections();
+		ProjectPanel.getInstance().addDataSetSubNode(adjacencyMatrixdataSet);
 
 	}
 
@@ -904,7 +905,8 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 			ColorContext context = new org.geworkbench.bison.util.colorcontext.DefaultColorContext();
 			dataSet.addObject(ColorContext.class, context);
 			ProjectPanel.updateColorContext(dataSet);			
-			ProjectPanel.getInstance().addDataSetNode(lincsDataSet);
+			ProjectPanel.getInstance().getSelection().clearNodeSelections();
+			ProjectPanel.getInstance().addDataSetSubNode(lincsDataSet);
 			
 			
 

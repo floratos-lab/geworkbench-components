@@ -131,12 +131,12 @@ class NetworkCreator extends Thread implements Observer {
 					pb.setTitle("Draw cytoscape graph");
 					pb.setMessage("Draw cytoscape graph ...");
 
-				}
-
-				
-				ProjectPanel.getInstance().addDataSetNode(
-						adjacencyMatrixdataSet);
-
+				}				
+			 
+				ProjectPanel.getInstance().getSelection().clearNodeSelections();
+				ProjectPanel.getInstance().addDataSetSubNode(adjacencyMatrixdataSet);
+				 
+			
 			}
 
 			if (!isCancelled()) {
