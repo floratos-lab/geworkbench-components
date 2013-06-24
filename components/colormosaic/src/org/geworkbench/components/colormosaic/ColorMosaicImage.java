@@ -38,6 +38,7 @@ import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.util.colorcontext.ColorContext;
 import org.geworkbench.events.MarkerSelectedEvent;
 import org.geworkbench.events.PhenotypeSelectedEvent;
+import org.geworkbench.util.TitrationChoiceWindow;
 
 /**
  * Color mosaic image.
@@ -99,8 +100,7 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 	private int oldRes = DEFAULTRES;
 	private int fontSize = 0;
 	private int textSize = 0;
-	private BasicColorMosaicPanel parent = null;
-	//private ColorMosaicPanel_orig parent = null;
+	private BasicColorMosaicPanel parent = null;	 
 	private boolean showAllMarkers = true;
 	private boolean showSignal = false;
 	private DecimalFormat format = new DecimalFormat("0.#E00");
@@ -636,7 +636,7 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 		
 		if (parent.levelTwoIds != null && parent.levelTwoIds[geneId][microarrayId] > 0 )
 		{
-			
+			TitrationChoiceWindow.load(parent.levelTwoIds[geneId][microarrayId]);
 		}
 			
 		
