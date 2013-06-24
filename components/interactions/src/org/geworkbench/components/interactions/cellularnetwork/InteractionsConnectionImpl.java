@@ -201,10 +201,20 @@ public class InteractionsConnectionImpl {
 									p.getDbSource(), interactionType,
 									interactionId, evidenceId);
 
-						double confidenceValue = rs
-								.getDouble("confidence_value");
-						short confidenceType = new Short(rs.getString(
+						double confidenceValue = 1.0;
+						try
+						{
+						   confidenceValue = rs.getDouble("confidence_value");
+						}catch(NumberFormatException nfe) {
+				           logger.info("there is no confidence value for this row. Default it to 1.");
+			            } 
+						short confidenceType = 0;
+						try {
+						    confidenceType = new Short(rs.getString(
 								"confidence_type").trim());
+						}catch(NumberFormatException nfe) {
+				           logger.info("there is no confidence value for this row. Default it to 0.");
+			            } 
 						interactionDetail.addConfidence(confidenceValue,
 								confidenceType);
 						String otherConfidenceValues = rs
