@@ -1013,7 +1013,11 @@ public class CytoscapeWidget implements VisualPlugin {
 		
 			log.info("DrawAction finished.");
 			resetNetwork();
-		 
+		   
+			if (adjSet.getMatrix().getGeneRankingMap() != null)
+			{
+				CytoscapeUtil.colorCytoscapeNodes(CytoscapeUtil.getDiffExprColorMap(adjSet.getMatrix().getGeneRankingMap()));
+			}
 		
 
 	}
