@@ -70,6 +70,7 @@ import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.MarkerSelectedEvent;
 import org.geworkbench.events.PhenotypeSelectedEvent;
 import org.geworkbench.events.PhenotypeSelectorEvent;
+import org.geworkbench.events.TitrationCurveEvent;
 import org.geworkbench.util.ColorScale;
 
 /**
@@ -765,6 +766,11 @@ public class BasicColorMosaicPanel implements Printable, VisualPlugin,
 		publishImageSnapshotEvent(event);
 
 	}
+	
+	public void createTitrationCurve(long titrationId)
+	{
+		publishTitrationCurveEvent(new TitrationCurveEvent(titrationId));
+	}
 
 	@Publish
 	public org.geworkbench.events.ImageSnapshotEvent publishImageSnapshotEvent(
@@ -772,6 +778,13 @@ public class BasicColorMosaicPanel implements Printable, VisualPlugin,
 		return event;
 	}
 
+	@Publish
+	public org.geworkbench.events.TitrationCurveEvent publishTitrationCurveEvent(
+			org.geworkbench.events.TitrationCurveEvent event) {
+		return event;
+	}
+	
+	
 	private static class TValueComparator implements Comparator<DSGeneMarker> {
 		DSSignificanceResultSet<DSGeneMarker> significantResultSet;
 

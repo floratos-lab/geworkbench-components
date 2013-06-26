@@ -37,8 +37,7 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSSignificanceR
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.util.colorcontext.ColorContext;
 import org.geworkbench.events.MarkerSelectedEvent;
-import org.geworkbench.events.PhenotypeSelectedEvent;
-import org.geworkbench.util.TitrationChoiceWindow;
+import org.geworkbench.events.PhenotypeSelectedEvent; 
 
 /**
  * Color mosaic image.
@@ -636,7 +635,8 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 		
 		if (parent.levelTwoIds != null && parent.levelTwoIds[geneId][microarrayId] > 0 )
 		{
-			TitrationChoiceWindow.load(parent.levelTwoIds[geneId][microarrayId]);
+			parent.createTitrationCurve(parent.levelTwoIds[geneId][microarrayId]);
+ 
 		}
 			
 		
