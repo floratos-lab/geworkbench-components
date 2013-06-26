@@ -225,8 +225,17 @@ public class TableViewer extends JPanel {
 				ValueObject v = (ValueObject)value;
 				if (v.getReferenceId() > 0)
 				   setText("<html><font color=blue><u><b>" + value.toString() + "</b></u></font></html>");
+			 
 				 
 			}
+			else if (value != null && (value instanceof ScoreObject) )
+			{
+				ScoreObject v = (ScoreObject)value;				 
+				if (v.getColor() != null)				{
+					setBackground(v.getColor());
+				}
+			}
+			
 		}
 	}
 	

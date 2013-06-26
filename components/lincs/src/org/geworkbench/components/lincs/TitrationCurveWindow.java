@@ -43,7 +43,7 @@ public class TitrationCurveWindow {
 		 
 		    try {
 				 TitrationCurveData data = LincsInterface.getLincsService().getTitrationCurveData(levelTwoId);
-				 String title = "Titration of \"" + data.getCompound2Name() + "\" against \"" + data.getCompound1Name() + "\"";
+				 String title = "Titration of \"" + data.getCompound2Name() + "\"(drug2) against \"" + data.getCompound1Name() + "\"";
 			     JFrame frame = new JFrame("");
 			        
 			     
