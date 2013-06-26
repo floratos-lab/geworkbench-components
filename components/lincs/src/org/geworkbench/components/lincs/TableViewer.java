@@ -32,7 +32,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;  
 
-import org.geworkbench.util.TitrationChoiceWindow;
+
 
 public class TableViewer extends JPanel {
  

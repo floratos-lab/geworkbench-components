@@ -48,9 +48,13 @@ import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.lincs.LincsDataSet;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.util.colorcontext.ColorContext;
 import org.geworkbench.builtin.projects.ProjectPanel; 
 import org.geworkbench.engine.config.VisualPlugin; 
+import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.events.TitrationCurveEvent;
 import org.geworkbench.parsers.TabDelimitedDataMatrixFileFormat;
 import org.geworkbench.service.lincs.data.xsd.ExperimentalData;
 import org.geworkbench.service.lincs.data.xsd.ComputationalData;
@@ -1043,6 +1047,12 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 	protected static Lincs getLincsService()
 	{
 		return lincs;
+	}
+	
+	@Subscribe
+	public void receive(TitrationCurveEvent e, Object source) {
+		Long  titrationId= e.getTitrationId();
+		   TitrationChoiceWindow.load(titrationId);
 	}
 	
 	 
