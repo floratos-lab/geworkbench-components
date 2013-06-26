@@ -1,13 +1,15 @@
 package org.geworkbench.components.lincs;
 
+ 
 public class ValueObject {
 
 	private Object value;	 
 	private Long referenceId;  
-	
+ 
 	public ValueObject(Object value, long referenceId) {
 		this.value = value;
 		this.referenceId = referenceId;
+	 
 	}
 	
 	public Object getValue()
@@ -21,7 +23,7 @@ public class ValueObject {
 			return 0;
 		else
 			return referenceId.longValue();
-	}
+	} 
 	
 	
 	@Override
