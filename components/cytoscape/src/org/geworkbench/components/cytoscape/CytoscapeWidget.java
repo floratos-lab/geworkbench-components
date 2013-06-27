@@ -1012,17 +1012,19 @@ public class CytoscapeWidget implements VisualPlugin {
 				log.error("Wrong type of ObjectMapping: "
 						+ oMapping.getClass().getName());
 			}
-			view.applyVizmapper(visualStyle);
-
-		
-			log.info("DrawAction finished.");
-			resetNetwork();
-		   
+			 
+			   
 			if (adjSet.getMatrix().getGeneRankingMap() != null)
 			{
-				CytoscapeUtil.colorCytoscapeNodes(CytoscapeUtil.getDiffExprColorMap(adjSet.getMatrix().getGeneRankingMap()));
+				CytoscapeUtil.colorCytoscapeNodes(visualStyle, CytoscapeUtil.getDiffExprColorMap(adjSet.getMatrix().getGeneRankingMap()));
 			}
+			
+			view.applyVizmapper(visualStyle);	
+			
 		
+			
+			log.info("DrawAction finished.");
+			resetNetwork();
 
 	}
 

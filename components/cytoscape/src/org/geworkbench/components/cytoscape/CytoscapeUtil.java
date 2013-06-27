@@ -3,15 +3,17 @@ package org.geworkbench.components.cytoscape;
 import java.awt.Color;
 import giny.view.NodeView;
 
- 
-import java.util.HashMap; 
-import java.util.Iterator; 
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
- 
-import cytoscape.Cytoscape;
-import cytoscape.data.CyAttributes;
-import cytoscape.view.CyNetworkView;
-import cytoscape.visual.converter.ValueToStringConverterManager;
+import java.util.Vector;
+
+import cytoscape.Cytoscape; 
+import cytoscape.view.CyNetworkView; 
+import cytoscape.visual.mappings.DiscreteMapping; 
+import cytoscape.visual.NodeAppearanceCalculator;
+import cytoscape.visual.VisualPropertyType;
+import cytoscape.visual.VisualStyle;
 
 public class CytoscapeUtil {
 
@@ -20,7 +22,7 @@ public class CytoscapeUtil {
 			int rank, double tValue) {
 		int maxAbs = (int) Math.max(Math.abs(minTValue), Math.abs(maxTValue));
 		// System.out.println(numMarkers+","+minTValue+","+maxTValue+","+rank+","+tValue);
-		 
+
 		Color result = null;
 
 		if (maxAbs != 0) {
@@ -50,7 +52,7 @@ public class CytoscapeUtil {
 		Map<String, Double> diffExprTValueMap = new HashMap<String, Double>();
 
 		int n = geneRankingMap.size();
-		double s = 20 / (double)(geneRankingMap.size() - 1);
+		double s = 20 / (double) (geneRankingMap.size() - 1);
 		for (String key : geneRankingMap.keySet()) {
 			int i = geneRankingMap.get(key).intValue();
 			if (i == 0)
@@ -75,34 +77,40 @@ public class CytoscapeUtil {
 
 	}
 
-	public static void colorCytoscapeNodes(Map<String, Color> colorMap) {
+	@SuppressWarnings("deprecation")
+	public static void colorCytoscapeNodes(VisualStyle visualStyle,
+			Map<String, Color> colorMap) {
+
+		NodeAppearanceCalculator nac = visualStyle
+				.getNodeAppearanceCalculator();
+		Vector<?> v = nac.getCalculator(
+				VisualPropertyType.NODE_FILL_COLOR).getMappings();
+		DiscreteMapping nodeColorDm = null;
+		for (int i = 0; i < v.size(); i++) {
+			if (v.get(i) instanceof DiscreteMapping) {
+				nodeColorDm = (DiscreteMapping) v.get(i);
+				break;
+			}
+
+		}
+		nodeColorDm.setControllingAttributeName("ID", Cytoscape
+				.getCurrentNetwork(), false);
 		CyNetworkView view = Cytoscape.getCurrentNetworkView();
-		if (view != null && Cytoscape.getCurrentNetwork() != null) {
-			CyAttributes attrs = Cytoscape.getNodeAttributes();
+		if (view != null && Cytoscape.getCurrentNetwork() != null) {			 
 			Iterator<?> iter = view.getNodeViewsIterator();
 			CytoscapeWidget.getInstance().publishEnabled = false;
 			while (iter.hasNext()) {
 				NodeView nodeView = (NodeView) iter.next();
 				String id = nodeView.getNode().getIdentifier();
-				String displayedName = attrs
-						.getStringAttribute(id, "displayedName").trim()
-						.toUpperCase();
-				if (attrs.hasAttribute(id, CytoscapeWidget.NODE_FILL_COLOR))
-					attrs.deleteAttribute(id, CytoscapeWidget.NODE_FILL_COLOR);
-
-				if (colorMap.containsKey(displayedName)) {
-					Color c = colorMap.get(displayedName);
-					attrs.setAttribute(id, CytoscapeWidget.NODE_FILL_COLOR,
-							ValueToStringConverterManager.manager.toString(c));
-
-					nodeView.unselect();
-				} else
-					nodeView.unselect();
-
+				
+			 
+				if (colorMap.containsKey(id)) {
+					Color c = colorMap.get(id);
+					nodeColorDm.putMapValue(id, c);
+				 
+				}  
 			}
-			Cytoscape.getCurrentNetworkView().redrawGraph(false, true);
-			// CytoscapeWidget.getInstance().getComponent().repaint();
-			CytoscapeWidget.getInstance().publishEnabled = true;
+		  
 		}
 	}
 }
