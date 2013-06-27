@@ -42,7 +42,7 @@ public class TitrationIsobologramWindow {
 	private void initComponents() {
 		frame = new JFrame("Isobologram");
 		String imageFile = "classes" + FilePathnameUtils.FILE_SEPARATOR + "images" + FilePathnameUtils.FILE_SEPARATOR
-		+ "titration_curve.png";
+		+ "lincs_isobologram_example.png";
 		topPanel = new ImagePanel(imageFile);
 
 		
