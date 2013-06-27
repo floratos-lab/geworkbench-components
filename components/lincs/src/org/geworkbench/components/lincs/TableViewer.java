@@ -10,6 +10,7 @@ package org.geworkbench.components.lincs;
  */
 import java.awt.BorderLayout; 
 import java.awt.Component; 
+import java.awt.Color; 
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -43,7 +44,10 @@ public class TableViewer extends JPanel {
 
 	private Object[][] data;
 	private String[] headerNames;
-
+	private boolean isColorGradient = false;
+	private static Color oldCellBgColor;
+	private static Color oldCellfgColor;
+	 
 	/** Creates a new instance of TableViewer */
 	public TableViewer() {
 	}
@@ -213,6 +217,12 @@ public class TableViewer extends JPanel {
 		 * @see javax.swing.table.DefaultTableCellRenderer#setValue(java.lang.Object)
 		 */
 		public void setValue(Object value) {
+			if (oldCellBgColor == null)
+				oldCellBgColor = this.getBackground();			 
+			setBackground(oldCellBgColor);				 
+			if (oldCellfgColor == null)
+				oldCellfgColor = this.getForeground();			 
+			setForeground(oldCellfgColor);	
 			if ((value != null) && (value instanceof Number)) {
 				if (((Number) value).doubleValue() < 0.1)
 					value = String.format("%.2E", value);
@@ -228,12 +238,15 @@ public class TableViewer extends JPanel {
 			 
 				 
 			}
-			else if (value != null && (value instanceof ScoreObject) )
+			else if (isColorGradient && value != null && (value instanceof ScoreObject) )
 			{
+				
 				ScoreObject v = (ScoreObject)value;				 
 				if (v.getColor() != null)				{
+					
 					setBackground(v.getColor());
 				}
+				 
 			}
 			
 		}
@@ -351,5 +364,11 @@ public class TableViewer extends JPanel {
 		}
 		return includeFlag;
 	}
+    
+    public void setColorGradient(boolean isColorGradient)
+    {
+    	this.isColorGradient = isColorGradient;
+    	table.updateUI();
+    }
 	
 }

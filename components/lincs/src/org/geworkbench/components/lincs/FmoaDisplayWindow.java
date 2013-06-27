@@ -105,7 +105,7 @@ public class FmoaDisplayWindow  {
 		fmoaTitlePanel.setBackground(Color.WHITE);
 		fmoaDataPanel.setBackground(Color.WHITE);
 		fmoaCommandPanel.setBackground(Color.WHITE);
-		JLabel fmoaLabel = new JLabel("Functional Mechanism of Action");
+		JLabel fmoaLabel = new JLabel("Functional Mode of Action");
 		fmoaTitlePanel.add(fmoaLabel);
 		JLabel tissueTypeLabel = new JLabel("     Tissue Type");
 		JLabel cellLineLabel = new JLabel("     Cell Line");
@@ -266,7 +266,7 @@ public class FmoaDisplayWindow  {
         fmoaDataTable.getColumnModel().getColumn(0).setCellRenderer( centerRenderer );
         fmoaDataTable.getColumnModel().getColumn(1).setCellRenderer( centerRenderer );
         fmoaDataTable.getColumnModel().getColumn(2).setCellRenderer( centerRenderer );
-        fmoaDataTable.setSelectionBackground(Color.lightGray);
+        fmoaDataTable.setSelectionBackground(Color.LIGHT_GRAY);
         fmoaDataTable.getTableHeader().setDefaultRenderer(new HeaderRenderer(fmoaDataTable));
     
         mainPanel.add(jScrollPane, BorderLayout.CENTER);      
