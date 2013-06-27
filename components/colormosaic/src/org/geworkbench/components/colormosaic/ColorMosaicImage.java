@@ -633,7 +633,7 @@ public class ColorMosaicImage extends JPanel implements Scrollable {
 			parent.publishPhenotypeSelectedEvent(pse);
 		}
 		
-		if (parent.levelTwoIds != null && parent.levelTwoIds[geneId][microarrayId] > 0 )
+		if ( e.getClickCount() == 2 && parent.levelTwoIds != null && parent.levelTwoIds[geneId][microarrayId] > 0 )
 		{
 			parent.createTitrationCurve(parent.levelTwoIds[geneId][microarrayId]);
  
