@@ -802,6 +802,15 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 	};
 
 	private void createNetwork() {
+		if ( !(freeVariables.size() == 2 && freeVariables.get(0).equals("Drug 1") && freeVariables.get(1).equals("Drug 2"))) {
+			JOptionPane
+					.showMessageDialog(
+							null,
+							"To create the network, exactly two search criteria \"Drug1\" and \"Drug2\" \n" +
+							"must be left free. Multiple selection in a drug list is considered a free \n" +
+							"variable. Please adjust the search criteria and hit \"Search\" again.");
+			return;
+		}
 		AdjacencyMatrix matrix = new AdjacencyMatrix("Adjacency Matrix");
 		AdjacencyMatrixDataSet adjacencyMatrixdataSet = null;
 		Object[][] data = resultTable.getData();
