@@ -234,7 +234,16 @@ public class FmoaDisplayWindow  {
 			public Class getColumnClass(int c) {
               switch (c) {
                 case 3: return Boolean.class;
-                default: return Object.class;
+                default: 
+                { Class returnValue = null;
+                	if ((c >= 0) && (c < getColumnCount())) {
+      	          if (getValueAt(0, c) != null)
+      	            returnValue = getValueAt(0, c).getClass();
+      	        } else {
+      	            returnValue = Object.class;
+      	        }
+                	return returnValue;
+                }
               }   
             } 
 			 @Override
@@ -248,6 +257,7 @@ public class FmoaDisplayWindow  {
         };
         
         fmoaDataTable = new JTable(fmoaDataModel);
+        fmoaDataTable.setAutoCreateRowSorter(true);
         JScrollPane jScrollPane = new JScrollPane(fmoaDataTable);
         jScrollPane.getViewport().setBackground(Color.WHITE);
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
@@ -285,9 +295,17 @@ public class FmoaDisplayWindow  {
 		    	
 		    	if (geneList.size() == fmoaDataTable.getModel().getRowCount())
 		    	{
-		    		JOptionPane.showMessageDialog(null,
-					"You select all to generate network. This may take long time to run.");
-			         
+		    		 
+					String theMessage = "You select all to generate network. This may take long time to run.";
+		    		Object[] viewerChoices = { "Continue","cancel" };
+			        int result = JOptionPane.showOptionDialog(
+					(Component) null, theMessage, "Warning",
+					JOptionPane.DEFAULT_OPTION,
+					JOptionPane.WARNING_MESSAGE, null,
+					  viewerChoices, viewerChoices[1]);
+			        if (result == JOptionPane.NO_OPTION)
+				      return;
+			       
 		    	}
 		    	
 		    	ProgressBar createNetworkPb = null;
