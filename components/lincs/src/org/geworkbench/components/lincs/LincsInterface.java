@@ -545,8 +545,8 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 		public void actionPerformed(ActionEvent e) {
 			if (resultTable.getData() == null
 					|| resultTable.getData().length == 0)
-				return;
-			updateResultTable(resultTable.getData());
+				return;		 
+			resultTable.setColorGradient(colorGradient.isSelected());
 
 		}
 	};
@@ -750,11 +750,11 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 					hideColumnList);
 		else
 			resultTable = new TableViewer(computationalColumnNames, data);
-
+		resultTable.setColorGradient(colorGradient.isSelected());
 		if (resultTable.getData() != null && resultTable.getData().length > 0) {
 			int scoreIndex = resultTable.getHeaderNameIndex("Score");
 
-			if (colorGradient.isSelected()) {
+		 
 				float maxSorce = getMaxScoreValue(resultTable.getData());
 				for (int i = 0; i < resultTable.getData().length; i++) {
 					Color c = getColor(new Float(
@@ -764,11 +764,7 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 							.setColor(c);
 
 				}
-			} else {
-				for (int i = 0; i < resultTable.getData().length; i++)
-					((ScoreObject) resultTable.getData()[i][scoreIndex])
-							.setColor(null);
-			}
+		 
 		}
 		add(resultTable);
 		add(resultProcessingPanel);
