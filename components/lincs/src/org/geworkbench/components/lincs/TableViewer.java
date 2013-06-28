@@ -109,7 +109,7 @@ public class TableViewer extends JPanel {
 					{   
 						ValueObject v = (ValueObject)data[row][col];
 						if (v.getReferenceId() > 0 && v.toString().equalsIgnoreCase("view"))
-					           TitrationChoiceWindow.load(v.getReferenceId());
+							new TitrationCurveWindow(v.getReferenceId());
 						else
 						{
 							new FmoaDisplayWindow(v.getValue().toString(), v.getReferenceId());
