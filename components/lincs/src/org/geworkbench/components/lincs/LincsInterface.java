@@ -1102,7 +1102,7 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 	@Subscribe
 	public void receive(TitrationCurveEvent e, Object source) {
 		Long titrationId = e.getTitrationId();
-		TitrationChoiceWindow.load(titrationId);
+		 new TitrationCurveWindow(titrationId);
 	}
 
 	private float getMaxScoreValue(Object[][] data) {
