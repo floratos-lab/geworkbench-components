@@ -63,6 +63,17 @@ public class Lincs {
 		return names;
 
 	}
+	
+	
+	public List<String> getComputationaTissueNames() throws LincsServiceException_Exception {
+		List<String> names = null;
+	 
+		names = lincsService.getLincsServiceHttpSoap11Endpoint()
+				.getComputationaTissueNames();
+	
+		return names;
+
+	}
 
 	public List<String> getAllCellLineNamesForTissueTypes(List<String> tissueTypes) throws LincsServiceException_Exception {
 		List<String> names = null;
@@ -102,7 +113,7 @@ public class Lincs {
 
 	}
 	
-	public List<String> GetCompound1NamesFromExperimental(List<String> tyssueTypes, List<String>cellLines) throws LincsServiceException_Exception {
+	public List<String> getCompound1NamesFromExperimental(List<String> tyssueTypes, List<String>cellLines) throws LincsServiceException_Exception {
 
 		List<String> names = null;
 		names =  lincsService.getLincsServiceHttpSoap11Endpoint()
@@ -112,7 +123,7 @@ public class Lincs {
 		return names;
 	}
 	
-	public List<String> GetCompound2NamesFromExperimental(List<String> tissueTypes, List<String>cellLines, List<String> compound1Names) throws LincsServiceException_Exception {
+	public List<String> getCompound2NamesFromExperimental(List<String> tissueTypes, List<String>cellLines, List<String> compound1Names) throws LincsServiceException_Exception {
 
 		List<String> names = null;
 		names =  lincsService.getLincsServiceHttpSoap11Endpoint()
