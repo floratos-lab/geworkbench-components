@@ -9,7 +9,7 @@ import org.apache.commons.logging.LogFactory;
 import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Properties;
+import java.util.Properties; 
 
 import java.awt.Color;
 import java.awt.Component;
@@ -43,14 +43,14 @@ import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.JTextField;
 import javax.swing.DefaultListSelectionModel;
-
+ 
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.lincs.LincsDataSet;
 import org.geworkbench.bison.util.colorcontext.ColorContext;
-import org.geworkbench.builtin.projects.ProjectPanel;
+import org.geworkbench.builtin.projects.ProjectPanel; 
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.TitrationCurveEvent;
@@ -64,7 +64,7 @@ import org.geworkbench.util.FilePathnameUtils;
  * @author zji
  * 
  */
-public class LincsInterface extends JPanel implements VisualPlugin {
+public class LincsInterface extends JPanel implements VisualPlugin{
 
 	private static final long serialVersionUID = 5478648745183665385L;
 
@@ -112,7 +112,7 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 	private JComboBox plotOptions = null;
 
 	private List<String> freeVariables;
-
+	 
 	private static Lincs lincs = null;
 	private static final String lincsDir = FilePathnameUtils
 			.getUserSettingDirectoryPath()
@@ -182,6 +182,8 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 		List<String> assayTypeList = null;
 		List<String> synergyMeasuremetnTypeList = null;
 		List<String> similarityAlgorithmList = null;
+		
+		
 		try {
 			tissueTypeList = addAll(lincs.getAllTissueNames());
 			drug1List = addAll(lincs.getCompound1NamesFromExperimental(null,
@@ -254,10 +256,11 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 							drug1DataList = addAll(lincs
 									.getCompound1NamesFromComputational(
 											selectedTissueList, null));
+				 
 					} catch (Exception ex) {
 						log.error(ex.getMessage());
 					}
-
+ 
 					if (tissueTypeBox.getSelectedValues() != null
 							&& tissueTypeBox.getSelectedValues().length > 0)
 						cellLineBox.setModel(new LincsListModel(
@@ -1136,4 +1139,6 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 
 		return color;
 	}
+	
+	 
 }

@@ -112,7 +112,8 @@ public class TableViewer extends JPanel {
 							new TitrationCurveWindow(v.getReferenceId());
 						else
 						{
-							new FmoaDisplayWindow(v.getValue().toString(), v.getReferenceId());
+							FmoaDisplayWindow fw = new FmoaDisplayWindow(v.getValue().toString(), v.getReferenceId());
+							fw.start();
 						}
 					}
 					 
