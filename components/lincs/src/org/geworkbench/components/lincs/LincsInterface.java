@@ -184,7 +184,7 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 		List<String> similarityAlgorithmList = null;
 		try {
 			tissueTypeList = addAll(lincs.getAllTissueNames());
-			drug1List = addAll(lincs.GetCompound1NamesFromExperimental(null,
+			drug1List = addAll(lincs.getCompound1NamesFromExperimental(null,
 					null));
 			assayTypeList = addAll(lincs.getAllAssayTypeNames());
 			synergyMeasuremetnTypeList = addAll(lincs
@@ -248,7 +248,7 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 
 						if (experimental.isSelected() == true)
 							drug1DataList = addAll(lincs
-									.GetCompound1NamesFromExperimental(
+									.getCompound1NamesFromExperimental(
 											selectedTissueList, null));
 						else
 							drug1DataList = addAll(lincs
@@ -293,7 +293,7 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 					try {
 						if (experimental.isSelected() == true)
 							drug1DataList = addAll(lincs
-									.GetCompound1NamesFromExperimental(
+									.getCompound1NamesFromExperimental(
 											selectedTissueList,
 											selectedCellLineList));
 						else
@@ -331,7 +331,7 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 
 						if (experimental.isSelected() == true)
 							drug2DataList = addAll(lincs
-									.GetCompound2NamesFromExperimental(
+									.getCompound2NamesFromExperimental(
 											selectedTissueList,
 											selectedCellLineList,
 											selectedDrug1List));
@@ -566,20 +566,23 @@ public class LincsInterface extends JPanel implements VisualPlugin {
 		cellLineBox.setModel(new LincsListModel(null));
 		drug2Box.setModel(new LincsListModel(null));
 		List<String> drug1DataList = null;
+	    List<String> tissueTypeList = null;
 		try {
-			if (experimental.isSelected() == true) {
-				drug1DataList = addAll(lincs.GetCompound1NamesFromExperimental(
+			if (experimental.isSelected() == true) {				
+				drug1DataList = addAll(lincs.getCompound1NamesFromExperimental(
 						null, null));
-
+                tissueTypeList = addAll(lincs.getAllTissueNames());
 				updateResultTable(null);
 
 			} else {
 				drug1DataList = addAll(lincs
 						.getCompound1NamesFromComputational(null, null));
+				tissueTypeList = addAll(lincs.getComputationaTissueNames());
 				updateResultTable(null);
 
 			}
 			drug1Box.removeAllItems();
+			tissueTypeBox.setModel(new LincsListModel(tissueTypeList));			 
 			for (int i = 0; i < drug1DataList.size(); i++)
 				drug1Box.addItem(drug1DataList.get(i));
 		} catch (Exception ex) {
