@@ -164,13 +164,14 @@ public class ColorMosaicPanel extends BasicColorMosaicPanel {
 
 		searchArrayLbl.setForeground(Color.gray);
 		searchArray.setEnabled(false);
+		searchArray.getDocument().putProperty("owner", searchArray);
 		searchArray.getDocument().addDocumentListener(new DocListener(searchBy.ARRAYNAME));
 		searchArray.addKeyListener(new java.awt.event.KeyAdapter() {
 			public void keyPressed(KeyEvent e) {
 				searchText(e, searchBy.ARRAYNAME, searchArray.getText().toLowerCase());
 			}
 		});
-
+		searchAccession.getDocument().putProperty("owner", searchAccession);
 		searchAccessionLbl.setForeground(Color.gray);
 		searchAccession.setEnabled(false);
 		searchAccession.getDocument().addDocumentListener(new DocListener(searchBy.ACCESSION));
