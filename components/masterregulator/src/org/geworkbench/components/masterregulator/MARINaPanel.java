@@ -199,7 +199,7 @@ public final class MARINaPanel extends AbstractSaveableParameterPanel {
 				parameterActionListener.actionPerformed(null);
 			}
 		});
-		jTabbedPane1.addTab("MARINa (caGrid service)", null, builder.getPanel(), "The parameters on this tab apply to the remote MARINa grid service only.");
+		jTabbedPane1.addTab("MARINa parameters", null, builder.getPanel(), "The parameters on this tab apply to the remote MARINa grid service only.");
 		this.add(jTabbedPane1, BorderLayout.CENTER);
 
 		parameterActionListener = new ParameterActionListener(
