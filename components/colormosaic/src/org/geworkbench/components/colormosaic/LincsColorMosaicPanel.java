@@ -164,7 +164,7 @@ public class LincsColorMosaicPanel extends BasicColorMosaicPanel {
 
 		searchHoriAxisNames.setEnabled(false);
 		searchVertAxisNames.setEnabled(false);
-		
+		searchHoriAxisNames.getDocument().putProperty("owner", searchHoriAxisNames);
 		searchHoriAxisNames.getDocument().addDocumentListener(
 				new DocListener(searchBy.ARRAYNAME));
 		searchHoriAxisNames.addKeyListener(new java.awt.event.KeyAdapter() {
@@ -174,6 +174,7 @@ public class LincsColorMosaicPanel extends BasicColorMosaicPanel {
 			}
 		});
 
+		searchVertAxisNames.getDocument().putProperty("owner", searchVertAxisNames);
 		searchVertAxisNames.getDocument().addDocumentListener(
 				new DocListener(searchBy.LABEL));
 		searchVertAxisNames.addKeyListener(new java.awt.event.KeyAdapter() {

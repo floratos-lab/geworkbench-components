@@ -46,6 +46,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
+import javax.swing.JTextField;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -406,16 +407,16 @@ public class BasicColorMosaicPanel implements Printable, VisualPlugin,
 	 * Enter: search forward starting from next item Ctl-B: search backwards
 	 * from next item
 	 */
-	protected void searchText(KeyEvent e, searchBy type, String searchString) {
+	protected void searchText(KeyEvent e, searchBy type, String searchString) {		 
 		char c = e.getKeyChar();
 		if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-			findNext(1, c, type, searchString);
+			findNext(e.getSource(), 1, c, type, searchString);
 		} else if (e.isControlDown() && (c == '\u0002')) {
-			findNext(-1, c, type, searchString);
+			findNext(e.getSource(), -1, c, type, searchString);
 		}
 	}
 
-	private void findNext(int offset, char c, searchBy type, String searchString) {
+	private void findNext(Object source, int offset, char c, searchBy type, String searchString) {
 		int index = 0;
 		String markerString = searchString;
 		if (type == searchBy.ACCESSION) {
@@ -459,12 +460,17 @@ public class BasicColorMosaicPanel implements Printable, VisualPlugin,
 			}
 			if (!found || markerString.length() == 0) {
 				if (!found)
-					// searchArray.setForeground(Color.red);
-					JOptionPane.showMessageDialog(null,
-							"No match found for search term: " + markerString,
-							"Warning", JOptionPane.WARNING_MESSAGE);
+				{	 if (source instanceof JTextField)
+					 ((JTextField)source).setForeground(Color.red);
+					 
+				}
 				colorMosaicImage.setSelectedArray(-1, null);
 				jScrollPane.getViewport().setViewPosition(new Point(0, 0));
+			}
+			else
+			{
+				if (source instanceof JTextField)
+					 ((JTextField)source).setForeground(Color.black);
 			}
 			colRuler.repaint();
 		} else {
@@ -525,14 +531,21 @@ public class BasicColorMosaicPanel implements Printable, VisualPlugin,
 			}
 			if (!found || markerString.length() == 0) {
 				if (!found)
-					JOptionPane.showMessageDialog(null,
-							"No match found for search term: " + markerString,
-							"Warning", JOptionPane.WARNING_MESSAGE);
+				{	
+					if (source instanceof JTextField)
+						 ((JTextField)source).setForeground(Color.red);
+				 
+				}				
 				if (type == searchBy.ACCESSION)
 					colorMosaicImage.setSelectedAccession(-1, null);
 				else if (type == searchBy.LABEL)
 					colorMosaicImage.setSelectedLabel(-1, null);
 				jScrollPane.getViewport().setViewPosition(new Point(xstart, 0));
+			}
+			else
+			{
+				if (source instanceof JTextField)
+					 ((JTextField)source).setForeground(Color.black);
 			}
 			colorMosaicImage.repaint();
 		}
@@ -969,7 +982,7 @@ public class BasicColorMosaicPanel implements Printable, VisualPlugin,
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-			findNext(0, '\u000E', searchType, searchString);
+			findNext(e.getDocument().getProperty("owner"), 0, '\u000E', searchType, searchString);
 		}
 
 		public void removeUpdate(DocumentEvent e) {
@@ -981,7 +994,7 @@ public class BasicColorMosaicPanel implements Printable, VisualPlugin,
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-			findNext(0, '\u000E', searchType, searchString);
+			findNext(e.getDocument().getProperty("owner"), 0, '\u000E', searchType, searchString);
 		}
 
 		public void changedUpdate(DocumentEvent e) {
