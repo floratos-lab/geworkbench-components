@@ -91,7 +91,7 @@ public class MARINaViewer extends MasterRegulatorViewer{
 			double pval = Double.parseDouble((String)row[10]);
 			Object odd	= row[11];
 			Object nes	= row[8];
-			char mode	= Double.parseDouble((String) nes) >= 0 ? CSMasterRegulatorResultSet.ACTIVATOR
+			char mode	= Double.parseDouble((String) nes) <= 0 ? CSMasterRegulatorResultSet.ACTIVATOR
 						: CSMasterRegulatorResultSet.REPRESSOR;
 			
 			DSGeneMarker tfA = markers.get(tf);
