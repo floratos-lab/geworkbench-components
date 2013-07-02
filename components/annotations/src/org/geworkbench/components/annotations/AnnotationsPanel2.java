@@ -5,14 +5,10 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
@@ -21,7 +17,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
 
@@ -29,30 +24,17 @@ import javax.swing.Box;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
-import javax.swing.JList;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.TableColumnModelEvent;
-import javax.swing.event.TableColumnModelListener;
 import javax.swing.filechooser.FileFilter;
-import javax.swing.plaf.basic.BasicComboBoxRenderer;
-import javax.swing.table.TableCellRenderer;
 
 import org.apache.batik.bridge.DefaultExternalResourceSecurity;
 import org.apache.batik.bridge.DefaultScriptSecurity;
@@ -88,12 +70,10 @@ import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.ImageSnapshotEvent;
 import org.geworkbench.events.MarkerSelectedEvent;
 import org.geworkbench.events.ProjectEvent;
-import org.geworkbench.util.BrowserLauncher;
 import org.geworkbench.util.ProgressDialog;
 import org.geworkbench.util.ProgressItem;
 import org.geworkbench.util.annotation.Pathway;
 import org.jfree.ui.SortableTable;
-import org.jfree.ui.SortableTableModel;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -126,29 +106,16 @@ import org.w3c.dom.Element;
 public class AnnotationsPanel2 implements VisualPlugin{
     static final String GENE_FINDER_PREFIX = "http://cgap.nci.nih.gov/Genes/GeneInfo?";
     private static final String RETRIEVE_INFORMATION = "Retrieve Annotations";
-	private static final String RETRIEVE_PATHWAY_DATA = "Get gene annotations (from CGAP)";
-	private static final String RETRIEVE_CGI_DATA = "Get Disease/Agent associations (from CGI)";
+
 	private static final String[] Human_Mouse= {"Human","Mouse"};
     private static final String[] Human_Mouse_Code= {"Hs","Mm"};
     /**
      * Web URL prefix for obtaining Gene annotation
      */
     static final String GeneCards_PREFIX = "http://www.genecards.org/cgi-bin/carddisp.pl?gene=";
-    /**
-     * Web URL prefix for obtaining Pubmed article
-     */
-    private static final String PUBMED_PREFIX = "http://www.ncbi.nlm.nih.gov/pubmed/";
 
-    /**
-     * Web URL prefix for obtaining Agent annotation
-     */
-    private static final String EVS_PREFIX = "http://nciterms.nci.nih.gov/ncitbrowser/ConceptReport.jsp?dictionary=NCI%20Thesaurus&code=";
 	private static Log log = LogFactory.getLog(AnnotationsPanel2.class);
     
-    JComboBox[] dropDownLists = new JComboBox[8];	//drop down lists for filters
-    JPanel leftHeadPanel = new JPanel();	//I put it as global variable so we can change their width at run time.
-    JPanel rightHeadPanel = new JPanel();	//I put it as global variable so we can change their width at run time.
-	JPopupMenu expandCollapseRetrieveAllMenu = new JPopupMenu();
 	DSGeneMarker selectedMarker = null;
 	int selectedRow = -1;
 	String selectedGene = "";
@@ -157,16 +124,6 @@ public class AnnotationsPanel2 implements VisualPlugin{
     String humanOrMouse = Human_Mouse_Code[0];	//default to Human
     //Aris want the table to sort by number of records when the records just been retrieved.
     boolean sortByNumberOfRecords=true;
-
-    JMenuItem retrieveItem = new JMenuItem("retrieve all");
-
-	private static String unwrapFromHTML(String s) {
-		if(s.startsWith("<html><a href=\"__noop\">"))
-			return s.substring("<html><a href=\"__noop\">".length(), s.length()
-				- "</a></html>".length());
-		else
-			return "";
-	}
 
     /**
      * Default Constructor
@@ -181,18 +138,6 @@ public class AnnotationsPanel2 implements VisualPlugin{
         }
 
     }
-
-    /**
-     *
-     * @return
-     */
-    public AnnotationsPanel2 getAnnotationsPanel()
-    {
-    	return this;
-    }
-
-    boolean userAlsoWantCaBioData = false;
-    boolean userAlsoWantPathwayData = false;
 
     /**
      * Configures the Graphical User Interface and Listeners
@@ -222,50 +167,6 @@ public class AnnotationsPanel2 implements VisualPlugin{
             }
         });
 
-        annoRetrieveCaBioCheckBox.addItemListener(new ItemListener() {
-			public void itemStateChanged(ItemEvent e) {
-				userAlsoWantCaBioData = (e.getStateChange() == ItemEvent.SELECTED);
-				//synchronize with other panel
-				cgiRetrieveCaBioCheckBox.setSelected(userAlsoWantCaBioData);
-			}
-		});
-        annoRetrievePathwayCheckBox.addItemListener(new ItemListener() {
-			public void itemStateChanged(ItemEvent e) {
-				userAlsoWantPathwayData = (e.getStateChange() == ItemEvent.SELECTED);
-				cgiRetrievePathwayCheckBox.setSelected(userAlsoWantPathwayData);
-				annoHumanOrMouseComboBox.setEnabled(userAlsoWantPathwayData);
-			}
-		});
-        //Init button panel in cgi panel
-        cgiRetrieveButton.setHorizontalAlignment(SwingConstants.CENTER);
-        cgiRetrieveButton.setText(RETRIEVE_INFORMATION);
-        cgiRetrieveButton.setToolTipText("Retrieve gene and disease information for markers in activated panels");
-        cgiRetrieveButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                showPanels_actionPerformed(e);
-            }
-
-        });
-        cgiClearButton.setForeground(Color.black);
-        cgiClearButton.setToolTipText("Clear both tables.");
-        cgiClearButton.setFocusPainted(true);
-        cgiClearButton.setText("Clear");
-        cgiClearButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                cgiClearButton_actionPerformed(e);
-            }
-        });
-
-        exportButton.setForeground(Color.black);
-        exportButton.setToolTipText("Export to CSV files");
-        exportButton.setFocusPainted(true);
-        exportButton.setText("Export");
-        exportButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-            	exportButton_actionPerformed(e);
-            }
-        });
-
         annotationExportButton.setForeground(Color.black);
         annotationExportButton.setToolTipText("Export to CSV files");
         annotationExportButton.setFocusPainted(true);
@@ -276,40 +177,6 @@ public class AnnotationsPanel2 implements VisualPlugin{
             }
         });
 
-        cgiRetrieveCaBioCheckBox.addItemListener(new ItemListener() {
-			public void itemStateChanged(ItemEvent e) {
-				userAlsoWantCaBioData = (e.getStateChange() == ItemEvent.SELECTED);
-				annoRetrieveCaBioCheckBox.setSelected(userAlsoWantCaBioData);
-			}
-		});
-        cgiRetrievePathwayCheckBox.addItemListener(new ItemListener() {
-			public void itemStateChanged(ItemEvent e) {
-				userAlsoWantPathwayData = (e.getStateChange() == ItemEvent.SELECTED);
-				annoRetrievePathwayCheckBox.setSelected(userAlsoWantPathwayData);
-				cgiHumanOrMouseComboBox.setEnabled(userAlsoWantPathwayData);
-			}
-		});
-        // JPanel middleSectionPanel = new JPanel();
-        //middleSectionPanel.setLayout(new BorderLayout());
-        JPanel diseaseMenuAndTablePanel = new JPanel();
-        diseaseMenuAndTablePanel.setLayout(new BorderLayout());
-        diseaseMenuAndTablePanel.add(leftHeadPanel, BorderLayout.NORTH);
-        diseaseMenuAndTablePanel.add(jScrollPane1, BorderLayout.CENTER);
-        diseaseMenuAndTablePanel.setMinimumSize(new Dimension (100,100));
-        //middleSectionPanel.add(diseaseMenuAndTablePanel,BorderLayout.WEST);
-        JPanel agentMenuAndTablePanel = new JPanel();
-        agentMenuAndTablePanel.setLayout(new BorderLayout());
-        agentMenuAndTablePanel.add(rightHeadPanel, BorderLayout.NORTH);
-        agentMenuAndTablePanel.add(jScrollPane2, BorderLayout.CENTER);
-        agentMenuAndTablePanel.setMinimumSize(new Dimension (100,100));
-        //middleSectionPanel.add(agentMenuAndTablePanel,BorderLayout.EAST);
-        JSplitPane middleSectionPanel = new JSplitPane(
-				JSplitPane.HORIZONTAL_SPLIT, diseaseMenuAndTablePanel,
-				agentMenuAndTablePanel);
-        middleSectionPanel.setResizeWeight(0.5);
-        middleSectionPanel.setOneTouchExpandable(true);
-        //annotationsPanel.add(jScrollPane1, BorderLayout.WEST);
-        //annotationsPanel.add(jScrollPane2, BorderLayout.EAST);
         //This panel using BorderLayout to give text field the ability to fill the window.
         JPanel textFieldPanel = new JPanel();
         textFieldPanel.setLayout(new BorderLayout());
@@ -318,349 +185,26 @@ public class AnnotationsPanel2 implements VisualPlugin{
         JScrollPane textScrollPanel = new JScrollPane(textArea);
         textFieldPanel.setPreferredSize(new Dimension(100,60));
         textFieldPanel.add(textScrollPanel,BorderLayout.CENTER);
-        JPanel cgiBottomPanel = new JPanel();
-        cgiBottomPanel.setPreferredSize(new Dimension(100,60));
-        cgiBottomPanel.setLayout(new BorderLayout());
-        cgiBottomPanel.add(textFieldPanel, BorderLayout.CENTER);
-        ActionListener HumanMouseListener = new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-            	String selected =(String)((JComboBox)e.getSource()).getSelectedItem();
-        		if (selected.equals(Human_Mouse[0]))
-        			humanOrMouse = Human_Mouse_Code[0];
-        		else if (selected.equals(Human_Mouse[1]))
-        			humanOrMouse = Human_Mouse_Code[1];
-        		else{
-        			log.error("Shouldn't happen");
-        		}
-        		//sync two dropdown box
-        		if (e.getSource() == annoHumanOrMouseComboBox) cgiHumanOrMouseComboBox.setSelectedItem(selected);
-        		if (e.getSource() == cgiHumanOrMouseComboBox) annoHumanOrMouseComboBox.setSelectedItem(selected);
-            }
-        };
-        annoButtonPanel.add(annoRetrieveCaBioCheckBox);
-        annoButtonPanel.add(annoRetrievePathwayCheckBox);
+
         annoButtonPanel.add(annoHumanOrMouseComboBox);
-        annoHumanOrMouseComboBox.addActionListener(HumanMouseListener);
         annoButtonPanel.add(annoRetrieveButton);
         annoButtonPanel.add(annoClearButton);
         annoButtonPanel.add(annotationExportButton);
-        cgiButtonPanel.add(cgiRetrieveCaBioCheckBox);
-        cgiButtonPanel.add(cgiRetrievePathwayCheckBox);
-        cgiButtonPanel.add(cgiHumanOrMouseComboBox);
-        cgiHumanOrMouseComboBox.addActionListener(HumanMouseListener);
-        cgiButtonPanel.add(cgiRetrieveButton);
-        cgiButtonPanel.add(cgiClearButton);
-        cgiButtonPanel.add(exportButton);
+
         annotationModel = new AnnotationTableModel();
         annotationTable = new SortableTable(annotationModel);
         annotationTable.getTableHeader().setPreferredSize(new Dimension(0, 25));
         annotationPanel.setLayout(new BorderLayout());
         annotationPanel.add(new JScrollPane(annotationTable),BorderLayout.CENTER);
-        cgiPanel = new JSplitPane(
-				JSplitPane.VERTICAL_SPLIT, middleSectionPanel,
-				cgiBottomPanel);
-        cgiPanel.setResizeWeight(1.0);
         annotationPanel.add(annoButtonPanel, BorderLayout.SOUTH);
-        cgiBottomPanel.add(cgiButtonPanel, BorderLayout.SOUTH);
-//        annotationsPanel.setLayout(borderLayout1);
-//        annotationsPanel.add(middleSectionPanel,BorderLayout.CENTER);
-//        annotationsPanel.add(buttomPanel, BorderLayout.SOUTH);
+
         jTabbedPane1.add("Annotations", annotationPanel);
         jTabbedPane1.add("Pathway", pathwayPanel);
-        jTabbedPane1.add("CancerGeneIndex", cgiPanel);
+
         jbInitPathways();
 
-        diseaseModel = new CGITableModel(this);
-        diseaseTable = new SortableTable(diseaseModel){
-			/**
-			 *
-			 */
-			private static final long serialVersionUID = 1L;
-			// FIXME: we have bugs here, and have potential to generate error.
-			// When we load new data into the table model, there's a period of
-			// time that we'll have multithread problem.
-			public Component prepareRenderer(TableCellRenderer renderer,
-					int rowIndex, int vColIndex) {
-				Component c = super.prepareRenderer(renderer, rowIndex,
-						vColIndex);
-				if (c instanceof JComponent) {
-					JComponent jc = (JComponent) c;
-					if (vColIndex == 4){
-						jc.setToolTipText("<html><table width='300'><tr><td>"+(String) getValueAt(rowIndex, vColIndex)+"</td></tr></table></html>");
-					}else if (vColIndex == 0){
-						if ((diseaseModel.getMarkerAt(rowIndex,vColIndex)!=null)&&(!diseaseModel.getMarkerAt(rowIndex,vColIndex).numOutOfNum.equals(""))){
-							jc.setFont(new Font(jc.getFont().getFontName(), Font.BOLD, jc.getFont().getSize()));
-							if (getValueAt(rowIndex, vColIndex) == null)
-								log.error("null 1");
-							if (diseaseModel.getMarkerAt(rowIndex,vColIndex)==null)
-								log.error("null 2");
-							try{
-								jc.setToolTipText((String) getValueAt(rowIndex, vColIndex) + "("+diseaseModel.getMarkerAt(rowIndex,vColIndex).numOutOfNum+")");
-							}catch (Exception e){
-								log.error("Multithread?",e);
-							}
-						}else{
-							jc.setToolTipText((String) getValueAt(rowIndex, vColIndex));
-						}
-					}else{
-						jc.setToolTipText((String) getValueAt(rowIndex, vColIndex));
-						//jc.setToolTipText(null);
-					}
-				}
-				return c;
-			}
-        };
-		diseaseTable.getTableHeader().setPreferredSize(new Dimension(0, 25));
-
-        TableColumnModelListener tableColumnModelListener = new TableColumnModelListener() {
-			public void columnAdded(TableColumnModelEvent e) {
-				log.debug("Added");
-			}
-
-			public void columnMarginChanged(ChangeEvent e) {
-				log.debug("Margin");
-                SwingUtilities.invokeLater(new Runnable() {
-                    public void run() {
-                    	syncHeaderWidthWithTableWidth();
-                    }
-                });
-			}
-
-			public void columnMoved(TableColumnModelEvent e) {
-				log.debug("Moved");
-			}
-
-			public void columnRemoved(TableColumnModelEvent e) {
-				log.debug("Removed");
-			}
-
-			public void columnSelectionChanged(ListSelectionEvent e) {
-				log.debug("Selection Changed");
-			}
-		};
-        diseaseTable.getColumnModel().addColumnModelListener(tableColumnModelListener);
-        diseaseTable.getColumnModel().getColumn(0).setHeaderValue("     Marker");
-        diseaseTable.getColumnModel().getColumn(1).setHeaderValue("     Gene");
-        diseaseTable.getColumnModel().getColumn(2).setHeaderValue("     Disease");
-        diseaseTable.getColumnModel().getColumn(3).setHeaderValue("     Role");
-        diseaseTable.getColumnModel().getColumn(4).setHeaderValue("     Sentence");
-        diseaseTable.getColumnModel().getColumn(5).setHeaderValue("     Pubmed");
-        diseaseTable.setCellSelectionEnabled(false);
-        diseaseTable.setRowSelectionAllowed(false);
-        diseaseTable.setColumnSelectionAllowed(false);
-        diseaseTable.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-            	selectedTable = diseaseTable;
-                int column = diseaseTable.columnAtPoint(e.getPoint());
-                int row = diseaseTable.rowAtPoint(e.getPoint());
-                if (e.getButton() == MouseEvent.BUTTON1){
-	                if ((column >= 0) && (row >= 0)) {
-	                    //model.activateCell(row, column);
-	                }
-	                if (column == CGITableModel.COL_MARKER){
-	                    diseaseModel.activateCell(row, column);
-	                }
-	                if ((column == CGITableModel.COL_GENE)) {
-	                    String value = (String) diseaseTable.getValueAt(row, column);
-	                    value=unwrapFromHTML(value);
-	                    if(value.length()>0) {
-		                    String address = GeneCards_PREFIX + value;
-		                    try {
-								BrowserLauncher.openURL(address);
-							} catch (IOException e1) {
-								log.error(e1,e1);
-							}
-	                    }
-	                }
-	                if ((column == CGITableModel.COL_PUBMED)) {
-	                    String value = (String) diseaseTable.getValueAt(row, column);
-	                    value=unwrapFromHTML(value);
-	                    if (value.indexOf(";") > -1)
-	                    {
-	                    	for (String subvalue : value.split(";"))
-	                    		try{
-	                    			BrowserLauncher.openURL(PUBMED_PREFIX + subvalue);
-	                    		}catch(IOException e1){
-	                    			log.error(e1);
-	                    		}
-	                    } else if(value.length()>0) {
-							String address = PUBMED_PREFIX + value;
-							try {
-								BrowserLauncher.openURL(address);
-							} catch (IOException e1) {
-								log.error(e1, e1);
-							}
-						}
-	                }
-	                if ((column == CGITableModel.COL_SENTENCE)) {
-	                	String value = (String) diseaseTable.getValueAt(row, column);
-	                	textArea.setText(value);
-	                }
-                }else{
-                	selectedTable = diseaseTable;
-                	selectedMarker = ((CGITableModel)diseaseTable.getModel()).getMarkerAt(row,0).marker;
-                	selectedRow = row;
-                	selectedGene = ((GeneData)(((CGITableModel)diseaseTable.getModel()).getObjectAt(row, CGITableModel.COL_GENE))).name;
-                	selectedDisease = ((DiseaseData)(((CGITableModel)diseaseTable.getModel()).getObjectAt(row, CGITableModel.COL_DISEASE))).name;
-                	MarkerData md = ((CGITableModel) diseaseTable.getModel())
-							.getMarkerAt(row, column);
-					if (md.numOutOfNum.equals("")) {
-						// If no records left on server, we don't show the
-						// Retrieve All button. Mantis #1840
-						retrieveItem.setVisible(false);
-					} else {
-						retrieveItem.setVisible(true);
-					}
-                	expandCollapseRetrieveAllMenu.show(diseaseTable, e.getX(), e.getY());
-                }
-            }
-        });
-        diseaseTable.addMouseMotionListener(new MouseMotionAdapter() {
-            private boolean isHand = false;
-
-            public void mouseMoved(MouseEvent e) {
-                int column = diseaseTable.columnAtPoint(e.getPoint());
-                int row = diseaseTable.rowAtPoint(e.getPoint());
-                if ((column >= 0) && (row >= 0)) {
-                    if ((column == CGITableModel.COL_GENE)
-//                    		|| (column == COL_DISEASE)
-							|| (column == CGITableModel.COL_PUBMED)) {
-                        if (!isHand) {
-                            isHand = true;
-                            diseaseTable.setCursor(new Cursor(Cursor.HAND_CURSOR));
-                        }
-                    } else {
-                        if (isHand) {
-                            isHand = false;
-                            diseaseTable.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-                        }
-                    }
-                }
-            }
-        });
-
         annotationTableList = new HashMap<Integer, AnnotationTableModel>();
-        diseaseTableList = new HashMap<Integer, CGITableModel>();
-        agentTableList = new HashMap<Integer, CGITableModel>();
 
-        agentModel = new CGITableModel(this);
-        agentTable = new SortableTable(agentModel) {
-			/**
-			 *
-			 */
-			private static final long serialVersionUID = 1L;
-
-			public Component prepareRenderer(TableCellRenderer renderer,
-					int rowIndex, int vColIndex) {
-				Component c = super.prepareRenderer(renderer, rowIndex,
-						vColIndex);
-				if (c instanceof JComponent) {
-					JComponent jc = (JComponent) c;
-					jc.setToolTipText((String) getValueAt(rowIndex, vColIndex));
-					if (vColIndex == 4){
-						jc.setToolTipText("<html><table width='300'><tr><td>"+(String) getValueAt(rowIndex, vColIndex)+"</td></tr></table></html>");
-					}else if (vColIndex == 0){
-						if (agentModel.getMarkerAt(rowIndex,vColIndex)==null){
-							//filtered row
-						}
-						if (!agentModel.getMarkerAt(rowIndex,vColIndex).numOutOfNum.equals("")){
-							jc.setFont(new Font(jc.getFont().getFontName(), Font.BOLD, jc.getFont().getSize()));
-							jc.setToolTipText((String) getValueAt(rowIndex, vColIndex) + "("+agentModel.getMarkerAt(rowIndex,vColIndex).numOutOfNum+")");
-						}else{
-							jc.setToolTipText((String) getValueAt(rowIndex, vColIndex));
-						}
-					}else{
-						jc.setToolTipText((String) getValueAt(rowIndex, vColIndex));
-						//jc.setToolTipText(null);
-					}
-				}
-				return c;
-			}
-        };
-        agentTable.getTableHeader().setPreferredSize(new Dimension(0, 25));
-        agentTable.getColumnModel().addColumnModelListener(tableColumnModelListener);
-        agentTable.getColumnModel().getColumn(0).setHeaderValue("     Marker");
-        agentTable.getColumnModel().getColumn(1).setHeaderValue("     Gene");
-        agentTable.getColumnModel().getColumn(2).setHeaderValue("     Agent");
-        agentTable.getColumnModel().getColumn(3).setHeaderValue("     Role");
-        agentTable.getColumnModel().getColumn(4).setHeaderValue("     Sentence");
-        agentTable.getColumnModel().getColumn(5).setHeaderValue("     Pubmed");
-        agentTable.setCellSelectionEnabled(false);
-        agentTable.setRowSelectionAllowed(false);
-        agentTable.setColumnSelectionAllowed(false);
-        agentTable.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-            	selectedTable = agentTable;
-                int column = agentTable.columnAtPoint(e.getPoint());
-                int row = agentTable.rowAtPoint(e.getPoint());
-                if (e.getButton() == MouseEvent.BUTTON1){
-	                if ((column >= 0) && (row >= 0)) {
-	                    //model2.activateCell(row, column);
-	                }
-	                if (column == CGITableModel.COL_MARKER){
-	                    agentModel.activateCell(row, column);
-	                }
-	                if ((column == CGITableModel.COL_GENE)) {
-	                    String value = (String) agentTable.getValueAt(row, column);
-	                    value=unwrapFromHTML(value);
-	                    if(value.length()>0) {
-		                    String address = GeneCards_PREFIX + value;
-		                    try {
-								BrowserLauncher.openURL(address);
-							} catch (IOException e1) {
-								log.error(e1,e1);
-							}
-	                    }
-	                }
-	                if ((column == CGITableModel.COL_PUBMED)) {
-	                    String value = (String) agentTable.getValueAt(row, column);
-	                    value=unwrapFromHTML(value);
-	                    if(value.length()>0) {
-		                    String address = "http://www.ncbi.nlm.nih.gov/pubmed/"+value;
-		                    try {
-								BrowserLauncher.openURL(address);
-							} catch (IOException e1) {
-								log.error(e1,e1);
-							}
-	                    }
-	                }
-	                if ((column == CGITableModel.COL_SENTENCE)) {
-	                	String value = (String) agentTable.getValueAt(row, column);
-	                	textArea.setText(value);
-	                }
-                }else{
-                	selectedTable = agentTable;
-                	selectedMarker = ((CGITableModel)agentTable.getModel()).getMarkerAt(row,0).marker;
-                	selectedRow = row;
-                	selectedGene = ((GeneData)(((CGITableModel)agentTable.getModel()).getObjectAt(row, CGITableModel.COL_GENE))).name;
-                	selectedDisease = ((DiseaseData)(((CGITableModel)agentTable.getModel()).getObjectAt(row, CGITableModel.COL_DISEASE))).name;
-                	expandCollapseRetrieveAllMenu.show(agentTable, e.getX(), e.getY());
-                }
-            }
-        });
-        agentTable.addMouseMotionListener(new MouseMotionAdapter() {
-            private boolean isHand = false;
-
-            public void mouseMoved(MouseEvent e) {
-                int column = agentTable.columnAtPoint(e.getPoint());
-                int row = agentTable.rowAtPoint(e.getPoint());
-                if ((column >= 0) && (row >= 0)) {
-                    if ((column == CGITableModel.COL_GENE)
-//                    		|| (column == COL_AGENT)
-							|| (column == CGITableModel.COL_PUBMED)) {
-                        if (!isHand) {
-                            isHand = true;
-                            agentTable.setCursor(new Cursor(Cursor.HAND_CURSOR));
-                        }
-                    } else {
-                        if (isHand) {
-                            isHand = false;
-                            agentTable.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-                        }
-                    }
-                }
-            }
-        });
         annotationTable.getColumnModel().getColumn(0).setHeaderValue("     Marker");
         annotationTable.getColumnModel().getColumn(1).setHeaderValue("     Gene");
         annotationTable.getColumnModel().getColumn(2).setHeaderValue("     Pathway");
@@ -697,227 +241,8 @@ public class AnnotationsPanel2 implements VisualPlugin{
                 }
             }
         });
-
-		class MyComboBoxRenderer extends BasicComboBoxRenderer {
-			/**
-			 *
-			 */
-			private static final long serialVersionUID = 1L;
-
-			public Component getListCellRendererComponent(JList list,
-					Object value, int index, boolean isSelected,
-					boolean cellHasFocus) {
-				if (isSelected) {
-					setBackground(list.getSelectionBackground());
-					setForeground(list.getSelectionForeground());
-					if (value!=null)
-						list.setToolTipText(value.toString());
-				} else {
-					setBackground(list.getBackground());
-					setForeground(list.getForeground());
-				}
-				setFont(list.getFont());
-				setText((value == null) ? "" : value.toString());
-				return this;
-			}
-		}
-        String[] tooltips = { "Filter by Marker", "Filter by Gene", "Filter by Disease", "Filter by Role",
-        		"Filter by Marker", "Filter by Gene", "Filter by Agent", "Filter by Role"};
-        for (int i = 0; i < dropDownLists.length; i++) {
-            // TODO: modify JComboBox to use data model (now we directly access items in it).
-        	dropDownLists[i]=new JComboBox();
-        	dropDownLists[i].setRenderer(new MyComboBoxRenderer());
-        	dropDownLists[i].setToolTipText(tooltips[i]);
-		}
-        class ItemFilterListener implements ItemListener{
-			int filterIndex = 0;
-			public ItemFilterListener(int i){
-				super();
-				filterIndex = i;
-			}
-			public void itemStateChanged(ItemEvent ie) {
-				String itemStr = (String) ie.getItem();
-				//remove number after it
-				String[] strs = itemStr.split(" \\(\\d+\\)");
-				String str = strs[0];
-				log.debug("itemStateChanged, column:"+filterIndex+"str:"+str);
-				if (filterIndex<4){
-					((CGITableModel) diseaseTable.getModel()).filterBy(filterIndex, str);
-					diseaseTable.revalidate();
-					diseaseTable.repaint();
-				}else{
-					((CGITableModel) agentTable.getModel()).filterBy(filterIndex-4, str);
-					agentTable.revalidate();
-					diseaseTable.repaint();
-				}
-			}
-        }
-
-        for (int i = 0; i < dropDownLists.length; i++) {
-			dropDownLists[i].addItem("");
-			dropDownLists[i].addItemListener(new ItemFilterListener(i));
-		}
-
-        leftHeadPanel.setLayout(new FlowLayout(FlowLayout.LEFT,0,0));
-        leftHeadPanel.add(dropDownLists[0]);
-        leftHeadPanel.add(dropDownLists[1]);
-        leftHeadPanel.add(dropDownLists[2]);
-        leftHeadPanel.add(dropDownLists[3]);
-        rightHeadPanel.setLayout(new FlowLayout(FlowLayout.LEFT,0,0));
-        rightHeadPanel.add(dropDownLists[4]);
-        rightHeadPanel.add(dropDownLists[5]);
-        rightHeadPanel.add(dropDownLists[6]);
-        rightHeadPanel.add(dropDownLists[7]);
-        jScrollPane1.getViewport().add(diseaseTable, null);
-        jScrollPane2.getViewport().add(agentTable, null);
-        leftHeadPanel.setVisible(false);
-        rightHeadPanel.setVisible(false);
-
-        class ExpandActionListener implements ActionListener {
-			public void actionPerformed(ActionEvent actionEvent) {
-				if (selectedTable==diseaseTable)
-					((CGITableModel)diseaseTable.getModel())._expandBy(selectedTable, selectedGene, selectedDisease);
-				else
-					((CGITableModel)agentTable.getModel())._expandBy(selectedTable, selectedGene, selectedDisease);
-			}
-		}
-        ActionListener actionListener = new ExpandActionListener();
-        JMenuItem expandItem = new JMenuItem("expand");
-        expandItem.addActionListener(actionListener);
-        expandCollapseRetrieveAllMenu.add(expandItem);
-
-        class CollapseActionListener implements ActionListener {
-			public void actionPerformed(ActionEvent actionEvent) {
-				((CGITableModel)selectedTable.getModel()).collapseBy(selectedTable, selectedGene, selectedDisease);
-				((SortableTableModel)selectedTable.getModel()).sortByColumn(2,true);
-				((SortableTableModel)selectedTable.getModel()).sortByColumn(0,true);
-			}
-		}
-        ActionListener collapseActionListener = new CollapseActionListener();
-        JMenuItem collapseItem = new JMenuItem("collapse");
-        collapseItem.addActionListener(collapseActionListener);
-        expandCollapseRetrieveAllMenu.add(collapseItem);
-
-        class RetrieveActionListener implements ActionListener {
-			public void actionPerformed(ActionEvent actionEvent) {
-				log.debug("Selected: "
-						+ actionEvent.getActionCommand());
-				retrieveAll(selectedMarker);
-			}
-		}
-        ActionListener retrieveActionListener = new RetrieveActionListener();
-        retrieveItem.addActionListener(retrieveActionListener);
-        expandCollapseRetrieveAllMenu.add(retrieveItem);
-
-        class NCIActionListener implements ActionListener {
-			public void actionPerformed(ActionEvent actionEvent) {
-				String address = "";
-				if (selectedTable == diseaseTable) {
-					address = EVS_PREFIX
-							+ diseaseTable.getModel().getValueAt(selectedRow,
-									CGITableModel.COL_EVSID);
-				} else {
-					address = EVS_PREFIX
-							+ agentTable.getModel().getValueAt(selectedRow,
-									CGITableModel.COL_EVSID);
-				}
-				try {
-					BrowserLauncher.openURL(address);
-				} catch (Exception e) {
-					log.error(e, e);
-				}
-			}
-		}
-		NCIActionListener nciActionListener = new NCIActionListener();
-		JMenuItem evsItem = new JMenuItem("Link to NCI_Thesaurus");
-		evsItem.addActionListener(nciActionListener);
-		expandCollapseRetrieveAllMenu.add(evsItem);
-
-        class CollapseAllActionListener implements ActionListener {
-			public void actionPerformed(ActionEvent actionEvent) {
-						collapseAll();
-			}
-		}
-        ActionListener collapseAllActionListener = new CollapseAllActionListener();
-        JMenuItem collapseAllItem = new JMenuItem("collapse all");
-        collapseAllItem.addActionListener(collapseAllActionListener);
-        expandCollapseRetrieveAllMenu.add(collapseAllItem);
-
-        class ExpandAllActionListener implements ActionListener {
-			public void actionPerformed(ActionEvent actionEvent) {
-				int size = ((CGITableModel)selectedTable.getModel()).size;
-	            for (int j = 0; j < size; j++) {
-					((CGITableModel) selectedTable.getModel()).expandBy(selectedTable,
-							((GeneData) (((CGITableModel) selectedTable
-									.getModel()).getObject(j,
-											CGITableModel.COL_GENE))).name,
-							((DiseaseData) (((CGITableModel) selectedTable
-									.getModel()).getObject(j,
-											CGITableModel.COL_DISEASE))).name);
-	            }
-	        	sortByNumberOfRecords=false;
-	        	//sort by disease
-	        	((SortableTableModel)selectedTable.getModel()).sortByColumn(2,true);
-	        	//sort by marker
-	        	((SortableTableModel)selectedTable.getModel()).sortByColumn(0,true);
-			}
-		}
-        ActionListener expandAllActionListener = new ExpandAllActionListener();
-        JMenuItem expandAllItem = new JMenuItem("expand all");
-        expandAllItem.addActionListener(expandAllActionListener);
-        expandCollapseRetrieveAllMenu.add(expandAllItem);
-
     }
 
-    private void collapseAll(){
-
-		        int size = ((CGITableModel)selectedTable.getModel()).size;
-		        for (int j = 0; j < size; j++) {
-					((CGITableModel) selectedTable.getModel())._collapseBy(selectedTable,
-							((GeneData) (((CGITableModel) selectedTable
-									.getModel()).getObject(j,
-											CGITableModel.COL_GENE))).name,
-							((DiseaseData) (((CGITableModel) selectedTable
-									.getModel()).getObject(j,
-											CGITableModel.COL_DISEASE))).name);
-		        }
-		//		sortByNumberOfRecords = true;
-				((SortableTableModel)selectedTable.getModel()).sortByColumn(0,true);
-				selectedTable.revalidate();
-				selectedTable.repaint();
-    }
-
-    boolean entered = false;
-    void syncHeaderWidthWithTableWidth(){
-    	if (entered) return;
-    	else{
-    		entered = true;
-    		try{
-//				leftHeadPanel.setPreferredSize(new Dimension(jScrollPane1.getSize().width,dropDownLists[0].getHeight()));
-//				rightHeadPanel.setPreferredSize(new Dimension(jScrollPane2.getSize().width,dropDownLists[4].getHeight()));
-				dropDownLists[0].setPreferredSize(new Dimension(diseaseTable.getColumnModel().getColumn(0).getWidth(),dropDownLists[0].getHeight()));
-				dropDownLists[0].revalidate();
-				dropDownLists[1].setPreferredSize(new Dimension(diseaseTable.getColumnModel().getColumn(1).getWidth(),dropDownLists[1].getHeight()));
-				dropDownLists[1].revalidate();
-				dropDownLists[2].setPreferredSize(new Dimension(diseaseTable.getColumnModel().getColumn(2).getWidth(),dropDownLists[2].getHeight()));
-				dropDownLists[2].revalidate();
-				dropDownLists[3].setPreferredSize(new Dimension(diseaseTable.getColumnModel().getColumn(3).getWidth(),dropDownLists[3].getHeight()));
-				dropDownLists[3].revalidate();
-				dropDownLists[4].setPreferredSize(new Dimension(agentTable.getColumnModel().getColumn(0).getWidth(),dropDownLists[4].getHeight()));
-				dropDownLists[4].revalidate();
-				dropDownLists[5].setPreferredSize(new Dimension(agentTable.getColumnModel().getColumn(1).getWidth(),dropDownLists[5].getHeight()));
-				dropDownLists[5].revalidate();
-				dropDownLists[6].setPreferredSize(new Dimension(agentTable.getColumnModel().getColumn(2).getWidth(),dropDownLists[6].getHeight()));
-				dropDownLists[6].revalidate();
-				dropDownLists[7].setPreferredSize(new Dimension(agentTable.getColumnModel().getColumn(3).getWidth(),dropDownLists[7].getHeight()));
-				dropDownLists[7].revalidate();
-				leftHeadPanel.revalidate();
-				rightHeadPanel.revalidate();
-    		}finally{
-    			entered = false;
-    		}
-    	}
-    }
     /**
      * Interface <code>VisualPlugin</code> method that returns a
      * <code>Component</code> which is the visual representation of
@@ -930,27 +255,10 @@ public class AnnotationsPanel2 implements VisualPlugin{
         return mainPanel;
     }
 
-    /*
-     *
-     */
-    private void retrieveAll(DSGeneMarker marker){
-    	retrieveItem.setEnabled(false);
-    	retrieveMarkerInfo.clear();
-    	//TODO: If we support retrieve all for multiple markers,
-    	//			We should remove retrieveMarker variable.
-    	//		If we only allow retrieve all for one marker at a time,
-    	//			We should remove retrieveMarkerInfo variable.
-        retrieveMarker = marker;
-        retrieveMarkerInfo.add(retrieveMarker);
-
-        retrieveAllTask = new RetrieveAllTask(ProgressItem.BOUNDED_TYPE, "Connecting to server...", this);
-        pd.executeTask(retrieveAllTask);
-    }
-
 	ProgressDialog pd = ProgressDialog.create(ProgressDialog.NONMODAL_TYPE);
-    private CGITask cgiTask = null;
+
     private AnnotTask annotTask = null;
-    private RetrieveAllTask retrieveAllTask = null;
+
     /**
      * Performs caBIO queries and constructs HTML display of the results
      */
@@ -967,98 +275,13 @@ public class AnnotationsPanel2 implements VisualPlugin{
 
         pathways = new Pathway[0];
 
-        if (userAlsoWantCaBioData){
-        		dropDownLists[2].removeAllItems();
-        		dropDownLists[2].addItem("");
-        		if (cgiTask != null && !cgiTask.isDone()){
-        			cgiTask.cancel(true);
-        			cgiTask = null;
-        		}
-                if (retrieveAllTask != null && !retrieveAllTask.isDone()){
-                	retrieveAllTask.cancel(true);
-                	retrieveAllTask = null;
-                }
-        		cgiTask = new CGITask(ProgressItem.BOUNDED_TYPE, "Connecting to server...", this);
-        		pd.executeTask(cgiTask);
-        }
-        //block for retrieving CGI data ends
-        //block for retrieving annotation data starts
-        if (userAlsoWantPathwayData){
-        		if (annotTask != null && !annotTask.isDone()){
-        			annotTask.cancel(true);
-        			annotTask = null;
-        		}
-        		annotTask = new AnnotTask(ProgressItem.BOUNDED_TYPE, "Connecting to server...", this);
-        		pd.executeTask(annotTask);
-        }
-
-    }
-
-
-    /*
-     *
-     */
-    private void cgiClearButton_actionPerformed(ActionEvent e) {
-        diseaseTable.setSortableModel(new CGITableModel(this));
-        diseaseTable.getColumnModel().getColumn(0).setHeaderValue("     Marker");
-        diseaseTable.getColumnModel().getColumn(1).setHeaderValue("     Gene");
-        diseaseTable.getColumnModel().getColumn(2).setHeaderValue("     Disease");
-        diseaseTable.getColumnModel().getColumn(3).setHeaderValue("     Role");
-        diseaseTable.getColumnModel().getColumn(4).setHeaderValue("     Sentence");
-        diseaseTable.getColumnModel().getColumn(5).setHeaderValue("     Pubmed");
-        diseaseTable.getTableHeader().revalidate();
-        agentTable.setSortableModel(new CGITableModel(this));
-        agentTable.getColumnModel().getColumn(0).setHeaderValue("     Marker");
-        agentTable.getColumnModel().getColumn(1).setHeaderValue("     Gene");
-        agentTable.getColumnModel().getColumn(2).setHeaderValue("     Agent");
-        agentTable.getColumnModel().getColumn(3).setHeaderValue("     Role");
-        agentTable.getColumnModel().getColumn(4).setHeaderValue("     Sentence");
-        agentTable.getColumnModel().getColumn(5).setHeaderValue("     Pubmed");
-        agentTable.getTableHeader().revalidate();
-        leftHeadPanel.setVisible(false);
-        rightHeadPanel.setVisible(false);
-        diseaseTableList.put(new Integer(maSet.hashCode()),  new CGITableModel(this));
-        agentTableList.put(new Integer(maSet.hashCode()),  new CGITableModel(this));
-    }
-
-    /*
-     *
-     */
-    private void exportButton_actionPerformed(ActionEvent e) {
-		JFileChooser jFC=new JFileChooser();
-
-		//We remove "all files" from filter, since we only allow CSV format
-		FileFilter ft = jFC.getAcceptAllFileFilter();
-		jFC.removeChoosableFileFilter(ft);
-
-		TabularFileFilter filter = new TabularFileFilter();
-        jFC.setFileFilter(filter);
-
-	    //Save disease model to CSV file
-        jFC.setDialogTitle("Save disease table");
-		int returnVal = jFC.showSaveDialog(this.getComponent());
-	    if (returnVal == JFileChooser.APPROVE_OPTION) {
-			String tabFilename;
-			tabFilename = jFC.getSelectedFile().getAbsolutePath();
-			if (!tabFilename.toLowerCase().endsWith(
-					"." + filter.getExtension().toLowerCase())) {
-				tabFilename += "." + filter.getExtension();
-			}
-			diseaseModel.toCSV(tabFilename);
+		if (annotTask != null && !annotTask.isDone()) {
+			annotTask.cancel(true);
+			annotTask = null;
 		}
-
-	    //Save agent model to CSV file
-        jFC.setDialogTitle("Save agent table");
-		returnVal = jFC.showSaveDialog(this.getComponent());
-	    if (returnVal == JFileChooser.APPROVE_OPTION) {
-			String tabFilename;
-			tabFilename = jFC.getSelectedFile().getAbsolutePath();
-			if (!tabFilename.toLowerCase().endsWith(
-					"." + filter.getExtension().toLowerCase())) {
-				tabFilename += "." + filter.getExtension();
-			}
-			agentModel.toCSV(tabFilename);
-		}
+		annotTask = new AnnotTask(ProgressItem.BOUNDED_TYPE,
+				"Connecting to server...", this);
+		pd.executeTask(annotTask);
     }
 
     private void annotationExportButton_actionPerformed(ActionEvent e) {
@@ -1102,14 +325,10 @@ public class AnnotationsPanel2 implements VisualPlugin{
      */
     private void showPanels_actionPerformed(ActionEvent e) {
         if (selectedMarkerInfo == null || selectedMarkerInfo.size() == 0) {
-            JOptionPane.showMessageDialog(cgiPanel.getParent(), "Please activate a marker set to retrieve annotations.");
-        }else if((!userAlsoWantCaBioData)&&(!userAlsoWantPathwayData)){
-			JOptionPane.showMessageDialog(cgiPanel.getParent(),
-					" Please select a data type to retrieve. " + "( "
-							+ RETRIEVE_CGI_DATA + " and/or "
-							+ RETRIEVE_PATHWAY_DATA + " )");
-        }else
+            JOptionPane.showMessageDialog(jTabbedPane1, "Please activate a marker set to retrieve annotations.");
+        } else {
         	showAnnotation();
+        }
     }
 
     /*
@@ -1135,38 +354,17 @@ public class AnnotationsPanel2 implements VisualPlugin{
     private JPanel mainPanel = new JPanel();
     JTabbedPane jTabbedPane1 = new JTabbedPane();
 
-
-
-    /**
-     * The Visual Component on which the annotation results are shown
-     */
-    JSplitPane cgiPanel = null;
-    /**
-     * Visual Widget
-     */
     JPanel annotationPanel = new JPanel();	//for annotation
-    private JScrollPane jScrollPane1 = new JScrollPane(); //for disease
-    private JScrollPane jScrollPane2 = new JScrollPane(); //for agent
 
-    /**
-     * Visual Widget
-     */
-    SortableTable diseaseTable;
-    CGITableModel diseaseModel;
-    SortableTable agentTable;
-    CGITableModel agentModel;
     SortableTable annotationTable;
     AnnotationTableModel annotationModel;
 
     HashMap<Integer, AnnotationTableModel> annotationTableList;
-    HashMap<Integer, CGITableModel> diseaseTableList;
-    HashMap<Integer, CGITableModel> agentTableList;
 
     /**
      * Visual Widget
      */
     private JPanel annoButtonPanel = new JPanel();
-    private JPanel cgiButtonPanel = new JPanel();
     private JTextArea textArea = new JTextArea();
     /**
      * Visual Widget
@@ -1174,16 +372,9 @@ public class AnnotationsPanel2 implements VisualPlugin{
     //GUIs used by Annotation panel
     private JButton annoRetrieveButton = new JButton();
     JButton annoClearButton = new JButton();
-    private JCheckBox annoRetrieveCaBioCheckBox = new JCheckBox(RETRIEVE_CGI_DATA);
-    private JCheckBox annoRetrievePathwayCheckBox = new JCheckBox(RETRIEVE_PATHWAY_DATA);
+
     private JComboBox annoHumanOrMouseComboBox = new JComboBox(Human_Mouse);
-    //GUIs used by CGI panel
-    private JButton cgiRetrieveButton = new JButton();
-    JButton cgiClearButton = new JButton();
-    private JCheckBox cgiRetrieveCaBioCheckBox = new JCheckBox(RETRIEVE_CGI_DATA);
-    private JCheckBox cgiRetrievePathwayCheckBox = new JCheckBox(RETRIEVE_PATHWAY_DATA);
-    private JComboBox cgiHumanOrMouseComboBox = new JComboBox(Human_Mouse);
-    private JButton exportButton = new JButton();
+
     private JButton annotationExportButton = new JButton();
 
 
@@ -1264,54 +455,6 @@ public class AnnotationsPanel2 implements VisualPlugin{
             annotationTable.getColumnModel().getColumn(1).setHeaderValue("     Gene");
             annotationTable.getColumnModel().getColumn(2).setHeaderValue("     Pathway");
             annotationTable.getTableHeader().revalidate();
-        }
-
-        if (diseaseTableList.containsKey(new Integer(hashcode)))
-        {
-        	diseaseModel = diseaseTableList.get(new Integer(hashcode));
-        	diseaseTable.setSortableModel(diseaseModel);
-        	diseaseTable.getColumnModel().getColumn(0).setHeaderValue("     Marker");
-            diseaseTable.getColumnModel().getColumn(1).setHeaderValue("     Gene");
-            diseaseTable.getColumnModel().getColumn(2).setHeaderValue("     Disease");
-            diseaseTable.getColumnModel().getColumn(3).setHeaderValue("     Role");
-            diseaseTable.getColumnModel().getColumn(4).setHeaderValue("     Sentence");
-            diseaseTable.getColumnModel().getColumn(5).setHeaderValue("     Pubmed");
-            diseaseTable.getTableHeader().revalidate();
-        }
-        else
-        {
-        	diseaseTable.setSortableModel(new CGITableModel(this));
-        	diseaseTable.getColumnModel().getColumn(0).setHeaderValue("     Marker");
-            diseaseTable.getColumnModel().getColumn(1).setHeaderValue("     Gene");
-            diseaseTable.getColumnModel().getColumn(2).setHeaderValue("     Disease");
-            diseaseTable.getColumnModel().getColumn(3).setHeaderValue("     Role");
-            diseaseTable.getColumnModel().getColumn(4).setHeaderValue("     Sentence");
-            diseaseTable.getColumnModel().getColumn(5).setHeaderValue("     Pubmed");
-            diseaseTable.getTableHeader().revalidate();
-        }
-
-        if (agentTableList.containsKey(new Integer(hashcode)))
-        {
-        	agentModel = agentTableList.get(new Integer(hashcode));
-        	agentTable.setSortableModel(agentModel);
-        	agentTable.getColumnModel().getColumn(0).setHeaderValue("     Marker");
-            agentTable.getColumnModel().getColumn(1).setHeaderValue("     Gene");
-            agentTable.getColumnModel().getColumn(2).setHeaderValue("     Disease");
-            agentTable.getColumnModel().getColumn(3).setHeaderValue("     Role");
-            agentTable.getColumnModel().getColumn(4).setHeaderValue("     Sentence");
-            agentTable.getColumnModel().getColumn(5).setHeaderValue("     Pubmed");
-            agentTable.getTableHeader().revalidate();
-        }
-        else
-        {
-        	agentTable.setSortableModel(new CGITableModel(this));
-        	agentTable.getColumnModel().getColumn(0).setHeaderValue("     Marker");
-            agentTable.getColumnModel().getColumn(1).setHeaderValue("     Gene");
-            agentTable.getColumnModel().getColumn(2).setHeaderValue("     Disease");
-            agentTable.getColumnModel().getColumn(3).setHeaderValue("     Role");
-            agentTable.getColumnModel().getColumn(4).setHeaderValue("     Sentence");
-            agentTable.getColumnModel().getColumn(5).setHeaderValue("     Pubmed");
-            agentTable.getTableHeader().revalidate();
         }
 
     	  if (svgStringListMap.containsKey(new Integer(hashcode)))
@@ -1773,42 +916,6 @@ public class AnnotationsPanel2 implements VisualPlugin{
             annotationTable.getColumnModel().getColumn(2).setHeaderValue("     Pathway");
             annotationTable.getTableHeader().revalidate();
 	    } 
-	    else if (type.equals("cgi")) {
-	    	diseaseModel = new CGITableModel(AnnotationsPanel2.this);
-            diseaseTableList.put(new Integer(maSet.hashCode()), diseaseModel);
-	    	diseaseTable.setSortableModel(diseaseModel);
-        	diseaseTable.getColumnModel().getColumn(0).setHeaderValue("     Marker");
-            diseaseTable.getColumnModel().getColumn(1).setHeaderValue("     Gene");
-            diseaseTable.getColumnModel().getColumn(2).setHeaderValue("     Disease");
-            diseaseTable.getColumnModel().getColumn(3).setHeaderValue("     Role");
-            diseaseTable.getColumnModel().getColumn(4).setHeaderValue("     Sentence");
-            diseaseTable.getColumnModel().getColumn(5).setHeaderValue("     Pubmed");
-            diseaseTable.getTableHeader().revalidate();
-	    	
-	    	agentModel = new CGITableModel(AnnotationsPanel2.this);
-            agentTableList.put(new Integer(maSet.hashCode()), agentModel);
-        	agentTable.setSortableModel(agentModel);
-        	agentTable.getColumnModel().getColumn(0).setHeaderValue("     Marker");
-            agentTable.getColumnModel().getColumn(1).setHeaderValue("     Gene");
-            agentTable.getColumnModel().getColumn(2).setHeaderValue("     Agent");
-            agentTable.getColumnModel().getColumn(3).setHeaderValue("     Role");
-            agentTable.getColumnModel().getColumn(4).setHeaderValue("     Sentence");
-            agentTable.getColumnModel().getColumn(5).setHeaderValue("     Pubmed");
-            agentTable.getTableHeader().revalidate();
-	    }
-	}
-
-	void orderDropDownLists(JComboBox dropDownLists){
-		int itemCount = dropDownLists.getItemCount();
-		String[] array = new String[itemCount];
-		for (int i = 0; i < itemCount; i++) {
-			array[i]=(String)dropDownLists.getItemAt(i);
-		}
-		Arrays.sort(array);
-		dropDownLists.removeAllItems();
-		for (int i = 0; i < itemCount; i++) {
-			dropDownLists.addItem(array[i]);
-		}
 	}
 
 }
