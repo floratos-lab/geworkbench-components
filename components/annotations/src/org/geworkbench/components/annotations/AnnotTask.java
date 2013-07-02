@@ -126,8 +126,6 @@ public class AnnotTask extends ProgressTask<AnnotData, String> {
             ap.annotationTable.getColumnModel().getColumn(1).setHeaderValue("     Gene");
             ap.annotationTable.getColumnModel().getColumn(2).setHeaderValue("     Pathway");
             ap.annotationTable.getTableHeader().repaint();
-            if ((!ap.userAlsoWantPathwayData) && ap.userAlsoWantCaBioData)
-            	ap.jTabbedPane1.setSelectedComponent(ap.cgiPanel);
         }
         
         @Override
