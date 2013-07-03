@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.events.AnnotationsEvent;
+import org.geworkbench.events.MarkerSelectedEvent;
 import org.geworkbench.util.BrowserLauncher;
 import org.geworkbench.util.CsvFileFilter;
 import org.geworkbench.util.OWFileChooser;
@@ -37,6 +38,9 @@ import com.Ostermiller.util.CSVPrinter;
 
 public class AnnotationTableModel extends SortableTableModel {
         private static Log log = LogFactory.getLog(AnnotationTableModel.class);
+        
+        private static final String GENE_FINDER_PREFIX = "http://cgap.nci.nih.gov/Genes/GeneInfo?";
+
 		private static final long serialVersionUID = 1L;
 		public static final int COL_MARKER = 0;
         public static final int COL_GENE = 1;
@@ -124,7 +128,7 @@ public class AnnotationTableModel extends SortableTableModel {
             switch (columnIndex) {
                 case COL_MARKER:
                     MarkerData marker = markerData[indices[rowIndex]];
-                    annotationsPanel.activateMarker(marker);
+                    annotationsPanel.publishMarkerSelectedEvent(new MarkerSelectedEvent(marker.marker));
                     break;
                 case COL_GENE:
                     GeneData gene = geneData[indices[rowIndex]];
@@ -159,7 +163,7 @@ public class AnnotationTableModel extends SortableTableModel {
 					String geneName = geneData[cx].name;
 			        String entrezId = GeneAnnotationImpl.getEntrezId(geneData[cx].gene);
 		            String entrezUrl = "http://www.ncbi.nlm.nih.gov/sites/entrez?Db=gene&Cmd=ShowDetailView&TermToSearch="+entrezId;
-		            String cgapUrl = AnnotationsPanel2.GENE_FINDER_PREFIX + "ORG=" + geneData[cx].getOrganism() + "&CID=" + geneData[cx].gene.getClusterId();
+		            String cgapUrl = GENE_FINDER_PREFIX + "ORG=" + geneData[cx].getOrganism() + "&CID=" + geneData[cx].gene.getClusterId();
                     String GeneCardsUrl = AnnotationsPanel2.GeneCards_PREFIX + geneName;
 					String pathwayName = pathwayData[cx].name;
 
@@ -254,18 +258,19 @@ public class AnnotationTableModel extends SortableTableModel {
 	     *           <code>Pathway</code> to be shown
 	     */
 	     public void receive(org.geworkbench.events.AnnotationsEvent ae){
-	         annotationsPanel.pathway = ae.getPathway();
-	         	SwingUtilities.invokeLater(new Runnable(){
+	    	 final org.geworkbench.util.annotation.Pathway pathway = ae.getPathway();
+	         	
+	    	 SwingUtilities.invokeLater(new Runnable(){
 	         		public void run(){
-	                 	String pathwayName = annotationsPanel.pathway.getPathwayName();
-	                 	String pathwayDiagram = annotationsPanel.pathway.getPathwayDiagram();
+	                 	String pathwayName = pathway.getPathwayName();
+	                 	String pathwayDiagram = pathway.getPathwayDiagram();
 	                     addPathwayName(pathwayName, pathwayDiagram);
 
 	                     Container parent = annotationsPanel.pathwayPanel.getParent();
 	                     if (parent instanceof JTabbedPane)
 	                     {    ((JTabbedPane) parent).setSelectedComponent(annotationsPanel.pathwayPanel);
 	                        JTabbedPane p =  (JTabbedPane) parent;
-	                        p.setTitleAt(annotationsPanel.jTabbedPane1.indexOfComponent(annotationsPanel.pathwayPanel), annotationsPanel.pathway.getPathwayName());
+	                        p.setTitleAt(annotationsPanel.jTabbedPane1.indexOfComponent(annotationsPanel.pathwayPanel), pathway.getPathwayName());
 	                     }
 	         		}
 	         	});
@@ -319,7 +324,7 @@ public class AnnotationTableModel extends SortableTableModel {
 	        }
 	        //CGAP section
 	        if (!gene.getOrganism().equals("")){
-		        String cgapUrl = AnnotationsPanel2.GENE_FINDER_PREFIX + "ORG=" + gene.getOrganism() + "&CID=" + gene.gene.getClusterId();
+		        String cgapUrl = GENE_FINDER_PREFIX + "ORG=" + gene.getOrganism() + "&CID=" + gene.gene.getClusterId();
 		        JMenuItem cgapJMenuItem = new JMenuItem("Go to CGAP for " + value);
 		        class MyCGAPActionListener implements ActionListener{
 		        	String value="";

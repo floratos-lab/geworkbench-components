@@ -57,7 +57,7 @@ public class AnnotTask extends ProgressTask<AnnotData, String> {
                             annotations = ap.criteria.searchByName(geneName, ap.humanOrMouse);
 
                             if (annotations == null ) {
-                                ap.clearTable("annot");
+                                ap.clearTable();
                             	return null;
                             }
 

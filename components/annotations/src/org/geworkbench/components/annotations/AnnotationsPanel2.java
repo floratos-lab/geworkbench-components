@@ -13,33 +13,25 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Locale;
 
 import javax.swing.Box;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JTextArea;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
 import javax.swing.filechooser.FileFilter;
 
-import org.apache.batik.bridge.DefaultExternalResourceSecurity;
-import org.apache.batik.bridge.DefaultScriptSecurity;
-import org.apache.batik.bridge.ExternalResourceSecurity;
-import org.apache.batik.bridge.ScriptSecurity;
 import org.apache.batik.dom.svg.SAXSVGDocumentFactory;
 import org.apache.batik.swing.JSVGCanvas;
 import org.apache.batik.swing.gvt.GVTTreeRendererAdapter;
@@ -48,9 +40,7 @@ import org.apache.batik.swing.gvt.GVTTreeRendererListener;
 import org.apache.batik.swing.svg.LinkActivationEvent;
 import org.apache.batik.swing.svg.LinkActivationListener;
 import org.apache.batik.swing.svg.SVGUserAgent;
-import org.apache.batik.util.ParsedURL;
 import org.apache.batik.util.XMLResourceDescriptor;
-import org.apache.batik.util.gui.JErrorPane;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
@@ -70,12 +60,12 @@ import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.ImageSnapshotEvent;
 import org.geworkbench.events.MarkerSelectedEvent;
 import org.geworkbench.events.ProjectEvent;
+import org.geworkbench.util.CsvFileFilter;
 import org.geworkbench.util.ProgressDialog;
 import org.geworkbench.util.ProgressItem;
 import org.geworkbench.util.annotation.Pathway;
 import org.jfree.ui.SortableTable;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 /**
  * <p>
@@ -104,7 +94,6 @@ import org.w3c.dom.Element;
 @AcceptTypes({DSMicroarraySet.class})
 @SuppressWarnings("unchecked")
 public class AnnotationsPanel2 implements VisualPlugin{
-    static final String GENE_FINDER_PREFIX = "http://cgap.nci.nih.gov/Genes/GeneInfo?";
     private static final String RETRIEVE_INFORMATION = "Retrieve Annotations";
 
 	private static final String[] Human_Mouse= {"Human","Mouse"};
@@ -116,27 +105,27 @@ public class AnnotationsPanel2 implements VisualPlugin{
 
 	private static Log log = LogFactory.getLog(AnnotationsPanel2.class);
     
-	DSGeneMarker selectedMarker = null;
-	int selectedRow = -1;
-	String selectedGene = "";
-	String selectedDisease = "";
-	SortableTable selectedTable = null;
     String humanOrMouse = Human_Mouse_Code[0];	//default to Human
-    //Aris want the table to sort by number of records when the records just been retrieved.
-    boolean sortByNumberOfRecords=true;
 
     /**
      * Default Constructor
      */
     public AnnotationsPanel2() {
+        annotationModel = new AnnotationTableModel();
+        annotationTable = new SortableTable(annotationModel);
+        
         try {
             jbInit();
-        }
-
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
+        annotationTableList = new HashMap<Integer, AnnotationTableModel>();
+
+        svgStringListMap = new HashMap<Integer, HashMap<String, String>>();
+        pathwayListMap = new HashMap<Integer, ArrayList<String>>();
+        tabPanelSelectedMap = new HashMap<Integer, Integer>();
+        pathwayComboItemSelectedMap = new HashMap<Integer, Integer>();
     }
 
     /**
@@ -148,7 +137,11 @@ public class AnnotationsPanel2 implements VisualPlugin{
 
     	mainPanel.setLayout( new GridLayout());
         mainPanel.add(jTabbedPane1);
+        
         //Init button panel in annotation panel
+        //GUIs used by Annotation panel
+        JButton annoRetrieveButton = new JButton();
+        JButton annoClearButton = new JButton();
         annoRetrieveButton.setHorizontalAlignment(SwingConstants.CENTER);
         annoRetrieveButton.setText(RETRIEVE_INFORMATION);
         annoRetrieveButton.setToolTipText("Retrieve gene and disease information for markers in activated panels");
@@ -167,6 +160,7 @@ public class AnnotationsPanel2 implements VisualPlugin{
             }
         });
 
+        JButton annotationExportButton = new JButton();
         annotationExportButton.setForeground(Color.black);
         annotationExportButton.setToolTipText("Export to CSV files");
         annotationExportButton.setFocusPainted(true);
@@ -176,24 +170,31 @@ public class AnnotationsPanel2 implements VisualPlugin{
             	annotationExportButton_actionPerformed(e);
             }
         });
-
-        //This panel using BorderLayout to give text field the ability to fill the window.
-        JPanel textFieldPanel = new JPanel();
-        textFieldPanel.setLayout(new BorderLayout());
-    	textArea.setLineWrap(true);
-    	//This panel using JScrollPane to give text field a scroll bar when needed.
-        JScrollPane textScrollPanel = new JScrollPane(textArea);
-        textFieldPanel.setPreferredSize(new Dimension(100,60));
-        textFieldPanel.add(textScrollPanel,BorderLayout.CENTER);
-
+        
+        ActionListener HumanMouseListener = new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	String selected =(String)((JComboBox)e.getSource()).getSelectedItem();
+        		if (selected.equals(Human_Mouse[0]))
+        			humanOrMouse = Human_Mouse_Code[0];
+        		else if (selected.equals(Human_Mouse[1]))
+        			humanOrMouse = Human_Mouse_Code[1];
+        		else{
+        			log.error("Shouldn't happen");
+        		}
+            }
+        };
+        
+        JComboBox annoHumanOrMouseComboBox = new JComboBox(Human_Mouse);
+        JPanel annoButtonPanel = new JPanel();
         annoButtonPanel.add(annoHumanOrMouseComboBox);
+        annoHumanOrMouseComboBox.addActionListener(HumanMouseListener);
         annoButtonPanel.add(annoRetrieveButton);
         annoButtonPanel.add(annoClearButton);
         annoButtonPanel.add(annotationExportButton);
 
-        annotationModel = new AnnotationTableModel();
-        annotationTable = new SortableTable(annotationModel);
         annotationTable.getTableHeader().setPreferredSize(new Dimension(0, 25));
+
+        JPanel annotationPanel = new JPanel();	//for annotation
         annotationPanel.setLayout(new BorderLayout());
         annotationPanel.add(new JScrollPane(annotationTable),BorderLayout.CENTER);
         annotationPanel.add(annoButtonPanel, BorderLayout.SOUTH);
@@ -202,8 +203,6 @@ public class AnnotationsPanel2 implements VisualPlugin{
         jTabbedPane1.add("Pathway", pathwayPanel);
 
         jbInitPathways();
-
-        annotationTableList = new HashMap<Integer, AnnotationTableModel>();
 
         annotationTable.getColumnModel().getColumn(0).setHeaderValue("     Marker");
         annotationTable.getColumnModel().getColumn(1).setHeaderValue("     Gene");
@@ -255,25 +254,9 @@ public class AnnotationsPanel2 implements VisualPlugin{
         return mainPanel;
     }
 
-	ProgressDialog pd = ProgressDialog.create(ProgressDialog.NONMODAL_TYPE);
+	final ProgressDialog pd = ProgressDialog.create(ProgressDialog.NONMODAL_TYPE);
 
     private AnnotTask annotTask = null;
-
-    /**
-     * Performs caBIO queries and constructs HTML display of the results
-     */
-    private void showAnnotation() {
-
-    	pathways = new Pathway[0];
-
-		if (annotTask != null && !annotTask.isDone()) {
-			annotTask.cancel(true);
-			annotTask = null;
-		}
-		annotTask = new AnnotTask(ProgressItem.BOUNDED_TYPE,
-				"Connecting to server...", this);
-		pd.executeTask(annotTask);
-    }
 
     private void annotationExportButton_actionPerformed(ActionEvent e) {
 		JFileChooser jFC=new JFileChooser();
@@ -282,7 +265,7 @@ public class AnnotationsPanel2 implements VisualPlugin{
 		FileFilter ft = jFC.getAcceptAllFileFilter();
 		jFC.removeChoosableFileFilter(ft);
 
-		TabularFileFilter filter = new TabularFileFilter();
+		CsvFileFilter filter = new CsvFileFilter();
         jFC.setFileFilter(filter);
 
 	    //Save model to CSV file
@@ -291,17 +274,13 @@ public class AnnotationsPanel2 implements VisualPlugin{
 	    if (returnVal == JFileChooser.APPROVE_OPTION) {
 			String tabFilename;
 			tabFilename = jFC.getSelectedFile().getAbsolutePath();
-			if (!tabFilename.toLowerCase().endsWith(
-					"." + filter.getExtension().toLowerCase())) {
-				tabFilename += "." + filter.getExtension();
+			if (!tabFilename.toLowerCase().endsWith(".csv")) {
+				tabFilename += ".csv";
 			}
 			annotationModel.toCSV(tabFilename);
 		}
     }
 
-    /*
-     *
-     */
     private void annoClearButton_actionPerformed(ActionEvent e) {
         annotationTable.setSortableModel(new AnnotationTableModel());
         annotationTable.getColumnModel().getColumn(0).setHeaderValue("     Marker");
@@ -311,22 +290,20 @@ public class AnnotationsPanel2 implements VisualPlugin{
         annotationTableList.put(new Integer(maSet.hashCode()),  new AnnotationTableModel());
     }
 
-    /*
-     *
-     */
     private void showPanels_actionPerformed(ActionEvent e) {
         if (selectedMarkerInfo == null || selectedMarkerInfo.size() == 0) {
             JOptionPane.showMessageDialog(jTabbedPane1, "Please activate a marker set to retrieve annotations.");
         } else {
-        	showAnnotation();
-        }
-    }
+        	pathways = new Pathway[0];
 
-    /*
-     *
-     */
-    void activateMarker(MarkerData markerData) {
-        publishMarkerSelectedEvent(new MarkerSelectedEvent(markerData.marker));
+    		if (annotTask != null && !annotTask.isDone()) {
+    			annotTask.cancel(true);
+    			annotTask = null;
+    		}
+    		annotTask = new AnnotTask(ProgressItem.BOUNDED_TYPE,
+    				"Connecting to server...", this);
+    		pd.executeTask(annotTask);
+        }
     }
 
 	@SuppressWarnings("rawtypes")
@@ -340,38 +317,16 @@ public class AnnotationsPanel2 implements VisualPlugin{
         return event;
     }
 
+    final private JPanel mainPanel = new JPanel();
+    final JTabbedPane jTabbedPane1 = new JTabbedPane();
 
-
-    private JPanel mainPanel = new JPanel();
-    JTabbedPane jTabbedPane1 = new JTabbedPane();
-
-    JPanel annotationPanel = new JPanel();	//for annotation
-
-    SortableTable annotationTable;
+    final SortableTable annotationTable;
     AnnotationTableModel annotationModel;
 
-    HashMap<Integer, AnnotationTableModel> annotationTableList;
-
-    /**
-     * Visual Widget
-     */
-    private JPanel annoButtonPanel = new JPanel();
-    private JTextArea textArea = new JTextArea();
-    /**
-     * Visual Widget
-     */
-    //GUIs used by Annotation panel
-    private JButton annoRetrieveButton = new JButton();
-    JButton annoClearButton = new JButton();
-
-    private JComboBox annoHumanOrMouseComboBox = new JComboBox(Human_Mouse);
-
-    private JButton annotationExportButton = new JButton();
-
+    final HashMap<Integer, AnnotationTableModel> annotationTableList;
 
     DSItemList<DSGeneMarker> selectedMarkerInfo = null;
-    DSItemList<DSGeneMarker> retrieveMarkerInfo = new CSItemList<DSGeneMarker>();
-    DSGeneMarker retrieveMarker = null;
+
     GeneSearchCriteria criteria = null;
     Pathway[] pathways = new Pathway[0];
 
@@ -409,18 +364,14 @@ public class AnnotationsPanel2 implements VisualPlugin{
 
         if (data != null && data instanceof DSMicroarraySet) {
             maSet = (DSMicroarraySet) data;
-
         }
 
-        if ( maSet != null )
+        if ( maSet != null ) {
         	hashcode = maSet.hashCode();
-
-
+        }
 
         if (oldHashCode == 0)
         {
-        	//pathwayComboBox.setSelectedIndex(0);
-           // jTabbedPane1.setTitleAt(1,"Pathway");
         	oldHashCode = hashcode;
         	return;
         }
@@ -438,9 +389,7 @@ public class AnnotationsPanel2 implements VisualPlugin{
             annotationTable.getColumnModel().getColumn(1).setHeaderValue("     Gene");
             annotationTable.getColumnModel().getColumn(2).setHeaderValue("     Pathway");
             annotationTable.getTableHeader().revalidate();
-        }
-        else
-        {
+        } else {
         	annotationTable.setSortableModel(new AnnotationTableModel());
             annotationTable.getColumnModel().getColumn(0).setHeaderValue("     Marker");
             annotationTable.getColumnModel().getColumn(1).setHeaderValue("     Gene");
@@ -448,56 +397,38 @@ public class AnnotationsPanel2 implements VisualPlugin{
             annotationTable.getTableHeader().revalidate();
         }
 
-    	  if (svgStringListMap.containsKey(new Integer(hashcode)))
+    	if (svgStringListMap.containsKey(new Integer(hashcode))) {
             svgStringList = svgStringListMap.get(new Integer(hashcode));
-    	  else
-    	  {
+    	} else {
     		  pathwayComboBox.removeAllItems();
     		  pathwayList.clear();
     		  svgStringList.clear();
-    	  }
+    	}
 
-    	  if (pathwayListMap.containsKey(new Integer(hashcode)))
-    	  {
+    	if (pathwayListMap.containsKey(new Integer(hashcode))) {
     		  int selectIndex = pathwayComboItemSelectedMap.get(new Integer(hashcode));
 
               pathwayList = pathwayListMap.get(new Integer(hashcode));
               pathwayComboBox.setModel(new DefaultComboBoxModel(pathwayList.toArray()));
     		  pathwayComboBox.setSelectedIndex(selectIndex);
     		  pathwayComboBox.revalidate();
+    	}
 
-
-    	  }
-
-    	  if (tabPanelSelectedMap.containsKey(new Integer(hashcode)))
-    	  {
+    	if (tabPanelSelectedMap.containsKey(new Integer(hashcode))) {
     		  jTabbedPane1.setSelectedIndex(tabPanelSelectedMap.get(new Integer(hashcode)));
-    	  }
-    	  else
+    	} else {
     		  jTabbedPane1.setSelectedIndex(0);
-    	    //pathwayComboBox.setSelectedIndex(0);
-            //jTabbedPane1.setTitleAt(1,"Pathway");
+    	}
 
-    	    if ( maSet != null)
+    	if ( maSet != null) {
     	    oldHashCode = maSet.hashCode();
+    	}
     }
 
-
-
-
-    //****************************************************************
-    //The following code integrate Pathway component with Annotations
-
-
-
-    /*
-     * Configures the Graphical User Interface and Listeners
-     *
-     * @throws Exception
-     */
+    /* initialize pathwayPanel */
     private void jbInitPathways() throws Exception {
 
-        pathwayPanel.setLayout(borderLayout2);
+        pathwayPanel.setLayout(new BorderLayout());
         pathwayPanel.add(jscrollPanePathway, BorderLayout.CENTER);
         pathwayPanel.add(pathwayTool, BorderLayout.NORTH);
 
@@ -510,7 +441,7 @@ public class AnnotationsPanel2 implements VisualPlugin{
             }
         });
 
-
+        JButton clearDiagramButton = new JButton();
         clearDiagramButton.setForeground(Color.black);
         clearDiagramButton.setFocusPainted(true);
         clearDiagramButton.setText("Clear Diagram");
@@ -520,6 +451,7 @@ public class AnnotationsPanel2 implements VisualPlugin{
             }
         });
 
+        JButton clearHistButton = new JButton();
         clearHistButton.setForeground(Color.black);
         clearHistButton.setFocusPainted(true);
         clearHistButton.setText("Clear History");
@@ -529,6 +461,7 @@ public class AnnotationsPanel2 implements VisualPlugin{
             }
         });
 
+        JButton imagePathwayButton = new JButton();
         imagePathwayButton.setForeground(Color.black);
         imagePathwayButton.setFocusPainted(true);
         imagePathwayButton.setText("Image Snapshot");
@@ -541,26 +474,24 @@ public class AnnotationsPanel2 implements VisualPlugin{
         pathwayTool.add(pathwayComboBox, null);
         pathwayTool.add(clearDiagramButton);
         pathwayTool.add(clearHistButton);
-        pathwayTool.add(component1);
+        pathwayTool.add(Box.createVerticalStrut(8));
         pathwayTool.add(imagePathwayButton);
 
         createSvgCanvas();
 
         svgStringList = new HashMap<String, String>();
         pathwayList = new ArrayList<String>();
-        svgStringListMap = new HashMap<Integer, HashMap<String, String>>();
-        pathwayListMap = new HashMap<Integer, ArrayList<String>>();
-        pathwayComboItemSelectedMap = new HashMap<Integer, Integer>();
-        tabPanelSelectedMap = new HashMap<Integer, Integer>();
     }
 
-    private LinkActivationListener linkListener = new LinkActivationListener() {
+    final private LinkActivationListener linkListener = new LinkActivationListener() {
+    	@Override
         public void linkActivated(LinkActivationEvent lae) {
             svgCanvas_linkActivated(lae);
         }
     };
 
-    private GVTTreeRendererListener renderListener = new GVTTreeRendererAdapter() {
+    final private GVTTreeRendererListener renderListener = new GVTTreeRendererAdapter() {
+    	@Override
     	public void gvtRenderingCompleted(GVTTreeRendererEvent e) {
     		//set canvas viewbox size to document size
     		svgCanvas.revalidate();
@@ -569,40 +500,30 @@ public class AnnotationsPanel2 implements VisualPlugin{
 
     private void createSvgCanvas()
     {
-    	svgCanvas = new JSVGCanvas(new UserAgent(), true, true);
+    	svgCanvas = new JSVGCanvas(svgUserAgent, true, true);
         svgCanvas.addLinkActivationListener(linkListener);
         svgCanvas.addGVTTreeRendererListener(renderListener);
         jscrollPanePathway.getViewport().add(svgCanvas, null);
     }
-    /*
-     *
-     */
+
     private void pathwayComboBox_actionPerformed(ActionEvent e) {
 
-
     	Object pathwayName = pathwayComboBox.getSelectedItem();
-    	if (pathwayName != null && !pathwayName.toString().trim().equals(""))
-    	{    setSvg(svgStringList.get(pathwayName));
+    	if (pathwayName != null && !pathwayName.toString().trim().equals("")) {
+    		setSvg(svgStringList.get(pathwayName));
     	    jTabbedPane1.setTitleAt(jTabbedPane1.indexOfComponent(pathwayPanel), pathwayName.toString());
-    	}
-    	else
-    	{
+    	} else {
     	    try{
-    		svgCanvas.setDocument(null);
-    	    }catch(IllegalStateException ex)
-    	    {
+    	    	svgCanvas.setDocument(null);
+    	    } catch(IllegalStateException ex) {
     	    	log.error(ex,ex);
     	    }
     		svgCanvas.revalidate();
             pathwayPanel.revalidate();
             jTabbedPane1.setTitleAt(jTabbedPane1.indexOfComponent(pathwayPanel),"Pathway");
     	}
-
     }
 
-    /*
-     *
-     */
     private void clearDiagramButton_actionPerformed(ActionEvent e) {
     	Object pathwayName = pathwayComboBox.getSelectedItem();
     	if (pathwayName != null && !pathwayName.toString().trim().equals(""))
@@ -615,22 +536,16 @@ public class AnnotationsPanel2 implements VisualPlugin{
     		svgCanvas.revalidate();
             pathwayPanel.revalidate();
             jTabbedPane1.setTitleAt(jTabbedPane1.indexOfComponent(pathwayPanel),"Pathway");
-
     	}
-
-
     }
 
-    /*
-     *
-     */
     private void clearHistButton_actionPerformed(ActionEvent e) {
 
     	pathwayComboBox.removeAllItems();
     	svgStringList.clear();
 		pathwayList.clear();
 		try{
-    	svgCanvas.setDocument(null);
+			svgCanvas.setDocument(null);
 		}catch(IllegalStateException ex)
 	    {
 	    	log.error(ex,ex);
@@ -640,11 +555,8 @@ public class AnnotationsPanel2 implements VisualPlugin{
         jTabbedPane1.setTitleAt(jTabbedPane1.indexOfComponent(pathwayPanel),"Pathway");
     }
 
-    /**
-     *
-     * @return
-     */
-    @Publish public ImageSnapshotEvent createImageSnapshot() {
+    @Publish 
+    public ImageSnapshotEvent createImageSnapshot() {
     	Object pathwayName = pathwayComboBox.getSelectedItem();
     	if (pathwayName != null && !pathwayName.toString().trim().equals(""))
     	{
@@ -661,43 +573,29 @@ public class AnnotationsPanel2 implements VisualPlugin{
     }
 
     HashMap<String, String> svgStringList = null;
-    private HashMap<Integer, HashMap<String, String>> svgStringListMap = null;
     ArrayList<String> pathwayList = null;
-    private HashMap<Integer, ArrayList<String>> pathwayListMap = null;
-    private HashMap<Integer,Integer> tabPanelSelectedMap = null;
-    private HashMap<Integer,Integer> pathwayComboItemSelectedMap = null;
-
-
+    final private HashMap<Integer, HashMap<String, String>> svgStringListMap;
+    final private HashMap<Integer, ArrayList<String>> pathwayListMap;
+    final private HashMap<Integer,Integer> tabPanelSelectedMap;
+    final private HashMap<Integer,Integer> pathwayComboItemSelectedMap;
 
     private int oldHashCode = 0;
 
-
-    JPanel pathwayPanel = new JPanel();
-    private BorderLayout borderLayout2 = new BorderLayout();
-    JToolBar pathwayTool = new JToolBar();
-    JComboBox pathwayComboBox = new JComboBox();
-    JButton clearDiagramButton = new JButton();
-    JButton clearHistButton = new JButton();
-    JButton imagePathwayButton = new JButton();
-
-    Component component1 = Box.createVerticalStrut(8);
+    final JPanel pathwayPanel = new JPanel();
+    final private SVGUserAgent svgUserAgent = new SVGUserAgentImpl(pathwayPanel);
+    private JToolBar pathwayTool = new JToolBar();
+    final JComboBox pathwayComboBox = new JComboBox();
 
     /**
      * Visual Widget
      */
-    private JScrollPane jscrollPanePathway = new JScrollPane();
+    private final JScrollPane jscrollPanePathway = new JScrollPane();
 
     /**
      * <code>Canvas</code> on which the Pathway SVG image is drawn
      */
     private JSVGCanvas svgCanvas = null;
     private static final String SVG_BASE_URL = "http://cgap.nci.nih.gov/";
-
-
-
-
-    org.geworkbench.util.annotation.Pathway pathway = null;
-
 
     /**
      * Wrapper method for setting the <code>SVGDocument</code> received
@@ -743,15 +641,6 @@ public class AnnotationsPanel2 implements VisualPlugin{
     	}
         String uri = SVG_BASE_URL + referenceUri;
 
-/*
-        int index = uri.indexOf("BCID");
-        String bcid = uri.substring(index + 5, uri.length());
-        GeneSearchCriteria criteria = new GeneSearchCriteriaImpl();
-        GeneAnnotation[] matchingGenes = criteria.searchByBCID(bcid);
-//        criteria.search();
-//        GeneAnnotation[] matchingGenes = criteria.getGeneAnnotations();
-        assert matchingGenes.length == 1 : "Search on BCID should return just 1 Gene";
-*/
         try {
             log.debug("Opening " + uri);
             org.geworkbench.util.BrowserLauncher.openURL(uri);
@@ -760,153 +649,15 @@ public class AnnotationsPanel2 implements VisualPlugin{
         }
     }
 
-    /*
-     *
-     */
-    protected class UserAgent implements SVGUserAgent {
-        protected UserAgent() {
-        }
-
-        public void displayError(String message) {
-            JOptionPane pane = new JOptionPane(message, JOptionPane.ERROR_MESSAGE);
-            JDialog dialog = pane.createDialog(pathwayPanel, "ERROR");
-            dialog.setModal(false);
-            dialog.setVisible(true);
-        }
-
-        public void checkLoadExternalResource(ParsedURL resourceURL, ParsedURL docURL) {
-        }
-
-        public void checkLoadScript(String scriptType, ParsedURL scriptURL, ParsedURL docURL) {
-        }
-
-        public void displayError(Exception ex) {
-            JErrorPane pane = new JErrorPane(ex, JOptionPane.ERROR_MESSAGE);
-            JDialog dialog = pane.createDialog(pathwayPanel, "ERROR");
-            dialog.setModal(false);
-            dialog.setVisible(true);
-        }
-
-        public void displayMessage(String message) {
-        }
-
-        public String getAlternateStyleSheet() {
-            return "alternate";
-        }
-
-        public float getBolderFontWeight(float f) {
-            return 10f;
-        }
-
-        public String getDefaultFontFamily() {
-            return "Arial";
-        }
-
-        public ExternalResourceSecurity getExternalResourceSecurity(ParsedURL resourceURL, ParsedURL docURL) {
-            return new DefaultExternalResourceSecurity(resourceURL, docURL);
-        }
-
-        public float getLighterFontWeight(float f) {
-            return 8f;
-        }
-
-        public float getMediumFontSize() {
-            return 9f;
-        }
-
-        public float getPixelToMM() {
-            return 0.264583333333333333333f; // 96 dpi
-        }
-
-        public float getPixelUnitToMillimeter() {
-            return 0.264583333333333333333f; // 96 dpi
-        }
-
-        public ScriptSecurity getScriptSecurity(String scriptType, ParsedURL scriptURL, ParsedURL docURL) {
-            return new DefaultScriptSecurity(scriptType, scriptURL, docURL);
-        }
-
-        public String getLanguages() {
-            return Locale.getDefault().getLanguage();
-        }
-
-        public String getUserStyleSheetURI() {
-            return null;
-        }
-
-        public String getXMLParserClassName() {
-            return XMLResourceDescriptor.getXMLParserClassName();
-        }
-
-        public boolean isXMLParserValidating() {
-            return true;
-        }
-
-        public String getMedia() {
-            return "screen";
-        }
-
-        public void openLink(String uri, boolean newc) {
-        }
-
-        public void showAlert(String message) {
-        }
-
-        public boolean showConfirm(String message) {
-            return true;
-        }
-
-        public boolean supportExtension(String s) {
-            return false;
-        }
-
-        public String showPrompt(java.lang.String message) {
-            return "";
-        }
-
-        public String showPrompt(String message, String defaultValue) {
-            return "";
-        }
-
-        public void handleElement(Element elt, Object data) {
-        }
-
-
-
-    }
-
-	private class TabularFileFilter extends FileFilter {
-		public String getDescription() {
-			return "CSV Files";
-		}
-
-		public boolean accept(File f) {
-			String name = f.getName();
-			boolean tabFile = name.endsWith("csv") || name.endsWith("CSV");
-			if (f.isDirectory() || tabFile) {
-				return true;
-			}
-
-			return false;
-		}
-
-		public String getExtension() {
-			return "csv";
-		}
-
-	}
-	
-	void clearTable(String type)
+	void clearTable()
 	{
-	    if (type.equals("annot")) {
-	    	annotationModel = new AnnotationTableModel();
-            annotationTableList.put(new Integer(maSet.hashCode()), annotationModel);
-        	annotationTable.setSortableModel(annotationModel);
-            annotationTable.getColumnModel().getColumn(0).setHeaderValue("     Marker");
-            annotationTable.getColumnModel().getColumn(1).setHeaderValue("     Gene");
-            annotationTable.getColumnModel().getColumn(2).setHeaderValue("     Pathway");
-            annotationTable.getTableHeader().revalidate();
-	    } 
+	    annotationModel = new AnnotationTableModel();
+	    annotationTableList.put(new Integer(maSet.hashCode()), annotationModel);
+	    annotationTable.setSortableModel(annotationModel);
+	    annotationTable.getColumnModel().getColumn(0).setHeaderValue("     Marker");
+	    annotationTable.getColumnModel().getColumn(1).setHeaderValue("     Gene");
+	    annotationTable.getColumnModel().getColumn(2).setHeaderValue("     Pathway");
+	    annotationTable.getTableHeader().revalidate();
 	}
 
 }
