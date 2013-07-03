@@ -12,15 +12,11 @@ public class GeneData implements Comparable<GeneData> {
 
     public final String name;
     public final Gene gene;
-    private String organism;
+    private final String organism;
 
-    public GeneData(final String name, final Gene gene) {
-        this.name = name;
+    public GeneData(final Gene gene, final String organism) {
+        this.name = gene.getSymbol();
         this.gene = gene;
-        this.organism = "";
-    }
-
-    public void setOrganism(String organism){
     	this.organism = organism;
     }
 

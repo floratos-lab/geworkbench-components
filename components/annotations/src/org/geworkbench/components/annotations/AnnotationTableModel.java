@@ -157,8 +157,7 @@ public class AnnotationTableModel extends SortableTableModel {
 				for (int cx = 0; cx < this.size; cx++) {
 					String markerName = markerData[cx].name;
 					String geneName = geneData[cx].name;
-			        GeneAnnotation annotation = new GeneAnnotationImpl();
-			        String entrezId = annotation.getEntrezId(geneData[cx].gene);
+			        String entrezId = GeneAnnotationImpl.getEntrezId(geneData[cx].gene);
 		            String entrezUrl = "http://www.ncbi.nlm.nih.gov/sites/entrez?Db=gene&Cmd=ShowDetailView&TermToSearch="+entrezId;
 		            String cgapUrl = AnnotationsPanel2.GENE_FINDER_PREFIX + "ORG=" + geneData[cx].getOrganism() + "&CID=" + geneData[cx].gene.getClusterId();
                     String GeneCardsUrl = AnnotationsPanel2.GeneCards_PREFIX + geneName;
@@ -294,8 +293,7 @@ public class AnnotationTableModel extends SortableTableModel {
 	        JPopupMenu popup = new JPopupMenu();
 	        String value = (String) gene.name;
 	        //Get Entrez id
-	        GeneAnnotation annotation = new GeneAnnotationImpl();
-	        String entrezId = annotation.getEntrezId(gene.gene);
+	        String entrezId = GeneAnnotationImpl.getEntrezId(gene.gene);
 	        if (!entrezId.equals("")){	//if we got an ID
 	            String entrezUrl = "http://www.ncbi.nlm.nih.gov/sites/entrez?Db=gene&Cmd=ShowDetailView&TermToSearch="+entrezId;
 	            JMenuItem entrezJMenuItem = new JMenuItem("Go to Entrez for " + value);
