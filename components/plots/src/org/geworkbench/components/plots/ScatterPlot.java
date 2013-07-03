@@ -1009,6 +1009,8 @@ public class ScatterPlot implements VisualPlugin {
                         return template.getMinimumSize();
                     }
                 };
+                padding.setBackground(Color.white);
+                bottomChartPanel.setBackground(Color.white);
                 bottomChartPanel.add(padding);
             }
         }
@@ -1180,8 +1182,8 @@ public class ScatterPlot implements VisualPlugin {
                         }
                         /* This following is necessary to make tooltip aware of chart panel, which is out of the 'regular" chain of info flow. */
                         MicroarrayXYToolTip tooltips = new MicroarrayXYToolTip(attributes.chartData, attributes.panel, chart.getXYPlot());
-                        XYItemRenderer renderer = chart.getXYPlot().getRenderer();
-                        Rectangle2D bound = renderer.getSeriesShape(0).getBounds2D();
+                        XYItemRenderer renderer = chart.getXYPlot().getRenderer();                      
+                        Rectangle2D bound = renderer.getBaseShape().getBounds2D();
                         tooltips.setShapeBound(bound);
                         renderer.setToolTipGenerator(tooltips);
                         chart.getXYPlot().setRenderer(renderer);
@@ -1766,8 +1768,8 @@ public class ScatterPlot implements VisualPlugin {
         }
         chartData.setXyPoints(xyPoints);
         MicroarrayXYToolTip tooltips = new MicroarrayXYToolTip(chartData, chartPanel, mainChart.getXYPlot());
-        StandardXYItemRenderer renderer = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES, tooltips);
-        Rectangle2D bound = renderer.getSeriesShape(0).getBounds2D();
+        StandardXYItemRenderer renderer = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES, tooltips);      
+        Rectangle2D bound = renderer.getBaseShape().getBounds2D();
         tooltips.setShapeBound(bound);
         for (int i = 0; i < propertiesList.size(); i++) {
             PanelVisualProperties panelVisualProperties = propertiesList.get(i);
