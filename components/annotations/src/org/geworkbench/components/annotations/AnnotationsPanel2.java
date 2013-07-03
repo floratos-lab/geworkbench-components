@@ -263,17 +263,8 @@ public class AnnotationsPanel2 implements VisualPlugin{
      * Performs caBIO queries and constructs HTML display of the results
      */
     private void showAnnotation() {
-        if (criteria == null) {
-            try {
-//                criteria = new GeneSearchCriteriaImpl();
-            } catch (Exception e) {
-                log.error("Exception: could not create caBIO search criteria in Annotation Panel. Exception is: ");
-                e.printStackTrace();
-                return;
-            }
-        }
 
-        pathways = new Pathway[0];
+    	pathways = new Pathway[0];
 
 		if (annotTask != null && !annotTask.isDone()) {
 			annotTask.cancel(true);
