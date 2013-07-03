@@ -71,7 +71,7 @@ public class AnnotTask extends ProgressTask<AnnotData, String> {
                                     System.arraycopy(ap.pathways, 0, temp, 0, ap.pathways.length);
                                     System.arraycopy(pways, 0, temp, ap.pathways.length, pways.length);
                                     ap.pathways = temp;
-                                    GeneData gene = new GeneData(annotations[j]);
+                                    GeneData gene = new GeneData(annotations[j].getGeneSymbol(), annotations[j].getGene());
                                     if (pways.length > 0) {
                                         for (int k = 0; k < pways.length; k++) {
                                             pathwayData.add(new PathwayData(pways[k].getPathwayName(), pways[k]));

@@ -2,30 +2,21 @@ package org.geworkbench.components.annotations;
 
 import gov.nih.nci.cabio.domain.Gene;
 
-
+/**
+ * 
+ * @author zji
+ * @version $Id$
+ *
+ */
 public class GeneData implements Comparable<GeneData> {
-    /**
-     * Web URL prefix for obtaining CGAP annotation
-     */
-    private static final String GENE_FINDER_PREFIX = "http://cgap.nci.nih.gov/Genes/GeneInfo?";
-    /**
-     * Web URL prefix currently being used
-     */
-    public static final String PREFIX_USED = GENE_FINDER_PREFIX;
 
-    public String name;
-    public Gene gene;
-    public String organism;
+    public final String name;
+    public final Gene gene;
+    private String organism;
 
-    public GeneData(String name, Gene gene) {
+    public GeneData(final String name, final Gene gene) {
         this.name = name;
         this.gene = gene;
-        this.organism = "";
-    }
-
-    public GeneData(GeneAnnotation annotation) {
-        this.name = annotation.getGeneSymbol();
-        this.gene = annotation.getGene();
         this.organism = "";
     }
 
