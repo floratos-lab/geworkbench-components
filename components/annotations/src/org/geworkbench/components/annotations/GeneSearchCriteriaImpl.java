@@ -2,14 +2,12 @@ package org.geworkbench.components.annotations;
 
 import gov.nih.nci.cabio.domain.Gene;
 import gov.nih.nci.cabio.domain.Pathway;
-import gov.nih.nci.system.applicationservice.ApplicationException;
 import gov.nih.nci.system.applicationservice.ApplicationService;
 import gov.nih.nci.system.client.ApplicationServiceProvider;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.naming.OperationNotSupportedException;
 import javax.swing.JOptionPane;
 
 import org.apache.commons.logging.Log;
@@ -17,10 +15,10 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  * <p>
- * Copyright: Copyright (c) 2003
+ * Copyright: Copyright (c) 2013
  * </p>
  * <p>
- * Company: First Genetic Trust Inc.
+ * Company: Columbia University
  * </p>
  * <p/> Implementation of the <code>GeneSearchCriteria</code> contract
  * 
@@ -30,66 +28,23 @@ import org.apache.commons.logging.LogFactory;
 public class GeneSearchCriteriaImpl implements GeneSearchCriteria {
 	static Log log = LogFactory.getLog(GeneSearchCriteriaImpl.class);
 
-		 
-	ApplicationService appService;
-	
+	final private ApplicationService appService;
 	
 	/**
      * Default Constructor
      */
     public GeneSearchCriteriaImpl() {
     	
-       try{
-    	   appService = ApplicationServiceProvider.getApplicationService();
-       }catch( Exception e) {
-           log.error(e);
-       }
-    
+		ApplicationService tmp = null;
+		try {
+			tmp = ApplicationServiceProvider.getApplicationService();
+		} catch (Exception e) {
+			log.error(e);
+		}
+		appService = tmp;
     }
 
-	/**
-	 * Sets a BioCarta identifier to be a Search criterion
-	 * 
-	 * @param bcid
-	 *            BioCarta ID
-	 */
-	public GeneAnnotation[] searchByBCID(String bcid) {
-		Gene gene = new Gene();
-		gene.setSymbol(bcid);
-		// gene.setClusterId(Long.parseLong(bcid));
-		try {
-			
-			List<Gene> results = appService.search(Gene.class, gene); 		
-			return GeneAnnotationImpl.toUniqueArray(results);
-			
-		} catch (ApplicationException e) {
-			log.error(e);
-			return null;
-		}
-	}
-
-	/**
-	 * Sets a <code>String</code> to be a Search criterion. This typically
-	 * would be an Accession identifier
-	 * 
-	 * @param name
-	 *            accession
-	 */
-	public GeneAnnotation[] searchByName(String name) {
-		Gene gene = new Gene();
-		gene.setSymbol(name);
-
-		try {
-		 
-			List<Gene> results = appService.search(Gene.class, gene);			
-			return GeneAnnotationImpl.toUniqueArray(results);
-			
-		} catch (ApplicationException e) {
-			log.error(e);
-			return null;
-		}
-	}
-
+    @Override
 	public GeneAnnotation[] searchByName(String name, String organism) {
 		Gene gene = new Gene();
 		gene.setSymbol(name);
@@ -107,11 +62,7 @@ public class GeneSearchCriteriaImpl implements GeneSearchCriteria {
 		}
 	}
 
-	public GeneAnnotation[] searchByProbeId(String probeId) {
-		log.error(new OperationNotSupportedException("No searchByProbeId implemented for caBio 4.2 yet."));
-		return null;
-	}
-
+    @Override
 	public GeneAnnotation[] getGenesInPathway(
 			org.geworkbench.util.annotation.Pathway pathway) {
 		Pathway searchPathway = new Pathway();
