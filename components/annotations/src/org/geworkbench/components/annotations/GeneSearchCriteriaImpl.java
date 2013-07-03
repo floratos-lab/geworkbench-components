@@ -134,25 +134,4 @@ public class GeneSearchCriteriaImpl implements GeneSearchCriteria {
 		}
 	}
 
-	public static void main(String[] args) {
-		GeneSearchCriteriaImpl searcher = new GeneSearchCriteriaImpl();
-		GeneAnnotation[] geneAnnotations = searcher.searchByName("IL1A");
-		for (int i = 0; i < geneAnnotations.length; i++) {
-			GeneAnnotation geneAnnotation = geneAnnotations[i];
-			System.out.println(geneAnnotation.getGeneName());
-			org.geworkbench.util.annotation.Pathway[] pathways = geneAnnotation
-					.getPathways();
-			for (int j = 0; j < pathways.length; j++) {
-				org.geworkbench.util.annotation.Pathway pathway = pathways[j];
-				System.out.println(" - " + pathway.getPathwayName());
-				GeneAnnotation[] genesInPathway = searcher
-						.getGenesInPathway(pathway);
-				for (int k = 0; k < genesInPathway.length; k++) {
-					GeneAnnotation annotation = genesInPathway[k];
-					System.out.println("   - " + annotation.getGeneSymbol()
-							+ ":" + annotation.getGeneName());
-				}
-			}
-		}
-	}
 }
