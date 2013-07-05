@@ -2,18 +2,22 @@ package org.geworkbench.components.annotations;
 
 import java.util.ArrayList;
 
-/**
- * AnnotData: data structure for annotation/pathway results
- * $Id$
- */
+import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 
-public class AnnotData{
-            public ArrayList<MarkerData> markerData = new ArrayList<MarkerData>();
-            public ArrayList<GeneData> geneData = new ArrayList<GeneData>();
-            public ArrayList<PathwayData> pathwayData = new ArrayList<PathwayData>();
-            public AnnotData(ArrayList<MarkerData> marker, ArrayList<GeneData> gene, ArrayList<PathwayData> pathway){
-            	markerData = marker;
-            	geneData = gene;
-            	pathwayData = pathway;
-            }
+/**
+ * AnnotData: data structure for annotation/pathway results $Id: AnnotData.java
+ * 7184 2010-11-10 21:09:20Z wangmen 
+ * @version $Id$
+ */
+public class AnnotData {
+	public final ArrayList<DSGeneMarker> markerData;
+	public final ArrayList<GeneAnnotation> geneData;
+	public final ArrayList<Pathway> pathwayData;
+
+	public AnnotData(ArrayList<DSGeneMarker> marker, ArrayList<GeneAnnotation> gene,
+			ArrayList<Pathway> pathway) {
+		markerData = marker;
+		geneData = gene;
+		pathwayData = pathway;
+	}
 }

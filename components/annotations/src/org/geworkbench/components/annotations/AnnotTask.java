@@ -9,7 +9,6 @@ import javax.swing.JOptionPane;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.util.ProgressTask;
-import org.geworkbench.util.annotation.Pathway;
 
 /**
  * AnnotTask: retrieve gene annotation and pathway data from CGAP
@@ -27,9 +26,9 @@ public class AnnotTask extends ProgressTask<AnnotData, String> {
         @Override
         protected AnnotData doInBackground() {
         			DSItemList<DSGeneMarker> selectedMarkerInfo = ap.selectedMarkerInfo;
-            		ArrayList<MarkerData> markerData = new ArrayList<MarkerData>();
-            		ArrayList<GeneData> geneData = new ArrayList<GeneData>();
-            		ArrayList<PathwayData> pathwayData = new ArrayList<PathwayData>();
+            		ArrayList<DSGeneMarker> markerData = new ArrayList<DSGeneMarker>();
+            		ArrayList<GeneAnnotation> geneData = new ArrayList<GeneAnnotation>();
+            		ArrayList<Pathway> pathwayData = new ArrayList<Pathway>();
                     if (selectedMarkerInfo != null) {
                         //pb.setTitle("Querying caBIO..");
                         //if (!pd.isActive()) {
@@ -61,7 +60,7 @@ public class AnnotTask extends ProgressTask<AnnotData, String> {
                             	return null;
                             }
 
-                            MarkerData marker = new MarkerData(selectedMarkerInfo.get(i),"");
+                            DSGeneMarker marker = selectedMarkerInfo.get(i);
                             if ( annotations.length > 0) {
                                 for (int j = 0; j < annotations.length; j++) {
                                    	if (isCancelled()) return null;
@@ -71,17 +70,16 @@ public class AnnotTask extends ProgressTask<AnnotData, String> {
                                     System.arraycopy(ap.pathways, 0, temp, 0, ap.pathways.length);
                                     System.arraycopy(pways, 0, temp, ap.pathways.length, pways.length);
                                     ap.pathways = temp;
-                                    GeneData gene = new GeneData(annotations[j].getGene(), annotations[j].getOrganismAbbreviation());
                                     if (pways.length > 0) {
                                         for (int k = 0; k < pways.length; k++) {
-                                            pathwayData.add(new PathwayData(pways[k].getPathwayName(), pways[k]));
-                                            geneData.add(gene);
+                                            pathwayData.add(pways[k]);
+                                            geneData.add(annotations[j]);
                                             markerData.add(marker);
                                         }
                                     }
                                     else {
-                                        pathwayData.add(new PathwayData("", null));
-                                        geneData.add(gene);
+                                        pathwayData.add(null);
+                                        geneData.add(annotations[j]);
                                         markerData.add(marker);
                                     }
                                 }
@@ -107,9 +105,9 @@ public class AnnotTask extends ProgressTask<AnnotData, String> {
     		}
     		if ( annotData == null )
             	return;
-        	MarkerData[] markers = annotData.markerData.toArray(new MarkerData[0]);
-            GeneData[] genes = annotData.geneData.toArray(new GeneData[0]);
-            PathwayData[] pathways = annotData.pathwayData.toArray(new PathwayData[0]);
+    		DSGeneMarker[] markers = annotData.markerData.toArray(new DSGeneMarker[0]);
+            GeneAnnotation[] genes = annotData.geneData.toArray(new GeneAnnotation[0]);
+            Pathway[] pathways = annotData.pathwayData.toArray(new Pathway[0]);
             if (pathways.length == 0)
 				JOptionPane
 						.showMessageDialog(

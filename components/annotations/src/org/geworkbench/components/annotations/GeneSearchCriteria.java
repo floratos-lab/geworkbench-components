@@ -14,5 +14,5 @@ public interface GeneSearchCriteria {
 
     GeneAnnotation[] searchByName(String name, String organism);
 
-    GeneAnnotation[] getGenesInPathway(org.geworkbench.util.annotation.Pathway pathway);
+    GeneAnnotation[] getGenesInPathway(org.geworkbench.components.annotations.Pathway pathway);
 }

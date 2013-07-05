@@ -64,7 +64,7 @@ public class GeneSearchCriteriaImpl implements GeneSearchCriteria {
 
     @Override
 	public GeneAnnotation[] getGenesInPathway(
-			org.geworkbench.util.annotation.Pathway pathway) {
+			org.geworkbench.components.annotations.Pathway pathway) {
 		Pathway searchPathway = new Pathway();
 		searchPathway.setName(pathway.getPathwayName());
 

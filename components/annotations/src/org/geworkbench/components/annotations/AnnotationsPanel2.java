@@ -63,7 +63,6 @@ import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.util.CsvFileFilter;
 import org.geworkbench.util.ProgressDialog;
 import org.geworkbench.util.ProgressItem;
-import org.geworkbench.util.annotation.Pathway;
 import org.jfree.ui.SortableTable;
 import org.w3c.dom.Document;
 

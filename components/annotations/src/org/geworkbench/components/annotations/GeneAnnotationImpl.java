@@ -14,7 +14,6 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.util.annotation.Pathway;
 
 /**
  * <p>Copyright: Copyright (c) 2003</p>
@@ -100,7 +99,7 @@ public class GeneAnnotationImpl implements GeneAnnotation {
      * @return pathways
      */
     @Override
-    public org.geworkbench.util.annotation.Pathway[] getPathways() {
+    public org.geworkbench.components.annotations.Pathway[] getPathways() {
         return pathways;
     }
 
@@ -168,5 +167,15 @@ public class GeneAnnotationImpl implements GeneAnnotation {
 			}
 		}
         return entrezId;
+	}
+
+	@Override
+	public int compareTo(GeneAnnotation other) {
+		String name = gene.getSymbol();
+		if(name!=null && other.getGene()!=null) {
+			return name.compareTo(other.getGene().getSymbol());
+		} else {
+			return -1;
+		}
 	}
 }
