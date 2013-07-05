@@ -11,7 +11,7 @@ import gov.nih.nci.cabio.domain.Gene;
  * @author First Genetic Trust
  * @version $Id$
  */
-public interface GeneAnnotation {
+public interface GeneAnnotation extends Comparable<GeneAnnotation> {
     /**
      * Gets Gene name
      *
@@ -32,7 +32,7 @@ public interface GeneAnnotation {
      *
      * @return associated pathways
      */
-    org.geworkbench.util.annotation.Pathway[] getPathways();
+    org.geworkbench.components.annotations.Pathway[] getPathways();
 
     String getGeneSymbol();
 }

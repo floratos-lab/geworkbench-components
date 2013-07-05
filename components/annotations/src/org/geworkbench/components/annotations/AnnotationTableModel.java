@@ -20,8 +20,7 @@ import javax.swing.SwingUtilities;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geworkbench.engine.management.Publish;
-import org.geworkbench.events.AnnotationsEvent;
+import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.events.MarkerSelectedEvent;
 import org.geworkbench.util.BrowserLauncher;
 import org.geworkbench.util.CsvFileFilter;
@@ -46,15 +45,15 @@ public class AnnotationTableModel extends SortableTableModel {
         public static final int COL_GENE = 1;
         public static final int COL_PATHWAY = 2;
 
-        private MarkerData[] markerData;
-        private GeneData[] geneData;
-        private PathwayData[] pathwayData;
+        private DSGeneMarker[] markerData;
+        private GeneAnnotation[] geneData;
+        private Pathway[] pathwayData;
 
         private Integer[] indices;
         private int size;
         private AnnotationsPanel2 annotationsPanel = null;
 
-        public AnnotationTableModel(AnnotationsPanel2 annotationsPanel, MarkerData[] markerData, GeneData[] geneData, PathwayData[] pathwayData) {
+        public AnnotationTableModel(AnnotationsPanel2 annotationsPanel, DSGeneMarker[] markerData, GeneAnnotation[] geneData, Pathway[] pathwayData) {
             this.annotationsPanel = annotationsPanel;
         	this.markerData = markerData;
             this.geneData = geneData;
@@ -65,9 +64,9 @@ public class AnnotationTableModel extends SortableTableModel {
         }
 
         public AnnotationTableModel() {
-            this.markerData = new MarkerData[0];
-            this.geneData = new GeneData[0];
-            this.pathwayData = new PathwayData[0];
+            this.markerData = new DSGeneMarker[0];
+            this.geneData = new GeneAnnotation[0];
+            this.pathwayData = new PathwayImpl[0];
             size = 0;
             indices = new Integer[0];
         }
@@ -94,11 +93,11 @@ public class AnnotationTableModel extends SortableTableModel {
         public Object getValueAt(int rowIndex, int columnIndex) {
             switch (columnIndex) {
                 case COL_MARKER:
-                    return markerData[indices[rowIndex]].name;
+                    return markerData[indices[rowIndex]].getLabel();
                 case COL_GENE:
-                    return wrapInHTML(geneData[indices[rowIndex]].name);
+                    return wrapInHTML(geneData[indices[rowIndex]].getGeneSymbol());
                 case COL_PATHWAY:
-                    return wrapInHTML(pathwayData[indices[rowIndex]].name);
+                    return wrapInHTML(pathwayData[indices[rowIndex]].getPathwayName());
             }
             return null;
         }
@@ -127,17 +126,17 @@ public class AnnotationTableModel extends SortableTableModel {
         public void activateCell(int rowIndex, int columnIndex) {
             switch (columnIndex) {
                 case COL_MARKER:
-                    MarkerData marker = markerData[indices[rowIndex]];
-                    annotationsPanel.publishMarkerSelectedEvent(new MarkerSelectedEvent(marker.marker));
+                	DSGeneMarker marker = markerData[indices[rowIndex]];
+                    annotationsPanel.publishMarkerSelectedEvent(new MarkerSelectedEvent(marker));
                     break;
                 case COL_GENE:
-                    GeneData gene = geneData[indices[rowIndex]];
+                    GeneAnnotation gene = geneData[indices[rowIndex]];
                     activateGene(gene);
                     break;
                 case COL_PATHWAY:
-                    PathwayData pathway = pathwayData[indices[rowIndex]];
+                	Pathway pathway = pathwayData[indices[rowIndex]];
                     // Could be the blank "(none)" pathway.
-                    if (pathway.pathway != null) {
+                    if (pathway != null) {
                     	activatePathway(pathway);
                     }
                     break;
@@ -159,13 +158,13 @@ public class AnnotationTableModel extends SortableTableModel {
 				csvout.println();
 
 				for (int cx = 0; cx < this.size; cx++) {
-					String markerName = markerData[cx].name;
-					String geneName = geneData[cx].name;
-			        String entrezId = GeneAnnotationImpl.getEntrezId(geneData[cx].gene);
+					String markerName = markerData[cx].getLabel();
+					String geneName = geneData[cx].getGeneSymbol();
+			        String entrezId = GeneAnnotationImpl.getEntrezId(geneData[cx].getGene());
 		            String entrezUrl = "http://www.ncbi.nlm.nih.gov/sites/entrez?Db=gene&Cmd=ShowDetailView&TermToSearch="+entrezId;
-		            String cgapUrl = GENE_FINDER_PREFIX + "ORG=" + geneData[cx].getOrganism() + "&CID=" + geneData[cx].gene.getClusterId();
+		            String cgapUrl = GENE_FINDER_PREFIX + "ORG=" + geneData[cx].getOrganismAbbreviation() + "&CID=" + geneData[cx].getGene().getClusterId();
                     String GeneCardsUrl = AnnotationsPanel2.GeneCards_PREFIX + geneName;
-					String pathwayName = pathwayData[cx].name;
+					String pathwayName = pathwayData[cx].getPathwayName();
 
 					csvout.print(markerName);
 					csvout.print(geneName);
@@ -187,38 +186,33 @@ public class AnnotationTableModel extends SortableTableModel {
 			return ret;
 		}
 		
-	    /*
-	     *
-	     */
-	    private void activatePathway(final PathwayData pathwayData) {
+	    private void activatePathway(final Pathway pathwayData) {
 	    	JPopupMenu popup = new JPopupMenu();
 
 	        JMenuItem viewDiagram = new JMenuItem("View Diagram");
 	        viewDiagram.addActionListener(new ActionListener() {
 	            public void actionPerformed(ActionEvent actionEvent) {
-	                publishAnnotationsEvent(new AnnotationsEvent("Pathway Selected", pathwayData.pathway));
-	                receive(new AnnotationsEvent("Pathway Selected", pathwayData.pathway));
-
+	            	processPathway(pathwayData);
 	            }
 	        });
-	        if (pathwayData.pathway.getPathwayDiagram()!=null)
+	        if (pathwayData.getPathwayDiagram()!=null)
 	        	popup.add(viewDiagram);
 
 	        JMenuItem makeSet = new JMenuItem("Add pathway genes to set");
 	        makeSet.addActionListener(new ActionListener() {
 	            public void actionPerformed(ActionEvent actionEvent) {
-	            	String tmpSetLabel = JOptionPane.showInputDialog("Panel Set Label:", pathwayData.pathway.getPathwayName());
+	            	String tmpSetLabel = JOptionPane.showInputDialog("Panel Set Label:", pathwayData.getPathwayName());
 	                // String tmpLabel = JOptionPane.showInputDialog("Set Label:", "");
 	                if (tmpSetLabel == null) {
 	                    // User hit cancel
 	                    return;
 	                }
 	                if (tmpSetLabel.equals("") || tmpSetLabel == null) {
-	                    tmpSetLabel = pathwayData.pathway.getPathwayName();
+	                    tmpSetLabel = pathwayData.getPathwayName();
 	                }
 	                AddTask addTask = new AddTask(ProgressItem.INDETERMINATE_TYPE,
 	                		"Retrieving and Adding "+tmpSetLabel+" genes to set",
-	                		annotationsPanel, tmpSetLabel, pathwayData.pathway);
+	                		annotationsPanel, tmpSetLabel, pathwayData);
 	                annotationsPanel.pd.executeTask(addTask);
 	            }
 	        });
@@ -227,13 +221,13 @@ public class AnnotationTableModel extends SortableTableModel {
 	        JMenuItem export = new JMenuItem("Export genes to CSV");
 	        export.addActionListener(new ActionListener() {
 	            public void actionPerformed(ActionEvent actionEvent) {
-	                OWFileChooser chooser = new OWFileChooser(pathwayData.pathway.getPathwayName() + ".csv");
+	                OWFileChooser chooser = new OWFileChooser(pathwayData.getPathwayName() + ".csv");
 	                chooser.setFileFilter(new CsvFileFilter());
 	                int returnVal = chooser.showSaveDialog(null);
 	                if (returnVal == JFileChooser.APPROVE_OPTION) {
 	                    ExportTask exportTask = new ExportTask(ProgressItem.INDETERMINATE_TYPE,
-	                    		"Retrieving and Exporting "+pathwayData.pathway.getPathwayName()+" to CSV",
-	                    		annotationsPanel, chooser.getSelectedFile(), pathwayData.pathway);
+	                    		"Retrieving and Exporting "+pathwayData.getPathwayName()+" to CSV",
+	                    		annotationsPanel, chooser.getSelectedFile(), pathwayData);
 	                    annotationsPanel.pd.executeTask(exportTask);
 	                }
 	            }
@@ -244,22 +238,8 @@ public class AnnotationTableModel extends SortableTableModel {
 	                (int) (MouseInfo.getPointerInfo().getLocation().getY() - annotationsPanel.annotationTable.getLocationOnScreen().getY()));
 	    }
 	    
-	    @Publish
-	    public AnnotationsEvent publishAnnotationsEvent(AnnotationsEvent ae) {
-	        return ae;
-	    }
-
-	    /**
-	     * Interface <code>AnnotationsListener</code> method that received a
-	     * selected <code>Pathway</code> to be shown in the <code>PathwayPanel</code>
-	     * plugin.
-	     *
-	     * @param ae <code>AnnotationsEvent</code> that contains the
-	     *           <code>Pathway</code> to be shown
-	     */
-	     public void receive(org.geworkbench.events.AnnotationsEvent ae){
-	    	 final org.geworkbench.util.annotation.Pathway pathway = ae.getPathway();
-	         	
+	     private void processPathway(final org.geworkbench.components.annotations.Pathway pathway){
+	    	 //FIXME to do this in background is very problematic
 	    	 SwingUtilities.invokeLater(new Runnable(){
 	         		public void run(){
 	                 	String pathwayName = pathway.getPathwayName();
@@ -294,11 +274,11 @@ public class AnnotationTableModel extends SortableTableModel {
 	     /*
 	     *
 	     */
-	    private void activateGene(final GeneData gene) {
+	    private void activateGene(final GeneAnnotation gene) {
 	        JPopupMenu popup = new JPopupMenu();
-	        String value = (String) gene.name;
+	        String value = gene.getGeneSymbol();
 	        //Get Entrez id
-	        String entrezId = GeneAnnotationImpl.getEntrezId(gene.gene);
+	        String entrezId = GeneAnnotationImpl.getEntrezId(gene.getGene());
 	        if (!entrezId.equals("")){	//if we got an ID
 	            String entrezUrl = "http://www.ncbi.nlm.nih.gov/sites/entrez?Db=gene&Cmd=ShowDetailView&TermToSearch="+entrezId;
 	            JMenuItem entrezJMenuItem = new JMenuItem("Go to Entrez for " + value);
@@ -323,8 +303,8 @@ public class AnnotationTableModel extends SortableTableModel {
 	            popup.add(entrezJMenuItem);
 	        }
 	        //CGAP section
-	        if (!gene.getOrganism().equals("")){
-		        String cgapUrl = GENE_FINDER_PREFIX + "ORG=" + gene.getOrganism() + "&CID=" + gene.gene.getClusterId();
+	        if (!gene.getOrganismAbbreviation().equals("")){
+		        String cgapUrl = GENE_FINDER_PREFIX + "ORG=" + gene.getOrganismAbbreviation() + "&CID=" + gene.getGene().getClusterId();
 		        JMenuItem cgapJMenuItem = new JMenuItem("Go to CGAP for " + value);
 		        class MyCGAPActionListener implements ActionListener{
 		        	String value="";

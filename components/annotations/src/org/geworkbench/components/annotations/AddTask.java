@@ -9,7 +9,6 @@ import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.util.ProgressTask;
-import org.geworkbench.util.annotation.Pathway;
 
 /**
  * AddTask: add pathway genes to set

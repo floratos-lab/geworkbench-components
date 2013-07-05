@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
 import org.geworkbench.util.ProgressTask;
-import org.geworkbench.util.annotation.Pathway;
 
 /**
  * ExportTask: export pathway genes to csv

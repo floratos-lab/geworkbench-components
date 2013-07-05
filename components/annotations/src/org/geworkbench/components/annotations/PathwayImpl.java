@@ -1,7 +1,5 @@
 package org.geworkbench.components.annotations;
 
-import org.geworkbench.util.annotation.Pathway;
-
 import java.util.List;
 
 /**
@@ -11,27 +9,13 @@ import java.util.List;
  * Implementation of the <code>Pathway</code> contract
  *
  * @author First Genetic Trust
- * @version 1.0
+ * @version $Id$
  */
-public class PathwayImpl implements org.geworkbench.util.annotation.Pathway {
-    private gov.nih.nci.cabio.domain.Pathway pathway = null;
-
-    /**
-     * Default Constructor
-     */
-    public PathwayImpl() {
-    }
+public class PathwayImpl implements Pathway {
+	
+    private final gov.nih.nci.cabio.domain.Pathway pathway;
 
     public PathwayImpl(gov.nih.nci.cabio.domain.Pathway pathway) {
-        this.pathway = pathway;
-    }
-
-    /**
-     * Sets the conatined <code>gov.nih.nci.caBIO.bean.Pathway</code>
-     *
-     * @param pathway Pathway to be contained in this instance
-     */
-    public void setPathway(gov.nih.nci.cabio.domain.Pathway pathway) {
         this.pathway = pathway;
     }
 
@@ -78,6 +62,17 @@ public class PathwayImpl implements org.geworkbench.util.annotation.Pathway {
         }
 
         return toBeReturned;
+    }
+
+    @Override
+    public int compareTo(Pathway other) {
+    	String name = pathway.getName();
+    	String otherName = other.getPathwayName();
+    	if(name!=null) {
+    		return name.compareTo(otherName);
+    	} else {
+    		return -1;
+    	}
     }
 
 }
