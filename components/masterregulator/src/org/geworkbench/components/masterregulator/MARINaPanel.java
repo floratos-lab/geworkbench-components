@@ -100,7 +100,7 @@ public final class MARINaPanel extends AbstractSaveableParameterPanel {
 	private JComboBox networkFrom = null;
 
 	private JTextField mintg = new JTextField("20");  // number of targets minimumto run GSEA
-	private JTextField minsp = new JTextField("6");  //minimum number of samples for label shuffling
+	private JTextField minsp = new JTextField("7");  //minimum number of samples for label shuffling
 	private JTextField nperm = new JTextField("1000"); //number of permutations
 	private JTextField tail = new JTextField("2");   //tail: If the Spearman's correlation value is not known, use tail = 1. Otherwise tail = 2. 2 for GSEA2, 1 for GSEA
 	private JTextField pvshadow = new JTextField("0.01"); //Significance threshold for shadow analysis
