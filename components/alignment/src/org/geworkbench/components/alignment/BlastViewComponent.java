@@ -37,8 +37,10 @@ import javax.swing.table.AbstractTableModel;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
+import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.BlastObj;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSAlignmentResultSet;
@@ -208,6 +210,7 @@ public class BlastViewComponent implements VisualPlugin {
 	 * @param e
 	 *            ProjectEvent
 	 */
+	@SuppressWarnings("unchecked")
 	@Subscribe
 	public void receive(org.geworkbench.events.ProjectEvent e, Object source) {
 
@@ -222,16 +225,18 @@ public class BlastViewComponent implements VisualPlugin {
 		resultSet = (DSAlignmentResultSet) df;
 
 		// Get the sequenceDb from DAncillaryDataset, not from project.
-		DSSequenceSet<? extends DSSequence> sequenceDB = resultSet
-				.getBlastedParentDataSet();
+		DSDataSet<DSBioObject> parent = resultSet.getParentDataSet();
+		if(!(parent instanceof DSSequenceSet)) {
+			log.error("incorrect parent type: "+parent.getClass().getName());
+			return;
+		}
+		sequenceDB = (DSSequenceSet<? extends DSSequence>) parent;
 		List<Vector<BlastObj>> blastDataSet = resultSet.getBlastDataSet();
 
-		// if (sequenceDB instanceof CSSequenceSet) // always true
-		this.sequenceDB = sequenceDB;
 		geneListModel.refresh();
 
 		this.blastDataSet = blastDataSet;
-		if (markerList != null && blastDataSet != null && sequenceDB != null) {
+		if (markerList != null && blastDataSet != null) {
 			markerList.setHighlightedIndex(0);
 		}
 
