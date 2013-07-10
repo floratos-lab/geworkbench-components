@@ -60,7 +60,7 @@ public class MRA extends AbstractAnalysis implements
 	private final String analysisName = "MRA";
 
 	private MRAPanel mraAnalysisPanel = new MRAPanel();
-	private ProgressDialog pd = ProgressDialog.create(ProgressDialog.NONMODAL_TYPE);
+	private ProgressDialog pd = ProgressDialog.getInstance(false);
 	private class ResultWrapper{
 		private AlgorithmExecutionResults rst = null;
 		private void setResult(AlgorithmExecutionResults rst){
@@ -108,7 +108,7 @@ public class MRA extends AbstractAnalysis implements
 	   	protected void process(List<String> chunks){
 	   		for (String message : chunks){
 	   			if (isCancelled()) return;
-	   			pb.setMessage(message);
+	   			this.setMessage(message);
 	   		}
 	   	}
 
