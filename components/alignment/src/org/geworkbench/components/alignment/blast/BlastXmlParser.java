@@ -103,15 +103,21 @@ public class BlastXmlParser {
 						.trim();
 
 				// the following are not at the same level as the previous ones
-				// it is at Hit_hsps -> Hsp - >Hsp_evalue
-				// without formal schema, let's assume everything we handle
-				// here is one in each Hit
+				// it is like Hit -> Hit_hsps -> Hsp - >Hsp_evalue
+				/* Each hit and Hits_hsps could have multiple hsp */
+				NodeList hspList = hitElement.getElementsByTagName("Hsp");
+				int numHsp = hspList.getLength();
+				log.debug("number of alignment "+numHsp);
+				String[] evalue = new String[numHsp];
+				String[] length = new String[numHsp];
+				String[] identity = new String[numHsp];
+				
 				NodeList evalueList = hitElement
 						.getElementsByTagName("Hsp_evalue");
 				Element evalueElement = (Element) evalueList.item(0);
 
 				NodeList evalueText = evalueElement.getChildNodes();
-				String evalue = ((Node) evalueText.item(0)).getNodeValue()
+				evalue[0] = ((Node) evalueText.item(0)).getNodeValue()
 						.trim();
 
 				NodeList fromList = hitElement
@@ -125,24 +131,19 @@ public class BlastXmlParser {
 						.getElementsByTagName("Hsp_align-len");
 				Element lengthElement = (Element) lengthList.item(0);
 				NodeList lengthText = lengthElement.getChildNodes();
-				String length = ((Node) lengthText.item(0)).getNodeValue()
+				length[0] = ((Node) lengthText.item(0)).getNodeValue()
 						.trim();
-				int alignmentLength = Integer.parseInt(length);
+				int alignmentLength = Integer.parseInt(length[0]);
 
-				NodeList subjectList = hitElement
-						.getElementsByTagName("Hsp_hseq");
-				Element subjectElement = (Element) subjectList.item(0);
-				NodeList subjectText = subjectElement.getChildNodes();
-				String subject = ((Node) subjectText.item(0)).getNodeValue()
-						.trim();
+				String[] subject = getStringArray(hitElement, numHsp, "Hsp_hseq");
 
 				NodeList identityList = hitElement
 						.getElementsByTagName("Hsp_identity");
 				Element identityElement = (Element) identityList.item(0);
 				NodeList identityText = identityElement.getChildNodes();
-				String identity = ((Node) identityText.item(0)).getNodeValue()
+				identity[0] = ((Node) identityText.item(0)).getNodeValue()
 						.trim();
-				int identityCount = Integer.parseInt(identity);
+				int identityCount = Integer.parseInt(identity[0]);
 				int percentage = (int) Math.round(100. * identityCount
 						/ alignmentLength);
 				if (percentage == 100) { // don't round to 100% if it is not really
@@ -150,8 +151,8 @@ public class BlastXmlParser {
 				}
 
 				BlastObj blastObj = new BlastObj(dbId, name, description,
-						evalue, startPoint, alignmentLength,
-						subject.replaceAll("-", ""), percentage);
+						evalue[0], startPoint, alignmentLength,
+						subject, percentage);
 				vector.add(blastObj);
 			}// end of for loop of all 'Hit' element
 
@@ -167,6 +168,19 @@ public class BlastXmlParser {
 			t.printStackTrace();
 		}
 		return vector;
+	}
+	
+	static private String[] getStringArray(Element hitElement, int numHsp,
+			String tag) {
+		NodeList nodeList = hitElement.getElementsByTagName(tag);
+		/* this must hold: numHsp == nodeList.getLengTH() */
+		String[] s = new String[numHsp];
+		for (int i = 0; i < numHsp; i++) {
+			Element element = (Element) nodeList.item(i);
+			NodeList nodeText = element.getChildNodes();
+			s[i] = ((Node) nodeText.item(0)).getNodeValue().trim();
+		}
+		return s;
 	}
 
 	// return null in any case when this parser fails
