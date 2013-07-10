@@ -127,9 +127,6 @@ public class BlastAnalysis extends AbstractAnalysis implements
 				String outputFile = tempFolder + "Blast"
 						+ RandomNumberGenerator.getID() + ".html";
 
-				RemoteBlast blast;
-				DSSequenceSet<? extends DSSequence> parentSequenceSet = sequenceDB;
-
 				List<Vector<BlastObj>> blastDataSet = new ArrayList<Vector<BlastObj>>();
 				for (CSSequence sequence : activeSequenceDB) {
 					if (this.stopAlgorithm) {
@@ -138,7 +135,7 @@ public class BlastAnalysis extends AbstractAnalysis implements
 					}
 					pbTtest.setMessage("Uploading sequence: " + sequence);
 				 
-					blast = new RemoteBlast(sequence.getSequence(), outputFile,
+					RemoteBlast blast = new RemoteBlast(sequence.getSequence(), outputFile,
 							AlgorithmMatcher
 									.translateToCommandline(parameterSetting));
 					String BLAST_rid = null;
@@ -254,10 +251,7 @@ public class BlastAnalysis extends AbstractAnalysis implements
 			 	nbp.parseResults(); // this is to parse the detail from the saved file
 
 				CSAlignmentResultSet blastResult = new CSAlignmentResultSet(
-						outputFile, blastDataSet,
-						activeSequenceDB.getFASTAFileName(), activeSequenceDB,
-						parentSequenceSet);
-				blastResult.setLabel(BlastAnalysisPanel.NCBILABEL);
+						blastDataSet, sequenceDB, BlastAnalysisPanel.NCBILABEL);
  
 				if (this.stopAlgorithm) {				 
 					return new AlgorithmExecutionResults(false,
