@@ -63,7 +63,7 @@ public class Cupid extends JPanel implements VisualPlugin {
 		final JButton submitButton = new JButton("Submit");
 		submitButton.addActionListener(new ActionListener() {
 
-			final ProgressDialog pd = ProgressDialog.create(ProgressDialog.MODAL_TYPE);
+			final ProgressDialog pd = ProgressDialog.getInstance(true);
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
