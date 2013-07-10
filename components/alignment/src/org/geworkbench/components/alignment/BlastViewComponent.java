@@ -210,7 +210,6 @@ public class BlastViewComponent implements VisualPlugin {
 	 * @param e
 	 *            ProjectEvent
 	 */
-	@SuppressWarnings("unchecked")
 	@Subscribe
 	public void receive(org.geworkbench.events.ProjectEvent e, Object source) {
 
@@ -230,7 +229,7 @@ public class BlastViewComponent implements VisualPlugin {
 			log.error("incorrect parent type: "+parent.getClass().getName());
 			return;
 		}
-		sequenceDB = (DSSequenceSet<? extends DSSequence>) parent;
+		sequenceDB = (DSSequenceSet<?>) parent;
 		List<Vector<BlastObj>> blastDataSet = resultSet.getBlastDataSet();
 
 		geneListModel.refresh();
