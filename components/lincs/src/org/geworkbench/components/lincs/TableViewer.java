@@ -105,6 +105,7 @@ public class TableViewer extends JPanel {
 					Point p = new Point(e.getX(), e.getY());
 					int col = target.columnAtPoint(p);
 					int row = target.rowAtPoint(p);
+					row = table.convertRowIndexToModel(row);
 					if (data[row][col] instanceof ValueObject )
 					{   
 						ValueObject v = (ValueObject)data[row][col];
