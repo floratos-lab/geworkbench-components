@@ -124,11 +124,7 @@ public class NCBIBlastParser {
 					if(firstUrl!=null) {
 						String s = firstUrl.replaceAll("GenPept", "fasta");
 						s = s.replaceAll("GenBank", "fasta");
-						if(each.getSeqURL()!=null) {
-							log.warn("trying to set seqURL again: "+each.getName());
-						} else {
-							each.setSeqURL(new URL(s));
-						}
+						each.setSeqURL(new URL(s));
 					}
 
 					StringBuffer detaillines = new StringBuffer("<PRE>").append(line);
