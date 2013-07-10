@@ -129,7 +129,7 @@ public class AnnotTask extends ProgressTask<AnnotData, String> {
         protected void process(List<String> chunks){
         	for (String message : chunks){
         		if (isCancelled()) return;
-        		pb.setMessage(message);
+        		this.setMessage(message);
             	ap.pd.updateWidth(message);
         	}
         }

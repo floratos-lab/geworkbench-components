@@ -253,7 +253,7 @@ public class AnnotationsPanel2 implements VisualPlugin{
         return mainPanel;
     }
 
-	final ProgressDialog pd = ProgressDialog.create(ProgressDialog.NONMODAL_TYPE);
+	final ProgressDialog pd = ProgressDialog.getInstance(false);
 
     private AnnotTask annotTask = null;
 
