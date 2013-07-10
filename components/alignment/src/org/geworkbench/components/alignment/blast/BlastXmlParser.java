@@ -150,9 +150,10 @@ public class BlastXmlParser {
 					percentage = 100 * identityCount / alignmentLength;
 				}
 
+				String alignedParts = formatAlignedParts(dbId, name, subject);
 				BlastObj blastObj = new BlastObj(dbId, name, description,
-						evalue[0], startPoint, alignmentLength,
-						subject, percentage);
+						evalue[0], startPoint, alignmentLength, percentage,
+						alignedParts);
 				vector.add(blastObj);
 			}// end of for loop of all 'Hit' element
 
@@ -181,6 +182,22 @@ public class BlastXmlParser {
 			s[i] = ((Node) nodeText.item(0)).getNodeValue().trim();
 		}
 		return s;
+	}
+	
+	static private String formatAlignedParts(String databaseID, String name,
+			String[] subject) {
+		StringBuilder sb = new StringBuilder();
+		String a = "";
+		for (int i = 0; i < subject.length; i++) {
+			if (i > 0) {
+				a = "(" + i + ")";
+			}
+			sb.append(">" + databaseID + "|" + name + a
+					+ "---PARTIALLY INCLUDED\n"
+					+ subject[i].replaceAll("-", "") + "\n");
+		}
+
+		return sb.toString();
 	}
 
 	// return null in any case when this parser fails

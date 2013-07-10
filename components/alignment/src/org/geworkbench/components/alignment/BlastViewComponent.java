@@ -639,31 +639,22 @@ public class BlastViewComponent implements VisualPlugin {
 								out.close();
 								return null;
 							}
-							if (hit.getInclude()) {
-
-								retrievedSequenceNum++;
-
-								CSSequence[] seq;
-								if (isFullLength) {
-									CSSequence s = hit.getWholeSeq();
-									if(s==null) {
-										seq = null;
-									} else {
-										seq = new CSSequence[1];
-										seq[0] = s;
-									}
-								} else {
-									seq = hit.getAlignedSeq();
-								}
-								if (seq != null) {
-									for(CSSequence s : seq) {
-										out.println(s.getLabel());
-										out.println(s.getSequence());
-									}
-									empty = false;
-								}
+							if (!hit.getInclude()) {
+								continue;
 							}
 
+							retrievedSequenceNum++;
+
+							String seq;
+							if (isFullLength) {
+								seq = hit.getWholeSeq();
+							} else {
+								seq = hit.getAlignedSeq();
+							}
+							if (seq != null) {
+								out.println(seq);
+								empty = false;
+							}
 						}
 					}
 					out.flush();
