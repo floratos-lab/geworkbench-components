@@ -91,7 +91,7 @@ public class GenomeSpace implements VisualPlugin {
 	private static final String uploadDir   = genomespaceUsrDir + "upload" + FilePathnameUtils.FILE_SEPARATOR;
 	private static final String downloadDir = genomespaceUsrDir + "download" + FilePathnameUtils.FILE_SEPARATOR;
 	private static GSLoginDialog loginDialog = null;
-	private static ProgressDialog pd = ProgressDialog.create(ProgressDialog.NONMODAL_TYPE);
+	private static ProgressDialog pd = ProgressDialog.getInstance(false);
 
 	public GenomeSpace() {
 		JScrollPane jsp1 = new JScrollPane();
