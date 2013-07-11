@@ -144,8 +144,6 @@ public class NCBIBlastParser {
 
 					detaillines.append("</PRE>");
 
-					each.setDetailedAlignment(detaillines.toString());
-
 					index++;
 					if (endofResult || index>=hits.size()) {
 						endofResult = false;
