@@ -151,9 +151,12 @@ public class BlastXmlParser {
 				}
 
 				String alignedParts = formatAlignedParts(dbId, name, subject);
+				Hsp hsp = getHsp(hitElement, numHsp);
+				String detail = formatDetails(id, description, name, hsp);
+
 				BlastObj blastObj = new BlastObj(dbId, name, description,
 						evalue[0], startPoint, alignmentLength, percentage,
-						alignedParts);
+						alignedParts, detail);
 				vector.add(blastObj);
 			}// end of for loop of all 'Hit' element
 
@@ -171,10 +174,29 @@ public class BlastXmlParser {
 		return vector;
 	}
 	
+	static private Hsp getHsp(Element hitElement, int numHsp) {
+		String[] bitScore = getStringArray(hitElement, numHsp, "Hsp_bit-score");
+		String[] score = getStringArray(hitElement, numHsp, "Hsp_score");
+		String[] evalue = getStringArray(hitElement, numHsp, "Hsp_evalue");
+		int[] queryFrom = getIntArray(hitElement, numHsp, "Hsp_query-from");
+		int[] queryTo = getIntArray(hitElement, numHsp, "Hsp_query-to");
+		int[] hitFrom = getIntArray(hitElement, numHsp, "Hsp_hit-from");
+		int[] hitTo = getIntArray(hitElement, numHsp, "Hsp_hit-to");
+		int[] identity = getIntArray(hitElement, numHsp, "Hsp_identity");
+		int[] positive = getIntArray(hitElement, numHsp, "Hsp_positive");
+		int[] gaps = getIntArray(hitElement, numHsp, "Hsp_gaps");
+		int[] alignLen = getIntArray(hitElement, numHsp, "Hsp_align-len");
+		String[] qseq = getStringArray(hitElement, numHsp, "Hsp_qseq");
+		String[] hseq = getStringArray(hitElement, numHsp, "Hsp_hseq");
+		String[] midline = getStringArray(hitElement, numHsp, "Hsp_midline");
+		Hsp hsp = new Hsp(numHsp, bitScore, score, evalue, queryFrom, queryTo, hitFrom, hitTo, identity, positive, gaps, alignLen, qseq, hseq, midline);
+		return hsp;
+	}
+
 	static private String[] getStringArray(Element hitElement, int numHsp,
 			String tag) {
 		NodeList nodeList = hitElement.getElementsByTagName(tag);
-		/* this must hold: numHsp == nodeList.getLengTH() */
+		/* this must hold: numHsp == nodeList.getLength() */
 		String[] s = new String[numHsp];
 		for (int i = 0; i < numHsp; i++) {
 			Element element = (Element) nodeList.item(i);
@@ -182,6 +204,20 @@ public class BlastXmlParser {
 			s[i] = ((Node) nodeText.item(0)).getNodeValue().trim();
 		}
 		return s;
+	}
+
+	static private int[] getIntArray(Element hitElement, int numHsp,
+			String tag) {
+		NodeList nodeList = hitElement.getElementsByTagName(tag);
+		//assert(numHsp == nodeList.getLength());
+		int[] n = new int[numHsp];
+		for (int i = 0; i < numHsp; i++) {
+			Element element = (Element) nodeList.item(i);
+			NodeList nodeText = element.getChildNodes();
+			String s = ((Node) nodeText.item(0)).getNodeValue().trim();
+			n[i] = Integer.parseInt(s);
+		}
+		return n;
 	}
 	
 	static private String formatAlignedParts(String databaseID, String name,
@@ -197,6 +233,14 @@ public class BlastXmlParser {
 					+ subject[i].replaceAll("-", "") + "\n");
 		}
 
+		return sb.toString();
+	}
+
+	static private String formatDetails(String id, String def,
+			String accession, Hsp hsp) {
+		StringBuilder sb = new StringBuilder("<pre>");
+		sb.append(">" + id + "\n" + def + "\n" + accession + "\n");
+		sb.append(hsp.toString()+"</pre>");
 		return sb.toString();
 	}
 
