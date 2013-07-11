@@ -66,6 +66,16 @@ public class BlastXmlParser {
 			doc.getDocumentElement().normalize();
 			log.debug("Root element of the doc is "
 					+ doc.getDocumentElement().getNodeName());
+			
+			String efetchDb = "nucleotide";
+			/* Different efetchDb may not have any effect. See the comment in BlastObj. */
+			NodeList listOfQueryDef = doc.getElementsByTagName("BlastOutput_query-def");
+			Element firstQueryDefElement = (Element) listOfQueryDef.item(0); // it should be the only one
+			NodeList queryDefText = firstQueryDefElement.getChildNodes();
+			String queryDef = ((Node) queryDefText.item(0)).getNodeValue().trim();
+			if(queryDef.toLowerCase().contains("protein")) {
+				efetchDb = "protein";
+			}
 
 			NodeList listOfHits = doc.getElementsByTagName("Hit");
 			log.debug("number of hits :" + listOfHits.getLength());
@@ -84,7 +94,12 @@ public class BlastXmlParser {
 
 				NodeList idText = firstNameElement.getChildNodes();
 				String id = ((Node) idText.item(0)).getNodeValue().trim();
-				String dbId = id.split("\\|")[2];
+				String[] ids = id.split("\\|");
+				String dbId = ids[2];
+				String gi = null;
+				if(ids[0].equalsIgnoreCase("gi")) {
+					gi = ids[1];
+				}
 				log.debug("Hit_id: " + id);
 
 				NodeList defList = hitElement.getElementsByTagName("Hit_def");
@@ -156,7 +171,7 @@ public class BlastXmlParser {
 
 				BlastObj blastObj = new BlastObj(dbId, name, description,
 						evalue[0], startPoint, alignmentLength, percentage,
-						alignedParts, detail);
+						alignedParts, detail, gi, efetchDb);
 				vector.add(blastObj);
 			}// end of for loop of all 'Hit' element
 
