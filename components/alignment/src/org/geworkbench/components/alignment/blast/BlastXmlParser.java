@@ -31,6 +31,11 @@ import org.xml.sax.SAXParseException;
  * 
  * The parser to retrieve the BLAST result in XML format.
  * 
+ * Document about the output XML format and BLAST API can be found at
+ * http://www.ncbi.nlm.nih.gov/dtd/NCBI_BlastOutput.dtd
+ * http://www.ncbi.nlm.nih.gov/dtd/NCBI_BlastOutput.mod.dtd
+ * http://www.ncbi.nlm.nih.gov/BLAST/Doc/urlapi.html
+ * 
  * @author zji
  * @version $Id$
  */
