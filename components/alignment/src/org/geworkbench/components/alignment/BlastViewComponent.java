@@ -96,7 +96,7 @@ public class BlastViewComponent implements VisualPlugin {
 		AddSequenceToProjectButton.setMinimumSize(new Dimension(100, 23));
 
 		AddSequenceToProjectButton
-				.setText("Add Selected Sequences to Project ");
+				.setText("Add Selected Sequences to Workspace");
 		AddSequenceToProjectButton
 				.addActionListener(new AddSelectedActionAdapter(
 						));
