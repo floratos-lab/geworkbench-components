@@ -246,10 +246,6 @@ public class BlastAnalysis extends AbstractAnalysis implements
 
 				}
 				
-				NCBIBlastParser nbp = new NCBIBlastParser(sequenceDB.size(),
-						outputFile, blastDataSet);
-			 	nbp.parseResults(); // this is to parse the detail from the saved file
-
 				CSAlignmentResultSet blastResult = new CSAlignmentResultSet(
 						blastDataSet, sequenceDB, BlastAnalysisPanel.NCBILABEL);
  
