@@ -1,7 +1,6 @@
 package org.geworkbench.components.alignment.blast;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -9,8 +8,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Vector;
-
-import javax.swing.JOptionPane;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -204,6 +201,10 @@ public class BlastAnalysis extends AbstractAnalysis implements
 						log.warn("null result for sequence " + sequence
 								+ " RID=" + BLAST_rid);
 					}
+					
+					if (parameterSetting.isViewInBrowser()) {
+						BrowserLauncher.openURL(resultURLString);
+					}
 				}
 				if (this.stopAlgorithm) {
 				 
@@ -211,41 +212,6 @@ public class BlastAnalysis extends AbstractAnalysis implements
 							"NCBI Blast is canceled at " + new Date(), null);
 				}
 			 
-				String outputFilePath = "file://"
-						+ new File(outputFile).getAbsolutePath();
-
-				if (parameterSetting.isViewInBrowser()) {
-					if ((new File(outputFile)).canRead()) {
-						try {
-							String osName = System.getProperty("os.name");
-							if (osName.startsWith("Mac OS")) {
-								BrowserLauncher.openURL(outputFilePath);
-							} else {
-								BrowserLauncher.openURL("file:///"
-										+ new File(outputFile)
-												.getAbsolutePath().replace(
-														"\\", "/").replace(" ",
-														"%20"));
-							}
-						} catch (Exception ex) {
-							ex.printStackTrace();
-							JOptionPane.showMessageDialog(null,
-									"No web browser can be launched, the result is saved at "
-											+ outputFile, "No Web Browser",
-									JOptionPane.ERROR_MESSAGE);
-
-						}
-					} else {
-
-						JOptionPane.showMessageDialog(null,
-								"The result cannot be read at " + outputFile,
-								"File cannot be read",
-								JOptionPane.ERROR_MESSAGE);
-
-					}
-
-				}
-				
 				CSAlignmentResultSet blastResult = new CSAlignmentResultSet(
 						blastDataSet, sequenceDB, BlastAnalysisPanel.NCBILABEL);
  
