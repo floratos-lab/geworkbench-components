@@ -8,6 +8,8 @@ package org.geworkbench.components.alignment.blast;
  * @version $Id$
  */
 public class Hsp {
+	private static final int LENGTH = 60;
+
 	final int numHsp;
 	final String[] bitScore;
 	final String[] score;
@@ -57,13 +59,38 @@ public class Hsp {
 					+ "\n");
 
 			sb.append("\n");
-			String qseqStr = String.format("%-8s%-7d%s\n", "Query", queryFrom[i], qseq[i]);
-			String midlineStr = String.format("%15c%s\n", ' ', midline[i]);
-			String hseqStr = String.format("%-8s%-7d%s\n", "Subject", hitFrom[i], hseq[i]);
+			sb.append(formatSequence(alignLen[i], queryFrom[i], hitFrom[i],
+					qseq[i], midline[i], hseq[i]));
+		}
+		return sb.toString();
+	}
+
+	private static String formatSequence(int alignLen, int queryFrom,
+			int hitFrom, String q, String m, String h) {
+		StringBuilder sb = new StringBuilder();
+		int starting = 0;
+		int ending = starting + LENGTH - 1;
+		do {
+			if (ending >= alignLen) {
+				ending = alignLen - 1;
+			}
+			String qseqStr = String.format("%-8s%-7d%s  %-7d\n", "Query",
+					queryFrom + starting, q.substring(starting, ending + 1),
+					queryFrom + ending);
+			String midlineStr = String.format("%15c%s\n", ' ',
+					m.substring(starting, ending + 1));
+			String hseqStr = String.format("%-8s%-7d%s  %-7d\n", "Subject",
+					hitFrom + starting, h.substring(starting, ending + 1),
+					hitFrom + ending);
 			sb.append(qseqStr);
 			sb.append(midlineStr);
 			sb.append(hseqStr);
-		}
+			sb.append("\n");
+
+			starting += LENGTH;
+			ending += LENGTH;
+		} while (starting < alignLen);
+
 		return sb.toString();
 	}
 }
