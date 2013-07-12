@@ -57,9 +57,12 @@ public class Hsp {
 					+ "\n");
 
 			sb.append("\n");
-			sb.append("Query   " + qseq[i] + "\n");
-			sb.append("        " + midline[i] + "\n");
-			sb.append("Subject " + hseq[i] + "\n");
+			String qseqStr = String.format("%-8s%-7d%s\n", "Query", queryFrom[i], qseq[i]);
+			String midlineStr = String.format("%15c%s\n", ' ', midline[i]);
+			String hseqStr = String.format("%-8s%-7d%s\n", "Subject", hitFrom[i], hseq[i]);
+			sb.append(qseqStr);
+			sb.append(midlineStr);
+			sb.append(hseqStr);
 		}
 		return sb.toString();
 	}
