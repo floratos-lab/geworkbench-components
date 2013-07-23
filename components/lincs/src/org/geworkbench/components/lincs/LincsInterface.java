@@ -497,12 +497,12 @@ public class LincsInterface extends JPanel implements VisualPlugin{
 				String dataSetName = null;
 				if (experimental.isSelected()) 				 
 				{
-					selectedAnalysis.setLabel("Lincs Experimental Query");
+					selectedAnalysis.setLabel("LINCS Experimental Query");
 					dataSetName = "Experimental Data";
 				}
 				else
 				{
-					selectedAnalysis.setLabel("Lincs Computational Query");
+					selectedAnalysis.setLabel("LINCS Computational Query");
 					dataSetName = "Computational Data";
 				}
 				final AnalysisInvokedEvent invokeEvent = new AnalysisInvokedEvent(
