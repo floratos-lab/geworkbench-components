@@ -43,16 +43,22 @@ import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.JTextField;
 import javax.swing.DefaultListSelectionModel;
- 
+
+import org.geworkbench.analysis.AbstractAnalysis; 
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
-import org.geworkbench.bison.datastructure.biocollections.lincs.LincsDataSet;
+import org.geworkbench.bison.datastructure.biocollections.lincs.LincsDataSet; 
+import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults; 
 import org.geworkbench.bison.util.colorcontext.ColorContext;
 import org.geworkbench.builtin.projects.ProjectPanel; 
 import org.geworkbench.engine.config.VisualPlugin;
+import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.events.AnalysisAbortEvent;
+import org.geworkbench.events.AnalysisCompleteEvent;
+import org.geworkbench.events.AnalysisInvokedEvent;
 import org.geworkbench.events.TitrationCurveEvent;
 import org.geworkbench.parsers.TabDelimitedDataMatrixFileFormat;
 import org.geworkbench.service.lincs.data.xsd.ExperimentalData;
@@ -486,7 +492,25 @@ public class LincsInterface extends JPanel implements VisualPlugin{
 					return;
 
 				}
-				try {
+				
+				AbstractAnalysis selectedAnalysis = new LincsSearchAnalysis();
+				String dataSetName = null;
+				if (experimental.isSelected()) 				 
+				{
+					selectedAnalysis.setLabel("Lincs Experimental Query");
+					dataSetName = "Experimental Data";
+				}
+				else
+				{
+					selectedAnalysis.setLabel("Lincs Computational Query");
+					dataSetName = "Computational Data";
+				}
+				final AnalysisInvokedEvent invokeEvent = new AnalysisInvokedEvent(
+						selectedAnalysis, dataSetName);
+				publishAnalysisInvokedEvent(invokeEvent);
+
+				try {			
+
 					if (experimental.isSelected()) {
 						List<String> assayTypes = getSelectedValues(assayTypeBox);
 						List<String> measurementTypes = getSelectedValues(synergyMeasurementTypeBox);
@@ -508,9 +532,12 @@ public class LincsInterface extends JPanel implements VisualPlugin{
 						updateResultTable(objects);
 
 					}
+					
+					publishAnalysisCompleteEvent(new AnalysisCompleteEvent(invokeEvent));
 
 				} catch (Exception ex) {
 					log.error(ex.getMessage());
+					publishAnalysisAbortEvent(new AnalysisAbortEvent(invokeEvent));
 				}
 
 				if (resultTable.getData() == null
@@ -521,7 +548,7 @@ public class LincsInterface extends JPanel implements VisualPlugin{
 					return;
 				}
 				freeVariables = getFreeVariables();
-
+				 
 			}
 
 		});
@@ -1140,5 +1167,31 @@ public class LincsInterface extends JPanel implements VisualPlugin{
 		return color;
 	}
 	
-	 
+	@Publish
+	public AnalysisInvokedEvent publishAnalysisInvokedEvent(
+			AnalysisInvokedEvent event) {
+		return event;
+	}
+	
+	@Publish
+	public AnalysisAbortEvent publishAnalysisAbortEvent(AnalysisAbortEvent analysisAbortEvent) {
+		return analysisAbortEvent;
+	}
+
+	@Publish
+	public AnalysisCompleteEvent publishAnalysisCompleteEvent(AnalysisCompleteEvent analysisCompleteEvent) {
+		return analysisCompleteEvent;
+	}
+	
+	//This is just for genespace logger purpose 
+	private class LincsSearchAnalysis extends AbstractAnalysis {
+ 
+		private static final long serialVersionUID = 1L;
+		@Override
+		public AlgorithmExecutionResults execute(Object input) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+		
+	}
 }
