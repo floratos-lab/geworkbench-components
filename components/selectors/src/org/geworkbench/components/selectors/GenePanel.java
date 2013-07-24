@@ -488,6 +488,10 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 		return false;
 	}
 
+	protected void setContext(String name){
+		setContext(name, maSet.getMarkers());
+	}
+
 	/**
 	 * A new method to update the selected Panel marker numbers after the
 	 * filtering.

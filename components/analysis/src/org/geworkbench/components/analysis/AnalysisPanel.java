@@ -65,6 +65,7 @@ import org.geworkbench.bison.model.analysis.ParameterPanel;
 import org.geworkbench.bison.model.analysis.ParameterPanelIncludingNormalized;
 import org.geworkbench.bison.model.analysis.ProteinSequenceAnalysis;
 import org.geworkbench.bison.model.analysis.ProteinStructureAnalysis;
+import org.geworkbench.bison.util.colorcontext.DefaultColorContext;
 import org.geworkbench.builtin.projects.DataSetSubNode;
 import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.builtin.projects.ProjectTreeNode;
@@ -977,7 +978,8 @@ public class AnalysisPanel extends CommandBase implements
 			history += "\nTotal elapsed time: " + DurationFormatUtils.formatDurationHMS(elapsedTime);
 			HistoryPanel.addToHistory(dataSet, history);
 			
-			ProjectPanel.getInstance().addProcessedMaSet(dataSet);
+			//for viper result maset, assign default color context 
+			ProjectPanel.getInstance().addProcessedMaSet(dataSet, new DefaultColorContext());
 		}
 		else if (resultObject instanceof Hashtable) {
 			DSPanel<DSGeneMarker> panel = ((Hashtable<?, DSPanel<DSGeneMarker>>) resultObject)
