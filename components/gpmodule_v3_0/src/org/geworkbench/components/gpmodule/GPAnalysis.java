@@ -154,6 +154,7 @@ public abstract class GPAnalysis extends AbstractAnalysis implements ClusteringA
         newFileName = newFileName.replaceAll(" ", "_");
 
         File newFile = new File(fileName.getParent(), newFileName);
+        newFile.deleteOnExit();
         if(!fileName.getName().equals(newFileName))
         {
             if(!fileName.renameTo(newFile))

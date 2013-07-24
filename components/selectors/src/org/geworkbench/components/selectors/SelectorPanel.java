@@ -73,6 +73,7 @@ import org.geworkbench.engine.management.Overflow;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.events.SubpanelChangedEvent;
+import org.geworkbench.util.Util;
 import org.geworkbench.util.visualproperties.PanelVisualProperties;
 import org.geworkbench.util.visualproperties.PanelVisualPropertiesManager;
 import org.geworkbench.util.visualproperties.VisualPropertiesDialog;
@@ -1058,6 +1059,50 @@ public abstract class SelectorPanel<T extends DSSequential> implements
 			}
 		}
 	}
+	
+
+	protected void setContext(String name, DSItemList<T> itemList){
+		DSAnnotationContextManager manager = CSAnnotationContextManager.getInstance();
+		if (manager.hasContext(itemList, name)) {
+			// Ensure loaded file has unique name
+			Set<String> nameSet = new HashSet<String>();
+			int n = manager.getAllContexts(itemList).length;
+			for (int i = 0; i < n; i++) {
+				nameSet.add(manager.getContext(itemList, i).getName());
+			}
+			name = Util.getUniqueName(name, nameSet);
+		}
+		context = manager.createContext(itemList, name);
+		initializeContext(context);
+		contextSelector.addItem(context);
+		contextSelector.setSelectedItem(context);
+		manager.setCurrentContext(itemList, context);
+		// Refresh list
+		listModel.refresh();
+		// Refresh tree
+		treeModel.setContext(context);
+		treeModel.fireTreeStructureChanged();
+		throwLabelEvent();
+	}
+	
+	protected void setContext(String name){
+		setContext(name, itemList);
+	}
+
+	@Subscribe
+	public void receive(org.geworkbench.events.SubpanelsAddedEvent<T> spe,
+			Object source) {
+		if (panelType.isAssignableFrom(spe.getType())) {
+			ArrayList<DSPanel<T>> receivedPanels = spe.getPanels();
+			if(receivedPanels == null) return;
+			setContext(spe.getLabel());
+			for(DSPanel<T> receivedPanel : receivedPanels){
+				addPanel(receivedPanel);
+			}
+			throwLabelEvent();
+		}
+	}
+	
 
 	protected abstract void publishSingleSelectionEvent(T item);
 
