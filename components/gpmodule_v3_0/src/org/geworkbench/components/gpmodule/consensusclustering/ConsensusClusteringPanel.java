@@ -175,6 +175,15 @@ public class ConsensusClusteringPanel extends GPAnalysisPanel
     	createHeatMap.addActionListener(parameterActionListener);
     	heatMapSize.addActionListener(parameterActionListener);
     	clusterListName.addActionListener(parameterActionListener);
+    	
+    	kmax.addFocusListener(parameterActionListener);
+    	resamplingIterations.addFocusListener(parameterActionListener);
+    	seedValue.addFocusListener(parameterActionListener);
+    	resampleValue.addFocusListener(parameterActionListener);
+    	descentIterations.addFocusListener(parameterActionListener);
+    	normalizationIterations.addFocusListener(parameterActionListener);
+    	heatMapSize.addFocusListener(parameterActionListener);
+    	clusterListName.addFocusListener(parameterActionListener);
 
         FormLayout layout = new FormLayout(
                     "right:max(80dlu;pref), 7dlu,  max(100dlu;pref), 7dlu, max(25dlu;pref), 7dlu, max(70dlu;pref)",
