@@ -33,7 +33,9 @@ import org.geworkbench.engine.management.Publish;
 import org.geworkbench.events.SubpanelsAddedEvent;
 import org.geworkbench.parsers.MicroarraySetParser;
 import org.geworkbench.util.FilePathnameUtils;
-import org.geworkbench.util.ProgressBar;
+import org.geworkbench.util.ProgressDialog;
+import org.geworkbench.util.ProgressItem;
+import org.geworkbench.util.ProgressTask;
 
 
 public class ConsensusClustering<T extends DSNamed> extends GPAnalysis {
@@ -43,21 +45,63 @@ public class ConsensusClustering<T extends DSNamed> extends GPAnalysis {
 	private static Log log = LogFactory.getLog(ConsensusClustering.class);
 	private static final String outputStub = "base";
 	private static final String rootDir = FilePathnameUtils.getTemporaryFilesDirectoryPath();
+	private static final ProgressDialog pd = ProgressDialog.getInstance(false);
 
 	public ConsensusClustering() {
 		panel = new ConsensusClusteringPanel();
 		setDefaultPanel(panel);
 	}
 
-	@SuppressWarnings("unchecked")
+	private class ResultWrapper{
+		private AlgorithmExecutionResults rst = null;
+		private void setResult(AlgorithmExecutionResults rst){
+			this.rst = rst;
+		}
+		private AlgorithmExecutionResults getResult(){
+			return this.rst;
+		}
+	}
+	
 	public AlgorithmExecutionResults execute(Object input) {
+		ResultWrapper rw = new ResultWrapper();
+		CCTask task = new CCTask(ProgressItem.INDETERMINATE_TYPE, "Consensus Clustering Analysis Running", input, rw);
+		pd.executeTask(task);
+		while(!task.isDone()){
+			try{
+				Thread.sleep(1000);
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+		}
+		return rw.getResult();
+	}
+	
+	private class CCTask extends ProgressTask<Void, Void>{
+		Object input;
+		ResultWrapper rw = null;
+		CCTask(int pbtype, String message, Object input, ResultWrapper rw){
+			super(pbtype, message);
+			this.input = input;
+			this.rw = rw;
+		}
+		
+		@Override
+    	protected void done(){
+	   		pd.removeTask(this);
+	   	}
+
+		@Override
+		protected Void doInBackground() throws Exception {
+			rw.setResult(executeInBackground(input, this));
+			return null;
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public AlgorithmExecutionResults executeInBackground(Object input, CCTask task) {
 		if (!(input instanceof DSMicroarraySetView)) {
 			return new AlgorithmExecutionResults(false, "Invalid microarray dataset for Consensus Clustering", null);
 		}
-		ProgressBar pbar = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
-		pbar.setTitle("Consensus Clustering Analysis");
-		pbar.setMessage("Consensus Clustering analysis started");
-		pbar.start();
 		
 		DSMicroarraySetView<DSGeneMarker, DSMicroarray> view = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>)input;
 		DSMicroarraySet maSet = view.getMicroarraySet();
@@ -67,22 +111,24 @@ public class ConsensusClustering<T extends DSNamed> extends GPAnalysis {
 		if (clusterBy.equals("rows"))  arrays = maSet;
 		else  markers = maSet.getMarkers();
 
+		AlgorithmExecutionResults cancelResult = new AlgorithmExecutionResults(false, "Consensus Clustering Analysis Cancelled.", null);
+		if(task.isCancelled()) return cancelResult;
+		
 		String gctFileName = createGCTFile(rootDir + maSet.getLabel(), markers, arrays).getAbsolutePath();
 		Parameter[] parameters = encodeParameters(gctFileName);
 
-		pbar.setMessage("Consensus Clustering analysis running");
+		if(task.isCancelled()) return cancelResult;
 		List<String> result = null;
 		try{
 			result = runAnalysis("ConsensusClustering", parameters, panel.getPassword());
 		}catch(Exception e){
-			pbar.dispose();
 			e.printStackTrace();
-			return new AlgorithmExecutionResults(false, "Consensus clustering analysis aborted.", null);
+			return new AlgorithmExecutionResults(false, "Consensus Clustering Analysis Aborted: "+e.getMessage(), null);
 		}
 		if (result == null || result.size() == 0) {
-			pbar.dispose();
-			return new AlgorithmExecutionResults(false, "No consensus clustering result.", null);
+			return new AlgorithmExecutionResults(false, "No Consensus Clustering Result.", null);
 		}
+		if(task.isCancelled()) return cancelResult;
 
 		DSConsensusClusterResultSet resultSet = new CSConsensusClusterResultSet(maSet, "Consensus Clustering Result");
 		for (String res : result) {
@@ -90,7 +136,6 @@ public class ConsensusClustering<T extends DSNamed> extends GPAnalysis {
 			resultSet.addFile(res);
 		}
 
-		pbar.setMessage("Consensus Clustering results publishing");
 		// publish .clu results to selector panel
 		String clusterListName = ((ConsensusClusteringPanel) panel).getClusterListName();
 		if (clusterBy.equals("rows")) {
@@ -116,7 +161,6 @@ public class ConsensusClustering<T extends DSNamed> extends GPAnalysis {
 
 		HistoryPanel.addToHistory(resultSet, generateHistoryString(view));
 		AlgorithmExecutionResults results = new AlgorithmExecutionResults(true,"Consensus Clustering Result", resultSet);
-		pbar.dispose();
 		return results;
 	}
 	
