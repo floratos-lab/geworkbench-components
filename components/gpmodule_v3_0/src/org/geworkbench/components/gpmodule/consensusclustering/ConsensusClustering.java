@@ -122,7 +122,6 @@ public class ConsensusClustering<T extends DSNamed> extends GPAnalysis {
 		try{
 			result = runAnalysis("ConsensusClustering", parameters, panel.getPassword());
 		}catch(Exception e){
-			e.printStackTrace();
 			return new AlgorithmExecutionResults(false, "Consensus Clustering Analysis Aborted: "+e.getMessage(), null);
 		}
 		if (result == null || result.size() == 0) {
