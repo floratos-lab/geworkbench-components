@@ -436,12 +436,15 @@ public class MRACombine extends AbstractAnalysis implements ClusteringAnalysis {
 		Map<DSGeneMarker, Set<EdgeInfo>> genesInRegulonMap = adjMatrix
 				.getEdgeInfoMap(mraMarker, maSet);
 		Set<DSGeneMarker> genesInRegulonList = genesInRegulonMap.keySet();
-		writer.write("^MR_GENE=" + mraMarker.getGeneId() + "\n");
+		writer.write("^MR_GENE_ID=" + mraMarker.getGeneId() + "\n");
+		writer.write("!gene_symbol=" + mraData[0] + "\n");
+		writer.write("!MR_DE_RANK=" + mraResultSet.getRank(mraMarker) + "\n");
 		writer.write("!gene_in_regulon=" + genesInRegulonMap.keySet().size()
 				+ "\n");
 		writer.write("!" + mraCombinePanel.getScoreType() + "=" + mraData[1].trim()
 				+ "\n");
-		writer.write("!DE=" + mraResultSet.getValue(mraMarker) + "\n");		
+		writer.write("!DE=" + mraResultSet.getValue(mraMarker) + "\n");	
+	
 		writer.write("#Target_Entrez_ID=EntrezID of target gene\n");
 		writer.write("#Target_Symbol=gene symbol for target gene\n");
 		writer.write("#Target_type=type of gene(TF/K/other)\n");
