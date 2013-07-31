@@ -410,20 +410,19 @@ public class MRACombine extends AbstractAnalysis implements ClusteringAnalysis {
 		writer.write("^MR_Experiment_Header(one per file)\n");
 		writer.write("!master_regulator_method=" + mraCombinePanel.getMethod()
 				+ "\n");
-		writer.write("!score_type=" + mraCombinePanel.getScoreType()
+		writer.write("!mr_score_type=" + mraCombinePanel.getScoreType()
 				+ "\n");
 		writer.write("!total_number_of_genes=" + mraResultSet.getMarkerCount()
 				+ "\n");
-		writer.write("!abs_max_z-score_observed="
+		writer.write("!abs_max_score_observed="
 				+ Math.max(Math.abs(mraResultSet.getMinValue()),
 						Math.abs(mraResultSet.getMaxValue())) + "\n");
-		writer.write("!species=homo sapiens\n");
-		writer.write("!disease_condition=glioblastoma\n");
-		writer.write("!phenotype1-case=mesenchymal\n");
-		writer.write("!phenotype2-contal=proneural\n");
 		writer.write("!confidence_value_type="
 				+ mraCombinePanel.getconfidenceType() + "\n");
-
+						writer.write("!species=\n");
+		writer.write("!disease_condition=\n");
+		writer.write("!phenotype1-case=\n");
+		writer.write("!phenotype2-control=\n");
 	}
 
 	private void writeMRAData(String[] mraData, AdjacencyMatrixDataSet amSet,
@@ -436,23 +435,23 @@ public class MRACombine extends AbstractAnalysis implements ClusteringAnalysis {
 		Map<DSGeneMarker, Set<EdgeInfo>> genesInRegulonMap = adjMatrix
 				.getEdgeInfoMap(mraMarker, maSet);
 		Set<DSGeneMarker> genesInRegulonList = genesInRegulonMap.keySet();
-		writer.write("^MR_GENE_ID=" + mraMarker.getGeneId() + "\n");
+		writer.write("^MR_ENTREZ_ID=" + mraMarker.getGeneId() + "\n");
 		writer.write("!gene_symbol=" + mraData[0] + "\n");
-		writer.write("!MR_DE_RANK=" + mraResultSet.getRank(mraMarker) + "\n");
-		writer.write("!gene_in_regulon=" + genesInRegulonMap.keySet().size()
+		writer.write("!genes_in_regulon=" + genesInRegulonMap.keySet().size()
 				+ "\n");
-		writer.write("!" + mraCombinePanel.getScoreType() + "=" + mraData[1].trim()
+		writer.write("!" + "mr_score(" + mraCombinePanel.getScoreType() + ")" + "=" + mraData[1].trim()
 				+ "\n");
-		writer.write("!DE=" + mraResultSet.getValue(mraMarker) + "\n");	
+		writer.write("!mr_de=" + mraResultSet.getValue(mraMarker) + "\n");	
+		writer.write("!mr_de_rank=" + mraResultSet.getRank(mraMarker) + "\n");
 	
-		writer.write("#Target_Entrez_ID=EntrezID of target gene\n");
-		writer.write("#Target_Symbol=gene symbol for target gene\n");
-		writer.write("#Target_type=type of gene(TF/K/other)\n");
-		writer.write("#Conf=network edge confidence value\n");
-		writer.write("#DE_Rank=differential expression rank\n");
-		writer.write("#DSpearmans=Spearman's Correlation TF with target\n");
+		writer.write("#ENTREZ_ID=EntrezID of target gene\n");
+		writer.write("#GENE_SYMBOL=gene symbol of target gene\n");
+		writer.write("#GENE_TYPE=type of target gene(TF/K/other)\n");
+		writer.write("#CONF=network edge confidence value\n");
+		writer.write("#DE_RANK=Differential expression rank\n");
+		writer.write("#SPEARMANS=Spearman's Correlation TF with target\n");
 		writer.write("!target_table_begin\n");
-		writer.write("Target_Entrez_ID\tTarget_Symbol\tTarget_Type\tConf\tDE_Rank\tSpearmans\n");
+		writer.write("ENTREZ_ID\tGENE_SYMBOL\tGENE_TYPE\tCONF\tDE_RANK\tSPEARMANS\n");
 
 		for (DSGeneMarker regulonMarker : genesInRegulonList) {
 			
