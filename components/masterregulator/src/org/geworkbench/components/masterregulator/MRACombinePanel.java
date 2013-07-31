@@ -317,7 +317,8 @@ public final class MRACombinePanel extends AbstractSaveableParameterPanel {
 	private JComboBox createScoreTypeComboBox() {
 		ArrayListModel<String> scoreTypeModel = new ArrayListModel<String>();
 		scoreTypeModel.add("NES");
-		scoreTypeModel.add("z-score");
+		scoreTypeModel.add("Z-Score");
+		scoreTypeModel.add("P-Value");
 		SelectionInList<String> selectionInList = new SelectionInList<String>(
 				(ListModel) scoreTypeModel);
 		return BasicComponentFactory.createComboBox(selectionInList);
