@@ -97,6 +97,7 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 
 	public GenePanel() {
 		super(DSGeneMarker.class, "Marker");
+		newContextButton.setToolTipText("Create new marker set context");
 		tagEventEnabled = true;
 		// Add gene panel specific menu items.
 		sortMenu.add(sortGeneItem);
@@ -688,7 +689,7 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 
 		String contextName = context.getName();
 
-		if (contextName.equalsIgnoreCase("Default")){
+		if (contextName.equalsIgnoreCase("Default Context")){
 			JOptionPane.showMessageDialog(mainPanel, "You cannot delete the Default group.");
 			return;
 		}
