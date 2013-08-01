@@ -406,23 +406,48 @@ public class MRACombine extends AbstractAnalysis implements ClusteringAnalysis {
 	private void writeExperimentData(
 			DSMasterRagulatorResultSet<DSGeneMarker> mraResultSet,
 			BufferedWriter writer) throws IOException {
-		writer.write("^DATABASE=CTD2\n");
-		writer.write("^MR_Experiment_Header(one per file)\n");
-		writer.write("!master_regulator_method=" + mraCombinePanel.getMethod()
+		boolean full_template = false;
+		writer.write("^DATABASE = CTD2\n");
+		writer.write("!Database_name = CTD2 Data Matrix/Dashboard\n");
+		writer.write("^SERIES = \n");
+		writer.write("!Series_title = \n");
+		writer.write("!Series_submission_date = \n");															
+		writer.write("!Series_last_update_date = \n");				
+		writer.write("!Series_summary = \n");
+		writer.write("!Series_type = Master Regulator Analysis Network\n");
+		if (full_template) { 
+			writer.write("!Series_contributor = \n");
+			writer.write("!Series_contact_name = \n");
+			writer.write("!Series_contact_email = \n");
+			writer.write("!Series_contact_laboratory = \n");
+			writer.write("!Series_contact_department = \n");
+			writer.write("!Series_contact_institute = \n");
+			writer.write("!Series_contact_city = \n");
+			writer.write("!Series_contact_state = \n");
+			writer.write("!Series_contact_zip/postal_code = \n");
+			writer.write("!Series_contact_country = USA\n");
+		}
+		writer.write("!Series_mra_method = " + mraCombinePanel.getMethod()
 				+ "\n");
-		writer.write("!mr_score_type=" + mraCombinePanel.getScoreType()
+		writer.write("!Series_mra_score_type = " + mraCombinePanel.getScoreType()
 				+ "\n");
-		writer.write("!total_number_of_genes=" + mraResultSet.getMarkerCount()
+		writer.write("!Series_total_number_of_markers = " + mraResultSet.getMarkerCount()
 				+ "\n");
-		writer.write("!abs_max_score_observed="
+		writer.write("!Series_abs_max_mra_score_observed = "
 				+ Math.max(Math.abs(mraResultSet.getMinValue()),
 						Math.abs(mraResultSet.getMaxValue())) + "\n");
-		writer.write("!confidence_value_type="
+		writer.write("!Series_confidence_value_type = "
 				+ mraCombinePanel.getconfidenceType() + "\n");
-						writer.write("!species=\n");
-		writer.write("!disease_condition=\n");
-		writer.write("!phenotype1-case=\n");
-		writer.write("!phenotype2-control=\n");
+		writer.write("!Series_organism = \n");
+		writer.write("!Series_disease_condition = \n");
+		writer.write("!Series_phenotype1-case = \n");
+		writer.write("!Series_phenotype2-control = \n");
+		writer.write("!Series_platform_id = GPLnnn\n");		
+		writer.write("^PLATFORM = GPLnnn\n");
+		writer.write("!Platform_title = [...] platform name ....\n");
+		writer.write("!Platform_organism = \n");
+		writer.write("!Platform_manufacturer = \n");
+
 	}
 
 	private void writeMRAData(String[] mraData, AdjacencyMatrixDataSet amSet,
@@ -435,21 +460,20 @@ public class MRACombine extends AbstractAnalysis implements ClusteringAnalysis {
 		Map<DSGeneMarker, Set<EdgeInfo>> genesInRegulonMap = adjMatrix
 				.getEdgeInfoMap(mraMarker, maSet);
 		Set<DSGeneMarker> genesInRegulonList = genesInRegulonMap.keySet();
-		writer.write("^MR_ENTREZ_ID=" + mraMarker.getGeneId() + "\n");
-		writer.write("!gene_symbol=" + mraData[0] + "\n");
-		writer.write("!genes_in_regulon=" + genesInRegulonMap.keySet().size()
+		writer.write("^MRA_ENTREZ_ID = " + mraMarker.getGeneId() + "\n");
+		writer.write("!mra_gene_symbol = " + mraData[0] + "\n");
+		writer.write("!" + "mra_score(" + mraCombinePanel.getScoreType() + ")" + " = " + mraData[1].trim()
 				+ "\n");
-		writer.write("!" + "mr_score(" + mraCombinePanel.getScoreType() + ")" + "=" + mraData[1].trim()
+		writer.write("!mra_de = " + mraResultSet.getValue(mraMarker) + "\n");	
+		writer.write("!mra_de_rank = " + mraResultSet.getRank(mraMarker) + "\n");
+		writer.write("!mra_data_row_count = " + genesInRegulonMap.keySet().size()
 				+ "\n");
-		writer.write("!mr_de=" + mraResultSet.getValue(mraMarker) + "\n");	
-		writer.write("!mr_de_rank=" + mraResultSet.getRank(mraMarker) + "\n");
-	
-		writer.write("#ENTREZ_ID=EntrezID of target gene\n");
-		writer.write("#GENE_SYMBOL=gene symbol of target gene\n");
-		writer.write("#GENE_TYPE=type of target gene(TF/K/other)\n");
-		writer.write("#CONF=network edge confidence value\n");
-		writer.write("#DE_RANK=Differential expression rank\n");
-		writer.write("#SPEARMANS=Spearman's Correlation TF with target\n");
+		writer.write("#ENTREZ_ID = EntrezID of target gene\n");
+		writer.write("#GENE_SYMBOL = gene symbol of target gene\n");
+		writer.write("#GENE_TYPE = type of target gene(TF/K/other)\n");
+		writer.write("#CONF = network edge confidence value\n");
+		writer.write("#DE_RANK = Differential expression rank\n");
+		writer.write("#SPEARMANS = Spearman's Correlation of TF with target\n");
 		writer.write("!target_table_begin\n");
 		writer.write("ENTREZ_ID\tGENE_SYMBOL\tGENE_TYPE\tCONF\tDE_RANK\tSPEARMANS\n");
 
