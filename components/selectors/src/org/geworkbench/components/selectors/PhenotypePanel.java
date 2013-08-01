@@ -124,6 +124,7 @@ public class PhenotypePanel extends SelectorPanel<DSMicroarray> {
 
     public PhenotypePanel() {
         super(DSMicroarray.class, "Array/Phenotype");
+		newContextButton.setToolTipText("Create new array set context");
         // Add "Classification" item and sub-items
         JMenu classificationMenu = new JMenu("Classification");
         classPopup = new JPopupMenu();
