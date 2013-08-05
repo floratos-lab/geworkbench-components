@@ -7,7 +7,10 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -18,7 +21,9 @@ import java.util.Vector;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -27,9 +32,12 @@ import javax.swing.JTextField;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geworkbench.engine.config.VisualPlugin;
+import org.geworkbench.util.CsvFileFilter;
 import org.geworkbench.util.ProgressDialog;
 import org.geworkbench.util.ProgressItem;
 import org.geworkbench.util.ProgressTask;
+
+import com.Ostermiller.util.CSVPrinter;
 
 /**
  * @author zji
@@ -131,6 +139,56 @@ public class Cupid extends JPanel implements VisualPlugin {
 
 		});
 		panel2.add(submitButton);
+
+		JButton exportButton = new JButton("Export");
+		exportButton.setToolTipText("Export to CSV files");
+		exportButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser fc=new JFileChooser();
+				fc.removeChoosableFileFilter(fc.getAcceptAllFileFilter());
+				fc.setFileFilter(new CsvFileFilter());
+				fc.setDialogTitle("Save ceRNA results");
+				int choice = fc.showOpenDialog(Cupid.this.getComponent());
+				if (choice == JFileChooser.APPROVE_OPTION) {
+					String fname = fc.getSelectedFile().getAbsolutePath();
+					if (!fname.toLowerCase().endsWith(".csv")){
+						fname += ".csv";
+					}
+					File f = new File(fname);
+					if(f.exists()){
+						int option = JOptionPane.showConfirmDialog(null,
+								"File exists. Replace it?",
+								"Replace the existing file?",
+								JOptionPane.YES_NO_OPTION);
+						if(option != JOptionPane.YES_OPTION) return;
+					}
+					CSVPrinter csvout = null;
+					try {
+						csvout = new CSVPrinter(new BufferedOutputStream(
+								new FileOutputStream(fname)));
+						for (int i = 0; i < tableModel.getColumnCount(); i++) {
+							csvout.print(tableModel.getColumnName(i));
+						}
+						csvout.println();
+						for (int row = 0; row < tableModel.getRowCount(); row++) {
+							for (int col = 0; col < tableModel.getColumnCount(); col++){
+								csvout.print((String)tableModel.getValueAt(row, col));
+							}
+							csvout.println();
+						}
+						csvout.flush();
+						csvout.close();
+					} catch (Exception ex) {
+						ex.printStackTrace();
+					} finally{
+						if(csvout!=null) {
+							try{csvout.close();}catch(Exception ex){ex.printStackTrace();}
+						}
+					}
+				}
+			}
+		});
+		panel2.add(exportButton);
 
 		JPanel topPanel = new JPanel();
 		topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.PAGE_AXIS));
