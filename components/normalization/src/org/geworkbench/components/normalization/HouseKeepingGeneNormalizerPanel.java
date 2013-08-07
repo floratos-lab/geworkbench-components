@@ -46,6 +46,8 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.tree.TreePath;
 
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
+import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.CSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
@@ -380,7 +382,41 @@ public class HouseKeepingGeneNormalizerPanel extends AbstractSaveableParameterPa
             }
         }
 
+        TreeSet<String> nonFoundGenes = getMissingMarkers();
+        setHighlightedMarkers(nonFoundGenes);
+        if(nonFoundGenes.size()>0){
+            JOptionPane.showMessageDialog(null,
+							"Highlighted markers are not in the dataset or have missing values.\n" +
+							"Right click on markers for excluding options.");
+        }
     }
+
+    transient DSMicroarraySet maSet = null;
+	private TreeSet<String> getMissingMarkers(){
+		if(maSet==null) return null;
+
+		TreeSet<String> nonFoundGenes = new TreeSet<String>();
+		DSPanel<DSGeneMarker> markerPanel = getPanel();
+        int markerCount = markerPanel.size();
+        int arrayCount = maSet.size();
+        double[][] arrays = new double[markerCount][arrayCount];
+        
+        for (int j = 0; j < markerCount; j++) {
+            DSGeneMarker csgMarker = (CSGeneMarker) markerPanel.get(j);
+			DSGeneMarker markerAvaiable = ((CSMicroarraySet) maSet)
+					.getMarkers().get(csgMarker.getLabel());
+			if (markerAvaiable != null) { // this is null for the marker that is not in the dataset
+				csgMarker = markerAvaiable;
+			}
+            for (int k = 0; k < arrayCount; k++) {
+                arrays[j][k] = maSet.getValue(csgMarker, k);
+                if (Double.isNaN(arrays[j][k]) || arrays[j][k] == 0) {
+                	nonFoundGenes.add(csgMarker.getLabel());
+                }
+            }
+        }
+        return nonFoundGenes;
+	}
 
     /**
      * marker_mouseClicked, add the double clicked marker to the
@@ -700,7 +736,7 @@ public class HouseKeepingGeneNormalizerPanel extends AbstractSaveableParameterPa
         updateLabel();
     }
 
- public  void clearAllHightlightsPressed() {
+    private void clearAllHightlightsPressed() {
         if (highlightedMarkers != null) {
             highlightedMarkers.clear();
             updateLabel();
@@ -802,7 +838,7 @@ public class HouseKeepingGeneNormalizerPanel extends AbstractSaveableParameterPa
         }
     }
 
-    private void clearAllActionPerformed() {
+    void clearAllActionPerformed() {
         moveAllHightlightsItemPressed();
         selectedModel.clear();
         markerModel.clear();
