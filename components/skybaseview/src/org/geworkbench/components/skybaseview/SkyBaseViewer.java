@@ -977,7 +977,7 @@ public class SkyBaseViewer implements VisualPlugin {
 		cp.addChartMouseListener(new ChartMouseListener() {
 			public void chartMouseClicked(ChartMouseEvent ev) {
 				try {
-					if (ev.getChart() != null & ev.getEntity() != null) {
+					if (ev.getChart() != null & ev.getEntity() instanceof CategoryItemEntity) {
 						CategoryItemEntity cie = (CategoryItemEntity) ev
 								.getEntity();
 						if (cie.getCategory() == null)
