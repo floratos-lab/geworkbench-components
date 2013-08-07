@@ -7,8 +7,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.Vector;
 
-import javax.swing.JOptionPane;
-
 import org.geworkbench.analysis.AbstractAnalysis;
 import org.geworkbench.bison.datastructure.biocollections.CSMarkerVector;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
@@ -88,14 +86,14 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
                 nonFoundGenes);
         if (haveNonExistMarker) {
 
-            int choice = JOptionPane.showConfirmDialog(null,
+        	/*int choice = JOptionPane.showConfirmDialog(null,
                     "Some of the designated genes are not in the dataset or have missing values. Proceed?  ",
                     "Warning",
                     JOptionPane.OK_CANCEL_OPTION);
 
             if (choice == 2) {
                 return new AlgorithmExecutionResults(false, "Cancelled by user.", input);
-            }
+            }*/
         }
 
 
@@ -347,8 +345,9 @@ public class HouseKeepingGeneNormalizer extends AbstractAnalysis implements
 		DSDataSet<?> dataSet = e.getDataSet();
 
 		if (dataSet instanceof DSMicroarraySet && refMASet != dataSet) {
-			houseKeepingGeneNormalizerPanel.clearAllHightlightsPressed();
+			houseKeepingGeneNormalizerPanel.clearAllActionPerformed();
 			refMASet = (DSMicroarraySet) dataSet;
+			houseKeepingGeneNormalizerPanel.maSet = refMASet;
 		}
 	}
 
