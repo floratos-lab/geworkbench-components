@@ -1,7 +1,5 @@
 package org.geworkbench.components.annotations;
 
-import java.util.List;
-
 /**
  * <p>Copyright: Copyright (c) 2003</p>
  * <p>Company: First Genetic Trust Inc.</p>
@@ -13,10 +11,12 @@ import java.util.List;
  */
 public class PathwayImpl implements Pathway {
 	
-    private final gov.nih.nci.cabio.domain.Pathway pathway;
+    private final String pathwayName;
+    private final String diagram;
 
-    public PathwayImpl(gov.nih.nci.cabio.domain.Pathway pathway) {
-        this.pathway = pathway;
+    public PathwayImpl(String pathwayName, String diagram) {
+        this.pathwayName = pathwayName;
+        this.diagram = diagram;
     }
 
     /**
@@ -24,8 +24,9 @@ public class PathwayImpl implements Pathway {
      *
      * @return Pathway name
      */
+    @Override
     public String getPathwayName() {
-        return pathway.getName();
+        return pathwayName;
     }
 
     /**
@@ -34,42 +35,16 @@ public class PathwayImpl implements Pathway {
      *
      * @return Pathway diagram
      */
+    @Override
     public String getPathwayDiagram() {
-        return pathway.getDiagram();
-    }
-
-    /**
-     * Gets the Pathway Identifier of the <code>Pathway</code> instance
-     *
-     * @return Pathway ID
-     */
-    public String getPathwayId() {
-        return pathway.getId().toString();
-    }
-
-    /**
-     * Creates a <code>Pathway[]</code> instance from a
-     * <code>gov.nih.nci.caBIO.bean.Pathway[]</code> instance
-     *
-     * @param array List of Pathways obtained from caBIO
-     * @return list of <code>Pathway</code> intances corresponding to the caBIO
-     *         results
-     */
-    public static Pathway[] toArray(List<gov.nih.nci.cabio.domain.Pathway> array) {
-        Pathway[] toBeReturned = new PathwayImpl[array.size()];
-        for (int i = 0; i < array.size(); i++) {
-            toBeReturned[i] = new PathwayImpl(array.get(i));
-        }
-
-        return toBeReturned;
+        return diagram;
     }
 
     @Override
     public int compareTo(Pathway other) {
-    	String name = pathway.getName();
     	String otherName = other.getPathwayName();
-    	if(name!=null) {
-    		return name.compareTo(otherName);
+    	if(pathwayName!=null) {
+    		return pathwayName.compareTo(otherName);
     	} else {
     		return -1;
     	}
