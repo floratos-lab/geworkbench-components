@@ -1,17 +1,5 @@
 package org.geworkbench.components.annotations;
 
-import gov.nih.nci.cabio.domain.Gene;
-import gov.nih.nci.common.domain.DatabaseCrossReference;
-import gov.nih.nci.system.applicationservice.ApplicationException;
-import gov.nih.nci.system.applicationservice.ApplicationService;
-import gov.nih.nci.system.client.ApplicationServiceProvider;
-
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -43,44 +31,14 @@ public class GeneAnnotationImpl implements GeneAnnotation {
     private final String entrezId;
     private final Long clusterId;
     
-    /**
-     * Constructor
-     *
-     * @param gene <code>Gene</code>
-     */
-    private GeneAnnotationImpl(final Gene gene) {
-    	
-    	geneSymbol = gene.getSymbol();
-    	geneFullName = gene.getFullName();
-    	entrezId = getEntrezId(gene);
-    	clusterId = gene.getClusterId();
-
-        Gene g = new Gene();
-        g.setId(gene.getId());
-
-        gov.nih.nci.cabio.domain.Pathway pathway = new gov.nih.nci.cabio.domain.Pathway();
-        Set<Gene> genes = new HashSet<Gene>();
-        genes.add(g);
-        pathway.setGeneCollection(genes);
-        
-        Pathway[] tmp = null;
-        try {
-        	ApplicationService appService = ApplicationServiceProvider.getApplicationService();
-            List<gov.nih.nci.cabio.domain.Pathway> pways = appService.search(
-                    "gov.nih.nci.cabio.domain.Pathway", pathway);
-            tmp = new PathwayImpl[pways.size()];
-            for (int i = 0; i < pways.size(); i++) {
-            	gov.nih.nci.cabio.domain.Pathway p = pways.get(i);
-                tmp[i] = new PathwayImpl(p.getName(), p.getDiagram());
-            }
-        } catch (ApplicationException e) {
-            log.error(e);
-        }  catch (Exception e) { // TODO why do we do this?
-            log.error(e);
-        }
-        pathways = tmp;
-
-		organism = gene.getTaxon().getAbbreviation();
+	public GeneAnnotationImpl(String symbol, String fullName, String entrezId,
+			Long clusterId, String organism, Pathway[] pathways) {
+    	geneSymbol = symbol;
+    	geneFullName = fullName;
+    	this.entrezId = entrezId;
+    	this.clusterId = clusterId;
+    	this.organism = organism;
+        this.pathways = pathways;
     }
 
     /**
@@ -120,36 +78,6 @@ public class GeneAnnotationImpl implements GeneAnnotation {
         return geneSymbol;
     }
 
-    /**
-     * Creates <code>GeneAnnotation[]</code> object from <code>Gene[]</code>
-     * obtained from caBIO queries
-     *
-     * @param geneList query result from caBIO
-     * @return <code>GeneAnnotation[]</code> object
-     */
-    public static GeneAnnotation[] toUniqueArray(List<gov.nih.nci.cabio.domain.Gene> geneList) {
-        Set<GeneAnnotation> uniqueGenes = new HashSet<GeneAnnotation>();
-        for (int i = 0; i < geneList.size(); i++) {
-        	Gene g = geneList.get(i);
-        	if((g != null) && (g.getSymbol() != null)){
-	            uniqueGenes.add(new GeneAnnotationImpl(g));
-        	}
-        }
-        return uniqueGenes.toArray(new GeneAnnotation[]{});
-    }
-
-    public static GeneAnnotation[] toUniqueArray(List<gov.nih.nci.cabio.domain.Gene> geneList, String organism) {
-        Set<GeneAnnotation> uniqueGenes = new HashSet<GeneAnnotation>();
-        for (int i = 0; i < geneList.size(); i++) {
-        	Gene g = geneList.get(i);
-
-        	if((g != null) && (g.getSymbol() != null) && (g.getTaxon().getAbbreviation().equals(organism))){
-	            uniqueGenes.add(new GeneAnnotationImpl(g));
-        	}
-        }
-        return uniqueGenes.toArray(new GeneAnnotation[]{});
-    }
-
     @Override
     public boolean equals(Object object) {
         GeneAnnotation other = (GeneAnnotation) object;
@@ -169,19 +97,6 @@ public class GeneAnnotationImpl implements GeneAnnotation {
     @Override
 	public Long getClusterId() {
 		return clusterId;
-	}
-    
-	private static String getEntrezId(Gene gene) {
-        String entrezId = "";
-        Collection<DatabaseCrossReference> crossReferences = gene.getDatabaseCrossReferenceCollection();
-        for (Iterator<DatabaseCrossReference> iterator = crossReferences.iterator(); iterator.hasNext();) {
-			DatabaseCrossReference crossReference = (DatabaseCrossReference) iterator.next();
-			if (crossReference.getDataSourceName().equals("LOCUS_LINK_ID")){
-				entrezId = crossReference.getCrossReferenceId();
-				break;
-			}
-		}
-        return entrezId;
 	}
 
 	@Override
