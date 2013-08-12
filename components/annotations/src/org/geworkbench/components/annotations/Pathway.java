@@ -25,10 +25,4 @@ public interface Pathway extends Comparable<Pathway>{
      */
     String getPathwayDiagram();
 
-    /**
-     * Gets the Pathway Identifier of the <code>Pathway</code> instance
-     *
-     * @return Pathway ID
-     */
-    String getPathwayId();
 }

@@ -60,7 +60,11 @@ public class GeneAnnotationImpl implements GeneAnnotation {
         	ApplicationService appService = ApplicationServiceProvider.getApplicationService();
             List<gov.nih.nci.cabio.domain.Pathway> pways = appService.search(
                     "gov.nih.nci.cabio.domain.Pathway", pathway);
-            tmp = PathwayImpl.toArray(pways);
+            tmp = new PathwayImpl[pways.size()];
+            for (int i = 0; i < pways.size(); i++) {
+            	gov.nih.nci.cabio.domain.Pathway p = pways.get(i);
+                tmp[i] = new PathwayImpl(p.getName(), p.getDiagram());
+            }
         } catch (ApplicationException e) {
             log.error(e);
         }  catch (Exception e) { // TODO why do we do this?
