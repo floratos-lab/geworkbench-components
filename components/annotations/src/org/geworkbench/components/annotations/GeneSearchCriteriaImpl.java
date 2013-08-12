@@ -1,12 +1,17 @@
 package org.geworkbench.components.annotations;
 
 import gov.nih.nci.cabio.domain.Gene;
-import gov.nih.nci.cabio.domain.Pathway;
+import gov.nih.nci.common.domain.DatabaseCrossReference;
+import gov.nih.nci.system.applicationservice.ApplicationException;
 import gov.nih.nci.system.applicationservice.ApplicationService;
 import gov.nih.nci.system.client.ApplicationServiceProvider;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.JOptionPane;
 
@@ -52,7 +57,7 @@ public class GeneSearchCriteriaImpl implements GeneSearchCriteria {
 		try {
 		 
 			List<Gene> results = appService.search(Gene.class, gene);			
-			return GeneAnnotationImpl.toUniqueArray(results, organism);
+			return GeneSearchCriteriaImpl.toUniqueArray(results, organism);
 			
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, 
@@ -65,24 +70,81 @@ public class GeneSearchCriteriaImpl implements GeneSearchCriteria {
     @Override
 	public GeneAnnotation[] getGenesInPathway(
 			org.geworkbench.components.annotations.Pathway pathway) {
-		Pathway searchPathway = new Pathway();
+    	gov.nih.nci.cabio.domain.Pathway searchPathway = new gov.nih.nci.cabio.domain.Pathway();
 		searchPathway.setName(pathway.getPathwayName());
 
 		try {
 		 
-			List<Pathway> results = appService.search(Pathway.class, searchPathway);			 
+			List<gov.nih.nci.cabio.domain.Pathway> results = appService.search(gov.nih.nci.cabio.domain.Pathway.class, searchPathway);			 
 			if (results.size() > 1) {
 				log.warn("Found more than 1 pathway for "
 						+ pathway.getPathwayName());
 			}
-			Pathway resultPathway = (Pathway)results.get(0);
+			gov.nih.nci.cabio.domain.Pathway resultPathway = (gov.nih.nci.cabio.domain.Pathway)results.get(0);
 
-			return GeneAnnotationImpl.toUniqueArray(new ArrayList<Gene>(resultPathway
-					.getGeneCollection()));
+			return GeneSearchCriteriaImpl.toUniqueArray(new ArrayList<Gene>(resultPathway
+					.getGeneCollection()), null);
 		} catch (Exception e) {
 			log.error(e);
 			return null;
 		}
 	}
 
+    private static Pathway[] getPathways(Long geneId) {
+        Gene g = new Gene();
+        g.setId(geneId);
+
+        gov.nih.nci.cabio.domain.Pathway pathway = new gov.nih.nci.cabio.domain.Pathway();
+        Set<Gene> genes = new HashSet<Gene>();
+        genes.add(g);
+        pathway.setGeneCollection(genes);
+        
+        Pathway[] tmp = null;
+        try {
+        	ApplicationService appService = ApplicationServiceProvider.getApplicationService();
+            List<gov.nih.nci.cabio.domain.Pathway> pways = appService.search(
+                    "gov.nih.nci.cabio.domain.Pathway", pathway);
+            tmp = new PathwayImpl[pways.size()];
+            for (int i = 0; i < pways.size(); i++) {
+            	gov.nih.nci.cabio.domain.Pathway p = pways.get(i);
+                tmp[i] = new PathwayImpl(p.getName(), p.getDiagram());
+            }
+        } catch (ApplicationException e) {
+            log.error(e);
+        }  catch (Exception e) { // TODO why do we do this?
+            log.error(e);
+        }
+        
+        return tmp;
+    }
+    
+    private static GeneAnnotation[] toUniqueArray(List<gov.nih.nci.cabio.domain.Gene> geneList, String organism) {
+        Set<GeneAnnotation> uniqueGenes = new HashSet<GeneAnnotation>();
+        for (int i = 0; i < geneList.size(); i++) {
+        	Gene g = geneList.get(i);
+
+        	if(g==null || g.getSymbol()==null) {
+        		continue;
+        	}
+        	
+        	if(organism == null || (g.getTaxon().getAbbreviation().equals(organism))){
+        		// find entrez ID
+                String entrezId = "";
+                Collection<DatabaseCrossReference> crossReferences = g.getDatabaseCrossReferenceCollection();
+                for (Iterator<DatabaseCrossReference> iterator = crossReferences.iterator(); iterator.hasNext();) {
+        			DatabaseCrossReference crossReference = (DatabaseCrossReference) iterator.next();
+        			if (crossReference.getDataSourceName().equals("LOCUS_LINK_ID")){
+        				entrezId = crossReference.getCrossReferenceId();
+        				break;
+        			}
+        		}
+                
+				Pathway[] pathways = getPathways(g.getId());
+				uniqueGenes.add(new GeneAnnotationImpl(g.getSymbol(), g
+						.getFullName(), entrezId, g.getClusterId(), g
+						.getTaxon().getAbbreviation(), pathways));
+        	}
+        }
+        return uniqueGenes.toArray(new GeneAnnotation[]{});
+    }
 }
