@@ -160,9 +160,9 @@ public class AnnotationTableModel extends SortableTableModel {
 				for (int cx = 0; cx < this.size; cx++) {
 					String markerName = markerData[cx].getLabel();
 					String geneName = geneData[cx].getGeneSymbol();
-			        String entrezId = GeneAnnotationImpl.getEntrezId(geneData[cx].getGene());
+			        String entrezId = geneData[cx].getEntrezId();
 		            String entrezUrl = "http://www.ncbi.nlm.nih.gov/sites/entrez?Db=gene&Cmd=ShowDetailView&TermToSearch="+entrezId;
-		            String cgapUrl = GENE_FINDER_PREFIX + "ORG=" + geneData[cx].getOrganismAbbreviation() + "&CID=" + geneData[cx].getGene().getClusterId();
+		            String cgapUrl = GENE_FINDER_PREFIX + "ORG=" + geneData[cx].getOrganismAbbreviation() + "&CID=" + geneData[cx].getClusterId();
                     String GeneCardsUrl = AnnotationsPanel2.GeneCards_PREFIX + geneName;
 					String pathwayName = pathwayData[cx].getPathwayName();
 
@@ -278,7 +278,7 @@ public class AnnotationTableModel extends SortableTableModel {
 	        JPopupMenu popup = new JPopupMenu();
 	        String value = gene.getGeneSymbol();
 	        //Get Entrez id
-	        String entrezId = GeneAnnotationImpl.getEntrezId(gene.getGene());
+	        String entrezId = gene.getEntrezId();
 	        if (!entrezId.equals("")){	//if we got an ID
 	            String entrezUrl = "http://www.ncbi.nlm.nih.gov/sites/entrez?Db=gene&Cmd=ShowDetailView&TermToSearch="+entrezId;
 	            JMenuItem entrezJMenuItem = new JMenuItem("Go to Entrez for " + value);
@@ -304,7 +304,7 @@ public class AnnotationTableModel extends SortableTableModel {
 	        }
 	        //CGAP section
 	        if (!gene.getOrganismAbbreviation().equals("")){
-		        String cgapUrl = GENE_FINDER_PREFIX + "ORG=" + gene.getOrganismAbbreviation() + "&CID=" + gene.getGene().getClusterId();
+		        String cgapUrl = GENE_FINDER_PREFIX + "ORG=" + gene.getOrganismAbbreviation() + "&CID=" + gene.getClusterId();
 		        JMenuItem cgapJMenuItem = new JMenuItem("Go to CGAP for " + value);
 		        class MyCGAPActionListener implements ActionListener{
 		        	String value="";

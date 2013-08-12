@@ -1,7 +1,5 @@
 package org.geworkbench.components.annotations;
 
-import gov.nih.nci.cabio.domain.Gene;
-
 /**
  * <p>Copyright: Copyright (c) 2003</p>
  * <p>Company: First Genetic Trust Inc.</p>
@@ -18,7 +16,8 @@ public interface GeneAnnotation extends Comparable<GeneAnnotation> {
      * @return Gene name
      */
     String getGeneName();
-    Gene getGene();
+    String getEntrezId();
+    Long getClusterId();
 
     /**
      * Gets Organism abbreviation

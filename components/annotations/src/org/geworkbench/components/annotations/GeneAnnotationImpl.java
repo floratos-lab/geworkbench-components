@@ -38,14 +38,22 @@ public class GeneAnnotationImpl implements GeneAnnotation {
      */
     private final String organism;
     
-    private final Gene gene;
+    private final String geneSymbol;
+    private final String geneFullName;
+    private final String entrezId;
+    private final Long clusterId;
+    
     /**
      * Constructor
      *
      * @param gene <code>Gene</code>
      */
-    public GeneAnnotationImpl(final Gene gene) {
-    	this.gene = gene;
+    private GeneAnnotationImpl(final Gene gene) {
+    	
+    	geneSymbol = gene.getSymbol();
+    	geneFullName = gene.getFullName();
+    	entrezId = getEntrezId(gene);
+    	clusterId = gene.getClusterId();
 
         Gene g = new Gene();
         g.setId(gene.getId());
@@ -82,7 +90,7 @@ public class GeneAnnotationImpl implements GeneAnnotation {
      */
     @Override
     public String getGeneName() {
-        return gene.getFullName();
+        return geneFullName;
     }
 
     /**
@@ -109,7 +117,7 @@ public class GeneAnnotationImpl implements GeneAnnotation {
 
     @Override
     public String getGeneSymbol() {
-        return gene.getSymbol();
+        return geneSymbol;
     }
 
     /**
@@ -145,22 +153,25 @@ public class GeneAnnotationImpl implements GeneAnnotation {
     @Override
     public boolean equals(Object object) {
         GeneAnnotation other = (GeneAnnotation) object;
-        String symbol = gene.getSymbol();
-		return symbol.equals(other.getGeneSymbol());
+		return geneSymbol.equals(other.getGeneSymbol());
     }
 
     @Override
     public int hashCode() {
-        String symbol = gene.getSymbol();
-        return symbol.hashCode();
+        return geneSymbol.hashCode();
     }
 
     @Override
-	public Gene getGene() {
-		return gene;
+	public String getEntrezId() {
+		return entrezId;
 	}
 
-	public static String getEntrezId(Gene gene) {
+    @Override
+	public Long getClusterId() {
+		return clusterId;
+	}
+    
+	private static String getEntrezId(Gene gene) {
         String entrezId = "";
         Collection<DatabaseCrossReference> crossReferences = gene.getDatabaseCrossReferenceCollection();
         for (Iterator<DatabaseCrossReference> iterator = crossReferences.iterator(); iterator.hasNext();) {
@@ -175,9 +186,8 @@ public class GeneAnnotationImpl implements GeneAnnotation {
 
 	@Override
 	public int compareTo(GeneAnnotation other) {
-		String name = gene.getSymbol();
-		if(name!=null && other.getGene()!=null) {
-			return name.compareTo(other.getGene().getSymbol());
+		if(geneSymbol!=null) {
+			return geneSymbol.compareTo(other.getGeneSymbol());
 		} else {
 			return -1;
 		}
