@@ -54,7 +54,7 @@ public class MARINa extends AbstractGridAnalysis implements
 	public AlgorithmExecutionResults execute(Object input) {
 		return new AlgorithmExecutionResults(
 				false,
-				"MARINa is a caGrid service only component. Please choose \"Grid\" on the SkyBase analysis panel or try its local counterpart MRA-FET.",
+				"MARINa is a caGrid-service-only component. Please choose \"Grid\" on the MARINa analysis \"Services\" panel. A related method, MRA-FET, is available as a local analysis",
 				null);
 	}
 
