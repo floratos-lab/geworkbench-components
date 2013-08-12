@@ -157,7 +157,7 @@ public final class MRAPanel extends AbstractSaveableParameterPanel {
 		builder.nextLine();
 
 		builder.appendSeparator("Enrichment Threshold");
-		builder.append("FET/GSEA p-value ");
+		builder.append("FET p-value ");
 		if (pValueTextField == null)
 			pValueTextField = new JTextField();
 		pValueTextField.setText(Float.toString(PValueThresholdDefault));
