@@ -15,10 +15,10 @@ import org.geworkbench.util.ProgressTask;
  * $Id$
  */
 
-public class AddTask extends ProgressTask<GeneAnnotation[], Void>{
+public class AddTask extends ProgressTask<GeneBase[], Void>{
 	    private static Log log = LogFactory.getLog(AddTask.class);
     	private String label = null;
-    	private Pathway pathway = null;
+    	private String pathway = null;
     	private AnnotationsPanel2 ap = null;
 
     	/**
@@ -29,7 +29,7 @@ public class AddTask extends ProgressTask<GeneAnnotation[], Void>{
     	 * @param lb: pathway label 
     	 * @param pw: Pathway
     	 */
-    	public AddTask(int pbtype, String message, AnnotationsPanel2 ap2, String lb, Pathway pw){
+    	public AddTask(int pbtype, String message, AnnotationsPanel2 ap2, String lb, String pw){
     		super(pbtype, message);
     		ap = ap2;
     		label = lb;
@@ -37,9 +37,9 @@ public class AddTask extends ProgressTask<GeneAnnotation[], Void>{
     	}
 
     	@Override
-    	protected GeneAnnotation[] doInBackground(){
+    	protected GeneBase[] doInBackground(){
     		if (isCancelled()) return null;
-    		GeneAnnotation[] genesInPathway = ap.criteria.getGenesInPathway(pathway);
+    		GeneBase[] genesInPathway = ap.criteria.getGenesInPathway(pathway);
     		return genesInPathway;
     	}
 
@@ -47,7 +47,7 @@ public class AddTask extends ProgressTask<GeneAnnotation[], Void>{
 		protected void done(){
     		ap.pd.removeTask(this);
     		if (isCancelled()) return;
-    		GeneAnnotation[] genesInPathway = null;
+    		GeneBase[] genesInPathway = null;
     		try{
     			genesInPathway = get();
     		}catch(ExecutionException e){
@@ -59,12 +59,12 @@ public class AddTask extends ProgressTask<GeneAnnotation[], Void>{
             	return;
             DSPanel<DSGeneMarker> selectedMarkers = new CSPanel<DSGeneMarker>(label, label);
             for (int i = 0; i < genesInPathway.length; i++) {
-                GeneAnnotation geneAnnotation = genesInPathway[i];
-                log.info(geneAnnotation.getGeneSymbol() + " : " + geneAnnotation.getGeneName());
+            	GeneBase gene = genesInPathway[i];
+                log.info(gene.getGeneSymbol() + " : " + gene.getGeneName());
                 for (Object obj : ap.maSet.getMarkers()) {
                 	DSGeneMarker marker = (DSGeneMarker) obj;
-                    if (marker.getShortName().equalsIgnoreCase(geneAnnotation.getGeneSymbol())) {
-                        log.debug("Found " + geneAnnotation.getGeneSymbol() + " in set.");
+                    if (marker.getShortName().equalsIgnoreCase(gene.getGeneSymbol())) {
+                        log.debug("Found " + gene.getGeneSymbol() + " in set.");
                         selectedMarkers.add(marker);
                        // break; Disabled it because there may be mutiple markers for the same gene.
                     }

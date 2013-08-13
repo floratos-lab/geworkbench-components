@@ -9,13 +9,8 @@ package org.geworkbench.components.annotations;
  * @author First Genetic Trust
  * @version $Id$
  */
-public interface GeneAnnotation extends Comparable<GeneAnnotation> {
-    /**
-     * Gets Gene name
-     *
-     * @return Gene name
-     */
-    String getGeneName();
+public interface GeneAnnotation extends GeneBase, Comparable<GeneAnnotation> {
+
     String getEntrezId();
     Long getClusterId();
 
@@ -33,5 +28,4 @@ public interface GeneAnnotation extends Comparable<GeneAnnotation> {
      */
     org.geworkbench.components.annotations.Pathway[] getPathways();
 
-    String getGeneSymbol();
 }
