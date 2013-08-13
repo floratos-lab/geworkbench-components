@@ -303,9 +303,16 @@ public class TableViewer extends JPanel {
 					if (isNumerical(colToSort)) { // catch string designation
 						// of a number
 						if (myObject instanceof String) {
-							Float myFloat = new Float((String) myObject);
-							Float otherFloat = new Float((String) otherObject);
-							return myFloat.compareTo(otherFloat);
+							if(((String)myObject).equalsIgnoreCase("Inf")) return 1;
+							if(((String)otherObject).equalsIgnoreCase("Inf")) return -1;
+							try{
+								Float myFloat = new Float((String) myObject);
+								Float otherFloat = new Float((String) otherObject);
+								return myFloat.compareTo(otherFloat);
+							}catch(NumberFormatException e){
+								log.error("NumberFormatException: "+e.getMessage());
+								return 1;
+							}
 						}
 					}
 					return ((Comparable<Object>) myObject)
