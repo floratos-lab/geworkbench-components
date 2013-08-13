@@ -68,22 +68,21 @@ public class GeneSearchCriteriaImpl implements GeneSearchCriteria {
 	}
 
     @Override
-	public GeneAnnotation[] getGenesInPathway(
-			org.geworkbench.components.annotations.Pathway pathway) {
+	public GeneBase[] getGenesInPathway(String pathwayName) {
     	gov.nih.nci.cabio.domain.Pathway searchPathway = new gov.nih.nci.cabio.domain.Pathway();
-		searchPathway.setName(pathway.getPathwayName());
+		searchPathway.setName(pathwayName);
 
 		try {
 		 
 			List<gov.nih.nci.cabio.domain.Pathway> results = appService.search(gov.nih.nci.cabio.domain.Pathway.class, searchPathway);			 
 			if (results.size() > 1) {
 				log.warn("Found more than 1 pathway for "
-						+ pathway.getPathwayName());
+						+ pathwayName);
 			}
 			gov.nih.nci.cabio.domain.Pathway resultPathway = (gov.nih.nci.cabio.domain.Pathway)results.get(0);
 
 			return GeneSearchCriteriaImpl.toUniqueArray(new ArrayList<Gene>(resultPathway
-					.getGeneCollection()), null);
+					.getGeneCollection()));
 		} catch (Exception e) {
 			log.error(e);
 			return null;
@@ -117,6 +116,20 @@ public class GeneSearchCriteriaImpl implements GeneSearchCriteria {
         
         return tmp;
     }
+    
+	private static GeneBase[] toUniqueArray(
+			List<gov.nih.nci.cabio.domain.Gene> geneList) {
+		Set<GeneBase> uniqueGenes = new HashSet<GeneBase>();
+		for (int i = 0; i < geneList.size(); i++) {
+			Gene g = geneList.get(i);
+
+			if (g == null || g.getSymbol() == null) {
+				continue;
+			}
+			uniqueGenes.add(new GeneImpl(g.getSymbol(), g.getFullName()));
+		}
+		return uniqueGenes.toArray(new GeneBase[] {});
+	}
     
     private static GeneAnnotation[] toUniqueArray(List<gov.nih.nci.cabio.domain.Gene> geneList, String organism) {
         Set<GeneAnnotation> uniqueGenes = new HashSet<GeneAnnotation>();

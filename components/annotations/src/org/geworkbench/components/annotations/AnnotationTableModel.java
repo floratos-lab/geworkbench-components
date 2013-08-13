@@ -212,7 +212,7 @@ public class AnnotationTableModel extends SortableTableModel {
 	                }
 	                AddTask addTask = new AddTask(ProgressItem.INDETERMINATE_TYPE,
 	                		"Retrieving and Adding "+tmpSetLabel+" genes to set",
-	                		annotationsPanel, tmpSetLabel, pathwayData);
+	                		annotationsPanel, tmpSetLabel, pathwayData.getPathwayName());
 	                annotationsPanel.pd.executeTask(addTask);
 	            }
 	        });
@@ -227,7 +227,7 @@ public class AnnotationTableModel extends SortableTableModel {
 	                if (returnVal == JFileChooser.APPROVE_OPTION) {
 	                    ExportTask exportTask = new ExportTask(ProgressItem.INDETERMINATE_TYPE,
 	                    		"Retrieving and Exporting "+pathwayData.getPathwayName()+" to CSV",
-	                    		annotationsPanel, chooser.getSelectedFile(), pathwayData);
+	                    		annotationsPanel, chooser.getSelectedFile(), pathwayData.getPathwayName());
 	                    annotationsPanel.pd.executeTask(exportTask);
 	                }
 	            }

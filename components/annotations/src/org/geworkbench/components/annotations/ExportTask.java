@@ -12,12 +12,12 @@ import org.geworkbench.util.ProgressTask;
  * $Id$
  */
 
-public class ExportTask extends ProgressTask<GeneAnnotation[], Void>{
+public class ExportTask extends ProgressTask<GeneBase[], Void>{
     	private File savefile = null;
-    	private Pathway pathway = null;
+    	private String pathway = null;
     	private AnnotationsPanel2 ap = null;
 
-    	public ExportTask(int pbtype, String message, AnnotationsPanel2 ap2, File sf, Pathway pw){
+    	public ExportTask(int pbtype, String message, AnnotationsPanel2 ap2, File sf, String pw){
     		super(pbtype, message);
     		ap = ap2;
     		savefile = sf;
@@ -25,9 +25,9 @@ public class ExportTask extends ProgressTask<GeneAnnotation[], Void>{
     	}
 
     	@Override
-    	protected GeneAnnotation[] doInBackground(){
+    	protected GeneBase[] doInBackground(){
     		if (isCancelled()) return null;
-    		GeneAnnotation[] genesInPathway = ap.criteria.getGenesInPathway(pathway);
+    		GeneBase[] genesInPathway = ap.criteria.getGenesInPathway(pathway);
     		return genesInPathway;
     	}
 
@@ -35,7 +35,7 @@ public class ExportTask extends ProgressTask<GeneAnnotation[], Void>{
     	protected void done(){
     		ap.pd.removeTask(this);
     		if (isCancelled()) return;
-    		GeneAnnotation[] genesInPathway = null;
+    		GeneBase[] genesInPathway = null;
     		try{
     			genesInPathway = get();
     		}catch(ExecutionException e){
@@ -52,15 +52,15 @@ public class ExportTask extends ProgressTask<GeneAnnotation[], Void>{
     		}
     	}
     	
-        private void saveGenesInPathway(File selectedFile, GeneAnnotation[] genesInPathway) throws IOException {
+        private void saveGenesInPathway(File selectedFile, GeneBase[] genesInPathway) throws IOException {
         	String filename = selectedFile.getAbsolutePath();
             if(!filename.endsWith("csv")){
            		filename += ".csv";
            	}
             FileWriter writer = new FileWriter(filename);
             for (int i = 0; i < genesInPathway.length; i++) {
-                GeneAnnotation geneAnnotation = genesInPathway[i];
-                writer.write(geneAnnotation.getGeneSymbol() + ", " + geneAnnotation.getGeneName() + "\n");
+            	GeneBase gene = genesInPathway[i];
+                writer.write(gene.getGeneSymbol() + ", " + gene.getGeneName() + "\n");
             }
             writer.close();
         }
