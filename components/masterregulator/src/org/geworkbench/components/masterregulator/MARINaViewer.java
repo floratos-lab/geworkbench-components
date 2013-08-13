@@ -31,13 +31,11 @@ public class MARINaViewer extends MasterRegulatorViewer{
 	private Log log = LogFactory.getLog(MARINaViewer.class);
 	
 	String[] columnNames = { "Master Regulator", "GSEA P-Value", "Markers in regulon",
-			"Num Leading Edge", "Odd Ratio", "NES", "Mode" };
+			"Num Leading Edge", "Odds Ratio", "NES", "absNES", "Mode" };
 	String[] detailColumnNames = { "Markers in Leading Edge", " -log10(P-value) * sign of t-value" };
 
 	public MARINaViewer(){
 		tv.headerNames = columnNames;
-		tv.setNumerical(4, true);
-		tv.setNumerical(5, true);
 		tv2.headerNames = detailColumnNames;
 		intersectionBar.setText("GSEA Leading Edge Set");
 	}
@@ -50,6 +48,8 @@ public class MARINaViewer extends MasterRegulatorViewer{
 			SwingUtilities.invokeLater(new Runnable(){
 				public void run(){
 					updateTable();
+					for (int i = 1; i < columnNames.length-1; i++)
+						tv.setNumerical(i, true);
 					updateSelectedTF(MRAResultSet, currentSelectedtfA, tv2);
 					useSymbol = true;
 				}
@@ -91,6 +91,7 @@ public class MARINaViewer extends MasterRegulatorViewer{
 			double pval = Double.parseDouble((String)row[10]);
 			Object odd	= row[11];
 			Object nes	= row[8];
+			Object absnes = row[9];
 			char mode	= Double.parseDouble((String) nes) <= 0 ? CSMasterRegulatorResultSet.ACTIVATOR
 						: CSMasterRegulatorResultSet.REPRESSOR;
 			
@@ -131,6 +132,7 @@ public class MARINaViewer extends MasterRegulatorViewer{
 			mraResultSet.setMode(tfA, mode);
 			mraResultSet.setOddRatio(tfA, odd);
 			mraResultSet.setNES(tfA, nes);
+			mraResultSet.setAbsNES(tfA, absnes);
 		}
 		
 		return mraResultSet;
