@@ -478,6 +478,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 			if(ncols > 5){
 				data[cx][4] = MRAResultSet.getOddRatio(tfA);
 				data[cx][5] = MRAResultSet.getNES(tfA);
+				data[cx][6] = MRAResultSet.getAbsNES(tfA);
 			}
 			cx++;
 		}

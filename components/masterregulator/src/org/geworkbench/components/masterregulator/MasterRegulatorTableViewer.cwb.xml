@@ -25,7 +25,7 @@
 
 	</component>
 
-	<plugin id="MasterRegulatorTableViewer" name="MRA Table Viewer" class="org.geworkbench.components.masterregulator.MasterRegulatorTableViewer" source="masterregulator">
+	<plugin id="MasterRegulatorTableViewer" name="MARINa Table Viewer" class="org.geworkbench.components.masterregulator.MasterRegulatorTableViewer" source="masterregulator">
 			<gui-area name="VisualArea"/>
   </plugin>		
 
