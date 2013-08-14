@@ -274,6 +274,13 @@ public class TableViewer extends JPanel {
 			fireTableDataChanged();
 		}
 
+		public void sort(int col, boolean ascending){
+			this.ascending = ascending;
+			colToSort = col;
+			Arrays.sort(rows);
+			fireTableDataChanged();
+		}
+
 		public int getRow(int tableRow) {
 			return rows[tableRow].index;
 		}

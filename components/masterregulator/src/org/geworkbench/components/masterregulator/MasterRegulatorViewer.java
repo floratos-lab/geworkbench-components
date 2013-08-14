@@ -685,7 +685,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		}
 		// myTableModel.updateData(data);
 		tv.setTableModel(data);	 
-		((DefaultViewerTableModel) tv.model).sort(1); //sort by display values
+		((DefaultViewerTableModel) tv.model).sort(1, false); //sort by display values in descending order
 		tv.updateUI();
 		if (useSymbol)
 			tfAHolder.setValue(tfA.getShortName());
