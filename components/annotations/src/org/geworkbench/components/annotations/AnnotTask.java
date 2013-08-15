@@ -11,7 +11,7 @@ import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.util.ProgressTask;
 
 /**
- * AnnotTask: retrieve gene annotation and pathway data from CGAP
+ * AnnotTask: retrieve gene annotation and pathway data from bioDBnet.
  * $Id$
  */
 
@@ -28,7 +28,7 @@ public class AnnotTask extends ProgressTask<AnnotData, String> {
         			DSItemList<DSGeneMarker> selectedMarkerInfo = ap.selectedMarkerInfo;
             		ArrayList<DSGeneMarker> markerData = new ArrayList<DSGeneMarker>();
             		ArrayList<GeneAnnotation> geneData = new ArrayList<GeneAnnotation>();
-            		ArrayList<String> pathwayData = new ArrayList<String>();
+
                     if (selectedMarkerInfo != null) {
 
                         for (int i = 0; i < selectedMarkerInfo.size(); i++) {
@@ -51,28 +51,13 @@ public class AnnotTask extends ProgressTask<AnnotData, String> {
                                 for (int j = 0; j < annotations.length; j++) {
                                    	if (isCancelled()) return null;
 
-                                    String[] pways = annotations[j].getPathways();
-                                    String[] temp = new String[ap.pathways.length + pways.length];
-                                    System.arraycopy(ap.pathways, 0, temp, 0, ap.pathways.length);
-                                    System.arraycopy(pways, 0, temp, ap.pathways.length, pways.length);
-                                    ap.pathways = temp;
-                                    if (pways.length > 0) {
-                                        for (int k = 0; k < pways.length; k++) {
-                                            pathwayData.add(pways[k]);
-                                            geneData.add(annotations[j]);
-                                            markerData.add(marker);
-                                        }
-                                    }
-                                    else {
-                                        pathwayData.add(null);
-                                        geneData.add(annotations[j]);
-                                        markerData.add(marker);
-                                    }
+                                   	geneData.add(annotations[j]);
+                                    markerData.add(marker);
                                 }
                             }
                         }
                     }
-                    return new AnnotData(markerData, geneData, pathwayData);
+                    return new AnnotData(markerData, geneData);
         }
 
         @Override
@@ -91,10 +76,8 @@ public class AnnotTask extends ProgressTask<AnnotData, String> {
     		}
     		if ( annotData == null )
             	return;
-    		DSGeneMarker[] markers = annotData.markerData.toArray(new DSGeneMarker[0]);
-            GeneAnnotation[] genes = annotData.geneData.toArray(new GeneAnnotation[0]);
-            String[] pathways = annotData.pathwayData.toArray(new String[0]);
-            if (pathways.length == 0)
+
+    		if (annotData.pathwayCount == 0)
 				JOptionPane
 						.showMessageDialog(
 								null,
@@ -102,7 +85,7 @@ public class AnnotTask extends ProgressTask<AnnotData, String> {
 								"Server returns no records",
 								JOptionPane.OK_OPTION);
 
-            ap.annotationModel = new AnnotationTableModel(ap, markers, genes, pathways);
+            ap.annotationModel = new AnnotationTableModel(ap, annotData);
             ap.annotationTableList.put(new Integer(ap.maSet.hashCode()),  ap.annotationModel);
             ap.annotationTable.setSortableModel(ap.annotationModel);
             ap.annotationTable.getColumnModel().getColumn(0).setHeaderValue("     Marker");

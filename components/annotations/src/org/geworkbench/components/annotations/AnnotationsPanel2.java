@@ -284,7 +284,6 @@ public class AnnotationsPanel2 implements VisualPlugin{
         if (selectedMarkerInfo == null || selectedMarkerInfo.size() == 0) {
             JOptionPane.showMessageDialog(jTabbedPane1, "Please activate a marker set to retrieve annotations.");
         } else {
-        	pathways = new String[0];
 
     		if (annotTask != null && !annotTask.isDone()) {
     			annotTask.cancel(true);
@@ -316,8 +315,6 @@ public class AnnotationsPanel2 implements VisualPlugin{
     final HashMap<Integer, AnnotationTableModel> annotationTableList;
 
     DSItemList<DSGeneMarker> selectedMarkerInfo = null;
-
-    String[] pathways = new String[0];
 
     DSMicroarraySet  maSet = null;
 
