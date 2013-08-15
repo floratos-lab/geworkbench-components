@@ -8,8 +8,6 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Comparator;
 
 import javax.swing.JFileChooser;
 import javax.swing.JMenuItem;
@@ -17,6 +15,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
+import javax.swing.table.AbstractTableModel;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -26,7 +25,6 @@ import org.geworkbench.util.BrowserLauncher;
 import org.geworkbench.util.CsvFileFilter;
 import org.geworkbench.util.OWFileChooser;
 import org.geworkbench.util.ProgressItem;
-import org.jfree.ui.SortableTableModel;
 
 import com.Ostermiller.util.CSVPrinter;
 
@@ -35,7 +33,7 @@ import com.Ostermiller.util.CSVPrinter;
  * $Id$
  */
 
-public class AnnotationTableModel extends SortableTableModel {
+public class AnnotationTableModel extends AbstractTableModel {
         private static Log log = LogFactory.getLog(AnnotationTableModel.class);
         
         private static final String GENE_FINDER_PREFIX = "http://cgap.nci.nih.gov/Genes/GeneInfo?";
@@ -49,9 +47,8 @@ public class AnnotationTableModel extends SortableTableModel {
         final private GeneAnnotation[] geneData;
         final private String[] pathwayData;
 
-        private Integer[] indices; // FIXME this should be replaced with standard java table sorting mechanism
         final private int size;
-        private AnnotationsPanel2 annotationsPanel = null;
+        final private AnnotationsPanel2 annotationsPanel;
 
         public AnnotationTableModel(AnnotationsPanel2 annotationsPanel, final AnnotData annotData) {
             this.annotationsPanel = annotationsPanel;
@@ -72,82 +69,56 @@ public class AnnotationTableModel extends SortableTableModel {
             		row++;
             	}
             }
-            indices = new Integer[size];
-            resetIndices();
         }
 
         public AnnotationTableModel() {
+        	annotationsPanel = null;
+        	
             this.markerData = new DSGeneMarker[0];
             this.geneData = new GeneAnnotation[0];
             this.pathwayData = new String[0];
             size = 0;
-            indices = new Integer[0];
         }
 
-        private void resetIndices() {
-            for (int i = 0; i < size; i++) {
-                indices[i] = i;
-            }
-        }
-
+        @Override
         public int getRowCount() {
             return size;
         }
 
+        @Override
         public int getColumnCount() {
             return 3;
         }
 
-        private String wrapInHTML(String s) {
-//            return "<html><u><font color=\"#0000FF\">" + s + "</font></u></html>";
+        private static String wrapInHTML(String s) {
             return "<html><a href=\"__noop\">" + s + "</a></html>";
         }
 
+        @Override
         public Object getValueAt(int rowIndex, int columnIndex) {
             switch (columnIndex) {
                 case COL_MARKER:
-                    return markerData[indices[rowIndex]].getLabel();
+                    return markerData[rowIndex].getLabel();
                 case COL_GENE:
-                    return wrapInHTML(geneData[indices[rowIndex]].getGeneSymbol());
+                    return wrapInHTML(geneData[rowIndex].getGeneSymbol());
                 case COL_PATHWAY:
-                    return wrapInHTML(pathwayData[indices[rowIndex]]);
+                    return wrapInHTML(pathwayData[rowIndex]);
             }
             return null;
-        }
-
-        @SuppressWarnings({ "unchecked", "rawtypes" })
-		public void sortByColumn(final int column, final boolean ascending) {
-            resetIndices();
-            final Comparable[][] columns = {markerData, geneData, pathwayData};
-            Comparator<Integer> comparator = new Comparator<Integer>() {
-                public int compare(Integer i, Integer j) {
-                    if (ascending) {
-                        return columns[column][i].compareTo(columns[column][j]);
-                    } else {
-                        return columns[column][j].compareTo(columns[column][i]);
-                    }
-                }
-            };
-            Arrays.sort(indices, comparator);
-            super.sortByColumn(column, ascending);
-        }
-
-        public boolean isSortable(int i) {
-            return true;
         }
 
         public void activateCell(int rowIndex, int columnIndex) {
             switch (columnIndex) {
                 case COL_MARKER:
-                	DSGeneMarker marker = markerData[indices[rowIndex]];
+                	DSGeneMarker marker = markerData[rowIndex];
                     annotationsPanel.publishMarkerSelectedEvent(new MarkerSelectedEvent(marker));
                     break;
                 case COL_GENE:
-                    GeneAnnotation gene = geneData[indices[rowIndex]];
+                    GeneAnnotation gene = geneData[rowIndex];
                     activateGene(gene);
                     break;
                 case COL_PATHWAY:
-                	String pathway = pathwayData[indices[rowIndex]];
+                	String pathway = pathwayData[rowIndex];
                     // Could be the blank "(none)" pathway.
                     if (pathway != null) {
                     	activatePathway(pathway);
