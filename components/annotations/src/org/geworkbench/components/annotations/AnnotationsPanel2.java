@@ -29,6 +29,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTable;
 import javax.swing.JToolBar;
 import javax.swing.JViewport;
 import javax.swing.SwingConstants;
@@ -56,7 +57,6 @@ import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.util.CsvFileFilter;
 import org.geworkbench.util.ProgressDialog;
 import org.geworkbench.util.ProgressItem;
-import org.jfree.ui.SortableTable;
 
 /**
  * <p>
@@ -103,7 +103,8 @@ public class AnnotationsPanel2 implements VisualPlugin{
      */
     public AnnotationsPanel2() {
         annotationModel = new AnnotationTableModel();
-        annotationTable = new SortableTable(annotationModel);
+        annotationTable = new JTable(annotationModel);
+        annotationTable.setAutoCreateRowSorter(true);
         
         try {
             jbInit();
@@ -205,7 +206,8 @@ public class AnnotationsPanel2 implements VisualPlugin{
                 int column = annotationTable.columnAtPoint(e.getPoint());
                 int row = annotationTable.rowAtPoint(e.getPoint());
                 if ((column >= 0) && (row >= 0)) {
-                	annotationModel.activateCell(row, column);
+                	int modelRow = annotationTable.convertRowIndexToModel(row);
+                	annotationModel.activateCell(modelRow, column);
                 }
             }
         });
@@ -272,7 +274,7 @@ public class AnnotationsPanel2 implements VisualPlugin{
     }
 
     private void annoClearButton_actionPerformed(ActionEvent e) {
-        annotationTable.setSortableModel(new AnnotationTableModel());
+        annotationTable.setModel(new AnnotationTableModel());
         annotationTable.getColumnModel().getColumn(0).setHeaderValue("     Marker");
         annotationTable.getColumnModel().getColumn(1).setHeaderValue("     Gene");
         annotationTable.getColumnModel().getColumn(2).setHeaderValue("     Pathway");
@@ -309,7 +311,7 @@ public class AnnotationsPanel2 implements VisualPlugin{
     final private JPanel mainPanel = new JPanel();
     final JTabbedPane jTabbedPane1 = new JTabbedPane();
 
-    final SortableTable annotationTable;
+    final JTable annotationTable;
     AnnotationTableModel annotationModel;
 
     final HashMap<Integer, AnnotationTableModel> annotationTableList;
@@ -369,13 +371,13 @@ public class AnnotationsPanel2 implements VisualPlugin{
         if (annotationTableList.containsKey(new Integer(hashcode)))
         {
         	annotationModel = annotationTableList.get(new Integer(hashcode));
-        	annotationTable.setSortableModel(annotationModel);
+        	annotationTable.setModel(annotationModel);
             annotationTable.getColumnModel().getColumn(0).setHeaderValue("     Marker");
             annotationTable.getColumnModel().getColumn(1).setHeaderValue("     Gene");
             annotationTable.getColumnModel().getColumn(2).setHeaderValue("     Pathway");
             annotationTable.getTableHeader().revalidate();
         } else {
-        	annotationTable.setSortableModel(new AnnotationTableModel());
+        	annotationTable.setModel(new AnnotationTableModel());
             annotationTable.getColumnModel().getColumn(0).setHeaderValue("     Marker");
             annotationTable.getColumnModel().getColumn(1).setHeaderValue("     Gene");
             annotationTable.getColumnModel().getColumn(2).setHeaderValue("     Pathway");
@@ -543,7 +545,7 @@ public class AnnotationsPanel2 implements VisualPlugin{
 	{
 	    annotationModel = new AnnotationTableModel();
 	    annotationTableList.put(new Integer(maSet.hashCode()), annotationModel);
-	    annotationTable.setSortableModel(annotationModel);
+	    annotationTable.setModel(annotationModel);
 	    annotationTable.getColumnModel().getColumn(0).setHeaderValue("     Marker");
 	    annotationTable.getColumnModel().getColumn(1).setHeaderValue("     Gene");
 	    annotationTable.getColumnModel().getColumn(2).setHeaderValue("     Pathway");

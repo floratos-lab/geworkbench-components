@@ -87,7 +87,7 @@ public class AnnotTask extends ProgressTask<AnnotData, String> {
 
             ap.annotationModel = new AnnotationTableModel(ap, annotData);
             ap.annotationTableList.put(new Integer(ap.maSet.hashCode()),  ap.annotationModel);
-            ap.annotationTable.setSortableModel(ap.annotationModel);
+            ap.annotationTable.setModel(ap.annotationModel);
             ap.annotationTable.getColumnModel().getColumn(0).setHeaderValue("     Marker");
             ap.annotationTable.getColumnModel().getColumn(1).setHeaderValue("     Gene");
             ap.annotationTable.getColumnModel().getColumn(2).setHeaderValue("     Pathway");
