@@ -26,6 +26,6 @@ public interface GeneAnnotation extends GeneBase, Comparable<GeneAnnotation> {
      *
      * @return associated pathways
      */
-    org.geworkbench.components.annotations.Pathway[] getPathways();
+    String[] getPathways();
 
 }

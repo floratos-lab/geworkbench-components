@@ -12,7 +12,7 @@ package org.geworkbench.components.annotations;
  */
 public interface GeneSearchCriteria {
 
-    GeneAnnotation[] searchByName(String name, String organism);
+    GeneAnnotation[] searchByGeneSymbol(String geneSymbol, int taxonId);
 
     GeneBase[] getGenesInPathway(String pathwayName);
 }

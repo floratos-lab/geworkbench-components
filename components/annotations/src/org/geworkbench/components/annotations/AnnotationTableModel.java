@@ -47,13 +47,13 @@ public class AnnotationTableModel extends SortableTableModel {
 
         private DSGeneMarker[] markerData;
         private GeneAnnotation[] geneData;
-        private Pathway[] pathwayData;
+        private String[] pathwayData;
 
         private Integer[] indices;
         private int size;
         private AnnotationsPanel2 annotationsPanel = null;
 
-        public AnnotationTableModel(AnnotationsPanel2 annotationsPanel, DSGeneMarker[] markerData, GeneAnnotation[] geneData, Pathway[] pathwayData) {
+        public AnnotationTableModel(AnnotationsPanel2 annotationsPanel, DSGeneMarker[] markerData, GeneAnnotation[] geneData, String[] pathwayData) {
             this.annotationsPanel = annotationsPanel;
         	this.markerData = markerData;
             this.geneData = geneData;
@@ -66,7 +66,7 @@ public class AnnotationTableModel extends SortableTableModel {
         public AnnotationTableModel() {
             this.markerData = new DSGeneMarker[0];
             this.geneData = new GeneAnnotation[0];
-            this.pathwayData = new PathwayImpl[0];
+            this.pathwayData = new String[0];
             size = 0;
             indices = new Integer[0];
         }
@@ -97,7 +97,7 @@ public class AnnotationTableModel extends SortableTableModel {
                 case COL_GENE:
                     return wrapInHTML(geneData[indices[rowIndex]].getGeneSymbol());
                 case COL_PATHWAY:
-                    return wrapInHTML(pathwayData[indices[rowIndex]].getPathwayName());
+                    return wrapInHTML(pathwayData[indices[rowIndex]]);
             }
             return null;
         }
@@ -134,7 +134,7 @@ public class AnnotationTableModel extends SortableTableModel {
                     activateGene(gene);
                     break;
                 case COL_PATHWAY:
-                	Pathway pathway = pathwayData[indices[rowIndex]];
+                	String pathway = pathwayData[indices[rowIndex]];
                     // Could be the blank "(none)" pathway.
                     if (pathway != null) {
                     	activatePathway(pathway);
@@ -164,7 +164,7 @@ public class AnnotationTableModel extends SortableTableModel {
 		            String entrezUrl = "http://www.ncbi.nlm.nih.gov/sites/entrez?Db=gene&Cmd=ShowDetailView&TermToSearch="+entrezId;
 		            String cgapUrl = GENE_FINDER_PREFIX + "ORG=" + geneData[cx].getOrganismAbbreviation() + "&CID=" + geneData[cx].getClusterId();
                     String GeneCardsUrl = AnnotationsPanel2.GeneCards_PREFIX + geneName;
-					String pathwayName = pathwayData[cx].getPathwayName();
+					String pathwayName = pathwayData[cx];
 
 					csvout.print(markerName);
 					csvout.print(geneName);
@@ -186,33 +186,47 @@ public class AnnotationTableModel extends SortableTableModel {
 			return ret;
 		}
 		
-	    private void activatePathway(final Pathway pathwayData) {
+	    private void activatePathway(final String pathwayData) {
 	    	JPopupMenu popup = new JPopupMenu();
 
-	        JMenuItem viewDiagram = new JMenuItem("View Diagram");
-	        viewDiagram.addActionListener(new ActionListener() {
-	            public void actionPerformed(ActionEvent actionEvent) {
-	            	processPathway(pathwayData);
-	            }
-	        });
-	        if (pathwayData.getPathwayDiagram()!=null)
-	        	popup.add(viewDiagram);
+			if (pathwayData != null) {
+				JMenuItem viewDiagram = new JMenuItem("View Diagram");
+				viewDiagram.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent actionEvent) {
+						processPathway(pathwayData);
+					}
+				});
+				JMenuItem viewDiagramExternal = new JMenuItem(
+						"View Diagram on BioCarta site");
+				viewDiagramExternal.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent actionEvent) {
+						String url = "http://www.biocarta.com/pathfiles/"+pathwayData+".asp";
+						try {
+							BrowserLauncher.openURL(url);
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					}
+				});
+				popup.add(viewDiagram);
+				popup.add(viewDiagramExternal);
+			}
 
 	        JMenuItem makeSet = new JMenuItem("Add pathway genes to set");
 	        makeSet.addActionListener(new ActionListener() {
 	            public void actionPerformed(ActionEvent actionEvent) {
-	            	String tmpSetLabel = JOptionPane.showInputDialog("Panel Set Label:", pathwayData.getPathwayName());
+	            	String tmpSetLabel = JOptionPane.showInputDialog("Panel Set Label:", pathwayData);
 	                // String tmpLabel = JOptionPane.showInputDialog("Set Label:", "");
 	                if (tmpSetLabel == null) {
 	                    // User hit cancel
 	                    return;
 	                }
 	                if (tmpSetLabel.equals("") || tmpSetLabel == null) {
-	                    tmpSetLabel = pathwayData.getPathwayName();
+	                    tmpSetLabel = pathwayData;
 	                }
 	                AddTask addTask = new AddTask(ProgressItem.INDETERMINATE_TYPE,
 	                		"Retrieving and Adding "+tmpSetLabel+" genes to set",
-	                		annotationsPanel, tmpSetLabel, pathwayData.getPathwayName());
+	                		annotationsPanel, tmpSetLabel, pathwayData);
 	                annotationsPanel.pd.executeTask(addTask);
 	            }
 	        });
@@ -221,13 +235,13 @@ public class AnnotationTableModel extends SortableTableModel {
 	        JMenuItem export = new JMenuItem("Export genes to CSV");
 	        export.addActionListener(new ActionListener() {
 	            public void actionPerformed(ActionEvent actionEvent) {
-	                OWFileChooser chooser = new OWFileChooser(pathwayData.getPathwayName() + ".csv");
+	                OWFileChooser chooser = new OWFileChooser(pathwayData + ".csv");
 	                chooser.setFileFilter(new CsvFileFilter());
 	                int returnVal = chooser.showSaveDialog(null);
 	                if (returnVal == JFileChooser.APPROVE_OPTION) {
 	                    ExportTask exportTask = new ExportTask(ProgressItem.INDETERMINATE_TYPE,
-	                    		"Retrieving and Exporting "+pathwayData.getPathwayName()+" to CSV",
-	                    		annotationsPanel, chooser.getSelectedFile(), pathwayData.getPathwayName());
+	                    		"Retrieving and Exporting "+pathwayData+" to CSV",
+	                    		annotationsPanel, chooser.getSelectedFile(), pathwayData);
 	                    annotationsPanel.pd.executeTask(exportTask);
 	                }
 	            }
@@ -238,34 +252,28 @@ public class AnnotationTableModel extends SortableTableModel {
 	                (int) (MouseInfo.getPointerInfo().getLocation().getY() - annotationsPanel.annotationTable.getLocationOnScreen().getY()));
 	    }
 	    
-	     private void processPathway(final org.geworkbench.components.annotations.Pathway pathway){
+	     private void processPathway(final String pathway){
 	    	 //FIXME to do this in background is very problematic
 	    	 SwingUtilities.invokeLater(new Runnable(){
 	         		public void run(){
-	                 	String pathwayName = pathway.getPathwayName();
-	                 	String pathwayDiagram = pathway.getPathwayDiagram();
-	                     addPathwayName(pathwayName, pathwayDiagram);
+	                     addPathwayName(pathway);
 
 	                     Container parent = annotationsPanel.pathwayPanel.getParent();
 	                     if (parent instanceof JTabbedPane)
 	                     {    ((JTabbedPane) parent).setSelectedComponent(annotationsPanel.pathwayPanel);
 	                        JTabbedPane p =  (JTabbedPane) parent;
-	                        p.setTitleAt(annotationsPanel.jTabbedPane1.indexOfComponent(annotationsPanel.pathwayPanel), pathway.getPathwayName());
+	                        p.setTitleAt(annotationsPanel.jTabbedPane1.indexOfComponent(annotationsPanel.pathwayPanel), pathway);
 	                     }
 	         		}
 	         	});
 	    }
 	     
-	     private void addPathwayName(String pathwayName, String pathwayDiagram){
+	     private void addPathwayName(String pathwayName){
 
-	     	if (annotationsPanel.svgStringList.containsKey(pathwayName))
-	     	{
-	     		annotationsPanel.pathwayComboBox.removeItem(pathwayName);
-	     		annotationsPanel.pathwayList.remove(pathwayName);
+	     	if (!annotationsPanel.pathwayList.contains(pathwayName)) {
+		     	annotationsPanel.pathwayList.add(pathwayName);
+		     	annotationsPanel.pathwayComboBox.addItem(pathwayName);
 	     	}
-	     	annotationsPanel.svgStringList.put(pathwayName, pathwayDiagram);
-	     	annotationsPanel.pathwayList.add(pathwayName);
-	     	annotationsPanel.pathwayComboBox.addItem(pathwayName);
 	     	if (annotationsPanel.pathwayComboBox.getSelectedIndex() != annotationsPanel.pathwayList.size()-1)
 	     		annotationsPanel.pathwayComboBox.setSelectedIndex(annotationsPanel.pathwayList.size()-1);
 	     	annotationsPanel.pathwayComboBox.revalidate();
