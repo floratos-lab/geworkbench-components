@@ -28,7 +28,7 @@ public class AnnotTask extends ProgressTask<AnnotData, String> {
         			DSItemList<DSGeneMarker> selectedMarkerInfo = ap.selectedMarkerInfo;
             		ArrayList<DSGeneMarker> markerData = new ArrayList<DSGeneMarker>();
             		ArrayList<GeneAnnotation> geneData = new ArrayList<GeneAnnotation>();
-            		ArrayList<Pathway> pathwayData = new ArrayList<Pathway>();
+            		ArrayList<String> pathwayData = new ArrayList<String>();
                     if (selectedMarkerInfo != null) {
                         //pb.setTitle("Querying caBIO..");
                         //if (!pd.isActive()) {
@@ -53,7 +53,7 @@ public class AnnotTask extends ProgressTask<AnnotData, String> {
 
                             String geneName = selectedMarkerInfo.get(i).getGeneName();
                             GeneAnnotation[] annotations;
-                            annotations = ap.criteria.searchByName(geneName, ap.humanOrMouse);
+                            annotations = ap.criteria.searchByGeneSymbol(geneName, ap.humanOrMouse);
 
                             if (annotations == null ) {
                                 ap.clearTable();
@@ -65,8 +65,8 @@ public class AnnotTask extends ProgressTask<AnnotData, String> {
                                 for (int j = 0; j < annotations.length; j++) {
                                    	if (isCancelled()) return null;
 
-                                    Pathway[] pways = annotations[j].getPathways();
-                                    Pathway[] temp = new Pathway[ap.pathways.length + pways.length];
+                                    String[] pways = annotations[j].getPathways();
+                                    String[] temp = new String[ap.pathways.length + pways.length];
                                     System.arraycopy(ap.pathways, 0, temp, 0, ap.pathways.length);
                                     System.arraycopy(pways, 0, temp, ap.pathways.length, pways.length);
                                     ap.pathways = temp;
@@ -107,7 +107,7 @@ public class AnnotTask extends ProgressTask<AnnotData, String> {
             	return;
     		DSGeneMarker[] markers = annotData.markerData.toArray(new DSGeneMarker[0]);
             GeneAnnotation[] genes = annotData.geneData.toArray(new GeneAnnotation[0]);
-            Pathway[] pathways = annotData.pathwayData.toArray(new Pathway[0]);
+            String[] pathways = annotData.pathwayData.toArray(new String[0]);
             if (pathways.length == 0)
 				JOptionPane
 						.showMessageDialog(

@@ -12,10 +12,10 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 public class AnnotData {
 	public final ArrayList<DSGeneMarker> markerData;
 	public final ArrayList<GeneAnnotation> geneData;
-	public final ArrayList<Pathway> pathwayData;
+	public final ArrayList<String> pathwayData;
 
 	public AnnotData(ArrayList<DSGeneMarker> marker, ArrayList<GeneAnnotation> gene,
-			ArrayList<Pathway> pathway) {
+			ArrayList<String> pathway) {
 		markerData = marker;
 		geneData = gene;
 		pathwayData = pathway;

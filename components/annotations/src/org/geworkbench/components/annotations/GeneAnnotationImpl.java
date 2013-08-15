@@ -19,7 +19,7 @@ public class GeneAnnotationImpl implements GeneAnnotation {
     /**
      * Associated pathways
      */
-    private final Pathway[] pathways;
+    private final String[] pathways;
 
 	/**
      * Organism abbreviation
@@ -32,7 +32,7 @@ public class GeneAnnotationImpl implements GeneAnnotation {
     private final Long clusterId;
     
 	public GeneAnnotationImpl(String symbol, String fullName, String entrezId,
-			Long clusterId, String organism, Pathway[] pathways) {
+			Long clusterId, String organism, String[] pathways) {
     	geneSymbol = symbol;
     	geneFullName = fullName;
     	this.entrezId = entrezId;
@@ -69,7 +69,7 @@ public class GeneAnnotationImpl implements GeneAnnotation {
      * @return pathways
      */
     @Override
-    public org.geworkbench.components.annotations.Pathway[] getPathways() {
+    public String[] getPathways() {
         return pathways;
     }
 
