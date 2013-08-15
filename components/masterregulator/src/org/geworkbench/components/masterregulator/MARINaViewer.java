@@ -20,6 +20,7 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.components.masterregulator.TAnalysis.TAnalysisException;
+import org.geworkbench.components.masterregulator.TableViewer.DefaultViewerTableModel;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.ProjectEvent;
@@ -48,6 +49,7 @@ public class MARINaViewer extends MasterRegulatorViewer{
 			SwingUtilities.invokeLater(new Runnable(){
 				public void run(){
 					updateTable();
+					((DefaultViewerTableModel) tv.model).sort(6, false); //sort by absNES in descending order
 					for (int i = 1; i < columnNames.length-1; i++)
 						tv.setNumerical(i, true);
 					updateSelectedTF(MRAResultSet, currentSelectedtfA, tv2);
