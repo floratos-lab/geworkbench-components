@@ -70,6 +70,22 @@ public class MARINa extends AbstractGridAnalysis implements
 			return new ParamValidationResults(false,
 					"P-value should be a number");
 		} 
+
+		HashSet<String> ctrls = mraAnalysisPanel.getIxClass(CSAnnotationContext.CLASS_CONTROL);
+		Iterator<String> casei = mraAnalysisPanel.getIxClass(CSAnnotationContext.CLASS_CASE).iterator();
+		if (ctrls.size() == 0 && !casei.hasNext()){
+			return new ParamValidationResults(false,
+					"Please activate at least one set of arrays for \"case\", and one set of arrays for \"control\".");
+		}
+		if (ctrls.size() == 0)
+			return new ParamValidationResults(false, "Please activate at least one set of arrays for \"control\".");
+		if (!casei.hasNext())
+			return new ParamValidationResults(false, "Please activate at least one set of arrays for \"case\".");
+		while (casei.hasNext()){
+		    if (ctrls.contains(casei.next()))
+			return new ParamValidationResults(false, "An array cannot be in case and control at the same time.");
+		}
+
 		ParamValidationResults answer = new ParamValidationResults(true,
 				"validate");
 		return answer;
@@ -227,21 +243,6 @@ public class MARINa extends AbstractGridAnalysis implements
 		double pvsynergy = mraAnalysisPanel.getPVsynergy();
 		if (pvsynergy < 0 || pvsynergy > 1)
 			return new ParamValidationResults(false, "Synergy Pvalue should be between 0 and 1.");
-		HashSet<String> ctrls = mraAnalysisPanel.getIxClass(CSAnnotationContext.CLASS_CONTROL);
-		Iterator<String> casei = mraAnalysisPanel.getIxClass(CSAnnotationContext.CLASS_CASE).iterator();
-		if (ctrls.size() == 0 && !casei.hasNext()){
-			return new ParamValidationResults(false,
-					"Please activate at least one set of arrays for \"case\", and one set of arrays for \"control\".");
-		}
-		if (ctrls.size() == 0)
-			return new ParamValidationResults(false, "Please activate at least one set of arrays for \"control\".");
-		if (!casei.hasNext())
-			return new ParamValidationResults(false, "Please activate at least one set of arrays for \"case\".");
-		while (casei.hasNext()){
-		    if (ctrls.contains(casei.next()))
-			return new ParamValidationResults(false, "An array cannot be in case and control at the same time.");
-		}
-		
 		return new ParamValidationResults(true, "No Error");
 	}
 }
