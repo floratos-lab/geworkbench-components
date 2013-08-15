@@ -27,8 +27,8 @@ public class ExportTask extends ProgressTask<GeneBase[], Void>{
     	@Override
     	protected GeneBase[] doInBackground(){
     		if (isCancelled()) return null;
-    		GeneBase[] genesInPathway = ap.criteria.getGenesInPathway(pathway);
-    		return genesInPathway;
+    		BioDBnetClient client = new BioDBnetClient();
+    		return client.queryGenesForPathway(pathway);
     	}
 
     	@Override

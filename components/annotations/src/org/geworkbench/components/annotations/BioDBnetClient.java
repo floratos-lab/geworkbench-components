@@ -34,17 +34,7 @@ public class BioDBnetClient {
 	final private DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory
 			.newInstance();
 
-	private boolean hasResult = false;
-	private String geneSymbol;
-	private String geneId; // gene ID = entrez ID = locus link
-	private String geneDescription;
-	private String organism; // text (organism) part of UniGene ID, e.g. Hs for Human, Mm for Mouse
-	private Long clusterId; // numeric part of UniGene ID
-	private String[] pathwayNames;
-
-	public void queryByGeneSymbol(int taxonId, String geneSymbol) {
-
-		hasResult = false;
+	public GeneAnnotation[] queryByGeneSymbol(int taxonId, String geneSymbol) {
 
 		HttpClient client = new HttpClient();
 		DefaultHttpMethodRetryHandler retryhandler = new DefaultHttpMethodRetryHandler(
@@ -52,6 +42,9 @@ public class BioDBnetClient {
 		client.getParams().setParameter(HttpMethodParams.RETRY_HANDLER,
 				retryhandler);
 		client.getParams().setCookiePolicy(CookiePolicy.IGNORE_COOKIES);
+
+		/* let's keep the original design's flexibility of returning an array. For now, we only return one element, though. */
+		GeneAnnotation[] r = null;
 
 		String url = String.format(pathwayQueryUrlFormat, taxonId, geneSymbol);
 		GetMethod getMethod = new GetMethod(url);
@@ -71,9 +64,16 @@ public class BioDBnetClient {
 
 				// assume it is always only one
 				NodeList ids = doc.getElementsByTagName("GeneID");
+				/* I expect the count to be 1. if more, take the first; if zero, meaning no (valid) result. */
+				int count = ids.getLength(); 
+				if(count<1) {
+					log.debug("no result returned");
+					return null;
+				}
 				Element idElement = (Element) ids.item(0);
 				NodeList idTextList = idElement.getChildNodes();
-				geneId = ((Node) idTextList.item(0)).getNodeValue().trim();
+				/* gene ID = entrez ID = locus link */
+				String geneId = ((Node) idTextList.item(0)).getNodeValue().trim();
 
 				// assume it is always only one
 				NodeList infos = doc.getElementsByTagName("GeneInfo");
@@ -81,7 +81,7 @@ public class BioDBnetClient {
 				NodeList infoTextList = infoElement.getChildNodes();
 				String info = ((Node) infoTextList.item(0)).getNodeValue()
 						.trim();
-				geneDescription = parseGeneInfo("Description", info);
+				String geneDescription = parseGeneInfo("Description", info);
 
 				// assume it is always only one
 				NodeList unis = doc.getElementsByTagName("UniGeneID");
@@ -90,12 +90,14 @@ public class BioDBnetClient {
 				String uni = ((Node) unisTextList.item(0)).getNodeValue()
 						.trim();
 				int dotIndex = uni.indexOf('.');
-				organism = uni.substring(0, dotIndex);
-				clusterId = Long.parseLong(uni.substring(dotIndex + 1));
+				/* text (organism) part of UniGene ID, e.g. Hs for Human, Mm for Mouse */
+				String organism = uni.substring(0, dotIndex);
+				/* numeric part of UniGene ID */
+				Long clusterId = Long.parseLong(uni.substring(dotIndex + 1));
 
 				NodeList pathwayList = doc
 						.getElementsByTagName("BiocartaPathwayName");
-				pathwayNames = new String[pathwayList.getLength()];
+				String[] pathwayNames = new String[pathwayList.getLength()];
 				for (int i = 0; i < pathwayNames.length; i++) {
 					Element pathwayElement = (Element) pathwayList.item(i);
 					NodeList textList = pathwayElement.getChildNodes();
@@ -103,8 +105,10 @@ public class BioDBnetClient {
 					pathwayNames[i] = p.substring(0, p.indexOf(' '));
 				}
 
-				this.geneSymbol = geneSymbol;
-				hasResult = true;
+				r = new GeneAnnotation[1];
+				r[0] = new GeneAnnotationImpl(geneSymbol, geneDescription,
+						geneId, clusterId, organism, pathwayNames);
+				return r;
 			} else {
 				log.error("HTTP status code is not OK (200): " + statusCode);
 			}
@@ -119,6 +123,7 @@ public class BioDBnetClient {
 		} finally {
 			getMethod.releaseConnection();
 		}
+		return r;
 	}
 
 	public GeneBase[] queryGenesForPathway(String pathwayName) {
@@ -184,17 +189,5 @@ public class BioDBnetClient {
 		} else {
 			return "";
 		}
-	}
-
-	public boolean hasResult() {
-		return hasResult;
-	}
-
-	public GeneAnnotationImpl getGeneAnnotation() {
-		if (!hasResult)
-			return null;
-
-		return new GeneAnnotationImpl(geneSymbol, geneDescription, geneId,
-				clusterId, organism, pathwayNames);
 	}
 }

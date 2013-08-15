@@ -317,7 +317,6 @@ public class AnnotationsPanel2 implements VisualPlugin{
 
     DSItemList<DSGeneMarker> selectedMarkerInfo = null;
 
-    GeneSearchCriteria criteria = null;
     String[] pathways = new String[0];
 
     DSMicroarraySet  maSet = null;
