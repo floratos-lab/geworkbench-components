@@ -45,20 +45,33 @@ public class AnnotationTableModel extends SortableTableModel {
         public static final int COL_GENE = 1;
         public static final int COL_PATHWAY = 2;
 
-        private DSGeneMarker[] markerData;
-        private GeneAnnotation[] geneData;
-        private String[] pathwayData;
+        final private DSGeneMarker[] markerData;
+        final private GeneAnnotation[] geneData;
+        final private String[] pathwayData;
 
-        private Integer[] indices;
-        private int size;
+        private Integer[] indices; // FIXME this should be replaced with standard java table sorting mechanism
+        final private int size;
         private AnnotationsPanel2 annotationsPanel = null;
 
-        public AnnotationTableModel(AnnotationsPanel2 annotationsPanel, DSGeneMarker[] markerData, GeneAnnotation[] geneData, String[] pathwayData) {
+        public AnnotationTableModel(AnnotationsPanel2 annotationsPanel, final AnnotData annotData) {
             this.annotationsPanel = annotationsPanel;
-        	this.markerData = markerData;
-            this.geneData = geneData;
-            this.pathwayData = pathwayData;
-            size = pathwayData.length;
+
+            size = annotData.pathwayCount;
+            markerData = new DSGeneMarker[size];
+        	geneData = new GeneAnnotation[size];
+            pathwayData = new String[size];
+            int row = 0;
+            for(int index = 0; index<annotData.geneData.size(); index++) {
+        		// assume that the index of markerData and geneData matches
+        		DSGeneMarker marker = annotData.markerData.get(index);
+            	GeneAnnotation geneAnnotation = annotData.geneData.get(index);
+            	for(String p : geneAnnotation.getPathways()) {
+            		markerData[row] = marker;
+            		geneData[row] = geneAnnotation;
+            		pathwayData[row] = p;
+            		row++;
+            	}
+            }
             indices = new Integer[size];
             resetIndices();
         }

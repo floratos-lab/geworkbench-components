@@ -5,19 +5,23 @@ import java.util.ArrayList;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 
 /**
- * AnnotData: data structure for annotation/pathway results $Id: AnnotData.java
- * 7184 2010-11-10 21:09:20Z wangmen 
+ * AnnotData: data structure for annotation/pathway results.
+ *  
  * @version $Id$
  */
 public class AnnotData {
 	public final ArrayList<DSGeneMarker> markerData;
 	public final ArrayList<GeneAnnotation> geneData;
-	public final ArrayList<String> pathwayData;
+	public final int pathwayCount;
 
-	public AnnotData(ArrayList<DSGeneMarker> marker, ArrayList<GeneAnnotation> gene,
-			ArrayList<String> pathway) {
+	public AnnotData(ArrayList<DSGeneMarker> marker,
+			ArrayList<GeneAnnotation> gene) {
 		markerData = marker;
 		geneData = gene;
-		pathwayData = pathway;
+		int c = 0;
+		for(int i=0; i<gene.size(); i++) {
+			c += gene.get(i).getPathways().length;
+		}
+		pathwayCount = c;
 	}
 }
