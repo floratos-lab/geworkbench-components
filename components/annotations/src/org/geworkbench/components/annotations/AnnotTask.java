@@ -30,20 +30,6 @@ public class AnnotTask extends ProgressTask<AnnotData, String> {
             		ArrayList<GeneAnnotation> geneData = new ArrayList<GeneAnnotation>();
             		ArrayList<String> pathwayData = new ArrayList<String>();
                     if (selectedMarkerInfo != null) {
-                        //pb.setTitle("Querying caBIO..");
-                        //if (!pd.isActive()) {
-                        //}
-                        if (ap.criteria == null) {
-                            try {
-                    			Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
-                                ap.criteria = new GeneSearchCriteriaImpl();
-                            } catch (Exception e) {
-                       			JOptionPane.showMessageDialog(null, 
-                    					"Exception: could not create caBIO search criteria in Annotation Panel.\nIt could be connection error. Please check your internet connection or try again later.",
-                    					"Data processing/connection error", JOptionPane.ERROR_MESSAGE);
-                    			return null;
-                            }
-                        }
 
                         for (int i = 0; i < selectedMarkerInfo.size(); i++) {
 
@@ -52,8 +38,8 @@ public class AnnotTask extends ProgressTask<AnnotData, String> {
                             setProgress(100 * (i+1)/selectedMarkerInfo.size());
 
                             String geneName = selectedMarkerInfo.get(i).getGeneName();
-                            GeneAnnotation[] annotations;
-                            annotations = ap.criteria.searchByGeneSymbol(geneName, ap.humanOrMouse);
+                    		BioDBnetClient client = new BioDBnetClient();
+                    		GeneAnnotation[] annotations = client.queryByGeneSymbol(ap.humanOrMouse, geneName);
 
                             if (annotations == null ) {
                                 ap.clearTable();
