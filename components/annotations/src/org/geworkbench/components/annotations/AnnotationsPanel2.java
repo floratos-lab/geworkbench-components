@@ -60,30 +60,26 @@ import org.geworkbench.util.ProgressItem;
 
 /**
  * <p>
- * Title: caBio component
+ * Marker Annotation Component.
  * </p>
  * <p>
- * Copyright: Copyright (c) 2003 -2004
+ * Copyright: Copyright (c) 2003 -2013
  * </p>
  * <p>
  * Company: Columbia University
  * </p>
  *
- * Component responsible for displaying Gene Annotation obtained from caBIO
+ * Component responsible for displaying Gene Annotation obtained from bioDBnet
  * Displays data in a Tabular format with 3 columns. First column contains
  * marker information. The second column contains The Gene Description and the
  * third column contains a list of known Pathways that this gene's product
  * participates in.
- *
- * It also displaying Disease and Agent information obtained from Cancer Gene
- * Index database through caBio. Displays data in two table with 6 columns each.
  *
  * @author yc2480
  * @version $Id$
  *
  */
 @AcceptTypes({DSMicroarraySet.class})
-@SuppressWarnings("unchecked")
 public class AnnotationsPanel2 implements VisualPlugin{
     private static final String RETRIEVE_INFORMATION = "Retrieve Annotations";
 
@@ -195,9 +191,6 @@ public class AnnotationsPanel2 implements VisualPlugin{
 
         jbInitPathways();
 
-        annotationTable.getColumnModel().getColumn(0).setHeaderValue("     Marker");
-        annotationTable.getColumnModel().getColumn(1).setHeaderValue("     Gene");
-        annotationTable.getColumnModel().getColumn(2).setHeaderValue("     Pathway");
         annotationTable.setCellSelectionEnabled(false);
         annotationTable.setRowSelectionAllowed(false);
         annotationTable.setColumnSelectionAllowed(false);
@@ -275,9 +268,6 @@ public class AnnotationsPanel2 implements VisualPlugin{
 
     private void annoClearButton_actionPerformed(ActionEvent e) {
         annotationTable.setModel(new AnnotationTableModel());
-        annotationTable.getColumnModel().getColumn(0).setHeaderValue("     Marker");
-        annotationTable.getColumnModel().getColumn(1).setHeaderValue("     Gene");
-        annotationTable.getColumnModel().getColumn(2).setHeaderValue("     Pathway");
         annotationTable.getTableHeader().revalidate();
         annotationTableList.put(new Integer(maSet.hashCode()),  new AnnotationTableModel());
     }
@@ -312,7 +302,7 @@ public class AnnotationsPanel2 implements VisualPlugin{
     final JTabbedPane jTabbedPane1 = new JTabbedPane();
 
     final JTable annotationTable;
-    AnnotationTableModel annotationModel;
+    private AnnotationTableModel annotationModel;
 
     final HashMap<Integer, AnnotationTableModel> annotationTableList;
 
@@ -365,22 +355,16 @@ public class AnnotationsPanel2 implements VisualPlugin{
         }
 
         pathwayComboItemSelectedMap.put(new Integer(oldHashCode), new Integer(pathwayComboBox.getSelectedIndex()));
-        pathwayListMap.put(new Integer(oldHashCode), (ArrayList<String>)pathwayList.clone());
+        pathwayListMap.put(new Integer(oldHashCode), new ArrayList<String>(pathwayList));
         tabPanelSelectedMap.put(new Integer(oldHashCode), jTabbedPane1.getSelectedIndex());
 
         if (annotationTableList.containsKey(new Integer(hashcode)))
         {
         	annotationModel = annotationTableList.get(new Integer(hashcode));
         	annotationTable.setModel(annotationModel);
-            annotationTable.getColumnModel().getColumn(0).setHeaderValue("     Marker");
-            annotationTable.getColumnModel().getColumn(1).setHeaderValue("     Gene");
-            annotationTable.getColumnModel().getColumn(2).setHeaderValue("     Pathway");
             annotationTable.getTableHeader().revalidate();
         } else {
         	annotationTable.setModel(new AnnotationTableModel());
-            annotationTable.getColumnModel().getColumn(0).setHeaderValue("     Marker");
-            annotationTable.getColumnModel().getColumn(1).setHeaderValue("     Gene");
-            annotationTable.getColumnModel().getColumn(2).setHeaderValue("     Pathway");
             annotationTable.getTableHeader().revalidate();
         }
 
@@ -541,15 +525,16 @@ public class AnnotationsPanel2 implements VisualPlugin{
      */
     private final JScrollPane jscrollPanePathway = new JScrollPane();
 
-	void clearTable()
-	{
-	    annotationModel = new AnnotationTableModel();
-	    annotationTableList.put(new Integer(maSet.hashCode()), annotationModel);
-	    annotationTable.setModel(annotationModel);
-	    annotationTable.getColumnModel().getColumn(0).setHeaderValue("     Marker");
-	    annotationTable.getColumnModel().getColumn(1).setHeaderValue("     Gene");
-	    annotationTable.getColumnModel().getColumn(2).setHeaderValue("     Pathway");
-	    annotationTable.getTableHeader().revalidate();
+	/* invoked by AnnotTask */
+	void setTableModel(AnnotData annotData) {
+		if(annotData==null) {
+			annotationModel = new AnnotationTableModel();
+		} else {
+			annotationModel = new AnnotationTableModel(this, annotData);
+		}
+        annotationTableList.put(new Integer(maSet.hashCode()),  annotationModel);
+        annotationTable.setModel(annotationModel);
+        annotationTable.getTableHeader().repaint();
 	}
 
 }
