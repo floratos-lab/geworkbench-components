@@ -1,6 +1,6 @@
 package org.geworkbench.components.annotations;
 
-import java.awt.Container;
+import java.awt.Component;
 import java.awt.MouseInfo;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -13,7 +13,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
-import javax.swing.JTabbedPane;
 import javax.swing.table.AbstractTableModel;
 
 import org.apache.commons.logging.Log;
@@ -176,7 +175,7 @@ public class AnnotationTableModel extends AbstractTableModel {
 				JMenuItem viewDiagram = new JMenuItem("View Diagram");
 				viewDiagram.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent actionEvent) {
-						processPathway(pathwayData);
+						annotationsPanel.showPathwayDiagram(pathwayData);
 					}
 				});
 				JMenuItem viewDiagramExternal = new JMenuItem(
@@ -222,33 +221,11 @@ public class AnnotationTableModel extends AbstractTableModel {
 	        });
 	        popup.add(export);
 
-	        popup.show(annotationsPanel.annotationTable, (int) (MouseInfo.getPointerInfo().getLocation().getX() - annotationsPanel.annotationTable.getLocationOnScreen().getX()),
-	                (int) (MouseInfo.getPointerInfo().getLocation().getY() - annotationsPanel.annotationTable.getLocationOnScreen().getY()));
+	        Component component = annotationsPanel.getComponent();
+	        popup.show(component, (int) (MouseInfo.getPointerInfo().getLocation().getX() - component.getLocationOnScreen().getX()),
+	                (int) (MouseInfo.getPointerInfo().getLocation().getY() - component.getLocationOnScreen().getY()));
 	    }
 	    
-	    // show pathway diagram
-		private void processPathway(final String pathway) {
-			if (!annotationsPanel.pathwayList.contains(pathway)) {
-				annotationsPanel.pathwayList.add(pathway);
-				annotationsPanel.pathwayComboBox.addItem(pathway);
-			}
-			if (annotationsPanel.pathwayComboBox.getSelectedIndex() != annotationsPanel.pathwayList
-					.size() - 1) {
-				annotationsPanel.pathwayComboBox
-						.setSelectedIndex(annotationsPanel.pathwayList.size() - 1);
-			}
-			annotationsPanel.pathwayComboBox.revalidate();
-	
-			Container parent = annotationsPanel.pathwayPanel.getParent();
-			if (parent instanceof JTabbedPane) {
-				((JTabbedPane) parent)
-						.setSelectedComponent(annotationsPanel.pathwayPanel);
-				JTabbedPane p = (JTabbedPane) parent;
-				p.setTitleAt(annotationsPanel.jTabbedPane1
-						.indexOfComponent(annotationsPanel.pathwayPanel), pathway);
-			}
-		}
-	     
 	    private void activateGene(final GeneAnnotation gene) {
 	        JPopupMenu popup = new JPopupMenu();
 	        String value = gene.getGeneSymbol();
@@ -269,8 +246,9 @@ public class AnnotationTableModel extends AbstractTableModel {
 	        jMenuItem.addActionListener( new BrowserLaunchingListener(getGeneCardsUrl(gene)) );
 	        popup.add(jMenuItem);
 
-	        popup.show(annotationsPanel.annotationTable, (int) (MouseInfo.getPointerInfo().getLocation().getX() - annotationsPanel.annotationTable.getLocationOnScreen().getX()),
-	                (int) (MouseInfo.getPointerInfo().getLocation().getY() - annotationsPanel.annotationTable.getLocationOnScreen().getY()));
+	        Component component = annotationsPanel.getComponent();
+	        popup.show(component, (int) (MouseInfo.getPointerInfo().getLocation().getX() - component.getLocationOnScreen().getX()),
+	                (int) (MouseInfo.getPointerInfo().getLocation().getY() - component.getLocationOnScreen().getY()));
 	    }
 	    
 	    private static String getPathwayUrl(final String pathwayName) {

@@ -85,10 +85,6 @@ public class AnnotationsPanel2 implements VisualPlugin{
 
 	private static final String[] Human_Mouse= {"Human","Mouse"};
     private static final int[] taxon_ID = {9606, 10090};
-    /**
-     * Web URL prefix for obtaining Gene annotation
-     */
-    static final String GeneCards_PREFIX = "http://www.genecards.org/cgi-bin/carddisp.pl?gene=";
 
 	private static Log log = LogFactory.getLog(AnnotationsPanel2.class);
     
@@ -299,9 +295,9 @@ public class AnnotationsPanel2 implements VisualPlugin{
     }
 
     final private JPanel mainPanel = new JPanel();
-    final JTabbedPane jTabbedPane1 = new JTabbedPane();
+    final private JTabbedPane jTabbedPane1 = new JTabbedPane();
 
-    final JTable annotationTable;
+    final private JTable annotationTable;
     private AnnotationTableModel annotationModel;
 
     final HashMap<Integer, AnnotationTableModel> annotationTableList;
@@ -392,7 +388,7 @@ public class AnnotationsPanel2 implements VisualPlugin{
     }
 
     /* initialize pathwayPanel */
-    private void jbInitPathways() throws Exception {
+    private void jbInitPathways() {
 
         pathwayPanel.setLayout(new BorderLayout());
         pathwayPanel.add(jscrollPanePathway, BorderLayout.CENTER);
@@ -537,4 +533,18 @@ public class AnnotationsPanel2 implements VisualPlugin{
         annotationTable.getTableHeader().repaint();
 	}
 
+    // show pathway diagram, invoked from AnnotationTableModel
+	void showPathwayDiagram(final String pathway) {
+		if (!pathwayList.contains(pathway)) {
+			pathwayList.add(pathway);
+			pathwayComboBox.addItem(pathway);
+		}
+		if (pathwayComboBox.getSelectedIndex() != pathwayList.size() - 1) {
+			pathwayComboBox.setSelectedIndex(pathwayList.size() - 1);
+		}
+		pathwayComboBox.revalidate();
+
+		jTabbedPane1.setSelectedComponent(pathwayPanel);
+		jTabbedPane1.setTitleAt(jTabbedPane1.indexOfComponent(pathwayPanel), pathway);
+	}
 }
