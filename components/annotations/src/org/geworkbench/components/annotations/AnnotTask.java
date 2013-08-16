@@ -42,7 +42,6 @@ public class AnnotTask extends ProgressTask<AnnotData, String> {
                     		GeneAnnotation[] annotations = client.queryByGeneSymbol(ap.humanOrMouse, geneName);
 
                             if (annotations == null ) {
-                                ap.clearTable();
                             	return null;
                             }
 
@@ -74,24 +73,16 @@ public class AnnotTask extends ProgressTask<AnnotData, String> {
     		}catch(InterruptedException e){
     			e.printStackTrace();
     		}
-    		if ( annotData == null )
-            	return;
+    		// annotData can be null
+    		ap.setTableModel(annotData);
 
-    		if (annotData.pathwayCount == 0)
+    		if (annotData!=null && annotData.pathwayCount == 0)
 				JOptionPane
 						.showMessageDialog(
 								null,
 								"Server does not have records about these markers for this organism, please try other markers or organism.",
 								"Server returns no records",
 								JOptionPane.OK_OPTION);
-
-            ap.annotationModel = new AnnotationTableModel(ap, annotData);
-            ap.annotationTableList.put(new Integer(ap.maSet.hashCode()),  ap.annotationModel);
-            ap.annotationTable.setModel(ap.annotationModel);
-            ap.annotationTable.getColumnModel().getColumn(0).setHeaderValue("     Marker");
-            ap.annotationTable.getColumnModel().getColumn(1).setHeaderValue("     Gene");
-            ap.annotationTable.getColumnModel().getColumn(2).setHeaderValue("     Pathway");
-            ap.annotationTable.getTableHeader().repaint();
         }
         
         @Override

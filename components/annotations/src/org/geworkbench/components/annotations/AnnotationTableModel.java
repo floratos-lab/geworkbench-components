@@ -38,10 +38,12 @@ public class AnnotationTableModel extends AbstractTableModel {
         
         private static final String GENE_FINDER_PREFIX = "http://cgap.nci.nih.gov/Genes/GeneInfo?";
 
-		private static final long serialVersionUID = 1L;
+    	private static final long serialVersionUID = -7866682936244754027L;
 		public static final int COL_MARKER = 0;
         public static final int COL_GENE = 1;
         public static final int COL_PATHWAY = 2;
+
+		private static final String[] columnNames = {"Marker", "Gene", "Pathway"};
 
         final private DSGeneMarker[] markerData;
         final private GeneAnnotation[] geneData;
@@ -79,7 +81,12 @@ public class AnnotationTableModel extends AbstractTableModel {
             this.pathwayData = new String[0];
             size = 0;
         }
-
+        
+        @Override
+        public String getColumnName(int col) {
+            return columnNames[col];
+        }
+        
         @Override
         public int getRowCount() {
             return size;
@@ -87,7 +94,7 @@ public class AnnotationTableModel extends AbstractTableModel {
 
         @Override
         public int getColumnCount() {
-            return 3;
+            return columnNames.length;
         }
 
         private static String wrapInHTML(String s) {
