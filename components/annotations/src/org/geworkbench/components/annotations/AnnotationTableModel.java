@@ -22,7 +22,6 @@ import org.geworkbench.events.MarkerSelectedEvent;
 import org.geworkbench.util.BrowserLauncher;
 import org.geworkbench.util.CsvFileFilter;
 import org.geworkbench.util.OWFileChooser;
-import org.geworkbench.util.ProgressItem;
 
 import com.Ostermiller.util.CSVPrinter;
 
@@ -197,9 +196,11 @@ public class AnnotationTableModel extends AbstractTableModel {
 	                if (tmpSetLabel.equals("") || tmpSetLabel == null) {
 	                    tmpSetLabel = pathwayData;
 	                }
-	                AddTask addTask = new AddTask(ProgressItem.INDETERMINATE_TYPE,
-	                		"Retrieving and Adding "+tmpSetLabel+" genes to set",
-	                		annotationsPanel, tmpSetLabel, pathwayData);
+					PathwayGeneTask addTask = new PathwayGeneTask(
+							"Retrieving and Adding " + tmpSetLabel
+									+ " genes to set", annotationsPanel,
+							PathwayGeneTask.TaskType.ADD_TO_PROJECT, tmpSetLabel,
+							pathwayData);
 	                annotationsPanel.pd.executeTask(addTask);
 	            }
 	        });
@@ -212,10 +213,13 @@ public class AnnotationTableModel extends AbstractTableModel {
 	                chooser.setFileFilter(new CsvFileFilter());
 	                int returnVal = chooser.showSaveDialog(null);
 	                if (returnVal == JFileChooser.APPROVE_OPTION) {
-	                    ExportTask exportTask = new ExportTask(ProgressItem.INDETERMINATE_TYPE,
-	                    		"Retrieving and Exporting "+pathwayData+" to CSV",
-	                    		annotationsPanel, chooser.getSelectedFile(), pathwayData);
-	                    annotationsPanel.pd.executeTask(exportTask);
+						PathwayGeneTask exportTask = new PathwayGeneTask(
+								"Retrieving and Exporting " + pathwayData
+										+ " to CSV", annotationsPanel,
+								PathwayGeneTask.TaskType.EXPORT, chooser
+										.getSelectedFile().getAbsolutePath(),
+								pathwayData);
+						annotationsPanel.pd.executeTask(exportTask);
 	                }
 	            }
 	        });
