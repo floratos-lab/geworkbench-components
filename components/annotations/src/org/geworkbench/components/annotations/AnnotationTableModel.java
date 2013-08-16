@@ -14,7 +14,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
-import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 
 import org.apache.commons.logging.Log;
@@ -243,32 +242,28 @@ public class AnnotationTableModel extends AbstractTableModel {
 	                (int) (MouseInfo.getPointerInfo().getLocation().getY() - annotationsPanel.annotationTable.getLocationOnScreen().getY()));
 	    }
 	    
-	     private void processPathway(final String pathway){
-	    	 //FIXME to do this in background is very problematic
-	    	 SwingUtilities.invokeLater(new Runnable(){
-	         		public void run(){
-	                     addPathwayName(pathway);
-
-	                     Container parent = annotationsPanel.pathwayPanel.getParent();
-	                     if (parent instanceof JTabbedPane)
-	                     {    ((JTabbedPane) parent).setSelectedComponent(annotationsPanel.pathwayPanel);
-	                        JTabbedPane p =  (JTabbedPane) parent;
-	                        p.setTitleAt(annotationsPanel.jTabbedPane1.indexOfComponent(annotationsPanel.pathwayPanel), pathway);
-	                     }
-	         		}
-	         	});
-	    }
-	     
-	     private void addPathwayName(String pathwayName){
-
-	     	if (!annotationsPanel.pathwayList.contains(pathwayName)) {
-		     	annotationsPanel.pathwayList.add(pathwayName);
-		     	annotationsPanel.pathwayComboBox.addItem(pathwayName);
-	     	}
-	     	if (annotationsPanel.pathwayComboBox.getSelectedIndex() != annotationsPanel.pathwayList.size()-1)
-	     		annotationsPanel.pathwayComboBox.setSelectedIndex(annotationsPanel.pathwayList.size()-1);
-	     	annotationsPanel.pathwayComboBox.revalidate();
-	     }
+	    // show pathway diagram
+		private void processPathway(final String pathway) {
+			if (!annotationsPanel.pathwayList.contains(pathway)) {
+				annotationsPanel.pathwayList.add(pathway);
+				annotationsPanel.pathwayComboBox.addItem(pathway);
+			}
+			if (annotationsPanel.pathwayComboBox.getSelectedIndex() != annotationsPanel.pathwayList
+					.size() - 1) {
+				annotationsPanel.pathwayComboBox
+						.setSelectedIndex(annotationsPanel.pathwayList.size() - 1);
+			}
+			annotationsPanel.pathwayComboBox.revalidate();
+	
+			Container parent = annotationsPanel.pathwayPanel.getParent();
+			if (parent instanceof JTabbedPane) {
+				((JTabbedPane) parent)
+						.setSelectedComponent(annotationsPanel.pathwayPanel);
+				JTabbedPane p = (JTabbedPane) parent;
+				p.setTitleAt(annotationsPanel.jTabbedPane1
+						.indexOfComponent(annotationsPanel.pathwayPanel), pathway);
+			}
+		}
 	     
 	     /*
 	     *
