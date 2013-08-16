@@ -16,7 +16,7 @@ import org.geworkbench.util.ProgressTask;
  */
 
 public class AnnotTask extends ProgressTask<AnnotData, String> {
-    	private AnnotationsPanel2 ap = null;
+    	final private AnnotationsPanel2 ap;
 
     	public AnnotTask(int pbtype, String message, AnnotationsPanel2 ap2){
     		super(pbtype, message);
@@ -29,9 +29,8 @@ public class AnnotTask extends ProgressTask<AnnotData, String> {
             		ArrayList<DSGeneMarker> markerData = new ArrayList<DSGeneMarker>();
             		ArrayList<GeneAnnotation> geneData = new ArrayList<GeneAnnotation>();
 
-                    if (selectedMarkerInfo != null) {
-
-                        for (int i = 0; i < selectedMarkerInfo.size(); i++) {
+                    // selectedMarkerInfo has been checked not to be null or size 0
+                    for (int i = 0; i < selectedMarkerInfo.size(); i++) {
 
                            	if (isCancelled()) return null;
                             publish("Getting Marker Annotation/Pathways: " + selectedMarkerInfo.get(i).getLabel());
@@ -46,17 +45,17 @@ public class AnnotTask extends ProgressTask<AnnotData, String> {
                             }
 
                             DSGeneMarker marker = selectedMarkerInfo.get(i);
-                            if ( annotations.length > 0) {
-                                for (int j = 0; j < annotations.length; j++) {
-                                   	if (isCancelled()) return null;
-
-                                   	geneData.add(annotations[j]);
-                                    markerData.add(marker);
-                                }
-                            }
-                        }
+							for (int j = 0; j < annotations.length; j++) {
+								if (isCancelled())
+									return null;
+			
+								geneData.add(annotations[j]);
+								markerData.add(marker);
+							}
                     }
-                    return new AnnotData(markerData, geneData);
+
+					return new AnnotData(markerData.toArray(new DSGeneMarker[0]),
+							geneData.toArray(new GeneAnnotation[0]));
         }
 
         @Override

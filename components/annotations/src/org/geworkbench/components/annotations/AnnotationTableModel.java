@@ -60,10 +60,10 @@ public class AnnotationTableModel extends AbstractTableModel {
         	geneData = new GeneAnnotation[size];
             pathwayData = new String[size];
             int row = 0;
-            for(int index = 0; index<annotData.geneData.size(); index++) {
+            for(int index = 0; index<annotData.geneData.length; index++) {
         		// assume that the index of markerData and geneData matches
-        		DSGeneMarker marker = annotData.markerData.get(index);
-            	GeneAnnotation geneAnnotation = annotData.geneData.get(index);
+        		DSGeneMarker marker = annotData.markerData[index];
+            	GeneAnnotation geneAnnotation = annotData.geneData[index];
             	for(String p : geneAnnotation.getPathways()) {
             		markerData[row] = marker;
             		geneData[row] = geneAnnotation;
