@@ -35,8 +35,6 @@ import com.Ostermiller.util.CSVPrinter;
 public class AnnotationTableModel extends AbstractTableModel {
         private static Log log = LogFactory.getLog(AnnotationTableModel.class);
         
-        private static final String GENE_FINDER_PREFIX = "http://cgap.nci.nih.gov/Genes/GeneInfo?";
-
     	private static final long serialVersionUID = -7866682936244754027L;
 		public static final int COL_MARKER = 0;
         public static final int COL_GENE = 1;
@@ -79,6 +77,7 @@ public class AnnotationTableModel extends AbstractTableModel {
             this.geneData = new GeneAnnotation[0];
             this.pathwayData = new String[0];
             size = 0;
+            log.debug("empty instance constructed");
         }
         
         @Override
@@ -148,21 +147,15 @@ public class AnnotationTableModel extends AbstractTableModel {
 				csvout.println();
 
 				for (int cx = 0; cx < this.size; cx++) {
-					String markerName = markerData[cx].getLabel();
-					String geneName = geneData[cx].getGeneSymbol();
-			        String entrezId = geneData[cx].getEntrezId();
-		            String entrezUrl = "http://www.ncbi.nlm.nih.gov/sites/entrez?Db=gene&Cmd=ShowDetailView&TermToSearch="+entrezId;
-		            String cgapUrl = GENE_FINDER_PREFIX + "ORG=" + geneData[cx].getOrganismAbbreviation() + "&CID=" + geneData[cx].getClusterId();
-                    String GeneCardsUrl = AnnotationsPanel2.GeneCards_PREFIX + geneName;
-					String pathwayName = pathwayData[cx];
+					GeneAnnotation gene = geneData[cx];
 
-					csvout.print(markerName);
-					csvout.print(geneName);
-					csvout.print(entrezId);
-					csvout.print(pathwayName);
-					csvout.print(entrezUrl);
-					csvout.print(cgapUrl);
-					csvout.print(GeneCardsUrl);
+					csvout.print(markerData[cx].getLabel());
+					csvout.print(gene.getGeneSymbol());
+					csvout.print(gene.getEntrezId());
+					csvout.print(pathwayData[cx]);
+					csvout.print(getEntrezUrl(gene));
+					csvout.print(getCGAPUrl(gene));
+					csvout.print(getGeneCardsUrl(gene));
 					csvout.println();
 				}
 
@@ -188,16 +181,7 @@ public class AnnotationTableModel extends AbstractTableModel {
 				});
 				JMenuItem viewDiagramExternal = new JMenuItem(
 						"View Diagram on BioCarta site");
-				viewDiagramExternal.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent actionEvent) {
-						String url = "http://www.biocarta.com/pathfiles/"+pathwayData+".asp";
-						try {
-							BrowserLauncher.openURL(url);
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-					}
-				});
+				viewDiagramExternal.addActionListener(new BrowserLaunchingListener(getPathwayUrl(pathwayData)));
 				popup.add(viewDiagram);
 				popup.add(viewDiagramExternal);
 			}
@@ -265,84 +249,62 @@ public class AnnotationTableModel extends AbstractTableModel {
 			}
 		}
 	     
-	     /*
-	     *
-	     */
 	    private void activateGene(final GeneAnnotation gene) {
 	        JPopupMenu popup = new JPopupMenu();
 	        String value = gene.getGeneSymbol();
 	        //Get Entrez id
-	        String entrezId = gene.getEntrezId();
-	        if (!entrezId.equals("")){	//if we got an ID
-	            String entrezUrl = "http://www.ncbi.nlm.nih.gov/sites/entrez?Db=gene&Cmd=ShowDetailView&TermToSearch="+entrezId;
+	        if (!gene.getEntrezId().equals("")){	//if we got an ID
 	            JMenuItem entrezJMenuItem = new JMenuItem("Go to Entrez for " + value);
-	            class MyEntrezActionListener implements ActionListener{
-	            	String value="";
-	            	public MyEntrezActionListener(String value){
-	            		super();
-	            		this.value = value;
-	            	}
-	                public void actionPerformed(ActionEvent actionEvent) {
-	                    try {
-	                        String address = value;
-	                        log.debug("Opening " + address);
-	                        BrowserLauncher.openURL(address);
-	                    }
-	                    catch (IOException ioe) {
-	                        ioe.printStackTrace();
-	                    }
-	                }
-	            }
-	            entrezJMenuItem.addActionListener( new MyEntrezActionListener(entrezUrl) );
+	            entrezJMenuItem.addActionListener( new BrowserLaunchingListener(getEntrezUrl(gene)) );
 	            popup.add(entrezJMenuItem);
 	        }
 	        //CGAP section
 	        if (!gene.getOrganismAbbreviation().equals("")){
-		        String cgapUrl = GENE_FINDER_PREFIX + "ORG=" + gene.getOrganismAbbreviation() + "&CID=" + gene.getClusterId();
 		        JMenuItem cgapJMenuItem = new JMenuItem("Go to CGAP for " + value);
-		        class MyCGAPActionListener implements ActionListener{
-		        	String value="";
-		        	public MyCGAPActionListener(String value){
-		        		super();
-		        		this.value = value;
-		        	}
-		            public void actionPerformed(ActionEvent actionEvent) {
-		                try {
-		                    String address = value;
-		                    log.debug("Opening " + address);
-		                    BrowserLauncher.openURL(address);
-		                }
-		                catch (IOException ioe) {
-		                    ioe.printStackTrace();
-		                }
-		            }
-		        }
-		        cgapJMenuItem.addActionListener( new MyCGAPActionListener(cgapUrl) );
+		        cgapJMenuItem.addActionListener( new BrowserLaunchingListener(getCGAPUrl(gene)) );
 		        popup.add(cgapJMenuItem);
 	        }
 	        //GeneCard section
 	        JMenuItem jMenuItem = new JMenuItem("Go to GeneCards for " + value);
-	        class MyActionListener implements ActionListener{
-	        	String value="";
-	        	public MyActionListener(String value){
-	        		super();
-	        		this.value = value;
-	        	}
-	            public void actionPerformed(ActionEvent actionEvent) {
-	                try {
-	                    String address = AnnotationsPanel2.GeneCards_PREFIX + value;
-	                    log.debug("Opening " + address);
-	                    BrowserLauncher.openURL(address);
-	                }
-	                catch (IOException ioe) {
-	                    ioe.printStackTrace();
-	                }
-	            }
-	        }
-	        jMenuItem.addActionListener( new MyActionListener(value) );
+	        jMenuItem.addActionListener( new BrowserLaunchingListener(getGeneCardsUrl(gene)) );
 	        popup.add(jMenuItem);
 
 	        popup.show(annotationsPanel.annotationTable, (int) (MouseInfo.getPointerInfo().getLocation().getX() - annotationsPanel.annotationTable.getLocationOnScreen().getX()),
 	                (int) (MouseInfo.getPointerInfo().getLocation().getY() - annotationsPanel.annotationTable.getLocationOnScreen().getY()));
 	    }
-    }
+	    
+	    private static String getPathwayUrl(final String pathwayName) {
+	    	return "http://www.biocarta.com/pathfiles/"+pathwayName+".asp";
+	    }
+	    
+	    private static String getEntrezUrl(final GeneAnnotation g) {
+	    	return "http://www.ncbi.nlm.nih.gov/sites/entrez?Db=gene&Cmd=ShowDetailView&TermToSearch="+g.getEntrezId();
+	    }
+	    
+	    private static String getCGAPUrl(final GeneAnnotation g) {
+	    	return "http://cgap.nci.nih.gov/Genes/GeneInfo?"+"ORG=" + g.getOrganismAbbreviation() + "&CID=" + g.getClusterId();
+	    }
+	    
+	    private static String getGeneCardsUrl(final GeneAnnotation g) {
+	    	return "http://www.genecards.org/cgi-bin/carddisp.pl?gene="+g.getGeneSymbol();
+	    }
+	    
+	    private static class BrowserLaunchingListener implements ActionListener {
+
+	    	final private String url;
+	    	
+	    	BrowserLaunchingListener(String url) {
+	    		this.url = url;
+	    	}
+	    	
+			@Override
+			public void actionPerformed(ActionEvent e) {
+                try {
+                    BrowserLauncher.openURL(url);
+                }
+                catch (IOException ioe) {
+                    ioe.printStackTrace();
+                }
+			}
+	    }
+}
