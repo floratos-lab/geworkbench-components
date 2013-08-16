@@ -485,7 +485,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		// myTableModel.updateData(data);
 		tv.setTableModel(data);
 		((DefaultViewerTableModel) tv.model).sort(1); //sort by p-values
-		tv.table.getColumnModel().getColumn(modeCol).setMaxWidth(40); // mode width
+		tv.table.getColumnModel().getColumn(modeCol).setMaxWidth(42); // mode width
 
 		tv.updateUI();
 		tv.setMRViewer(this);
