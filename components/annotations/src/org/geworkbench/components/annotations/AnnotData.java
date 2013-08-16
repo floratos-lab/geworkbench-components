@@ -1,7 +1,5 @@
 package org.geworkbench.components.annotations;
 
-import java.util.ArrayList;
-
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 
 /**
@@ -10,17 +8,16 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
  * @version $Id$
  */
 public class AnnotData {
-	public final ArrayList<DSGeneMarker> markerData;
-	public final ArrayList<GeneAnnotation> geneData;
+	public final DSGeneMarker[] markerData;
+	public final GeneAnnotation[] geneData;
 	public final int pathwayCount;
 
-	public AnnotData(ArrayList<DSGeneMarker> marker,
-			ArrayList<GeneAnnotation> gene) {
+	public AnnotData(DSGeneMarker[] marker, GeneAnnotation[] gene) {
 		markerData = marker;
 		geneData = gene;
 		int c = 0;
-		for(int i=0; i<gene.size(); i++) {
-			c += gene.get(i).getPathways().length;
+		for(GeneAnnotation g : gene) {
+			c += g.getPathways().length;
 		}
 		pathwayCount = c;
 	}
