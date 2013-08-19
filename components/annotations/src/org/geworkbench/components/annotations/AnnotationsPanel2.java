@@ -68,483 +68,471 @@ import org.geworkbench.util.ProgressItem;
  * <p>
  * Company: Columbia University
  * </p>
- *
+ * 
  * Component responsible for displaying Gene Annotation obtained from bioDBnet
  * Displays data in a Tabular format with 3 columns. First column contains
  * marker information. The second column contains The Gene Description and the
  * third column contains a list of known Pathways that this gene's product
  * participates in.
- *
+ * 
  * @author yc2480
  * @version $Id$
- *
+ * 
  */
-@AcceptTypes({DSMicroarraySet.class})
-public class AnnotationsPanel2 implements VisualPlugin{
-    private static final String RETRIEVE_INFORMATION = "Retrieve Annotations";
+@AcceptTypes({ DSMicroarraySet.class })
+public class AnnotationsPanel2 implements VisualPlugin {
 
-	private static final String[] Human_Mouse= {"Human","Mouse"};
-    private static final int[] taxon_ID = {9606, 10090};
+	private static final String[] Human_Mouse = { "Human", "Mouse" };
+	private static final int[] taxon_ID = { 9606, 10090 };
+	private static final int PATHWAY_TAB_INDEX = 1;
 
 	private static Log log = LogFactory.getLog(AnnotationsPanel2.class);
-    
-    int humanOrMouse = taxon_ID[0];	//default to Human
 
-    /**
-     * Default Constructor
-     */
-    public AnnotationsPanel2() {
-        annotationModel = new AnnotationTableModel();
-        annotationTable = new JTable(annotationModel);
-        annotationTable.setAutoCreateRowSorter(true);
-        
-        try {
-            jbInit();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+	private int selectedOrganismIndex = 0; // default to Human
 
-        annotationTableList = new HashMap<Integer, AnnotationTableModel>();
+	// member variables to keep track of the status of different datasets
+	final private HashMap<Integer, AnnotationTableModel> annotationTableList;
+	final private HashMap<Integer, ArrayList<String>> pathwayListMap;
+	final private HashMap<Integer, Integer> tabPanelSelectedMap;
+	final private HashMap<Integer, Integer> pathwayComboItemSelectedMap;
 
-        pathwayListMap = new HashMap<Integer, ArrayList<String>>();
-        tabPanelSelectedMap = new HashMap<Integer, Integer>();
-        pathwayComboItemSelectedMap = new HashMap<Integer, Integer>();
-    }
+	private ArrayList<String> pathwayList = null;
 
-    /**
-     * Configures the Graphical User Interface and Listeners
-     *
-     * @throws Exception
-     */
-    private void jbInit() throws Exception {
+	// GUI/Swing members
+	final private JPanel mainPanel = new JPanel();
+	final private JTabbedPane tabbedPane = new JTabbedPane();
+	final private JTable annotationTable;
 
-    	mainPanel.setLayout( new GridLayout());
-        mainPanel.add(jTabbedPane1);
-        
-        //Init button panel in annotation panel
-        //GUIs used by Annotation panel
-        JButton annoRetrieveButton = new JButton();
-        JButton annoClearButton = new JButton();
-        annoRetrieveButton.setHorizontalAlignment(SwingConstants.CENTER);
-        annoRetrieveButton.setText(RETRIEVE_INFORMATION);
-        annoRetrieveButton.setToolTipText("Retrieve gene and disease information for markers in activated panels");
-        annoRetrieveButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                showPanels_actionPerformed(e);
-            }
+	final private JPanel pathwayPanel = new JPanel();
+	final private JComboBox pathwayComboBox = new JComboBox();
+	final private JScrollPane jscrollPanePathway = new JScrollPane();
 
-        });
-        annoClearButton.setForeground(Color.black);
-        annoClearButton.setFocusPainted(true);
-        annoClearButton.setText("Clear");
-        annoClearButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                annoClearButton_actionPerformed(e);
-            }
-        });
-
-        JButton annotationExportButton = new JButton();
-        annotationExportButton.setForeground(Color.black);
-        annotationExportButton.setToolTipText("Export to CSV files");
-        annotationExportButton.setFocusPainted(true);
-        annotationExportButton.setText("Export");
-        annotationExportButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-            	annotationExportButton_actionPerformed(e);
-            }
-        });
-        
-        ActionListener HumanMouseListener = new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-            	String selected =(String)((JComboBox)e.getSource()).getSelectedItem();
-        		if (selected.equals(Human_Mouse[0]))
-        			humanOrMouse = taxon_ID[0];
-        		else if (selected.equals(Human_Mouse[1]))
-        			humanOrMouse = taxon_ID[1];
-        		else{
-        			log.error("Shouldn't happen");
-        		}
-            }
-        };
-        
-        JComboBox annoHumanOrMouseComboBox = new JComboBox(Human_Mouse);
-        JPanel annoButtonPanel = new JPanel();
-        annoButtonPanel.add(annoHumanOrMouseComboBox);
-        annoHumanOrMouseComboBox.addActionListener(HumanMouseListener);
-        annoButtonPanel.add(annoRetrieveButton);
-        annoButtonPanel.add(annoClearButton);
-        annoButtonPanel.add(annotationExportButton);
-
-        annotationTable.getTableHeader().setPreferredSize(new Dimension(0, 25));
-
-        JPanel annotationPanel = new JPanel();	//for annotation
-        annotationPanel.setLayout(new BorderLayout());
-        annotationPanel.add(new JScrollPane(annotationTable),BorderLayout.CENTER);
-        annotationPanel.add(annoButtonPanel, BorderLayout.SOUTH);
-
-        jTabbedPane1.add("Annotations", annotationPanel);
-        jTabbedPane1.add("Pathway", pathwayPanel);
-
-        jbInitPathways();
-
-        annotationTable.setCellSelectionEnabled(false);
-        annotationTable.setRowSelectionAllowed(false);
-        annotationTable.setColumnSelectionAllowed(false);
-        annotationTable.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-                int column = annotationTable.columnAtPoint(e.getPoint());
-                int row = annotationTable.rowAtPoint(e.getPoint());
-                if ((column >= 0) && (row >= 0)) {
-                	int modelRow = annotationTable.convertRowIndexToModel(row);
-                	annotationModel.activateCell(modelRow, column);
-                }
-            }
-        });
-        annotationTable.addMouseMotionListener(new MouseMotionAdapter() {
-            private boolean isHand = false;
-
-            public void mouseMoved(MouseEvent e) {
-                int column = annotationTable.columnAtPoint(e.getPoint());
-                int row = annotationTable.rowAtPoint(e.getPoint());
-                if ((column >= 0) && (row >= 0)) {
-                    if ((column == AnnotationTableModel.COL_GENE) || (column == AnnotationTableModel.COL_PATHWAY)) {
-                        if (!isHand) {
-                            isHand = true;
-                            annotationTable.setCursor(new Cursor(Cursor.HAND_CURSOR));
-                        }
-                    } else {
-                        if (isHand) {
-                            isHand = false;
-                            annotationTable.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    /**
-     * Interface <code>VisualPlugin</code> method that returns a
-     * <code>Component</code> which is the visual representation of
-     * the this plugin.
-     *
-     * @return <code>Component</code> visual representation of
-     *         <code>AnnotationsPanel</code>
-     */
-    public Component getComponent() {
-        return mainPanel;
-    }
+	private AnnotationTableModel annotationModel;
 
 	final ProgressDialog pd = ProgressDialog.getInstance(false);
 
-    private AnnotTask annotTask = null;
+	private AnnotTask annotTask = null;
 
-    private void annotationExportButton_actionPerformed(ActionEvent e) {
-		JFileChooser jFC=new JFileChooser();
+	private DSMicroarraySet maSet = null;
+	private DSItemList<DSGeneMarker> selectedMarkerInfo = null;
+	private int oldHashCode = 0;
 
-		//We remove "all files" from filter, since we only allow CSV format
+	DSItemList<DSGeneMarker> getAllMarkers() {
+		if (maSet != null)
+			return maSet.getMarkers();
+		else
+			return null;
+	}
+
+	DSItemList<DSGeneMarker> getSelectedMarkers() {
+		return selectedMarkerInfo;
+	}
+
+	int getTaxonId() {
+		return taxon_ID[selectedOrganismIndex];
+	}
+
+	/**
+	 * Default Constructor
+	 */
+	public AnnotationsPanel2() {
+		annotationModel = new AnnotationTableModel();
+		annotationTable = new JTable(annotationModel);
+		annotationTable.setAutoCreateRowSorter(true);
+
+		try {
+			jbInit();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		annotationTableList = new HashMap<Integer, AnnotationTableModel>();
+		pathwayListMap = new HashMap<Integer, ArrayList<String>>();
+		tabPanelSelectedMap = new HashMap<Integer, Integer>();
+		pathwayComboItemSelectedMap = new HashMap<Integer, Integer>();
+	}
+
+	/**
+	 * Configures the Graphical User Interface and Listeners
+	 * 
+	 * @throws Exception
+	 */
+	private void jbInit() throws Exception {
+
+		mainPanel.setLayout(new GridLayout());
+		mainPanel.add(tabbedPane);
+
+		// three buttons on annotation button panel (annoButtonPanel)
+		JButton annoRetrieveButton = new JButton("Retrieve Annotations");
+		annoRetrieveButton.setHorizontalAlignment(SwingConstants.CENTER);
+		annoRetrieveButton
+				.setToolTipText("Retrieve gene and disease information for markers in activated panels");
+		annoRetrieveButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				retrieveAnnotation();
+			}
+
+		});
+
+		JButton annoClearButton = new JButton("Clear");
+		annoClearButton.setForeground(Color.black);
+		annoClearButton.setFocusPainted(true);
+		annoClearButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				AnnotationTableModel model = new AnnotationTableModel();
+				annotationTable.setModel(model);
+				annotationTableList.put(new Integer(maSet.hashCode()), model);
+			}
+		});
+
+		JButton annotationExportButton = new JButton("Export");
+		annotationExportButton.setForeground(Color.black);
+		annotationExportButton.setToolTipText("Export to CSV files");
+		annotationExportButton.setFocusPainted(true);
+		annotationExportButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				exportAnnotation();
+			}
+		});
+
+		JComboBox annoHumanOrMouseComboBox = new JComboBox(Human_Mouse);
+		annoHumanOrMouseComboBox.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				selectedOrganismIndex = ((JComboBox) e.getSource())
+						.getSelectedIndex();
+			}
+		});
+
+		JPanel annoButtonPanel = new JPanel();
+		annoButtonPanel.add(annoHumanOrMouseComboBox);
+		annoButtonPanel.add(annoRetrieveButton);
+		annoButtonPanel.add(annoClearButton);
+		annoButtonPanel.add(annotationExportButton);
+
+		annotationTable.getTableHeader().setPreferredSize(new Dimension(0, 25));
+
+		JPanel annotationPanel = new JPanel(); // for annotation
+		annotationPanel.setLayout(new BorderLayout());
+		annotationPanel.add(new JScrollPane(annotationTable),
+				BorderLayout.CENTER);
+		annotationPanel.add(annoButtonPanel, BorderLayout.SOUTH);
+
+		tabbedPane.add("Annotations", annotationPanel);
+		tabbedPane.add("Pathway", pathwayPanel);
+
+		annotationTable.setCellSelectionEnabled(false);
+		annotationTable.setRowSelectionAllowed(false);
+		annotationTable.setColumnSelectionAllowed(false);
+		annotationTable.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				int column = annotationTable.columnAtPoint(e.getPoint());
+				int row = annotationTable.rowAtPoint(e.getPoint());
+				if ((column >= 0) && (row >= 0)) {
+					int modelRow = annotationTable.convertRowIndexToModel(row);
+					annotationModel.activateCell(modelRow, column);
+				}
+			}
+		});
+		annotationTable.addMouseMotionListener(new MouseMotionAdapter() {
+			private boolean isHand = false;
+
+			@Override
+			public void mouseMoved(MouseEvent e) {
+				int column = annotationTable.columnAtPoint(e.getPoint());
+				int row = annotationTable.rowAtPoint(e.getPoint());
+				if ((column >= 0) && (row >= 0)) {
+					if ((column == AnnotationTableModel.COL_GENE)
+							|| (column == AnnotationTableModel.COL_PATHWAY)) {
+						if (!isHand) {
+							isHand = true;
+							annotationTable.setCursor(new Cursor(
+									Cursor.HAND_CURSOR));
+						}
+					} else {
+						if (isHand) {
+							isHand = false;
+							annotationTable.setCursor(new Cursor(
+									Cursor.DEFAULT_CURSOR));
+						}
+					}
+				}
+			}
+		});
+
+		initializePathwayPanel();
+	}
+
+	@Override
+	public Component getComponent() {
+		return mainPanel;
+	}
+
+	private void exportAnnotation() {
+		JFileChooser jFC = new JFileChooser();
+
+		// We remove "all files" from filter, since we only allow CSV format
 		FileFilter ft = jFC.getAcceptAllFileFilter();
 		jFC.removeChoosableFileFilter(ft);
 
-		CsvFileFilter filter = new CsvFileFilter();
-        jFC.setFileFilter(filter);
+		jFC.setFileFilter(new CsvFileFilter());
 
-	    //Save model to CSV file
-        jFC.setDialogTitle("Save annotations table");
+		// Save model to CSV file
+		jFC.setDialogTitle("Save annotations table");
 		int returnVal = jFC.showSaveDialog(this.getComponent());
-	    if (returnVal == JFileChooser.APPROVE_OPTION) {
-			String tabFilename;
-			tabFilename = jFC.getSelectedFile().getAbsolutePath();
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			String tabFilename = jFC.getSelectedFile().getAbsolutePath();
 			if (!tabFilename.toLowerCase().endsWith(".csv")) {
 				tabFilename += ".csv";
 			}
 			annotationModel.toCSV(tabFilename);
 		}
-    }
+	}
 
-    private void annoClearButton_actionPerformed(ActionEvent e) {
-        annotationTable.setModel(new AnnotationTableModel());
-        annotationTable.getTableHeader().revalidate();
-        annotationTableList.put(new Integer(maSet.hashCode()),  new AnnotationTableModel());
-    }
+	private void retrieveAnnotation() {
+		if (selectedMarkerInfo == null || selectedMarkerInfo.size() == 0) {
+			JOptionPane.showMessageDialog(tabbedPane,
+					"Please activate a marker set to retrieve annotations.");
+		} else {
+			if (annotTask != null && !annotTask.isDone()) {
+				annotTask.cancel(true);
+			}
+			annotTask = new AnnotTask(ProgressItem.BOUNDED_TYPE,
+					"Connecting to server...", this);
+			pd.executeTask(annotTask);
+		}
+	}
 
-    private void showPanels_actionPerformed(ActionEvent e) {
-        if (selectedMarkerInfo == null || selectedMarkerInfo.size() == 0) {
-            JOptionPane.showMessageDialog(jTabbedPane1, "Please activate a marker set to retrieve annotations.");
-        } else {
-
-    		if (annotTask != null && !annotTask.isDone()) {
-    			annotTask.cancel(true);
-    			annotTask = null;
-    		}
-    		annotTask = new AnnotTask(ProgressItem.BOUNDED_TYPE,
-    				"Connecting to server...", this);
-    		pd.executeTask(annotTask);
-        }
-    }
-
-	@SuppressWarnings("rawtypes")
 	@Publish
-    org.geworkbench.events.SubpanelChangedEvent publishSubpanelChangedEvent(org.geworkbench.events.SubpanelChangedEvent event) {
-        return event;
-    }
+	org.geworkbench.events.SubpanelChangedEvent<DSGeneMarker> publishSubpanelChangedEvent(
+			org.geworkbench.events.SubpanelChangedEvent<DSGeneMarker> event) {
+		return event;
+	}
 
-    @Publish
-    public MarkerSelectedEvent publishMarkerSelectedEvent(MarkerSelectedEvent event) {
-        return event;
-    }
+	@Publish
+	public MarkerSelectedEvent publishMarkerSelectedEvent(
+			MarkerSelectedEvent event) {
+		return event;
+	}
 
-    final private JPanel mainPanel = new JPanel();
-    final private JTabbedPane jTabbedPane1 = new JTabbedPane();
-
-    final private JTable annotationTable;
-    private AnnotationTableModel annotationModel;
-
-    final HashMap<Integer, AnnotationTableModel> annotationTableList;
-
-    DSItemList<DSGeneMarker> selectedMarkerInfo = null;
-
-    DSMicroarraySet  maSet = null;
-
-    /**
-     * geneSelectorAction
-     *
-     * @param e GeneSelectorEvent
-     */
-    @Subscribe
-    public void receive(GeneSelectorEvent e, Object source) {
-        if (maSet != null && e.getPanel() != null) {
-			DSPanel<DSGeneMarker> markerPanel = e.getPanel().activeSubset();
-            DSMicroarraySetView<DSGeneMarker, DSMicroarray> maView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(maSet);
-            maView.setMarkerPanel(markerPanel);
-            if (maView.getMarkerPanel().activeSubset().size() == 0) {
-                selectedMarkerInfo = new CSItemList<DSGeneMarker>();
-            } else {
-                selectedMarkerInfo = maView.getUniqueMarkers();
-            }
-        }
-    }
-
-    /**
-     * receiveProjectSelection
-     *
-     * @param e ProjectEvent
-     */
-    @SuppressWarnings("rawtypes")
 	@Subscribe
-    public void receive(ProjectEvent e, Object source) {
-        DSDataSet data = e.getDataSet();
-        int hashcode = 0;
+	public void receive(GeneSelectorEvent e, Object source) {
+		if (maSet != null && e.getPanel() != null) {
+			DSPanel<DSGeneMarker> markerPanel = e.getPanel().activeSubset();
+			DSMicroarraySetView<DSGeneMarker, DSMicroarray> maView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>(
+					maSet);
+			maView.setMarkerPanel(markerPanel);
+			if (maView.getMarkerPanel().activeSubset().size() == 0) {
+				selectedMarkerInfo = new CSItemList<DSGeneMarker>();
+			} else {
+				selectedMarkerInfo = maView.getUniqueMarkers();
+			}
+		}
+	}
 
-        if (data != null && data instanceof DSMicroarraySet) {
-            maSet = (DSMicroarraySet) data;
-        }
+	@Subscribe
+	public void receive(ProjectEvent e, Object source) {
+		DSDataSet<?> data = e.getDataSet();
+		int hashcode = 0;
 
-        if ( maSet != null ) {
-        	hashcode = maSet.hashCode();
-        }
+		if (data != null && data instanceof DSMicroarraySet) {
+			maSet = (DSMicroarraySet) data;
+		}
 
-        if (oldHashCode == 0)
-        {
-        	oldHashCode = hashcode;
-        	return;
-        }
+		if (maSet != null) {
+			hashcode = maSet.hashCode();
+		}
 
-        pathwayComboItemSelectedMap.put(new Integer(oldHashCode), new Integer(pathwayComboBox.getSelectedIndex()));
-        pathwayListMap.put(new Integer(oldHashCode), new ArrayList<String>(pathwayList));
-        tabPanelSelectedMap.put(new Integer(oldHashCode), jTabbedPane1.getSelectedIndex());
+		if (oldHashCode == 0) {
+			oldHashCode = hashcode;
+			return;
+		}
 
-        if (annotationTableList.containsKey(new Integer(hashcode)))
-        {
-        	annotationModel = annotationTableList.get(new Integer(hashcode));
-        	annotationTable.setModel(annotationModel);
-            annotationTable.getTableHeader().revalidate();
-        } else {
-        	annotationTable.setModel(new AnnotationTableModel());
-            annotationTable.getTableHeader().revalidate();
-        }
+		pathwayComboItemSelectedMap.put(new Integer(oldHashCode), new Integer(
+				pathwayComboBox.getSelectedIndex()));
+		pathwayListMap.put(new Integer(oldHashCode), new ArrayList<String>(
+				pathwayList));
+		tabPanelSelectedMap.put(new Integer(oldHashCode),
+				tabbedPane.getSelectedIndex());
 
-    	if (pathwayListMap.containsKey(new Integer(hashcode))) {
-    		  int selectIndex = pathwayComboItemSelectedMap.get(new Integer(hashcode));
+		if (hashcode == oldHashCode) {
+			return;
+		} else {
+			oldHashCode = hashcode;
+		}
 
-              pathwayList = pathwayListMap.get(new Integer(hashcode));
-              pathwayComboBox.setModel(new DefaultComboBoxModel(pathwayList.toArray()));
-    		  pathwayComboBox.setSelectedIndex(selectIndex);
-    		  pathwayComboBox.revalidate();
-    	} else {
-	  		  pathwayComboBox.removeAllItems();
-	  		  pathwayList.clear();
-    	}
+		if (annotationTableList.containsKey(new Integer(hashcode))) {
+			annotationModel = annotationTableList.get(new Integer(hashcode));
+			annotationTable.setModel(annotationModel);
+		} else {
+			annotationTable.setModel(new AnnotationTableModel());
+		}
 
-    	if (tabPanelSelectedMap.containsKey(new Integer(hashcode))) {
-    		  jTabbedPane1.setSelectedIndex(tabPanelSelectedMap.get(new Integer(hashcode)));
-    	} else {
-    		  jTabbedPane1.setSelectedIndex(0);
-    	}
+		if (pathwayListMap.containsKey(new Integer(hashcode))) {
+			int selectIndex = pathwayComboItemSelectedMap.get(new Integer(
+					hashcode));
 
-    	if ( maSet != null) {
-    	    oldHashCode = maSet.hashCode();
-    	}
-    }
+			pathwayList = pathwayListMap.get(new Integer(hashcode));
+			pathwayComboBox.setModel(new DefaultComboBoxModel(pathwayList
+					.toArray()));
+			pathwayComboBox.setSelectedIndex(selectIndex);
+			pathwayComboBox.revalidate();
+		} else {
+			pathwayComboBox.removeAllItems();
+			pathwayList.clear();
+		}
 
-    /* initialize pathwayPanel */
-    private void jbInitPathways() {
+		if (tabPanelSelectedMap.containsKey(new Integer(hashcode))) {
+			tabbedPane.setSelectedIndex(tabPanelSelectedMap.get(new Integer(
+					hashcode)));
+		} else {
+			tabbedPane.setSelectedIndex(0);
+		}
+	}
 
-        pathwayPanel.setLayout(new BorderLayout());
-        pathwayPanel.add(jscrollPanePathway, BorderLayout.CENTER);
-        pathwayPanel.add(pathwayTool, BorderLayout.NORTH);
+	private void initializePathwayPanel() {
+		JToolBar pathwayTool = new JToolBar();
 
-        pathwayComboBox.setMaximumSize(new Dimension(130, 25));
-        pathwayComboBox.setMinimumSize(new Dimension(130, 25));
-        pathwayComboBox.setPreferredSize(new Dimension(130, 25));
-        pathwayComboBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-            	pathwayComboBox_actionPerformed(e);
-            }
-        });
+		pathwayPanel.setLayout(new BorderLayout());
+		pathwayPanel.add(jscrollPanePathway, BorderLayout.CENTER);
+		pathwayPanel.add(pathwayTool, BorderLayout.NORTH);
 
-        JButton clearDiagramButton = new JButton();
-        clearDiagramButton.setForeground(Color.black);
-        clearDiagramButton.setFocusPainted(true);
-        clearDiagramButton.setText("Clear Diagram");
-        clearDiagramButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                clearDiagramButton_actionPerformed(e);
-            }
-        });
+		pathwayComboBox.setMaximumSize(new Dimension(130, 25));
+		pathwayComboBox.setMinimumSize(new Dimension(130, 25));
+		pathwayComboBox.setPreferredSize(new Dimension(130, 25));
+		pathwayComboBox.addActionListener(new java.awt.event.ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				selectPathway();
+			}
+		});
 
-        JButton clearHistButton = new JButton();
-        clearHistButton.setForeground(Color.black);
-        clearHistButton.setFocusPainted(true);
-        clearHistButton.setText("Clear History");
-        clearHistButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-            	clearHistButton_actionPerformed(e);
-            }
-        });
+		JButton clearDiagramButton = new JButton();
+		clearDiagramButton.setForeground(Color.black);
+		clearDiagramButton.setFocusPainted(true);
+		clearDiagramButton.setText("Clear Diagram");
+		clearDiagramButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				clearDiagram();
+			}
+		});
 
-        JButton imagePathwayButton = new JButton();
-        imagePathwayButton.setForeground(Color.black);
-        imagePathwayButton.setFocusPainted(true);
-        imagePathwayButton.setText("Image Snapshot");
-        imagePathwayButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-            	createImageSnapshot();
-            }
-        });
+		JButton clearHistButton = new JButton();
+		clearHistButton.setForeground(Color.black);
+		clearHistButton.setFocusPainted(true);
+		clearHistButton.setText("Clear History");
+		clearHistButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				clearHistory();
+			}
+		});
 
-        pathwayTool.add(pathwayComboBox, null);
-        pathwayTool.add(clearDiagramButton);
-        pathwayTool.add(clearHistButton);
-        pathwayTool.add(Box.createVerticalStrut(8));
-        pathwayTool.add(imagePathwayButton);
+		JButton imagePathwayButton = new JButton();
+		imagePathwayButton.setForeground(Color.black);
+		imagePathwayButton.setFocusPainted(true);
+		imagePathwayButton.setText("Image Snapshot");
+		imagePathwayButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				createImageSnapshot();
+			}
+		});
 
-        pathwayList = new ArrayList<String>();
-    }
+		pathwayTool.add(pathwayComboBox, null);
+		pathwayTool.add(clearDiagramButton);
+		pathwayTool.add(clearHistButton);
+		pathwayTool.add(Box.createVerticalStrut(8));
+		pathwayTool.add(imagePathwayButton);
 
-    private void pathwayComboBox_actionPerformed(ActionEvent e) {
+		pathwayList = new ArrayList<String>();
+	}
 
-    	Object pathwayName = pathwayComboBox.getSelectedItem();
-    	if (pathwayName != null && !pathwayName.toString().trim().equals("")) {
+	private void selectPathway() {
+		String pathwayName = (String) pathwayComboBox.getSelectedItem();
+		if (pathwayName != null && pathwayName.trim().length() > 0) {
 			try {
-				ImageIcon icon = new ImageIcon(new URL("http://www.biocarta.com/pathfiles/"+pathwayName+".gif"));
-	            JViewport v = jscrollPanePathway.getViewport();
-	            v.removeAll();
-	            v.add(new JLabel(icon), null);
+				ImageIcon icon = new ImageIcon(new URL(
+						"http://www.biocarta.com/pathfiles/" + pathwayName
+								+ ".gif"));
+				JViewport v = jscrollPanePathway.getViewport();
+				v.removeAll();
+				v.add(new JLabel(icon), null);
 			} catch (MalformedURLException e1) {
 				e1.printStackTrace();
 			}
-            pathwayPanel.revalidate();
-    	    jTabbedPane1.setTitleAt(jTabbedPane1.indexOfComponent(pathwayPanel), pathwayName.toString());
-    	} else {
-    	    try{
-    	    	jscrollPanePathway.getViewport().removeAll();
-    	    } catch(IllegalStateException ex) {
-    	    	log.error(ex,ex);
-    	    }
-            pathwayPanel.revalidate();
-            jTabbedPane1.setTitleAt(jTabbedPane1.indexOfComponent(pathwayPanel),"Pathway");
-    	}
-    }
+			pathwayPanel.revalidate();
+			tabbedPane.setTitleAt(PATHWAY_TAB_INDEX, pathwayName);
+		} else {
+			jscrollPanePathway.getViewport().removeAll();
+			pathwayPanel.revalidate();
+			tabbedPane.setTitleAt(PATHWAY_TAB_INDEX, "Pathway");
+		}
+	}
 
-    private void clearDiagramButton_actionPerformed(ActionEvent e) {
-    	Object pathwayName = pathwayComboBox.getSelectedItem();
-    	if (pathwayName != null && !pathwayName.toString().trim().equals(""))
-    	{
-    		pathwayList.remove(pathwayName);
-    		pathwayComboBox.removeItem(pathwayName);
-    		if (pathwayComboBox.getItemCount()>0) pathwayComboBox.setSelectedIndex(pathwayList.size()-1);
-            pathwayPanel.revalidate();
-            jTabbedPane1.setTitleAt(jTabbedPane1.indexOfComponent(pathwayPanel),"Pathway");
-    	}
-    }
+	private void clearDiagram() {
+		String pathwayName = (String) pathwayComboBox.getSelectedItem();
+		if (pathwayName != null && pathwayName.trim().length() > 0) {
+			pathwayList.remove(pathwayName);
+			pathwayComboBox.removeItem(pathwayName);
+			if (pathwayComboBox.getItemCount() > 0) {
+				pathwayComboBox.setSelectedIndex(pathwayList.size() - 1);
+			}
+			pathwayPanel.revalidate();
+			tabbedPane.setTitleAt(PATHWAY_TAB_INDEX, "Pathway");
+		}
+	}
 
-    private void clearHistButton_actionPerformed(ActionEvent e) {
-
-    	pathwayComboBox.removeAllItems();
+	private void clearHistory() {
+		pathwayComboBox.removeAllItems();
 		pathwayList.clear();
-        pathwayPanel.revalidate();
-        jTabbedPane1.setTitleAt(jTabbedPane1.indexOfComponent(pathwayPanel),"Pathway");
-    }
+		pathwayPanel.revalidate();
+		tabbedPane.setTitleAt(PATHWAY_TAB_INDEX, "Pathway");
+	}
 
-    @Publish 
-    public ImageSnapshotEvent createImageSnapshot() {
-    	Object pathwayName = pathwayComboBox.getSelectedItem();
-    	if (pathwayName != null && !pathwayName.toString().trim().equals(""))
-    	{
-    	   Component diagram = jscrollPanePathway.getViewport().getComponent(0);
-    	   Dimension panelSize = diagram.getSize();
-           BufferedImage image = new BufferedImage(panelSize.width, panelSize.height, BufferedImage.TYPE_INT_RGB);
-           Graphics g = image.getGraphics();
-           diagram.paint(g);
-           ImageIcon icon = new ImageIcon(image, pathwayName.toString());
-           org.geworkbench.events.ImageSnapshotEvent event = new org.geworkbench.events.ImageSnapshotEvent(pathwayName.toString(), icon, org.geworkbench.events.ImageSnapshotEvent.Action.SAVE);
-           return event;
-        }
-    	else
-    		return null;
-    }
-
-    ArrayList<String> pathwayList = null;
-    final private HashMap<Integer, ArrayList<String>> pathwayListMap;
-    final private HashMap<Integer,Integer> tabPanelSelectedMap;
-    final private HashMap<Integer,Integer> pathwayComboItemSelectedMap;
-
-    private int oldHashCode = 0;
-
-    final JPanel pathwayPanel = new JPanel();
-    private JToolBar pathwayTool = new JToolBar();
-    final JComboBox pathwayComboBox = new JComboBox();
-
-    /**
-     * Visual Widget
-     */
-    private final JScrollPane jscrollPanePathway = new JScrollPane();
+	@Publish
+	public ImageSnapshotEvent createImageSnapshot() {
+		String pathwayName = (String) pathwayComboBox.getSelectedItem();
+		if (pathwayName != null && pathwayName.trim().length() > 0) {
+			Component diagram = jscrollPanePathway.getViewport()
+					.getComponent(0);
+			Dimension panelSize = diagram.getSize();
+			BufferedImage image = new BufferedImage(panelSize.width,
+					panelSize.height, BufferedImage.TYPE_INT_RGB);
+			Graphics g = image.getGraphics();
+			diagram.paint(g);
+			ImageIcon icon = new ImageIcon(image, pathwayName.toString());
+			org.geworkbench.events.ImageSnapshotEvent event = new org.geworkbench.events.ImageSnapshotEvent(
+					pathwayName.toString(), icon,
+					org.geworkbench.events.ImageSnapshotEvent.Action.SAVE);
+			return event;
+		} else {
+			log.debug("no pathway to take snapshot");
+			return null;
+		}
+	}
 
 	/* invoked by AnnotTask */
-	void setTableModel(AnnotData annotData) {
-		if(annotData==null) {
+	void setTableData(AnnotData annotData) {
+		if (annotData == null) {
 			annotationModel = new AnnotationTableModel();
 		} else {
 			annotationModel = new AnnotationTableModel(this, annotData);
 		}
-        annotationTableList.put(new Integer(maSet.hashCode()),  annotationModel);
-        annotationTable.setModel(annotationModel);
-        annotationTable.getTableHeader().repaint();
+		annotationTableList.put(new Integer(maSet.hashCode()), annotationModel);
+		annotationTable.setModel(annotationModel);
 	}
 
-    // show pathway diagram, invoked from AnnotationTableModel
+	// show pathway diagram, invoked from AnnotationTableModel
 	void showPathwayDiagram(final String pathway) {
 		if (!pathwayList.contains(pathway)) {
 			pathwayList.add(pathway);
 			pathwayComboBox.addItem(pathway);
 		}
-		if (pathwayComboBox.getSelectedIndex() != pathwayList.size() - 1) {
-			pathwayComboBox.setSelectedIndex(pathwayList.size() - 1);
-		}
+		pathwayComboBox.setSelectedItem(pathway);
 		pathwayComboBox.revalidate();
 
-		jTabbedPane1.setSelectedComponent(pathwayPanel);
-		jTabbedPane1.setTitleAt(jTabbedPane1.indexOfComponent(pathwayPanel), pathway);
+		tabbedPane.setSelectedComponent(pathwayPanel);
+		tabbedPane.setTitleAt(PATHWAY_TAB_INDEX, pathway);
 	}
 }

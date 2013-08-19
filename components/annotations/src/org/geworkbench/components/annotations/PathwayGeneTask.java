@@ -79,8 +79,7 @@ public class PathwayGeneTask extends ProgressTask<GeneBase[], Void> {
 		for (int i = 0; i < genesInPathway.length; i++) {
 			GeneBase gene = genesInPathway[i];
 			log.info(gene.getGeneSymbol() + " : " + gene.getGeneName());
-			for (Object obj : ap.maSet.getMarkers()) {
-				DSGeneMarker marker = (DSGeneMarker) obj;
+			for (DSGeneMarker marker : ap.getAllMarkers()) {
 				if (marker.getShortName()
 						.equalsIgnoreCase(gene.getGeneSymbol())) {
 					log.debug("Found " + gene.getGeneSymbol() + " in set.");
