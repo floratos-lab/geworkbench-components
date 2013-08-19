@@ -25,7 +25,7 @@ public class AnnotTask extends ProgressTask<AnnotData, String> {
 
         @Override
         protected AnnotData doInBackground() {
-        			DSItemList<DSGeneMarker> selectedMarkerInfo = ap.selectedMarkerInfo;
+        			DSItemList<DSGeneMarker> selectedMarkerInfo = ap.getSelectedMarkers();
             		ArrayList<DSGeneMarker> markerData = new ArrayList<DSGeneMarker>();
             		ArrayList<GeneAnnotation> geneData = new ArrayList<GeneAnnotation>();
 
@@ -38,7 +38,7 @@ public class AnnotTask extends ProgressTask<AnnotData, String> {
 
                             String geneName = selectedMarkerInfo.get(i).getGeneName();
                     		BioDBnetClient client = new BioDBnetClient();
-                    		GeneAnnotation[] annotations = client.queryByGeneSymbol(ap.humanOrMouse, geneName);
+                    		GeneAnnotation[] annotations = client.queryByGeneSymbol(ap.getTaxonId(), geneName);
 
                             if (annotations == null ) {
                             	return null;
@@ -73,7 +73,7 @@ public class AnnotTask extends ProgressTask<AnnotData, String> {
     			e.printStackTrace();
     		}
     		// annotData can be null
-    		ap.setTableModel(annotData);
+    		ap.setTableData(annotData);
 
     		if (annotData!=null && annotData.pathwayCount == 0)
 				JOptionPane
