@@ -80,6 +80,8 @@ public class GeneAnnotationImpl implements GeneAnnotation {
 
     @Override
     public boolean equals(Object object) {
+    	if(object==null) return false;
+    	
         GeneAnnotation other = (GeneAnnotation) object;
 		return geneSymbol.equals(other.getGeneSymbol());
     }
