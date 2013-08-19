@@ -86,7 +86,7 @@ public class TTest {
 		}
 		
 		switch (significanceMethod) {
-		case 0:
+		case SignificanceMethod.JUST_ALPHA:
 			pValue = getPValue(tValue);
 			if(pValue==null) return null; // cancelled
 			for (int i = 0; i < rowCount; i++) {
@@ -95,7 +95,7 @@ public class TTest {
 				}
 			}
 			break;
-		case 1:
+		case SignificanceMethod.STD_BONFERRONI:
 			pValue = getPValue(tValue);
 			if(pValue==null) return null; // cancelled
 			for (int i = 0; i < rowCount; i++) {
@@ -104,7 +104,7 @@ public class TTest {
 				}
 			}
 			break;
-		case 2:
+		case SignificanceMethod.ADJ_BONFERRONI:
 			pValue = getPValue(tValue);
 			if(pValue==null) return null; // cancelled
 			NaturalRanking ranking = new NaturalRanking(NaNStrategy.MINIMAL,
@@ -132,7 +132,7 @@ public class TTest {
 				}
 			}
 			break;
-		case 3:
+		case SignificanceMethod.MIN_P:
 			pValue = getPValueWithMinPMethod(tValue);
 			for (int i = 0; i < rowCount; i++) {
 				if(pValue[i] < alpha) {
@@ -140,7 +140,7 @@ public class TTest {
 				}
 			}
 			break;
-		case 4:
+		case SignificanceMethod.MAX_T:
 			pValue = getPValueWithMaxTMethod(tValue);
 			for (int i = 0; i < rowCount; i++) {
 				if(pValue[i] < alpha) {
