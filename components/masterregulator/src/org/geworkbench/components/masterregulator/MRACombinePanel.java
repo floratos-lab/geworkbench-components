@@ -103,7 +103,7 @@ public final class MRACombinePanel extends AbstractSaveableParameterPanel {
 			+ "masterregulator"
 			+ FilePathnameUtils.FILE_SEPARATOR + "lastDir.conf";
 
-	private List<String[]> mraDataList = new ArrayList<String[]>();
+	private List<String[]> mraDataList;
 
 	boolean allpos = true;
 	private int correlationCol = 3;
@@ -197,6 +197,7 @@ public final class MRACombinePanel extends AbstractSaveableParameterPanel {
 						BufferedReader reader = new BufferedReader(
 								new FileReader(hubMarkersFile));
 						String hub = reader.readLine();
+						mraDataList = new ArrayList<String[]>();
 						while (hub != null && !"".equals(hub.trim())) {
 							mraDataList.add(hub.split(","));
 							hub = reader.readLine();
