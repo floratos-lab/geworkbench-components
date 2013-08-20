@@ -602,6 +602,11 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
 
                         testLabels.clear();
                         TreePath[] labels = maSetGroupTree.getSelectionPaths();
+                        if(labels == null){
+                        	JOptionPane.showMessageDialog(null, "Please select test array set(s)",
+                        			"Test Error", JOptionPane.ERROR_MESSAGE);
+                        	return;
+                        }
                         ArrayList<String> labelNames = new ArrayList<String>();
                         DSPanel<DSMicroarray> panel = new CSPanel<DSMicroarray>();
                         for(int i = 0; i < labels.length; i++)
