@@ -432,7 +432,6 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 		entrezItemsMenu.setText("Go to Entrez");
 
 		final CellularNetWorkElementInformation hit = hits.get(rowIndex);
-		String geneName = hit.getdSGeneMarker().getShortName();
 		int geneId = hit.getdSGeneMarker().getGeneId();
 
 		class MyActionListener implements ActionListener {
@@ -455,10 +454,10 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 			}
 		}
 
-		if (geneName != null && !geneName.trim().equals("")
-				&& !geneName.trim().equals("---")) {
+		String[] geneNames = hit.getdSGeneMarker().getShortNames();
+		if (geneNames.length>0 && !geneNames[0].equals("---")) {
 			geneCardsItemMenu.addActionListener(new MyActionListener(
-					Constants.GeneCards_PREFIX + geneName));
+					Constants.GeneCards_PREFIX + geneNames[0]));
 			contextMenu.add(geneCardsItemMenu);
 		}
 
