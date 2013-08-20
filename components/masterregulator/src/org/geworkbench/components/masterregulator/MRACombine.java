@@ -462,6 +462,7 @@ public class MRACombine extends AbstractAnalysis implements ClusteringAnalysis {
 		Set<DSGeneMarker> genesInRegulonList = genesInRegulonMap.keySet();
 		writer.write("^MRA_ENTREZ_ID = " + mraMarker.getGeneId() + "\n");
 		writer.write("!mra_gene_symbol = " + mraData[0] + "\n");
+		writer.write("!mra_gene_type = " + GeneOntologyUtil.checkMarkerFunctions(mraMarker) + "\n");
 		writer.write("!" + "mra_score(" + mraCombinePanel.getScoreType() + ")" + " = " + mraData[1].trim()
 				+ "\n");
 		writer.write("!mra_de = " + mraResultSet.getValue(mraMarker) + "\n");	
@@ -472,15 +473,17 @@ public class MRACombine extends AbstractAnalysis implements ClusteringAnalysis {
 		writer.write("#GENE_SYMBOL = gene symbol of target gene\n");
 		writer.write("#GENE_TYPE = type of target gene(TF/K/other)\n");
 		writer.write("#CONF = network edge confidence value\n");
+		writer.write("#DE_VALUE = Differential expression between the two tested phenotypes\n");
 		writer.write("#DE_RANK = Differential expression rank\n");
 		writer.write("#SPEARMANS = Spearman's Correlation of TF with target\n");
 		writer.write("!target_table_begin\n");
-		writer.write("ENTREZ_ID\tGENE_SYMBOL\tGENE_TYPE\tCONF\tDE_RANK\tSPEARMANS\n");
+		writer.write("ENTREZ_ID\tGENE_SYMBOL\tGENE_TYPE\tCONF\tDE_VALUE\tDE_RANK\tSPEARMANS\n");
 
 		for (DSGeneMarker regulonMarker : genesInRegulonList) {
 			
 			// double value = mraResultSet.getValue(marker);
 			int rank = mraResultSet.getRank(regulonMarker);
+			float tValue = (float)mraResultSet.getValue(regulonMarker);
 
 			SpearmansCorrelation SC = new SpearmansCorrelation();
 			double spearCor = 0.0f;
@@ -498,7 +501,7 @@ public class MRACombine extends AbstractAnalysis implements ClusteringAnalysis {
 				geneType = "none";
 			writer.write(regulonMarker.getGeneId() + "\t"
 					+ regulonMarker.getGeneName() + "\t" + geneType + "\t"
-					+ confValue + "\t" + rank + "\t" + spearCor + "\n");
+					+ confValue + "\t" + tValue +"\t" + rank + "\t" + spearCor + "\n");
 
 		}	 
 		writer.write("!target_table_end\n");
