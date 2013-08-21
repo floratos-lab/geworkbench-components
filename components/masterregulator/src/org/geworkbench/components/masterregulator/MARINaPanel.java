@@ -234,7 +234,7 @@ public final class MARINaPanel extends AbstractSaveableParameterPanel {
 	}
 	private ParameterActionListener parameterActionListener;
 
-	public class LoadNetworkButtonListener implements
+	private class LoadNetworkButtonListener implements
 			java.awt.event.ActionListener {
 
 		@Override
@@ -352,7 +352,7 @@ public final class MARINaPanel extends AbstractSaveableParameterPanel {
 
 	// after user selected adjMatrix in the panel, you can use this method to
 	// get the adjMatrix user selected.
-	public AdjacencyMatrixDataSet getAdjMatrixDataSet() {
+	private AdjacencyMatrixDataSet getAdjMatrixDataSet() {
 		if (!networkMatrix.isEnabled() && networkTextField.getText().length()==0) return null;
 		return adjMatrix;
 	}
@@ -584,7 +584,7 @@ public final class MARINaPanel extends AbstractSaveableParameterPanel {
 		}
 	}
 	
-	boolean use5colnetwork(){
+	private boolean use5colnetwork(){
 		return !networkMatrix.isEnabled() && selectedFormat.equals(marina5colformat);
 	}
 
@@ -826,8 +826,8 @@ public final class MARINaPanel extends AbstractSaveableParameterPanel {
 	private HashMap<String, String> interactionTypeMap = null;
 	private boolean isRestrict = true;
 	private boolean isCancel = false;
-	String selectedFormat = AdjacencyMatrixDataSet.ADJ_FORMART;
-	String marina5colformat = "marina 5-column format";
+	private String selectedFormat = AdjacencyMatrixDataSet.ADJ_FORMART;
+	private String marina5colformat = "marina 5-column format";
 
 	private class LoadInteractionNetworkPanel extends JPanel {
 
@@ -993,7 +993,7 @@ public final class MARINaPanel extends AbstractSaveableParameterPanel {
 			AdjacencyMatrixDataSet set = getAdjMatrixDataSet();
 			String setname = (set != null) ? set.getDataSetName() : this.getNetworkFilename();
 		    histStr .append( "[PARA] Load Network: " + setname  ).append("\n");
-	  	    histStr .append( "[PARA] FET/GSEA p-value : " + getPValue() ).append("\n");		
+	  	    histStr .append( "[PARA] GSEA p-value : " + getPValue() ).append("\n");		
 		    histStr .append( "[PARA] Minimum number of Targets : " + mintg.getText() ).append("\n");
 		    histStr .append( "[PARA] GSEA Tail : " + tail.getText() ).append("\n");
 		    histStr .append( "[PARA] Minimum number of Samples : " + minsp.getText() ).append("\n");
