@@ -12,9 +12,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -22,10 +20,8 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.zip.GZIPOutputStream;
 
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
@@ -45,21 +41,12 @@ import javax.swing.SwingUtilities;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.math.linear.RealMatrix;
-import org.apache.commons.math.stat.correlation.PearsonsCorrelation;
-import org.apache.commons.math.stat.correlation.SpearmansCorrelation;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
-import org.geworkbench.bison.annotation.CSAnnotationContextManager;
-import org.geworkbench.bison.annotation.DSAnnotationContext;
-import org.geworkbench.bison.annotation.DSAnnotationContextManager;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
-import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
-import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
-import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.events.listeners.ParameterActionListener;
 import org.geworkbench.parsers.AdjacencyMatrixFileFormat;
 import org.geworkbench.parsers.InputFileFormatException;
@@ -117,12 +104,6 @@ public final class MRAPanel extends AbstractSaveableParameterPanel {
 	private JComboBox networkFrom = null;
 	private JComboBox tfFrom = null;
 	private JComboBox sigFrom = null;
-	private JTextField mintg = new JTextField("20");  // number of targets minimumto run GSEA
-	private JTextField minsp = new JTextField("6");  //minimum number of samples for label shuffling
-	private JTextField nperm = new JTextField("1000"); //number of permutations
-	private JTextField tail = new JTextField("2");   //tail: If the Spearman's correlation value is not known, use tail = 1. Otherwise tail = 2. 2 for GSEA2, 1 for GSEA
-	private JTextField pvshadow = new JTextField("0.01"); //Significance threshold for shadow analysis
-	private JTextField pvsynergy = new JTextField("0.01"); //Significance threshold for synergy analysis
 
 	private static final String lastDirConf = FilePathnameUtils.getUserSettingDirectoryPath()
 					+ "masterregulator" + FilePathnameUtils.FILE_SEPARATOR + "lastDir.conf";
@@ -272,12 +253,6 @@ public final class MRAPanel extends AbstractSaveableParameterPanel {
 		tfGroups.addActionListener(parameterActionListener);
 		sigGroups.addActionListener(parameterActionListener);
 		pValueTextField.addActionListener(parameterActionListener);
-		mintg.addActionListener(parameterActionListener);
-		minsp.addActionListener(parameterActionListener);
-		nperm.addActionListener(parameterActionListener);
-		tail.addActionListener(parameterActionListener);
-		pvshadow.addActionListener(parameterActionListener);
-		pvsynergy.addActionListener(parameterActionListener);
 
 		fet1Button.addActionListener(parameterActionListener);
 		fet2Button.addActionListener(parameterActionListener);
@@ -291,12 +266,6 @@ public final class MRAPanel extends AbstractSaveableParameterPanel {
 		networkMatrix.addFocusListener(parameterActionListener);
 		loadNetworkButton.addFocusListener(parameterActionListener);
 		pValueTextField.addFocusListener(parameterActionListener);
-		mintg.addFocusListener(parameterActionListener);
-		minsp.addFocusListener(parameterActionListener);
-		nperm.addFocusListener(parameterActionListener);
-		tail.addFocusListener(parameterActionListener);
-		pvshadow.addFocusListener(parameterActionListener);
-		pvsynergy.addFocusListener(parameterActionListener);
 	}
 	private ParameterActionListener parameterActionListener;
 
@@ -308,7 +277,7 @@ public final class MRAPanel extends AbstractSaveableParameterPanel {
 		return sbButton.isSelected();
 	}
 
-	public class LoadNetworkButtonListener implements
+	private class LoadNetworkButtonListener implements
 			java.awt.event.ActionListener {
 
 		@Override
@@ -712,19 +681,6 @@ public final class MRAPanel extends AbstractSaveableParameterPanel {
 			sbButton.setSelected(true);
 		else ncButton.setSelected(true);
 
-		if (parameters.get("mintg") != null)
-			setMintg((Integer)parameters.get("mintg"));
-		if (parameters.get("minsp") != null)
-			setMinsp((Integer)parameters.get("minsp"));
-		if (parameters.get("nperm") != null)
-			setNperm((Integer)parameters.get("nperm"));
-		if (parameters.get("tail") != null)
-			setTail((Integer)parameters.get("tail"));
-		if (parameters.get("pvshadow") != null)
-			setPVshadow((Double)parameters.get("pvshadow"));
-		if (parameters.get("pvsynergy") != null)
-			setPVsynergy((Double)parameters.get("pvsynergy"));
-
 		stopNotifyAnalysisPanelTemporary(false);
 	}
 
@@ -756,13 +712,6 @@ public final class MRAPanel extends AbstractSaveableParameterPanel {
 			answer.put("Fisher's Exact P Value", getPValue());
 		answer.put("twoFET", twoFET());
 		answer.put("standardBonferroni", standardBonferroni());
-
-		if (mintg.isEnabled())     answer.put("mintg", getMintg());
-		if (minsp.isEnabled())     answer.put("minsp", getMinsp());
-		if (nperm.isEnabled())     answer.put("nperm", getNperm());
-		if (tail.isEnabled())      answer.put("tail", getTail());
-		if (pvshadow.isEnabled())  answer.put("pvshadow", getPVshadow());
-		if (pvsynergy.isEnabled()) answer.put("pvsynergy", getPVsynergy());
 
 		return answer;
 	}
@@ -909,215 +858,10 @@ public final class MRAPanel extends AbstractSaveableParameterPanel {
 		}
 	}
 
-	public int getMintg() {
-		try {
-			return Integer.valueOf(mintg.getText());
-		} catch (NumberFormatException e) {
-			return -1;
-		}
-	}
-	public void setMintg(int p){
-		mintg.setText(Integer.toString(p));
-	}
-	public int getMinsp() {
-		try {
-			return Integer.valueOf(minsp.getText());
-		} catch (NumberFormatException e) {
-			return -1;
-		}
-	}
-	public void setMinsp(int p){
-		minsp.setText(Integer.toString(p));
-	}
-	public int getNperm() {
-		try {
-			return Integer.valueOf(nperm.getText());
-		} catch (NumberFormatException e) {
-			return -1;
-		}
-	}
-	public void setNperm(int p){
-		nperm.setText(Integer.toString(p));
-	}
-	public int getTail() {
-		try {
-			return Integer.valueOf(tail.getText());
-		} catch (NumberFormatException e) {
-			return -1;
-		}
-	}
-	public void setTail(int p){
-		tail.setText(Integer.toString(p));
-	}
-	public double getPVshadow() {
-		try {
-			return Double.valueOf(pvshadow.getText());
-		} catch (NumberFormatException nfe) {
-			return -1;
-		}
-	}
-	public void setPVshadow(double d) {
-		pvshadow.setText(Double.toString(d));
-	}
-	public double getPVsynergy() {
-		try {
-			return Double.valueOf(pvsynergy.getText());
-		} catch (NumberFormatException nfe) {
-			return -1;
-		}
-	}
-	public void setPVsynergy(double d) {
-		pvsynergy.setText(Double.toString(d));
-	}
-
 	private String networkFilename = "";
-	public String getNetworkFilename(){
+	private String getNetworkFilename(){
 		if (!networkTextField.isEnabled()) return "adjMatrix5col.txt";
 		return networkFilename;
-	}
-
-	/*get zipped network file in byte[]*/
-	public byte[] getNetwork(){
-		if (!networkFrom.isEnabled()) return null;
-		if (use5colnetwork())
-			return getNetworkFromFile();
-		else return getNetworkFromAdjMatrix();
-	}
-	
-	private byte[] getNetworkFromFile(){
-		String fname = networkTextField.getText();
-		if (!is5colnetwork(fname, 0))
-			return null;
-
-		int blocksize = 4096;
-		FileInputStream in = null;
-		GZIPOutputStream zipout = null;
-		try {
-			ByteArrayOutputStream bo = new ByteArrayOutputStream();
-			zipout = new GZIPOutputStream(bo);
-			byte[] buffer = new byte[blocksize];
-
-			in = new FileInputStream(fname);
-			int length;
-			while ((length = in.read(buffer, 0, blocksize)) != -1)
-				zipout.write(buffer, 0, length);
-			zipout.close();
-			return bo.toByteArray();
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		} finally {
-			try {
-				if (in!=null)     in.close();
-				if (zipout!=null) zipout.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-
-	private byte[] getNetworkFromAdjMatrix(){
-		AdjacencyMatrixDataSet amSet = getAdjMatrixDataSet();
-		if (amSet==null) return null;
-		AdjacencyMatrix matrix  = amSet.getMatrix();
-		if (matrix==null) return null;
-		boolean goodNetwork = false;
-		allpos = true;
-		GZIPOutputStream zipout = null;
-		
-		DSMicroarraySet microarraySet = (DSMicroarraySet) amSet.getParentDataSet();
-		try{
-			ByteArrayOutputStream bo = new ByteArrayOutputStream();
-			zipout = new GZIPOutputStream(bo);
-
-			for (AdjacencyMatrix.Node node1 : matrix.getNodes()) {
-				DSGeneMarker marker1 = getMarkerInNode(node1, matrix, microarraySet);
-				if (marker1 != null && marker1.getLabel() != null) {
-					StringBuilder builder = new StringBuilder();
-					for (AdjacencyMatrix.Edge edge : matrix.getEdges(node1)) {
-						DSGeneMarker marker2 = getMarkerInNode(edge.node2, matrix, microarraySet);
-						if (marker2 != null && marker2.getLabel() != null) {
-							double rho = 1, pvalue = 0;
-							double[] v1 = maSet.getRow(marker1);
-							double[] v2 = maSet.getRow(marker2);
-							if (v1 != null && v1.length > 0 && v2 != null && v2.length > 0){
-								double[][] arrayData = new double[][]{v1, v2};
-								RealMatrix rm = new SpearmansCorrelation().computeCorrelationMatrix(transpose(arrayData));
-								if (rm.getColumnDimension() > 1)  rho = rm.getEntry(0, 1);
-								if (allpos && rho < 0)  allpos = false;
-								try{
-									pvalue = new PearsonsCorrelation(rm, v1.length).getCorrelationPValues().getEntry(0, 1);
-								}catch(Exception e){
-									e.printStackTrace();
-								}
-							}
-							builder.append(marker1.getLabel() + "\t");
-							builder.append(marker2.getLabel() + "\t"
-									+ edge.info.value +"\t"  // Mutual information
-									+ rho+ "\t"   // Spearman's correlation = 1
-									+ pvalue +"\n"); // P-value for Spearman's correlation = 0
-						}
-					}
-					if (!goodNetwork && builder.length() > 0) goodNetwork = true;
-					zipout.write(builder.toString().getBytes());
-				}
-			}
-			zipout.close();
-			if (!goodNetwork) return null;
-			return bo.toByteArray();
-		}catch(IOException e){
-			e.printStackTrace();
-			return null;
-		}finally{
-			if (zipout!=null) {
-				try{
-					zipout.close();
-				}catch(Exception e){
-					e.printStackTrace();
-				}
-			}
-		}
-	}
-
-	private double[][] transpose(double[][] in){
-		if (in==null || in.length==0 || in[0].length==0)
-			return null;
-		int row = in.length;
-		int col = in[0].length;
-		double[][] out = new double[col][row];
-		for(int i=0; i<row; i++)
-			for (int j=0; j<col; j++)
-				out[j][i] = in[i][j];
-		return out;
-	}
-
-	private DSGeneMarker getMarkerInNode(AdjacencyMatrix.Node node, AdjacencyMatrix matrix, DSMicroarraySet microarraySet){
-		if (node == null || matrix == null) return null;
-		DSGeneMarker marker = null;
-		if (node.type == NodeType.MARKER) 
-			marker = node.getMarker();
-		else 
-			marker = microarraySet.getMarkers().get(node.stringId);
-		return marker;
-	}
-	 
-
-	HashSet<String> getIxClass(String contextClass){
-		DSAnnotationContextManager manager = CSAnnotationContextManager.getInstance();
-		if (maSet == null && ProjectPanel.getInstance().getDataSet() instanceof DSMicroarraySet)
-			maSet = (DSMicroarraySet)ProjectPanel.getInstance().getDataSet();
-		DSAnnotationContext<DSMicroarray> context = manager.getCurrentContext(maSet);
-		String[] groups = context.getLabelsForClass(contextClass);
-		HashSet<String> hash = new HashSet<String>();
-		for (String group : groups){
-			if (context.isLabelActive(group)){
-				DSPanel<DSMicroarray> panel = context.getItemsWithLabel(group);
-				int size = panel.size();
-				for (int i = 0; i < size; i++)
-					hash.add(panel.get(i).getLabel());
-			}
-		}
-		return hash;
 	}
 
 	private String[] representedByList;
@@ -1125,7 +869,7 @@ public final class MRAPanel extends AbstractSaveableParameterPanel {
 	private HashMap<String, String> interactionTypeMap = null;
 	private boolean isRestrict = true;
 	private boolean isCancel = false;
-	String selectedFormat = AdjacencyMatrixDataSet.ADJ_FORMART;
+	private String selectedFormat = AdjacencyMatrixDataSet.ADJ_FORMART;
 	String marina5colformat = "marina 5-column format";
 
 	private class LoadInteractionNetworkPanel extends JPanel {
@@ -1286,19 +1030,12 @@ public final class MRAPanel extends AbstractSaveableParameterPanel {
 		String setname = (set != null) ? set.getDataSetName() : this
 				.getNetworkFilename();
 		histStr.append("[PARA] Load Network: " + setname).append("\n");
-		histStr.append("[PARA] FET/GSEA p-value : " + getPValue()).append("\n");
-		histStr.append("[PARA] Minimum number of Targets : " + mintg.getText())
-				.append("\n");
-		histStr.append("[PARA] GSEA Tail : " + tail.getText()).append("\n");
-		histStr.append("[PARA] Minimum number of Samples : " + minsp.getText())
-				.append("\n");
-		histStr.append("[PARA] Shadow P-value : " + pvshadow.getText()).append(
-				"\n");
-		histStr.append(
-				"[PARA] Number of GSEA Permutations : " + nperm.getText())
-				.append("\n");
-		histStr.append("[PARA] Synergy P-value: ").append(pvsynergy.getText())
-				.append("\n\n\n");
+		histStr.append("[PARA] FET p-value : " + getPValue()).append("\n");
+		histStr.append("[PARA] Master Regulators: " + getTranscriptionFactor()).append("\n");
+		histStr.append("[PARA] Signature Markers: " + getSigMarkers()).append("\n");
+		histStr.append("[PARA] FET Runs: " + (twoFET()?fet2Button.getText():fet1Button.getText())).append("\n");
+		histStr.append("[PARA] Multiple Testing Correction: " +
+				(standardBonferroni()?sbButton.getText():ncButton.getText())).append("\n");
 		
 		return histStr.toString();
 	}
