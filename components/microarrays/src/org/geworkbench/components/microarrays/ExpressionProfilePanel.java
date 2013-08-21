@@ -34,7 +34,6 @@ import org.geworkbench.events.MarkerSelectedEvent;
 import org.geworkbench.events.PhenotypeSelectedEvent;
 import org.geworkbench.util.BusySwingWorker;
 import org.geworkbench.util.ProgressBar;
-import org.geworkbench.util.microarrayutils.MicroarrayViewEventBase;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;

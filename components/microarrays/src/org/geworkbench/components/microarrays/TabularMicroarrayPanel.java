@@ -45,7 +45,6 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.engine.management.AcceptTypes;
-import org.geworkbench.util.microarrayutils.MicroarrayViewEventBase;
 import org.geworkbench.builtin.projects.SaveFileFilterFactory;
 import org.geworkbench.builtin.projects.SaveFileFilterFactory.TabDelimitedFileFilter;
 
