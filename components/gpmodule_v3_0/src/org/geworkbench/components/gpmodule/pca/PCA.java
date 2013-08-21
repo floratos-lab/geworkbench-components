@@ -9,8 +9,8 @@ import java.awt.Dimension;
 import java.awt.ScrollPane;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -108,13 +108,10 @@ public class PCA implements VisualPlugin
 	private DSMicroarraySet refMASet = null;
 	private DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView = null;
 	private JButton plotButton = new JButton("Plot");
-	private final String markerLabelPrefix = "  Markers: ";
-	private JLabel numMarkersSelectedLabel = new JLabel(markerLabelPrefix);
 	private JPanel mainPanel;
 	private JToolBar jToolBar3;
 	private DSPanel<DSGeneMarker> markers = null;
 	private DSPanel<DSGeneMarker> activatedMarkers = null;
-	private DSItemList<? extends DSGeneMarker> uniqueMarkers = null;
 	private DSPanel<DSMicroarray> activatedArrays = null;
 
     private static Log log = LogFactory.getLog(PCA.class);
@@ -872,7 +869,7 @@ public class PCA implements VisualPlugin
             graph.getXYPlot().addDomainMarker(new ValueMarker(0.0, Color.BLACK, new BasicStroke((float)1.4)));
 
             graph.getXYPlot().setDomainGridlinesVisible(false);
-            graph.getXYPlot().getRenderer().setToolTipGenerator( new StandardXYToolTipGenerator()
+            graph.getXYPlot().getRenderer().setBaseToolTipGenerator( new StandardXYToolTipGenerator()
             {
 				private static final long serialVersionUID = -542247088075401407L;
 
@@ -1050,11 +1047,9 @@ public class PCA implements VisualPlugin
     }    
 
     private volatile boolean beingRefreshed = false;
-	/**
-	 * Refreshes the chart view.
-	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	final private void refreshMaSetView() {
+	
+    @SuppressWarnings({ "unchecked" })
+	private void refreshMaSetView() {
 		if(beingRefreshed) {
 			return;
 		}
@@ -1066,17 +1061,7 @@ public class PCA implements VisualPlugin
 		if (activatedArrays != null && activatedArrays.panels().size() > 0 && activatedArrays.size() > 0)
 			maSetView.setItemPanel(activatedArrays);
 
-		uniqueMarkers = maSetView.getUniqueMarkers();
-
-		fireModelChangedEvent();
 		beingRefreshed = false;
-	}
-	
-	/**
-	 * @param event
-	 */
-	protected synchronized void fireModelChangedEvent() {
-		// no-op
 	}
 	
     private void buildJToolBar3()
@@ -1126,8 +1111,9 @@ public class PCA implements VisualPlugin
         }
     }
 
-    private class PCA3DMouseListener implements MouseListener
+    private class PCA3DMouseListener extends MouseAdapter
     {
+    	@Override
         public void mouseClicked(MouseEvent event)
         {
             String label = pcaContent3D.getSelectedPoint();
@@ -1151,22 +1137,6 @@ public class PCA implements VisualPlugin
                     publishMarkerSelectedEvent(mse);
                 }
             }
-        }
-
-        public void mousePressed(MouseEvent event)
-        {
-        }
-
-        public void mouseReleased(MouseEvent event)
-        {
-        }
-
-        public void mouseEntered(MouseEvent event)
-        {
-        }
-
-        public void mouseExited(MouseEvent event)
-        {
         }
     }
 
