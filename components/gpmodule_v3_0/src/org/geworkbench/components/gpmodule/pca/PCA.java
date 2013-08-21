@@ -31,11 +31,13 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.JToolBar;
 import javax.swing.JViewport;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -53,6 +55,8 @@ import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.CSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.pca.CSPCADataSet;
+import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
+import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.CSExpressionMarker;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.CSExpressionMarkerValue;
@@ -63,6 +67,7 @@ import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.util.colorcontext.ColorContext;
 import org.geworkbench.components.gpmodule.pca.viewer.PCAContent3D;
+import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
@@ -72,7 +77,6 @@ import org.geworkbench.events.PhenotypeSelectedEvent;
 import org.geworkbench.events.PhenotypeSelectorEvent;
 import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.events.ProjectNodeAddedEvent;
-import org.geworkbench.util.microarrayutils.MicroarrayViewEventBase;
 import org.geworkbench.util.visualproperties.PanelVisualProperties;
 import org.geworkbench.util.visualproperties.PanelVisualPropertiesManager;
 import org.jfree.chart.ChartFactory;
@@ -96,11 +100,23 @@ import org.tigr.util.FloatMatrix;
  * @author: Marc-Danie Nazaire
  * @version $Id$
  */
-
 @AcceptTypes({CSPCADataSet.class})
 @SuppressWarnings("rawtypes")
-public class PCA extends MicroarrayViewEventBase
+public class PCA implements VisualPlugin
 {
+	// these fields used to be in the base class MicroarrayViewEventBase
+	private DSMicroarraySet refMASet = null;
+	private DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView = null;
+	private JButton plotButton = new JButton("Plot");
+	private final String markerLabelPrefix = "  Markers: ";
+	private JLabel numMarkersSelectedLabel = new JLabel(markerLabelPrefix);
+	private JPanel mainPanel;
+	private JToolBar jToolBar3;
+	private DSPanel<DSGeneMarker> markers = null;
+	private DSPanel<DSGeneMarker> activatedMarkers = null;
+	private DSItemList<? extends DSGeneMarker> uniqueMarkers = null;
+	private DSPanel<DSMicroarray> activatedArrays = null;
+
     private static Log log = LogFactory.getLog(PCA.class);
     private JTabbedPane tabbedPane;
     private JSplitPane compPanel;
@@ -127,6 +143,13 @@ public class PCA extends MicroarrayViewEventBase
 
     public PCA()
     {
+    	// initialization that used to be in the base class MicroarrayViewEventBase
+		mainPanel = new JPanel();
+		jToolBar3 = new JToolBar();
+		BorderLayout borderLayout2 = new BorderLayout();
+		mainPanel.setLayout(borderLayout2);
+		mainPanel.add(jToolBar3, java.awt.BorderLayout.SOUTH);
+
         tabbedPane = new JTabbedPane();
         
         mainScrollPane = new JScrollPane();
@@ -1026,6 +1049,36 @@ public class PCA extends MicroarrayViewEventBase
         }
     }    
 
+    private volatile boolean beingRefreshed = false;
+	/**
+	 * Refreshes the chart view.
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	final private void refreshMaSetView() {
+		if(beingRefreshed) {
+			return;
+		}
+		
+		beingRefreshed = true;
+		maSetView = new CSMicroarraySetView(this.refMASet);
+		if (activatedMarkers != null && activatedMarkers.panels().size() > 0)
+			maSetView.setMarkerPanel(activatedMarkers);
+		if (activatedArrays != null && activatedArrays.panels().size() > 0 && activatedArrays.size() > 0)
+			maSetView.setItemPanel(activatedArrays);
+
+		uniqueMarkers = maSetView.getUniqueMarkers();
+
+		fireModelChangedEvent();
+		beingRefreshed = false;
+	}
+	
+	/**
+	 * @param event
+	 */
+	protected synchronized void fireModelChangedEvent() {
+		// no-op
+	}
+	
     private void buildJToolBar3()
     {
         jToolBar3.removeAll();
