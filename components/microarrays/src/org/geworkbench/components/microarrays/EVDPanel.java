@@ -36,7 +36,6 @@ import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.events.SubpanelChangedEvent;
-import org.geworkbench.util.microarrayutils.MicroarrayViewEventBase;
 import org.geworkbench.util.visualproperties.PanelVisualProperties;
 import org.geworkbench.util.visualproperties.PanelVisualPropertiesManager;
 import org.jfree.chart.ChartFactory;
