@@ -180,7 +180,8 @@ public class ColorMosaicPanel extends BasicColorMosaicPanel {
 				searchText(e, searchBy.ACCESSION, searchAccession.getText().toLowerCase());
 			}
 		});
-
+		
+		searchLabel.getDocument().putProperty("owner", searchLabel);
 		searchLabel.getDocument().addDocumentListener(new DocListener(searchBy.LABEL));
 		searchLabel.addKeyListener(new java.awt.event.KeyAdapter() {
 			public void keyPressed(KeyEvent e) {
