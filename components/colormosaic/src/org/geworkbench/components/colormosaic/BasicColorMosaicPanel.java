@@ -418,7 +418,7 @@ public class BasicColorMosaicPanel implements Printable, VisualPlugin,
 
 	private void findNext(Object source, int offset, char c, searchBy type, String searchString) {
 		int index = 0;
-		String markerString = searchString;
+		String markerString = searchString.toLowerCase();
 		if (type == searchBy.ACCESSION) {
 			index = colorMosaicImage.getSelectedAccession();
 		} else if (type == searchBy.LABEL) {
