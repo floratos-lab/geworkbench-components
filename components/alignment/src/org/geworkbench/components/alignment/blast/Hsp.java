@@ -77,8 +77,14 @@ public class Hsp {
 			String qseqStr = String.format("%-8s%-7d%s  %-7d\n", "Query",
 					queryFrom + starting, q.substring(starting, ending + 1),
 					queryFrom + ending);
-			String midlineStr = String.format("%15c%s\n", ' ',
-					m.substring(starting, ending + 1));
+			// mid-line is allowed to be shorter than alignLen!
+			String midline = "";
+			if (ending >= m.length()) {
+				midline = m.substring(starting);
+			} else {
+				midline = m.substring(starting, ending + 1);
+			}
+			String midlineStr = String.format("%15c%s\n", ' ', midline);
 			String hseqStr = String.format("%-8s%-7d%s  %-7d\n", "Subject",
 					hitFrom + starting, h.substring(starting, ending + 1),
 					hitFrom + ending);
