@@ -213,7 +213,7 @@ public class BlastAnalysis extends AbstractAnalysis implements
 				}
 			 
 				CSAlignmentResultSet blastResult = new CSAlignmentResultSet(
-						blastDataSet, sequenceDB, BlastAnalysisPanel.NCBILABEL);
+						blastDataSet, activeSequenceDB, BlastAnalysisPanel.NCBILABEL);
  
 				if (this.stopAlgorithm) {				 
 					return new AlgorithmExecutionResults(false,
