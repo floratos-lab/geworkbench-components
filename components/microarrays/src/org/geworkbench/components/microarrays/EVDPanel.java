@@ -611,11 +611,13 @@ public class EVDPanel extends MicroarrayViewEventBase {
 
         XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) newPlot.
                 getRenderer();
-        renderer.setShapesVisible(true);
-        renderer.setShapesFilled(true);
+        for (int i = 0; i < newPlot.getDatasetCount(); i++) {
+	        renderer.setSeriesShapesVisible(i, true);
+	        renderer.setSeriesShapesFilled(i, true);
+        }
         if (tooltipEnabled) {
 
-			renderer.setToolTipGenerator(new XYToolTipGenerator() {
+			renderer.setBaseToolTipGenerator(new XYToolTipGenerator() {
 
 				public String generateToolTip(XYDataset dataset, int series,
 						int item) {
