@@ -6,14 +6,14 @@
 		version="1.0" author="geWorkbench Development Team"
 		authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 		toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
-		category="Network, Remote Access" loadByDefault="false">
+		category="Network, Remote Access" mustAccept="true" loadByDefault="false">
 		
 		<required-component class="org.geworkbench.components.colormosaic.LincsColorMosaicPanel" />
 		<required-component
 			class="org.geworkbench.components.cytoscape.CytoscapeWidget" />
 		<license><![CDATA[
 			<html><head><meta http-equiv=Content-Type content="text/html; charset=windows-1252"></head>
-				<body>----</body>
+				<body>This component provides access to data which may not have yet been published. By accepting the terms of this license, you agree to consult with the laboratory of Dr. Andrea Califano before publishing results on such unpublished data. Please compare with the TCGA license.</body>
 			</html>
 		]]></license>
 		
