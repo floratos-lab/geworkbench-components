@@ -60,16 +60,6 @@ public class MARINa extends AbstractGridAnalysis implements
 
 	@Override
 	public ParamValidationResults validateParameters() {
-		try {
-			if ((mraAnalysisPanel.getPValue() < 0)
-					|| (mraAnalysisPanel.getPValue() > 1)) {
-				return new ParamValidationResults(false,
-						"P-value should be a number within 0.0~1.0");
-			}
-		} catch (NumberFormatException nfe) {
-			return new ParamValidationResults(false,
-					"P-value should be a number");
-		} 
 
 		HashSet<String> ctrls = mraAnalysisPanel.getIxClass(CSAnnotationContext.CLASS_CONTROL);
 		Iterator<String> casei = mraAnalysisPanel.getIxClass(CSAnnotationContext.CLASS_CASE).iterator();
@@ -85,6 +75,36 @@ public class MARINa extends AbstractGridAnalysis implements
 		    if (ctrls.contains(casei.next()))
 			return new ParamValidationResults(false, "An array cannot be in case and control at the same time.");
 		}
+
+		String runid = mraAnalysisPanel.getResultid();
+		if (runid != null){
+			if (!pattern.matcher(runid).find())
+				return new ParamValidationResults(false, "Invalid MRA Result ID: "+runid);
+			else
+				return new ParamValidationResults(true, "No Error");
+		}
+		String vn = mraAnalysisPanel.validateNetwork();
+		if (!vn.equals("Valid"))
+			return new ParamValidationResults(false, "Invalid network: "+vn);
+		
+		if (mraAnalysisPanel.getMintg() <= 0)
+			return new ParamValidationResults(false, "Min targets should be a positive integer.");
+		if (mraAnalysisPanel.getMinsp() <= 0)
+			return new ParamValidationResults(false, "Min samples should be a positive integer.");
+		if (mraAnalysisPanel.getNperm() <= 0)
+			return new ParamValidationResults(false, "Nperm should be a positive integer.");
+		double pvgsea = mraAnalysisPanel.getPValue();
+		if (pvgsea < 0 || pvgsea > 1)
+			return new ParamValidationResults(false, "GSEA Pvalue should be between 0 and 1.");
+		int tail = mraAnalysisPanel.getTail();
+		if (tail != 1 && tail != 2)
+			return new ParamValidationResults(false, "Tail should be 1 or 2.");
+		double pvshadow = mraAnalysisPanel.getPVshadow();
+		if (pvshadow < 0 || pvshadow > 1)
+			return new ParamValidationResults(false, "Shadow Pvalue should be between 0 and 1.");
+		double pvsynergy = mraAnalysisPanel.getPVsynergy();
+		if (pvsynergy < 0 || pvsynergy > 1)
+			return new ParamValidationResults(false, "Synergy Pvalue should be between 0 and 1.");
 
 		ParamValidationResults answer = new ParamValidationResults(true,
 				"validate");
@@ -214,35 +234,6 @@ public class MARINa extends AbstractGridAnalysis implements
 			return new ParamValidationResults(false, "Invalid input.");
 		assert maSetView instanceof DSMicroarraySetView;
 
-		String runid = mraAnalysisPanel.getResultid();
-		if (runid != null){
-			if (!pattern.matcher(runid).find())
-				return new ParamValidationResults(false, "Invalid MRA Result ID: "+runid);
-			else
-				return new ParamValidationResults(true, "No Error");
-		}
-		String vn = mraAnalysisPanel.validateNetwork();
-		if (!vn.equals("Valid"))
-			return new ParamValidationResults(false, "Invalid network: "+vn);
-		
-		if (mraAnalysisPanel.getMintg() <= 0)
-			return new ParamValidationResults(false, "Min targets should be a positive integer.");
-		if (mraAnalysisPanel.getMinsp() <= 0)
-			return new ParamValidationResults(false, "Min samples should be a positive integer.");
-		if (mraAnalysisPanel.getNperm() <= 0)
-			return new ParamValidationResults(false, "Nperm should be a positive integer.");
-		double pvgsea = mraAnalysisPanel.getPValue();
-		if (pvgsea < 0 || pvgsea > 1)
-			return new ParamValidationResults(false, "GSEA Pvalue should be between 0 and 1.");
-		int tail = mraAnalysisPanel.getTail();
-		if (tail != 1 && tail != 2)
-			return new ParamValidationResults(false, "Tail should be 1 or 2.");
-		double pvshadow = mraAnalysisPanel.getPVshadow();
-		if (pvshadow < 0 || pvshadow > 1)
-			return new ParamValidationResults(false, "Shadow Pvalue should be between 0 and 1.");
-		double pvsynergy = mraAnalysisPanel.getPVsynergy();
-		if (pvsynergy < 0 || pvsynergy > 1)
-			return new ParamValidationResults(false, "Synergy Pvalue should be between 0 and 1.");
 		return new ParamValidationResults(true, "No Error");
 	}
 }
