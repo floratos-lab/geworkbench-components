@@ -782,7 +782,7 @@ public class GenericDisplayPanel extends JPanel {
                 boolean isToolTipEnabled = true;
                 if (isToolTipEnabled) {
 
-                    renderer.setToolTipGenerator(new XYToolTipGenerator() {
+                    renderer.setBaseToolTipGenerator(new XYToolTipGenerator() {
 
 
                         public String generateToolTip(XYDataset dataset, int series,
@@ -940,13 +940,15 @@ public class GenericDisplayPanel extends JPanel {
             //        xaxis.setRange(minValue, maxValue);
             //        newPlot.setRangeAxis(xaxis);
             XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) newPlot.
-                    getRenderer();
-            renderer.setShapesVisible(true);
-            renderer.setShapesFilled(true);
+                    getRenderer();            
+            for (int i = 0; i < newPlot.getDatasetCount(); i++) {
+    	        renderer.setSeriesShapesVisible(i, true);
+    	        renderer.setSeriesShapesFilled(i, true);
+            }
             boolean isToolTipEnabled = true;
             if (isToolTipEnabled) {
 
-                renderer.setToolTipGenerator(new XYToolTipGenerator() {
+                renderer.setBaseToolTipGenerator(new XYToolTipGenerator() {
 
 
                     public String generateToolTip(XYDataset dataset, int series,
