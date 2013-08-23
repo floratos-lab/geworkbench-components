@@ -1009,7 +1009,7 @@ public class ScatterPlot implements VisualPlugin {
                         return template.getMinimumSize();
                     }
                 };
-                padding.setBackground(Color.white);
+                padding.setForeground(Color.white);
                 bottomChartPanel.setBackground(Color.white);
                 bottomChartPanel.add(padding);
             }
@@ -1185,7 +1185,7 @@ public class ScatterPlot implements VisualPlugin {
                         XYItemRenderer renderer = chart.getXYPlot().getRenderer();                      
                         Rectangle2D bound = renderer.getBaseShape().getBounds2D();
                         tooltips.setShapeBound(bound);
-                        renderer.setToolTipGenerator(tooltips);
+                        renderer. setBaseToolTipGenerator(tooltips);
                         chart.getXYPlot().setRenderer(renderer);
                         /* END of section to handle tooltip */
                     } else {
