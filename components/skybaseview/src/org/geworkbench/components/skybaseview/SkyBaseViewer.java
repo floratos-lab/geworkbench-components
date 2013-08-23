@@ -943,7 +943,7 @@ public class SkyBaseViewer implements VisualPlugin {
 		renderer
 				.setLegendItemToolTipGenerator(new StandardCategorySeriesLabelGenerator(
 						"ToolTip: {0}"));
-		renderer.setToolTipGenerator(new StandardCategoryToolTipGenerator());
+		renderer.setBaseToolTipGenerator(new StandardCategoryToolTipGenerator());
 
 		plot.setDataset(1, sets[1]);
 		plot.mapDatasetToRangeAxis(1, 1);
@@ -952,7 +952,7 @@ public class SkyBaseViewer implements VisualPlugin {
 		plot.setRangeAxis(1, axis2);
 		axis2.setRange(0, sets[1].getColumnCount());
 		LineAndShapeRenderer renderer2 = new LineAndShapeRenderer();
-		renderer2.setToolTipGenerator(new StandardCategoryToolTipGenerator());
+		renderer2.setBaseToolTipGenerator(new StandardCategoryToolTipGenerator());
 		plot.setRenderer(1, renderer2);
 		plot.setDatasetRenderingOrder(DatasetRenderingOrder.FORWARD);
 
@@ -980,11 +980,11 @@ public class SkyBaseViewer implements VisualPlugin {
 					if (ev.getChart() != null & ev.getEntity() instanceof CategoryItemEntity) {
 						CategoryItemEntity cie = (CategoryItemEntity) ev
 								.getEntity();
-						if (cie.getCategory() == null)
+						if (cie.getColumnKey() == null)
 							return;
-						if (cie.getCategoryIndex() >= 0) {
+						else {
 							cie = (CategoryItemEntity) ev.getEntity();
-							colKey = (String) cie.getCategory();
+							colKey = (String) cie.getColumnKey();
 							int rowcnt = table.getModel().getRowCount();
 							for (int j = 0; j < rowcnt; j++) {
 								if (table.getModel().getValueAt(j, 4).equals(
