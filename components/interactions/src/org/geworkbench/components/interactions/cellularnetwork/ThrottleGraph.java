@@ -411,11 +411,15 @@ public class ThrottleGraph extends JPanel {
 			xyPlot.setBackgroundPaint(c);
 
 			renderer = (XYLineAndShapeRenderer) xyPlot.getRenderer();
-			renderer.setShapesVisible(true);
-			renderer.setShapesFilled(true);
+			
+			for (int i = 0; i < xyPlot.getSeriesCount(); i++) 
+			{   renderer.setSeriesShapesVisible(i, true);
+			    renderer.setSeriesShapesFilled(i, true);
+			}
+			
 			if (isToolTipEnabled) {
 
-				renderer.setToolTipGenerator(new XYToolTipGenerator() {
+				renderer.setBaseToolTipGenerator(new XYToolTipGenerator() {
 
 					public String generateToolTip(XYDataset dataset,
 							int series, int item) {
@@ -503,14 +507,16 @@ public class ThrottleGraph extends JPanel {
 		}
 
 		for (int i = 0; i < xyPlot.getDatasetCount(); i++) {
-			renderer.setSeriesLinesVisible(i, true);
+			renderer.setSeriesLinesVisible(i, true);		
 		}
 
 		for (int i = 0; i < plots.getSeriesCount(); i++) {
-			renderer.setSeriesVisible(i, true);
+			renderer.setSeriesVisible(i, true);			
 		}
-		renderer.setSeriesVisibleInLegend(true);
-
+	 
+		for (int i = 0; i < xyPlot.getSeriesCount(); i++) {
+			renderer.setSeriesVisibleInLegend( i, true);	
+		}
 		LegendItemCollection legendItems = renderer.getLegendItems();
 		for (int i = 0; i < legendItems.getItemCount(); i++) {
 			LegendItem lg = legendItems.get(i);
@@ -518,8 +524,10 @@ public class ThrottleGraph extends JPanel {
 			lo.setColor((Color) lg.getFillPaint());
 
 		}
-
-		renderer.setSeriesVisibleInLegend(false);
+		
+		for (int i = 0; i < xyPlot.getSeriesCount(); i++)
+		     renderer.setSeriesVisibleInLegend(i, false);
+		
 		graph.setChart(chart);
 
 		for (int i = 0; i < legendItems.getItemCount(); i++) {
