@@ -70,13 +70,21 @@ public class Hsp {
 		StringBuilder sb = new StringBuilder();
 		int starting = 0;
 		int ending = starting + LENGTH - 1;
+
+		int totalGapInQuery = 0;
+		int totalGapInSubject = 0;
 		do {
 			if (ending >= alignLen) {
 				ending = alignLen - 1;
 			}
+
+			String query = q.substring(starting, ending + 1);
+			int gapInQuery = gapCount(query);
 			String qseqStr = String.format("%-8s%-7d%s  %-7d\n", "Query",
-					queryFrom + starting, q.substring(starting, ending + 1),
-					queryFrom + ending);
+					queryFrom + starting - totalGapInQuery, query, queryFrom
+							+ ending - totalGapInQuery - gapInQuery);
+			totalGapInQuery += gapInQuery;
+
 			// mid-line is allowed to be shorter than alignLen!
 			String midline = "";
 			if (ending >= m.length()) {
@@ -85,9 +93,14 @@ public class Hsp {
 				midline = m.substring(starting, ending + 1);
 			}
 			String midlineStr = String.format("%15c%s\n", ' ', midline);
+
+			String subject = h.substring(starting, ending + 1);
+			int gapInSubject = gapCount(subject);
 			String hseqStr = String.format("%-8s%-7d%s  %-7d\n", "Subject",
-					hitFrom + starting, h.substring(starting, ending + 1),
-					hitFrom + ending);
+					hitFrom + starting - totalGapInSubject, subject, hitFrom
+							+ ending - totalGapInSubject - gapInSubject);
+			totalGapInSubject += gapInSubject;
+
 			sb.append(qseqStr);
 			sb.append(midlineStr);
 			sb.append(hseqStr);
@@ -98,5 +111,14 @@ public class Hsp {
 		} while (starting < alignLen);
 
 		return sb.toString();
+	}
+
+	private static int gapCount(String s) {
+		int gap = 0;
+		for (int i = 0; i < s.length(); i++) {
+			if (s.charAt(i) == '-')
+				gap++;
+		}
+		return gap;
 	}
 }
