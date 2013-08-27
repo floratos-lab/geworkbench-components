@@ -105,7 +105,7 @@ public class HistogramGraph {
         
         chart.getXYPlot().getDomainAxis().setRange(-1.00, 1.00);
         
-        chart.getXYPlot().getRenderer().setToolTipGenerator(new XYToolTipGenerator() {
+        chart.getXYPlot().getRenderer().setBaseToolTipGenerator(new XYToolTipGenerator() {
 
 			public String generateToolTip(XYDataset dataset, int series,
 					int item) {
@@ -128,7 +128,7 @@ public class HistogramGraph {
 			}
 		});
         chart.getXYPlot().setForegroundAlpha(0.75f);
-        chart.getXYPlot().getRenderer().setSeriesVisibleInLegend(false);
+        chart.getXYPlot().getRenderer().setBaseSeriesVisibleInLegend(false);
         return chart;
     }
     
