@@ -75,23 +75,10 @@ import org.geworkbench.events.TitrationCurveEvent;
 import org.geworkbench.util.ColorScale;
 
 /**
- * <p>
- * Title: Plug And Play
- * </p>
- * <p>
- * Description: Dynamic Proxy Implementation of enGenious
- * </p>
- * <p>
- * Copyright: Copyright (c) 2002
- * </p>
- * <p>
- * Company: First Genetic Trust Inc.
- * </p>
  * 
  * @author Manjunath Kustagi
- * @version $Id: ColorMosaicPanel.java 10033 2012-10-12 19:14:13Z wangmen $
+ * @version $Id$
  */
-
 @AcceptTypes({ DSMicroarraySet.class, DSSignificanceResultSet.class,
 		LincsDataSet.class })
 public class BasicColorMosaicPanel implements Printable, VisualPlugin,

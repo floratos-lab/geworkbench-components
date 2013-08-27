@@ -36,27 +36,13 @@ import org.geworkbench.engine.management.Subscribe;
 import org.geworkbench.events.ProjectEvent;
 
 /**
- * <p>
- * Title: Plug And Play
- * </p>
- * <p>
- * Description: Dynamic Proxy Implementation of enGenious
- * </p>
- * <p>
- * Copyright: Copyright (c) 2002
- * </p>
- * <p>
- * Company: First Genetic Trust Inc.
- * </p>
  * 
  * @author Manjunath Kustagi
- * @version $Id: ColorMosaicPanel.java 10033 2012-10-12 19:14:13Z wangmen $
+ * @version $Id$
  */
-
 @AcceptTypes({ LincsDataSet.class })
 public class LincsColorMosaicPanel extends BasicColorMosaicPanel {
 
-	private static final long serialVersionUID = -2442357892019684993L;
 	private static Log log = LogFactory.getLog(LincsColorMosaicPanel.class);
 
 	private JPanel conditionPanel1;
@@ -472,6 +458,7 @@ public class LincsColorMosaicPanel extends BasicColorMosaicPanel {
 			colorMosaicImage.repaint();
 			mainPanel.repaint();
 		}
+		log.debug("ProjectEvent processed");
 	}
 	
 	private void resetconditionPanel2(LincsDataSet dataFile)
