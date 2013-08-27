@@ -461,12 +461,15 @@ public class AnalysisPanel extends CommandBase implements
 		highlightCurrentParameterGroup();
 	}
 
+	private static boolean calledFromProgram = false;
+
 	/**
 	 * scan the saved list, see if the parameters in it are same as current one,
 	 * if yes, highlight it.
 	 */
 	private void highlightCurrentParameterGroup() {
-		if(selectedAnalysis==null)return;
+		if(selectedAnalysis==null || calledFromProgram) return;
+		calledFromProgram = true;
 		
 		ParameterPanel currentParameterPanel = selectedAnalysis
 				.getParameterPanel();
@@ -490,6 +493,7 @@ public class AnalysisPanel extends CommandBase implements
 				break;
 			}
 		}
+		calledFromProgram = false;
 	}
 
 	/**
@@ -690,6 +694,7 @@ public class AnalysisPanel extends CommandBase implements
 	 * @param e
 	 */
 	private void namedParameterSelection_action(ActionEvent e) {
+		if (calledFromProgram) return;
 		if (selectedAnalysis == null) {
 			delete.setEnabled(false);
 			return;

@@ -351,7 +351,7 @@ public class NormalizationPanel extends CommandBase implements VisualPlugin, ReH
 	 * we'll need a flag to stop cycle events. eg: select set will change GUI,
 	 * change GUI will refresh highlight.
 	 */
-	static boolean calledFromProgram = false;
+	private static boolean calledFromProgram = false;
 
 	/**
 	 * scan the saved list, check each parameter set, see if the parameters in
@@ -471,6 +471,7 @@ public class NormalizationPanel extends CommandBase implements VisualPlugin, ReH
 	 *            namedParameters JList
 	 */
 	private void namedParameterSelection_action(ActionEvent e) {
+		if (calledFromProgram) return;
 		if (selectedNormalizer == null) {
 			delete.setEnabled(false);
 			return;
@@ -602,6 +603,8 @@ public class NormalizationPanel extends CommandBase implements VisualPlugin, ReH
 				setNamedParameters(selectedNormalizer
 						.getNamesOfStoredParameterSets());
 			}
+			if (namedParameters.getItemCount() > 1)
+				delete.setEnabled(true);
 		}
 	}
 }

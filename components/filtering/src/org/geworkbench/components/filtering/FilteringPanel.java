@@ -375,11 +375,15 @@ public class FilteringPanel extends CommandBase implements VisualPlugin, ReHighl
 		highlightCurrentParameterGroup();
 	}
 
+	private static boolean calledFromProgram = false;
+
 	/**
 	 * Scan the saved list, see if the parameters in it are same as current one,
 	 * if yes, highlight it.
 	 */
 	private void highlightCurrentParameterGroup() {
+		if (calledFromProgram) return;
+		calledFromProgram = true;
 		ParameterPanel currentParameterPanel = selectedFilter
 				.getParameterPanel();
 		String[] parametersNameList = selectedFilter
@@ -397,6 +401,7 @@ public class FilteringPanel extends CommandBase implements VisualPlugin, ReHighl
 				break;
 			}
 		}
+		calledFromProgram = false;
 	}
 
 	/**
@@ -472,6 +477,7 @@ public class FilteringPanel extends CommandBase implements VisualPlugin, ReHighl
 	 *            JList
 	 */
 	private void namedParameterSelection_action(ActionEvent e) {
+		if (calledFromProgram) return;
 		if (selectedFilter == null) {
 			deleteSetting.setEnabled(false);
 			return;
