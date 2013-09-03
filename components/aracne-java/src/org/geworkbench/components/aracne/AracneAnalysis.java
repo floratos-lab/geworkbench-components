@@ -496,8 +496,8 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 	 * @see org.geworkbench.analysis.AbstractGridAnalysis#getBisonReturnType()
 	 */
 	@Override
-	public Class<AdjacencyMatrix> getBisonReturnType() {
-		return AdjacencyMatrix.class;
+	public Class<AracneResult> getBisonReturnType() {
+		return AracneResult.class;
 	}
 
 	/*
@@ -632,13 +632,6 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 		JOptionPane.showMessageDialog(null,
 				"The ARACNE run resulted in no adjacent genes, "
 						+ "consider relaxing your thresholds.");
-	}
-
-	@Override
-	public DSAncillaryDataSet<? extends DSBioObject> postProcessResult(Object object) {
-		AracneParamPanel params = (AracneParamPanel) aspp;
-		return new AracneResult((AdjacencyMatrix) object, 0,
-				"Adjacency Matrix", "from caGrid service", null, params.getHubGeneList()); // parent is not needed to be known at this point
 	}
 
 }
