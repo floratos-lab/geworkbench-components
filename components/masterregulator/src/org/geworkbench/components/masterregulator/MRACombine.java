@@ -433,7 +433,8 @@ public class MRACombine extends AbstractAnalysis implements ClusteringAnalysis {
 				+ "\n");
 		writer.write("!Series_total_number_of_markers = " + mraResultSet.getMarkerCount()
 				+ "\n");
-		writer.write("!Series_abs_max_mra_score_observed = "
+		writer.write("!Series_abs_max_da_score_observed = \n");
+		writer.write("!Series_abs_max_de_score_observed = "
 				+ Math.max(Math.abs(mraResultSet.getMinValue()),
 						Math.abs(mraResultSet.getMaxValue())) + "\n");
 		writer.write("!Series_confidence_value_type = "
