@@ -22,8 +22,6 @@
 			</html>
 		]]></license>
 
-		<online-help
-			helpSet="org/geworkbench/components/alignment/help/blastHelpSet.hs" />
 	</component>
 	<plugin id="BlastViewComponent" name="Alignment Results"
 		class="org.geworkbench.components.alignment.BlastViewComponent"
