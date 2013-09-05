@@ -20,11 +20,14 @@ public class Hsp {
 	final int[] hitTo;
 	final int[] identity, positive, gaps, alignLen;
 	final String[] qseq, hseq, midline;
+	
+	final int queryStep;
+	final int hitStep;
 
 	public Hsp(int numHsp, String[] bitScore, String[] score, String[] evalue,
 			int[] queryFrom, int[] queryTo, int[] hitFrom, int[] hitTo,
 			int[] identity, int[] positive, int[] gaps, int[] alignLen,
-			String[] qseq, String[] hseq, String[] midline) {
+			String[] qseq, String[] hseq, String[] midline, int queryStep, int hitStep) {
 		this.numHsp = numHsp;
 		this.bitScore = bitScore;
 		this.score = score;
@@ -40,6 +43,9 @@ public class Hsp {
 		this.qseq = qseq;
 		this.hseq = hseq;
 		this.midline = midline;
+		
+		this.queryStep = queryStep;
+		this.hitStep = hitStep;
 	}
 
 	@Override
@@ -60,13 +66,13 @@ public class Hsp {
 
 			sb.append("\n");
 			sb.append(formatSequence(alignLen[i], queryFrom[i], hitFrom[i],
-					qseq[i], midline[i], hseq[i]));
+					qseq[i], midline[i], hseq[i], queryStep, hitStep));
 		}
 		return sb.toString();
 	}
 
 	private static String formatSequence(int alignLen, int queryFrom,
-			int hitFrom, String q, String m, String h) {
+			int hitFrom, String q, String m, String h, int queryStep, int hitStep) {
 		StringBuilder sb = new StringBuilder();
 		int starting = 0;
 		int ending = starting + LENGTH - 1;
@@ -80,9 +86,10 @@ public class Hsp {
 
 			String query = q.substring(starting, ending + 1);
 			int gapInQuery = gapCount(query);
+			int startingNumber = queryFrom + (starting - totalGapInQuery)*queryStep;
+			int endingNumber = queryFrom + (ending - totalGapInQuery - gapInQuery)*queryStep;
 			String qseqStr = String.format("%-8s%-7d%s  %-7d\n", "Query",
-					queryFrom + starting - totalGapInQuery, query, queryFrom
-							+ ending - totalGapInQuery - gapInQuery);
+					startingNumber, query, endingNumber);
 			totalGapInQuery += gapInQuery;
 
 			// mid-line is allowed to be shorter than alignLen!
@@ -96,9 +103,10 @@ public class Hsp {
 
 			String subject = h.substring(starting, ending + 1);
 			int gapInSubject = gapCount(subject);
+			startingNumber = hitFrom + (starting - totalGapInSubject)*hitStep;
+			endingNumber = hitFrom + (ending - totalGapInSubject - gapInSubject)*hitStep;
 			String hseqStr = String.format("%-8s%-7d%s  %-7d\n", "Subject",
-					hitFrom + starting - totalGapInSubject, subject, hitFrom
-							+ ending - totalGapInSubject - gapInSubject);
+					startingNumber, subject, endingNumber);
 			totalGapInSubject += gapInSubject;
 
 			sb.append(qseqStr);

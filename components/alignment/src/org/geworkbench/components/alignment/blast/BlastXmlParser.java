@@ -82,6 +82,21 @@ public class BlastXmlParser {
 				efetchDb = "protein";
 			}
 
+			int queryStep = 1;
+			int hitStep = 1;
+			NodeList listOfProgramName = doc.getElementsByTagName("BlastOutput_program");
+			Element programNameElement = (Element) listOfProgramName.item(0); // it should be the only one
+			NodeList programNameText = programNameElement.getChildNodes();
+			String programName = ((Node) programNameText.item(0)).getNodeValue().trim();
+			if(programName.equals("tblastn")) {
+				hitStep = 3;
+			} else if(programName.equals("blastx")) {
+				queryStep = 3;
+			} if(programName.equals("tblastx")) {
+				queryStep = 3;
+				hitStep = 3;
+			}
+			
 			NodeList listOfHits = doc.getElementsByTagName("Hit");
 			log.debug("number of hits :" + listOfHits.getLength());
 
@@ -171,7 +186,7 @@ public class BlastXmlParser {
 				}
 
 				String alignedParts = formatAlignedParts(dbId, name, subject);
-				Hsp hsp = getHsp(hitElement, numHsp);
+				Hsp hsp = getHsp(hitElement, numHsp, queryStep, hitStep);
 				String detail = formatDetails(id, description, name, hsp);
 
 				BlastObj blastObj = new BlastObj(dbId, name, description,
@@ -194,7 +209,7 @@ public class BlastXmlParser {
 		return vector;
 	}
 	
-	static private Hsp getHsp(Element hitElement, int numHsp) {
+	static private Hsp getHsp(Element hitElement, int numHsp, int queryStep, int hitStep) {
 		String[] bitScore = getStringArray(hitElement, numHsp, "Hsp_bit-score");
 		String[] score = getStringArray(hitElement, numHsp, "Hsp_score");
 		String[] evalue = getStringArray(hitElement, numHsp, "Hsp_evalue");
@@ -209,7 +224,9 @@ public class BlastXmlParser {
 		String[] qseq = getStringArray(hitElement, numHsp, "Hsp_qseq");
 		String[] hseq = getStringArray(hitElement, numHsp, "Hsp_hseq");
 		String[] midline = getStringArray(hitElement, numHsp, "Hsp_midline");
-		Hsp hsp = new Hsp(numHsp, bitScore, score, evalue, queryFrom, queryTo, hitFrom, hitTo, identity, positive, gaps, alignLen, qseq, hseq, midline);
+		Hsp hsp = new Hsp(numHsp, bitScore, score, evalue, queryFrom, queryTo,
+				hitFrom, hitTo, identity, positive, gaps, alignLen, qseq, hseq,
+				midline, queryStep, hitStep);
 		return hsp;
 	}
 
