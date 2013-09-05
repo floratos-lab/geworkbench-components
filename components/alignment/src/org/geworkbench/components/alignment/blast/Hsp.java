@@ -87,7 +87,7 @@ public class Hsp {
 			String query = q.substring(starting, ending + 1);
 			int gapInQuery = gapCount(query);
 			int startingNumber = queryFrom + (starting - totalGapInQuery)*queryStep;
-			int endingNumber = queryFrom + (ending - totalGapInQuery - gapInQuery)*queryStep;
+			int endingNumber = queryFrom + (ending - totalGapInQuery - gapInQuery)*queryStep + (queryStep-1);
 			String qseqStr = String.format("%-8s%-7d%s  %-7d\n", "Query",
 					startingNumber, query, endingNumber);
 			totalGapInQuery += gapInQuery;
@@ -104,7 +104,7 @@ public class Hsp {
 			String subject = h.substring(starting, ending + 1);
 			int gapInSubject = gapCount(subject);
 			startingNumber = hitFrom + (starting - totalGapInSubject)*hitStep;
-			endingNumber = hitFrom + (ending - totalGapInSubject - gapInSubject)*hitStep;
+			endingNumber = hitFrom + (ending - totalGapInSubject - gapInSubject)*hitStep + (hitStep-1);
 			String hseqStr = String.format("%-8s%-7d%s  %-7d\n", "Subject",
 					startingNumber, subject, endingNumber);
 			totalGapInSubject += gapInSubject;
