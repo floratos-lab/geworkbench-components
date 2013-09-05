@@ -142,7 +142,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		graphpanel.add(gspane, BorderLayout.CENTER);
 		graphpanel.add(gspane2, BorderLayout.SOUTH);
 		jSplitPane.setBottomComponent(graphpanel);
-		jSplitPane2.setDividerLocation(650);
+		jSplitPane2.setDividerLocation(720);
 		jSplitPane2.setDividerSize(3);
 
 		FormLayout layout = new FormLayout("300dlu:grow, pref",
