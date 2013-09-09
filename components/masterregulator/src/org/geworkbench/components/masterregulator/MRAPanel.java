@@ -284,10 +284,7 @@ public final class MRAPanel extends AbstractSaveableParameterPanel {
 		public void actionPerformed(java.awt.event.ActionEvent e) {
 			if (e.getActionCommand().equals("Load")) {
 				if (maSet != null) {
-					String adjMatrixFileStr = "C:\\Documents and Settings\\yc2480\\eclipse_geworkbench_workspace\\geworkbench-core\\data\\testaracne4.adjmat";
-					File adjMatrixFile = new File(adjMatrixFileStr);
-					JFileChooser chooser = new JFileChooser(adjMatrixFile
-							.getParent());
+					JFileChooser chooser = new JFileChooser();
 					String lastDir = null;
 					if ((lastDir = getLastDir()) != null) {
 						chooser.setCurrentDirectory(new File(lastDir));
@@ -296,7 +293,7 @@ public final class MRAPanel extends AbstractSaveableParameterPanel {
 					chooser.showOpenDialog(MRAPanel.this);
 					if (chooser.getSelectedFile() != null) {
 						File selectedFile = chooser.getSelectedFile();
-						adjMatrixFileStr = selectedFile.getPath();
+						String adjMatrixFileStr = selectedFile.getPath();
 						networkTextField.setText(adjMatrixFileStr);
 						networkFilename = selectedFile.getName();
 						saveLastDir(selectedFile.getParent());
@@ -666,8 +663,8 @@ public final class MRAPanel extends AbstractSaveableParameterPanel {
 			setSigMarkers(sigMarkers);
 		}
 
-		if (parameters.get("Fisher's Exact P Value") != null) {
-			double d = (Double) parameters.get("Fisher's Exact P Value");
+		if (parameters.get("FET p-value") != null) {
+			double d = (Double) parameters.get("FET p-value");
 			//if (d >= 0 && d <= 1)
 			   setPValue(d);
 			//else
@@ -709,7 +706,7 @@ public final class MRAPanel extends AbstractSaveableParameterPanel {
 		//if (getPValue() > 1 || getPValue() < 0)
 		//	answer.put("Fisher's Exact P Value", 0.01);
 		//else
-			answer.put("Fisher's Exact P Value", getPValue());
+			answer.put("FET p-value", getPValue());
 		answer.put("twoFET", twoFET());
 		answer.put("standardBonferroni", standardBonferroni());
 
