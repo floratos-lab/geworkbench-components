@@ -26,6 +26,7 @@ import java.util.Set;
 import java.util.Vector;
 
 import javax.swing.Box;
+import javax.swing.JButton;
 import javax.swing.JInternalFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -85,6 +86,7 @@ import cytoscape.view.CytoscapeDesktop;
 import cytoscape.view.NetworkPanel;
 import cytoscape.view.cytopanels.BiModalJSplitPane;
 import cytoscape.view.cytopanels.CytoPanel;
+import cytoscape.view.cytopanels.CytoPanelImp;
 import cytoscape.visual.CalculatorCatalog;
 import cytoscape.visual.DuplicateCalculatorNameException;
 import cytoscape.visual.NodeAppearanceCalculator;
@@ -92,12 +94,12 @@ import cytoscape.visual.NodeShape;
 import cytoscape.visual.VisualMappingManager;
 import cytoscape.visual.VisualPropertyType;
 import cytoscape.visual.VisualStyle;
-import cytoscape.visual.calculators.Calculator;
 import cytoscape.visual.calculators.BasicCalculator;
+import cytoscape.visual.calculators.Calculator;
+import cytoscape.visual.converter.ValueToStringConverterManager;
 import cytoscape.visual.mappings.DiscreteMapping;
 import cytoscape.visual.mappings.ObjectMapping;
-import cytoscape.visual.mappings.PassThroughMapping; 
-import cytoscape.visual.converter.ValueToStringConverterManager;
+import cytoscape.visual.mappings.PassThroughMapping;
 import ding.view.DNodeView;
 
 /**
@@ -804,6 +806,29 @@ public class CytoscapeWidget implements VisualPlugin {
 					"Cytoscape");
 		}
 		Cytoscape.getDesktop().setVisible(false);
+
+		/* disable floating/docking feature*/
+		// 'Control Panel'
+		final CytoPanel controlPanel = Cytoscape.getDesktop().getCytoPanel(SwingConstants.WEST);
+		CytoPanelImp impl1 = (CytoPanelImp)controlPanel;
+		Component header1 = impl1.getComponent(0);
+		if(header1 instanceof JPanel) {
+			Component floatButton = ((JPanel)header1).getComponent(1); // the 'float' button
+			if(floatButton instanceof JButton) {
+				floatButton.setEnabled(false);
+			}
+		}
+		// 'Data Panel'
+		final CytoPanel dataPanel = Cytoscape.getDesktop().getCytoPanel(SwingConstants.SOUTH);
+		CytoPanelImp impl2 = (CytoPanelImp)dataPanel;
+		Component header2 = impl2.getComponent(0);
+		if(header2 instanceof JPanel) {
+			Component floatButton = ((JPanel)header2).getComponent(1); // the 'float' button
+			if(floatButton instanceof JButton) {
+				floatButton.setEnabled(false);
+			}
+		}
+
 		CytoscapeInit initializer = new CytoscapeInit();
 
 		CyInitParams param = new InitParam();
