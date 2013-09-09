@@ -108,8 +108,6 @@ public class ConsensusClustering<T extends DSNamed> extends GPAnalysis {
 		DSItemList<DSGeneMarker> markers = view.markers();
 		DSItemList<DSMicroarray> arrays = view.items();
 		String clusterBy = ((ConsensusClusteringPanel) panel).getClusterBy();
-		if (clusterBy.equals("rows"))  arrays = maSet;
-		else  markers = maSet.getMarkers();
 
 		AlgorithmExecutionResults cancelResult = new AlgorithmExecutionResults(false, "Consensus Clustering Analysis Cancelled.", null);
 		if(task.isCancelled()) return cancelResult;
