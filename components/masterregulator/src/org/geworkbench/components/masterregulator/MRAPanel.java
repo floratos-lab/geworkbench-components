@@ -44,9 +44,12 @@ import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.events.listeners.ParameterActionListener;
 import org.geworkbench.parsers.AdjacencyMatrixFileFormat;
 import org.geworkbench.parsers.InputFileFormatException;
@@ -283,45 +286,62 @@ public final class MRAPanel extends AbstractSaveableParameterPanel {
 		@Override
 		public void actionPerformed(java.awt.event.ActionEvent e) {
 			if (e.getActionCommand().equals("Load")) {
-				if (maSet != null) {
-					JFileChooser chooser = new JFileChooser();
-					String lastDir = null;
-					if ((lastDir = getLastDir()) != null) {
-						chooser.setCurrentDirectory(new File(lastDir));
-					}
-					chooser.setFileFilter(new AdjacencyMatrixFileFormat().getFileFilter());
-					chooser.showOpenDialog(MRAPanel.this);
-					if (chooser.getSelectedFile() != null) {
-						File selectedFile = chooser.getSelectedFile();
-						String adjMatrixFileStr = selectedFile.getPath();
-						networkTextField.setText(adjMatrixFileStr);
-						networkFilename = selectedFile.getName();
-						saveLastDir(selectedFile.getParent());
-
-						if (!openDialog()) return;
-
-						//no need to generate adjmatrix for 5col network file
-						//because 5col network format is used only by grid mra as a file
-						if (!selectedFormat.equals(marina5colformat)){
-							try {
-								AdjacencyMatrix matrix = AdjacencyMatrixDataSet
-								.parseAdjacencyMatrix(adjMatrixFileStr, maSet,
-										interactionTypeMap, selectedFormat,
-										selectedRepresentedBy, isRestrict);
-
-								adjMatrix = new AdjacencyMatrixDataSet(matrix, 
-										0, adjMatrixFileStr, adjMatrixFileStr, maSet);
-							} catch (InputFileFormatException e1) {
-								log.error(e1.getMessage());
-								e1.printStackTrace();
-							}
-						} else {
-							adjMatrix = null;
-						}
+				if (maSet == null) {
+					DSDataSet<? extends DSBioObject> currentDataset = ProjectPanel.getInstance().getDataSet();
+					if(currentDataset instanceof DSMicroarraySet) {
+						maSet = (DSMicroarraySet) currentDataset;
 					} else {
-						// user canceled
+						JOptionPane
+								.showMessageDialog(
+										MRAPanel.this,
+										"The current dataset is not a proper microarray set.",
+										"Dataset error",
+										JOptionPane.ERROR_MESSAGE);
+						return;
 					}
 				}
+				JFileChooser chooser = new JFileChooser();
+				String lastDir = null;
+				if ((lastDir = getLastDir()) != null) {
+					chooser.setCurrentDirectory(new File(lastDir));
+				}
+				chooser.setFileFilter(new AdjacencyMatrixFileFormat()
+						.getFileFilter());
+				chooser.showOpenDialog(MRAPanel.this);
+				if (chooser.getSelectedFile() != null) {
+					File selectedFile = chooser.getSelectedFile();
+					String adjMatrixFileStr = selectedFile.getPath();
+					networkTextField.setText(adjMatrixFileStr);
+					networkFilename = selectedFile.getName();
+					saveLastDir(selectedFile.getParent());
+
+					if (!openDialog())
+						return;
+
+					// no need to generate adjmatrix for 5col network file
+					// because 5col network format is used only by grid mra as a
+					// file
+					if (!selectedFormat.equals(marina5colformat)) {
+						try {
+							AdjacencyMatrix matrix = AdjacencyMatrixDataSet
+									.parseAdjacencyMatrix(adjMatrixFileStr,
+											maSet, interactionTypeMap,
+											selectedFormat,
+											selectedRepresentedBy, isRestrict);
+
+							adjMatrix = new AdjacencyMatrixDataSet(matrix, 0,
+									adjMatrixFileStr, adjMatrixFileStr, maSet);
+						} catch (InputFileFormatException e1) {
+							log.error(e1.getMessage());
+							e1.printStackTrace();
+						}
+					} else {
+						adjMatrix = null;
+					}
+				} else {
+					// user canceled
+				}
+
 			}
 		}
 	}
