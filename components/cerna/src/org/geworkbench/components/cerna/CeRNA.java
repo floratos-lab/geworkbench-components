@@ -114,7 +114,7 @@ public class CeRNA extends JPanel implements VisualPlugin {
 			    		for(String str : res){
 			    			dbBox.addItem(str);
 			    		}
-						dbBox.setSelectedItem("OV_ceRNA_v1");
+						dbBox.setSelectedItem("OV_ceRNET_v1");
 			    	}
 				};
 				pd.executeTask(task);
