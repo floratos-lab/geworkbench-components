@@ -60,7 +60,7 @@ public class Hsp {
 				percentage = 100 * identity[i] / alignLen[i];
 			}
 
-			sb.append("Indentities = " + identity[i] + "/" + alignLen[i] + " ("
+			sb.append("Identities = " + identity[i] + "/" + alignLen[i] + " ("
 					+ percentage + "%), Gaps = " + gaps[i] + "/" + alignLen[i]
 					+ "\n");
 
