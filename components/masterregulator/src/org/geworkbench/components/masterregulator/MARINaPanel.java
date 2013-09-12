@@ -51,7 +51,9 @@ import org.geworkbench.bison.annotation.DSAnnotationContextManager;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix.NodeType;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
@@ -240,44 +242,62 @@ public final class MARINaPanel extends AbstractSaveableParameterPanel {
 		@Override
 		public void actionPerformed(java.awt.event.ActionEvent e) {
 			if (e.getActionCommand().equals("Load")) {
-				if (maSet != null) {
-					JFileChooser chooser = new JFileChooser();
-					String lastDir = null;
-					if ((lastDir = getLastDir()) != null) {
-						chooser.setCurrentDirectory(new File(lastDir));
+				if (maSet == null) {
+					DSDataSet<? extends DSBioObject> currentDataset = ProjectPanel
+							.getInstance().getDataSet();
+					if (currentDataset instanceof DSMicroarraySet) {
+						maSet = (DSMicroarraySet) currentDataset;
+					} else {
+						JOptionPane
+								.showMessageDialog(
+										MARINaPanel.this,
+										"The current dataset is not a proper microarray set.",
+										"Dataset error",
+										JOptionPane.ERROR_MESSAGE);
+						return;
 					}
-					chooser.setFileFilter(new AdjacencyMatrixFileFormat().getFileFilter());
-					chooser.showOpenDialog(MARINaPanel.this);
-					if (chooser.getSelectedFile() != null) {
-						File selectedFile = chooser.getSelectedFile();
-						String adjMatrixFileStr = selectedFile.getPath();
-						networkTextField.setText(adjMatrixFileStr);
-						networkFilename = selectedFile.getName();
-						saveLastDir(selectedFile.getParent());
+				}
 
-						if (!openDialog()) return;
+				JFileChooser chooser = new JFileChooser();
+				String lastDir = null;
+				if ((lastDir = getLastDir()) != null) {
+					chooser.setCurrentDirectory(new File(lastDir));
+				}
+				chooser.setFileFilter(new AdjacencyMatrixFileFormat()
+						.getFileFilter());
+				chooser.showOpenDialog(MARINaPanel.this);
+				if (chooser.getSelectedFile() != null) {
+					File selectedFile = chooser.getSelectedFile();
+					String adjMatrixFileStr = selectedFile.getPath();
+					networkTextField.setText(adjMatrixFileStr);
+					networkFilename = selectedFile.getName();
+					saveLastDir(selectedFile.getParent());
 
-						//no need to generate adjmatrix for 5col network file
-						//because 5col network format is used only by grid mra as a file
-						if (!selectedFormat.equals(marina5colformat)){
-							try {
-								AdjacencyMatrix matrix = AdjacencyMatrixDataSet
-								.parseAdjacencyMatrix(adjMatrixFileStr, maSet,
-										interactionTypeMap, selectedFormat,
-										selectedRepresentedBy, isRestrict);
+					if (!openDialog())
+						return;
 
-								adjMatrix = new AdjacencyMatrixDataSet(matrix, 
-										0, adjMatrixFileStr, adjMatrixFileStr, maSet);
-							} catch (InputFileFormatException e1) {
-								log.error(e1.getMessage());
-								e1.printStackTrace();
-							}
-						} else {
-							adjMatrix = null;
+					// no need to generate adjmatrix for 5col network file
+					// because 5col network format is used only by grid mra as a
+					// file
+					if (!selectedFormat.equals(marina5colformat)) {
+						try {
+							AdjacencyMatrix matrix = AdjacencyMatrixDataSet
+									.parseAdjacencyMatrix(adjMatrixFileStr,
+											maSet, interactionTypeMap,
+											selectedFormat,
+											selectedRepresentedBy, isRestrict);
+
+							adjMatrix = new AdjacencyMatrixDataSet(matrix, 0,
+									adjMatrixFileStr, adjMatrixFileStr, maSet);
+						} catch (InputFileFormatException e1) {
+							log.error(e1.getMessage());
+							e1.printStackTrace();
 						}
 					} else {
-						// user canceled
+						adjMatrix = null;
 					}
+				} else {
+					// user canceled
 				}
 			}
 		}
