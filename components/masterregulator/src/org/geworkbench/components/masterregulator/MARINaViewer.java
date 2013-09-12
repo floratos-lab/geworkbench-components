@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import org.apache.commons.logging.Log;
@@ -69,11 +70,13 @@ public class MARINaViewer extends MasterRegulatorViewer{
 		log.info("Executing T Analysis");
 		Map<DSGeneMarker, Double> values = null;
 		try {
-			TAnalysis tTestAnalysis= new TAnalysis(view);
+			TAnalysis tTestAnalysis= new TAnalysis(view, marinaResultSet.getCases(), marinaResultSet.getControls());
 			values = tTestAnalysis.calculateDisplayValues();
 		} catch (TAnalysisException e1) {
-			e1.printStackTrace();
-			return null;
+			JOptionPane.showMessageDialog(null, 
+					"Can't find valid case or control arrrays for T Analysis in MARINa Viewer",
+					"T Analysis Error", JOptionPane.ERROR_MESSAGE);
+			return mraResultSet;
 		}
 		if (values==null){
 			log.error("The set of display values is set null.");

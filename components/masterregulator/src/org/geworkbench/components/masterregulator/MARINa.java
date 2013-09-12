@@ -60,6 +60,13 @@ public class MARINa extends AbstractGridAnalysis implements
 
 	@Override
 	public ParamValidationResults validateParameters() {
+		String runid = mraAnalysisPanel.getResultid();
+		if (runid != null){
+			if (!pattern.matcher(runid).find())
+				return new ParamValidationResults(false, "Invalid MRA Result ID: "+runid);
+			else
+				return new ParamValidationResults(true, "No Error");
+		}
 
 		HashSet<String> ctrls = mraAnalysisPanel.getIxClass(CSAnnotationContext.CLASS_CONTROL);
 		Iterator<String> casei = mraAnalysisPanel.getIxClass(CSAnnotationContext.CLASS_CASE).iterator();
@@ -76,13 +83,6 @@ public class MARINa extends AbstractGridAnalysis implements
 			return new ParamValidationResults(false, "An array cannot be in case and control at the same time.");
 		}
 
-		String runid = mraAnalysisPanel.getResultid();
-		if (runid != null){
-			if (!pattern.matcher(runid).find())
-				return new ParamValidationResults(false, "Invalid MRA Result ID: "+runid);
-			else
-				return new ParamValidationResults(true, "No Error");
-		}
 		String vn = mraAnalysisPanel.validateNetwork();
 		if (!vn.equals("Valid"))
 			return new ParamValidationResults(false, "Invalid network: "+vn);
