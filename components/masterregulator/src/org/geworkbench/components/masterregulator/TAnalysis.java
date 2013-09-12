@@ -102,6 +102,52 @@ public class TAnalysis {
 		
 	}
 	
+	TAnalysis(DSMicroarraySetView<DSGeneMarker, DSMicroarray> datasetView, String[] cases, String[] controls) throws TAnalysisException {
+		this.datasetView = datasetView;
+		
+		numGenes = datasetView.markers().size();
+		numExps = datasetView.items().size();
+
+		groupAssignments = new Group[numExps];
+
+		numberOfCase = 0;
+		numberOfControl = 0;
+		for (int i = 0; i < numExps; i++) {
+			DSMicroarray ma = datasetView.items().get(i);
+			groupAssignments[i] = Group.NEITHER;
+			for (String caseArray : cases){
+				if(caseArray.equals(ma.getLabel())){
+					groupAssignments[i] = Group.CASE;
+					numberOfCase++;
+				}
+			}
+			for (String controlArray : controls){
+				if(controlArray.equals(ma.getLabel())){
+					groupAssignments[i] = Group.CONTROL;
+					numberOfControl++;
+				}
+			}
+		}
+		if (numberOfCase == 0 && numberOfControl == 0) {
+			throw new TAnalysisException("Please activate at least one set of arrays for \"case\", and one set of arrays for \"control\".");
+		}
+		if (numberOfCase == 0) {
+			throw new TAnalysisException("Please activate at least one set of arrays for \"case\".");
+		}
+		if (numberOfControl == 0) {
+			throw new TAnalysisException("Please activate at least one set of arrays for \"control\".");
+		}
+
+		expMatrix = new float[numGenes][numExps];
+
+		for (int i = 0; i < numGenes; i++) {
+			for (int j = 0; j < numExps; j++) {
+				expMatrix[i][j] = (float) datasetView.getValue(i, j);
+			}
+		}
+		
+	}
+	
 	// the display value is based on p-value and the sign of t-value 
 	Map<DSGeneMarker, Double> calculateDisplayValues() {
 
