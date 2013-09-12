@@ -285,7 +285,7 @@ public final class MARINaPanel extends AbstractSaveableParameterPanel {
 
 	private JComboBox createNetworkFromComboBox() {
 		ArrayListModel<String> networkFromModel = new ArrayListModel<String>();
-		networkFromModel.add("From Project");
+		networkFromModel.add("From Workspace");
 		networkFromModel.add("From File");
 		NetworkFromListener networkFromListener = new NetworkFromListener();
 		SelectionInList<String> selectionInList = new SelectionInList<String>(
@@ -297,7 +297,7 @@ public final class MARINaPanel extends AbstractSaveableParameterPanel {
 	private class NetworkFromListener implements PropertyChangeListener {
 		public void propertyChange(PropertyChangeEvent evt) {
 			if (evt.getPropertyName() == "value")
-				if (evt.getNewValue() == "From Project") {
+				if (evt.getNewValue() == "From Workspace") {
 					networkMatrix.setEnabled(true);
 					loadNetworkButton.setEnabled(false);
 					networkTextField.setEnabled(false);
