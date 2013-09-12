@@ -79,8 +79,8 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 	private static final String FROM_FILE_LAB = "From File (Lab Format)";
 	private static final String FROM_FILE_ADJ = "From File";
 	private static final String FROM_SETS = "From Set";
-	private static final String FROM_PROJECT = "From Project";
-	private static final String[] NETWORK_FROM = { FROM_PROJECT, FROM_FILE_ADJ, FROM_FILE_LAB};
+	private static final String FROM_WORKSPACE = "From Workspace";
+	private static final String[] NETWORK_FROM = { FROM_WORKSPACE, FROM_FILE_ADJ, FROM_FILE_LAB};
 	private static final String[] PHENOTYPE_FROM = { FROM_SETS, FROM_FILE};
 	private static final String[] EXCLUDE_FROM = { FROM_SETS, FROM_FILE};
 	static final String[] DEFAULT_SET = { " " };	
@@ -246,7 +246,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 			public void actionPerformed(ActionEvent actionEvent) {				
 				networkField.setText("");
 				String selected = (String) networkFrom.getSelectedItem();
-				if (StringUtils.equals(selected, FROM_PROJECT)) {
+				if (StringUtils.equals(selected, FROM_WORKSPACE)) {
 					networkMatrix.setEnabled(true);
 					networkLoadButton.setEnabled(false);					
 					networkField.setEnabled(false);					
@@ -407,7 +407,7 @@ public class IDEAPanel extends AbstractSaveableParameterPanel {
 		histStr.append("IDEA Analysis parameters:\n");
 		histStr.append("----------------------------------------");
 		String selected = (String) networkFrom.getSelectedItem();
-		if (StringUtils.equals(selected, FROM_PROJECT)){
+		if (StringUtils.equals(selected, FROM_WORKSPACE)){
 			histStr.append("\nNetwork: "+getSelectedAdjMatrix());
 		}
 		else

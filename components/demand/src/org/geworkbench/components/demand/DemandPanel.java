@@ -59,10 +59,10 @@ public class DemandPanel extends AbstractSaveableParameterPanel{
 	
 	private ArrayList<String> adjModel			=	new ArrayList<String>();
 
-	private static final String FROM_PROJECT	=	"From Project";
+	private static final String FROM_WORKSPACE	=	"From Workspace";
 	private static final String FROM_FILE		=	"From File";
 	private static final String FROM_SETS		=	"From Set";
-	private static final String[] NETWORK_FROM	=	{FROM_PROJECT, FROM_FILE};
+	private static final String[] NETWORK_FROM	=	{FROM_WORKSPACE, FROM_FILE};
 	private static final String[] DRUG_FROM		=	{FROM_SETS, FROM_FILE};
 	private static final String[] CTRL_FROM		=	{FROM_SETS, FROM_FILE};
 	private static final String[] DEFAULT_SET	=	{ " " };
@@ -167,7 +167,7 @@ public class DemandPanel extends AbstractSaveableParameterPanel{
 			public void actionPerformed(ActionEvent actionEvent) {				
 				networkField.setText("");
 				String selected = (String) networkFrom.getSelectedItem();
-				if (StringUtils.equals(selected, FROM_PROJECT)) {
+				if (StringUtils.equals(selected, FROM_WORKSPACE)) {
 					networkMatrix.setEnabled(true);
 					networkLoadButton.setEnabled(false);					
 					networkField.setEnabled(false);					
@@ -340,7 +340,7 @@ public class DemandPanel extends AbstractSaveableParameterPanel{
 		// component
 		parameters.put(SERVICE_HR, getService());
 		String selected = (String) networkFrom.getSelectedItem();
-		if (StringUtils.equals(selected, FROM_PROJECT))
+		if (StringUtils.equals(selected, FROM_WORKSPACE))
 			parameters.put(NETWORK_HR, getSelectedAdjMatrix());
 		else
 			parameters.put(NETWORK_HR, networkField.getText());
