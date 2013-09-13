@@ -16,8 +16,6 @@
 				<body>----</body>
 			</html>
 		]]></license>
-		<online-help
-			helpSet="org/geworkbench/components/microarrays/help/expressionvaluedist/evdHelpSet.hs" />
 
 	</component>
 
