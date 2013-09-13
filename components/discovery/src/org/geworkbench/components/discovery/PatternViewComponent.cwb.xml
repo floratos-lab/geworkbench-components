@@ -20,8 +20,6 @@
 				<body>----</body>
 			</html>
 		]]></license>
-		
-		<online-help helpSet="org/geworkbench/components/discovery/help/patternDiscoveryHelpSet.hs"/>
 
 	</component>
 	<plugin id="PatternViewComponent" name="Pattern Viewer"
