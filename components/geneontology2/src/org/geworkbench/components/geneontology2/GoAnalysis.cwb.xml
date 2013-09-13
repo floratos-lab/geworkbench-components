@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
 	<component name="Gene Ontology Term Analysis (Ontologizer 2.0)"
@@ -14,7 +15,6 @@
 		>
 
 		<required-component class="org.geworkbench.components.geneontology2.GoAnalysisResultView" />
-		<online-help helpSet="org/geworkbench/components/geneontology2/help/goTermAnalysis_HelpSet.hs"/>
 	</component>
 	
 	<plugin id="GeneOntology2" name="Gene Ontology Term Analysis (Ontologizer 2.0)"
