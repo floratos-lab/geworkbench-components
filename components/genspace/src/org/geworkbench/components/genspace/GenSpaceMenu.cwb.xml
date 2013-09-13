@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
@@ -24,7 +25,6 @@
 		]]></license>
 
 		<menu-item path="Tools.genSpace" mode="always" var="Tools.genSpace" />
-		<online-help helpSet="org/geworkbench/components/genspace/help/genspaceHelpSet.hs"/>
 	</component>
 
 	<plugin id="GenSpaceMenu" name="GenSpaceMenu"
