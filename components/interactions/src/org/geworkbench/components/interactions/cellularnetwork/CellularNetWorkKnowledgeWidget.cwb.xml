@@ -23,8 +23,6 @@
 			</html>
 		]]></license>
 
-		<online-help
-			helpSet="org/geworkbench/components/interactions/cellularnetwork/help/cnkbHelpSet.hs" />
 	</component>
 
 	<plugin id="CellularNetworkKnowledgeWidget" name="Cellular Network Knowledge Base"
