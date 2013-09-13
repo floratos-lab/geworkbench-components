@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
 	<component  name="SkyBase Analysis"
@@ -16,8 +17,7 @@
 				<body>----</body>
 			</html>
 		]]></license>
-			
-		<online-help helpSet="org/geworkbench/components/skybase/help/skyBase_HelpSet.hs"/>
+
 	</component>
 
   <plugin id="SkyBaseAnalysis" name="SkyBase Analysis" class="org.geworkbench.components.skybase.SkyBaseAnalysis" source="skybase"/>
