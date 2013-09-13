@@ -18,16 +18,21 @@ public class Hsp {
 	final int[] queryTo;
 	final int[] hitFrom;
 	final int[] hitTo;
+	final int[] queryFrame;
+	final int[] hitFrame;
 	final int[] identity, positive, gaps, alignLen;
 	final String[] qseq, hseq, midline;
 	
 	final int queryStep;
 	final int hitStep;
 
-	public Hsp(int numHsp, String[] bitScore, String[] score, String[] evalue,
+	final String programName;
+	
+	public Hsp(String programName, int numHsp, String[] bitScore, String[] score, String[] evalue,
 			int[] queryFrom, int[] queryTo, int[] hitFrom, int[] hitTo,
+			int[] queryFrame, int[] hitFrame,
 			int[] identity, int[] positive, int[] gaps, int[] alignLen,
-			String[] qseq, String[] hseq, String[] midline, int queryStep, int hitStep) {
+			String[] qseq, String[] hseq, String[] midline) {
 		this.numHsp = numHsp;
 		this.bitScore = bitScore;
 		this.score = score;
@@ -36,6 +41,8 @@ public class Hsp {
 		this.queryTo = queryTo;
 		this.hitFrom = hitFrom;
 		this.hitTo = hitTo;
+		this.queryFrame = queryFrame;
+		this.hitFrame = hitFrame;
 		this.identity = identity;
 		this.positive = positive;
 		this.gaps = gaps;
@@ -44,8 +51,22 @@ public class Hsp {
 		this.hseq = hseq;
 		this.midline = midline;
 		
-		this.queryStep = queryStep;
-		this.hitStep = hitStep;
+		this.programName = programName;
+		
+		if(programName.equals("tblastn")) {
+			queryStep = 1;
+			hitStep = 3;
+		} else if(programName.equals("blastx")) {
+			queryStep = 3;
+			hitStep = 1;
+		} else if (programName.equals("tblastx")) {
+			queryStep = 3;
+			hitStep = 3;
+		} else {
+			queryStep = 1;
+			hitStep = 1;
+		}
+
 	}
 
 	@Override
@@ -62,17 +83,28 @@ public class Hsp {
 
 			sb.append("Identities = " + identity[i] + "/" + alignLen[i] + " ("
 					+ percentage + "%), Gaps = " + gaps[i] + "/" + alignLen[i]
-					+ "\n");
+					+ makeStrandOrFrameText(queryFrame[i], hitFrame[i])+"\n");
 
 			sb.append("\n");
-			sb.append(formatSequence(alignLen[i], queryFrom[i], hitFrom[i],
-					qseq[i], midline[i], hseq[i], queryStep, hitStep));
+			
+			int queryDirection = 1;
+			int hitDirection = 1;
+			int queryFromModified = queryFrom[i];
+			if(queryFrame[i]<0) {
+				queryDirection = -1;
+				if(queryFrom[i]<queryTo[i]) { // the starting and ending points are not switched
+					queryFromModified = queryTo[i];
+				}
+			}
+			if(hitFrame[i]<0) hitDirection = -1;
+			sb.append(formatSequence(alignLen[i], queryFromModified, hitFrom[i],
+					qseq[i], midline[i], hseq[i], queryStep, hitStep, queryDirection, hitDirection));
 		}
 		return sb.toString();
 	}
 
 	private static String formatSequence(int alignLen, int queryFrom,
-			int hitFrom, String q, String m, String h, int queryStep, int hitStep) {
+			int hitFrom, String q, String m, String h, int queryStep, int hitStep, int queryDirection, int hitDirection) {
 		StringBuilder sb = new StringBuilder();
 		int starting = 0;
 		int ending = starting + LENGTH - 1;
@@ -86,8 +118,8 @@ public class Hsp {
 
 			String query = q.substring(starting, ending + 1);
 			int gapInQuery = gapCount(query);
-			int startingNumber = queryFrom + (starting - totalGapInQuery)*queryStep;
-			int endingNumber = queryFrom + (ending - totalGapInQuery - gapInQuery)*queryStep + (queryStep-1);
+			int startingNumber = queryFrom + (starting - totalGapInQuery)*queryStep*queryDirection;
+			int endingNumber = queryFrom + (ending - totalGapInQuery - gapInQuery)*queryStep*queryDirection + (queryStep-1)*queryDirection;
 			String qseqStr = String.format("%-8s%-7d%s  %-7d\n", "Query",
 					startingNumber, query, endingNumber);
 			totalGapInQuery += gapInQuery;
@@ -103,8 +135,8 @@ public class Hsp {
 
 			String subject = h.substring(starting, ending + 1);
 			int gapInSubject = gapCount(subject);
-			startingNumber = hitFrom + (starting - totalGapInSubject)*hitStep;
-			endingNumber = hitFrom + (ending - totalGapInSubject - gapInSubject)*hitStep + (hitStep-1);
+			startingNumber = hitFrom + (starting - totalGapInSubject)*hitStep*hitDirection;
+			endingNumber = hitFrom + (ending - totalGapInSubject - gapInSubject)*hitStep*hitDirection + (hitStep-1)*hitDirection;
 			String hseqStr = String.format("%-8s%-7d%s  %-7d\n", "Subject",
 					startingNumber, subject, endingNumber);
 			totalGapInSubject += gapInSubject;
@@ -121,6 +153,31 @@ public class Hsp {
 		return sb.toString();
 	}
 
+	private String makeStrandOrFrameText(int queryFrame, int hitFrame) {
+		StringBuilder sb = new StringBuilder();
+		if(programName.equals("blastn")) {
+			sb.append(", Strand ");
+			if(queryFrame==1) sb.append("Plus");
+			else if(queryFrame==-1) sb.append("/Minus");
+
+			if(hitFrame==1) sb.append("Plus");
+			else if(hitFrame==-1) sb.append("/Minus");
+		} else if (programName.equals("blastx") || programName.equals("tblastn")
+				|| programName.equals("tblastx")) {
+			sb.append(", Frame ");
+			boolean queryFrameWritten = true;
+			if(queryFrame>0) sb.append("+"+queryFrame);
+			else if(queryFrame<0) sb.append(queryFrame);
+			else queryFrameWritten = false;
+
+			if(queryFrameWritten && hitFrame!=0) sb.append("/");
+			
+			if(hitFrame>0) sb.append("+"+hitFrame);
+			else if(hitFrame<0) sb.append(hitFrame);
+		}
+		return sb.toString();
+	}
+	
 	private static int gapCount(String s) {
 		int gap = 0;
 		for (int i = 0; i < s.length(); i++) {
