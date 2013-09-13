@@ -19,7 +19,6 @@
 				<body>----</body>
 			</html>
 		]]></license>
-		<online-help helpSet="org/geworkbench/components/foldchange/help/foldChange_HelpSet.hs"/>
 	</component>
 
 	<plugin id="FoldChangeAnalysis" name="Fold Change Analysis" class="org.geworkbench.components.foldchange.FoldChangeAnalysis" source="foldchange"/>
