@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
 	<component  name="MatrixREDUCE Analysis"
@@ -18,8 +19,6 @@
 				<body>----</body>
 			</html>
 		]]></license>
-
-	        <online-help helpSet="org/geworkbench/components/matrixreduce/help/matrixHelpSet.hs"/>
 
 	</component>
 
