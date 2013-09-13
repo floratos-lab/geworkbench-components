@@ -23,8 +23,6 @@
 			</html>
 		]]></license>
 
-        <online-help helpSet="org/geworkbench/components/masterregulator/help/MRAHelpSet.hs"/>
-
 	</component>
 
 	<plugin id="MRA-FET" name="MRA-FET" class="org.geworkbench.components.masterregulator.MRA" source="masterregulator"/>
