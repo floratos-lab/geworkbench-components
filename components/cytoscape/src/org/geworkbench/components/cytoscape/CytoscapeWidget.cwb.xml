@@ -23,8 +23,6 @@
 			</html>
 		]]></license>
 
-		<online-help
-			helpSet="org/geworkbench/components/cytoscape/help/cytoscapeHelpSet.hs" />
 	</component>
 
 	<plugin id="CytoscapeWidget" name="Cytoscape"
