@@ -2,16 +2,15 @@
 <component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 	
-	<component  name="Master Regulator Analysis Viewer"
+	<component  name="MRA-FET Results Viewer"
 		class="org.geworkbench.components.masterregulator.MasterRegulatorViewer"
 		version="1.0"
 		author="geWorkbench Development Team"
 		authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 		toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Master_Regulator_Analysis"				
-		description="The MRA viewer displays the results of the Master
- Regulator analysis.  The primary result, shown in table and graphical
- form, is the overlap of a set of differentially expressed genes with
+		description="The MRA-FET Results Viewer  displays the results of the MRA-FET version of Master
+ Regulator analysis.  The results, shown in tabular and bar-code form, represent the enrichment of a set of differentially expressed genes among
  the set of genes regulated by a particular transcription factor."
 				category="Visualizer, Network, Microarray"				
 	 >
