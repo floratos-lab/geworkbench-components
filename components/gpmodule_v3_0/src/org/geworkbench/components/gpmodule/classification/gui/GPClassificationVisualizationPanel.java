@@ -191,38 +191,7 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
         {
             public void stateChanged(ChangeEvent event)
             {
-                int selectedIndex = tabPane.getSelectedIndex();
-                if(tabPane.getTitleAt(selectedIndex).equals("Test"))
-                {
-                    if(testResultsTable != null && testResultsTable.getRowCount() == 0)
-                    {
-                        controlRadioButton.setEnabled(false);
-                        caseRadioButton.setEnabled(false);
-                        createMaSetButton.setEnabled(false);
-                        applyFilter.setEnabled(false);
-                        confidenceThreshold.setEnabled(false);
-                        confSlider.setEnabled(false);
-                    }
-                    else if(confidenceThreshold.getValue() != null && applyFilter.isSelected())
-                    {
-                        applyConfidenceFilter();
-                    }
-                    else
-                    {
-                        controlRadioButton.setEnabled(true);
-                        caseRadioButton.setEnabled(true);
-                        createMaSetButton.setEnabled(true);
-                        applyFilter.setEnabled(true);
-                        confidenceThreshold.setEnabled(true);
-                        confSlider.setEnabled(true);
-                    }
-                }
-
-                else
-                {
-                    confidenceThreshold.setEnabled(true);
-                    confSlider.setEnabled(true);
-                }
+            	applyFilter_actionPerformed();
             }
         });
     }
@@ -320,33 +289,43 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
         testMainPanel.setRightComponent(testResultPanel);        
     }
 
+    private void applyFilter_actionPerformed(){
+    	int selectedIndex = tabPane.getSelectedIndex();
+        if(tabPane.getTitleAt(selectedIndex).equalsIgnoreCase("Train") ||
+        		applyFilter.isSelected())
+        {
+            applyConfidenceFilter();
+            chartPanel.setEnabled(true);
+            confSlider.setEnabled(true);
+            confidenceThreshold.setEnabled(true);
+        }
+        else
+        {
+            testResultsTable.setFilters(null);
+            chartPanel.setEnabled(false);
+            confSlider.setEnabled(false);
+            confidenceThreshold.setEnabled(false);
+
+            if(testResultsTable.getRowCount() > 0)
+            {
+                createMaSetButton.setEnabled(true);
+                controlRadioButton.setEnabled(true);
+                caseRadioButton.setEnabled(true);
+            }else{
+            	createMaSetButton.setEnabled(false);
+                controlRadioButton.setEnabled(false);
+                caseRadioButton.setEnabled(false);
+            }
+        }
+    }
+
     private void buildCreateMaSetToolBar()
     {
         applyFilter.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent event)
             {
-                if(applyFilter.isSelected())
-                {
-                    applyConfidenceFilter();
-                    chartPanel.setEnabled(true);
-                    confSlider.setEnabled(true);
-                    confidenceThreshold.setEnabled(true);
-                }
-                else
-                {
-                    testResultsTable.setFilters(null);
-                    chartPanel.setEnabled(false);
-                    confSlider.setEnabled(false);
-                    confidenceThreshold.setEnabled(false);
-
-                    if(testResultsTable.getRowCount() > 0)
-                    {
-                        createMaSetButton.setEnabled(true);
-                        controlRadioButton.setEnabled(true);
-                        caseRadioButton.setEnabled(true);
-                    }
-                }
+            	applyFilter_actionPerformed();
             }
         });
 
@@ -655,7 +634,6 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
                             controlRadioButton.setEnabled(true);
                             caseRadioButton.setEnabled(true);
                             createMaSetButton.setEnabled(true);
-                            applyFilter.setEnabled(true);
                         }
                     }
                 };
