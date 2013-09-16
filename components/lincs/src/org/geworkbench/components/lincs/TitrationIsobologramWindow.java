@@ -26,10 +26,11 @@ public class TitrationIsobologramWindow {
 
 	private JFrame frame;
 	private JPanel topPanel;
-    private Long levelTwoId;
+    //private Long levelTwoId; // TODO this variable is not used yet
 	
 	public TitrationIsobologramWindow(Long levelTwoId) {
-		this.levelTwoId = levelTwoId;
+		// TODO levelTwoId does not effect for now
+		//this.levelTwoId = levelTwoId;
 		initComponents();
 	}
 

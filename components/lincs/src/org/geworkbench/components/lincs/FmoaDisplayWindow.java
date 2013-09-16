@@ -49,8 +49,6 @@ import org.geworkbench.util.ProgressBar;
  */
 public class FmoaDisplayWindow extends Thread implements Observer {
 
-	private static final long serialVersionUID = -5410173882996059855L;
-
 	private static final Log log = LogFactory.getLog(FmoaDisplayWindow.class);
 	private JFrame frame;
 	private JPanel mainPanel = new JPanel();
