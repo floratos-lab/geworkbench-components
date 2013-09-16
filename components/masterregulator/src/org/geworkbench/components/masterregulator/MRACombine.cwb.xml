@@ -23,8 +23,6 @@
 			</html>
 		]]></license>
 
-        <online-help helpSet="org/geworkbench/components/masterregulator/help/MRAHelpSet.hs"/>
-
 	</component>
 
 	<plugin id="MRA-Combine" name="MRA-Combine" class="org.geworkbench.components.masterregulator.MRACombine" source="masterregulator"/>
