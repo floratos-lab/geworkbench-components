@@ -43,7 +43,7 @@ import org.geworkbench.util.Util;
 
 @AcceptTypes( { DSConsensusClusterResultSet.class })
 public class ConsensusClusteringViewer implements VisualPlugin {
-	private static final long serialVersionUID = -4680852009126758639L;
+
 	private static final Log log = LogFactory.getLog(ConsensusClusteringViewer.class);
 	private JPanel mainPanel;
 	private JTable table;
