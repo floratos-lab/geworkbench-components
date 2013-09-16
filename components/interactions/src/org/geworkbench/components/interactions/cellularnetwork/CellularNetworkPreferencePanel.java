@@ -687,27 +687,15 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 				contextJList.setSelectedValue(contextProperty, true);
 			else if (!contextProperty.equals("")) {
 				String context = contextProperty.split(" \\(")[0].trim();
-				boolean needRemove = true;
+
 				for (String cxt : contextList) {
 					if (cxt.split(" \\(")[0].trim().equals(context)) {
 						contextJList.setSelectedValue(cxt, true);
-						needRemove = false;
+
 						break;
 					}
 
 				}
-
-				/*if (needRemove) {
-					JOptionPane
-
-							.showMessageDialog(
-									null,
-									"Database context: "
-											+ contextProperty
-											+ " is not in current database, so it is deleted from preference setting.",
-									"Info", JOptionPane.INFORMATION_MESSAGE);
-				}*/
-
 			}
 
 			readInteractionTypesProperties();
