@@ -24,8 +24,6 @@
 			</html>
 		]]></license>
 
-        <online-help helpSet="org/geworkbench/components/masterregulator/help/MRAHelpSet.hs"/>
-
 	</component>
 
 	<plugin id="MRA-MARINa" name="MRA-MARINa" class="org.geworkbench.components.masterregulator.MARINa" source="masterregulator"/>

@@ -599,8 +599,8 @@ public final class MRAPanel extends AbstractSaveableParameterPanel {
 	public void removeAdjMatrixToCombobox(AdjacencyMatrixDataSet adjDataSet) {
 		try {
 			adjacencymatrixDataSets.remove(adjDataSet);
-			// adjModel.remove(adjDataSet.getDataSetName());
-			adjModel.remove(adjModel.indexOf(adjDataSet.getDataSetName()));
+			int i = adjModel.indexOf(adjDataSet.getDataSetName());
+			if(i>=0) adjModel.remove(i);
 		} catch (Exception ex) {
 			log.error(ex.getMessage());
 		}
