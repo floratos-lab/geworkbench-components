@@ -8,7 +8,7 @@
 		author="geWorkbench Development Team"
 		authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 		toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
-		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Master_Regulator_Analysis"				
+		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/MARINa"				
 		description="The MRA-MARINa viewer displays the complete result file from the server-side MARINa analysis in tabular form."
 				category="Visualizer, Network, Microarray"				
 	 >
