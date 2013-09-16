@@ -50,13 +50,13 @@ public class TTestTest extends TestCase {
 			br.close();
 			throw new IOException("cannot read the choice of the method of calculate significance");
 		}
-		if(line.equals(SignificanceMethod.STD_BONFERRONI)) {
+		if(line.equals("STD_BONFERRONI")) {
 			m = SignificanceMethod.STD_BONFERRONI;
-		} else if(line.equals(SignificanceMethod.ADJ_BONFERRONI)) {
+		} else if(line.equals("ADJ_BONFERRONI")) {
 			m = SignificanceMethod.ADJ_BONFERRONI;
-		} else if(line.equals(SignificanceMethod.MAX_T)) {
+		} else if(line.equals("MAX_T")) {
 			m = SignificanceMethod.MAX_T;
-		} else if(line.equals(SignificanceMethod.MIN_P)) {
+		} else if(line.equals("MIN_P")) {
 			m = SignificanceMethod.MIN_P;
 		} 
 		line = br.readLine();
