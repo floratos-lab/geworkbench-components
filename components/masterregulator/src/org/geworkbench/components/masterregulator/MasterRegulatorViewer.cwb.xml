@@ -8,7 +8,7 @@
 		author="geWorkbench Development Team"
 		authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 		toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
-		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Master_Regulator_Analysis"				
+		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/MRA-FET"				
 		description="The MRA-FET Results Viewer  displays the results of the MRA-FET version of Master
  Regulator analysis.  The results, shown in tabular and bar-code form, represent the enrichment of a set of differentially expressed genes among
  the set of genes regulated by a particular transcription factor."
