@@ -25,13 +25,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -66,7 +62,6 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
-import org.geworkbench.bison.datastructure.biocollections.sequences.CSSequenceSet;
 import org.geworkbench.bison.datastructure.biocollections.sequences.DSSequenceSet;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.CSSequence;
 import org.geworkbench.bison.datastructure.bioobjects.sequence.DSSequence;
@@ -80,8 +75,6 @@ import org.geworkbench.util.patterns.PatternLocations;
 import org.geworkbench.util.patterns.PatternOperations;
 import org.geworkbench.util.patterns.PatternSequenceDisplayUtil;
 
-
-
 /**
  * <p>Widget provides all GUI services for sequence panel displays.</p>
  * <p>Widget is controlled by its associated component, SequenceViewAppComponent</p>
@@ -94,22 +87,12 @@ import org.geworkbench.util.patterns.PatternSequenceDisplayUtil;
 public final class PromoterViewPanel extends JPanel {
 	private static final long serialVersionUID = -6523545577029722522L;
 
-	private class ScoreStats {
-        public double score;
-        public double pValue;
-        
-        public ScoreStats(double score, double pValue) {
-        	this.score = score;
-        	this.pValue = pValue;
-        }
-    }
-
     private PromoterView promoterView;
     private DSSequenceSet<DSSequence> sequenceDB = null;
     private JFileChooser fc = null;
     private JFileChooser fc2 = null;
     private ImagePanel jInfoPanel = new ImagePanel();
-    private DSSequenceSet<DSSequence> background = null;
+
     private TreeMap<String,
             TranscriptionFactor> tfMap = new TreeMap<String,
                                          TranscriptionFactor>();
@@ -180,10 +163,9 @@ public final class PromoterViewPanel extends JPanel {
 
     private BorderLayout borderLayout5 = new BorderLayout();
     private JScrollPane jScrollPane2 = new JScrollPane();
-    private boolean isRunning = false;
-    private boolean stop = false;
+
+    private volatile boolean stop = false;
     private int averageNo = 10;
-    private double pValue = 0.05;
 
     private ArrayList<TranscriptionFactor> promoterPatterns = new ArrayList<TranscriptionFactor>();
 
@@ -1318,240 +1300,100 @@ public final class PromoterViewPanel extends JPanel {
      * Begin to scan the sequences.
      */
     private void mappingPatterns() {
-        if (!isRunning) {
+        
+    		double p = 0.05;
+
             averageNo = 10;
             try {
                 averageNo = Integer.parseInt(iterationBox.getText());
             } catch (NumberFormatException ex) {
             }
             try {
-                pValue = Double.parseDouble(pValueField.getText());
+                p = Double.parseDouble(pValueField.getText());
             } catch (NumberFormatException ex) {
             }
+            if (p < 0.05) {
+                p = 0.05;
+                DecimalFormat formatPV = new DecimalFormat("0.0000");
+                pValueField.setText(formatPV.format(p));
+            }
+
+			double threhold0 = 0;
+			if (useThresholdCheck.isSelected()) {
+				threhold0 = Double.parseDouble(thresholdBox.getText());
+			}
 
             jProgressBar1.setIndeterminate(false);
             jProgressBar1.setMinimum(0);
             jProgressBar1.setMaximum(100);
             jProgressBar1.setStringPainted(true);
-
-            Thread t = new Thread() {
-                public void run() {
-                    DecimalFormat format = new DecimalFormat("0.###E0");
-                    DecimalFormat formatInt = new DecimalFormat("0");
-                    DecimalFormat formatPV = new DecimalFormat("0.0000");
-                    ArrayList<TranscriptionFactor> ar = new ArrayList<TranscriptionFactor>();
-                    double threshold = 0;
-
-                    if (pValue < 0.05) {
-                        pValue = 0.05;
-                        pValueField.setText(formatPV.format(pValue));
-                    }
-                    RandomSequenceGenerator rs = new
-                                                 RandomSequenceGenerator(
-                            sequenceDB, pValue);
-
-                    MatchStats msActual = new MatchStats();
-                    MatchStats msExpect = new MatchStats();
-                    int seqNo = 0;
-                    int totalLength = 0;
-                    for (Enumeration<?> en = selectedTFModel.elements(); en.hasMoreElements(); ) {
-                        TranscriptionFactor pattern = (TranscriptionFactor)en.nextElement();
-                        if (pattern == null) continue;
-                        
-                        jProgressBar1.setString("Processing :" + pattern.getName());
-
-						ar.add(pattern);
-						ScoreStats stats = null;
-						// Load the 13K set if needed
-						if (set13KCheck.isSelected()) {
-							load13KBSet();
-						} else {
-							background = null;
-						}
-						if (useThresholdCheck.isSelected()) {
-							pValue = 0.05;
-							threshold = Double.parseDouble(thresholdBox
-									.getText());
-						} else {
-							if (background != null) {
-								// compute the threshold from the required
-								// pValue
-								// using the predefiedn background database
-								stats = getThreshold(pattern, background,
-										pValue);
-							} else {
-								// compute the threshold from the required
-								// pValue
-								// using a random generative model
-								stats = getThreshold(pattern, rs, pValue);
-							}
-							// assign the new pValue based on what we could find
-							if (stats != null) {
-								pValue = stats.pValue;
-								pValueFieldResult.setText(formatPV
-										.format(pValue));
-								threshold = stats.score * 0.99;
-							} else {
-								// stopped.
-								updateProgressBar(1, "Stopped on " + new Date());
-								return;
-							}
-						}
-						pattern.setThreshold(threshold);
-						// Lengths are in base pairs (BP) and do not include the
-						// reverse
-						// strand. Analysis is the done on both the normal and
-						// reverse
-						// strand.
-						int partialLength = 0;
-						List<DSPatternMatch<DSSequence, CSSeqRegistration>> matches = new ArrayList<DSPatternMatch<DSSequence, CSSeqRegistration>>();
-						for (int seqId = 0; seqId < sequenceDB.size(); seqId++) {
-							double progress = (double) seqId
-									/ (double) sequenceDB.size();
-							updateProgressBar(progress,
-									"Discovery: " + pattern.getName());
-							DSSequence seq = sequenceDB.getSequence(seqId);
-							// Count the valid positions so that we can compute
-							// the background matches
-							// in a meaningful way. E.g. don't count # or
-							// stretches that do not contain
-							// valid sequence data
-							int positions = countValid(pattern, seq);
-							if (positions > 10) {
-								seqNo++;
-								partialLength += positions;
-								totalLength += positions;
-
-								if (!useThresholdCheck.isSelected()) {
-									// This assumes that the pvalue has been
-									// correctly estimated
-									// the compute the expected matches from the
-									// p-value
-									int oldMatch = (int) msExpect.matchNo;
-									msExpect.matchNo += pValue
-											* (double) (positions) / 1000.0;
-									msExpect.match5primeNo += pValue
-											* (double) (positions) / 1000.0
-											/ 2.0;
-									msExpect.match3primeNo += pValue
-											* (double) (positions) / 1000.0
-											/ 2.0;
-									if (msExpect.matchNo - oldMatch >= 1) {
-										msExpect.matchSeq++;
-									}
-								}
-								List<DSPatternMatch<DSSequence, CSSeqRegistration>> seqMatches = pattern
-										.match(seq);
-								if (seqMatches.size() > 0) {
-									msActual.matchSeq++;
-								}
-								matches.addAll(seqMatches);
-							}
-							if (stop) {
-								return;
-							}
-						}
-						updateProgressBar(1, "Discovery: " + pattern.getName());
-						if (matches != null) {
-							for (DSPatternMatch<DSSequence, CSSeqRegistration> match : matches) {
-								if (match.getRegistration().strand == 0) {
-									msActual.match5primeNo++;
-								}
-								if (match.getRegistration().strand == 1) {
-									msActual.match3primeNo++;
-								}
-								msActual.matchNo++;
-							}
-
-							PatternOperations.getPatternColor(pattern
-									.hashCode());
-							if (showTF.isSelected()) {
-								seqDisPanel.addAPattern(pattern, matches);
-							}
-
-							promoterPatternMatches.put(pattern, matches);
-							promoterPatterns.add(pattern);
-						}
-
-						if (useThresholdCheck.isSelected()) {
-							if (set13KCheck.isSelected()) { // set13KCheck
-								// using the length of the current sequences as
-								// background, determine an appropriate pvalue
-								// from the 13K Set
-								getMatchesPerLength(pattern, partialLength,
-										threshold, background, null, msExpect);
-							} else {
-								// using the length of the current sequences as
-								// background, determine an appropriate pvalue
-								// from random data
-								getMatchesPerLength(pattern, partialLength,
-										threshold, null, rs, msExpect);
-							}
-						}
-                    }
-
-                    jProgressBar1.setIndeterminate(false);
-                    double p = 1.0;
-                    if (msExpect.matchNo > 0) {
-                        p = msExpect.matchNo / (double) totalLength;
-                    }
-                    if (useThresholdCheck.isSelected()) {
-                    	pValueFieldResult.setText(formatPV.format(p * 1000));      
-                    }
-                    int percent = (int) (100 * (double) msActual.matchSeq /
-                                         (double) seqNo);
-                    percentSeqMatchBox.setText(Integer.toString(percent) +
-                                               "%");
-                    int matchCount = (int) msActual.matchNo;
-                    double enrichmentPValue = Math.exp(ClusterStatistics.
-                            logBinomialDistribution(totalLength, matchCount,
-                            p));
-                    enrichmentPValue +=
-                            Math.exp(ClusterStatistics.
-                                     logBinomialDistribution(totalLength,
-                            matchCount + 1, p));
-                    enrichmentPValue +=
-                            Math.exp(ClusterStatistics.
-                                     logBinomialDistribution(totalLength,
-                            matchCount + 2, p));
-                    enrichmentPValue +=
-                            Math.exp(ClusterStatistics.
-                                     logBinomialDistribution(totalLength,
-                            matchCount + 3, p));
-                    enrichmentPValue +=
-                            Math.exp(ClusterStatistics.
-                                     logBinomialDistribution(totalLength,
-                            matchCount + 4, p));
-                    enrichmentPValue +=
-                            Math.exp(ClusterStatistics.
-                                     logBinomialDistribution(totalLength,
-                            matchCount + 5, p));
-                    enrichmentBox.setText(format.format(enrichmentPValue));
-                    expectedCountBox.setText(formatPV.format(msExpect.
-                            matchNo));
-                    expectedSeqCountBox.setText(formatInt.format(msExpect.
-                            matchSeq));
-                    seqCountBox.setText(formatInt.format(msActual.matchSeq));
-                    match5PrimeActualBox.setText(formatInt.format(msActual.
-                            match5primeNo));
-                    match3PrimeActualBox.setText(formatInt.format(msActual.
-                            match3primeNo));
-                    match5PrimeExpectBox.setText(formatPV.format(msExpect.
-                            match5primeNo));
-                    match3PrimeExpectBox.setText(formatPV.format(msExpect.
-                            match3primeNo));
-                    thresholdResult.setText(format.format(threshold));
-                    countBox.setText(formatInt.format(matchCount));
-                    updateProgressBar(0, "Done");
-
-                }
-
-            };
-            t.setPriority(Thread.MIN_PRIORITY);
+            
+            ScanWorker worker = new ScanWorker(p, sequenceDB, selectedTFModel, set13KCheck.isSelected(), this, useThresholdCheck.isSelected(), threhold0);
             stop = false;
-            isRunning = false;
-            t.start();
+            worker.execute();
+    }
+    
+    // after the scanning finishes
+    void updateAfterScanning(MatchStats msActual, MatchStats msExpect, int totalLength, int seqNo, double threshold, double pValue) {
+        DecimalFormat format = new DecimalFormat("0.###E0");
+        DecimalFormat formatInt = new DecimalFormat("0");
+        DecimalFormat formatPV = new DecimalFormat("0.0000");
+
+        double p = 1.0;
+        if (msExpect.matchNo > 0) {
+            p = msExpect.matchNo / (double) totalLength;
         }
+        if (useThresholdCheck.isSelected()) {
+        	pValueFieldResult.setText(formatPV.format(p * 1000));      
+        } else {
+			pValueFieldResult.setText(formatPV
+					.format(pValue));
+        }
+        int percent = (int) (100 * (double) msActual.matchSeq /
+                             (double) seqNo);
+        percentSeqMatchBox.setText(Integer.toString(percent) +
+                                   "%");
+        int matchCount = (int) msActual.matchNo;
+        double enrichmentPValue = Math.exp(ClusterStatistics.
+                logBinomialDistribution(totalLength, matchCount,
+                p));
+        enrichmentPValue +=
+                Math.exp(ClusterStatistics.
+                         logBinomialDistribution(totalLength,
+                matchCount + 1, p));
+        enrichmentPValue +=
+                Math.exp(ClusterStatistics.
+                         logBinomialDistribution(totalLength,
+                matchCount + 2, p));
+        enrichmentPValue +=
+                Math.exp(ClusterStatistics.
+                         logBinomialDistribution(totalLength,
+                matchCount + 3, p));
+        enrichmentPValue +=
+                Math.exp(ClusterStatistics.
+                         logBinomialDistribution(totalLength,
+                matchCount + 4, p));
+        enrichmentPValue +=
+                Math.exp(ClusterStatistics.
+                         logBinomialDistribution(totalLength,
+                matchCount + 5, p));
+        enrichmentBox.setText(format.format(enrichmentPValue));
+        expectedCountBox.setText(formatPV.format(msExpect.
+                matchNo));
+        expectedSeqCountBox.setText(formatInt.format(msExpect.
+                matchSeq));
+        seqCountBox.setText(formatInt.format(msActual.matchSeq));
+        match5PrimeActualBox.setText(formatInt.format(msActual.
+                match5primeNo));
+        match3PrimeActualBox.setText(formatInt.format(msActual.
+                match3primeNo));
+        match5PrimeExpectBox.setText(formatPV.format(msExpect.
+                match5primeNo));
+        match3PrimeExpectBox.setText(formatPV.format(msExpect.
+                match3primeNo));
+        thresholdResult.setText(format.format(threshold));
+        countBox.setText(formatInt.format(matchCount));
+        updateProgressBar(0, "Done");
     }
 
     /* show the patterns over sequence viewer */
@@ -1608,36 +1450,6 @@ public final class PromoterViewPanel extends JPanel {
 		}
     }
 
-    @SuppressWarnings("unchecked")
-	private void load13KBSet() {
-        if (background == null) {
-            try {
-                URL set13K = new URL(System.getProperty(
-                        "data.download.site") +
-                                     "13K.fa");
-                File set13KFile = new File(FilePathnameUtils
-						.getTemporaryFilesDirectoryPath() + "13K.fa");
-                if (!set13KFile.exists()) {
-                    BufferedReader br = new BufferedReader(new
-                            InputStreamReader(set13K.openStream()));
-                    BufferedWriter bw = new BufferedWriter(new FileWriter(
-                            set13KFile));
-                    String line = null;
-                    while ((line = br.readLine()) != null) {
-                        bw.write(line + "\n");
-                    }
-                    bw.flush();
-                    bw.close();
-                    br.close();
-                }
-                background = CSSequenceSet.getSequenceDB(set13KFile);
-            } catch (MalformedURLException mfe) {
-                mfe.printStackTrace();
-            } catch (IOException ioe) {
-                ioe.printStackTrace();
-            }
-        }
-    }
 
 
     private void useThresholdCheck_actionPerformed(ActionEvent e) {
@@ -1652,7 +1464,7 @@ public final class PromoterViewPanel extends JPanel {
 	}
 
 
-    private void updateProgressBar(final double percent, final String text) {
+    void updateProgressBar(final double percent, final String text) {
         Runnable r = new Runnable() {
             public void run() {
                     jProgressBar1.setForeground(Color.GREEN);
@@ -1664,158 +1476,6 @@ public final class PromoterViewPanel extends JPanel {
             }
         };
         SwingUtilities.invokeLater(r);
-    }
-
-
-    private ScoreStats getThreshold(TranscriptionFactor pattern,
-                                   RandomSequenceGenerator rg,
-                                   double pValue) {
-        // computes the score based on a probability of a match of pValue
-        // To get goo statistics, we expect at least 100 matches to exceed
-        // the threshold in the null hypothesis. Hence, this is the number
-        // of 1KB sequences we must test.
-        int seqLen = 1000;
-        int seqNo = (int) (100 / pValue);
-        double scores[] = new double[seqLen * 3];
-
-        for (int i = 0; i < seqNo; i++) {
-            if (stop) {
-                return null;
-            }
-            double progress = (double) i / (double) seqNo;
-            updateProgressBar(progress, "Computing Null Hypothesis");
-            DSSequence sequence = rg.getRandomSequence(seqLen +
-                    pattern.getLength());
-            pattern.getMatrix().collectSequenceScores(sequence, scores);
-        }
-        int x = scores.length - 101;
-        while ((x < scores.length) && scores[x - 1] == scores[x]) {
-            x++;
-        }
-        if (x >= scores.length) {
-            x = scores.length - 101;
-            while ((x > scores.length - 1000) && scores[x - 1] == scores[x]) {
-                x--;
-            }
-        }
-        return new ScoreStats(scores[x],
-        		(double) (scores.length - x - 1) / (double) seqNo);
-    }
-
-
-    private ScoreStats getThreshold(TranscriptionFactor pattern,
-                                   DSSequenceSet<DSSequence> seqDB, double pValue) {
-        // computes the score based on a probability of a match of pValue
-        // To get goo statistics, we expect at least 100 matches to exceed
-        // the threshold in the null hypothesis. Hence, this is the number
-        // of 1KB sequences we must test.
-
-        // Total number of tokens required to compute statistics
-        int totalLength = (int) (1000 * 100 / pValue);
-        int partialLength = 0;
-        int maxSeqLen = 2000;
-        double scores[] = new double[maxSeqLen * 3];
-
-        while (partialLength < totalLength) {
-            if (stop) {
-                return null;
-            }
-            int i = (int) (Math.random() * seqDB.size());
-            DSSequence sequence = seqDB.getSequence(i);
-            double progress = (double) partialLength / (double) totalLength;
-            updateProgressBar(progress, "Computing Null Hypothesis");
-            pattern.getMatrix().collectSequenceScores(sequence, scores);
-            partialLength +=
-                    Math.min(countValid(pattern, sequence), maxSeqLen);
-        }
-
-        int x = scores.length - 101;
-        while ((x < scores.length) && scores[x - 1] == scores[x]) {
-            x++;
-        }
-        if (x >= scores.length) {
-            x = scores.length - 101;
-            while ((x > scores.length - 1000) && scores[x - 1] == scores[x]) {
-                x--;
-            }
-        }
-        return new ScoreStats(scores[x],
-        		(double) (scores.length - x - 1) / (double) partialLength * 1000);
-    }
-
-
-    private void getMatchesPerLength(TranscriptionFactor pattern, int length,
-                                    double threshold, DSSequenceSet<DSSequence> seqDB,
-                                    RandomSequenceGenerator rg,
-                                    MatchStats ms) {
-        // Determine the number of iterations so that the statistics are good
-        int partialLength = 0;
-        int totalLength = length * averageNo;
-        while (partialLength < totalLength) {
-            double progress = (double) partialLength / (double) totalLength;
-            updateProgressBar(progress, "Computing Null Hypothesis");
-            DSSequence sequence = null;
-            if (seqDB != null) {
-                int i = (int) (Math.random() * seqDB.size());
-                sequence = seqDB.getSequence(i);
-            } else if (rg != null) {
-                sequence = rg.getRandomSequence(1000 + pattern.getLength());
-            } else {
-                return;
-            }
-            pattern.getMatrix().countSequenceMatches(length, threshold,
-                    averageNo, partialLength, sequence, ms);
-            partialLength += countValid(pattern, sequence);
-        }
-        ms.match3primeNo = (int) ms.match3primeNo / (double) averageNo;
-        ms.match5primeNo = (int) ms.match5primeNo / (double) averageNo;
-        ms.matchNo = (int) ms.matchNo / (double) averageNo;
-        ms.matchSeq = (int) ms.matchSeq / (double) averageNo;
-
-    }
-
-
-    private boolean isBasePair(char c) {
-        switch (c) {
-        case 'A':
-        case 'C':
-        case 'G':
-        case 'T':
-        case 'U':
-            return true;
-        default:
-            return false;
-        }
-    }
-
-    private int countValid(TranscriptionFactor tf, DSSequence seq) {
-        int validPositions = 0;
-        int valid = 0;
-        int tfLen = tf.getLength();
-        String ascii = seq.getSequence();
-
-        if (ascii.length() >= tfLen) {
-            for (int i = 0; i < tfLen; i++) {
-                char c = Character.toUpperCase(ascii.charAt(i));
-                if (isBasePair(c)) {
-                    valid++;
-                }
-            }
-            for (int i = tfLen; i < ascii.length(); i++) {
-                char c1 = Character.toUpperCase(ascii.charAt(i));
-                char c2 = Character.toUpperCase(ascii.charAt(i - tfLen));
-                if (isBasePair(c1)) {
-                    valid++;
-                } 
-                if (isBasePair(c2)) {
-                    valid--;
-                } 
-                if (valid >= tfLen) {
-                    validPositions++;
-                }
-            }
-        }
-        return validPositions;
     }
 
     private void clearButton_actionPerformed(ActionEvent e) {
@@ -1891,4 +1551,21 @@ public final class PromoterViewPanel extends JPanel {
         }
     }
 
+	public int getAverageNo() {
+		return averageNo;
+	}
+
+	public boolean isCancelled() {
+		return stop;
+	}
+
+	// this method is invoked from background thread. 
+	void addMatches(TranscriptionFactor pattern, List<DSPatternMatch<DSSequence, CSSeqRegistration>> matches) {
+		if (showTF.isSelected()) {
+			seqDisPanel.addAPattern(pattern, matches); // FIXME use SwingUtilities.invokeLater
+		}
+
+		promoterPatternMatches.put(pattern, matches);
+		promoterPatterns.add(pattern);
+	}
 }
