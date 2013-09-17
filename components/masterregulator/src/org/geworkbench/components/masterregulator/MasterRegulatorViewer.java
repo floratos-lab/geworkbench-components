@@ -91,6 +91,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 	// Here use leading space.
 	String[] detailColumnNames = { "Markers in intersection set",
 			" -log10(P-value) * sign of t-value" };
+	private static final int pvalCol = 1;
 	DSMasterRagulatorResultSet<DSGeneMarker> MRAResultSet;
 	boolean useSymbol = true;
 
@@ -107,6 +108,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 	private JScrollPane gspane2 = new JScrollPane(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 	private static final int col0w = 120, col2w = 40;
 	private static final String[] graphheader = new String[]{"Master Regulator","Bar Graph","Mode"};
+	private static final int bargraphCol = 1;
 	private GraphTableModel bgm = new GraphTableModel(new Object[0][3], graphheader);
 	private JTable graphtable = new JTable(bgm);
 	private GraphTableModel gdm = new GraphTableModel(new Object[0][3], graphheader);
@@ -484,7 +486,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		}
 		// myTableModel.updateData(data);
 		tv.setTableModel(data);
-		((DefaultViewerTableModel) tv.model).sort(1); //sort by p-values
+		sortSummaryTable();
 		tv.table.getColumnModel().getColumn(modeCol).setMaxWidth(42); // mode width
 
 		tv.updateUI();
@@ -493,6 +495,10 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		tv2.setTableModel(new String[0][0]);
  
 		tv2.updateUI();
+	}
+
+	protected void sortSummaryTable(){
+		((DefaultViewerTableModel) tv.model).sort(pvalCol); //sort by p-values
 	}
 
 	void updateGraph(){
@@ -534,7 +540,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		graphtable.setRowHeight(h);
 		int length = gspane.getViewport().getWidth() - col0w - col2w - gspane.getVerticalScrollBar().getWidth();
 		if (length <= 0) length = gspane.getViewport().getWidth();
-		graphtable.getColumnModel().getColumn(1).setPreferredWidth(length); 
+		graphtable.getColumnModel().getColumn(bargraphCol).setPreferredWidth(length); 
 
 		int markercnt = 0;
 		if (MRAResultSet != null && n > 0) markercnt = MRAResultSet.getMarkerCount();
@@ -548,7 +554,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		gradientdata[0][2] = "";
 
 		gdm.setDataVector(gradientdata, graphheader);
-		gradienttable.getColumnModel().getColumn(1).setPreferredWidth(length); 
+		gradienttable.getColumnModel().getColumn(bargraphCol).setPreferredWidth(length); 
 	}
 	
 	private void initGraphTables(){
@@ -685,7 +691,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		}
 		// myTableModel.updateData(data);
 		tv.setTableModel(data);	 
-		((DefaultViewerTableModel) tv.model).sort(1, false); //sort by display values in descending order
+		((DefaultViewerTableModel) tv.model).sort(pvalCol, false); //sort by display values in descending order
 		tv.updateUI();
 		if (useSymbol)
 			tfAHolder.setValue(tfA.getShortName());

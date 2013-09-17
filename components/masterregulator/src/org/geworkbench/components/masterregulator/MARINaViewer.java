@@ -35,6 +35,7 @@ public class MARINaViewer extends MasterRegulatorViewer{
 	String[] columnNames = { "Master Regulator", "GSEA P-Value", "Markers in regulon",
 			"Num Leading Edge", "Odds Ratio", "NES", "absNES", "Mode" };
 	String[] detailColumnNames = { "Markers in Leading Edge", " -log10(P-value) * sign of t-value" };
+	private static final int absnesCol = 6;
 
 	public MARINaViewer(){
 		tv.headerNames = columnNames;
@@ -50,7 +51,6 @@ public class MARINaViewer extends MasterRegulatorViewer{
 			SwingUtilities.invokeLater(new Runnable(){
 				public void run(){
 					updateTable();
-					((DefaultViewerTableModel) tv.model).sort(6, false); //sort by absNES in descending order
 					for (int i = 1; i < columnNames.length-1; i++)
 						tv.setNumerical(i, true);
 					updateSelectedTF(MRAResultSet, currentSelectedtfA, tv2);
@@ -58,6 +58,10 @@ public class MARINaViewer extends MasterRegulatorViewer{
 				}
 			});
 		}
+	}
+	
+	protected void sortSummaryTable(){
+		((DefaultViewerTableModel) tv.model).sort(absnesCol, false); //sort by absNES in descending order
 	}
 	
 	private DSMasterRagulatorResultSet<DSGeneMarker> convert(DSMasterRegulatorTableResultSet marinaResultSet){
