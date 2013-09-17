@@ -81,8 +81,14 @@ public class Hsp {
 				percentage = 100 * identity[i] / alignLen[i];
 			}
 
+			int pctgGap = (int) Math.round(100. * gaps[i] / alignLen[i]);
+			if (pctgGap == 100) { // don't round to 100% if it is not really
+				pctgGap = 100 * gaps[i] / alignLen[i];
+			}
+			
 			sb.append("Identities = " + identity[i] + "/" + alignLen[i] + " ("
-					+ percentage + "%), Gaps = " + gaps[i] + "/" + alignLen[i]
+					+ percentage + "%), Gaps = " + gaps[i] + "/" + alignLen[i] + " ("
+					+ pctgGap + "%)" 
 					+ makeStrandOrFrameText(queryFrame[i], hitFrame[i])+"\n");
 
 			sb.append("\n");
