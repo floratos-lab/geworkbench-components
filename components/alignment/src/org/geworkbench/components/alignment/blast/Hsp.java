@@ -158,9 +158,9 @@ public class Hsp {
 		if(programName.equals("blastn")) {
 			sb.append(", Strand ");
 			if(queryFrame==1) sb.append("Plus");
-			else if(queryFrame==-1) sb.append("/Minus");
+			else if(queryFrame==-1) sb.append("Minus");
 
-			if(hitFrame==1) sb.append("Plus");
+			if(hitFrame==1) sb.append("/Plus");
 			else if(hitFrame==-1) sb.append("/Minus");
 		} else if (programName.equals("blastx") || programName.equals("tblastn")
 				|| programName.equals("tblastx")) {
