@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -44,12 +45,16 @@ import org.apache.commons.logging.LogFactory;
 import org.geworkbench.analysis.AbstractSaveableParameterPanel;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrix;
 import org.geworkbench.bison.datastructure.biocollections.AdjacencyMatrixDataSet;
+import org.geworkbench.bison.datastructure.biocollections.DSAncillaryDataSet;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.builtin.projects.DataSetNode;
+import org.geworkbench.builtin.projects.DataSetSubNode;
 import org.geworkbench.builtin.projects.ProjectPanel;
+import org.geworkbench.builtin.projects.ProjectSelection;
 import org.geworkbench.events.listeners.ParameterActionListener;
 import org.geworkbench.parsers.AdjacencyMatrixFileFormat;
 import org.geworkbench.parsers.InputFileFormatException;
@@ -403,16 +408,8 @@ public final class MRAPanel extends AbstractSaveableParameterPanel {
 					networkMatrix.setEnabled(true);
 					loadNetworkButton.setEnabled(false);
 					networkTextField.setEnabled(false);
-					// clear combo box
-					// load adj matrix into the list
-					/*
-					 * for (Iterator iterator =
-					 * adjacencymatrixDataSets.iterator(); iterator .hasNext();) {
-					 * AdjacencyMatrixDataSet element = (AdjacencyMatrixDataSet)
-					 * iterator.next();
-					 * System.out.println("add"+element.getDataSetName()+"to
-					 * combo box."); }
-					 */
+					
+					updateNetworkList();
 				} else if (evt.getNewValue() == "From File") {
 					networkMatrix.setEnabled(false);
 					loadNetworkButton.setEnabled(true);
@@ -1057,4 +1054,29 @@ public final class MRAPanel extends AbstractSaveableParameterPanel {
 		return histStr.toString();
 	}
 
+	private void updateNetworkList() {
+		ProjectSelection selection = ProjectPanel.getInstance().getSelection();
+		DataSetNode dNode = selection.getSelectedDataSetNode();
+		if (dNode == null) {
+			return;
+		}
+
+		String currentTargetSet = this.getSelectedAdjMatrix();
+		this.clearAdjMatrixCombobox();
+		Enumeration<?> children = dNode.children();
+		while (children.hasMoreElements()) {
+			Object obj = children.nextElement();
+			if (obj instanceof DataSetSubNode) {
+				DSAncillaryDataSet<?> ads = ((DataSetSubNode) obj)._aDataSet;
+				if (ads instanceof AdjacencyMatrixDataSet) {
+					this.addAdjMatrixToCombobox((AdjacencyMatrixDataSet) ads);
+					if (currentTargetSet != null
+							&& StringUtils.equals(ads.getDataSetName(),
+									currentTargetSet.trim())) {
+						this.setSelectedAdjMatrix(ads.getDataSetName());
+					}
+				}
+			}
+		}
+	}
 }
