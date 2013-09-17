@@ -102,8 +102,14 @@ public class Hsp {
 					queryFromModified = queryTo[i];
 				}
 			}
-			if(hitFrame[i]<0) hitDirection = -1;
-			sb.append(formatSequence(alignLen[i], queryFromModified, hitFrom[i],
+			int hitFromModified = hitFrom[i];
+			if(hitFrame[i]<0) {
+				hitDirection = -1;
+				if(hitFrom[i]<hitTo[i]) { // the starting and ending points are not switched
+					hitFromModified = hitTo[i];
+				}
+			}
+			sb.append(formatSequence(alignLen[i], queryFromModified, hitFromModified,
 					qseq[i], midline[i], hseq[i], queryStep, hitStep, queryDirection, hitDirection));
 		}
 		return sb.toString();
