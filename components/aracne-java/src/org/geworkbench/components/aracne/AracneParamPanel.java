@@ -133,7 +133,7 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 
         builder.append("Hub Marker(s)", hubCombo); 
         hubCombo.setSelectedIndex(1);	//default setting is From Sets
-		markerSetCombo.setEnabled(false);
+		markerSetCombo.setEnabled(true);
         builder.append(markerSetCombo, hubMarkerList, loadMarkersButton);
 
         /* choices of three modes     */
