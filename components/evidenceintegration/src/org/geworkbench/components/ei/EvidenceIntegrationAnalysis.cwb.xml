@@ -1,0 +1,24 @@
+<component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
+
+	<component  name="Evidence Integration Analysis"
+				class="org.geworkbench.components.ei.EvidenceIntegrationAnalysis"
+				version="1.0"
+				author="Califano lab (C2B2)"
+				authorURL="http://wiki.c2b2.columbia.edu/califanolab/index.php/Califano_Info"
+				toolURL="http://wiki.c2b2.columbia.edu/califanolab/index.php/Software"
+				description="The Evidence Integration component examines heterogeneous evidence of a particular gene-gene relationship (e.g. protein-protein interaction) from multiple sources and provides a framework for assessing the accuracy of the evidence for predicting this relationship and for integrating them into a single evidence item for a gene pair. "
+				category="analysis"
+	 >
+		<required-component class="org.geworkbench.components.ei.EvidenceIntegrationVisualization" />
+		<license><![CDATA[
+			<html><head><meta http-equiv=Content-Type content="text/html; charset=windows-1252"></head>
+				<body>----</body>
+			</html>
+		]]></license>
+
+
+	</component>
+
+	<plugin id="EvidenceIntegrationAnalysis" name="Evidence Integration Analysis" class="org.geworkbench.components.ei.EvidenceIntegrationAnalysis" source="evidenceintegration"/>
+
+</component-descriptor>

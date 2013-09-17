@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/evidence-integration-0.1.jar"/>
+	<classpathentry kind="lib" path="lib/junit-4.1.jar"/>
+	<classpathentry kind="lib" path="lib/mysql-connector-java-5.0.5-bin.jar"/>
+	<classpathentry kind="lib" path="lib/swingx-2006_10_27.jar"/>
+	<classpathentry kind="lib" path="lib/trove.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/geworkbench-core"/>
+	<classpathentry kind="output" path="classes"/>
+</classpath>

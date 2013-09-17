@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database_list>
+	<database name="nr" type="nucleotide">
+		<description>Nucleotide collection</description>
+		<detail>All GenBank + RefSeq Nucleotides + EMBL
++ DDBJ + PDB sequences (excluding HTGS0,1,2,
+EST, GSS, STS, PAT, WGS).
+No longer "non-redundant".</detail>
+	</database>
+	
+	<database name="refseq_rna" type="nucleotide">
+		<description>Reference mRNA sequences</description>
+		<detail>RNA entries from NCBI's Reference Sequence
+project.
+		</detail>
+	</database>
+	
+	<database name="refseq_genomic" type="nucleotide">
+		<description>Reference genomic sequences</description>
+		<detail>Genomic entries from NCBI's
+Reference Sequence project.</detail>
+	</database>
+	
+	<database name="chromosome" type="nucleotide">
+		<description>NCBI Genomes</description>
+		<detail>Complete genomes and complete chromosomes
+from the NCBI Reference Sequence project.
+It overlaps with refseq_genomic.</detail>
+	</database>
+	
+	<database name="est" type="nucleotide">
+		<description>Expressed Sequence Tags</description>
+		<detail>Database of GenBank + EMBL + DDBJ
+sequences from EST Divisions.</detail>
+	</database>
+	
+	<database name="est_human" type="nucleotide">
+		<description>Human subset of EST</description>
+		<detail>Human subset of EST.</detail>
+	</database>
+	
+	<database name="est_mouse" type="nucleotide">
+		<description>Mouse subset of EST</description>
+		<detail>Mouse subset of EST.</detail>
+	</database>
+	
+	<database name="est_others" type="nucleotide">
+		<description>Non-human, non-mouse ESTs</description>
+		<detail>Subset of est other than human or mouse.</detail>
+	</database>
+	
+	<database name="gss" type="nucleotide">
+		<description>Genomic survey sequences</description>
+		<detail>Genome Survey Sequence,
+includes single-pass genomic data,
+exon-trapped sequences,
+and Alu PCR sequences.</detail>
+	</database>
+	
+	<database name="htgs" type="nucleotide">
+		<description>High throughput genomic sequences</description>
+		<detail>Unfinished High Throughput Genomic Sequences:
+phases 0, 1 and 2. (Finished, phase 3 HTG
+sequences are in nr).</detail>
+	</database>
+	
+	<database name="pat" type="nucleotide">
+		<description>Patent sequences</description>
+		<detail>Nucleotides from the Patent division
+of GenBank.</detail>
+	</database>
+	
+	<database name="pdb" type="nucleotide">
+		<description>Protein Data Bank</description>
+		<detail>Sequences derived from the 3-dimensional
+structure records from Protein Data Bank.</detail>
+	</database>
+
+	<database name="alu" type="nucleotide">
+		<description>Human ALU repeat elements</description>
+		<detail>alu repeat elements.</detail>
+	</database>
+	
+<database name="dbsts" type="nucleotide">
+	<description>Sequence tagged sites</description>
+	<detail>Database of GenBank+EMBL+DDBJ
+sequences from STS Divisions.</detail>
+</database>
+
+<database name="wgs" type="nucleotide">
+	<description>Whole Genome Shotgun reads</description>
+	<detail>A database for whole genome
+shotgun sequence entries.
+	</detail>
+</database>
+
+<database name="env_nt" type="nucleotide">
+		<description>Environmental samples</description>
+		<detail>Nucleotide sequences from environmental
+samples, including those from Sargasso Sea
+and Mine Drainage projects.
+</detail>
+	</database>
+
+	<database name="nr" type="protein">
+		<description>Non-redundant protein sequences</description>
+		<detail>All non-redundant GenBank CDS translations
++ RefSeq Proteins + PDB + SwissProt + PIR
++ PRF.</detail>
+	</database>
+	
+	<database name="refseq_protein" type="protein">
+		<description>Reference proteins</description>
+		<detail>RefSeq protein sequences from NCBI's
+Reference Sequence Project.</detail>
+	</database>
+	
+	<database name="swissprot" type="protein">
+		<description>Swissprot protein sequences</description>
+		<detail>Lastest major release of the SWISS-PROT
+protein sequence database 
+(no incremental updates).</detail>
+	</database>
+	
+	<database name="pat" type="protein">
+		<description>Patented protein sequences</description>
+		<detail>Proteins from the Patent division of GenPept.</detail>
+	</database>
+	
+	<database name="pdb" type="protein">
+		<description>Protein Data Bank proteins</description>
+		<detail>Sequences derived from the 3-dimensional
+structure records from the Protein Data Bank.</detail>
+	</database>
+	
+	<database name="env_nr" type="protein">
+		<description>Environmental samples</description>
+		<detail>Protein sequences from environmental
+samples.</detail>
+	</database>
+
+</database_list>
