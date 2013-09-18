@@ -16,6 +16,8 @@ import java.awt.Component;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import java.awt.BorderLayout;
 
@@ -23,6 +25,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
 
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
@@ -34,6 +38,8 @@ import javax.swing.AbstractListModel;
 import javax.swing.ListModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.JDialog;
+import javax.swing.JEditorPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -53,6 +59,7 @@ import org.geworkbench.bison.datastructure.biocollections.lincs.LincsDataSet;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults; 
 import org.geworkbench.bison.util.colorcontext.ColorContext;
 import org.geworkbench.builtin.projects.ProjectPanel; 
+ 
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.engine.management.Subscribe;
@@ -64,6 +71,9 @@ import org.geworkbench.parsers.TabDelimitedDataMatrixFileFormat;
 import org.geworkbench.service.lincs.data.xsd.ExperimentalData;
 import org.geworkbench.service.lincs.data.xsd.ComputationalData;
 import org.geworkbench.util.FilePathnameUtils;
+import org.jdom.Document;
+import org.jdom.Element; 
+import org.jdom.input.SAXBuilder;
  
 
 /**
@@ -88,8 +98,8 @@ public class LincsInterface extends JPanel implements VisualPlugin{
 	private final static String NETWORK = "Network";
 	private final static String HEATMAP = "Heatmap";
 
-	public static final String PROPERTIES_FILE = "conf/application.properties";
-	public static final String LINCS_WEB_SERVICE_URL = "lincs_web_services_url";
+	public static final String PROPERTIES_FILE = "conf" + FilePathnameUtils.FILE_SEPARATOR + "application.properties";	 
+	public static final String LINCS_WEB_SERVICE_URL = "lincs_web_services_url";	
 
 	private JPanel queryTypePanel = new JPanel();
 	private JPanel queryConditionPanel1 = new JPanel();
@@ -120,6 +130,8 @@ public class LincsInterface extends JPanel implements VisualPlugin{
 	private List<String> freeVariables;
 	 
 	private static Lincs lincs = null;
+	private static String licenseContent = "---";
+	
 	private static final String lincsDir = FilePathnameUtils
 			.getUserSettingDirectoryPath()
 			+ "lincs"
@@ -127,7 +139,9 @@ public class LincsInterface extends JPanel implements VisualPlugin{
 
 	List<String> hideColumnList = new ArrayList<String>();
 
-	public LincsInterface() {
+	public LincsInterface() {		
+		
+		final String lincsCwbFileName = this.getClass().getPackage().getName().replace(".", FilePathnameUtils.FILE_SEPARATOR) + FilePathnameUtils.FILE_SEPARATOR + "Lincs.cwb.xml";
 		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 
 		// temp do this, if data is there, then may be take out
@@ -147,9 +161,19 @@ public class LincsInterface extends JPanel implements VisualPlugin{
 		queryTypePanel.add(new JLabel("Query Type"));
 		queryTypePanel.add(experimental);
 		queryTypePanel.add(computational);
+		queryTypePanel.add(new JLabel("                                              "));
+		JLabel viewLicenseLabel = new JLabel("<html><font color=blue><u><b>View License</b></u></font></html>");;
+		queryTypePanel.add(viewLicenseLabel);
+		viewLicenseLabel.addMouseListener(new MouseAdapter()  
+		{  
+		    public void mouseClicked(MouseEvent e)  
+		    {  
+		    	viewLicense_actionPerformed(lincsCwbFileName);
+		    }  
+		}); 
 		String url = getLincsWsdlUrl();
 		// String url =
-		// "http://156.145.28.209:8080/axis2/services/LincsService?wsdl";
+		// "http://localhost:8080/axis2/services/LincsService?wsdl";
 		lincs = new Lincs(url, null, null);
 
 		queryConditionPanel1.setLayout(new GridLayout(2, 7));
@@ -181,8 +205,7 @@ public class LincsInterface extends JPanel implements VisualPlugin{
 		queryConditionPanel1.add(synergyMeasurementLabel);
 		queryConditionPanel1.add(new JLabel(""));
 
-		queryConditionPanel2.setLayout(new GridLayout(1, 7));
-
+		queryConditionPanel2.setLayout(new GridLayout(1, 7));		 
 		List<String> tissueTypeList = null;
 		List<String> drug1List = null;
 		List<String> assayTypeList = null;
@@ -1193,5 +1216,70 @@ public class LincsInterface extends JPanel implements VisualPlugin{
 			return null;
 		}
 		
+	}
+	
+	
+	private void viewLicense_actionPerformed(String FileName) {
+       
+        getLicenseFromFile(FileName);
+        JDialog licenseDialog = new JDialog();
+        final JEditorPane jEditorPane = new JEditorPane("text/html", "");
+        jEditorPane.getDocument().putProperty("IgnoreCharsetDirective",Boolean.TRUE);
+        jEditorPane.setText(licenseContent);
+        if (jEditorPane.getCaretPosition() > 1){
+            jEditorPane.setCaretPosition(1);        	
+        }
+		JScrollPane scrollPane = new JScrollPane(jEditorPane);
+		licenseDialog.setTitle("Lincs Interface License");
+		licenseDialog.setContentPane(scrollPane);
+		licenseDialog.setSize(400,300);
+		licenseDialog.setLocationRelativeTo(this);
+		licenseDialog.setVisible(true);
+	}
+	
+	private void getLicenseFromFile(String fileName) {
+	 
+		if ( licenseContent != "---")
+			return;
+		 
+		SAXBuilder builder = new SAXBuilder();
+		InputStream inputStream = null;
+		try {		 
+			inputStream = this.getClass().getClassLoader().getResourceAsStream(fileName);
+			if (inputStream != null) {
+				Document doc = null;			 
+			    doc = builder.build(inputStream);
+			 
+				Element root = doc.getRootElement();
+				if (root.getName().equals("component-descriptor")) {					 
+					for (Object objElement: root.getChildren() ) {
+						Element element = (Element)objElement;
+						if (element.getName().equals("component")) {							 
+							for (Object obj: element.getChildren() ) {
+								Element subElement = (Element)obj;
+								String type = subElement.getName();						 
+								if (type.equals("license")) {
+									licenseContent = subElement.getTextTrim();
+								    return;
+								}								 
+							}						
+						}					 
+					}					 
+				} // end of if open element is correct
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage());
+			 
+		} finally {
+			try {
+				if (inputStream != null)
+				 inputStream.close();
+			} catch (IOException e) {
+				log.error(e.getMessage());
+				 
+			}
+		}
+
+		 
 	}
 }
