@@ -8,7 +8,9 @@
 		authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 		toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/CeRNA_Query"
-		category="Visualizer, Network, Sequence, Remote Access" loadByDefault="false">
+		description="This component provides query access to a precomputed database of competitive endogenous RNA (ceRNA) interactions, also called sponge interactions. These interactions underlie a post-transcriptional layer of regulation, and were predicted using the Hermes algorithm (Sumazin et al., 2011)." 
+		category="Visualizer, Network, Sequence, Remote Access" 
+		loadByDefault="false">
 	</component>
 
 	<plugin id="CeRNA" name="CeRNA Interface"
