@@ -187,7 +187,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 			}
 		};
 
-		headerBuilder.append("Results for top ");
+		headerBuilder.append("Graphs for top ");
 		headerBuilder.append(numtop);
 		numtop.addActionListener(barListener);
 		
@@ -369,7 +369,7 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 		JMenuItem itemSnapshot;
 		JMenuItem itemToDisk;
 	    public PopUpOptions(){
-	        itemSnapshot = new JMenuItem("Save image to Project (snapshot)");
+	        itemSnapshot = new JMenuItem("Save image to Workspace (snapshot)");
 	        itemToDisk = new JMenuItem("Save image to Disk");
 	        add(itemSnapshot);
 	        add(itemToDisk);
