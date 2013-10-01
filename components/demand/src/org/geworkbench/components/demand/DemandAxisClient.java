@@ -92,8 +92,8 @@ public class DemandAxisClient {
     	serviceOptions.setProperty( Constants.Configuration.ATTACHMENT_TEMP_DIR, System.getProperty("java.io.tmpdir") );
     	serviceOptions.setProperty( Constants.Configuration.CACHE_ATTACHMENTS, Constants.VALUE_TRUE );
     	serviceOptions.setProperty( Constants.Configuration.FILE_SIZE_THRESHOLD, "1024" );
-		// three minute timeout
-		serviceOptions.setTimeOutInMilliSeconds(180000);
+		// 50-hour timeout
+		serviceOptions.setTimeOutInMilliSeconds(180000000);
 
 		ServiceClient serviceClient = new ServiceClient();
 		serviceClient.setOptions(serviceOptions);
