@@ -55,7 +55,7 @@ public class AracneComputation {
 			MicroarraySet microarraySet = getMicroarraySet();
 			final Parameter p = getParamter(); 	
 			int bootstrapNumber = aracneInput.getBootstrapNumber();
-			float pThreshold = aracneInput.getThreshold();
+			float pThreshold = aracneInput.getConsensusThreshold();
 			String paramterDescription = null;
 			switch (p.getMode()) {
 			 
