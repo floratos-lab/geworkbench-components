@@ -71,7 +71,7 @@ public abstract class AbstractTraining extends AbstractAnalysis implements Clust
     	
         if (classifier != null)
         {
-            String history = generateHistoryString(classifier, controlPanel, casePanel, testPanel, markers);
+            String history = generateHistoryString(classifier, view);
             runClassifier(casePanel, controlPanel, testPanel, classifier);
             
             DSExtendable result = null;
@@ -189,9 +189,7 @@ public abstract class AbstractTraining extends AbstractAnalysis implements Clust
     	return "";
     }
 
-    private String generateHistoryString(CSClassifier classifier, DSPanel<DSMicroarray> controlPanel,
-                                         DSPanel<DSMicroarray> casePanel, DSPanel<DSMicroarray> testPanel,
-                                         DSItemList<DSGeneMarker> markers)
+    public String generateHistoryString(CSClassifier classifier, DSMicroarraySetView<DSGeneMarker, DSMicroarray> view)
     {
         String history="";
 
@@ -202,40 +200,7 @@ public abstract class AbstractTraining extends AbstractAnalysis implements Clust
 
 		history+=generateParameterHistory();
 		
-        if(markers != null)
-        {
-            history += "\n Markers activated (" + markers.size() + "): \n";
-            for (int i = 0; i < markers.size(); i++)
-            {
-		        history += "\t\t" + markers.get(i).getLabel() + "\n";
-
-		    }
-        }
-        else
-        {
-            history += "\n" + "No markers activated: \n";
-        }
-
-        history += "\n Arrays labeled Control (" + controlPanel.size() + "): \n";
-        for (DSMicroarray array : controlPanel)
-        {
-		    history += "\t\t" + array.getLabel() + "\n";
-	    }
-
-        history += "\n Arrays labeled Case (" + casePanel.size() + "): \n";
-        for (DSMicroarray array : casePanel)
-        {
-		    history += "\t\t" + array.getLabel() + "\n";
-	    }
-
-        if(testPanel != null && testPanel.size() != 0)
-        {
-            history += "\n Arrays labeled Test (" + testPanel.size() + "): \n";
-            for (DSMicroarray array : testPanel)
-            {
-		        history += "\t\t" + array.getLabel() + "\n";
-	        }
-        }
+		history+=generateHistoryForMaSetView(view);
         
 		return history;
 	}
