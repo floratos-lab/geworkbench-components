@@ -55,27 +55,22 @@ public class AracneComputation {
 			MicroarraySet microarraySet = getMicroarraySet();
 			final Parameter p = getParamter(); 	
 			int bootstrapNumber = aracneInput.getBootstrapNumber();
-			float pThreshold = aracneInput.getConsensusThreshold();
-			String paramterDescription = null;
+			float pThreshold = aracneInput.getConsensusThreshold();		 
 			switch (p.getMode()) {
 			 
 			case PREPROCESSING: // ignore return
 				hardenedAracne.run(microarraySet, p, 1, pThreshold);
 				return null;
-			case DISCOVERY:			 
-			    paramterDescription = p.getParamterDescription();
-				paramterDescription += "[PARA] Bootstrapping: " + bootstrapNumber + "\n";				
+			case DISCOVERY:				 
 				return convert(hardenedAracne.run(microarraySet, p, bootstrapNumber,			 
-						pThreshold), paramterDescription);				 
+						pThreshold), p.getParamterDescription());				 
 			case COMPLETE: // do not use this mode, re-create the process
 				p.setMode(Parameter.MODE.PREPROCESSING);
 				hardenedAracne.run(microarraySet, p, 1, pThreshold);
 				if (hardenedAracne.cancelled)
 					return null;
-				p.setMode(Parameter.MODE.DISCOVERY);
-				paramterDescription = p.getParamterDescription();
-				paramterDescription += "[PARA] Bootstrapping: " + bootstrapNumber + "\n";
-				return convert(hardenedAracne.run(microarraySet, p, bootstrapNumber,
+				p.setMode(Parameter.MODE.DISCOVERY);			 
+				return convert(hardenedAracne.run(microarraySet, p, bootstrapNumber,			 
 						pThreshold), p.getParamterDescription());
 			}
 		}catch (AracneException e) {			 

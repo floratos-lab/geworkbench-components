@@ -177,12 +177,16 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 					"Generated with ARACNE run with data:\n");
 			paramDescB.append(this.generateHistoryForMaSetView(mSetView));
 			String s=prune?"yes":"no";
+			String hubSetting = params.getHubSetting();
 			HistoryPanel.addToHistory(dataSet,
 					"Generated with ARACNE run with paramters:\n"
-							+ aracneOutput.getParamterDescription()
+							+ aracneOutput.getParamterDescription()	
+							+ "[PARA] Bootstrapping: " + aracneInput.getBootstrapNumber() + "\n"
+							+ "[PARA] Consensus Threshold: " + aracneInput.getConsensusThreshold() + "\n"
 							+ dpiTargetListDescription()+"\n"
 							+ "[PARA] Merge multiple probesets: "+ s+"\n"
-							+ hubMarkersDescription(params.getHubGeneList())
+							+ "[PARA] Setting for Hub Markers: " + hubSetting +"\n"
+							+ params.hubMarkersDescription()
 							+ paramDescB.toString());
 			return new AlgorithmExecutionResults(true, "ARACNE Done.", dataSet);
 
@@ -216,22 +220,7 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 		return listString;
 	}
 
-	/*
-	 * this is not included in Parameter's implement, which is outside this
-	 * package
-	 */
-	private final String hubMarkersDescription(ArrayList<String> subnet) {
-		StringBuilder builder = new StringBuilder();		 
-		if (subnet.size() == 0)
-			return "";
-		builder.append("[PARA] Hub markers: " + subnet.get(0));
-		for (int i = 1; i < subnet.size(); i++)
-			builder.append(", " + subnet.get(i));
-		builder.append("\n");
-		return builder.toString();
-	}
 	
-	 
 
 	/**
 	 * Convert the result from aracne-java to an AdjacencyMatrix object.
