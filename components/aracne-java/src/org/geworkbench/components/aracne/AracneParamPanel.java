@@ -704,9 +704,13 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
         if (params.isDPIToleranceSpecified()) {
             p.setEps(params.getDPITolerance());
         }
-        String s=isPrune()?"yes":"no";
-        String resultString=p.getParamterDescription();
-        resultString+="[PARA] Merge multiple probesets: "+ s+"\n";
+        String s=isPrune()?"yes":"no";     
+        String resultString = p.getParamterDescription();
+        resultString += "[PARA] Bootstrapping: " + getBootstrapNumber() + "\n";
+        resultString += "[PARA] Consensus Threshold: " + getConsensusThreshold() + "\n";       
+        resultString +="[PARA] Merge multiple probesets: "+ s+"\n";
+        resultString +=  "[PARA] Setting for Hub Markers: " + getHubSetting() +"\n";
+        resultString += params.hubMarkersDescription();
         return resultString;
 
 	}
@@ -970,5 +974,30 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
 			
 		}
 	}
+	
+	String getHubSetting()
+	{
+		if (hubCombo.getSelectedItem().toString().equals(HUB_ALL))
+			return HUB_ALL;
+		else if (hubCombo.getSelectedItem().toString().equals(FROM_SETS))
+			return FROM_SETS + ": " + markerSetCombo.getSelectedItem();
+		else
+			return FROM_FILE + ": " + hubMarkersFile;
+	}
+	
+	
+	final String hubMarkersDescription() {
+		ArrayList<String> subnet = getHubGeneList();
+		StringBuilder builder = new StringBuilder();		 
+		if (subnet.size() == 0)
+			return "";
+		builder.append("[PARA] Hub markers: " + subnet.get(0));
+		for (int i = 1; i < subnet.size(); i++)
+			builder.append(", " + subnet.get(i));
+		builder.append("\n");
+		return builder.toString();
+	}
+	
+	 
 	
 }
