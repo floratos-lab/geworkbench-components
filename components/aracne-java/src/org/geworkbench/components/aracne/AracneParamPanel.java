@@ -707,7 +707,8 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
         String s=isPrune()?"yes":"no";     
         String resultString = p.getParamterDescription();
         resultString += "[PARA] Bootstrapping: " + getBootstrapNumber() + "\n";
-        resultString += "[PARA] Consensus Threshold: " + getConsensusThreshold() + "\n";       
+        if (getBootstrapNumber() > 1)
+             resultString += "[PARA] Consensus Threshold: " + getConsensusThreshold() + "\n";       
         resultString +="[PARA] Merge multiple probesets: "+ s+"\n";
         resultString +=  "[PARA] Setting for Hub Markers: " + getHubSetting() +"\n";
         resultString += params.hubMarkersDescription();

@@ -178,16 +178,19 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 			paramDescB.append(this.generateHistoryForMaSetView(mSetView));
 			String s=prune?"yes":"no";
 			String hubSetting = params.getHubSetting();
-			HistoryPanel.addToHistory(dataSet,
-					"Generated with ARACNE run with paramters:\n"
-							+ aracneOutput.getParamterDescription()	
-							+ "[PARA] Bootstrapping: " + aracneInput.getBootstrapNumber() + "\n"
-							+ "[PARA] Consensus Threshold: " + aracneInput.getConsensusThreshold() + "\n"
-							+ dpiTargetListDescription()+"\n"
-							+ "[PARA] Merge multiple probesets: "+ s+"\n"
-							+ "[PARA] Setting for Hub Markers: " + hubSetting +"\n"
-							+ params.hubMarkersDescription()
-							+ paramDescB.toString());
+			String historyStr = "Generated with ARACNE run with paramters:\n"
+				+ aracneOutput.getParamterDescription()	
+				+ "[PARA] Bootstrapping: " + aracneInput.getBootstrapNumber() + "\n";
+			if (aracneInput.getBootstrapNumber() > 1)
+				historyStr += "[PARA] Consensus Threshold: " + aracneInput.getConsensusThreshold() + "\n";
+			historyStr += dpiTargetListDescription()+"\n"
+			           + "[PARA] Merge multiple probesets: "+ s+"\n"
+			           + "[PARA] Setting for Hub Markers: " + hubSetting +"\n"
+			           + params.hubMarkersDescription()
+			           + paramDescB.toString();
+			
+			HistoryPanel.addToHistory(dataSet, historyStr);
+					 
 			return new AlgorithmExecutionResults(true, "ARACNE Done.", dataSet);
 
 		} else {
