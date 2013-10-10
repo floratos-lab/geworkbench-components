@@ -158,7 +158,7 @@ public class RealTimeWorkFlowSuggestion extends JPanel implements VisualPlugin,
 		toolListPanel.setBorder(BorderFactory.createEtchedBorder());
 		JLabel label1 = new JLabel("Advanced suggestions");
 		label1.setHorizontalAlignment(JLabel.CENTER);
-		JLabel label2 = new JLabel("Get suggestions for people who use these tools:");
+		JLabel label2 = new JLabel("Get suggestions from people who use these tools:");
 		label2.setHorizontalAlignment(JLabel.CENTER);
 		
 		JPanel headerPanel = new JPanel(new GridLayout(2,1));
