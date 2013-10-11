@@ -42,7 +42,7 @@ public class CeRNA extends JPanel implements VisualPlugin {
 	private static final String[] queryTypes = {"gene ID", "miRNA ID"};
 	private static final String[] tableHeader = {"InteractionID", "Gene1", "Gene2", "miRNA"};
 	private static final ProgressDialog pd = ProgressDialog.getInstance(false);
-	private static final String defaultServerUrl = "http://afdev.c2b2.columbia.edu:9090";
+	private static final String defaultServerUrl = System.getProperty("cerna.host");
 	private JTextField urlField = new JTextField(defaultServerUrl, 20);
 	private JComboBox dbBox = new JComboBox();
 	private JComboBox queryTypeComboBox = new JComboBox(queryTypes);

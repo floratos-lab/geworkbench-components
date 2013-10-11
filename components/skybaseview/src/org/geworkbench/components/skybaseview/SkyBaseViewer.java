@@ -583,6 +583,10 @@ public class SkyBaseViewer implements VisualPlugin {
     }
 	
 	public void add2prj_actionPerformed(java.awt.event.ActionEvent e) {
+		if(ofname.isEmpty()) {
+			JOptionPane.showMessageDialog(null, "PDB structure is empty!");
+			return;
+		}
 		CSProteinStructure dsp = new CSProteinStructure(null, seqid);
 		dsp.setFile(new File(ofname));
 		ProjectNodeAddedEvent event = new ProjectNodeAddedEvent(
@@ -770,7 +774,8 @@ public class SkyBaseViewer implements VisualPlugin {
 				if (colname.startsWith("Id%") || colname.contains("Coverage"))
 					return pctformatter.parse(data[row][col].toString()).doubleValue();
 			}catch(Exception e){
-				e.printStackTrace();
+				log.info("Not a valid number: "+data[row][col]);
+				return 0;
 			}
 			return data[row][col];
 		}
@@ -863,20 +868,25 @@ public class SkyBaseViewer implements VisualPlugin {
 				if (!qname.equals(lastqname) || !seqid.equals(lastseqid)) {
 					String pdblink = (String) tm.getValueAt(selectedRow,
 							colcnt - 2);
-					pdburl = pdbroot + pdblink;
-
-					String contents = getContent(pdburl);
-					ofname = tmpfiledir + seqid + ".pdb";
-					try {
-						PrintWriter pw = new PrintWriter(new BufferedWriter(
-								new FileWriter(ofname)));
-						pw.print(contents);
-						pw.close();
-					} catch (Exception ex) {
-						ex.printStackTrace();
+					if(pdblink.equals("NA")){
+						ofname = "";
+						viewer.evalString("zap");
+					}else{
+						pdburl = pdbroot + pdblink;
+	
+						String contents = getContent(pdburl);
+						ofname = tmpfiledir + seqid + ".pdb";
+						try {
+							PrintWriter pw = new PrintWriter(new BufferedWriter(
+									new FileWriter(ofname)));
+							pw.print(contents);
+							pw.close();
+						} catch (Exception ex) {
+							ex.printStackTrace();
+						}
+						viewer.openStringInline(contents);
+						viewer.evalString(strScript);
 					}
-					viewer.openStringInline(contents);
-					viewer.evalString(strScript);
 					seqlb.setText(seqid);
 					/*
 					 * jp2.setBorder(BorderFactory.createCompoundBorder(
@@ -1049,7 +1059,7 @@ public class SkyBaseViewer implements VisualPlugin {
 			if (NumberUtils.isNumber(subs))
 				r = Double.valueOf(subs).doubleValue() * 0.01;
 		} else
-			log.info("Warning: " + s + " is not a number!");
+			log.info(s + " is not a number!");
 
 		if (pct == true)
 			r = r * 100;
