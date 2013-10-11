@@ -151,6 +151,11 @@ public class PCAAnalysis extends GPAnalysis {
 
 			DSItemList<DSGeneMarker> markers = view.markers();
 			DSItemList<DSMicroarray> arrays = view.items();
+			if (((PCAAnalysisPanel) panel).getVariables().equals("genes")) {
+				arrays = view.getDataSet();
+			} else {
+				markers = view.getMicroarraySet().getMarkers();
+			}
 
 			String gctFileName = createGCTFile("pcaDataset", markers,
 					arrays).getAbsolutePath();

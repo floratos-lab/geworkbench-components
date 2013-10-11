@@ -71,8 +71,11 @@ public class Anova   {
 					.valueOf(permutationsNumber));
 			 
 			if (falseDiscoveryRateControl == FalseDiscoveryRateControl.number.ordinal()) {
-				data.addParam("falseNum", String.valueOf((new Float(
-						falseSignificantGenesLimit)).intValue()));
+				if (falseSignificantGenesLimit > numGenes)					 
+					  data.addParam("falseNum", String.valueOf(numGenes));
+					else
+				      data.addParam("falseNum", String.valueOf((new Float(
+									falseSignificantGenesLimit)).intValue()));
 			} else if (falseDiscoveryRateControl == FalseDiscoveryRateControl.proportion.ordinal()) {
 				data.addParam("falseProp", String
 						.valueOf(falseSignificantGenesLimit));
@@ -100,12 +103,9 @@ public class Anova   {
 		} else if (falseDiscoveryRateControl == FalseDiscoveryRateControl.westfallyoung.ordinal()) {
 			data.addParam("correction-method", String
 					.valueOf(OneWayANOVAInitBox.MAX_T));
-		} else if (falseDiscoveryRateControl == FalseDiscoveryRateControl.number.ordinal()) {
-			if (falseSignificantGenesLimit > numGenes)					 
-				  data.addParam("falseNum", String.valueOf(numGenes));
-				else
-			      data.addParam("falseNum", String.valueOf((new Float(
-								falseSignificantGenesLimit)).intValue()));
+		} else if (falseDiscoveryRateControl == FalseDiscoveryRateControl.number.ordinal()) {			
+			data.addParam("correction-method", String
+					.valueOf(OneWayANOVAInitBox.FALSE_NUM));
 		} else if (falseDiscoveryRateControl == FalseDiscoveryRateControl.proportion.ordinal()) {
 			data.addParam("correction-method", String
 					.valueOf(OneWayANOVAInitBox.FALSE_PROP));

@@ -100,6 +100,10 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
 {
 	private static final long serialVersionUID = 1450204284902216376L;
 	
+	final private Color colorAccuracy = Color.red;
+	final private Color colorSensitivity = Color.blue;
+	final private Color colorSpecificity = Color.green;
+	
 	private GPClassificationVisualComponent gpCVisComp;
     private VisualGPClassifier visualGPClassifier;
     private JTabbedPane tabPane;
@@ -703,6 +707,9 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
 
         //Add plot data
         curveChart.getXYPlot().setDataset(getPlotData());
+        curveChart.getXYPlot().getRenderer().setSeriesPaint(0, colorAccuracy);
+        curveChart.getXYPlot().getRenderer().setSeriesPaint(1, colorSensitivity);
+        curveChart.getXYPlot().getRenderer().setSeriesPaint(2, colorSpecificity);
 
         curveChart.getXYPlot().getRenderer().setBaseSeriesVisible(false);
 
@@ -807,11 +814,10 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
         accuracyCheckBox.addItemListener(this);
         accuracyCheckBox.setSelected(true);
 
-        int seriesIndex = curveChart.getXYPlot().getDataset().indexOf(accuracyCheckBox.getText());
         JButton accColorIcon = new JButton();
         accColorIcon.setAlignmentX(JButton.LEFT_ALIGNMENT);
         accColorIcon.setBorder(BorderFactory.createEmptyBorder());
-        accColorIcon.setIcon(new MyIcon((Color) curveChart.getXYPlot().getRenderer().getSeriesPaint(seriesIndex)));
+        accColorIcon.setIcon(new MyIcon(colorAccuracy));
 
         plotSelectionPanel.add(accuracyCheckBox);
         plotSelectionPanel.add(accColorIcon);
@@ -822,11 +828,10 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
         sensitivityCheckBox.addItemListener(this);
         sensitivityCheckBox.setSelected(true);
 
-        seriesIndex = curveChart.getXYPlot().getDataset().indexOf(sensitivityCheckBox.getText());
         JButton sensColorIcon = new JButton();
         sensColorIcon.setAlignmentX(JButton.LEFT_ALIGNMENT);
         sensColorIcon.setBorder(BorderFactory.createEmptyBorder());
-        sensColorIcon.setIcon(new MyIcon((Color) curveChart.getXYPlot().getRenderer().getSeriesPaint(seriesIndex)));
+        sensColorIcon.setIcon(new MyIcon(colorSensitivity));
 
         plotSelectionPanel.add(sensitivityCheckBox);
         plotSelectionPanel.add(sensColorIcon);
@@ -837,11 +842,10 @@ public class GPClassificationVisualizationPanel extends JPanel implements ItemLi
         specificityCheckBox.addItemListener(this);
         specificityCheckBox.setSelected(true);
 
-        seriesIndex = curveChart.getXYPlot().getDataset().indexOf(specificityCheckBox.getText());
         JButton specColorIcon = new JButton();
         specColorIcon.setAlignmentX(JButton.LEFT_ALIGNMENT);
         specColorIcon.setBorder(BorderFactory.createEmptyBorder());
-        specColorIcon.setIcon(new MyIcon((Color) curveChart.getXYPlot().getRenderer().getSeriesPaint(seriesIndex)));
+        specColorIcon.setIcon(new MyIcon(colorSpecificity));
 
         plotSelectionPanel.add(specificityCheckBox);
         plotSelectionPanel.add(specColorIcon);

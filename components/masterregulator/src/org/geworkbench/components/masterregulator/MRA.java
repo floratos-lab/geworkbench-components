@@ -57,7 +57,7 @@ public class MRA extends AbstractAnalysis implements
 	private static final long serialVersionUID = 940204157465957195L;
 	
 	private Log log = LogFactory.getLog(this.getClass());
-	private final String analysisName = "MRA";
+	private final String analysisName = "MRA-FET";
 
 	private MRAPanel mraAnalysisPanel = new MRAPanel();
 	private ProgressDialog pd = ProgressDialog.getInstance(false);

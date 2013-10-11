@@ -8,7 +8,7 @@
 				authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 				toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 				tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Normalization"
-				description="Log2 normalized a microarray gene expression dataset."
+				description="Log2 normalize a microarray gene expression dataset."
 				loadByDefault="true"
 				category="normalizer"
 	 >

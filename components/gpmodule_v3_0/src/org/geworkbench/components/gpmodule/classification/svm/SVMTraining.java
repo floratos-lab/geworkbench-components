@@ -29,10 +29,13 @@ import org.geworkbench.bison.annotation.DSAnnotationContext;
 import org.geworkbench.bison.datastructure.biocollections.PredictionModel;
 import org.geworkbench.bison.datastructure.biocollections.SVMResultSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
+import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.analysis.AlgorithmExecutionResults;
+import org.geworkbench.builtin.projects.history.HistoryPanel;
 import org.geworkbench.components.gpmodule.GPDataset;
 import org.geworkbench.components.gpmodule.classification.GPClassificationUtils;
 import org.geworkbench.components.gpmodule.classification.GPTraining;
@@ -70,12 +73,18 @@ public class SVMTraining extends GPTraining implements TrainingTask
 
     	if(classifier instanceof SVMClassifier){
     		SVMClassifier svmClassifier = (SVMClassifier)classifier;
-    		SVMResultSet svmResult = convertClassifierToSVMResultSet(svmClassifier);
+    		SVMResultSet svmResult = convertClassifierToSVMResultSet(svmClassifier);    		
+    		@SuppressWarnings("unchecked")
+    		DSMicroarraySetView<DSGeneMarker, DSMicroarray> view = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
+    		String historyStr = generateHistoryString(svmClassifier, view);
+    		HistoryPanel.addToHistory(svmResult, historyStr);        	
     		results = new AlgorithmExecutionResults(true, svmClassifier.getLabel(), svmResult);
     	}
+    	
         return results;
     }
 
+	 
     private SVMResultSet convertClassifierToSVMResultSet(SVMClassifier classifier){
     	if (classifier == null) return null;
     	GPDataset dataset = classifier.getGPDataset();

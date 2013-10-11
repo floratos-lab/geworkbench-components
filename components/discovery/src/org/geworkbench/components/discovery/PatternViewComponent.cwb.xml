@@ -8,9 +8,7 @@
 		authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/BLAST"
 		toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
-		description="The Pattern Discovery Results component displays
- 		the results of Pattern Discovery Analysis.  Sequence hits can be returned to the Project
- 		for further analysis."
+		description="Graphical display of the results of Pattern Discovery Analysis.  Sequence hits can be returned to the Workspace for further analysis."
 		mustAccept="false" 
 		category="Visualizer, Sequence" loadByDefault="true">
 		<required-component

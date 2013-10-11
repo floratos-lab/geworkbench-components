@@ -55,21 +55,22 @@ public class AracneComputation {
 			MicroarraySet microarraySet = getMicroarraySet();
 			final Parameter p = getParamter(); 	
 			int bootstrapNumber = aracneInput.getBootstrapNumber();
-			float pThreshold = aracneInput.getThreshold();
+			float pThreshold = aracneInput.getConsensusThreshold();		 
 			switch (p.getMode()) {
+			 
 			case PREPROCESSING: // ignore return
 				hardenedAracne.run(microarraySet, p, 1, pThreshold);
 				return null;
-			case DISCOVERY:
-				return convert(hardenedAracne.run(microarraySet, p, bootstrapNumber,
-						pThreshold), p.getParamterDescription());
+			case DISCOVERY:				 
+				return convert(hardenedAracne.run(microarraySet, p, bootstrapNumber,			 
+						pThreshold), p.getParamterDescription());				 
 			case COMPLETE: // do not use this mode, re-create the process
 				p.setMode(Parameter.MODE.PREPROCESSING);
 				hardenedAracne.run(microarraySet, p, 1, pThreshold);
 				if (hardenedAracne.cancelled)
 					return null;
-				p.setMode(Parameter.MODE.DISCOVERY);
-				return convert(hardenedAracne.run(microarraySet, p, bootstrapNumber,
+				p.setMode(Parameter.MODE.DISCOVERY);			 
+				return convert(hardenedAracne.run(microarraySet, p, bootstrapNumber,			 
 						pThreshold), p.getParamterDescription());
 			}
 		}catch (AracneException e) {			 
@@ -250,7 +251,7 @@ public class AracneComputation {
 			AracneGraphEdge aracneGraphEdge = new AracneGraphEdge(graphEdge.getNode1(),graphEdge.getNode2(),  graphEdge.getWeight());
 			aracneGraphEdges[nEdge] = aracneGraphEdge;
 			nEdge++;
-		} 
+		} 		
 		log.debug("edge count " + nEdge);
 		return new AracneOutput(aracneGraphEdges, paramterDescription);
 	}

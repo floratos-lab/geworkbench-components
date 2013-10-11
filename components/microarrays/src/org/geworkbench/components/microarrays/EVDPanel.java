@@ -611,10 +611,7 @@ public class EVDPanel extends MicroarrayViewEventBase {
 
         XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) newPlot.
                 getRenderer();
-        for (int i = 0; i < newPlot.getDatasetCount(); i++) {
-	        renderer.setSeriesShapesVisible(i, true);
-	        renderer.setSeriesShapesFilled(i, true);
-        }
+		renderer.setSeriesShapesVisible(0, true);
         if (tooltipEnabled) {
 
 			renderer.setBaseToolTipGenerator(new XYToolTipGenerator() {
@@ -654,6 +651,7 @@ public class EVDPanel extends MicroarrayViewEventBase {
                 renderer.setSeriesPaint(index, panelVisualProperties.getColor());
                 renderer.setSeriesShape(index, panelVisualProperties.getShape());
 
+                renderer.setSeriesShapesVisible(index, true);
             }
 
         }

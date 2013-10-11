@@ -19,6 +19,11 @@ import org.apache.axis2.AxisFault;
 import org.apache.axis2.Constants;
 import org.apache.axis2.addressing.EndpointReference;
 import org.apache.axis2.client.ServiceClient;
+import org.apache.axis2.context.ConfigurationContext;
+import org.apache.axis2.transport.http.HTTPConstants;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
+import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 
 public class DemandAxisClient {
 	private static final String demandNamespace = "http://www.geworkbench.org/service/demand";
@@ -92,11 +97,12 @@ public class DemandAxisClient {
     	serviceOptions.setProperty( Constants.Configuration.ATTACHMENT_TEMP_DIR, System.getProperty("java.io.tmpdir") );
     	serviceOptions.setProperty( Constants.Configuration.CACHE_ATTACHMENTS, Constants.VALUE_TRUE );
     	serviceOptions.setProperty( Constants.Configuration.FILE_SIZE_THRESHOLD, "1024" );
-		// three minute timeout
-		serviceOptions.setTimeOutInMilliSeconds(180000);
+		// 50-hour timeout
+		serviceOptions.setTimeOutInMilliSeconds(180000000);
 
 		ServiceClient serviceClient = new ServiceClient();
 		serviceClient.setOptions(serviceOptions);
+		setContextProperties(serviceClient);
 		EndpointReference ref = new EndpointReference();
 		ref.setAddress(serviceAddress);
 		serviceClient.setTargetEPR(ref);
@@ -136,5 +142,17 @@ public class DemandAxisClient {
 		  		e.printStackTrace();
 		  	}
 		}
+	}
+	
+	private void setContextProperties(ServiceClient serviceClient) {
+		ConfigurationContext context = serviceClient.getServiceContext().getConfigurationContext();
+		context.setProperty(HTTPConstants.REUSE_HTTP_CLIENT, true);
+		context.setProperty(HTTPConstants.AUTO_RELEASE_CONNECTION, true);
+		MultiThreadedHttpConnectionManager multiThreadedHttpConnectionManager = new MultiThreadedHttpConnectionManager();
+		HttpConnectionManagerParams params = new HttpConnectionManagerParams();
+		params.setDefaultMaxConnectionsPerHost(20); 
+		multiThreadedHttpConnectionManager.setParams(params);
+		HttpClient httpClient = new HttpClient(multiThreadedHttpConnectionManager);
+		context.setProperty(HTTPConstants.CACHED_HTTP_CLIENT, httpClient);
 	}
 }

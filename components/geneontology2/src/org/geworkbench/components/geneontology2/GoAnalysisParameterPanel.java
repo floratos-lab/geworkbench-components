@@ -131,6 +131,7 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 	 */
 	public void setParameters(Map<Serializable, Serializable> parameters) {
 		Set<Map.Entry<Serializable, Serializable>> set = parameters.entrySet();
+		String changedListSetName = null;
 		for (Iterator<Map.Entry<Serializable, Serializable>> iterator = set
 				.iterator(); iterator.hasNext();) {
 			Map.Entry<Serializable, Serializable> parameter = iterator.next();
@@ -151,7 +152,7 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 				changedListSource.setSelectedItem(value);
 			}
 			if (key.equals("changedListSets")) {
-				changedListSets.setSelectedItem(value);
+				changedListSetName = (String)value;
 			}
 			if (key.equals("changedList")) {
 				changedList.setText((String) value);
@@ -178,6 +179,8 @@ public class GoAnalysisParameterPanel extends AbstractSaveableParameterPanel {
 				correctionMethod.setSelectedItem(value);
 			}
 		}
+		
+		changedListSets.setSelectedItem(changedListSetName);
 	}
 
 	/*

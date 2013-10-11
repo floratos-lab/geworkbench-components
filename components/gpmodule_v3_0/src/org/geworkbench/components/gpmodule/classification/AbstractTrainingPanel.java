@@ -20,13 +20,17 @@ import org.geworkbench.bison.algorithm.classification.CSClassifier;
 import org.geworkbench.bison.annotation.CSAnnotationContext;
 import org.geworkbench.bison.annotation.CSAnnotationContextManager;
 import org.geworkbench.bison.annotation.DSAnnotationContext;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
+import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.datastructure.complex.panels.CSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.util.ClassifierException;
 import org.geworkbench.util.ProgressGraph;
 import org.geworkbench.util.TrainingProgressListener;
@@ -82,6 +86,17 @@ public abstract class AbstractTrainingPanel extends AbstractSaveableParameterPan
     }
 
     public DSMicroarraySet getMaSet() {
+    	if(maSet==null) {
+			DSDataSet<? extends DSBioObject> currentDataset = ProjectPanel
+					.getInstance().getDataSet();
+			if (currentDataset instanceof DSMicroarraySet) {
+				maSet = (DSMicroarraySet) currentDataset;
+			} else {
+				log.error("currentDataset is not DSMicroarraySet.");
+				/* This should not happen. */
+				return null;
+			}
+		}
         return maSet;
     }
 
@@ -90,6 +105,18 @@ public abstract class AbstractTrainingPanel extends AbstractSaveableParameterPan
     }
 
     public DSItemList<DSGeneMarker> getActiveMarkers() {
+    	if(maSet==null) {
+			DSDataSet<? extends DSBioObject> currentDataset = ProjectPanel
+					.getInstance().getDataSet();
+			if (currentDataset instanceof DSMicroarraySet) {
+				maSet = (DSMicroarraySet) currentDataset;
+			} else {
+				log.error("currentDataset is not DSMicroarraySet.");
+				/* This should not happen, but null is not expected. */
+				return new CSItemList<DSGeneMarker>();
+			}
+		}
+    	
         if (selectionPanel != null) {
             DSMicroarraySetView<DSGeneMarker, DSMicroarray> maView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>((DSMicroarraySet) maSet);
             maView.setMarkerPanel(selectionPanel);

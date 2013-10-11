@@ -7,7 +7,7 @@
 				authorURL="http://www.broadinstitute.org/cancer/software/genepattern/index.html"
 				toolURL="http://www.broadinstitute.org/cancer/software/genepattern/modules/index2.html?http://www.broadinstitute.org/cgi-bin/cancer/software/genepattern/modules/gp_modules.cgi"
 				tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Classification"
-				description="====="
+				description="This component allows Gene Set Enrichment Analysis (GSEA) (Broad Institute) to be run on an external GenePattern v3 server."
 				category="Analysis, Microarray"
 				
 				loadByDefault="false"
