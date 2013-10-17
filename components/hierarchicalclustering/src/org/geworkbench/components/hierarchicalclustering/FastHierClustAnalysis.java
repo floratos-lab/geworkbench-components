@@ -34,6 +34,7 @@ import org.geworkbench.components.hierarchicalclustering.computation.DistanceTyp
 import org.geworkbench.components.hierarchicalclustering.computation.HNode;
 import org.geworkbench.components.hierarchicalclustering.computation.HierarchicalClustering;
 import org.geworkbench.components.hierarchicalclustering.computation.Linkage;
+import org.geworkbench.components.hierarchicalclustering.computation.DimensionType;
 import org.geworkbench.components.hierarchicalclustering.data.HierClusterInput;
 import org.geworkbench.util.ProgressBar;
  
@@ -90,6 +91,8 @@ public class FastHierClustAnalysis extends AbstractGridAnalysis implements
 		 
 		String distanceType = null;
 		String linkageType = null;
+		String dimensionType = null;
+		
 		switch(method) {
 		case 0: linkageType = Linkage.SINGLE.name(); break;
 		case 1: linkageType = Linkage.AVERAGE.name(); break;
@@ -101,9 +104,18 @@ public class FastHierClustAnalysis extends AbstractGridAnalysis implements
 		case 0: distanceType = DistanceType.EUCLIDEAN.name(); break;
 		case 1: distanceType = DistanceType.CORRELATION.name(); break;
 		case 2: distanceType = DistanceType.SPEARMANRANK.name(); break;
-		default: log.error("error in linkage type");
+		default: log.error("error in distance type");
 		}
-		HierClusterInput hierClusterInput = new HierClusterInput(matrix, linkageType, distanceType) ;
+		
+		switch(dimension) {
+		case 0: dimensionType = DimensionType.MARKER.name(); break;
+		case 1: dimensionType = DimensionType.ARRAY.name(); break;
+		case 2: dimensionType = DimensionType.BOTH.name(); break;
+		default: log.error("error in dimension type");
+		}
+		
+		
+		HierClusterInput hierClusterInput = new HierClusterInput(matrix, linkageType, distanceType, dimensionType) ;
 		final HierarchicalClustering hierarchicalClustering = new HierarchicalClustering(hierClusterInput);
 
 		SwingUtilities.invokeLater(new Runnable() {
@@ -134,8 +146,7 @@ public class FastHierClustAnalysis extends AbstractGridAnalysis implements
 				resultClusters[1] = convertCluster(cluster,hierarchicalClustering.compute());
 						 
 			} else if (dimension == 1) {
-				HierClusterFactory cluster = new HierClusterFactory.Microarray(data.items());
-				hierarchicalClustering.setMatrix(getTranspose(matrix));
+				HierClusterFactory cluster = new HierClusterFactory.Microarray(data.items());			 
 				resultClusters[1] = convertCluster(cluster,hierarchicalClustering.compute());
 						 
 			} else if (dimension == 0) {
