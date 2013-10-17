@@ -24,7 +24,10 @@ public class HierarchicalClustering {
 		linkage = Linkage.valueOf(input.getLinkageType());
 		distance = distances[DistanceType.valueOf(input.getDistanceType())
 				.ordinal()];
-		matrix = input.getMatrix();
+		if (input.getDimensionType().equals(DimensionType.ARRAY.name()))
+			matrix = getTranspose(input.getMatrix());
+		else //default to MARKER
+		    matrix = input.getMatrix();
 	}
 
 	/*
@@ -51,6 +54,17 @@ public class HierarchicalClustering {
 
 	public void setMatrix(double[][] matrix) {
 		this.matrix = matrix;
+	}
+	
+	
+	private static double[][] getTranspose(final double[][] input) {
+		double d[][] = new double[input[0].length][input.length];
+		for (int i = 0; i < d.length; i++) {
+			for (int j = 0; j < d[0].length; j++) {
+				d[i][j] = input[j][i];
+			}
+		}
+		return d;
 	}
 
 	public volatile boolean cancelled = false;
