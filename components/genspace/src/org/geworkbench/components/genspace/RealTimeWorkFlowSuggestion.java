@@ -158,7 +158,7 @@ public class RealTimeWorkFlowSuggestion extends JPanel implements VisualPlugin,
 		toolListPanel.setBorder(BorderFactory.createEtchedBorder());
 		JLabel label1 = new JLabel("Advanced suggestions");
 		label1.setHorizontalAlignment(JLabel.CENTER);
-		JLabel label2 = new JLabel("Get suggestions for people who use these tools:");
+		JLabel label2 = new JLabel("Get suggestions from people who use these tools:");
 		label2.setHorizontalAlignment(JLabel.CENTER);
 		
 		JPanel headerPanel = new JPanel(new GridLayout(2,1));
@@ -367,13 +367,8 @@ public class RealTimeWorkFlowSuggestion extends JPanel implements VisualPlugin,
 	
 		WorkflowWrapper last = cwf;
 		RealTimeWorkFlowSuggestion.cwf = new WorkflowWrapper(newCWF);
-		System.out.println("Check new workflow: " + RealTimeWorkFlowSuggestion.cwf.toString());
-		
-		if (cwf.getTools().size() > 0) {
-			viewerStatus.setText("You recently used " + cwf.getTools().get(cwf.getTools().size() -1 ).getTool().getName());
-		}
-		
-		//viewerStatus.setText("You recently used " + cwf.getTools().get(cwf.getTools().size() -1 ).getTool().getName());
+		//System.out.println("Check new workflow: " + RealTimeWorkFlowSuggestion.cwf.toString());
+		viewerStatus.setText("You recently used " + cwf.getTools().get(cwf.getTools().size() -1 ).getTool().getName());
 		displayCWF();
 		
 		if(emptyPanel)
