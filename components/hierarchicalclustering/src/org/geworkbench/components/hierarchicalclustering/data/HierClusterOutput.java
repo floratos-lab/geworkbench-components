@@ -1,8 +1,7 @@
 package org.geworkbench.components.hierarchicalclustering.data;
 
  
-import org.geworkbench.components.hierarchicalclustering.computation.HNode;
-  
+import org.geworkbench.components.hierarchicalclustering.computation.HNode; 
 
 public class HierClusterOutput { 
 	 
@@ -23,6 +22,10 @@ public class HierClusterOutput {
 		return this.hnode;
 	}
 	
+	public HNode getHnodeObject()
+	{
+		return (HNode)toObject(this.hnode);
+	}
 	 
 	@Override
 	public String toString() {
