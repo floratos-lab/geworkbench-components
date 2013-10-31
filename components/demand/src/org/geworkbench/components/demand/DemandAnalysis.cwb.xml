@@ -10,7 +10,8 @@
 		toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Demand_Analysis"								
 		description="Demand Analysis"
-		category="Analysis, Network, Microarray"							
+		category="Analysis, Network, Microarray"
+		mustAccept="true"
 	 >
 		<required-component class="org.geworkbench.components.demand.DemandViewer" />
 		<license><![CDATA[
