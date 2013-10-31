@@ -195,7 +195,7 @@ public class ScatterPlot implements VisualPlugin {
            	if((ap != null) && (ap.size() > 0) && (index < ap.size())){
            		return ap.get(index).getLabel();
            	} else {
-           		return dataSetView.get(index);
+           		return dataSetView.get(index).getLabel();
            	}
         }
 
