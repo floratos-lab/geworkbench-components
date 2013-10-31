@@ -10,7 +10,8 @@
 		toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Viper_Analysis"							
 		description="Viper Analysis"
-		category="Analysis, Microarray"							
+		category="Analysis, Microarray"
+		mustAccept="true"							
 	 >
 		<license><![CDATA[
 			<html>
