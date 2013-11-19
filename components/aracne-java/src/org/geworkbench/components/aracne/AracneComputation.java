@@ -244,6 +244,10 @@ public class AracneComputation {
 	}
 
 	private static AracneOutput convert(WeightedGraph graph, String paramterDescription) {
+		if(graph==null) {
+			log.info("null graph");
+			return null;
+		}
 		
 		AracneGraphEdge[] aracneGraphEdges = new AracneGraphEdge[graph.getEdges().size()];
 		int nEdge = 0;
