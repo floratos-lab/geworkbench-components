@@ -13,11 +13,8 @@ import org.geworkbench.components.hierarchicalclustering.service.HierClusterServ
 import org.geworkbench.components.hierarchicalclustering.computation.Linkage;
 import org.geworkbench.components.hierarchicalclustering.computation.DistanceType;
 import org.geworkbench.components.hierarchicalclustering.computation.HierClusterException;
-<<<<<<< HEAD
-=======
 import org.geworkbench.components.hierarchicalclustering.computation.DimensionType;
 
->>>>>>> 0ba04f36ba02d9238573496aad71bb60bb642103
 
 import java.util.List;
 import java.util.ArrayList;
@@ -27,12 +24,8 @@ public class HierClusterClient {
 	 
 	String linkageType = Linkage.SINGLE.name(); 
 	String distanceType = DistanceType.EUCLIDEAN.name();
-<<<<<<< HEAD
- 
-=======
 	String dimensionType = DimensionType.MARKER.name();
 	 
->>>>>>> 0ba04f36ba02d9238573496aad71bb60bb642103
 	List<String> markers = new ArrayList<String>();
 	
 	double[][] matrix =
@@ -208,11 +201,7 @@ public class HierClusterClient {
 			System.out.println("Start service ..." + new java.util.Date());
 		
 
-<<<<<<< HEAD
-			HierClusterInput input = new HierClusterInput(matrix, linkageType,distanceType);  
-=======
 			HierClusterInput input = new HierClusterInput(matrix, linkageType,distanceType, dimensionType);  
->>>>>>> 0ba04f36ba02d9238573496aad71bb60bb642103
 					 
 			HierClusterOutput output = null;
 			 

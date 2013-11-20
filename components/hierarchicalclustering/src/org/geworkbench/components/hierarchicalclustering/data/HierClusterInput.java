@@ -5,26 +5,16 @@ public class HierClusterInput {
 	private double[][] matrix;
 	private String linkageType;
 	private String distanceType;
-<<<<<<< HEAD
-=======
 	private String dimensionType;
->>>>>>> 0ba04f36ba02d9238573496aad71bb60bb642103
 	
 	public HierClusterInput() {
 	};
 
-<<<<<<< HEAD
-	public HierClusterInput(double[][] values, String linkageType, String distanceType) {		 
-		this.matrix = values;
-		this.linkageType = linkageType;
-		this.distanceType = distanceType;
-=======
 	public HierClusterInput(double[][] values, String linkageType, String distanceType, String dimensionType) {		 
 		this.matrix = values;
 		this.linkageType = linkageType;
 		this.distanceType = distanceType;
 		this.dimensionType = dimensionType;
->>>>>>> 0ba04f36ba02d9238573496aad71bb60bb642103
 		 
 	}
 
@@ -51,8 +41,6 @@ public class HierClusterInput {
 	public String getDistanceType() {
 		return this.distanceType;
 	} 
-<<<<<<< HEAD
-=======
 	
 	public void setDimensionType(String dimensionType) {
 		this.dimensionType = dimensionType;
@@ -61,7 +49,6 @@ public class HierClusterInput {
 	public String getDimensionType() {
 		return this.dimensionType;
 	} 
->>>>>>> 0ba04f36ba02d9238573496aad71bb60bb642103
 
 	 
 	@Override
@@ -69,10 +56,7 @@ public class HierClusterInput {
 		StringBuffer sb = new StringBuffer("HierCluster Input\n");
 		sb.append("linkageType:" + linkageType).append("\n");
 		sb.append("distanceType:" + distanceType).append("\n");
-<<<<<<< HEAD
-=======
 		sb.append("dimensionType:" + dimensionType).append("\n");
->>>>>>> 0ba04f36ba02d9238573496aad71bb60bb642103
 		 
 		for (int i=0; i<matrix.length; i++)
 		{	sb.append("{");
