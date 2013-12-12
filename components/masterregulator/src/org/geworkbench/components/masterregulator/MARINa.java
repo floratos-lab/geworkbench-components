@@ -69,15 +69,14 @@ public class MARINa extends AbstractGridAnalysis implements
 		}
 
 		HashSet<String> ctrls = mraAnalysisPanel.getIxClass(CSAnnotationContext.CLASS_CONTROL);
-		Iterator<String> casei = mraAnalysisPanel.getIxClass(CSAnnotationContext.CLASS_CASE).iterator();
-		if (ctrls.size() == 0 && !casei.hasNext()){
-			return new ParamValidationResults(false,
-					"Please activate at least one set of arrays for \"case\", and one set of arrays for \"control\".");
-		}
 		if (ctrls.size() == 0)
-			return new ParamValidationResults(false, "Please activate at least one set of arrays for \"control\".");
-		if (!casei.hasNext())
-			return new ParamValidationResults(false, "Please activate at least one set of arrays for \"case\".");
+			return new ParamValidationResults(false, "Please activate at least one control array.");
+		Iterator<String> casei = mraAnalysisPanel.getIxClass(CSAnnotationContext.CLASS_CASE).iterator();
+		if (!casei.hasNext()){
+			int c = JOptionPane.showConfirmDialog(null, "Are you sure to use only a control group?");
+			if (c != JOptionPane.YES_OPTION)
+				return new ParamValidationResults(false, "Please activate both control and case.");
+		}
 		while (casei.hasNext()){
 		    if (ctrls.contains(casei.next()))
 			return new ParamValidationResults(false, "An array cannot be in case and control at the same time.");

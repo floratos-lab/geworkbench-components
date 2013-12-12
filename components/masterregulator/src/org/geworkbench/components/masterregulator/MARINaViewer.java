@@ -71,24 +71,26 @@ public class MARINaViewer extends MasterRegulatorViewer{
 				maSet, marinaResultSet.getLabel(), view.markers().size());
 		
 		//t-analysis
-		log.info("Executing T Analysis");
-		Map<DSGeneMarker, Double> values = null;
-		try {
-			TAnalysis tTestAnalysis= new TAnalysis(view, marinaResultSet.getCases(), marinaResultSet.getControls());
-			values = tTestAnalysis.calculateDisplayValues();
-		} catch (TAnalysisException e1) {
-			JOptionPane.showMessageDialog(null, 
-					"Can't find valid case or control arrrays for T Analysis in MARINa Viewer",
-					"T Analysis Error", JOptionPane.ERROR_MESSAGE);
-			return mraResultSet;
+		if(marinaResultSet.getCases().length>0){
+			log.info("Executing T Analysis");
+			Map<DSGeneMarker, Double> values = null;
+			try {
+				TAnalysis tTestAnalysis= new TAnalysis(view, marinaResultSet.getCases(), marinaResultSet.getControls());
+				values = tTestAnalysis.calculateDisplayValues();
+			} catch (TAnalysisException e1) {
+				JOptionPane.showMessageDialog(null, 
+						"Can't find valid case or control arrrays for T Analysis in MARINa Viewer",
+						"T Analysis Error", JOptionPane.ERROR_MESSAGE);
+				return mraResultSet;
+			}
+			if (values==null){
+				log.error("The set of display values is set null.");
+				return null;
+			}
+			mraResultSet.setValues(values);
+			
+			MRA.sortByValue(values, mraResultSet);
 		}
-		if (values==null){
-			log.error("The set of display values is set null.");
-			return null;
-		}
-		mraResultSet.setValues(values);
-		
-		MRA.sortByValue(values, mraResultSet);
 		
 		Object[][] res = marinaResultSet.getData();
 		if(res.length==0) return mraResultSet;
