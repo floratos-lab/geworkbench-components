@@ -6,7 +6,7 @@
 		version="1.0" 
 		author="geWorkbench Development Team"
 		authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
-		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/BLAST"
+		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Pattern_Discovery"
 		toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 		description="Graphical display of the results of Pattern Discovery Analysis.  Sequence hits can be returned to the Workspace for further analysis."
 		mustAccept="false" 
