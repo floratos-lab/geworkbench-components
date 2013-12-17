@@ -63,7 +63,6 @@ public class ViperPanel extends AbstractSaveableParameterPanel {
         builder.append("Select Service", service);
         builder.append("Select Regulon", regulon);
         builder.append("Select Method", method);
-        builder.append(new JLabel("<html>(The underlying computational code is under<br> development and subjects to change.)<html>"), 4);
         this.add(builder.getPanel());
 
         ParameterActionListener parameterActionListener = new ParameterActionListener(this);
