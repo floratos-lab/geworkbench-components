@@ -368,8 +368,7 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 		if(resultFile.exists())
 			resultFile.delete();
 		
-		String command = r_root+" "+samdir+R_SCRIPTS +" > "+samdir+logfile+" 2>&1";		
-		System.out.println(command);
+		String[] command = new String[] {r_root, samdir+R_SCRIPTS, ">", (samdir+logfile), "2>&1"};		
 		
 		try {			
 			Runtime.getRuntime().exec(command);			
