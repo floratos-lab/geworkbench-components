@@ -73,7 +73,7 @@ public class MARINa extends AbstractGridAnalysis implements
 			return new ParamValidationResults(false, "Please activate at least one control array.");
 		Iterator<String> casei = mraAnalysisPanel.getIxClass(CSAnnotationContext.CLASS_CASE).iterator();
 		if (!casei.hasNext()){
-			int c = JOptionPane.showConfirmDialog(null, "Are you sure to use only a control group?");
+			int c = JOptionPane.showConfirmDialog(null, "Only control arrays are activated.  Do the data already represent relative expression values (paired-sample mode)?");
 			if (c != JOptionPane.YES_OPTION)
 				return new ParamValidationResults(false, "Please activate both control and case.");
 		}
