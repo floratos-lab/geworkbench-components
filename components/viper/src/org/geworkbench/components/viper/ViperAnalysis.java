@@ -89,20 +89,20 @@ public class ViperAnalysis extends AbstractAnalysis implements
 		if (containsMissingValues(data))
 			return new AlgorithmExecutionResults(false,
 					"Microarray set contains missing values.\n"
-							+ "Remove before proceeding.", null);
+							+ "Fix before proceeding.", null);
 		
 		String noShow=getLast();
 		if((noShow.equals(""))||(noShow.equalsIgnoreCase("false"))){
 		
 			JCheckBox checkbox = new JCheckBox("Do not show this message again.");
-			String message = "Viper requires R installed on your computer. R location should be assigned in Tools->Preference->R location.\n" +
-				    "R package of Viper is also required which will be installed automatically if not installed yet.\n" +
+			String message = "Viper requires that R be installed on your computer. The R location should be assigned in Tools->Preference->R location.\n" +
+				    "The VIPER R package will be installed automatically if not installed yet.\n" +
 				    "Do you want to continue?";
 			Object[] params = {message, checkbox};
 			int n = JOptionPane.showConfirmDialog(
 					null,
 					params,
-				    "Pleas be aware of",
+				    "Please be aware of",
 				    JOptionPane.YES_NO_OPTION);
 			boolean dontShow = checkbox.isSelected();
 			String s=dontShow?"True":"False";
@@ -142,7 +142,7 @@ public class ViperAnalysis extends AbstractAnalysis implements
 			File rLibFile=new File(rLibPath);
 			if(!rLibFile.exists() || !rLibFile.isDirectory() || !rLibFile.canWrite())
 				return new AlgorithmExecutionResults(false, "R package directory " + rLibPath+" is not valid.\nPlease leave it blank "+
-						"or provide a valid writable user directory at Tools->Preference->R package directory.", null);
+						"or provide a valid writeable user directory at Tools->Preference->R package directory.", null);
 		}
 
 		ProgressBar pbar = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
@@ -236,7 +236,7 @@ public class ViperAnalysis extends AbstractAnalysis implements
 	    	if (err!=null && err.contains("Error in install.packages"))
 	    		return new AlgorithmExecutionResults(false, 
 	    				"Unable to install viper package into a system directory.\n"+
-	    				"Please provide a valid writable user directory at Tools->Preference->R package directory.", null);
+	    				"Please provide a valid writeable user directory at Tools->Preference->R package directory.", null);
 	    	return new AlgorithmExecutionResults(false, "Viper analysis returns no result", null);				    	
 	    }
 
