@@ -116,7 +116,7 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
         hubMarkerList.setEnabled(false);
         loadMarkersButton.setEnabled(false);
         kernelWidth.setEnabled(false);
-        dpiTolerance.setEnabled(false);
+        dpiTolerance.setEnabled(true);
         targetList.setEnabled(false);
         loadTargetsButton.setEnabled(false);
 
