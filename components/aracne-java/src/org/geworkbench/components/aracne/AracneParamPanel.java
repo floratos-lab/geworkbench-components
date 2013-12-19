@@ -160,7 +160,7 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
         builder.nextRow();
 
         builder.append("DPI Tolerance", dpiCombo, dpiTolerance);
-        dpiCombo.setSelectedIndex(0);
+        dpiCombo.setSelectedIndex(1);
         builder.nextRow();
 
         builder.append("DPI Target List", dpiTargetCombo);
