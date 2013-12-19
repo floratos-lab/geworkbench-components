@@ -116,7 +116,7 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
         hubMarkerList.setEnabled(false);
         loadMarkersButton.setEnabled(false);
         kernelWidth.setEnabled(false);
-        dpiTolerance.setEnabled(false);
+        dpiTolerance.setEnabled(true);
         targetList.setEnabled(false);
         loadTargetsButton.setEnabled(false);
 
@@ -160,7 +160,7 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
         builder.nextRow();
 
         builder.append("DPI Tolerance", dpiCombo, dpiTolerance);
-        dpiCombo.setSelectedIndex(0);
+        dpiCombo.setSelectedIndex(1);
         builder.nextRow();
 
         builder.append("DPI Target List", dpiTargetCombo);
