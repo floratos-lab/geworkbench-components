@@ -1,6 +1,7 @@
 package org.geworkbench.components.masterregulator;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -9,6 +10,7 @@ import javax.swing.SwingUtilities;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
@@ -71,9 +73,9 @@ public class MARINaViewer extends MasterRegulatorViewer{
 				maSet, marinaResultSet.getLabel(), view.markers().size());
 		
 		//t-analysis
+		Map<DSGeneMarker, Double> values = null;
 		if(marinaResultSet.getCases().length>0){
 			log.info("Executing T Analysis");
-			Map<DSGeneMarker, Double> values = null;
 			try {
 				TAnalysis tTestAnalysis= new TAnalysis(view, marinaResultSet.getCases(), marinaResultSet.getControls());
 				values = tTestAnalysis.calculateDisplayValues();
@@ -83,14 +85,16 @@ public class MARINaViewer extends MasterRegulatorViewer{
 						"T Analysis Error", JOptionPane.ERROR_MESSAGE);
 				return mraResultSet;
 			}
-			if (values==null){
-				log.error("The set of display values is set null.");
-				return null;
-			}
-			mraResultSet.setValues(values);
-			
-			MRA.sortByValue(values, mraResultSet);
+		}else{
+			values = getPairedValues(view, marinaResultSet.getControls());
 		}
+		if (values==null){
+			log.error("The set of display values is set null.");
+			return null;
+		}
+		mraResultSet.setValues(values);
+		
+		MRA.sortByValue(values, mraResultSet);
 		
 		Object[][] res = marinaResultSet.getData();
 		if(res.length==0) return mraResultSet;
@@ -149,4 +153,37 @@ public class MARINaViewer extends MasterRegulatorViewer{
 		return mraResultSet;
 	}
 
+	//value = mean/stdev
+	private Map<DSGeneMarker, Double> getPairedValues(DSMicroarraySetView<DSGeneMarker, DSMicroarray> datasetView, String[] controls){
+		Map<DSGeneMarker, Double> map = new HashMap<DSGeneMarker, Double>();
+		DSItemList<DSGeneMarker> markers = datasetView.markers();
+		DSItemList<DSMicroarray> arrays = datasetView.items();
+		boolean[] isControl = new boolean[arrays.size()];
+		int numControl = 0;
+		for (int i = 0; i < arrays.size(); i++) {
+			DSMicroarray array = arrays.get(i);
+			for (String controlArray : controls){
+				if(controlArray.equals(array.getLabel())){
+					isControl[i] = true;
+					numControl++;
+				}
+			}
+		}
+		for (int i = 0; i < markers.size(); i++) {
+			DSGeneMarker m = markers.get(i);
+			double[] controlValues = new double[numControl];
+			int k = 0;
+			for (int j = 0; j < arrays.size(); j++) {
+				if(isControl[j])
+					controlValues[k++] = datasetView.getValue(i, j);
+			}
+			DescriptiveStatistics stat = new DescriptiveStatistics(controlValues);
+			double mean  = stat.getMean();
+			double stdev = stat.getStandardDeviation();
+			Double v = 0d;
+			if(stdev != 0)  v = mean / stdev;
+			map.put(m, v);
+		}
+		return map;
+	}
 }
