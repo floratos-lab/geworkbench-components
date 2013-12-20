@@ -99,7 +99,7 @@ public class ExportSelectionPanel extends JPanel {
 
 		JLabel label1 = new JLabel("Export To:   ");
 
-		exportToJcb.addItem(Constants.PROJECT);
+		exportToJcb.addItem(Constants.WORKSPACE);
 		exportToJcb.addItem(Constants.FILE);
 
 		
@@ -156,7 +156,7 @@ public class ExportSelectionPanel extends JPanel {
 		{
 			 public void itemStateChanged(ItemEvent itemEvent) {
 		     
-				 if (exportToJcb.getSelectedItem().toString().equals(Constants.PROJECT))
+				 if (exportToJcb.getSelectedItem().toString().equals(Constants.WORKSPACE))
 				 {
 					 formatJcb.setSelectedIndex(0);
 					 formatJcb.setEnabled(false);
@@ -443,7 +443,7 @@ public class ExportSelectionPanel extends JPanel {
 
 					}
 
-					if (selectedExportTo.equals(Constants.PROJECT)) {
+					if (selectedExportTo.equals(Constants.WORKSPACE)) {
 						
 						if (matrix == null)
 							if (matrix == null)
