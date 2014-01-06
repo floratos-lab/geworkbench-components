@@ -69,7 +69,7 @@ public class DemandAnalysis extends AbstractAnalysis implements
  	private static String scriptDir = null;
  	private static final String dataDir = FilePathnameUtils.getUserSettingDirectoryPath() + analysisName + "/";
  	private static final char extSeparator = '.';
- 	/* input/output/log files for demand R runs */
+ 	/* input/output/log files for DeMAND R runs */
  	private static final String R_SCRIPTS=	"DMAND.R";			//R script
  	private static final String logExt	=	".log";				//log file
  	private static final String expExt	=	".exp";				//input exp dataset file
@@ -80,7 +80,7 @@ public class DemandAnalysis extends AbstractAnalysis implements
  	private static final String resEdge	=	"KL_edge.txt";		//result edge file
  	private static final String resMod	=	"Module.txt";		//result module file
  	private static final String parName	=	"parameter.txt";	//configuration file
- 	private static final String resDir	="result_Geldanamycin/";//result directory
+ 	private static final String resDir	=   "results/";         //result directory
 	private static final int resultStrCol = 2, edgeStrCol = 2, modStrCol = 3;
  	
  	private static final String lastConf = FilePathnameUtils.getUserSettingDirectoryPath()
@@ -130,8 +130,8 @@ public class DemandAnalysis extends AbstractAnalysis implements
 		if((noShow.equals(""))||(noShow.equalsIgnoreCase("false"))){
 		
 			JCheckBox checkbox = new JCheckBox("Do not show this message again.");
-			String message = "Demand requires R installed on your computer. R location should be assigned in Tools->Preference->R location.\n" +
-				    "R package of Demand is also required which will be installed automatically if not installed yet.\n" +
+			String message = "DeMAND requires that R already be installed on your computer. The R location should be assigned in Tools->Preference->R location.\n" +
+				    "The R DeMAND package is also required and will be installed automatically if not installed yet.\n" +
 				    "Do you want to continue?";
 			Object[] params = {message, checkbox};
 			int n = JOptionPane.showConfirmDialog(
@@ -144,18 +144,18 @@ public class DemandAnalysis extends AbstractAnalysis implements
 			saveLast(s);
 			
 			if(n!=JOptionPane.YES_OPTION)
-				return new AlgorithmExecutionResults(false, "Demand analysis: cancelled", null);
+				return new AlgorithmExecutionResults(false, "DeMAND analysis: cancelled", null);
 		}
 				
 		String rExe = GlobalPreferences.getInstance().getRLocation();
 		if ((rExe == null)||(rExe.equals(""))) {
 			log.info("No R location configured.");
-			return new AlgorithmExecutionResults(false, "Rscript.exe's location is not assigned", null);
+			return new AlgorithmExecutionResults(false, "The location of Rscript.exe is not assigned", null);
 		}		
 		else{
 			File rExeFile=new File(rExe);
 			if(!rExeFile.exists())
-				return new AlgorithmExecutionResults(false, "Rscript.exe not exist. Please check it's location at Tools->Preference->R location.", null);
+				return new AlgorithmExecutionResults(false, "Rscript.exe not exist. Please check its location at Tools->Preference->R location.", null);
 		}
 		
 		String localDataDir = dataDir;
@@ -164,13 +164,13 @@ public class DemandAnalysis extends AbstractAnalysis implements
 			localDataDir = dataDir + "web" + random.nextInt(Short.MAX_VALUE) + "/";
 			File webDir = new File(localDataDir);
 			if (!webDir.exists() && !webDir.mkdir())
-				return new AlgorithmExecutionResults(false, "Local data dir for demand cannot be created: "+localDataDir, null);
+				return new AlgorithmExecutionResults(false, "Local data dir for DeMAND cannot be created: "+localDataDir, null);
 			webDir.deleteOnExit();
 		}
 
 		ProgressBar pbar = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
-		pbar.setTitle("Demand Analysis");
-		pbar.setMessage("Demand analysis: preparing input files for R");
+		pbar.setTitle("DeMAND Analysis");
+		pbar.setMessage("DeMAND analysis: preparing input files for R");
 		pbar.start();
 
 		String setName = maSet.getDataSetName();
@@ -182,7 +182,7 @@ public class DemandAnalysis extends AbstractAnalysis implements
 		File expFile = new File(expFname);
 		writeExpset(maSet, expFile);
 		if(!expFile.exists())
-			return new AlgorithmExecutionResults(false, "Expset data file for demand does not exist.", null);
+			return new AlgorithmExecutionResults(false, "Expset data file for DeMAND does not exist.", null);
 		
 		String nwFname = localDataDir + setName + nwExt;
 		File nwFile = new File(nwFname);
@@ -192,34 +192,34 @@ public class DemandAnalysis extends AbstractAnalysis implements
 		}else 
 			writeNetwork(nwFile, nwMap);		
 		if(!nwFile.exists())
-			return new AlgorithmExecutionResults(false, "Network file for demand does not exist.", null);
+			return new AlgorithmExecutionResults(false, "Network file for DeMAND does not exist.", null);
 
 		String annoFname = localDataDir + setName + annoExt;
 		File annoFile = new File(annoFname);
 		writeAnnoFile(maSet, annoFile);
 		if(!annoFile.exists())
-			return new AlgorithmExecutionResults(false, "Annotation file for demand does not exist.", null);
+			return new AlgorithmExecutionResults(false, "Annotation file for DeMAND does not exist.", null);
 		
 		String spFname = localDataDir + setName + spExt;
 		File spFile = new File(spFname);
 		writeSampleInfo(spFile, drugSet, ctrlSet);
 		if(!spFile.exists())
-			return new AlgorithmExecutionResults(false, "Sample info file for demand does not exist.", null);
+			return new AlgorithmExecutionResults(false, "Sample info file for DeMAND does not exist.", null);
 
 		String resultDir = localDataDir + resDir;
 		File rDir = new File(resultDir);
 		if (!rDir.exists() && !rDir.mkdir())
-			return new AlgorithmExecutionResults(false, "Local result dir for demand cannot be created: "+resultDir, null);
+			return new AlgorithmExecutionResults(false, "Local result dir for DeMAND cannot be created: "+resultDir, null);
 		rDir.deleteOnExit();
 
 		String err = null;
 		if (service.equals("web service")){
-			pbar.setMessage("Demand web service: computing results");
+			pbar.setMessage("DeMAND web service: computing results");
 			try{
 				String serviceAddress = client.findService("demand");
 				if (serviceAddress == null) 
-					return new AlgorithmExecutionResults(false, "cannot find demand web service.", null);
-				log.info("Discovered demand web service: "+serviceAddress);
+					return new AlgorithmExecutionResults(false, "Cannot find DeMAND web service.", null);
+				log.info("Discovered DeMAND web service: "+serviceAddress);
 				
 				err = client.executeDemand(
 						serviceAddress, setName, expFname, nwFname, annoFname, spFname, resultDir
@@ -228,7 +228,7 @@ public class DemandAnalysis extends AbstractAnalysis implements
 			}catch(AxisFault af){
 				pbar.dispose();
 				af.printStackTrace();
-				return new AlgorithmExecutionResults(false, "error executing demand web service.", null);
+				return new AlgorithmExecutionResults(false, "Error executing DeMAND web service.", null);
 			}
 		}else{
 		
@@ -241,7 +241,7 @@ public class DemandAnalysis extends AbstractAnalysis implements
 					scriptDir + R_SCRIPTS,
 					paramFname};
 			
-			pbar.setMessage("Demand analysis: computing results");
+			pbar.setMessage("DeMAND analysis: computing results");
 			String logFname = localDataDir + setName + logExt;
 			File logFile = new File(logFname);
 	
@@ -261,7 +261,7 @@ public class DemandAnalysis extends AbstractAnalysis implements
 			} catch (Exception t) {
 				pbar.dispose();
 				t.printStackTrace();
-				return new AlgorithmExecutionResults(false, "error running R scripts.", null);
+				return new AlgorithmExecutionResults(false, "Error running R scripts.", null);
 			}finally{
 				try{
 					if (fos!=null) fos.close();
@@ -282,18 +282,18 @@ public class DemandAnalysis extends AbstractAnalysis implements
 
 		if (err != null || !resultFile.exists()){
 	    	pbar.dispose();
-	    	return new AlgorithmExecutionResults(false, "Demand analysis returns no result", null);				    	
+	    	return new AlgorithmExecutionResults(false, "DeMAND analysis returned no result", null);				    	
 	    }
 		
-		pbar.setMessage("Demand analysis: reading output file");
+		pbar.setMessage("DeMAND analysis: reading output file");
 		Object[][] rdata = getResult(resultFile, resultStrCol);
 		Object[][] edata = getResult(resultEdgeFile, edgeStrCol);
 		Object[][] mdata = getResult(resultModFile, modStrCol);
 		
-		DSDemandResultSet analysisResult = new CSDemandResultSet(maSet, "DEMAND Result",
+		DSDemandResultSet analysisResult = new CSDemandResultSet(maSet, "DeMAND Result",
 				rdata, edata, mdata);
 		AlgorithmExecutionResults results = new AlgorithmExecutionResults(true,
-				"Demand Analysis", analysisResult);
+				"DeMAND Analysis", analysisResult);
 		
 		// add data set history.
 		String histString = generateHistoryString(data);
@@ -582,7 +582,7 @@ public class DemandAnalysis extends AbstractAnalysis implements
 			DSPanel<DSMicroarray> activatedArrays = e.getTaggedItemSetTree();
 			demandPanel.setSelectorPanelForArray(activatedArrays);
 		}else
-			log.debug("Demand Received Microarray Selector Event: Selection panel sent was null");
+			log.debug("DeMAND received Microarray Selector Event: Selection panel sent was null");
 	}
 	
 	@Subscribe

@@ -2,14 +2,14 @@
 <component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
-	<component  name="Demand Analysis"
+	<component  name="DeMAND Analysis"
 		class="org.geworkbench.components.demand.DemandAnalysis"
 		version="1.0"
 		author="Califano lab (C2B2)"
 		authorURL="http://wiki.c2b2.columbia.edu/califanolab/index.php/Califano_Info"
 		toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Demand_Analysis"								
-		description="Demand Analysis"
+		description="DeMAND (Drug Mode of Action through Network Dysreguation) measures dysregulation between the expression of two genes in a network caused by e.g. a drug perturbation. The list of top dysregulated gene pairs can reveal details of a drug's mode of action in the tested cellular system or tissue."
 		category="Analysis, Network, Microarray"							
 	 >
 		<required-component class="org.geworkbench.components.demand.DemandViewer" />
@@ -21,6 +21,6 @@
 
 	</component>
 
-	<plugin id="DemandAnalysis" name="Demand Analysis" class="org.geworkbench.components.demand.DemandAnalysis" source="demand"/>
+	<plugin id="DemandAnalysis" name="DeMAND Analysis" class="org.geworkbench.components.demand.DemandAnalysis" source="demand"/>
 
 </component-descriptor>
