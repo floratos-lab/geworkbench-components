@@ -65,7 +65,7 @@ public class DemandViewer extends JPanel implements VisualPlugin{
 		rTable.setFillsViewportHeight(true);
 		TableRowSorter<ViewerTableModel> rSorter = new TableRowSorter<ViewerTableModel>(rModel);
 		rTable.setRowSorter(rSorter);
-		tabbedPane.addTab("Demand Result", rScrollPane);
+		tabbedPane.addTab("DeMAND Result", rScrollPane);
 		
 		DecCellRenderer rRenderer = new DecCellRenderer();
 		Enumeration<TableColumn> rColumns = rTable.getColumnModel().getColumns();

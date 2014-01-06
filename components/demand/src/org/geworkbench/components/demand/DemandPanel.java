@@ -66,10 +66,10 @@ public class DemandPanel extends AbstractSaveableParameterPanel{
 	private static final String[] DRUG_FROM		=	{FROM_SETS, FROM_FILE};
 	private static final String[] CTRL_FROM		=	{FROM_SETS, FROM_FILE};
 	private static final String[] DEFAULT_SET	=	{ " " };
-	private static final String NETWORK_HR		= "Demand Network: ";
-	private static final String DRUG_HR			= "Demand Drugs: ";
-	private static final String CTRL_HR			= "Demand Controls: ";
-	private static final String SERVICE_HR		= "Demand Service: ";
+	private static final String NETWORK_HR		= "DeMAND Network: ";
+	private static final String DRUG_HR			= "DeMAND Drugs: ";
+	private static final String CTRL_HR			= "DeMAND Controls: ";
+	private static final String SERVICE_HR		= "DeMAND Service: ";
 	
 	private JLabel networkLabel		=	new JLabel("Load Network");
 	private JLabel drugLabel		=	new JLabel("Drug Arrays");
@@ -132,7 +132,7 @@ public class DemandPanel extends AbstractSaveableParameterPanel{
 		DefaultFormBuilder builder = new DefaultFormBuilder(layout);
 		builder.setDefaultDialogBorder();
 
-		builder.appendSeparator("Demand Parameters");			
+		builder.appendSeparator("DeMAND Parameters");			
 		builder.append("Select Service", service);
 		builder.nextLine();
 
@@ -358,7 +358,7 @@ public class DemandPanel extends AbstractSaveableParameterPanel{
 	public String getDataSetHistory() {
 		String histStr = "";
 		Map<Serializable, Serializable> pMap = getParameters();
-		histStr += "Demand Analysis parameters:\n";
+		histStr += "DeMAND Analysis parameters:\n";
 		histStr += "----------------------------------------\n";
 		for (Iterator<Map.Entry<Serializable, Serializable>> iterator = pMap
 				.entrySet().iterator(); iterator.hasNext();) {
