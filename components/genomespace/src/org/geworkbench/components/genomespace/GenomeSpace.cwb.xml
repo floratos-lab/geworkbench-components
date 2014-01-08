@@ -8,7 +8,7 @@
 				authorURL="http://www.broadinstitute.org/software/genomespace"
 				toolURL="http://www.broadinstitute.org/software/genomespace/analysisandtools"
 				tutorialURL="http://www.broadinstitute.org/software/genomespace"
-				description="Genome Space"
+				description="GenomeSpace provides a cloud-based portal where data can be shared between numerous bioinformatics and genomics software platforms. The GenomeSpace component provides direct, interactive access to this portal from within geWorkbench."
 				loadByDefault="false"
 				category="Visualizer, Microarray, Remote Access"
 	 >

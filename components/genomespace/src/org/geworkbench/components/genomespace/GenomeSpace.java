@@ -129,7 +129,7 @@ public class GenomeSpace implements VisualPlugin {
 		jsp2.getViewport().add(projectTree, null);
 
 		JPanel panel2 = new JPanel(new BorderLayout());
-		panel2.add(new JLabel("GeWorkbench Project Folder Mirror"), BorderLayout.NORTH);
+		panel2.add(new JLabel("geWorkbench Workspace Mirror"), BorderLayout.NORTH);
 		panel2.add(jsp2, BorderLayout.CENTER);
 		mainpanel.setBottomComponent(panel2);
 		mainpanel.setDividerLocation(300);
