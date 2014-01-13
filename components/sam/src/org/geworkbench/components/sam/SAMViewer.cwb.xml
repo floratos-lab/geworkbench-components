@@ -9,7 +9,7 @@
 		authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 		toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/SAM_Analysis"
-		description="The SAM viewer displays the results of the SAM analysis."
+		description="The SAM viewer provides an interactive viewer for the results of a SAM analysis."
 		category="Visualizer, Microarray"				
 	 >
 		<required-component class="org.geworkbench.components.sam.SAMAnalysis" />
