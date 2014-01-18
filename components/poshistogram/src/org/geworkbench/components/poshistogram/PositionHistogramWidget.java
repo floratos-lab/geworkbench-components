@@ -33,6 +33,11 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
+
+import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.axis.NumberAxis;
+
 /**
  * <p>PositionHistogramWidget</p>
  * <p>Description: </p>
@@ -147,14 +152,17 @@ public final class PositionHistogramWidget extends JPanel {
 			JOptionPane.showMessageDialog(null, "Step should be a positive integer");
 			return;
 		}	
-        int wind = 1;
-        int maxBin = maxLen / step + 1;
 
-        int factor = 1;
+        int maxBin = maxLen / step;
+		
+
+
+
         XYSeriesCollection plots = new XYSeriesCollection();
         for (int rowId = 0; rowId < patterns.size(); rowId++) {
-            int[] yAxis = new int[maxBin * 2 + 1];
-            double[] yMean = new double[maxBin * 2 + 1];
+
+            int[] yAxis = new int[maxBin];
+            double[] yMean = new double[maxBin];
             DSMatchedSeqPattern pat = (DSMatchedSeqPattern) patterns.get(rowId);
             if (pat != null && pat.getClass().isAssignableFrom(CSMatchedSeqPattern.class)) {
 				CSMatchedSeqPattern pattern = (CSMatchedSeqPattern) pat;
@@ -164,29 +172,15 @@ public final class PositionHistogramWidget extends JPanel {
 						yAxis[dx]++;
 					}
 				}
-
-                int count = 0;
-                yMean[0] = (double) count / (double) wind;
-                for (int x = 0; x < wind; x++) {
-                    count += yAxis[x];
-                }
-                for (int id = 0; id < maxBin * factor - wind; id++) {
-                    count -= yAxis[id];
-                    count += yAxis[id + wind];
-                    yMean[id + 1] = (double) count / (double) wind;
-                }
+				
                 String ascii = pat.getASCII();
                 if (ascii == null) {
                     PatternOperations.fill(pat, sequenceDB);
                     ascii = pat.getASCII();
                 }
                 XYSeries series = new XYSeries(ascii);
-                for (int i = 0; i < maxBin * factor; i++) {
-                        if (factor == 1) {
-                            series.add((double) i * step, (double) yMean[i] / pat.getSupport());
-                        } else {
-                            series.add((double) ((i - maxBin) * step), (double) yMean[i] / pat.getSupport());
-                        }
+                for (int i = 0; i < maxBin; i++) {
+                    series.add((double) i * step + 1, (double) yAxis[i] / pat.getSupport()); //start sequence numbering at 1.
                 }
                 plots.addSeries(series);
             }
@@ -197,6 +191,11 @@ public final class PositionHistogramWidget extends JPanel {
                 plots, // Dataset
                 PlotOrientation.VERTICAL, true, // Show legend
                 false, false);
+				
+		XYPlot xyplot = chart.getXYPlot();
+		ValueAxis valueAxis = xyplot.getDomainAxis();
+        valueAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+		
         chartPanel.setChart(chart);
     }
 
