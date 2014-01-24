@@ -164,8 +164,6 @@ public class CytoscapeWidget implements VisualPlugin {
 			NodeShape.OCTAGON, NodeShape.PARALLELOGRAM, NodeShape.ROUND_RECT,
 			NodeShape.TRAPEZOID_2 };
 
-	private boolean uiSetup = false;
-
 	private CyNetworkView view = null;
 
 	private CyNetwork cytoNetwork = null;
@@ -200,7 +198,6 @@ public class CytoscapeWidget implements VisualPlugin {
 		UIManager.put(Options.USE_SYSTEM_FONTS_APP_KEY, Boolean.TRUE);
 		Options.setDefaultIconSize(new Dimension(18, 18));
 
-		init();
 		publishEnabled = true;
 
 		INSTANCE = this;
@@ -216,37 +213,6 @@ public class CytoscapeWidget implements VisualPlugin {
 	 * @return <code>Component</code> the view for this component
 	 */
 	public Component getComponent() {
-
-		// quit
-		Container contentPane = Cytoscape.getDesktop().getContentPane();
-		if (!uiSetup) {
-			JMenuBar menuBar = Cytoscape.getDesktop().getCyMenus().getMenuBar();
-			JMenu fileMenu = menuBar.getMenu(0);
-			fileMenu.remove(fileMenu.getItemCount() - 1); // remove the last
-			// item
-
-			Component[] components = contentPane.getComponents();
-			contentPane.removeAll();
-			Box box = Box.createVerticalBox();
-			Component comp1 = menuBar;
-			BiModalJSplitPane comp2 = (BiModalJSplitPane) components[0];
-			CytoscapeToolBar comp3 = (CytoscapeToolBar) components[1];
-
-			menuBar.setAlignmentX(Component.LEFT_ALIGNMENT);
-			comp2.setAlignmentX(Component.LEFT_ALIGNMENT);
-			comp3.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-			box.add(comp1);
-			box.add(comp2);
-			box.add(comp3);
-
-			contentPane.add(box);
-
-			uiSetup = true;
-
-			masterPanel.add(contentPane, CYTOSCAPE_CARD);
-			masterPanel.add(safePanel, SAFE_CARD);
-		}
 
 		return masterPanel;
 	}
@@ -368,6 +334,7 @@ public class CytoscapeWidget implements VisualPlugin {
 			ProjectPanel.getInstance().removeAddedSubNode(adjSet);
 	}
 
+	private boolean initialized = false;
 	/**
 	 * receiveProjectSelection
 	 * 
@@ -376,15 +343,25 @@ public class CytoscapeWidget implements VisualPlugin {
 	 */
 	@Subscribe
 	public void receive(org.geworkbench.events.ProjectEvent e, Object source) {
-		int adjMatrixId;
-		try {
-			DSDataSet<?> dataSet = e.getDataSet();
 
-			if (dataSet instanceof AdjacencyMatrixDataSet) {
+		DSDataSet<?> dataSet = e.getDataSet();
+		if (!(dataSet instanceof AdjacencyMatrixDataSet)) {
+			return;
+		}
+		if (!initialized) {
+			ClassLoader loader = Thread.currentThread().getContextClassLoader();
+			Thread.currentThread().setContextClassLoader(
+					this.getClass().getClassLoader());
+			init();
+			Thread.currentThread().setContextClassLoader(loader);
+			initialized = true;
+		}
+
+		try {
 
 				adjSet = (AdjacencyMatrixDataSet) dataSet;
 				AdjacencyMatrix adjMatrix = adjSet.getMatrix();
-				adjMatrixId = adjMatrix.hashCode();
+				int adjMatrixId = adjMatrix.hashCode();
 				maSet = (DSMicroarraySet) adjSet.getParentDataSet();
 
 				boolean found = false;
@@ -488,8 +465,6 @@ public class CytoscapeWidget implements VisualPlugin {
 				}
 				if (cancelList.contains(adjMatrixId))
 					cancelList.remove(adjMatrixId);
-
-			}
 
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -889,6 +864,31 @@ public class CytoscapeWidget implements VisualPlugin {
 		safePanel.setLayout(new BorderLayout());
 		safePanel.add(safePanelContent, BorderLayout.CENTER);
 
+		Container contentPane = Cytoscape.getDesktop().getContentPane();
+		JMenuBar menuBar = Cytoscape.getDesktop().getCyMenus().getMenuBar();
+		JMenu fileMenu = menuBar.getMenu(0);
+		fileMenu.remove(fileMenu.getItemCount() - 1); // remove the last
+		// item
+
+		Component[] components = contentPane.getComponents();
+		contentPane.removeAll();
+		Box box = Box.createVerticalBox();
+		Component comp1 = menuBar;
+		BiModalJSplitPane comp2 = (BiModalJSplitPane) components[0];
+		CytoscapeToolBar comp3 = (CytoscapeToolBar) components[1];
+
+		menuBar.setAlignmentX(Component.LEFT_ALIGNMENT);
+		comp2.setAlignmentX(Component.LEFT_ALIGNMENT);
+		comp3.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+		box.add(comp1);
+		box.add(comp2);
+		box.add(comp3);
+
+		contentPane.add(box);
+
+		masterPanel.add(contentPane, CYTOSCAPE_CARD);
+		masterPanel.add(safePanel, SAFE_CARD);
 	}
 
 	private JTextArea textArea = null;
