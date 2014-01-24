@@ -6,7 +6,7 @@
 				author="Broad Institute"
 				authorURL="http://www.broadinstitute.org/cancer/software/genepattern/index.html"
 				toolURL="http://www.broadinstitute.org/cancer/software/genepattern/modules/index2.html?http://www.broadinstitute.org/cgi-bin/cancer/software/genepattern/modules/gp_modules.cgi"
-				tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Classification"
+				tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/PCA"
 				description="Provides an interface to the GenePattern v3
  implementation of PCA (Principal Component Analysis).
  PCA successively decomposes a dataset into a small
