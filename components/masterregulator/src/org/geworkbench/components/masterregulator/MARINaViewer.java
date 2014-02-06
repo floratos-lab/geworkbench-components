@@ -74,7 +74,7 @@ public class MARINaViewer extends MasterRegulatorViewer{
 		
 		//t-analysis
 		Map<DSGeneMarker, Double> values = null;
-		if(marinaResultSet.getCases().length>0){
+		if(marinaResultSet.getControls().length>0){
 			log.info("Executing T Analysis");
 			try {
 				TAnalysis tTestAnalysis= new TAnalysis(view, marinaResultSet.getCases(), marinaResultSet.getControls());
@@ -86,7 +86,7 @@ public class MARINaViewer extends MasterRegulatorViewer{
 				return mraResultSet;
 			}
 		}else{
-			values = getPairedValues(view, marinaResultSet.getControls());
+			values = getPairedValues(view, marinaResultSet.getCases());
 		}
 		if (values==null){
 			log.error("The set of display values is set null.");
@@ -107,7 +107,7 @@ public class MARINaViewer extends MasterRegulatorViewer{
 			Object odd	= row[11];
 			Object nes	= row[8];
 			Object absnes = row[9];
-			char mode	= Double.parseDouble((String) nes) <= 0 ? CSMasterRegulatorResultSet.ACTIVATOR
+			char mode	= Double.parseDouble((String) nes) >= 0 ? CSMasterRegulatorResultSet.ACTIVATOR
 						: CSMasterRegulatorResultSet.REPRESSOR;
 			
 			DSGeneMarker tfA = markers.get(tf);

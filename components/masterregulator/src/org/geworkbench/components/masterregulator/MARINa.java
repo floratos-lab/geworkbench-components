@@ -68,17 +68,17 @@ public class MARINa extends AbstractGridAnalysis implements
 				return new ParamValidationResults(true, "No Error");
 		}
 
-		HashSet<String> ctrls = mraAnalysisPanel.getIxClass(CSAnnotationContext.CLASS_CONTROL);
-		if (ctrls.size() == 0)
-			return new ParamValidationResults(false, "Please activate at least one control array.");
-		Iterator<String> casei = mraAnalysisPanel.getIxClass(CSAnnotationContext.CLASS_CASE).iterator();
-		if (!casei.hasNext()){
-			int c = JOptionPane.showConfirmDialog(null, "Only control arrays are activated.  Do the data already represent relative expression values (paired-sample mode)?");
+		HashSet<String> cases = mraAnalysisPanel.getIxClass(CSAnnotationContext.CLASS_CASE);
+		if (cases.size() == 0)
+			return new ParamValidationResults(false, "Please activate at least one case array.");
+		Iterator<String> controli = mraAnalysisPanel.getIxClass(CSAnnotationContext.CLASS_CONTROL).iterator();
+		if (!controli.hasNext()){
+			int c = JOptionPane.showConfirmDialog(null, "Only case arrays are activated.  Do the data already represent relative expression values (paired-sample mode)?");
 			if (c != JOptionPane.YES_OPTION)
 				return new ParamValidationResults(false, "Please activate both control and case.");
 		}
-		while (casei.hasNext()){
-		    if (ctrls.contains(casei.next()))
+		while (controli.hasNext()){
+		    if (cases.contains(controli.next()))
 			return new ParamValidationResults(false, "An array cannot be in case and control at the same time.");
 		}
 
