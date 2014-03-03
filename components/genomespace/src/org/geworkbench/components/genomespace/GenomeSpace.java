@@ -80,7 +80,7 @@ public class GenomeSpace implements VisualPlugin {
 	private JPopupMenu gsfilePopupMenu = new JPopupMenu();
 	private JPopupMenu gsdirPopupMenu = new JPopupMenu();
 	private JPopupMenu gsrootPopupMenu = new JPopupMenu();
-	private JMenuItem downloadItem = new JMenuItem("Download");
+	private JMenuItem downloadItem = new JMenuItem("Download to geWorkbench");
 	private JMenuItem deldirItem = new JMenuItem("Delete");
 	private JMenu convertItem = new JMenu("Convert to");
 	private JSplitPane mainpanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
