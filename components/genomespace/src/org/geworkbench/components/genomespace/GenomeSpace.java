@@ -397,6 +397,7 @@ public class GenomeSpace implements VisualPlugin {
 		 */
 		ConfigurationUrls.init("prod");
 		loginDialog = new GSLoginDialog();
+		loginDialog.setSize(400, 250);
 		
 		loginDialog.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
