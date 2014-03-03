@@ -666,18 +666,19 @@ public class GenomeSpace implements VisualPlugin {
 				}
 			}
 			
+			ProjectTreeNode newnode = null;
+			int newid = findInsertPosition(parent, newname);
+
 			try{
 				GSFileMetadata newGsFile = dmClient.copy(source, parentdir, newname, format);
-				if (newGsFile != null){
-					dmClient.delete(source);
-					node.setUserObject(newname);
-					node.setDescription(newGsFile.getPath());
-				}
+				newnode = metaToNode(newGsFile);
+				genomeTreeModel.insertNodeInto(newnode, parent, newid);
+
 			}catch(Exception e){
 				JOptionPane.showMessageDialog(null, "Cannot convert "+node.getUserObject()+" to "+format.getName(),
 						"Convertion Error", JOptionPane.ERROR_MESSAGE);
 			}
-			return node;
+			return newnode;
 		}
 		@Override
     	protected void done(){
@@ -696,6 +697,22 @@ public class GenomeSpace implements VisualPlugin {
 		}
 	}
 
+	private int findInsertPosition(ProjectTreeNode parent, String newname){
+		int start = 0, end = parent.getChildCount();
+		for (int i = 0; i < end; i++){
+			ProjectTreeNode n = (ProjectTreeNode)parent.getChildAt(i);
+			if(n.getAllowsChildren()) start++;
+		}
+		
+		while(start <= end){
+			int mid = (start+end)/2;
+			ProjectTreeNode n = (ProjectTreeNode)parent.getChildAt(mid);
+			if(newname.compareTo((String)n.getUserObject()) <= 0) end = mid-1;
+			else start = mid+1;
+		}
+		return start;
+	}
+	
 	private class DownloadTask extends ProgressTask<Void,Void>{
 		public DownloadTask(int pbtype, String message){
     		super(pbtype, message);
