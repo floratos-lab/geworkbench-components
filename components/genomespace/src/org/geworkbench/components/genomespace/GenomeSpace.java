@@ -441,10 +441,24 @@ public class GenomeSpace implements VisualPlugin {
 		private ProjectTreeNode root = null;
 		public RefreshTask(int pbtype, String message){
 			super(pbtype, message);
+
+			genomeRoot.removeAllChildren();
+			genomeTree.setEnabled(false);
+			
+			GsSession session = loginDialog.getGsSession();
+			DataManagerClient dmClient = session.getDataManagerClient();
+			GSDirectoryListing defaultdir = dmClient.listDefaultDirectory();
+			GSFileMetadata defaultdirmeta = defaultdir.getDirectory();
+			root = metaToNode(defaultdirmeta);
+			genomeTreeModel.insertNodeInto(root, genomeRoot, genomeRoot.getChildCount());
+			genomeTreeModel.reload(genomeRoot);
 		}
 		public RefreshTask(int pbtype, String message, ProjectTreeNode root){
     		super(pbtype, message + " in " + root.getUserObject());
     		this.root = root;
+ 
+    		root.removeAllChildren();
+    		genomeTree.setEnabled(false);
     	}	
 		@Override
 		protected Void doInBackground(){
@@ -455,47 +469,21 @@ public class GenomeSpace implements VisualPlugin {
 		@Override
     	protected void done(){
 			pd.removeTask(this);
+			genomeTreeModel.reload(root);
+			if (root.getChildCount()==0) showNode(genomeTree, root);
+			else showNode(genomeTree, (ProjectTreeNode)root.getNextNode());
+			genomeTree.setEnabled(true);
 		}
 	}
 	
-	private void refreshGSlist(){
-		genomeRoot.removeAllChildren();
-		genomeTree.setEnabled(false);
-
-		GsSession session = loginDialog.getGsSession();
-		DataManagerClient dmClient = session.getDataManagerClient();
-		GSDirectoryListing defaultdir = dmClient.listDefaultDirectory();
-		GSFileMetadata defaultdirmeta = defaultdir.getDirectory();
-
-		ProjectTreeNode defaultnode = metaToNode(defaultdirmeta);
-		genomeTreeModel.insertNodeInto(defaultnode, genomeRoot, genomeRoot.getChildCount());
-
-		addDirectoryContents(dmClient, defaultdir, defaultnode);
-		genomeTreeModel.reload(genomeRoot);
-
-		if (defaultnode.getChildCount()==0)	defaultnode = genomeRoot;
-		showNode(genomeTree, (ProjectTreeNode)defaultnode.getNextNode());
-		genomeTree.setEnabled(true);
-	}
-
 	private void refreshGSlist(ProjectTreeNode root){
-		if(root == null) {
-			refreshGSlist();
-			return;
-		}
-		root.removeAllChildren();
-		genomeTree.setEnabled(false);
+		if(root == null) return;
 		
 		GsSession session = loginDialog.getGsSession();
 		DataManagerClient dmClient = session.getDataManagerClient();
 		GSFileMetadata rootmeta =  dmClient.getMetadata(root.getDescription());
 
 		addDirectoryContents(dmClient, dmClient.list(rootmeta), root);
-		genomeTreeModel.reload(root);
-
-		if (root.getChildCount()==0) showNode(genomeTree, root);
-		else showNode(genomeTree, (ProjectTreeNode)root.getNextNode());
-		genomeTree.setEnabled(true);
 	}
 	
 	/**
@@ -510,8 +498,11 @@ public class GenomeSpace implements VisualPlugin {
 		for (GSFileMetadata aDir : dirList.findDirectories()) {
 			ProjectTreeNode dirnode = metaToNode(aDir);
 			parent.add(dirnode);
-			GSDirectoryListing subDir = dmClient.list(aDir);
-			addDirectoryContents(dmClient, subDir, dirnode);
+			//userdir gets deep copy
+			if(aDir.getOwner().getName().equals(loginDialog.getGsUser().getUsername())){
+				GSDirectoryListing subDir = dmClient.list(aDir);
+				addDirectoryContents(dmClient, subDir, dirnode);
+			}
 		}
 		for (GSFileMetadata aFile : dirList.findFiles()) {
 			ProjectTreeNode filenode = metaToNode(aFile);
