@@ -268,7 +268,7 @@ public class GenomeSpace implements VisualPlugin {
 		JMenuItem copyurldirItem = new JMenuItem("Copy URL to clipboard");
 		copyurldirItem.addActionListener(new CopyurlActionListener());
 		
-		JMenuItem refreshItem = new JMenuItem("Refresh GS");
+		JMenuItem refreshItem = new JMenuItem("Show Contents");
 		refreshItem.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				if (!validate(genomeTree)) return;
@@ -283,7 +283,7 @@ public class GenomeSpace implements VisualPlugin {
 		gsdirPopupMenu.add(deldirItem);
 		gsdirPopupMenu.add(copyurldirItem);
 		
-		JMenuItem refreshRootItem = new JMenuItem("Refresh GS");
+		JMenuItem refreshRootItem = new JMenuItem("Show Contents");
 		refreshRootItem.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				if (!validate()) return;
