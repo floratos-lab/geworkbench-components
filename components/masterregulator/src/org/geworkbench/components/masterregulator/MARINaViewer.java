@@ -154,30 +154,30 @@ public class MARINaViewer extends MasterRegulatorViewer{
 	}
 
 	//value = mean/stdev
-	private Map<DSGeneMarker, Double> getPairedValues(DSMicroarraySetView<DSGeneMarker, DSMicroarray> datasetView, String[] controls){
+	private Map<DSGeneMarker, Double> getPairedValues(DSMicroarraySetView<DSGeneMarker, DSMicroarray> datasetView, String[] pairedGroup){
 		Map<DSGeneMarker, Double> map = new HashMap<DSGeneMarker, Double>();
 		DSItemList<DSGeneMarker> markers = datasetView.markers();
 		DSItemList<DSMicroarray> arrays = datasetView.items();
-		boolean[] isControl = new boolean[arrays.size()];
-		int numControl = 0;
+		boolean[] isPaired = new boolean[arrays.size()];
+		int numPaired = 0;
 		for (int i = 0; i < arrays.size(); i++) {
 			DSMicroarray array = arrays.get(i);
-			for (String controlArray : controls){
-				if(controlArray.equals(array.getLabel())){
-					isControl[i] = true;
-					numControl++;
+			for (String pairedArray : pairedGroup){
+				if(pairedArray.equals(array.getLabel())){
+					isPaired[i] = true;
+					numPaired++;
 				}
 			}
 		}
 		for (int i = 0; i < markers.size(); i++) {
 			DSGeneMarker m = markers.get(i);
-			double[] controlValues = new double[numControl];
+			double[] pairedValues = new double[numPaired];
 			int k = 0;
 			for (int j = 0; j < arrays.size(); j++) {
-				if(isControl[j])
-					controlValues[k++] = datasetView.getValue(i, j);
+				if(isPaired[j])
+					pairedValues[k++] = datasetView.getValue(i, j);
 			}
-			DescriptiveStatistics stat = new DescriptiveStatistics(controlValues);
+			DescriptiveStatistics stat = new DescriptiveStatistics(pairedValues);
 			double mean  = stat.getMean();
 			double stdev = stat.getStandardDeviation();
 			Double v = 0d;
