@@ -180,7 +180,7 @@ public class MARINaViewer extends MasterRegulatorViewer{
 			DescriptiveStatistics stat = new DescriptiveStatistics(pairedValues);
 			double mean  = stat.getMean();
 			double stdev = stat.getStandardDeviation();
-			Double v = 0d;
+			Double v = mean;
 			if(stdev != 0)  v = mean / stdev;
 			map.put(m, v);
 		}
