@@ -14,7 +14,6 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.BorderFactory;
@@ -80,12 +79,14 @@ public class GenomeSpace implements VisualPlugin {
 	private JPopupMenu gsfilePopupMenu = new JPopupMenu();
 	private JPopupMenu gsdirPopupMenu = new JPopupMenu();
 	private JPopupMenu gsrootPopupMenu = new JPopupMenu();
-	private JMenuItem downloadItem = new JMenuItem("Download");
+	private JMenuItem mkdirItem = new JMenuItem("Create subdirectory");
 	private JMenuItem deldirItem = new JMenuItem("Delete");
+	private JMenuItem downloadItem = new JMenuItem("Download to geWorkbench");
 	private JMenu convertItem = new JMenu("Convert to");
+	private JMenuItem renameItem = new JMenuItem("Rename");
+	private JMenuItem deleteItem = new JMenuItem("Delete");
 	private JSplitPane mainpanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 	private static final String expFormatName = "geWorkbench exp";
-	private List<ProjectTreeNode> dirnodes = new ArrayList<ProjectTreeNode>();
 	private static final String genomespaceUsrDir = FilePathnameUtils.getUserSettingDirectoryPath()
 														+ "genomespace" + FilePathnameUtils.FILE_SEPARATOR;
 	private static final String uploadDir   = genomespaceUsrDir + "upload" + FilePathnameUtils.FILE_SEPARATOR;
@@ -114,7 +115,6 @@ public class GenomeSpace implements VisualPlugin {
 					loginbutton.setText("Login");
 					genomeRoot.removeAllChildren();
 					genomeTreeModel.reload(genomeRoot);
-					dirnodes.clear();
 				}
 			}
 		});
@@ -210,10 +210,8 @@ public class GenomeSpace implements VisualPlugin {
 			}
 		});
 		
-		JMenuItem deleteItem = new JMenuItem("Delete");
 		deleteItem.addActionListener(new DelActionListener());
 
-		JMenuItem renameItem = new JMenuItem("Rename");
 		renameItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (!validate(genomeTree)) return;
@@ -246,7 +244,6 @@ public class GenomeSpace implements VisualPlugin {
 		gsfilePopupMenu.add(deleteItem);
 		gsfilePopupMenu.add(copyurlItem);
 
-		JMenuItem mkdirItem = new JMenuItem("Create subdirectory");
 		mkdirItem.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				if (!validate(genomeTree)) return;
@@ -261,7 +258,6 @@ public class GenomeSpace implements VisualPlugin {
 				if (newmeta!=null){
 					ProjectTreeNode newnode = metaToNode(newmeta);
 					genomeTreeModel.insertNodeInto(newnode, node, node.getChildCount());
-					dirnodes.add(newnode);
 					showNode(genomeTree, newnode);
 				}
 			}
@@ -272,10 +268,13 @@ public class GenomeSpace implements VisualPlugin {
 		JMenuItem copyurldirItem = new JMenuItem("Copy URL to clipboard");
 		copyurldirItem.addActionListener(new CopyurlActionListener());
 		
-		JMenuItem refreshItem = new JMenuItem("Refresh GS");
+		JMenuItem refreshItem = new JMenuItem("Show Contents");
 		refreshItem.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				if (validate()) refreshGSlist();
+				if (!validate(genomeTree)) return;
+				ProjectTreeNode node = (ProjectTreeNode)genomeTree.getSelectionPath().getLastPathComponent();
+				RefreshTask refreshTask = new RefreshTask(ProgressItem.INDETERMINATE_TYPE, "Retrieving GenomeSpace content", node);
+		    	pd.executeTask(refreshTask);
 			}
 		});
 		
@@ -284,10 +283,12 @@ public class GenomeSpace implements VisualPlugin {
 		gsdirPopupMenu.add(deldirItem);
 		gsdirPopupMenu.add(copyurldirItem);
 		
-		JMenuItem refreshRootItem = new JMenuItem("Refresh GS");
+		JMenuItem refreshRootItem = new JMenuItem("Show Contents");
 		refreshRootItem.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				if (validate()) refreshGSlist();
+				if (!validate()) return;
+				RefreshTask refreshTask = new RefreshTask(ProgressItem.INDETERMINATE_TYPE, "Retrieving GenomeSpace content");
+		    	pd.executeTask(refreshTask);
 			}
 		});
 		gsrootPopupMenu.add(refreshRootItem);
@@ -315,15 +316,33 @@ public class GenomeSpace implements VisualPlugin {
 							downloadItem.setEnabled(false);
 						else downloadItem.setEnabled(true);
 
-						if (meta.getAvailableDataFormats().size()<2)
+						// public & shared files are read-only
+						if(!meta.getOwner().getName().equals(loginDialog.getGsUser().getUsername())){
 							convertItem.setEnabled(false);
-						else convertItem.setEnabled(true);
+							renameItem.setEnabled(false);
+							deleteItem.setEnabled(false);
+						}else{
+							if (meta.getAvailableDataFormats().size()<2)
+								convertItem.setEnabled(false);
+							else convertItem.setEnabled(true);
+							renameItem.setEnabled(true);
+							deleteItem.setEnabled(true);
+						}
 					} else if (mNode.getAllowsChildren()){
 						gsdirPopupMenu.show(genomeTree, e.getX(), e.getY());
-						// cannot delete user's default dir or non-empty dir
-						if (mNode == genomeRoot.getNextNode() || mNode.getChildCount() > 0)
+						// public & shared folders are read-only
+						DataManagerClient dmClient = loginDialog.getGsSession().getDataManagerClient();
+						GSFileMetadata meta = dmClient.getMetadata(mNode.getDescription());
+						if(!meta.getOwner().getName().equals(loginDialog.getGsUser().getUsername())){
+							mkdirItem.setEnabled(false);
 							deldirItem.setEnabled(false);
-						else deldirItem.setEnabled(true);
+						}else{
+							mkdirItem.setEnabled(true);
+							// cannot delete non-empty dir
+							if (mNode.getChildCount() > 0)
+								deldirItem.setEnabled(false);
+							else deldirItem.setEnabled(true);
+						}
 					}
 				}
 			}
@@ -347,8 +366,6 @@ public class GenomeSpace implements VisualPlugin {
 			dmClient.delete(node.getDescription());
 			ProjectTreeNode parent = (ProjectTreeNode)node.getParent();
 			if (parent != null){
-				// remove directory from dirnodes
-				if (node.getAllowsChildren()) dirnodes.remove(node);
 				genomeTreeModel.removeNodeFromParent(node);
 				showNode(genomeTree, parent);
 			}
@@ -397,6 +414,7 @@ public class GenomeSpace implements VisualPlugin {
 		 */
 		ConfigurationUrls.init("prod");
 		loginDialog = new GSLoginDialog();
+		loginDialog.setSize(400, 250);
 		
 		loginDialog.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
@@ -412,30 +430,60 @@ public class GenomeSpace implements VisualPlugin {
 							+ "\n\t files for this user in the DM are ...\n");
 					loginDialog.dispose();
 					loginbutton.setText("Logout "+loginDialog.getGsUser().getUsername());
-					refreshGSlist();
+					RefreshTask refreshTask = new RefreshTask(ProgressItem.INDETERMINATE_TYPE, "Retrieving GenomeSpace content");
+			    	pd.executeTask(refreshTask);
 				}
 			}
 		});
 	}
 	
-	private void refreshGSlist(){
-		genomeRoot.removeAllChildren();
-		dirnodes.clear();
+	private class RefreshTask extends ProgressTask<Void,Void>{
+		private ProjectTreeNode root = null;
+		public RefreshTask(int pbtype, String message){
+			super(pbtype, message);
 
+			genomeRoot.removeAllChildren();
+			genomeTree.setEnabled(false);
+			
+			GsSession session = loginDialog.getGsSession();
+			DataManagerClient dmClient = session.getDataManagerClient();
+			GSDirectoryListing defaultdir = dmClient.listDefaultDirectory();
+			GSFileMetadata defaultdirmeta = defaultdir.getDirectory();
+			root = metaToNode(defaultdirmeta);
+			genomeTreeModel.insertNodeInto(root, genomeRoot, genomeRoot.getChildCount());
+			genomeTreeModel.reload(genomeRoot);
+		}
+		public RefreshTask(int pbtype, String message, ProjectTreeNode root){
+    		super(pbtype, message + " in " + root.getUserObject());
+    		this.root = root;
+ 
+    		root.removeAllChildren();
+    		genomeTree.setEnabled(false);
+    	}	
+		@Override
+		protected Void doInBackground(){
+			if (isCancelled()) return null;
+			refreshGSlist(root);
+			return null;
+		}
+		@Override
+    	protected void done(){
+			pd.removeTask(this);
+			genomeTreeModel.reload(root);
+			if (root.getChildCount()==0) showNode(genomeTree, root);
+			else showNode(genomeTree, (ProjectTreeNode)root.getNextNode());
+			genomeTree.setEnabled(true);
+		}
+	}
+	
+	private void refreshGSlist(ProjectTreeNode root){
+		if(root == null) return;
+		
 		GsSession session = loginDialog.getGsSession();
 		DataManagerClient dmClient = session.getDataManagerClient();
-		GSDirectoryListing defaultdir = dmClient.listDefaultDirectory();
-		GSFileMetadata defaultdirmeta = defaultdir.getDirectory();
+		GSFileMetadata rootmeta =  dmClient.getMetadata(root.getDescription());
 
-		ProjectTreeNode defaultnode = metaToNode(defaultdirmeta);
-		genomeTreeModel.insertNodeInto(defaultnode, genomeRoot, genomeRoot.getChildCount());
-		dirnodes.add(defaultnode);
-
-		addDirectoryContents(dmClient, defaultdir, defaultnode);
-		genomeTreeModel.reload(genomeRoot);
-
-		if (defaultnode.getChildCount()==0)	defaultnode = genomeRoot;
-		showNode(genomeTree, (ProjectTreeNode)defaultnode.getNextNode());
+		addDirectoryContents(dmClient, dmClient.list(rootmeta), root);
 	}
 	
 	/**
@@ -448,19 +496,15 @@ public class GenomeSpace implements VisualPlugin {
 	 */
 	public void addDirectoryContents(DataManagerClient dmClient, GSDirectoryListing dirList, ProjectTreeNode parent) {
 		for (GSFileMetadata aDir : dirList.findDirectories()) {
-			//FIXME: exclude directories under development: 
-			//SharedToMe & Public owned by system, dmclient.list(Public) throws JSObject contains no 'name' exception
-			if (aDir.getOwner().getName().equals(loginDialog.getGsUser().getUsername())){
-				log.info(aDir.getPath());
-				ProjectTreeNode dirnode = metaToNode(aDir);
-				parent.add(dirnode);
-				dirnodes.add(dirnode);
+			ProjectTreeNode dirnode = metaToNode(aDir);
+			parent.add(dirnode);
+			//userdir gets deep copy
+			if(aDir.getOwner().getName().equals(loginDialog.getGsUser().getUsername())){
 				GSDirectoryListing subDir = dmClient.list(aDir);
 				addDirectoryContents(dmClient, subDir, dirnode);
 			}
 		}
 		for (GSFileMetadata aFile : dirList.findFiles()) {
-			log.info(" / " + aFile.getName() + "\t\t\t" + dmClient.getFileUrl(aFile, null));
 			ProjectTreeNode filenode = metaToNode(aFile);
 			parent.add(filenode);
 		}
@@ -539,7 +583,8 @@ public class GenomeSpace implements VisualPlugin {
 
 					DataManagerClient dmClient = loginDialog.getGsSession().getDataManagerClient();
 
-					if (dirnodes.size()==0) refreshGSlist();
+					ArrayList<ProjectTreeNode> dirnodes = getDirNodes();
+
 					if (dirnodes.size()==0) return null;
 					String[] dirs = new String[dirnodes.size()];
 					int i = 0;
@@ -620,6 +665,29 @@ public class GenomeSpace implements VisualPlugin {
 			showNode(genomeTree, newnode);			
 		}
 	}
+	
+	private ArrayList<ProjectTreeNode> getDirNodes(){
+		ArrayList<ProjectTreeNode> dirnodes = new ArrayList<ProjectTreeNode>();
+		if(genomeRoot.getChildCount()==0) return dirnodes;
+
+		ProjectTreeNode home = (ProjectTreeNode) genomeRoot.getChildAt(0);
+		for (int i = 0; i < home.getChildCount(); i++){
+			ProjectTreeNode userhome = (ProjectTreeNode)home.getChildAt(i);
+			if(userhome.getUserObject().equals(loginDialog.getGsUser().getUsername())){
+				getDir(userhome, dirnodes);
+			}
+		}
+		return dirnodes;
+	}
+	
+	private void getDir(ProjectTreeNode rootdir,  ArrayList<ProjectTreeNode> dirnodes){
+		dirnodes.add(rootdir);
+		for (int i = 0; i < rootdir.getChildCount(); i++){
+			ProjectTreeNode subdir = (ProjectTreeNode)rootdir.getChildAt(i);
+			if(subdir!=null && subdir.getAllowsChildren())
+				getDir(subdir, dirnodes);
+		}
+	}
 
 	private class ConvertActionListener implements ActionListener{
 		private GSDataFormat format = null;
@@ -666,18 +734,19 @@ public class GenomeSpace implements VisualPlugin {
 				}
 			}
 			
+			ProjectTreeNode newnode = null;
+			int newid = findInsertPosition(parent, newname);
+
 			try{
 				GSFileMetadata newGsFile = dmClient.copy(source, parentdir, newname, format);
-				if (newGsFile != null){
-					dmClient.delete(source);
-					node.setUserObject(newname);
-					node.setDescription(newGsFile.getPath());
-				}
+				newnode = metaToNode(newGsFile);
+				genomeTreeModel.insertNodeInto(newnode, parent, newid);
+
 			}catch(Exception e){
 				JOptionPane.showMessageDialog(null, "Cannot convert "+node.getUserObject()+" to "+format.getName(),
 						"Convertion Error", JOptionPane.ERROR_MESSAGE);
 			}
-			return node;
+			return newnode;
 		}
 		@Override
     	protected void done(){
@@ -696,6 +765,22 @@ public class GenomeSpace implements VisualPlugin {
 		}
 	}
 
+	private int findInsertPosition(ProjectTreeNode parent, String newname){
+		int start = 0, end = parent.getChildCount();
+		for (int i = 0; i < end; i++){
+			ProjectTreeNode n = (ProjectTreeNode)parent.getChildAt(i);
+			if(n.getAllowsChildren()) start++;
+		}
+		
+		while(start <= end){
+			int mid = (start+end)/2;
+			ProjectTreeNode n = (ProjectTreeNode)parent.getChildAt(mid);
+			if(newname.compareTo((String)n.getUserObject()) <= 0) end = mid-1;
+			else start = mid+1;
+		}
+		return start;
+	}
+	
 	private class DownloadTask extends ProgressTask<Void,Void>{
 		public DownloadTask(int pbtype, String message){
     		super(pbtype, message);

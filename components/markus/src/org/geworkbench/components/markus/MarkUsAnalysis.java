@@ -50,7 +50,8 @@ public class MarkUsAnalysis extends AbstractGridAnalysis implements ProteinStruc
 	private final String analysisName = "MarkUs";
 	
     private MarkUsConfigPanel mcp;
-	private static final String strurl = "http://bhapp.c2b2.columbia.edu/MarkUs/cgi-bin/submit.pl";
+	private static final String strurl = "https://bhapp.c2b2.columbia.edu/MarkUs/cgi-bin/submit.pl";
+	private static final String browseUrl = "https://bhapp.c2b2.columbia.edu/MarkUs/cgi-bin/browse.pl?pdb_id=";
 	private String req = "--AaB03x\r\n"
 			+ "content-disposition: form-data; name=\"submit\"\r\n\r\nUpload\r\n--AaB03x\r\n"
 			+ "content-disposition: form-data; name=\"infile\"; filename=\"PDB\"\r\nContent-Type: text/plain\r\n\r\n";
@@ -101,8 +102,10 @@ public class MarkUsAnalysis extends AbstractGridAnalysis implements ProteinStruc
 
 		else {
 		*/
-			if(STOPSIG)
+			if(STOPSIG){
+				pBar.stop();
 				return new AlgorithmExecutionResults(false, "MarkUs analysis cancelled", null);
+			}
 
 			// upload file to MarkUs server, get tmpfile value
 			String tmpfile = null;
@@ -111,13 +114,17 @@ public class MarkUsAnalysis extends AbstractGridAnalysis implements ProteinStruc
 			} catch (Exception e) {
 				log.warn("MarkUsWeb uploadFile error: " + pdbname);
 				log.info( "MarkUs analysis service - File uploading error" );
+				pBar.stop();
+				return new AlgorithmExecutionResults(false, "Failed to upload pdb file for MarkUs analysis", null);
 			}
 
 			// get MarkUs job submission configuration
 			String cfgcommand = generateMarkusInput(pdbname, tmpfile);
 
-			if(STOPSIG)
+			if(STOPSIG){
+				pBar.stop();
 				return new AlgorithmExecutionResults(false, "MarkUs analysis cancelled", null);
+			}
 
 			// submit job, get MarkUs job id
 			try {
@@ -126,27 +133,34 @@ public class MarkUsAnalysis extends AbstractGridAnalysis implements ProteinStruc
 				log.info("MarkUs job ID return: " + results);
 			} catch (Exception e) {
 				log.warn("MarkUsWeb submitJob error: " + cfgcommand);
+				pBar.stop();
+				return new AlgorithmExecutionResults(false, "Failed to submit job for MarkUs analysis", null);
 			}
 			/*
 		}
 		*/
 
-		if(results==null)
+		if(results==null){
+			pBar.stop();
 			return new AlgorithmExecutionResults(false, "No result for MarkUs analysis", null);
+		}
 		
 		String impossibleResult = results.toLowerCase();
 		if (impossibleResult.contains("error")
-				|| results.equals("cancelled") || results.equals("na"))
+				|| results.equals("cancelled") || results.equals("na")){
+			pBar.stop();
 			return new AlgorithmExecutionResults(false, 
 					"Error: unexpected results in MarkUs analysis service: "
 							+ impossibleResult, null);
+		}
 
-		if(STOPSIG)
+		if(STOPSIG){
+			pBar.stop();
 			return new AlgorithmExecutionResults(false, "MarkUs analysis cancelled", null);
+		}
 
 		// start waiting for this job's results
-		String url = "http://bhapp.c2b2.columbia.edu/MarkUs/cgi-bin/browse.pl?pdb_id="
-				+ results;
+		String url = browseUrl + results;
 		UrlStatus urlstat = checkUrlStatus(url);
 		log.info("URL status: " + urlstat + " " + url);
 		if (urlstat != UrlStatus.FINISHED && thread4pdb.get(url) == null) {
@@ -156,8 +170,10 @@ public class MarkUsAnalysis extends AbstractGridAnalysis implements ProteinStruc
 		
 		log.debug("result of MarkUs analysis: "+results);
 		while(urlstat != UrlStatus.FINISHED) {
-			if(STOPSIG)
+			if(STOPSIG){
+				pBar.stop();
 				return new AlgorithmExecutionResults(false, "MarkUs analysis cancelled", null);
+			}
 			log.info("... still waiting for result "+results+" to finish at "+new java.util.Date());
 			try {
 				Thread.sleep(30000L);
@@ -272,7 +288,7 @@ public class MarkUsAnalysis extends AbstractGridAnalysis implements ProteinStruc
         }
     }
 
-	private java.lang.String uploadFile(File pdbfile) {
+	private java.lang.String uploadFile(File pdbfile) throws Exception {
 		HttpURLConnection conn = null;
 		BufferedReader in = null;
 		String tmpfile = null;
@@ -321,11 +337,11 @@ public class MarkUsAnalysis extends AbstractGridAnalysis implements ProteinStruc
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw e;
 		} finally {
 			conn.disconnect();
 			try {
-				in.close(); 
+				if(in!=null) in.close(); 
 			} catch (Exception a) {
 				a.printStackTrace();
 			}
@@ -402,7 +418,7 @@ public class MarkUsAnalysis extends AbstractGridAnalysis implements ProteinStruc
 		return cfgstr;
 	}  
 
-    private java.lang.String submitJob(java.lang.String string) {
+    private java.lang.String submitJob(java.lang.String string) throws Exception {
     	HttpURLConnection conn = null;
     	BufferedReader in = null;
         String process_id = "na";
@@ -440,14 +456,13 @@ public class MarkUsAnalysis extends AbstractGridAnalysis implements ProteinStruc
 						process_id = line.substring(i+7, j);
 				    }
 				}
-				in.close();
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw e;
 		} finally {
 			conn.disconnect();
 			try {
-				in.close(); 
+				if(in!=null) in.close(); 
 			} catch (Exception a) {
 				a.printStackTrace();
 			}
@@ -477,12 +492,13 @@ public class MarkUsAnalysis extends AbstractGridAnalysis implements ProteinStruc
     	    }
     	}catch (IOException e){
     	    e.printStackTrace();
+    	    return UrlStatus.NO_RECORD;
+    	}finally{
     	    try {
-    			br.close();
+    			if(br!=null) br.close();
     		} catch (IOException e1) { // no action intentionally
     			e1.printStackTrace();
     		}
-    	    return UrlStatus.NO_RECORD;
     	}
     	return UrlStatus.FINISHED;
     }

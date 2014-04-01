@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component-descriptor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Descriptor Schema.xsd">
 
-	<component  name="Genome Space"
+	<component  name="GenomeSpace"
 				class="org.geworkbench.components.genomespace.GenomeSpace"
 				version="1.0"
 				author="Broad Institute"
@@ -19,7 +19,7 @@
 		]]></license>
 	</component>
 
-	<plugin id="GenomeSpace" name="Genome Space" class="org.geworkbench.components.genomespace.GenomeSpace" source="genomespace">
+	<plugin id="GenomeSpace" name="GenomeSpace" class="org.geworkbench.components.genomespace.GenomeSpace" source="genomespace">
 		<gui-area name="VisualArea"/>
 	</plugin>
 

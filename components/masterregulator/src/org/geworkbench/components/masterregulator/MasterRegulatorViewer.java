@@ -502,6 +502,13 @@ public class MasterRegulatorViewer extends JPanel implements VisualPlugin {
 	}
 
 	void updateGraph(){
+		// reset graph if no ttest results
+		if(MRAResultSet.getMinValue()==0 && MRAResultSet.getMaxValue()==0) {
+			bgm.setDataVector(new Object[0][0], graphheader);
+			gdm.setDataVector(new Object[0][0], graphheader);
+			return;
+		}
+
 		int n = 0, h = 0;
 		try{
 			n = Integer.valueOf(numtop.getText());
