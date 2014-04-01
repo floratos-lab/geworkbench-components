@@ -2,6 +2,7 @@ package org.geworkbench.components.lincs;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
@@ -63,7 +64,7 @@ class NetworkCreator extends Thread implements Observer {
 		int interactionNum = 0;		 
 		Map<String, String> geneIdToSymbol = new HashMap<String, String>();
 		boolean createNetwork = false;
-       
+		List<CnkbInteractionData> interactionDataList = new ArrayList<CnkbInteractionData>();
 		try {
 			for (ValueObject v : geneList) {
 				if (isCancelled())
@@ -73,14 +74,14 @@ class NetworkCreator extends Thread implements Observer {
 				CnkbInteractionData interactionData = lincsService
 						.getInteractionData(v.getReferenceId(), v.getValue()
 								.toString(), interactomeVersionId);
-
+                
 				List<InteractionDetail> detailList = interactionData
 						.getInteractionDetails();
 
 				if (detailList == null || detailList.size() <= 0) {
 					continue;
 				}
-
+				interactionDataList.add(interactionData);
 				String geneSymbol1 = interactionData.getGeneSymbol();			 
 				geneIdToSymbol.put(interactionData.getGeneId().toString(), geneSymbol1);
 	          
@@ -89,27 +90,49 @@ class NetworkCreator extends Thread implements Observer {
 					{					 
 						return;
 					}
-
 					String geneSymbol2 = interactionDetail.getGeneSymbol();
 					geneIdToSymbol.put(interactionDetail.getGeneId().toString(),geneSymbol2);
-					AdjacencyMatrix.Node node2 = new AdjacencyMatrix.Node(
-							NodeType.STRING, geneSymbol2);
-					
-				
-					AdjacencyMatrix.Node node1 = new AdjacencyMatrix.Node(
-							NodeType.STRING, geneSymbol1);
-
-					String shortNameType = interactionTypeSifMap
-					     .get(interactionDetail.getInteractionType());
-
-					matrix.add(node1, node2,
-							new Float(interactionDetail.getConfidenceValue()),
-							shortNameType);
-                    
-					interactionNum++;
+					 
 				}
 			} // end for loop
 
+			Map<String, Integer> geneRankMap = getGeneRankMap(geneIdToSymbol);					
+			
+			for (CnkbInteractionData interactionData: interactionDataList)
+			{
+				  List<InteractionDetail> detailList = interactionData
+				                  .getInteractionDetails();
+				  String geneSymbol1 = interactionData.getGeneSymbol();
+				  for (InteractionDetail interactionDetail : detailList) {
+						if (isCancelled() == true)
+						{					 
+							return;
+						}
+
+						String geneSymbol2 = interactionDetail.getGeneSymbol();
+						if (!geneRankMap.keySet().contains(geneSymbol2))
+						{
+							continue;
+						}
+						AdjacencyMatrix.Node node2 = new AdjacencyMatrix.Node(
+								NodeType.STRING, geneSymbol2);
+						
+					
+						AdjacencyMatrix.Node node1 = new AdjacencyMatrix.Node(
+								NodeType.STRING, geneSymbol1);
+
+						String shortNameType = interactionTypeSifMap
+						     .get(interactionDetail.getInteractionType());
+
+						matrix.add(node1, node2,
+								new Float(interactionDetail.getConfidenceValue()),
+								shortNameType);
+	                    
+						interactionNum++; 
+					}
+			}
+			
+			
 			if (interactionNum > 0) {
 				createNetwork = true;
 			} else if (interactionNum == 0) {
@@ -118,10 +141,12 @@ class NetworkCreator extends Thread implements Observer {
 						"Empty Set", JOptionPane.ERROR_MESSAGE);
 				createNetwork = false;
 				 
-			}
+			}			
+			
 			if (createNetwork == true) { 
-				if (this.isShowDiffExpr)
-					matrix.setGeneRankingMap(getGeneRankMap(matrix, geneIdToSymbol));
+				if (this.isShowDiffExpr)				
+					matrix.setGeneRankingMap(geneRankMap);				 
+			 
 				adjacencyMatrixdataSet = new AdjacencyMatrixDataSet(matrix, 0,
 						"Adjacency Matrix", "Lincs Fmoa Data", null);
 
@@ -181,7 +206,7 @@ class NetworkCreator extends Thread implements Observer {
 
 	}
 	
-	private Map<String, Integer> getGeneRankMap(AdjacencyMatrix matrix, Map<String, String> geneIdToSymbol)
+	private Map<String, Integer> getGeneRankMap(Map<String, String> geneIdToSymbol)
 	{
 		Map<String, Integer> map = new HashMap<String, Integer>();
 		String geneIds = "";
