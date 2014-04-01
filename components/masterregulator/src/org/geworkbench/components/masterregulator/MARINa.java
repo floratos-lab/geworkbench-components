@@ -68,18 +68,17 @@ public class MARINa extends AbstractGridAnalysis implements
 				return new ParamValidationResults(true, "No Error");
 		}
 
-		HashSet<String> ctrls = mraAnalysisPanel.getIxClass(CSAnnotationContext.CLASS_CONTROL);
-		Iterator<String> casei = mraAnalysisPanel.getIxClass(CSAnnotationContext.CLASS_CASE).iterator();
-		if (ctrls.size() == 0 && !casei.hasNext()){
-			return new ParamValidationResults(false,
-					"Please activate at least one set of arrays for \"case\", and one set of arrays for \"control\".");
+		HashSet<String> cases = mraAnalysisPanel.getIxClass(CSAnnotationContext.CLASS_CASE);
+		if (cases.size() == 0)
+			return new ParamValidationResults(false, "Please activate at least one case array.");
+		Iterator<String> controli = mraAnalysisPanel.getIxClass(CSAnnotationContext.CLASS_CONTROL).iterator();
+		if (!controli.hasNext()){
+			int c = JOptionPane.showConfirmDialog(null, "Only case arrays are activated.  Do the data already represent relative expression values (paired-sample mode)?");
+			if (c != JOptionPane.YES_OPTION)
+				return new ParamValidationResults(false, "Please activate both control and case.");
 		}
-		if (ctrls.size() == 0)
-			return new ParamValidationResults(false, "Please activate at least one set of arrays for \"control\".");
-		if (!casei.hasNext())
-			return new ParamValidationResults(false, "Please activate at least one set of arrays for \"case\".");
-		while (casei.hasNext()){
-		    if (ctrls.contains(casei.next()))
+		while (controli.hasNext()){
+		    if (cases.contains(controli.next()))
 			return new ParamValidationResults(false, "An array cannot be in case and control at the same time.");
 		}
 
@@ -206,8 +205,8 @@ public class MARINa extends AbstractGridAnalysis implements
 			JOptionPane.showMessageDialog(null, "Since all Spearman's correlation >= 0, gsea will use tail = 1.");
 			parameterMap.put("tail", 1);
 		}
-		parameterMap.put("class1", mraAnalysisPanel.getIxClass(CSAnnotationContext.CLASS_CONTROL).toArray(new String[0]));
-		parameterMap.put("class2", mraAnalysisPanel.getIxClass(CSAnnotationContext.CLASS_CASE).toArray(new String[0]));
+		parameterMap.put("class1", mraAnalysisPanel.getIxClass(CSAnnotationContext.CLASS_CASE).toArray(new String[0]));
+		parameterMap.put("class2", mraAnalysisPanel.getIxClass(CSAnnotationContext.CLASS_CONTROL).toArray(new String[0]));
 		return parameterMap;
 	}
 

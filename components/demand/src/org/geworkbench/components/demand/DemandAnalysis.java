@@ -126,41 +126,43 @@ public class DemandAnalysis extends AbstractAnalysis implements
 		if (!demandPanel.useLabFormat() && (nwMap = getNetwork()).isEmpty())
 			return new AlgorithmExecutionResults(false, "No valid network loaded.", null);
 		
-		String noShow=getLast();
-		if((noShow.equals(""))||(noShow.equalsIgnoreCase("false"))){
-		
-			JCheckBox checkbox = new JCheckBox("Do not show this message again.");
-			String message = "DeMAND requires that R already be installed on your computer. The R location should be assigned in Tools->Preference->R location.\n" +
-				    "The R DeMAND package is also required and will be installed automatically if not installed yet.\n" +
-				    "Do you want to continue?";
-			Object[] params = {message, checkbox};
-			int n = JOptionPane.showConfirmDialog(
-					null,
-					params,
-				    "Pleas be aware of",
-				    JOptionPane.YES_NO_OPTION);
-			boolean dontShow = checkbox.isSelected();
-			String s=dontShow?"True":"False";
-			saveLast(s);
-			
-			if(n!=JOptionPane.YES_OPTION)
-				return new AlgorithmExecutionResults(false, "DeMAND analysis: cancelled", null);
-		}
-				
-		String rExe = GlobalPreferences.getInstance().getRLocation();
-		if ((rExe == null)||(rExe.equals(""))) {
-			log.info("No R location configured.");
-			return new AlgorithmExecutionResults(false, "The location of Rscript.exe is not assigned", null);
-		}		
-		else{
-			File rExeFile=new File(rExe);
-			if(!rExeFile.exists())
-				return new AlgorithmExecutionResults(false, "Rscript.exe not exist. Please check its location at Tools->Preference->R location.", null);
-		}
-		
+		String rExe = "";
 		String localDataDir = dataDir;
 		String service = ((DemandPanel)aspp).getService();
-		if (service.equals("web service")){
+		if (service.equals("local service")){
+
+			String noShow=getLast();
+			if((noShow.equals(""))||(noShow.equalsIgnoreCase("false"))){
+			
+				JCheckBox checkbox = new JCheckBox("Do not show this message again.");
+				String message = "DeMAND requires that R already be installed on your computer. The R location should be assigned in Tools->Preference->R location.\n" +
+					    "The R DeMAND package is also required and will be installed automatically if not installed yet.\n" +
+					    "Do you want to continue?";
+				Object[] params = {message, checkbox};
+				int n = JOptionPane.showConfirmDialog(
+						null,
+						params,
+					    "Pleas be aware of",
+					    JOptionPane.YES_NO_OPTION);
+				boolean dontShow = checkbox.isSelected();
+				String s=dontShow?"True":"False";
+				saveLast(s);
+				
+				if(n!=JOptionPane.YES_OPTION)
+					return new AlgorithmExecutionResults(false, "DeMAND analysis: cancelled", null);
+			}
+					
+			rExe = GlobalPreferences.getInstance().getRLocation();
+			if ((rExe == null)||(rExe.equals(""))) {
+				log.info("No R location configured.");
+				return new AlgorithmExecutionResults(false, "The location of Rscript.exe is not assigned", null);
+			}		
+			else{
+				File rExeFile=new File(rExe);
+				if(!rExeFile.exists())
+					return new AlgorithmExecutionResults(false, "Rscript.exe not exist. Please check its location at Tools->Preference->R location.", null);
+			}
+		} else {
 			localDataDir = dataDir + "web" + random.nextInt(Short.MAX_VALUE) + "/";
 			File webDir = new File(localDataDir);
 			if (!webDir.exists() && !webDir.mkdir())

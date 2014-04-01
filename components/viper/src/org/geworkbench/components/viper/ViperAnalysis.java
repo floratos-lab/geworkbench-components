@@ -48,6 +48,7 @@ public class ViperAnalysis extends AbstractAnalysis implements
     private static final String COMPONENTS_DIR_PROPERTY = "components.dir";
  	private static String scriptDir = null;
  	private static final String dataDir = FilePathnameUtils.getUserSettingDirectoryPath() + "viper/";
+ 	private static final String serverRLibPath = "/ifs/data/c2b2/af_lab/cagrid/local/R/hpc";
  	private static final char extSeparator = '.';
  	private static final String logExt = ".log";		//viper log file
  	private static final String expExt = ".txt";		//viper input dataset in tab-delim format
@@ -91,58 +92,58 @@ public class ViperAnalysis extends AbstractAnalysis implements
 					"Microarray set contains missing values.\n"
 							+ "Fix before proceeding.", null);
 		
-		String noShow=getLast();
-		if((noShow.equals(""))||(noShow.equalsIgnoreCase("false"))){
-		
-			JCheckBox checkbox = new JCheckBox("Do not show this message again.");
-			String message = "Viper requires that R be installed on your computer. The R location should be assigned in Tools->Preference->R location.\n" +
-				    "The VIPER R package will be installed automatically if not installed yet.\n" +
-				    "Do you want to continue?";
-			Object[] params = {message, checkbox};
-			int n = JOptionPane.showConfirmDialog(
-					null,
-					params,
-				    "Please be aware of",
-				    JOptionPane.YES_NO_OPTION);
-			boolean dontShow = checkbox.isSelected();
-			String s=dontShow?"True":"False";
-			saveLast(s);
-			
-			if(n!=JOptionPane.YES_OPTION)
-				return new AlgorithmExecutionResults(false, "Viper analysis: cancelled", null);
-			
-		}
-				
-		String rExe = GlobalPreferences.getInstance().getRLocation();
-		if ((rExe == null)||(rExe.equals(""))) {
-			//log.info("No R location configured.");
-			return new AlgorithmExecutionResults(false, "Rscript.exe's location is not assigned", null);
-		}		
-		else{
-			File rExeFile=new File(rExe);
-			if(!rExeFile.exists())
-				return new AlgorithmExecutionResults(false, "Rscript.exe not exist. Please check its location at Tools->Preference->R location.", null);
-		}
-		
+		String rExe = "";
 		String rLibPath = "";
 		String localDataDir = dataDir;
 		String service = ((ViperPanel)aspp).getService();
 		if (service.equals("local service")){
+	
+			String noShow=getLast();
+			if((noShow.equals(""))||(noShow.equalsIgnoreCase("false"))){
+			
+				JCheckBox checkbox = new JCheckBox("Do not show this message again.");
+				String message = "Viper requires that R be installed on your computer. The R location should be assigned in Tools->Preference->R location.\n" +
+					    "The VIPER R package will be installed automatically if not installed yet.\n" +
+					    "Do you want to continue?";
+				Object[] params = {message, checkbox};
+				int n = JOptionPane.showConfirmDialog(
+						null,
+						params,
+					    "Please be aware of",
+					    JOptionPane.YES_NO_OPTION);
+				boolean dontShow = checkbox.isSelected();
+				String s=dontShow?"True":"False";
+				saveLast(s);
+				
+				if(n!=JOptionPane.YES_OPTION)
+					return new AlgorithmExecutionResults(false, "Viper analysis: cancelled", null);
+			}
+					
+			rExe = GlobalPreferences.getInstance().getRLocation();
+			if ((rExe == null)||(rExe.equals(""))) {
+				//log.info("No R location configured.");
+				return new AlgorithmExecutionResults(false, "Rscript.exe's location is not assigned", null);
+			}		
+			else{
+				File rExeFile=new File(rExe);
+				if(!rExeFile.exists())
+					return new AlgorithmExecutionResults(false, "Rscript.exe not exist. Please check its location at Tools->Preference->R location.", null);
+			}
+			
 			rLibPath = GlobalPreferences.getInstance().getRLibPath();
+			if (rLibPath.trim().length()>0){
+				File rLibFile=new File(rLibPath);
+				if(!rLibFile.exists() || !rLibFile.isDirectory() || !rLibFile.canWrite())
+					return new AlgorithmExecutionResults(false, "R package directory " + rLibPath+" is not valid.\nPlease "+
+							"provide a valid writeable user directory at Tools->Preference->R package directory.", null);
+			}
 		} else {
+			rLibPath = serverRLibPath;
 			localDataDir = dataDir + "web" + random.nextInt(Short.MAX_VALUE) + "/";
 			File webDir = new File(localDataDir);
-			if (!webDir.exists()) {
-				if (!webDir.mkdir())
+			if (!webDir.exists() && !webDir.mkdir())
 					return new AlgorithmExecutionResults(false, "Local data dir for viper cannot be created: "+localDataDir, null);
-			}
 			webDir.deleteOnExit();
-		}
-		if (rLibPath.trim().length()>0){
-			File rLibFile=new File(rLibPath);
-			if(!rLibFile.exists() || !rLibFile.isDirectory() || !rLibFile.canWrite())
-				return new AlgorithmExecutionResults(false, "R package directory " + rLibPath+" is not valid.\nPlease leave it blank "+
-						"or provide a valid writeable user directory at Tools->Preference->R package directory.", null);
 		}
 
 		ProgressBar pbar = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
