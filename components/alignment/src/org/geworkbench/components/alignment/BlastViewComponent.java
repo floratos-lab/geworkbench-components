@@ -93,12 +93,13 @@ public class BlastViewComponent implements VisualPlugin {
 		markerList = new MarkerAutoList();
 
 		blastResult.setLayout(new BorderLayout());
-		AddSequenceToProjectButton.setMinimumSize(new Dimension(100, 23));
+		AddSequenceToWorkspaceButton.setMinimumSize(new Dimension(100, 23));
 
-		AddSequenceToProjectButton
-				.setText("Add Selected Sequences to Workspace");
-		AddSequenceToProjectButton
-				.addActionListener(new AddSelectedActionAdapter(
+		AddSequenceToWorkspaceButton
+				.setText("Add Complete Sequences to Workspace");
+		AddSequenceToWorkspaceButton.setToolTipText("Retrieve complete sequences for hits and add to Workspace.");
+		AddSequenceToWorkspaceButton
+				.addActionListener(new AddCompleteActionAdapter(
 						));
 		resetButton.setToolTipText("Clear all selections.");
 		resetButton.setText("Reset");
@@ -138,10 +139,10 @@ public class BlastViewComponent implements VisualPlugin {
 		singleAlignmentArea.addHyperlinkListener(new BlastResultHyperlinkListener());
 
 		addAlignedButton.setMinimumSize(new Dimension(100, 23));
-		addAlignedButton.setToolTipText("Add only aligned parts into project.");
+		addAlignedButton.setToolTipText("Add only aligned sequence parts into Workspace.");
 		addAlignedButton.setText("Only Add Aligned Parts");
 		addAlignedButton
-				.addActionListener(new AddAllActionAdapter());
+				.addActionListener(new AddAlignedActionAdapter());
 		allButton.setToolTipText("Select all hits.");
 		allButton.setText("Select All");
 		allButton.addActionListener(new SelectAllActionAdapter(
@@ -154,7 +155,7 @@ public class BlastViewComponent implements VisualPlugin {
 
 		summaryPanel.add(resetButton, null);
 		summaryPanel.add(allButton);
-		summaryPanel.add(AddSequenceToProjectButton, null);
+		summaryPanel.add(AddSequenceToWorkspaceButton, null);
 		summaryPanel.add(addAlignedButton);
 
 		jSplitPane1.add(blastResult, JSplitPane.TOP);
@@ -248,14 +249,14 @@ public class BlastViewComponent implements VisualPlugin {
 			// set SummaryPanel Off
 			resetButton.setEnabled(false);
 			allButton.setEnabled(false);
-			AddSequenceToProjectButton.setEnabled(false);
+			AddSequenceToWorkspaceButton.setEnabled(false);
 			addAlignedButton.setEnabled(false);
 		} else {
 			// set SummaryPanel On
 			
 			resetButton.setEnabled(true);
 			allButton.setEnabled(true);
-			AddSequenceToProjectButton.setEnabled(true);
+			AddSequenceToWorkspaceButton.setEnabled(true);
 			addAlignedButton.setEnabled(true);
 		}
 
@@ -291,7 +292,7 @@ public class BlastViewComponent implements VisualPlugin {
 	private JPanel blastResult = new JPanel();
 	private JPanel detailedInfo = new JPanel();
 
-	private JButton AddSequenceToProjectButton = new JButton();
+	private JButton AddSequenceToWorkspaceButton = new JButton();
 	private JLabel summaryLabel = new JLabel();
 	private JButton resetButton = new JButton();
 	private JEditorPane singleAlignmentArea = new JEditorPane();
@@ -580,7 +581,7 @@ public class BlastViewComponent implements VisualPlugin {
 	
 	private volatile boolean empty = true;
 
-	private void addNewSequence(final boolean isFullLength) {
+	private void addNewSequence(final boolean useFullLength) {
 		int total = 0;
 		int countForSelectedSequence = 0;
 		for (int index = 0; index < blastDataSet.size(); index++) {
@@ -646,7 +647,7 @@ public class BlastViewComponent implements VisualPlugin {
 							retrievedSequenceNum++;
 
 							String seq;
-							if (isFullLength) {
+							if (useFullLength) {
 								seq = hit.getWholeSeq();
 							} else {
 								seq = hit.getAlignedSeq();
@@ -705,7 +706,7 @@ public class BlastViewComponent implements VisualPlugin {
 		}
 	}
 
-	private class AddSelectedActionAdapter implements
+	private class AddCompleteActionAdapter implements
 			java.awt.event.ActionListener {
 
 		public void actionPerformed(ActionEvent e) {
@@ -718,7 +719,7 @@ public class BlastViewComponent implements VisualPlugin {
 		}
 	}
 
-	private class AddAllActionAdapter
+	private class AddAlignedActionAdapter
 			implements ActionListener {
 
 		public void actionPerformed(ActionEvent e) {
