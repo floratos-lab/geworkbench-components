@@ -81,7 +81,7 @@ public class MARINaViewer extends MasterRegulatorViewer{
 				values = tTestAnalysis.calculateDisplayValues();
 			} catch (TAnalysisException e1) {
 				JOptionPane.showMessageDialog(null, 
-						"Can't find valid case or control arrrays for T Analysis in MARINa Viewer",
+						"Can't find valid case or control arrays for T Analysis in MARINa Viewer",
 						"T Analysis Error", JOptionPane.ERROR_MESSAGE);
 				return mraResultSet;
 			}
