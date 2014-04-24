@@ -887,6 +887,7 @@ public class CytoscapeWidget implements VisualPlugin {
 
 		contentPane.add(box);
 
+		contentPane.getParent().remove(contentPane); /* Workaround for a Java 7 bug. See mantis issue #3763. */
 		masterPanel.add(contentPane, CYTOSCAPE_CARD);
 		masterPanel.add(safePanel, SAFE_CARD);
 	}
