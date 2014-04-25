@@ -8,10 +8,8 @@
 		author="geWorkbench Development Team"
 		authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 		toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
-		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/IDEA_Analysis"
-		description="The IDEA viewer displays the results of the IDEA analysis.  The primary result, shown in table and graphical
- form, is the overlap of a set of differentially expressed genes with
- the set of genes regulated by a particular transcription factor."
+		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/IDEA"
+		description="Displays the results of an IDEA analysis in table and graphical form."
 		category="Visualizer, Network, Microarray"				
 	 >
 		<required-component class="org.geworkbench.components.idea.IDEAAnalysis" />

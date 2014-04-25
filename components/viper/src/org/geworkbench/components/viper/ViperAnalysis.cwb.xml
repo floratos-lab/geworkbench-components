@@ -9,7 +9,11 @@
 		authorURL="http://wiki.c2b2.columbia.edu/califanolab/index.php/Califano_Info"
 		toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 		tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Viper_Analysis"							
-		description="Viper Analysis"
+		description="The VIPER (Virtual Inference of Protein-activity by Enriched Regulon analysis) component in geWorkbench
+transforms the expression profile for each sample (column) into a transcription-factor activity profile,
+representing the relative activity of each TF in each sample. The activity of each transcription factor
+is inferred from that of its targets, where the targets are obtained from a cell-context-specific interaction network (interactome).
+Three cell-context-specific interactomes are supplied, for leukemia, breast cancer, and prostate cancer."
 		category="Analysis, Microarray"							
 	 >
 		<license><![CDATA[
