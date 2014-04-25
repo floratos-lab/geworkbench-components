@@ -4,11 +4,11 @@
 				class="org.geworkbench.components.gpmodule.pca.PCAAnalysis"
 				version="1.0"
 				author="Broad Institute"
-				authorURL="http://www.broadinstitute.org/cancer/software/genepattern/index.html"
-				toolURL="http://www.broadinstitute.org/cancer/software/genepattern/modules/index2.html?http://www.broadinstitute.org/cgi-bin/cancer/software/genepattern/modules/gp_modules.cgi"
+				authorURL="http://www.broadinstitute.org/cancer/software/genepattern/"
+				toolURL="http://www.broadinstitute.org/cancer/software/genepattern/modules"
 				tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/PCA"
-				description="Provides an interface to the GenePattern v3
- implementation of PCA (Principal Component Analysis).
+				description="Provides an interface to run the GenePattern v3
+ implementation of PCA (Principal Component Analysis) on an external GenePattern v3 server.
  PCA successively decomposes a dataset into a small
  number of orthogonal variables which, starting with
  the first, each explain as much as possible of the

@@ -4,8 +4,8 @@
 				class="org.geworkbench.components.gpmodule.consensusclustering.ConsensusClusteringViewer"
 				version="1.0"
 				author="Broad Institute"
-				authorURL="http://www.broadinstitute.org/cancer/software/genepattern/index.html"
-				toolURL="http://www.broadinstitute.org/cancer/software/genepattern/modules/index2.html?http://www.broadinstitute.org/cgi-bin/cancer/software/genepattern/modules/gp_modules.cgi"
+				authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
+				toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 				tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Consensus_Clustering"
 				description="This component allows the user to select and save to disk any of the original Consensus Clustering result files returned by the GenePattern server."
 				category="Analysis, Microarray">
