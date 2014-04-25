@@ -93,7 +93,7 @@ public class FmoaDisplayWindow extends Thread implements Observer {
 
 		pb = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
 		pb.addObserver(this);
-		pb.setTitle("Retrieve Lincss Fmoa Data");
+		pb.setTitle("Retrieve LINCS fMoA Data");
 		pb.setMessage("Retrieve Data, please wait...");
 		pb.start();		 
 
