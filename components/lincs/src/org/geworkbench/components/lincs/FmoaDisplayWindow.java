@@ -94,7 +94,7 @@ public class FmoaDisplayWindow extends Thread implements Observer {
 		pb = ProgressBar.create(ProgressBar.INDETERMINATE_TYPE);
 		pb.addObserver(this);
 		pb.setTitle("Retrieve LINCS fMoA Data");
-		pb.setMessage("Retrieve Data, please wait...");
+		pb.setMessage("Retrieving Data, please wait...");
 		pb.start();		 
 
 		try {
@@ -310,8 +310,8 @@ public class FmoaDisplayWindow extends Thread implements Observer {
 
 				if (geneList.size() == fmoaDataTable.getModel().getRowCount()) {
 
-					String theMessage = "You select all to generate network. This may take long time to run.";
-					Object[] viewerChoices = { "Continue", "cancel" };
+					String theMessage = "All genes selected to generate network. This may take a long time to run.";
+					Object[] viewerChoices = { "Continue", "Cancel" };
 					int result = JOptionPane.showOptionDialog((Component) null,
 							theMessage, "Warning", JOptionPane.DEFAULT_OPTION,
 							JOptionPane.WARNING_MESSAGE, null, viewerChoices,
