@@ -149,6 +149,7 @@ public class FmoaDisplayWindow extends Thread implements Observer {
 		networkButton.setBackground(Color.WHITE);
 		showDiffExpr.setBorderPaintedFlat(true);
 		showDiffExpr.setBackground(Color.WHITE);
+		showDiffExpr.setSelected(true);
 
 		fmoaDataPanel.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
