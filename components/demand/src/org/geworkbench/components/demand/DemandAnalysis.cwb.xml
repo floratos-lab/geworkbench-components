@@ -24,3 +24,4 @@
 	<plugin id="DemandAnalysis" name="DeMAND Analysis" class="org.geworkbench.components.demand.DemandAnalysis" source="demand"/>
 
 </component-descriptor>
+
