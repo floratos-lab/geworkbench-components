@@ -430,7 +430,7 @@ public class BlastAnalysisPanel extends AbstractSaveableParameterPanel {
 		lowComplexFilterBox.setText("Low Complexity");
 
 		maskLowCaseBox = new JCheckBox();
-		maskLowCaseBox.setToolTipText("Filterl lower case sequences.");
+		maskLowCaseBox.setToolTipText("Filter lower case sequences.");
 		maskLowCaseBox.setText("Mask lower case letter");
 
 		maskLookupOnlyBox = new JCheckBox();
