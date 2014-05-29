@@ -54,7 +54,7 @@ public class TitrationCurveWindow {
 				  
 			     for(int i =0; i<measurements.size(); i++)
 			     {
-			    	  XYSeries series = new XYSeries("\""+ data.getCompound1Name() +"\" - " + compound1ConcList.get(i) + "uM");
+			    	  XYSeries series = new XYSeries("\""+ data.getCompound1Name() +"\" - " + compound1ConcList.get(i) + " uM");
 			     
 			          for (int j = 1; j < measurements.get(i).getArray().size(); j++) {
 			            series.add(compound2ConcList.get(j), measurements.get(i).getArray().get(j));
