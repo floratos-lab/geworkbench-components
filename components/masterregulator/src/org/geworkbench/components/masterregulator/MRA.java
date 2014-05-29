@@ -137,6 +137,10 @@ public class MRA extends AbstractAnalysis implements
 			}
 			DSMicroarraySetView<DSGeneMarker, DSMicroarray> view = (DSMicroarraySetView<DSGeneMarker, DSMicroarray>) input;
 			DSMicroarraySet maSet = view.getMicroarraySet();
+			if (maSet.getMarkers().size() != view.markers().size()) {
+				return new AlgorithmExecutionResults(false,
+						"MRA-FET doesn't allow markers to be activated", null);
+			}
 			AdjacencyMatrixDataSet amSet = mraAnalysisPanel.getAdjMatrixDataSet();
 			if (amSet==null || amSet.getMatrix()==null){
 				return new AlgorithmExecutionResults(false,
