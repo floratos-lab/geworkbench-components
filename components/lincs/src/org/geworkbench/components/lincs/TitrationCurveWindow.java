@@ -54,7 +54,7 @@ public class TitrationCurveWindow {
 				  
 			     for(int i =0; i<measurements.size(); i++)
 			     {
-			    	  XYSeries series = new XYSeries("\""+ data.getCompound1Name() +"\" - " + compound1ConcList.get(i) + " uM");
+			    	  XYSeries series = new XYSeries("\""+ data.getCompound1Name() +"\" - " + compound1ConcList.get(i) + " \u03BCM");
 			     
 			          for (int j = 1; j < measurements.get(i).getArray().size(); j++) {
 			            series.add(compound2ConcList.get(j), measurements.get(i).getArray().get(j));
@@ -63,7 +63,7 @@ public class TitrationCurveWindow {
 			         dataset.addSeries(series);
 			     }
 			        NumberAxis range = new NumberAxis("cellular response");
-			        NumberAxis domain = new NumberAxis("drug 2 concentration (uM)");
+			        NumberAxis domain = new NumberAxis("drug 2 concentration (\u03bCM)");
 			        XYSplineRenderer r = new XYSplineRenderer(5);
 			        XYPlot xyplot = new XYPlot(dataset, domain, range, r);
 			        JFreeChart chart = new JFreeChart(xyplot);
