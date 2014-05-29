@@ -1,26 +1,25 @@
 package org.geworkbench.components.lincs;
 
+import java.awt.Dimension;
 import java.util.List;
+
 import javax.swing.JFrame;
- 
-import java.awt.Dimension;  
- 
- 
-import org.jfree.chart.*;
-import org.jfree.chart.axis.*;
-import org.jfree.chart.plot.*;
+
+import org.geworkbench.service.lincs.LincsServiceException_Exception;
+import org.geworkbench.service.lincs.data.xsd.ArrayOffloat;
+import org.geworkbench.service.lincs.data.xsd.TitrationCurveData;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYSplineRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.geworkbench.service.lincs.LincsServiceException_Exception;
-import org.geworkbench.service.lincs.data.xsd.TitrationCurveData;
-import org.geworkbench.service.lincs.data.xsd.ArrayOffloat;
  
 
 /**
  * 
  * @author my2248
- * @version $Id: NetworkRedrawWindow.java 9734 2012-07-24 14:24:57Z zji $
  */
 public class TitrationCurveWindow {
 
@@ -32,13 +31,6 @@ public class TitrationCurveWindow {
 		display();
 	}
 
-	/**
-	 * Set up the GUI
-	 * 
-	 * @param void
-	 * @return void
-	 */
-	 
 	 private void display() {
 		 
 		    try {
@@ -63,7 +55,7 @@ public class TitrationCurveWindow {
 			         dataset.addSeries(series);
 			     }
 			        NumberAxis range = new NumberAxis("cellular response");
-			        NumberAxis domain = new NumberAxis("drug 2 concentration (\u03bCM)");
+			        NumberAxis domain = new NumberAxis("drug 2 concentration (\u03BCM)");
 			        XYSplineRenderer r = new XYSplineRenderer(5);
 			        XYPlot xyplot = new XYPlot(dataset, domain, range, r);
 			        JFreeChart chart = new JFreeChart(xyplot);
@@ -83,13 +75,9 @@ public class TitrationCurveWindow {
 			        frame.setLocationRelativeTo(frame.getOwner());
 			        frame.setVisible(true);      
 			       
-			        
 		    } catch (LincsServiceException_Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-	      
-	        
 	    }
 	
 }
