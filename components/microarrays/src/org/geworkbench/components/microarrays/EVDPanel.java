@@ -389,7 +389,11 @@ public class EVDPanel extends MicroarrayViewEventBase {
 				}
 			}
 		}
-		for(DSMicroarray currentMicroarray : maSetView.items()) {
+		DSItemList<DSMicroarray> microarrays = maSetView.items();
+		/* Note: Because CSItemList does not follow Java collections' normal behavior,
+		 * the regular for-each loop or loop via iterator does not work here. */
+		for(int index=0; index<microarrays.size(); index++) {
+			DSMicroarray currentMicroarray = microarrays.get(index);
             hs = new Histogram(basketNum, currentMicroarray, minExpressionValue, maxExpressionValue, maSetView.markers());
             int[] basketValues = hs.getBasketvalues();
             for (int i = 0; i <= basketNum; i++) {
