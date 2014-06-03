@@ -39,6 +39,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
+import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
@@ -46,7 +47,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
-import javax.swing.JTextField;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -77,7 +77,6 @@ import org.geworkbench.util.ColorScale;
 /**
  * 
  * @author Manjunath Kustagi
- * @version $Id$
  */
 @AcceptTypes({ DSMicroarraySet.class, DSSignificanceResultSet.class,
 		LincsDataSet.class })
@@ -868,7 +867,10 @@ public class BasicColorMosaicPanel implements Printable, VisualPlugin,
 			// create two marker lists: unsorted vs. sorted
 			unsortedMarkers.clear();
 			sortedMarkers.clear();
-			for (DSGeneMarker m : origMarkers) {
+			/* Note: Because CSItemList does not follow Java collections' normal behavior,
+			 * the regular for-each loop or loop via iterator does not work here. */
+			for (int i=0; i<origMarkers.size(); i++) {
+				DSGeneMarker m = origMarkers.get(i);
 				unsortedMarkers.add(m);
 				sortedMarkers.add(m);
 			}
