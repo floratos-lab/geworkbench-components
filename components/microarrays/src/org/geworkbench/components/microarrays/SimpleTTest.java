@@ -3,79 +3,52 @@ package org.geworkbench.components.microarrays;
 import org.geworkbench.bison.annotation.CSAnnotationContext;
 import org.geworkbench.bison.annotation.CSAnnotationContextManager;
 import org.geworkbench.bison.annotation.DSAnnotationContext;
-import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
-import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
-import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 
 /**
  * For EVD panel, only calculate T test without any correction.
- * @version $Id$
  */
 public class SimpleTTest {
 
-    private static int CASES = 1;
-    private static int CONTROLS = 2;
-    private static int NEITHER_GROUP = 3;
+    private static final int CASES = 1;
+    private static final int CONTROLS = 2;
+    private static final int NEITHER_GROUP = 3;
     private double maxT;
     private double minT;
-    private double[] originalTValues;
-    private float[][] expMatrix;
-    private int numGenes, numExps;
-    private int[] groupAssignments;
-    private DSItemList<DSGeneMarker> item;
 
     public SimpleTTest() {
         maxT = -100;
         minT = 100;
     }
 
-    private void reset() {
-        expMatrix = null;
-        groupAssignments = null;
-        numGenes = numExps = 0;
-    }
-
-    @SuppressWarnings("unchecked")
-	public double[] execute(Object input) {
-		reset();
-		if (input == null) {
+	public double[] execute(final DSMicroarraySetView<DSGeneMarker, ? extends DSMicroarray> data) {
+        
+		if (data == null) {
 			return null;
 		}
 
-		assert input instanceof DSMicroarraySetView;
+		DSItemList<DSGeneMarker> x = data.markers();
+		int numGenes = x.size();
+		int numExps = data.items().size();
+		int[] groupAssignments = new int[numExps];
 
-		DSMicroarraySetView<DSGeneMarker, ? extends DSMicroarray> data = (DSMicroarraySetView<DSGeneMarker, ? extends DSMicroarray>) input;
-
-		DSPanel<DSGeneMarker> genes = new CSPanel<DSGeneMarker>("");
-
-		genes.addAll(data.markers());
-
-		item = data.markers();
-
-		int markers = genes.size();
-		int arrays = data.items().size();
-		groupAssignments = new int[arrays];
-
-		expMatrix = new float[markers][arrays];
-		originalTValues = new double[markers];
-		for (int j = 0; j < arrays; j++) {
+		float[][] expMatrix = new float[numGenes][numExps];
+		double[] tValues = new double[numGenes];
+		for (int j = 0; j < numExps; j++) {
 			DSMicroarray ma = data.get(j);
-			for (int i = 0; i < markers; i++) {
-				DSGeneMarker marker = genes.get(i);
+			for (int i = 0; i < numGenes; i++) {
+				DSGeneMarker marker = x.get(i);
 
 				expMatrix[i][j] = (float) ma.getMarkerValue(marker).getValue();
 			}
 		}
 
-		DSMicroarraySet maSet = (DSMicroarraySet) data.getMicroarraySet();
-
 		DSAnnotationContext<DSMicroarray> context = CSAnnotationContextManager
-				.getInstance().getCurrentContext(maSet);
-		for (int i = 0; i < arrays; i++) {
+				.getInstance().getCurrentContext(data.getMicroarraySet());
+		for (int i = 0; i < numExps; i++) {
 			DSMicroarray ma = data.items().get(i);
 			if (ma instanceof DSMicroarray) {
 				String label = context.getClassForItem(ma);
@@ -91,13 +64,10 @@ public class SimpleTTest {
 			}
 		}
 
-		numGenes = genes.size();
-		numExps = data.items().size();
-
 		for (int i = 0; i < numGenes; i++) {
-			double tValue = getTValue(i);
+			double tValue = getTValue(expMatrix, groupAssignments, i);
 
-			originalTValues[i] = tValue;
+			tValues[i] = tValue;
 			if (tValue > maxT) {
 				maxT = tValue;
 			}
@@ -105,12 +75,13 @@ public class SimpleTTest {
 				minT = tValue;
 			}
 		}
-		return originalTValues;
+		return tValues;
 
 	}
 
-    private float getTValue(int gene) {
-        float[] geneValues = new float[numExps];
+    private static float getTValue(float[][] expMatrix, int[] groupAssignments, int gene) {
+        int numExps = expMatrix[0].length;
+		float[] geneValues = new float[numExps];
         for (int i = 0; i < numExps; i++) {
             geneValues[i] = expMatrix[gene][i];
         }
@@ -146,7 +117,7 @@ public class SimpleTTest {
         return tValue;
     }
 
-    private float getMean(float[] group) {
+    private static float getMean(float[] group) {
         float sum = 0;
         int n = 0;
 
@@ -167,7 +138,7 @@ public class SimpleTTest {
         return mean;
     }
 
-    private float calculateTValue(float[] groupA, float[] groupB) {
+    private static float calculateTValue(float[] groupA, float[] groupB) {
         int kA = groupA.length;
         int kB = groupB.length;
         float meanA = getMean(groupA);
@@ -199,7 +170,7 @@ public class SimpleTTest {
         return tValue;
     }
 
-    private float getVar(float[] group) {
+    private static float getVar(float[] group) {
         float mean = getMean(group);
         int n = 0;
 
@@ -230,9 +201,4 @@ public class SimpleTTest {
     public double getMinT() {
         return minT;
     }
-
-	public DSItemList<DSGeneMarker> getItem() {
-        return item;
-    }
-
 }

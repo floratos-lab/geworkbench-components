@@ -2,6 +2,7 @@ package org.geworkbench.components.microarrays;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.GridLayout;
@@ -22,19 +23,28 @@ import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JSplitPane;
 import javax.swing.JToggleButton;
+import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
+import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
+import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
+import org.geworkbench.engine.management.Asynchronous;
 import org.geworkbench.engine.management.Publish;
+import org.geworkbench.engine.management.Subscribe;
+import org.geworkbench.events.GeneSelectorEvent;
 import org.geworkbench.events.SubpanelChangedEvent;
 import org.geworkbench.util.visualproperties.PanelVisualProperties;
 import org.geworkbench.util.visualproperties.PanelVisualPropertiesManager;
@@ -56,20 +66,12 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.RectangleInsets;
 
 /**
- * <p>Title: caWorkbench</p>
- * <p/>
- * <p>Description: Modular Application Framework for Gene Expession, Sequence
- * and Genotype Analysis</p>
- * <p/>
- * <p>Copyright: Copyright (c) 2003 -2004</p>
- * <p/>
- * <p>Company: Columbia University</p>
+ * EVD Panel to visualize microarray dataset.
  *
  * @author Xiaoqing Zhang
- * @version $Id$
  */
 @AcceptTypes({DSMicroarraySet.class})
-public class EVDPanel extends MicroarrayViewEventBase {
+public class EVDPanel implements VisualPlugin {
 	private static Log log = LogFactory.getLog(EVDPanel.class);
 
 	// constants
@@ -79,7 +81,6 @@ public class EVDPanel extends MicroarrayViewEventBase {
     
     // jfree.chart
     private final ChartPanel graph;
-    private JFreeChart chart;
     
     // Swing
     private final JToggleButton jTTestBttn;
@@ -104,6 +105,10 @@ public class EVDPanel extends MicroarrayViewEventBase {
     private double highValue = 0.0d;
     private double maxValue = 0.0d;
     private double minValue = 0.0d;
+    
+    private double minExpressionValue = 0;
+    private double maxExpressionValue = 0;
+    private int maxOccurrence = 0;
 
     private int basketNum = DEFAULTBASKETNUM;
     
@@ -114,7 +119,145 @@ public class EVDPanel extends MicroarrayViewEventBase {
             PanelVisualProperties>();
     private Histogram hs;
    
-    public EVDPanel() {
+    private DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView = null;
+
+	private final JPanel mainPanel = new JPanel();
+
+	@Override
+	public Component getComponent() {
+		return mainPanel;
+	}
+
+	/**
+	 * Receive ProjectEvent.
+	 *
+	 */
+	@Subscribe(Asynchronous.class)
+	public void receive(org.geworkbench.events.ProjectEvent e, Object source) {
+
+		DSDataSet<?> dataSet = e.getDataSet();
+		if (dataSet instanceof DSMicroarraySet
+				&& (maSetView == null || dataSet != maSetView
+						.getMicroarraySet())) {
+			maSetView = new CSMicroarraySetView<DSGeneMarker, DSMicroarray>((DSMicroarraySet) dataSet);
+			refreshMaSetView(null, null);
+		}
+	}
+
+	/**
+	 * Receive GeneSelectorEvent.
+	 *
+	 */
+	@Subscribe(Asynchronous.class)
+	public void receive(GeneSelectorEvent e, Object source) {
+
+		log.debug("Source object " + source);
+
+		DSPanel<DSGeneMarker> markers = e.getPanel();
+		DSPanel<DSGeneMarker> activatedMarkers = new CSPanel<DSGeneMarker>();
+		if (markers != null && markers.size() > 0) {            
+			for (int j = 0; j < markers.panels().size(); j++) {
+				DSPanel<DSGeneMarker> mrk = markers.panels().get(j);
+				if (mrk.isActive()) {
+					for (int i = 0; i < mrk.size(); i++) {						
+						activatedMarkers.add(mrk.get(i));
+
+					}
+				}
+			}
+		}
+		refreshMaSetView(activatedMarkers, maSetView.getItemPanel());
+	}
+
+	/**
+	 * Receive PhenotypeSelectorEvent.
+	 *
+	 */
+	@Subscribe(Asynchronous.class)
+	public void receive(org.geworkbench.events.PhenotypeSelectorEvent<DSMicroarray> e,
+			Object source) {
+
+		if (e.getTaggedItemSetTree() != null) {
+			refreshMaSetView(null, e.getTaggedItemSetTree().activeSubset());
+		} else {
+			refreshMaSetView(null, null);
+		}
+	}
+
+	private volatile boolean beingRefreshed = false;
+	/**
+	 * Refreshes the chart view when receiving a project event or a selector event.
+	 */
+	private void refreshMaSetView(final DSPanel<DSGeneMarker> activatedMarkers, final DSPanel<DSMicroarray> activatedArrays) {
+		if(beingRefreshed || maSetView == null) {
+			return;
+		}
+		
+		beingRefreshed = true;
+
+		if (activatedMarkers != null && activatedMarkers.panels().size() > 0)
+			maSetView.setMarkerPanel(activatedMarkers);
+		if (activatedArrays != null && activatedArrays.panels().size() > 0 && activatedArrays.size() > 0)
+			maSetView.setItemPanel(activatedArrays);
+		else
+			maSetView.setItemPanel(new CSPanel<DSMicroarray>());
+
+		if (maSetView.markers() == null) {
+			return;
+		}
+
+		// using 0 instead of the actual minimum value is what the system test deems to be 'correct' behavior
+		minExpressionValue = 0; //Double.MAX_VALUE;
+		maxExpressionValue = Double.MIN_VALUE;
+		maxOccurrence = 0;
+
+		// FIXME there may be some more efficient way
+		int numGenes = maSetView.markers().size();
+		int numArraySets = maSetView.size();
+		for (int geneCtr = 0; geneCtr < numGenes; geneCtr++) {
+			for (int maCtr = 0; maCtr < numArraySets ; maCtr++) {
+				double value = maSetView.getValue(geneCtr, maCtr);
+				if (Double.isNaN(value)) {
+					value = 0;
+				} else if (value > maxExpressionValue) {
+					maxExpressionValue = value;
+				} else if (value < minExpressionValue) {
+					minExpressionValue = value;
+				}
+			}
+		}
+		DSItemList<DSMicroarray> microarrays = maSetView.items();
+		/* Note: Because CSItemList does not follow Java collections' normal behavior,
+		 * the regular for-each loop or loop via iterator does not work here. */
+		for(int index=0; index<microarrays.size(); index++) {
+			DSMicroarray currentMicroarray = microarrays.get(index);
+            hs = new Histogram(basketNum, currentMicroarray, minExpressionValue, maxExpressionValue, maSetView.markers());
+            int[] basketValues = hs.getBasketvalues();
+            for (int i = 0; i <= basketNum; i++) {
+                if (basketValues[i] > 0) {
+                    if (basketValues[i] > maxOccurrence)
+                    	maxOccurrence = basketValues[i];
+                }
+            }
+		}
+
+		if(jMASlider!=null)
+			jMASlider.setMaximum(numArraySets-1);
+		
+		refresh();
+		
+		beingRefreshed = false;
+	}
+
+	/** Constructor. */
+	public EVDPanel() {
+
+		JToolBar jToolBar3 = new JToolBar();
+
+		BorderLayout borderLayout2 = new BorderLayout();
+		mainPanel.setLayout(borderLayout2);
+
+		mainPanel.add(jToolBar3, java.awt.BorderLayout.SOUTH);
 
         JButton jPrintBttn = new JButton();
         jPrintBttn.setText("Print");
@@ -273,7 +416,7 @@ public class EVDPanel extends MicroarrayViewEventBase {
         jToolBar3.add(jPrintBttn);
         jToolBar3.add(imageSnapshotButton);
 
-        chart = ChartFactory.createXYLineChart("EVD", "Value", "Occurrences", null,
+        JFreeChart chart = ChartFactory.createXYLineChart("EVD", "Value", "Occurrences", null,
                 PlotOrientation.VERTICAL, true,
                 true, true); // Title,  X-Axis label,  Y-Axis label,  Dataset,  orientation, Show legend, show ToolTips, urls
 
@@ -300,7 +443,7 @@ public class EVDPanel extends MicroarrayViewEventBase {
 
     private void jLeftBoundarySlider_stateChanged(ChangeEvent e) {
         int value = jLeftBoundarySlider.getValue();
-        XYPlot plot = this.chart.getXYPlot();
+        XYPlot plot = graph.getChart().getXYPlot();
 
         lowValue = minValue + value * binSize;
         plot.setDomainCrosshairValue(lowValue - 0.5 * binSize);
@@ -319,7 +462,7 @@ public class EVDPanel extends MicroarrayViewEventBase {
 
     private void jRightBoundarySlider_stateChanged(ChangeEvent e) {
         int value = jRightBoundarySlider.getValue();
-        XYPlot plot = this.chart.getXYPlot();
+        XYPlot plot = graph.getChart().getXYPlot();
 
         highValue = minValue + value * binSize;
         plot.setDomainCrosshairValue(highValue - 0.5 * binSize);
@@ -356,66 +499,6 @@ public class EVDPanel extends MicroarrayViewEventBase {
         refresh();
     }
 
-    private double minExpressionValue = 0;
-    private double maxExpressionValue = 0;
-    private int maxOccurrence = 0;
-    
-	@Override
-	protected void fireModelChangedEvent() {
-		if (refMASet == null || maSetView.markers() == null) {
-			return;
-		}
-
-		// using 0 instead of the actual minimum value is what the system test deems to be 'correct' behavior
-		minExpressionValue = 0; //Double.MAX_VALUE;
-		maxExpressionValue = Double.MIN_VALUE;
-		maxOccurrence = 0;
-
-		// FIXME there may be some more efficient way
-		// two exceptions are checked here because refMASet is not used synchronously
-		// TODO I think synchronous model is preferred
-		try {
-		int numGenes = maSetView.markers().size();
-		int numArraySets = refMASet.size();
-		for (int geneCtr = 0; geneCtr < numGenes; geneCtr++) {
-			for (int maCtr = 0; maCtr < numArraySets ; maCtr++) {
-				double value = refMASet.getValue(geneCtr, maCtr);
-				if (Double.isNaN(value)) {
-					value = 0;
-				} else if (value > maxExpressionValue) {
-					maxExpressionValue = value;
-				} else if (value < minExpressionValue) {
-					minExpressionValue = value;
-				}
-			}
-		}
-		DSItemList<DSMicroarray> microarrays = maSetView.items();
-		/* Note: Because CSItemList does not follow Java collections' normal behavior,
-		 * the regular for-each loop or loop via iterator does not work here. */
-		for(int index=0; index<microarrays.size(); index++) {
-			DSMicroarray currentMicroarray = microarrays.get(index);
-            hs = new Histogram(basketNum, currentMicroarray, minExpressionValue, maxExpressionValue, maSetView.markers());
-            int[] basketValues = hs.getBasketvalues();
-            for (int i = 0; i <= basketNum; i++) {
-                if (basketValues[i] > 0) {
-                    if (basketValues[i] > maxOccurrence)
-                    	maxOccurrence = basketValues[i];
-                }
-            }
-		}
-
-		if(jMASlider!=null)
-			jMASlider.setMaximum(numArraySets-1);
-
-		} catch (NullPointerException e) {
-			log.debug(e);
-		} catch (IndexOutOfBoundsException e) {
-			log.debug(e);			
-		}
-		
-		refresh();
-	}
-
     @Publish
     public org.geworkbench.events.ImageSnapshotEvent
             createImageSnapshot() {
@@ -434,20 +517,16 @@ public class EVDPanel extends MicroarrayViewEventBase {
     }
 
     // this is for t-test case. maybe we should separate the shared variable to avoid confusion
-    private XYSeriesCollection createCollection(double min, double max,
-                                               double[] tValues,
+    private XYSeriesCollection createCollection(double[] tValues,
                                                DSItemList<DSGeneMarker> item) {
         int[] basketValues = new int[basketNum + 1];
-        maxValue = max;
-        minValue = min;
         binSize = (maxValue - minValue) / basketNum;
-        String bin = myFormatter.format(binSize);
-        binNumLabel.setText("Bin size:  " + bin);
+        binNumLabel.setText("Bin size:  " + myFormatter.format(binSize));
         XYSeriesCollection plots = new XYSeriesCollection();
         if (tValues == null) {
             return null;
         }
-        hs = new Histogram(basketNum, min, max, tValues, item);
+        hs = new Histogram(basketNum, minValue, maxValue, tValues, item);
         basketValues = hs.getBasketvalues();
         XYSeries dataSeries = new XYSeries("Two-Sample TTest");
         if (basketNum == 0) {
@@ -471,24 +550,20 @@ public class EVDPanel extends MicroarrayViewEventBase {
 
     }
 
-    private XYSeriesCollection createCollection(double min, double max,
-                                               int selectedId) {
+    private XYSeriesCollection createCollection(int selectedId) {
         PanelVisualPropertiesManager propertiesManager =
                 PanelVisualPropertiesManager.getInstance();
-        //Temp changed. Need move into a new method to update.
-        maxValue = max;
-        minValue = min;
         binSize = (maxValue - minValue) / basketNum;
         String bin = myFormatter.format(binSize);
         binNumLabel.setText("Bin size:  " + bin);
         XYSeriesCollection plots = new XYSeriesCollection();
-        if (refMASet == null) {
+        if (maSetView == null) {
             return null;
         }
         try {
 
             //draw base array.
-            DSMicroarray ma = refMASet.get(selectedId);
+            DSMicroarray ma = maSetView.get(selectedId);
             XYSeries dataSeries = new XYSeries(ma.getLabel() + "(base)");
             int[] basketValues = new int[basketNum + 1];
             for (int i = 0; i < basketNum; i++) {
@@ -590,7 +665,7 @@ public class EVDPanel extends MicroarrayViewEventBase {
             return;
         }
         boolean tooltipEnabled = jEnabledBox.isSelected();
-        chart = ChartFactory.createXYLineChart(title, "Value", "Occurrences",
+        JFreeChart chart = ChartFactory.createXYLineChart(title, "Value", "Occurrences",
                 plots, PlotOrientation.VERTICAL, 
                 true, // show legend
                 tooltipEnabled, 
@@ -718,8 +793,8 @@ public class EVDPanel extends MicroarrayViewEventBase {
 		 * so using it this way is not a good idea.
          */
         DSPanel<DSGeneMarker> panel = hs.getPanel(lowValue, highValue);
-        selectedGeneNum.setText("Selected genes: " +
-                    hs.getGeneNumbers(lowValue, highValue));
+        selectedGeneNum.setText("Selected genes: " + panel.size());
+
         if (panel != null && panel.size()>0) {
             publishSubpanelChangedEvent(new SubpanelChangedEvent<DSGeneMarker>(DSGeneMarker.class, panel, org.geworkbench.events.SubpanelChangedEvent.NEW));
         } else {
@@ -730,19 +805,18 @@ public class EVDPanel extends MicroarrayViewEventBase {
 
     }
 
-	@SuppressWarnings("rawtypes")
 	@Publish
-	public SubpanelChangedEvent publishSubpanelChangedEvent(
-			org.geworkbench.events.SubpanelChangedEvent event) {
+	public SubpanelChangedEvent<DSGeneMarker> publishSubpanelChangedEvent(
+			org.geworkbench.events.SubpanelChangedEvent<DSGeneMarker> event) {
 		return event;
 	}
 
     private void setSlider(String selected) {
-    	String currentBase = refMASet.get(jMASlider.getValue()).getLabel();
+    	String currentBase = maSetView.get(jMASlider.getValue()).getLabel();
     	if (!currentBase.equals(selected)){
     		int newBaseId = 0;
-    		for (int i = 0; i < refMASet.size(); i++) {
-    			if (refMASet.get(i).getLabel().equals(selected)) {
+    		for (int i = 0; i < maSetView.size(); i++) {
+    			if (maSetView.get(i).getLabel().equals(selected)) {
     				newBaseId = i;
     				break;
     			}
@@ -752,12 +826,13 @@ public class EVDPanel extends MicroarrayViewEventBase {
     	}
     }
     
+    /* refresh the plot. */
     private void refresh() {
 
         if (!jTTestBttn.isSelected() ) { // mode == EVDMODE) {
 
-            if (refMASet == null) {
-                chart = ChartFactory.createXYLineChart("EVD", "Value",
+            if (maSetView == null) {
+            	JFreeChart chart = ChartFactory.createXYLineChart("EVD", "Value",
                         "Occurrences", null, PlotOrientation.VERTICAL, 
                         true, // legend
                         jEnabledBox.isSelected(), 
@@ -779,8 +854,6 @@ public class EVDPanel extends MicroarrayViewEventBase {
                 // create New Chart
                 lowValue = highValue = minExpressionValue;
                 
-//                leftBoundary.setText(myFormatter.format(minExpressionValue));
-//                rightBoundary.setText(myFormatter.format(maxExpressionValue));
                 // the rationale behind the following logic is not obvious 
                 // but let's keep it because it is what current system test describes as 'correct'
                 if(minExpressionValue<min) min = minExpressionValue;
@@ -791,8 +864,9 @@ public class EVDPanel extends MicroarrayViewEventBase {
                 jLeftBoundarySlider.setValue(0);
                 jRightBoundarySlider.setValue(0);
                 
-                drawPlot(createCollection(minExpressionValue, maxExpressionValue, mArrayId),
-                        "EVD");
+                maxValue = maxExpressionValue;
+                minValue = minExpressionValue;
+                drawPlot(createCollection(mArrayId), "EVD");
                 mainPanel.repaint();
             }
 
@@ -801,10 +875,9 @@ public class EVDPanel extends MicroarrayViewEventBase {
             SimpleTTest simpleTTest = new SimpleTTest();
 
             double values[] = simpleTTest.execute(maSetView);
-            double minT = simpleTTest.getMinT();
-            double maxT = simpleTTest.getMaxT();
-            DSItemList<DSGeneMarker> item = simpleTTest.getItem();
-            drawPlot(createCollection(minT, maxT, values, item), "T-Test");
+            minValue = simpleTTest.getMinT();
+            maxValue = simpleTTest.getMaxT();
+            drawPlot(createCollection(values, maSetView.markers()), "T-Test");
         }
 
     }
