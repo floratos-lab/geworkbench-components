@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -45,6 +46,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 import javax.swing.border.LineBorder;
 import javax.swing.table.AbstractTableModel;
@@ -684,7 +686,7 @@ public class MatrixReduceViewer implements VisualPlugin {
 	}
 
 	private void doFilter() {
-		HashSet<String> seqFilter = new HashSet<String>();
+		final HashSet<String> seqFilter = new HashSet<String>();
 		// 1) Filter by sequence
 		if (filterSequence == null) {
 			seqFilter.addAll(sequences.keySet());
@@ -725,6 +727,27 @@ public class MatrixReduceViewer implements VisualPlugin {
 			}
 		}
 		// 3) Build ordered list of the result
+		if (SwingUtilities.isEventDispatchThread()) {
+			updateSelectedSequences(seqFilter);
+		} else {
+			try {
+				SwingUtilities.invokeAndWait(new Runnable() {
+
+					@Override
+					public void run() {
+						updateSelectedSequences(seqFilter);
+					}
+
+				});
+			} catch (InvocationTargetException e) {
+				e.printStackTrace();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	private void updateSelectedSequences(HashSet<String> seqFilter) {
 		selectedSequences = new ArrayList<String>();
 		for (int i = 0; i < sequences.size(); i++) {
 			String key = sequences.get(i);
