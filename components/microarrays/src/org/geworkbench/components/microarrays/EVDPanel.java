@@ -166,7 +166,9 @@ public class EVDPanel implements VisualPlugin {
 				}
 			}
 		}
-		refreshMaSetView(activatedMarkers, maSetView.getItemPanel());
+		DSPanel<DSMicroarray> p = null;
+		if(maSetView!=null) p = maSetView.getItemPanel();
+		refreshMaSetView(activatedMarkers,p);
 	}
 
 	/**
