@@ -153,8 +153,7 @@ public class PudgeConfigPanel extends AbstractSaveableParameterPanel implements 
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#getParameters()
 	 */
 	public Map<Serializable, Serializable> getParameters() {
-		// TODO Auto-generated method stub
-		log.error(new OperationNotSupportedException("Please implement getParameters()"));
+		log.warn(new OperationNotSupportedException("getParameters() not implemented"));
 		return null;
 	}
 
@@ -163,8 +162,7 @@ public class PudgeConfigPanel extends AbstractSaveableParameterPanel implements 
 	 * @see org.geworkbench.analysis.AbstractSaveableParameterPanel#setParameters(java.util.Map)
 	 */
 	public void setParameters(Map<Serializable, Serializable> parameters) {
-		// TODO Auto-generated method stub
-		log.error(new OperationNotSupportedException("Please implement setParameters()"));
+		log.warn(new OperationNotSupportedException("setParameters() not implemented"));
 	}
 
 	@Override
