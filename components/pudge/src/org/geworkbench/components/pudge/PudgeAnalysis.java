@@ -106,7 +106,7 @@ public class PudgeAnalysis extends AbstractAnalysis implements
 			e.printStackTrace();
 		}
 		if (resultURL.length() == 0)
-			return new AlgorithmExecutionResults(true,
+			return new AlgorithmExecutionResults(false,
 					"Error in pudge website",
 					new PudgeResultSet(seq, resultURL));
 
