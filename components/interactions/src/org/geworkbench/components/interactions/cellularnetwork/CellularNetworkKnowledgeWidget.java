@@ -83,6 +83,7 @@ import org.geworkbench.util.UnAuthenticatedException;
 import org.geworkbench.util.network.CellularNetWorkElementInformation;
 import org.geworkbench.util.network.CellularNetworkPreference;
 import org.geworkbench.util.network.InteractionDetail;
+import org.geworkbench.util.network.InteractionParticipant;
 
 /**
  * @author manjunath at genomecenter dot columbia dot edu, xiaoqing zhang
@@ -253,17 +254,20 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 							.get(geneId.toString());
 					selectedMarkers.addAll(markers);
 
-					for (InteractionDetail detail : arrayList) {
-						String dbSource = detail.getDbSource();
+					for (InteractionDetail detail : arrayList) {						 
 						Collection<DSGeneMarker> markers2 = null;
-						if (dbSource.equalsIgnoreCase(Constants.ENTREZ_GENE))
-							markers2 = geneIdToMarkerMap.get(detail
-									.getdSGeneId());
-						else
-							markers2 = geneNameToMarkerMap.get(detail
-									.getdSGeneName());
-						if (markers2 != null)
-							selectedMarkers.addAll(markers2);
+						List<InteractionParticipant> participants = detail
+								.getParticipantList();
+						for (InteractionParticipant p : participants) {
+							if (p.getDbSource().equalsIgnoreCase(Constants.ENTREZ_GENE))
+							    markers2 = geneIdToMarkerMap.get(p.getGeneId());
+							else
+								markers2 = geneNameToMarkerMap.get(p.getGeneName());
+							if (markers2 != null)
+								selectedMarkers.addAll(markers2);
+							 
+						}						
+						 
 					}
 
 				}
@@ -1071,17 +1075,10 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 								&& cellularNetWorkElementInformation.isDirty()) {
 							List<InteractionDetail> interactionDetails = null;
 
-							try {
-
-								if (interaction_flag == 0) {
+							try {  
 									interactionDetails = interactionsConnection
-											.getInteractionsByEntrezIdOrGeneSymbol_1(
-													marker, context, version);
-								} else {
-									interactionDetails = interactionsConnection
-											.getInteractionsByEntrezIdOrGeneSymbol_2(
-													marker, context, version);
-								}
+											.getInteractionsByEntrezIdOrGeneSymbol(
+													marker, context, version);								 
 
 							} catch (UnAuthenticatedException uae) {
 								cancelAction = true;
@@ -1520,6 +1517,11 @@ public class CellularNetworkKnowledgeWidget extends javax.swing.JScrollPane
 	CellularNetworkPreference getTgPreference()
 	{
 		return tgPreference;
+	}
+	
+	int getInteractionFlag()
+	{
+		return this.interaction_flag;
 	}
 	
 	void detailTableDataChanged() {

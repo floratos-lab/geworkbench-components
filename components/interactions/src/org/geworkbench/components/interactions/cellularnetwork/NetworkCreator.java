@@ -33,6 +33,7 @@ import org.geworkbench.util.ProgressBar;
 import org.geworkbench.util.ResultSetlUtil;
 import org.geworkbench.util.network.CellularNetWorkElementInformation;
 import org.geworkbench.util.network.InteractionDetail;
+import org.geworkbench.util.network.InteractionParticipant;
 
 // the only reason to use raw Thread+Observer instead of, say, SwingWorker,
 // is to use the existing progress bar code, which is shabby in the first
@@ -103,15 +104,16 @@ class NetworkCreator extends Thread implements Observer {
 		boolean isGene2InMicroarray = true;
 		StringBuffer historyStr = new StringBuffer();
 
-		short selectedConfidenceType = widget.getTgPreference().getSelectedConfidenceType();
- 
+		short selectedConfidenceType = widget.getTgPreference()
+				.getSelectedConfidenceType();
 
 		for (CellularNetWorkElementInformation cellularNetWorkElementInformation : list) {
 			if (cellularNetWorkElementInformation.isDirty())
 				continue;
 
 			ArrayList<InteractionDetail> arrayList = cellularNetWorkElementInformation
-					.getSelectedInteractions(selectedTypes, selectedConfidenceType);
+					.getSelectedInteractions(selectedTypes,
+							selectedConfidenceType);
 
 			List<String> networkSelectedInteractionTypes = selectedTypes;
 			if (networkSelectedInteractionTypes.size() > 0)
@@ -138,93 +140,98 @@ class NetworkCreator extends Thread implements Observer {
 			for (InteractionDetail interactionDetail : arrayList) {
 				if (isCancelled() == true)
 					return;
-				isGene2InMicroarray = true;
-				DSGeneMarker marker = new CSGeneMarker();
-				String mid2 = interactionDetail.getdSGeneId();
-				AdjacencyMatrix.Node node2 = null;
+				List<InteractionParticipant> participants = interactionDetail
+						.getParticipantList();
+				for (InteractionParticipant p : participants) {
+					isGene2InMicroarray = true;
+					DSGeneMarker marker = new CSGeneMarker();
+					String mid2 = p.getGeneId();
+					AdjacencyMatrix.Node node2 = null;
 
-				if (interactionDetail.getDbSource().equalsIgnoreCase(
-						Constants.ENTREZ_GENE)) {
-					try {
-						marker.setGeneId(new Integer(mid2));
-					} catch (NumberFormatException ne) {
-						log.error("ms_id2 is expect to be an integer: " + mid2
-								+ "This interaction is going to be dropped");
-						continue;
-					}
-					int index = Collections.binarySearch(copy, marker, eidc);
-					if (index >= 0) {
-						node2 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL,
-								copy.get(index).getGeneName());
-					} else {
-						isGene2InMicroarray = false;
-					}
-
-				} else {
-					Collection<DSGeneMarker> dSGeneMarkerList = geneNameToMarkerMap
-							.get(interactionDetail.getdSGeneName());
-					if (dSGeneMarkerList != null && !dSGeneMarkerList.isEmpty()) {
-						for (DSGeneMarker dSGeneMarker : dSGeneMarkerList) {
+					if (p.getDbSource().equalsIgnoreCase(Constants.ENTREZ_GENE)) {
+						try {
+							marker.setGeneId(new Integer(mid2));
+						} catch (NumberFormatException ne) {
+							log.error("ms_id2 is expect to be an integer: "
+									+ mid2
+									+ "This interaction is going to be dropped");
+							continue;
+						}
+						int index = Collections
+								.binarySearch(copy, marker, eidc);
+						if (index >= 0) {
 							node2 = new AdjacencyMatrix.Node(
-									NodeType.GENE_SYMBOL,
-									dSGeneMarker.getGeneName());
-							if (interactionDetail.getDbSource()
-									.equalsIgnoreCase(Constants.UNIPORT)) {
-								Set<String> SwissProtIds = new HashSet<String>();
-								String[] ids = AnnotationParser.getInfo(
-										dSGeneMarker.getLabel(),
-										AnnotationParser.SWISSPROT);
-								for (String s : ids) {
-									SwissProtIds.add(s.trim());
-								}
-								if (SwissProtIds.contains(interactionDetail
-										.getdSGeneId())) {
+									NodeType.GENE_SYMBOL, copy.get(index)
+											.getGeneName());
+						} else {
+							isGene2InMicroarray = false;
+						}
+
+					} else {
+						Collection<DSGeneMarker> dSGeneMarkerList = geneNameToMarkerMap
+								.get(p.getGeneName());
+						if (dSGeneMarkerList != null
+								&& !dSGeneMarkerList.isEmpty()) {
+							for (DSGeneMarker dSGeneMarker : dSGeneMarkerList) {
+								node2 = new AdjacencyMatrix.Node(
+										NodeType.GENE_SYMBOL,
+										dSGeneMarker.getGeneName());
+								if (p.getDbSource().equalsIgnoreCase(
+										Constants.UNIPORT)) {
+									Set<String> SwissProtIds = new HashSet<String>();
+									String[] ids = AnnotationParser.getInfo(
+											dSGeneMarker.getLabel(),
+											AnnotationParser.SWISSPROT);
+									for (String s : ids) {
+										SwissProtIds.add(s.trim());
+									}
+									if (SwissProtIds.contains(p.getGeneId())) {
+										break;
+									}
+								} else {
+
 									break;
 								}
-							} else {
 
-								break;
 							}
-
+						} else {
+							isGene2InMicroarray = false;
 						}
-					} else {
-						isGene2InMicroarray = false;
 					}
-				}
 
-				if (isGene2InMicroarray == false) {
-					log.info("Marker " + interactionDetail.getdSGeneId()
-							+ " does not exist at the dataset. ");
-					if (isRestrictToGenesPresentInMicroarray)
-						continue;
+					if (isGene2InMicroarray == false) {
+						log.info("Marker " + p.getGeneId()
+								+ " does not exist at the dataset. ");
+						if (isRestrictToGenesPresentInMicroarray)
+							continue;
 
-					if (interactionDetail.getdSGeneName() != null
-							&& !interactionDetail.getdSGeneName().trim()
-									.equals("")
-							&& !interactionDetail.getdSGeneName().trim()
-									.equals("null")) {
-						node2 = new AdjacencyMatrix.Node(NodeType.GENE_SYMBOL,
-								interactionDetail.getdSGeneName(), 0);
-					} else {
-						node2 = new AdjacencyMatrix.Node(NodeType.STRING, mid2);
+						if (p.getGeneName() != null
+								&& !p.getGeneName().trim().equals("")
+								&& !p.getGeneName().trim().equals("null")) {
+							node2 = new AdjacencyMatrix.Node(
+									NodeType.GENE_SYMBOL, p.getGeneName(), 0);
+						} else {
+							node2 = new AdjacencyMatrix.Node(NodeType.STRING,
+									mid2);
+						}
 					}
-				}
-				AdjacencyMatrix.Node node1 = new AdjacencyMatrix.Node(
-						NodeType.GENE_SYMBOL, marker1.getGeneName());
+					AdjacencyMatrix.Node node1 = new AdjacencyMatrix.Node(
+							NodeType.GENE_SYMBOL, marker1.getGeneName());
 
-				String shortNameType = CellularNetworkPreferencePanel.interactionTypeSifMap
-						.get(interactionDetail.getInteractionType());
+					String shortNameType = CellularNetworkPreferencePanel.interactionTypeSifMap
+							.get(interactionDetail.getInteractionType());
 
-				matrix.add(
-						node1,
-						node2,
-						new Float(interactionDetail
-								.getConfidenceValue(selectedConfidenceType)),
-						shortNameType, interactionDetail.getEvidenceId());
+					matrix.add(
+							node1,
+							node2,
+							new Float(interactionDetail
+									.getConfidenceValue(selectedConfidenceType)),
+							shortNameType, interactionDetail.getEvidenceId());
 
-				interactionNum++;
-			}
-		} // end for loop
+					interactionNum++;
+				}  //end InteractionParticipant loop
+			}  //end detail loop
+		} // end hit loop
 
 		if (interactionNum > 0) {
 			createNetwork = true;

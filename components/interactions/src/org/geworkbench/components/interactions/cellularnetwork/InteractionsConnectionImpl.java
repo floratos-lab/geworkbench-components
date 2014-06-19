@@ -14,6 +14,7 @@ import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.util.ResultSetlUtil;
 import org.geworkbench.util.UnAuthenticatedException;
 import org.geworkbench.util.network.InteractionDetail;
+import org.geworkbench.util.network.InteractionParticipant;
 
 /**
  * The class to query CNKB database via servlet.
@@ -28,110 +29,13 @@ public class InteractionsConnectionImpl {
 			.getLog(InteractionsConnectionImpl.class);
 
 	private static final String ENTREZ_GENE = "Entrez Gene";
-
-	
-	public List<InteractionDetail> getInteractionsByEntrezIdOrGeneSymbol_1(
+ 
+	public List<InteractionDetail> getInteractionsByEntrezIdOrGeneSymbol(
 			DSGeneMarker marker, String context, String version)
 			throws UnAuthenticatedException, ConnectException,
 			SocketTimeoutException, IOException {
-		    return  getInteractionsByEntrezIdOrGeneSymbol_1(
-					marker, context, version, null);
-	}
-	
-	
-	public List<InteractionDetail> getInteractionsByEntrezIdOrGeneSymbol_2(
-			DSGeneMarker marker, String context, String version)
-			throws UnAuthenticatedException, ConnectException,
-			SocketTimeoutException, IOException {
-		    return  getInteractionsByEntrezIdOrGeneSymbol_2(
-					marker, context, version, null);
-	}
-	
-	/**
-	 * This is similar to getInteractionsByEntrezIdOrGeneSymbol_2 and currently
-	 * NOT used. The difference is that this version only retains the 'edges'
-	 * that involve the queried marker, not those that belong to an interaction
-	 * that includes the queried marker but does not connect directly.
-	 */
-	public List<InteractionDetail> getInteractionsByEntrezIdOrGeneSymbol_1(
-			DSGeneMarker marker, String context, String version, String userInfo)
-			throws UnAuthenticatedException, ConnectException,
-			SocketTimeoutException, IOException {
-
-		List<InteractionDetail> arrayList = new ArrayList<InteractionDetail>();
-
-		String msid1 = new Integer(marker.getGeneId()).toString();
-		String geneName1 = marker.getGeneName();
-		String methodAndParams = "getInteractionsByEntrezIdOrGeneSymbol"
-				+ Constants.DEL + msid1 + Constants.DEL + geneName1
-				+ Constants.DEL + context + Constants.DEL + version;
-
-		ResultSetlUtil rs = ResultSetlUtil.executeQueryWithUserInfo(methodAndParams,
-				ResultSetlUtil.getUrl(), userInfo);
-		String previousInteractionId = null;
-		boolean firstHit = true;
-		while (rs.next()) {
-			try {
-				String msid2 = rs.getString("primary_accession");
-				String geneName2 = rs.getString("gene_symbol");
-				String db2_xref = rs.getString("accession_db");
-				String interactionId = rs.getString("interaction_id");
-				if (previousInteractionId == null
-						|| !previousInteractionId.equals(interactionId)) {
-					previousInteractionId = interactionId;
-					firstHit = true;
-				}
-				if ((db2_xref.equals(ENTREZ_GENE) && msid1.equals(msid2))
-						|| (geneName2.equalsIgnoreCase(geneName1))) {
-					if (firstHit == true) {
-						firstHit = false;
-						continue;
-					} else {
-						msid2 = msid1;
-						db2_xref = ENTREZ_GENE;
-					}
-				}
-
-				String interactionType = rs.getString("interaction_type")
-						.trim();
-				Short evidenceId = 0;
-				if (rs.getString("evidence_id") != null
-						&& !rs.getString("evidence_id").trim().equals("null")) {
-					evidenceId = new Short(rs.getString("evidence_id"));
-				}
-
-				InteractionDetail interactionDetail = new InteractionDetail(
-						msid2, geneName2, db2_xref, interactionType,
-						interactionId, evidenceId);
-
-				double confidenceValue = rs.getDouble("confidence_value");
-				Short confidenceType = new Short(rs
-						.getString("confidence_type").trim());
-				interactionDetail
-						.addConfidence(confidenceValue, confidenceType);
-				String otherConfidenceValues = rs
-						.getString("other_confidence_values");
-				String otherConfidenceTypes = rs
-						.getString("other_confidence_types");
-				if (!otherConfidenceValues.equals("null")) {
-					String[] values = otherConfidenceValues.split(";");
-					String[] types = otherConfidenceTypes.split(";");
-
-					for (int i = 0; i < values.length; i++)
-						interactionDetail.addConfidence(new Double(values[i]),
-								new Short(types[i]));
-
-				}
-
-				arrayList.add(interactionDetail);
-
-			} catch (NullPointerException npe) {
-				logger.error("db row is dropped because a NullPointerException");
-			}
-		}
-		rs.close();
-
-		return arrayList;
+		return getInteractionsByEntrezIdOrGeneSymbol(marker, context,
+				version, null);
 	}
 
 	/**
@@ -140,7 +44,7 @@ public class InteractionsConnectionImpl {
 	 * interactions that include the queried marker even if they are not
 	 * connected directly.
 	 */
-	public List<InteractionDetail> getInteractionsByEntrezIdOrGeneSymbol_2(
+	public List<InteractionDetail> getInteractionsByEntrezIdOrGeneSymbol(
 			DSGeneMarker marker, String context, String version, String userInfo)
 			throws UnAuthenticatedException, ConnectException,
 			SocketTimeoutException, IOException {
@@ -154,90 +58,87 @@ public class InteractionsConnectionImpl {
 				+ Constants.DEL + marker_msid + Constants.DEL + marker_geneName
 				+ Constants.DEL + context + Constants.DEL + version;
 
-		ResultSetlUtil rs = ResultSetlUtil.executeQueryWithUserInfo(methodAndParams,
-				ResultSetlUtil.getUrl(), userInfo);
+		ResultSetlUtil rs = ResultSetlUtil.executeQueryWithUserInfo(
+				methodAndParams, ResultSetlUtil.getUrl(), userInfo);
 
 		String previousInteractionId = null;
-		List<InteractionParticipant> participantList = new ArrayList<InteractionParticipant>();
+		boolean firstHitOnQueryGene = true;
+		InteractionDetail interactionDetail = null;
 		while (rs.next()) {
 			try {
-				String msid = rs.getString("primary_accession");
-				String geneName = rs.getString("gene_symbol");
+				String msid2 = rs.getString("primary_accession");
+				String geneName2 = rs.getString("gene_symbol");
 
-				String db_xref = rs.getString("accession_db");
+				String db2_xref = rs.getString("accession_db");
 				String interactionType = rs.getString("interaction_type")
 						.trim();
 				String interactionId = rs.getString("interaction_id");
-
 				Short evidenceId = 0;
 				if (rs.getString("evidence_id") != null
 						&& !rs.getString("evidence_id").trim().equals("null")) {
 					evidenceId = new Short(rs.getString("evidence_id"));
 				}
-				if (!db_xref.equalsIgnoreCase(ENTREZ_GENE)
-						&& geneName.equals(marker_geneName)) {
-					msid = marker_msid;
-					db_xref = ENTREZ_GENE;
+				if (!db2_xref.equalsIgnoreCase(ENTREZ_GENE)
+						&& marker_geneName.equals(geneName2)) {
+					msid2 = marker_msid;
 				}
 
 				if (previousInteractionId == null
 						|| !previousInteractionId.equals(interactionId)) {
-					previousInteractionId = interactionId;
-					participantList.clear();
-				} else {
-					for (InteractionParticipant p : participantList) {
-						InteractionDetail interactionDetail = null;
-
-						if ((p.getdSGeneName() != null && p.getdSGeneName()
-								.equalsIgnoreCase(marker_geneName))
-								|| (p.getdSGeneId() != null && p.getdSGeneId()
-										.equals(marker_msid)))
-							interactionDetail = new InteractionDetail(msid,
-									geneName, db_xref, interactionType,
-									interactionId, evidenceId);
-						else
-							interactionDetail = new InteractionDetail(
-									p.getdSGeneId(), p.getdSGeneName(),
-									p.getDbSource(), interactionType,
-									interactionId, evidenceId);
-
-						double confidenceValue = 1.0;
-						try
-						{
-						   confidenceValue = rs.getDouble("confidence_value");
-						}catch(NumberFormatException nfe) {
-				           logger.info("there is no confidence value for this row. Default it to 1.");
-			            } 
-						short confidenceType = 0;
-						try {
-						    confidenceType = new Short(rs.getString(
-								"confidence_type").trim());
-						}catch(NumberFormatException nfe) {
-				           logger.info("there is no confidence value for this row. Default it to 0.");
-			            } 
-						interactionDetail.addConfidence(confidenceValue,
-								confidenceType);
-						String otherConfidenceValues = rs
-								.getString("other_confidence_values");
-						String otherConfidenceTypes = rs
-								.getString("other_confidence_types");
-						if (!otherConfidenceValues.equals("null")) {
-							String[] values = otherConfidenceValues.split(";");
-							String[] types = otherConfidenceTypes.split(";");
-
-							for (int i = 0; i < values.length; i++)
-								interactionDetail.addConfidence(new Double(
-										values[i]), new Short(types[i]));
-
-						}
-
+					if (interactionDetail != null) {
 						arrayList.add(interactionDetail);
+						interactionDetail = null;
+					}
+					previousInteractionId = interactionId;
+					firstHitOnQueryGene = true;
 
+				}
+				if ((db2_xref.equals(ENTREZ_GENE) && marker_msid.equals(msid2))
+						|| (geneName2 != null && marker_geneName
+								.equalsIgnoreCase(geneName2))) {
+					if (firstHitOnQueryGene == true) {
+						firstHitOnQueryGene = false;
+						continue;
 					}
 				}
 
-				participantList.add(new InteractionParticipant(msid, geneName,
-						db_xref));
+				if (interactionDetail == null) {
+					interactionDetail = new InteractionDetail(
+							new InteractionParticipant(msid2, geneName2, db2_xref),
+							interactionType, evidenceId);
+					double confidenceValue = 1.0;
+					try {
+						confidenceValue = rs.getDouble("confidence_value");
+					} catch (NumberFormatException nfe) {
+						logger.info("there is no confidence value for this row. Default it to 1.");
+					}
+					short confidenceType = 0;
+					try {
+						confidenceType = new Short(rs.getString(
+								"confidence_type").trim());
+					} catch (NumberFormatException nfe) {
+						logger.info("there is no confidence value for this row. Default it to 0.");
+					}
+					interactionDetail.addConfidence(confidenceValue,
+							confidenceType);
+					String otherConfidenceValues = rs
+							.getString("other_confidence_values");
+					String otherConfidenceTypes = rs
+							.getString("other_confidence_types");
+					if (!otherConfidenceValues.equals("null")) {
+						String[] values = otherConfidenceValues.split(";");
+						String[] types = otherConfidenceTypes.split(";");
+
+						for (int i = 0; i < values.length; i++)
+							interactionDetail.addConfidence(new Double(
+									values[i]), new Short(types[i]));
+
+					}
+				} else {
+					interactionDetail
+							.addParticipant(new InteractionParticipant(msid2,
+									geneName2, db2_xref));
+				}
 
 			} catch (NullPointerException npe) {
 				logger.error("db row is dropped because a NullPointerException");
@@ -245,6 +146,11 @@ public class InteractionsConnectionImpl {
 			} catch (NumberFormatException nfe) {
 				logger.error("db row is dropped because a NumberFormatExceptio");
 			}
+		}
+
+		if (interactionDetail != null) {
+			arrayList.add(interactionDetail);
+			interactionDetail = null;
 		}
 		rs.close();
 
@@ -414,8 +320,6 @@ public class InteractionsConnectionImpl {
 
 		return arrayList;
 	}
-
-	 
 
 	public String getInteractomeDescription(String interactomeName)
 			throws ConnectException, SocketTimeoutException, IOException,
