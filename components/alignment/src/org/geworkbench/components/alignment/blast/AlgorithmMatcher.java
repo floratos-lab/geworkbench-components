@@ -29,6 +29,8 @@ public class AlgorithmMatcher {
 	
 	private static AlgorithmMatcher instance;
 	private List<DatabaseInfo> databaseList = null;
+	private static final String TOOL = "geWorkbench";
+	private static final String CLIENT_EMAIL = "geworkbench.c2b2.columbia.edu";
 	
 	@SuppressWarnings("unchecked")
 	private AlgorithmMatcher() {
@@ -647,9 +649,13 @@ public class AlgorithmMatcher {
                 }
              
                 if (ps.getProgramName().equals("blastp")||ps.getProgramName().equals("tblastn"))	//COMPOSITION only applies to blastp and tblastn
-                	cmd += "&EXPECT=" + ps.getExpect() + "&AUTO_FORMAT=Semiauto&CDD_SEARCH=on&SHOW_OVERVIEW=on&SERVICE=plain\r\n\r\n";
+                	cmd += "&EXPECT=" + ps.getExpect() + "&AUTO_FORMAT=Semiauto&CDD_SEARCH=on&SHOW_OVERVIEW=on&SERVICE=plain";
                 else
-                	cmd += "&EXPECT=" + ps.getExpect() + "&AUTO_FORMAT=Semiauto&SHOW_OVERVIEW=on&SERVICE=plain\r\n\r\n";
+                	cmd += "&EXPECT=" + ps.getExpect() + "&AUTO_FORMAT=Semiauto&SHOW_OVERVIEW=on&SERVICE=plain";
+					
+				cmd +=  "&tool=" + TOOL + "&mail=" + CLIENT_EMAIL;
+				cmd +=  "\r\n\r\n";
+
             }
 
         }

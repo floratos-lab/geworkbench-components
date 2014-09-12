@@ -128,7 +128,7 @@ public class BlastAnalysis extends AbstractAnalysis implements
 				for (CSSequence sequence : activeSequenceDB) {
 					if (this.stopAlgorithm) {
 						return new AlgorithmExecutionResults(false,
-								"NCBI Blast is canceled at " + new Date(), null);
+								"NCBI Blast cancelled at " + new Date(), null);
 					}
 					pbTtest.setMessage("Uploading sequence: " + sequence);
 				 
@@ -151,7 +151,7 @@ public class BlastAnalysis extends AbstractAnalysis implements
 
 					if (BLAST_rid == null) {
 
-						pbTtest.setMessage("NCBI Blast is stopped at "
+						pbTtest.setMessage("NCBI Blast stopped at "
 								+ new Date());
 					 
 						String msg = "Sequence "
@@ -179,7 +179,7 @@ public class BlastAnalysis extends AbstractAnalysis implements
 					if (this.stopAlgorithm) {
 					 
 						return new AlgorithmExecutionResults(false,
-								"NCBI Blast is canceled at " + new Date(), null);
+								"NCBI Blast cancelled at " + new Date(), null);
 					} else if (status != Status.READY) {
 						String errMsg = parseError(outputFile);
 						// processExceptionFromNcbi(new Exception(errMsg),
@@ -209,7 +209,7 @@ public class BlastAnalysis extends AbstractAnalysis implements
 				if (this.stopAlgorithm) {
 				 
 					return new AlgorithmExecutionResults(false,
-							"NCBI Blast is canceled at " + new Date(), null);
+							"NCBI Blast cancelled at " + new Date(), null);
 				}
 			 
 				CSAlignmentResultSet blastResult = new CSAlignmentResultSet(
@@ -217,7 +217,7 @@ public class BlastAnalysis extends AbstractAnalysis implements
  
 				if (this.stopAlgorithm) {				 
 					return new AlgorithmExecutionResults(false,
-							"NCBI Blast is canceled at " + new Date(), null);
+							"NCBI Blast cancelled at " + new Date(), null);
 				}
 				String historyStr = generateHistoryStr(activeSequenceDB,
 						parameterSetting);
@@ -281,7 +281,7 @@ public class BlastAnalysis extends AbstractAnalysis implements
 		if (parameterSetting != null) {
 
 			// Header
-			histStr += "Blast run with the following parameters:\n";
+			histStr += "Blast was run with the following parameters:\n";
 			histStr += "----------------------------------------\n";
 
 			String dbName = parameterSetting.getDbName();
