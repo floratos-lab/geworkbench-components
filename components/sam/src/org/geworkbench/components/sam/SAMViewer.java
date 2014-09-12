@@ -15,10 +15,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.awt.Font;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
 
@@ -34,8 +36,11 @@ import javax.swing.JSlider;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.event.ChangeEvent; 
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableColumn;
 
 import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
@@ -183,6 +188,17 @@ public class SAMViewer extends JPanel implements VisualPlugin{
 		void setValues(List<Dot> list) {
 			this.list = list;
 		}
+		
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		public Class getColumnClass(int column) {
+	        Class returnValue;
+	        if ((column >= 0) && (column < getColumnCount())) {
+	          returnValue = getValueAt(0, column).getClass();
+	        } else {
+	          returnValue = Object.class;
+	        }
+	        return returnValue;
+	      }
 	}	
 	
 	private TableModel totalTableModel = new TableModel();
@@ -192,11 +208,27 @@ public class SAMViewer extends JPanel implements VisualPlugin{
 	public SAMViewer() {
 		
 		JTable totalTable = new JTable(totalTableModel);
-		totalTable.setAutoCreateRowSorter(true);
+		totalTable.setAutoCreateRowSorter(true);	
+		Enumeration<TableColumn> totColumns = totalTable.getColumnModel().getColumns();
+		while (totColumns.hasMoreElements()) {
+			totColumns.nextElement().setCellRenderer(new CellRenderer());
+		}
+		
+		
 		JTable overExpTable = new JTable(overExpTableModel);
 		overExpTable.setAutoCreateRowSorter(true);
+		Enumeration<TableColumn> overColumns = overExpTable.getColumnModel().getColumns();
+		while (overColumns.hasMoreElements()) {
+			overColumns.nextElement().setCellRenderer(new CellRenderer());
+		}
+		
+		
 		JTable underExpTable = new JTable(underExpTableModel);
 		underExpTable.setAutoCreateRowSorter(true);
+		Enumeration<TableColumn> underColumns = underExpTable.getColumnModel().getColumns();
+		while (underColumns.hasMoreElements()) {
+			underColumns.nextElement().setCellRenderer(new CellRenderer());
+		}
 		
 		JSplitPane splitPaneTop;		
 		JPanel upperLeftPane=new JPanel();
@@ -784,5 +816,63 @@ public class SAMViewer extends JPanel implements VisualPlugin{
 		}
 	}
 	
+private class CellRenderer extends DefaultTableCellRenderer {
+		private static final long serialVersionUID = -2697909778548788305L;
+		
+		private JPanel colorPanel = new JPanel();
+		private JLabel label;
+		private JTextArea textArea;
 
+		/**
+		 * Renders basic data input types JLabel, Color,
+		 */
+		public Component getTableCellRendererComponent(JTable jTable,
+				Object obj, boolean param, boolean param3, int row, int col) {
+			if (col == 0) {
+				Component c = super.getTableCellRendererComponent(jTable, obj,
+						param, param3, row, col);
+				c.setBackground(Color.lightGray);
+				((JLabel) c).setHorizontalAlignment(JLabel.LEFT);
+				((JLabel) c).setBorder(BorderFactory.createRaisedBevelBorder());
+				return c;
+			} else if (obj instanceof Color) {
+				colorPanel.setBackground((Color) obj);
+				return colorPanel;
+			} else if (obj instanceof JLabel) {
+				label = (JLabel) obj;
+				label.setOpaque(true);
+				label.setFont(new Font("Arial", Font.PLAIN, 12));
+				label.setBackground(new Color(225, 0, 0));
+				label.setForeground(Color.black);
+				label.setHorizontalAlignment(JLabel.CENTER);
+				if (jTable.isRowSelected(row))
+					label.setBackground(jTable.getSelectionBackground());
+				return label;
+			} else if (obj instanceof JTextArea) {
+				textArea = (JTextArea) obj;
+				if (jTable.isRowSelected(row))
+					textArea.setBackground(jTable.getSelectionBackground());
+				return textArea;
+			}
+			Component c = super.getTableCellRendererComponent(jTable, obj,
+					param, param3, row, col);
+			((JLabel) c).setHorizontalAlignment(JLabel.RIGHT);
+
+			return c;
+		}
+		
+		/*
+		 * (non-Javadoc)
+		 * @see javax.swing.table.DefaultTableCellRenderer#setValue(java.lang.Object)
+		 */
+		public void setValue(Object value) {
+			if ((value != null) && (value instanceof Number)) {
+				if (((Number) value).doubleValue() < 0.1)
+					value = String.format("%.2E", value);
+				else
+					value = String.format("%.2f", value);
+			}
+			super.setValue(value);
+		}
+	}
 }
