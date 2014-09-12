@@ -107,7 +107,9 @@ public class AracneComputation {
 	private Parameter getParamter() {
 		final Parameter p = new Parameter();
 		String[] hubGenes = aracneInput.gethubGeneList();
+		int hubGeneCnt = 1; //avoid divide by zero if none set.
 		if (hubGenes != null && hubGenes.length > 0) {
+		    hubGeneCnt = hubGenes.length;
 			Vector<String> hubGeneList = new Vector<String>();
 			for (int i = 0; i < hubGenes.length; i++)
 				hubGeneList.add(hubGenes[i]);
@@ -119,7 +121,7 @@ public class AracneComputation {
 		} else {
 			if (!aracneInput.getNoCorrection())
 				p.setPvalue(aracneInput.getThreshold()
-						/ aracneInput.getMarkers().length);
+						/ (aracneInput.getMarkers().length * hubGeneCnt));
 			else
 				p.setPvalue(aracneInput.getThreshold());
 		}

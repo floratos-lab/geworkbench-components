@@ -63,7 +63,7 @@ public class AracneParamPanel extends AbstractSaveableParameterPanel {
     private static final String THRESHOLD_MI = "Mutual Info.";
     private static final String THRESHOLD_PVALUE = "P-Value";
     private static final String CORRECTION_NO = "No Correction";
-    private static final String CORRECTION_BON = "Correct by # of Markers";
+    private static final String CORRECTION_BON = "Bonferroni Correction";
     private static final String KERNEL_INFERRED = "Inferred";
     private static final String KERNEL_SPECIFY = "Specify";
     private static final String DPI_NONE = "Do Not Apply";
