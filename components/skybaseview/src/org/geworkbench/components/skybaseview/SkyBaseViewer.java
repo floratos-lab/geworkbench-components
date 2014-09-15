@@ -432,8 +432,8 @@ public class SkyBaseViewer implements VisualPlugin {
 			seqlb.setFont(new Font("Arial", Font.BOLD, 12));
 			buttons.add(seqlb);
 
-			add2prj.setText("ATP");
-			add2prj.setToolTipText("Add To Project");
+			add2prj.setText("ATW");
+			add2prj.setToolTipText("Add To Workspace");
 			add2prj.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					add2prj_actionPerformed(e);
