@@ -198,7 +198,7 @@ public class ColorMosaicPanel extends BasicColorMosaicPanel {
 
 		jToggleSortButton.setMargin(new Insets(2, 3, 2, 3));
 		jToggleSortButton.setHorizontalTextPosition(SwingConstants.CENTER);
-		jToggleSortButton.setToolTipText("Sort by fold changes and t-values");
+		jToggleSortButton.setToolTipText("Group markers by sign of fold change, then sort the two groups by ascending t-value. This leaves the most significant positive and and negative values adjacent in the center of the sorted list");
 		jToggleSortButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				jToggleSortButton_actionPerformed(e);
