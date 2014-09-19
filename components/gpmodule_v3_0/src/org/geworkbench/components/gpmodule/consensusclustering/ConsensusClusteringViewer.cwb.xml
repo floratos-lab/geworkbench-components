@@ -3,7 +3,7 @@
 	<component  name="Consensus Clustering Viewer"
 				class="org.geworkbench.components.gpmodule.consensusclustering.ConsensusClusteringViewer"
 				version="1.0"
-				author="Broad Institute"
+				author="geWorkbench Development Team"
 				authorURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 				toolURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Home"
 				tutorialURL="http://wiki.c2b2.columbia.edu/workbench/index.php/Consensus_Clustering"
