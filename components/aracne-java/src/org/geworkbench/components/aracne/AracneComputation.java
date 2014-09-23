@@ -16,6 +16,7 @@ import org.geworkbench.components.aracne.AracneException;
 import org.geworkbench.components.aracne.data.AracneGraphEdge;
 import org.geworkbench.components.aracne.data.AracneInput;
 import org.geworkbench.components.aracne.data.AracneOutput;
+import org.geworkbench.util.FilePathnameUtils;
 
 /**
  * ARACNe computation.
@@ -55,7 +56,8 @@ public class AracneComputation {
 			MicroarraySet microarraySet = getMicroarraySet();
 			final Parameter p = getParamter(); 	
 			int bootstrapNumber = aracneInput.getBootstrapNumber();
-			float pThreshold = aracneInput.getConsensusThreshold();		 
+			float pThreshold = aracneInput.getConsensusThreshold();		
+
 			switch (p.getMode()) {
 			 
 			case PREPROCESSING: // ignore return
@@ -142,11 +144,19 @@ public class AracneComputation {
 
 		p.setAlgorithm(getAlgorithm());
 		p.setMode(getMode());
+		
+		String tempFolder = FilePathnameUtils
+						.getTemporaryFilesDirectoryPath();
+		// aracne_java code does not use its parameter set by p.setHome_dir(), so must  use full path.
 
-		String DATASETNAME_ALGORITHM_kernel_file = aracneInput.getDataSetName()
-				+ "_" + getAlgorithmForFileName() + "_" + "kernel.txt";
-		String DATASETNAME_ALGORITHM_threshold_file = aracneInput
-				.getDataSetName()
+		String DATASETNAME_ALGORITHM_kernel_file = tempFolder 
+				+ aracneInput.getDataSetName()
+				+ "_" 
+				+ getAlgorithmForFileName() 
+				+ "_" 
+				+ "kernel.txt";
+		String DATASETNAME_ALGORITHM_threshold_file = tempFolder 
+				+ aracneInput.getDataSetName()
 				+ "_"
 				+ getAlgorithmForFileName()
 				+ "_"
