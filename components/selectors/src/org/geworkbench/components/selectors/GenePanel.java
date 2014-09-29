@@ -451,8 +451,13 @@ public class GenePanel extends SelectorPanel<DSGeneMarker> {
 			}
 		}
 		for(DSGeneMarker marker: itemList) {
-			if(selectedNames.contains(marker.getGeneName()))
-				panel.add(marker);
+			String[] shortNames = marker.getShortNames();
+			for(String s : shortNames) {
+				if(selectedNames.contains(s)) {
+						panel.add(marker);
+						break; /* to be efficient and to avoid possible adding the same marker multiple times */
+				}
+			}
 		}
 
 		return panel;
