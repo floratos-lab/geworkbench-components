@@ -137,7 +137,7 @@ public class ScatterPlot implements VisualPlugin {
 			if ((mp != null) && (mp.size() > 0)) {
 				return mp.size();
 			} else {
-				return 0;
+				return dataSetView.allMarkers().size();
 			}
         }
 
@@ -150,7 +150,7 @@ public class ScatterPlot implements VisualPlugin {
 			if ((mp != null) && (mp.size() > 0) && (index < mp.size())) {
 				return mp.get(index);
 			} else {
-				return null;
+				return dataSetView.allMarkers().get(index);
 			}
         }
 
@@ -182,7 +182,7 @@ public class ScatterPlot implements VisualPlugin {
            	if((ap != null) && (ap.size() > 0)){
            		return ap.size();
            	} else {
-           		return 0;
+           		return dataSetView.size();
            	}
         }
 
@@ -195,7 +195,7 @@ public class ScatterPlot implements VisualPlugin {
            	if((ap != null) && (ap.size() > 0) && (index < ap.size())){
            		return ap.get(index).getLabel();
            	} else {
-           		return null;
+           		return dataSetView.get(index);
            	}
         }
 
