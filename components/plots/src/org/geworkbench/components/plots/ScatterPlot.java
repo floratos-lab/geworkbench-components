@@ -1120,8 +1120,8 @@ public class ScatterPlot implements VisualPlugin {
     	String clickedLabel = "";
     	if(type == PlotType.ARRAY){
     		Object o = this.microarrayModel.getElementAt(index);
-    		if(o != null){
-    			clickedLabel = (String) o;
+    		if(o instanceof DSMicroarray){
+    			clickedLabel = ((DSMicroarray)o).getLabel();
     		}
     	} else {
     		Object o = this.markerModel.getElementAt(index);
