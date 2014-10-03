@@ -1,26 +1,20 @@
 package org.geworkbench.hierarchicalclustering.service.client;
 
-/*import javax.xml.namespace.QName;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.apache.axiom.om.OMElement;
-import org.apache.axis2.AxisFault;
-import org.apache.axis2.addressing.EndpointReference;
-import org.apache.axis2.client.Options;
-import org.apache.axis2.rpc.client.RPCServiceClient; */
+import junit.framework.TestCase;
+
+import org.geworkbench.components.hierarchicalclustering.computation.DimensionType;
+import org.geworkbench.components.hierarchicalclustering.computation.DistanceType;
+import org.geworkbench.components.hierarchicalclustering.computation.HNode;
+import org.geworkbench.components.hierarchicalclustering.computation.Linkage;
 import org.geworkbench.components.hierarchicalclustering.data.HierClusterInput;
 import org.geworkbench.components.hierarchicalclustering.data.HierClusterOutput;
 import org.geworkbench.components.hierarchicalclustering.service.HierClusterService;
-import org.geworkbench.components.hierarchicalclustering.computation.Linkage;
-import org.geworkbench.components.hierarchicalclustering.computation.DistanceType;
-import org.geworkbench.components.hierarchicalclustering.computation.HierClusterException;
-import org.geworkbench.components.hierarchicalclustering.computation.DimensionType;
 
-
-import java.util.List;
-import java.util.ArrayList;
- 
-
-public class HierClusterClient {
+/* Unit test for the computational correct. It is minimal for now. */
+public class HierClusterTest extends TestCase {
 	 
 	String linkageType = Linkage.SINGLE.name(); 
 	String distanceType = DistanceType.EUCLIDEAN.name();
@@ -96,127 +90,55 @@ public class HierClusterClient {
 			{19.2f,122.5f,2.1f,24.4f,124.1f,18.3f,17.0f,32.7f,3.0f,2.3f,1.2f,3.3f,29.6f,12.0f,50.5f,20.2f,41.8f,83.2f,1.8f},
 			{5.4f,59.9f,4.8f,8.6f,124.5f,13.8f,4.5f,28.1f,2.4f,4.1f,0.8f,24.8f,48.4f,3.6f,273.2f,1.3f,17.8f,812.1f,5.3f}};
 	
-	/**
-	 * @param args
-	 * @throws AxisFault
-	 */
-	
-/*	public void runHierCluster()
-	{
-		for(int i=0; i<1; i++)
-		{	
-			HierClusterThread t = new HierClusterThread();
-		    t.start();
-		}
-	}  */
-	
-	public void runHierClusterLocal()
-	{
-		for(int i=0; i<1; i++)
-		{	
-			HierClusterLocalThread t = new HierClusterLocalThread();
-		    t.start();
-		}
-	}
-	
-	public static void main(String[] args1) {		 
-     
-		HierClusterClient ac = new HierClusterClient();
-		ac.runHierClusterLocal();
-		//ac.runHierCluster();
-	}
-	
-	
-	/*private class HierClusterThread extends Thread {
-
-		 
-		public void run() {
-
-			System.out.println("Start service ..." + new java.util.Date());
-			
-
-			HierClusterInput input = new HierClusterInput(matrix, linkageType,distanceType);  
-			 
-			System.out.println(input.toString());
-			RPCServiceClient serviceClient;
-			
-			try {
-				serviceClient = new RPCServiceClient();
-
-				Options options = serviceClient.getOptions();
-
-				EndpointReference targetEPR = new EndpointReference(
-						"http://localhost:8080/axis2/services/HierClusterService");
-				options.setTo(targetEPR);
-
-				long soTimeout = 2 * 24 * 60 * 60 * 1000; // 2 days
-				options.setTimeOutInMilliSeconds(soTimeout);
-				
-				
-				// notice that that namespace is in the required form
-				QName opName = new QName(
-						"http://service.hierarchicalclustering.components.geworkbench.org",
-						"execute");
-				Object[] args = new Object[] { input };
-
-				Class<?>[] returnType = new Class[] { HierClusterOutput.class };
-
-				Object[] response = serviceClient.invokeBlocking(opName, args,
-						returnType);
-				
-				HierClusterOutput output = (HierClusterOutput) response[0];
-			  
-			    System.out.println(output.toString());	
-				 
-			 
-			    System.out.println("Finished service ..." + new java.util.Date());
-			 
-				
-			} catch (AxisFault e) {
-				// TODO Auto-generated catch block
-				// System.out.println( e );
-				OMElement x = e.getDetail();
-				if (x != null)
-					System.out.println(x);
-
-				Throwable y = e.getCause();
-				while (y != null) {
-					y.printStackTrace();
-					y = y.getCause();
-				}
-
-				System.out.println("message: " + e.getMessage());
-				System.out.println("fault action: " + e.getFaultAction());
-				System.out.println("reason: " + e.getReason());
-				e.printStackTrace();
-			}
-		}
-	} */
-	
-	private class HierClusterLocalThread extends Thread {
-
-		 
-		public void run() {
-
-			System.out.println("Start service ..." + new java.util.Date());
-		
-
+	/* the simplest test */
+	public void test() {		 
 			HierClusterInput input = new HierClusterInput(matrix, linkageType,distanceType, dimensionType);  
 					 
-			HierClusterOutput output = null;
-			 
-		 
-			output =  new HierClusterService().execute(input);
-			 
+			HierClusterOutput output = new HierClusterService().execute(input);
+/* correct result *//*
+			HierCluster Result
+			hnode:131, height is 27.0 
+			hnode:130, height is 26.0 
+			hnode:129, height is 25.0 
+			hnode:128, height is 24.0 
+			hnode:127, height is 23.0 
+			hnode:126, height is 22.0 
+			hnode:125, height is 21.0 
+			hnode:122, height is 20.0 
+			hnode:117, height is 19.0 
+			hnode:116, height is 18.0 
+			hnode:115, height is 17.0 
+			hnode:113, height is 16.0 
+			hnode:109, height is 15.0 
+			hnode:108, height is 14.0 
+			hnode:107, height is 13.0 
+			hnode:106, height is 12.0 
+			hnode:104, height is 11.0 
+			hnode:102, height is 10.0 
+			hnode:101, height is 9.0 
+			hnode:99, height is 8.0 
+			hnode:96, height is 7.0 
+			hnode:92, height is 6.0 
+			hnode:90, height is 5.0 
+			hnode:87, height is 4.0 
+			hnode:80, height is 3.0 
+			hnode:77, height is 2.0 
+			hnode:71, height is 1.0 
+			hnode:13, height is 0.0 
+*/
+			HNode node = output.getHnodeObject();
+			double height = node.getHeight();
+			HNode left = node.getLeft();
+			HNode right = node.getRight();
+			if(27.0!=height) fail("incorrect height");
+			if(37!=left.getId()) fail("incorrect left");
+			if(130!=right.getId()) fail("incorrect right");
+			System.out.println(height+" "+left.getId()+" "+right.getId());
+			
+			String outputString = output.toString();
+			if(!outputString.startsWith("HierCluster Result\nhnode:131, height is 27.0 \nhnode:130, height is 26.0"))
+				fail("result not match");
 			
 			System.out.println(output.toString());	
-		 
-			System.out.println("Finished service ..." + new java.util.Date());
-		   
-			 
-		}
 	}
-	 
-	
-
 }
