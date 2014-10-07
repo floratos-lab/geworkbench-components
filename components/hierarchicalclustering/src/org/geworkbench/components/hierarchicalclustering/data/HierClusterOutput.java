@@ -2,15 +2,21 @@ package org.geworkbench.components.hierarchicalclustering.data;
 
  
 import org.geworkbench.components.hierarchicalclustering.computation.HNode; 
+import org.geworkbench.components.hierarchicalclustering.computation.ObjectConversion;
 
+/* This is the wrapping class required by the POJO-based AXIS2 web service,
+ * so it must be in the Java bean format. */
 public class HierClusterOutput { 
 	 
+	/* We cannot use HNode as the field type because it does not have Java Bean format (no necessary setters) */
+	/* Only bean types or standard primitive types can be used in the class to build POJO-based web services on. */
 	private  byte[] hnode;
  
 	public HierClusterOutput(){};
-	public HierClusterOutput(byte[] hnode )
+	
+	public HierClusterOutput(HNode hnode )
 	{
-		 this.hnode = hnode;
+		 this.hnode = ObjectConversion.convertToByte(hnode);
 	}
  
 	public void setHnode(byte[] hnode)
@@ -24,13 +30,13 @@ public class HierClusterOutput {
 	
 	public HNode getHnodeObject()
 	{
-		return (HNode)toObject(this.hnode);
+		return (HNode)ObjectConversion.toObject(hnode);
 	}
 	 
 	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer("HierCluster Result\n");		 
-		HNode node = (HNode)toObject(hnode);		 
+		HNode node = (HNode)ObjectConversion.toObject(hnode);		 
 		sb.append("hnode:" + node.getId() + ", height is " + node.getHeight()).append(" \n");		 
 		while(node.getRight() != null)
 		{
@@ -39,32 +45,4 @@ public class HierClusterOutput {
 		}		 
 		return sb.toString();
 	}
-
-
-	@SuppressWarnings("deprecation")
-	public static Object toObject(byte[] bytes){ 
-
-		Object object = null; 
-
-		try{ 
-
-			object = new java.io.ObjectInputStream(new 
-					java.io.ByteArrayInputStream(bytes)).readObject(); 
-
-		}catch(java.io.IOException ioe){ 
-
-			java.util.logging.Logger.global.log(java.util.logging.Level.SEVERE, 
-					ioe.getMessage()); 
-
-		}catch(java.lang.ClassNotFoundException cnfe){ 
-
-			java.util.logging.Logger.global.log(java.util.logging.Level.SEVERE, 
-					cnfe.getMessage()); 
-
-		} 
-
-		return object; 
-
-	}
-	
 }
