@@ -368,7 +368,8 @@ public class RealTimeWorkFlowSuggestion extends JPanel implements VisualPlugin,
 		WorkflowWrapper last = cwf;
 		RealTimeWorkFlowSuggestion.cwf = new WorkflowWrapper(newCWF);
 		//System.out.println("Check new workflow: " + RealTimeWorkFlowSuggestion.cwf.toString());
-		viewerStatus.setText("You recently used " + cwf.getTools().get(cwf.getTools().size() -1 ).getTool().getName());
+		if(cwf.getTools().size() > 0)
+			viewerStatus.setText("You recently used " + cwf.getTools().get(cwf.getTools().size() -1 ).getTool().getName());
 		displayCWF();
 		
 		if(emptyPanel)
