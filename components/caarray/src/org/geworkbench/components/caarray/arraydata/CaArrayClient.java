@@ -173,7 +173,7 @@ public class CaArrayClient {
 	        List<Person> investigators = searchService.getAllPrincipalInvestigators();
 	        for (Person investigator : investigators) {
 	            if (name[0].equalsIgnoreCase(investigator.getLastName()) && name[1].equalsIgnoreCase(investigator.getFirstName())) {
-	                Set<CaArrayEntityReference> principalInvestigators = new TreeSet<CaArrayEntityReference>();
+	                Set<CaArrayEntityReference> principalInvestigators = new HashSet<CaArrayEntityReference>();
 	                principalInvestigators.add(investigator.getReference());
 					experimentSearchCriteria.setPrincipalInvestigators(principalInvestigators);
 	                // RC3 version is as following
