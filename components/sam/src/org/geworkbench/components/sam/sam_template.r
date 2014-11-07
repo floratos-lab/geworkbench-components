@@ -1,4 +1,12 @@
-samdir<-paste(getwd(),"/",sep="")
+args <- commandArgs(TRUE)
+userLib	<- args[1]
+if (!is.na(userLib))  .libPaths(userLib)
+a<-require(siggenes)
+if(a==FALSE){
+  source("http://bioconductor.org/biocLite.R")
+  biocLite("siggenes")
+}
+
 library(siggenes)
 outdir<-paste(samdir,"output", sep="")
 dir.create(outdir,showWarnings = FALSE)
@@ -22,7 +30,7 @@ delta_vec<-scan(deltafile)
 perm<-scan(permfile)
 unlogpre<-scan(unlogfile)
 unlog<-as.logical(unlogpre)
-sam.out<-sam(data,cl,control=samControl(delta=delta_vec),use.dm = FALSE, B=perm, R.unlog=unlog, rand=123)
+sam.out<-sam(data,cl,control=samControl(delta=delta_vec), use.dm = FALSE, B=perm, R.unlog=unlog, rand=123)
 write.table(sam.out@d,outdfile)
 write.table(sam.out@d.bar,outdbarfile)
 write.table(sam.out@p.value,outpvaluefile)
