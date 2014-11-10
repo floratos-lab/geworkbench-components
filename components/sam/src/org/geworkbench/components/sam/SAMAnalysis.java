@@ -11,11 +11,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Observable;
-import java.util.Observer;
 
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
@@ -48,7 +47,7 @@ import org.geworkbench.util.ProgressBar;
  * @author zm2165 
  */
 public class SAMAnalysis extends AbstractGridAnalysis implements
-		ClusteringAnalysis, Observer {
+		ClusteringAnalysis {
 
  	private static final long serialVersionUID = -1672201775884915447L;
  	private static Log log = LogFactory.getLog(SAMAnalysis.class);
@@ -65,22 +64,15 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 	
  	private static final long POLL_INTERVAL = 5000; //5 seconds
  	
-	private final String rScriptTemplate;
-
-	private int[] groupAssignments;	// FIXME
-
+	/*
+	 * This has to be a field to handle the need that the the gridServive needs
+	 * it as part of the parameter map AND it in fact depends on the input data
+	 * set. It is not a ideal design, but a hack for the existing architecture.
+	 */
+ 	private int[] groupAssignments;
+ 	
  	public SAMAnalysis() throws IOException {		
 		setDefaultPanel(new SAMPanel());
-		
-		InputStream input = this.getClass().getResourceAsStream("sam_template.r");
-		BufferedReader br = new BufferedReader(new InputStreamReader(input));
-		String line = br.readLine();
-		StringBuffer sb = new StringBuffer();
-		while(line!=null) {
-			sb.append(line).append('\n');
-			line = br.readLine();
-		}
-		rScriptTemplate = sb.toString();
 	}
  	
  	@Override
@@ -101,8 +93,6 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 
 		int numGenes = data.markers().size();
 		int numExps = data.items().size();
-		
-		groupAssignments = new int[numExps];
 		
 		DSDataSet<? extends DSBioObject> set = data.getDataSet();
 
@@ -174,89 +164,6 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 		DSAnnotationContext<DSMicroarray> context = manager
 				.getCurrentContext(maSet);
 
-		int numCase = 0, numControl = 0;
-		
-		for (int i = 0; i < numExps; i++) {
-			DSMicroarray ma = data.items().get(i);
-			String[] labels = context.getLabelsForItem(ma);
-
-			for (String label : labels) {
-				if (context.isLabelActive(label) ) {
-					String v = context.getClassForLabel(label);
-					if (v.equals(CSAnnotationContext.CLASS_CASE)) {
-						groupAssignments[i] = GROUP_CASE;
-						numCase++;						
-					} else if (v.equals(CSAnnotationContext.CLASS_CONTROL)) {
-						groupAssignments[i] = GROUP_CONTROL;
-						numControl++;						
-					} else {
-						groupAssignments[i] = NEITHER_GROUP;
-					}
-				}
-			}
-		}		
-		//System.out.println("numCase="+numCase+"\tnumberGroupB="+numControl);
-		
-		if (numCase == 0 && numControl == 0) {
-			pbSam.dispose();
-			return new AlgorithmExecutionResults(
-					false,
-					"Please activate at least one set of arrays for \"case\", and one set of arrays for \"control\".",
-					null);
-		}
-		if (numCase == 0) {
-			pbSam.dispose();
-			return new AlgorithmExecutionResults(false,
-					"Please activate at least one set of arrays for \"case\".",
-					null);
-		}
-		if (numControl == 0) {
-			pbSam.dispose();
-			return new AlgorithmExecutionResults(
-					false,
-					"Please activate at least one set of arrays for \"control\".",
-					null);
-		}
-		
-		String[][] labels = new String[2][];
-		labels[0] = context.getLabelsForClass(CSAnnotationContext.CLASS_CASE);
-		labels[1] = context
-				.getLabelsForClass(CSAnnotationContext.CLASS_CONTROL);
-		HashSet<String> caseSet = new HashSet<String>();
-		HashSet<String> controlSet = new HashSet<String>();
-
-		String groupAndChipsString = "";
-
-		// case
-		String[] classLabels = labels[0];
-		groupAndChipsString += "\t case group(s): \n";
-		for (int i = 0; i < classLabels.length; i++) {
-			String label = classLabels[i];
-			if (context.isLabelActive(label) ) {
-				caseSet.add(label);
-				groupAndChipsString += GenerateGroupAndChipsString(context
-						.getItemsWithLabel(label));
-			}
-		}
-
-		// control
-		classLabels = labels[1];
-		groupAndChipsString += "\t control group(s): \n";
-		for (int i = 0; i < classLabels.length; i++) {
-			String label = classLabels[i];
-			if (context.isLabelActive(label) ) {
-				controlSet.add(label);
-				groupAndChipsString += GenerateGroupAndChipsString(context
-						.getItemsWithLabel(label));
-			}
-		}
-
-		int totalSelectedGroup = caseSet.size() + controlSet.size();
-		String histMarkerString = GenerateMarkerString(data);
-
-		groupAndChipsString = totalSelectedGroup + " groups analyzed:\n"
-				+ groupAndChipsString;
-				
 		SAMPanel samPanel = (SAMPanel) this.getParameterPanel();
 		float deltaInc, deltaMax;
 		int perm;
@@ -268,8 +175,70 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 			pbSam.dispose();
 			return new AlgorithmExecutionResults(false,
 					"Parameters are not valid.", null);
+		}
+		boolean unlog = samPanel.needUnLog();
+		
+		try {
+			prepareInputFiles(samdir, data, numGenes, numExps, deltaInc,
+					deltaMax, perm, unlog, groupAssignments);
+		} catch (IOException e) {
+			pbSam.dispose();
+			e.printStackTrace();
+			return new AlgorithmExecutionResults(false,
+					"R scripts preparing is failed.", null);
+		}
+		
+		String samOutput=samdir + "output" + FILE_SEPARATOR;
+		File resultFile=new File(samOutput+"done.txt");
+		if(resultFile.exists())
+			resultFile.delete();
+		
+		String[] command = new String[] {rExe, samdir+R_SCRIPT, rLibPath, ">", (samdir+R__ERROR_LOG), "2>&1"};		
+		
+		try {			
+			Runtime.getRuntime().exec(command);			
+		} catch (Exception e) {
+			pbSam.dispose();
+			e.printStackTrace();
+			return new AlgorithmExecutionResults(false,
+					"error running R scripts.", null);
 		}		
+		
+		while (!resultFile.exists()) {
+			try {
+				if (this.stopAlgorithm) {
+					pbSam.dispose();
+					return null;
+				}
+				Thread.sleep(POLL_INTERVAL);
 
+				String err = null;
+				if ((err = runError(samdir)) != null) {
+					pbSam.dispose();
+					return new AlgorithmExecutionResults(false,
+							"Sam run got error:\n" + err, null);
+				}
+			} catch (InterruptedException e) {
+				// no-op
+			}
+		}
+		
+		pbSam.dispose();
+		
+		if (this.stopAlgorithm) {
+	    	return null;
+		}
+
+		AlgorithmExecutionResults results = createResultObject(samdir, maSet,
+				data, deltaInc, deltaMax, context, (SAMPanel) this.getParameterPanel());
+		
+		return results;
+	}
+	
+	private static void prepareInputFiles(String samdir,
+			final DSMicroarraySetView<DSGeneMarker, DSMicroarray> data,
+			int numGenes, int numExps, float deltaInc, float deltaMax,
+			int perm, boolean unlog, int[] groupAssignments) throws IOException {
 		String inputFile=samdir+"data.txt";		
 		PrintWriter out = null;
 		try {
@@ -296,7 +265,7 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 			}
 			out.print(groupAssignments[groupAssignments.length-1]);
 			out.println();
-		}catch (FileNotFoundException e) {
+		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} finally {
 			out.close();
@@ -311,7 +280,7 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 			}
 			out.print(deltaInc*deltaNo);
 			out.println();
-		}catch (FileNotFoundException e) {
+		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} finally {
 			out.close();
@@ -321,7 +290,7 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 		try{
 			out = new PrintWriter(new File(permFile));
 			out.println(perm);			
-		}catch (FileNotFoundException e) {
+		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} finally {
 			out.close();
@@ -329,7 +298,7 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 		String unlogFile=samdir+"unlog.txt";
 		try{
 			out = new PrintWriter(new File(unlogFile));
-			if(samPanel.needUnLog())
+			if(unlog)
 				out.print(""+1);
 			else
 				out.print(""+0);			
@@ -338,90 +307,25 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 		} finally {
 			out.close();
 		}
-		
-		try{
-			prepareRscripts(samdir);
-		}
-		catch(IOException e){
-			pbSam.dispose();
-			e.printStackTrace();
-			return new AlgorithmExecutionResults(false,
-					"R scripts preparing is failed.", null);
-		}
-		
-		String samOutput=samdir + "output" + FILE_SEPARATOR;
-		File resultFile=new File(samOutput+"done.txt");
-		if(resultFile.exists())
-			resultFile.delete();
-		
-		String[] command = new String[] {rExe, samdir+R_SCRIPT, rLibPath, ">", (samdir+R__ERROR_LOG), "2>&1"};		
-		
-		try {			
-			Runtime.getRuntime().exec(command);			
-		} catch (Exception e) {
-			pbSam.dispose();
-			e.printStackTrace();
-			return new AlgorithmExecutionResults(false,
-					"error running R scripts.", null);
-		}		
-		
-		while(!resultFile.exists()){			
-			 try{
-				    if (this.stopAlgorithm == true)
-				    	return null;
-			    	Thread.sleep(POLL_INTERVAL);			    	
-			    	
-			    	String err = null;
-				    if ((err = runError(samdir)) != null){
-				    	pbSam.dispose();
-				    	return new AlgorithmExecutionResults(false,
-				    			"Sam run got error:\n"+err, null);				    	
-				    }
-				}
-			 catch(InterruptedException e){
-			    	
-			    }		
-		}		
-		
-	 	float[] dd, dbar, pvalue, fold, fdr;
-		try {
-			dd=getResultFromFile(samOutput+"outd.txt");
-			dbar=getResultFromFile(samOutput+"outdbar.txt");
-			pvalue=getResultFromFile(samOutput+"outpvalue.txt");
-			fold=getResultFromFile(samOutput+"outfold.txt");
-			fdr=getResultFromFile(samOutput+"outmatfdr.txt");
-		} catch (IOException e) {
-			pbSam.dispose();			
-			e.printStackTrace();
-			return new AlgorithmExecutionResults(false,
-					"Error at reading R output file!", null);
-		}
-		
-		
-		if (this.stopAlgorithm == true)
-	    	return null;
-		SamResultData analysisResult=new SamResultData(maSet,"SAM result", data,
-				deltaInc, deltaMax,	dd, dbar, pvalue, fold, fdr);
-		AlgorithmExecutionResults results = new AlgorithmExecutionResults(true,
-				"SAM Analysis", analysisResult);
-		
-		// add data set history.
-		String hist = generateHistoryString(groupAndChipsString, histMarkerString);
-		HistoryPanel.addToHistory(analysisResult, hist);
-		
-		pbSam.dispose();
-		
-		return results;
+
+		// this throws un-handled IOExpcetion
+		prepareRscripts(samdir);
 	}
 	
-	private void prepareRscripts(String samdir) throws IOException{
+	private static void prepareRscripts(String samdir) throws IOException {
 		
 		PrintWriter out = null;
 		try{
 			out = new PrintWriter(new File(samdir+R_SCRIPT));
 			out.println("samdir<-\""+samdir.replace("\\", "/")+"\"");
-			out.println(rScriptTemplate);
-			
+
+			InputStream input = SAMAnalysis.class.getResourceAsStream("sam_template.r");
+			BufferedReader br = new BufferedReader(new InputStreamReader(input));
+			String line = br.readLine();
+			while(line!=null) {
+				out.println(line);
+				line = br.readLine();
+			}
 		}catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} finally {
@@ -429,49 +333,108 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 		}
 	}
 	
+	private static AlgorithmExecutionResults createResultObject(String samdir,
+			final DSMicroarraySet maSet,
+			DSMicroarraySetView<DSGeneMarker, DSMicroarray> data,
+			float deltaInc, float deltaMax,
+			DSAnnotationContext<DSMicroarray> context, SAMPanel samPanel) {
+		String samOutput=samdir + "output" + FILE_SEPARATOR;
+
+		float[] dd, dbar, pvalue, fold, fdr;
+		try {
+			dd = getResultFromFile(samOutput + "outd.txt");
+			dbar = getResultFromFile(samOutput + "outdbar.txt");
+			pvalue = getResultFromFile(samOutput + "outpvalue.txt");
+			fold = getResultFromFile(samOutput + "outfold.txt");
+			fdr = getResultFromFile(samOutput + "outmatfdr.txt");
+		} catch (IOException e) {
+			e.printStackTrace();
+			return new AlgorithmExecutionResults(false,
+					"Error at reading R output file!", null);
+		}
+		SamResultData analysisResult = new SamResultData(maSet, "SAM result",
+				data, deltaInc, deltaMax, dd, dbar, pvalue, fold, fdr);
+		AlgorithmExecutionResults results = new AlgorithmExecutionResults(true,
+				"SAM Analysis", analysisResult);
+
+		// add data set history.
+		String hist = samPanel.getDataSetHistory()
+				+ generateGroupHistoryString(context)
+				+ generateMarkerString(data);
+		HistoryPanel.addToHistory(analysisResult, hist);
+		
+		return results;
+	}
+	
 	private static float[] getResultFromFile(String filename) throws IOException{
 		
-		int rowTotal=0;		
+		ArrayList<Float> list = new ArrayList<Float>();
 		BufferedReader br = new BufferedReader(new FileReader(filename));
-		String line = br.readLine();
-		while(line!=null && line.trim().length()>0) {			
-			rowTotal++;
-			line=br.readLine();	
-		}
-		br.close();
-		rowTotal--; // skip the header line
-		float[] out=new float[rowTotal];
-		
-		int i=0;
-		br = new BufferedReader(new FileReader(filename));
-		line = br.readLine();// skip the header line
+		String line = br.readLine();// skip the header line
 		line=br.readLine();
-		while(line!=null && line.trim().length()>0&&i<rowTotal) {			
+		while(line!=null && line.trim().length()>0) {
 			String[] token=line.split("\\s");
 			if(token.length<3){	//which means results are vector
 				if(token[1].equalsIgnoreCase("Inf")) token[1]="0";	//FIXME:outfold.txt can have Inf value
-				out[i]=Float.parseFloat(token[1]);
+				list.add( Float.parseFloat(token[1]) );
 			}
 			else{
 				float falseValue=Float.parseFloat(token[2]);
 				float calledValue=Float.parseFloat(token[3]);
-				out[i]=falseValue/calledValue;
+				list.add( falseValue/calledValue );
 			}
 			line=br.readLine();
-			i++;			
 		}
 		br.close();
 		
+		float[] out=new float[list.size()];
+		for(int i=0; i<list.size(); i++) out[i] = list.get(i);
 		return out;
 	}	
 	
-	private String generateHistoryString(String groupAndChipsString, String histMarkerString) {
-		String histStr = ((SAMPanel) this.getParameterPanel())
-				.getDataSetHistory();
-		return histStr+groupAndChipsString+histMarkerString;
+	private static String generateGroupHistoryString(DSAnnotationContext<DSMicroarray> context) {
+		
+		String[][] labels = new String[2][];
+		labels[0] = context.getLabelsForClass(CSAnnotationContext.CLASS_CASE);
+		labels[1] = context
+				.getLabelsForClass(CSAnnotationContext.CLASS_CONTROL);
+		
+		int caseSetSize = 0, controlSetSize = 0;
+		String groupAndChipsString = "";
+
+		// case
+		String[] classLabels = labels[0];
+		groupAndChipsString += "\t case group(s): \n";
+		for (int i = 0; i < classLabels.length; i++) {
+			String label = classLabels[i];
+			if (context.isLabelActive(label) ) {
+				caseSetSize++;
+				groupAndChipsString += generateGroupAndChipsString(context
+						.getItemsWithLabel(label));
+			}
+		}
+
+		// control
+		classLabels = labels[1];
+		groupAndChipsString += "\t control group(s): \n";
+		for (int i = 0; i < classLabels.length; i++) {
+			String label = classLabels[i];
+			if (context.isLabelActive(label) ) {
+				controlSetSize++;
+				groupAndChipsString += generateGroupAndChipsString(context
+						.getItemsWithLabel(label));
+			}
+		}
+
+		int totalSelectedGroup = caseSetSize + controlSetSize;
+
+		groupAndChipsString = totalSelectedGroup + " groups analyzed:\n"
+				+ groupAndChipsString;
+		
+		return groupAndChipsString;
 	}
 
-	private String GenerateGroupAndChipsString(DSPanel<DSMicroarray> panel) {
+	private static String generateGroupAndChipsString(DSPanel<DSMicroarray> panel) {
 		String histStr = null;
 
 		histStr = "\t     " + panel.getLabel() + " (" + panel.size()
@@ -484,7 +447,7 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 		return histStr;
 	}
 
-	private String GenerateMarkerString(
+	private static String generateMarkerString(
 			DSMicroarraySetView<? extends DSGeneMarker, ? extends DSMicroarray> view) {
 		StringBuffer histStr = new StringBuffer();
 
@@ -494,12 +457,10 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 		}
 
 		return histStr.toString();
-
 	}
 
 	@Override
 	public String getAnalysisName() {
-		// TODO Auto-generated method stub
 		return "Sam";
 	}
 
@@ -510,20 +471,18 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 
 	@Override
 	protected boolean useMicroarraySetView() {
-		// TODO Auto-generated method stub
 		return true;
 	}
 
 	@Override
 	protected boolean useOtherDataSet() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	protected Map<Serializable, Serializable> getBisonParameters() {
 		Map<Serializable, Serializable> bisonParameters = new HashMap<Serializable, Serializable>();
-		SAMPanel paramPanel = (SAMPanel) this.aspp;
+		SAMPanel paramPanel = (SAMPanel) this.getParameterPanel();
 		float deltaIncrement=Float.parseFloat(paramPanel.getDeltaInc());
 		bisonParameters.put("deltaIncrement", deltaIncrement);
 		float deltaMax=Float.parseFloat(paramPanel.getDeltaMax());
@@ -533,25 +492,43 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 		boolean unlog=paramPanel.needUnLog();
 		bisonParameters.put("unlog", unlog);
 		
-		int[] cl=groupAssignments;
-		bisonParameters.put("cl", cl);		
+		bisonParameters.put("cl", groupAssignments);		
 		
 		return bisonParameters;
+	}
+	
+	/* Calling this in validInputData() is sort of hack, not a clean design. */
+	private void createGroupAssignments(int numExps,
+			DSMicroarraySetView<DSGeneMarker, DSMicroarray> view,
+			DSAnnotationContext<DSMicroarray> context) {
+		groupAssignments = new int[numExps];
+		
+		for (int i = 0; i < numExps; i++) {
+			DSMicroarray ma = view.items().get(i);
+			String[] labels = context.getLabelsForItem(ma);
+
+			for (String label : labels) {
+				if (context.isLabelActive(label) ) {
+					String v = context.getClassForLabel(label);
+					if (v.equals(CSAnnotationContext.CLASS_CASE)) {
+						groupAssignments[i] = GROUP_CASE;
+					} else if (v.equals(CSAnnotationContext.CLASS_CONTROL)) {
+						groupAssignments[i] = GROUP_CONTROL;
+					} else {
+						groupAssignments[i] = NEITHER_GROUP;
+					}
+				}
+			}
+		}
 	}
 
 	@Override
 	public ParamValidationResults validInputData(
-			DSMicroarraySetView<DSGeneMarker, DSMicroarray> maSetView,
-			DSDataSet<?> refMASet) {
-		if (aspp == null)
-			return new ParamValidationResults(true, null);
-		// Use this to get params
-		SAMPanel paramPanel = (SAMPanel) aspp;
-		
-		DSMicroarraySetView<DSGeneMarker, DSMicroarray> view = maSetView;
+			DSMicroarraySetView<DSGeneMarker, DSMicroarray> view,
+			DSDataSet<?> ignored) {
+		SAMPanel paramPanel = (SAMPanel) this.getParameterPanel();
 		
 		int numExps = view.items().size();
-		groupAssignments = new int[numExps];
 		
 		DSDataSet<? extends DSBioObject> set = view.getDataSet();
 
@@ -575,13 +552,9 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 				if (context.isLabelActive(label) ) {
 					String v = context.getClassForLabel(label);
 					if (v.equals(CSAnnotationContext.CLASS_CASE)) {
-						groupAssignments[i] = GROUP_CASE;
 						numCase++;						
 					} else if (v.equals(CSAnnotationContext.CLASS_CONTROL)) {
-						groupAssignments[i] = GROUP_CONTROL;
 						numControl++;						
-					} else {
-						groupAssignments[i] = NEITHER_GROUP;
 					}
 				}
 			}
@@ -591,12 +564,10 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 			return new ParamValidationResults(
 					false,
 					"Please activate at least one set of arrays for \"case\", and one set of arrays for \"control\".");
-		}
-		if (numCase == 0) {			
+		} else if (numCase == 0) {			
 			return new ParamValidationResults(false,
 					"Please activate at least one set of arrays for \"case\".");
-		}
-		if (numControl == 0) {			
+		} else if (numControl == 0) {			
 			return new ParamValidationResults(
 					false,
 					"Please activate at least one set of arrays for \"control\".");
@@ -608,14 +579,13 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 			if(deltaIncrement<=0)
 				return new ParamValidationResults(false,
 						"Delta Increment value should be a positive number.");
-		}
-		catch (Exception e){
+		} catch (Exception e) {
 			return new ParamValidationResults(false,
 					"Delta Increment is invalid.");
 		}
 		
 		float deltaMax;
-		try{
+		try {
 			deltaMax=Float.parseFloat(paramPanel.getDeltaMax());
 			if(deltaMax<=0)
 				return new ParamValidationResults(false,
@@ -623,24 +593,24 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 			if(deltaMax<=deltaIncrement)
 				return new ParamValidationResults(false,
 						"Delta Max should be great than Delta Increment value.");
-		}
-		catch (Exception e){
+		} catch (Exception e){
 			return new ParamValidationResults(false,
 					"Delta Max is invalid.");
 		}
 			
 		int permutation;
-		try{
+		try {
 			permutation=Integer.parseInt(paramPanel.getPermutation());
 			if(permutation<=0)
 				return new ParamValidationResults(false,
 						"Number of label permutations should be a positive number.");
-		}
-		catch (Exception e){
+		} catch (Exception e){
 			return new ParamValidationResults(false,
 					"Number of label permutations is invalid.");
 		}	
-			
+
+		// intentional side-effect
+		createGroupAssignments(numExps, view, context);
 		
 		return new ParamValidationResults(true, "No, no Error");
 	}//end of validInputData
@@ -673,7 +643,7 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 		return null;
 	}
 	
-	private boolean getStopMessageConfigure(){
+	private static boolean getStopMessageConfigure(){
 		String conf = "";
 		try {
 			File file = new File(STOP_MESSAGE_CONF);
@@ -692,7 +662,7 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 		}
 	}
 	
-	private void rememberStopMessageConfigure(boolean conf){
+	private static void rememberStopMessageConfigure(boolean conf){
 		//save as last used conf
 		try {
 			BufferedWriter br = new BufferedWriter(new FileWriter(STOP_MESSAGE_CONF));
