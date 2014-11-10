@@ -120,7 +120,7 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 		}
 		String samdir=predir+FILE_SEPARATOR;
 		
-		if(getStopMessageConfigure()){
+		if(!getStopMessageConfigure()){
 		
 			JCheckBox checkbox = new JCheckBox("Do not show this message again.");
 			String message = "SAM requires R installed on your computer. R location should be assigned in Tools->Preference->R location.\n" +
@@ -688,7 +688,7 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 		if(conf.equals("") || conf.equalsIgnoreCase("false")) {
 			return false; // keep the message
 		} else {
-			return true; // keep the message
+			return true; // hide the message
 		}
 	}
 	
