@@ -17,9 +17,12 @@ import java.text.NumberFormat;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
@@ -54,13 +57,14 @@ import org.jfree.data.xy.XYSeriesCollection;
  * Analysis
  * 
  * @author Adam Margolin
- * @version $Id$
  * 
  */
 @AcceptTypes( { DSMicroarraySet.class })
 public class ExpressionProfilePanel extends MicroarrayViewEventBase implements
 		VisualPlugin {
 
+	private Log log = LogFactory.getLog(ExpressionProfilePanel.class);
+			
 	private static final String Y_AXIS_LABEL = "Expression Level";
 
 	private static final String X_AXIS_LABEL = "Experiment";
@@ -103,6 +107,17 @@ public class ExpressionProfilePanel extends MicroarrayViewEventBase implements
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				if (activatedMarkers == null) {
+					log.error("activatedMarkers is null");
+					return;
+				}
+				if (activatedMarkers.size()==0) {
+					JOptionPane.showMessageDialog(mainPanel,
+						    "You must activate a marker set to draw a plot.",
+						    "Marker Activation Warning",
+						    JOptionPane.WARNING_MESSAGE);
+					return;
+				}
 				isPlotRefresh = true;
 				imageSnapshotButton.setEnabled(true);
 				refreshMaSetView();
