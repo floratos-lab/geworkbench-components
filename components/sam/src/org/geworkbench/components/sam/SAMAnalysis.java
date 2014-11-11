@@ -100,27 +100,37 @@ public class SAMAnalysis extends AbstractGridAnalysis implements
 			return null;
 		}		
 		
-		String currdir=System.getProperty("user.dir");		
-		String predir=currdir+FILE_SEPARATOR+"data"+FILE_SEPARATOR+"sam";
+
+		String version = System.getProperty("application.version");	
+		String currdir = FilePathnameUtils.getTemporaryFilesDirectoryPath();
 		
-		File prefile=new File(predir);
-		if(!prefile.exists()){
-			if(!(prefile ).mkdir())
+		String predir=currdir+"sam";
+		File prefile_sam=new File(predir);
+		if(!prefile_sam.exists()){
+			if(!(prefile_sam).mkdir())
 				return new AlgorithmExecutionResults(false, "Cannot create directory at "+predir, null);
 		}
+
+		predir=predir + FILE_SEPARATOR + version;
+		File prefile_version=new File(predir);
+		if(!prefile_version.exists()){
+			if(!(prefile_version).mkdir())
+				return new AlgorithmExecutionResults(false, "Cannot create directory at "+predir, null);
+		}	
+
 		String samdir=predir+FILE_SEPARATOR;
 		
 		if(!getStopMessageConfigure()){
 		
 			JCheckBox checkbox = new JCheckBox("Do not show this message again.");
-			String message = "SAM requires R installed on your computer. R location should be assigned in Tools->Preference->R location.\n" +
-				    "R package of SAM is also required which will be installed automatically if not installed yet.\n" +
+			String message = "SAM requires that R already be installed on your computer. The R location should be entered in Tools->Preference->R location.\n" +
+				    "The SAM R package is also required. It will be installed automatically if not already installed.\n" +
 				    "Do you want to continue?";
 			Object[] params = {message, checkbox};
 			int n = JOptionPane.showConfirmDialog(
 					null,
 					params,
-				    "Pleas be aware of",
+				    "Please be aware of",
 				    JOptionPane.YES_NO_OPTION);
 			rememberStopMessageConfigure(checkbox.isSelected());
 			
