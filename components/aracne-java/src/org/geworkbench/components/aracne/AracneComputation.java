@@ -145,17 +145,17 @@ public class AracneComputation {
 		p.setAlgorithm(getAlgorithm());
 		p.setMode(getMode());
 		
-		String tempFolder = FilePathnameUtils
-						.getTemporaryFilesDirectoryPath();
+		String preProcFolder = FilePathnameUtils
+						.getSystemDataFilesDirectoryPath();
 		// aracne_java code does not use its parameter set by p.setHome_dir(), so must  use full path.
 
-		String DATASETNAME_ALGORITHM_kernel_file = tempFolder 
+		String DATASETNAME_ALGORITHM_kernel_file = preProcFolder 
 				+ aracneInput.getDataSetName()
 				+ "_" 
 				+ getAlgorithmForFileName() 
 				+ "_" 
 				+ "kernel.txt";
-		String DATASETNAME_ALGORITHM_threshold_file = tempFolder 
+		String DATASETNAME_ALGORITHM_threshold_file = preProcFolder 
 				+ aracneInput.getDataSetName()
 				+ "_"
 				+ getAlgorithmForFileName()
