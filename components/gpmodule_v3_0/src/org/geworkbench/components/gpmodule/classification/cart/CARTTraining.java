@@ -36,6 +36,7 @@ import org.geworkbench.components.gpmodule.classification.GPTraining;
 import org.geworkbench.components.gpmodule.classification.GPTrainingPanel;
 import org.geworkbench.components.gpmodule.classification.PredictionResult;
 import org.geworkbench.util.ClassifierException;
+import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbench.util.ProgressBar;
 import org.geworkbench.util.TrainingProgressListener;
 import org.geworkbench.util.TrainingTask;
@@ -85,10 +86,12 @@ public class CARTTraining extends GPTraining implements TrainingTask
             GPDataset dataset = createGCTDataset(caseData, controlData, caseArrayNames,
                                                      controlArrayNames);
             File trainingDataFile;
-
+			String tempDir = FilePathnameUtils.getTemporaryFilesDirectoryPath();
+			
             try
             {
-                String fileName = GPClassificationUtils.createGCTFile(dataset, "CART_Data");
+				String gctFileName = tempDir +  "CART_Data";
+                String fileName  = GPClassificationUtils.createGCTFile(dataset, gctFileName);			
                 trainingDataFile = new File(fileName);
                 trainingDataFile.deleteOnExit();
             }
@@ -100,7 +103,8 @@ public class CARTTraining extends GPTraining implements TrainingTask
 
             //Create cls file
             ClassVector clsVector = createClassVector(caseData, controlData);
-            File clsData = GPClassificationUtils.createCLSFile("CART_Cls", clsVector);
+			String clsFileName = tempDir +  "CART_Cls";
+            File clsData = GPClassificationUtils.createCLSFile(clsFileName, clsVector);
 
             //Set parameters for running the module
             Parameter[] parameters = new Parameter[3];

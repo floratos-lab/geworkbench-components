@@ -22,6 +22,7 @@ import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.components.gpmodule.GPDataset;
 import org.geworkbench.components.gpmodule.classification.VisualGPClassifier;
+import org.geworkbench.util.FilePathnameUtils;
 
 /**
  * @author Marc-Danie Nazaire
@@ -39,8 +40,13 @@ public class CARTClassifier extends VisualGPClassifier
 
     public Parameter[] buildParametersList(List<float[]> data, List<String> arrayNames, String[] classLabels)
     {
-        File testData = createTestGCTFile("CARTTest_Data", data, arrayNames);
-        File testCLSData = createTestCLSFile("CARTTest_Cls", data.size(), classLabels);
+		String tempDir = FilePathnameUtils.getTemporaryFilesDirectoryPath();
+
+		String gctFileName = tempDir +  "CARTTest_Data";
+        File testData = createTestGCTFile(gctFileName, data, arrayNames);
+		
+		String clsFileName = tempDir +  "CARTTest_Cls";		
+        File testCLSData = createTestCLSFile(clsFileName, data.size(), classLabels);
 
         List<Parameter> parameters = new ArrayList<Parameter>();
 

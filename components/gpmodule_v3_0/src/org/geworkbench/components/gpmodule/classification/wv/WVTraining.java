@@ -36,6 +36,7 @@ import org.geworkbench.components.gpmodule.GPDataset;
 import org.geworkbench.components.gpmodule.classification.GPClassificationUtils;
 import org.geworkbench.components.gpmodule.classification.GPTraining;
 import org.geworkbench.util.ClassifierException;
+import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbench.util.TrainingProgressListener;
 import org.geworkbench.util.TrainingTask;
 
@@ -111,10 +112,12 @@ public class WVTraining extends GPTraining implements TrainingTask
                                                       controlArrayNames);
 
             File trainingDataFile;
-
+			String tempDir = FilePathnameUtils.getTemporaryFilesDirectoryPath();
+			
             try
             {
-                String fileName = GPClassificationUtils.createGCTFile(dataset, "WV_Data");
+				String gctFileName = tempDir +  "WV_Data";
+                String fileName  = GPClassificationUtils.createGCTFile(dataset, gctFileName);
                 trainingDataFile = new File(fileName);
                 trainingDataFile.deleteOnExit();                
             }
@@ -126,7 +129,8 @@ public class WVTraining extends GPTraining implements TrainingTask
 
             //Create cls file
             ClassVector clsVector = createClassVector(caseData, controlData);
-            File clsData = GPClassificationUtils.createCLSFile("WV_Cls", clsVector);
+			String clsFileName = tempDir +  "WV_Cls";
+            File clsData = GPClassificationUtils.createCLSFile(clsFileName, clsVector);
 
             List<Parameter> parameters = new ArrayList<Parameter>();
             parameters.add(new Parameter("train.filename", trainingDataFile.getAbsolutePath()));

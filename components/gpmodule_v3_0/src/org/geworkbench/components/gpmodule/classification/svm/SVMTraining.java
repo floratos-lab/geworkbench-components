@@ -41,6 +41,7 @@ import org.geworkbench.components.gpmodule.classification.GPClassificationUtils;
 import org.geworkbench.components.gpmodule.classification.GPTraining;
 import org.geworkbench.components.gpmodule.classification.PredictionResult;
 import org.geworkbench.util.ClassifierException;
+import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbench.util.ProgressBar;
 import org.geworkbench.util.TrainingProgressListener;
 import org.geworkbench.util.TrainingTask;
@@ -135,10 +136,12 @@ public class SVMTraining extends GPTraining implements TrainingTask
                                                       controlArrayNames);
 
             File trainingDataFile;
-
+			String tempDir = FilePathnameUtils.getTemporaryFilesDirectoryPath();
+			
             try
             {
-                String fileName  = GPClassificationUtils.createGCTFile(dataset, "SVM_Data");
+				String gctFileName = tempDir +  "SVM_Data";
+                String fileName  = GPClassificationUtils.createGCTFile(dataset, gctFileName);
                 trainingDataFile = new File(fileName);
                 trainingDataFile.deleteOnExit();
             }
@@ -150,7 +153,8 @@ public class SVMTraining extends GPTraining implements TrainingTask
 
             //Create cls file
             ClassVector clsVector = createClassVector(caseData, controlData);
-            File clsData = GPClassificationUtils.createCLSFile("SVM_Cls", clsVector);
+			String clsFileName = tempDir +  "SVM_Cls";
+            File clsData = GPClassificationUtils.createCLSFile(clsFileName, clsVector);
 
             //Set parameters for running the module
             Parameter[] parameters = new Parameter[3];

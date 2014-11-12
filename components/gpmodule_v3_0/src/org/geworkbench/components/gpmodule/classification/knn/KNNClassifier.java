@@ -23,6 +23,7 @@ import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.components.gpmodule.GPDataset;
 import org.geworkbench.components.gpmodule.classification.GPClassifier;
 import org.geworkbench.components.gpmodule.classification.PredictionResult;
+import org.geworkbench.util.FilePathnameUtils;
 
 /**
  * @author Marc-Danie Nazaire
@@ -47,8 +48,11 @@ public class KNNClassifier extends GPClassifier {
         List<float[]> dataset = new ArrayList<float[]>();
         dataset.add(data);
 
-        File testData = createTestGCTFile("KNNTest_Data", dataset);
-        File testCLSData = createTestCLSFile("KNNTest_Cls", dataset.size());
+		String tempDir = FilePathnameUtils.getTemporaryFilesDirectoryPath();
+		String gctFileName = tempDir +  "KNNTest_Data";
+        File testData = createTestGCTFile(gctFileName, dataset);
+		String clsFileName = tempDir +  "KNNTest_Cls";
+        File testCLSData = createTestCLSFile(clsFileName, dataset.size());
 
         List<Parameter> parameters = new ArrayList<Parameter>();
 
