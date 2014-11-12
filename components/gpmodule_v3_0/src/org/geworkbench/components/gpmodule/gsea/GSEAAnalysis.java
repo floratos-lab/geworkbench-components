@@ -36,7 +36,9 @@ import org.geworkbench.builtin.projects.history.HistoryPanel;
 import org.geworkbench.components.gpmodule.GPAnalysis;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.events.ProjectNodeAddedEvent;
+import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbench.util.ProgressBar;
+
 
 /**
  * @author nazaire
@@ -53,6 +55,7 @@ public class GSEAAnalysis extends GPAnalysis
 
     private Task task;
 	private boolean error = false;
+	private static final String FILE_SEPARATOR = System.getProperty("file.separator");
 
     public GSEAAnalysis()
     {
@@ -249,9 +252,11 @@ public class GSEAAnalysis extends GPAnalysis
                                   arraysByClass.addAll(dsPanel);
                               }
                           }
-
+						  
+						  String tempDir = FilePathnameUtils.getTemporaryFilesDirectoryPath();
                           String gctFileName = view.getMicroarraySet().getFile().getName();
-                          gctFileName = gctFileName + System.currentTimeMillis();
+                          gctFileName = tempDir + FILE_SEPARATOR +  gctFileName + System.currentTimeMillis();  
+						  
                           File gctFile = createGCTFile(gctFileName, view.markers(), arraysByClass);
                           gctFile.deleteOnExit();
                           gctFileName = gctFile.getAbsolutePath();
