@@ -111,8 +111,11 @@ public class KMAnalysis extends GPAnalysis{
 		pbFCtest.setMessage("getting results from server, please wait...");
 		pbFCtest.start();
 		this.stopAlgorithm = false;	
+
+		String tempDir = FilePathnameUtils.getTemporaryFilesDirectoryPath();
+		String gctFileName = tempDir +  "KMDataset";
 		
-		String gctFileName = createGCTFile("KMDataset", view.markers(),
+		gctFileName = createGCTFile(gctFileName, view.markers(),
 				view.items()).getAbsolutePath();		
 		numGenes = data.markers().size();		
 		DSDataSet<? extends DSBioObject> set = data.getDataSet();

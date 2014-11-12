@@ -255,9 +255,9 @@ public class GSEAAnalysis extends GPAnalysis
 						  
 						  String tempDir = FilePathnameUtils.getTemporaryFilesDirectoryPath();
                           String gctFileName = view.getMicroarraySet().getFile().getName();
-                          gctFileName = tempDir + FILE_SEPARATOR +  gctFileName + System.currentTimeMillis();  
-						  
-                          File gctFile = createGCTFile(gctFileName, view.markers(), arraysByClass);
+                          gctFileName = tempDir +  gctFileName + System.currentTimeMillis();  
+			  
+                          File gctFile = createGCTFile(gctFileName, view.markers(), arraysByClass);		
                           gctFile.deleteOnExit();
                           gctFileName = gctFile.getAbsolutePath();
 
@@ -266,7 +266,6 @@ public class GSEAAnalysis extends GPAnalysis
                           parameters.add(new Parameter("expression.dataset", gctFileName));
 
                           String clsFileName = gctFileName + System.currentTimeMillis();
-
 
                           ClassVector classVec = new DefaultClassVector((String[])labels.toArray(new String[0]));
 

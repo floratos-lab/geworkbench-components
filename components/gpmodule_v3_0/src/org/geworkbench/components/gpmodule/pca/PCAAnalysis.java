@@ -36,6 +36,7 @@ import org.geworkbench.builtin.projects.history.HistoryPanel;
 import org.geworkbench.components.gpmodule.GPAnalysis;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.events.ProjectNodeAddedEvent;
+import org.geworkbench.util.FilePathnameUtils;
 import org.geworkbench.util.ProgressBar;
 
 /**
@@ -157,9 +158,12 @@ public class PCAAnalysis extends GPAnalysis {
 				markers = view.getMicroarraySet().getMarkers();
 			}
 
-			String gctFileName = createGCTFile("pcaDataset", markers,
+			String tempDir = FilePathnameUtils.getTemporaryFilesDirectoryPath();
+			String gctFileName = tempDir +  "pcaDataset";			
+	
+			gctFileName = createGCTFile(gctFileName, markers,
 					arrays).getAbsolutePath();
-			
+				
 			String clusterBy = "rows";
 
 			// Modification for doing PCA analysis using the standard instead of
