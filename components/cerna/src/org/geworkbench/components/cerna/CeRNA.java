@@ -171,7 +171,7 @@ public class CeRNA extends JPanel implements VisualPlugin {
 				fc.removeChoosableFileFilter(fc.getAcceptAllFileFilter());
 				fc.setFileFilter(new CsvFileFilter());
 				fc.setDialogTitle("Save ceRNA results");
-				int choice = fc.showOpenDialog(CeRNA.this.getComponent());
+				int choice = fc.showSaveDialog(CeRNA.this.getComponent());
 				if (choice == JFileChooser.APPROVE_OPTION) {
 					String fname = fc.getSelectedFile().getAbsolutePath();
 					if (!fname.toLowerCase().endsWith(".csv")){
@@ -195,7 +195,7 @@ public class CeRNA extends JPanel implements VisualPlugin {
 						csvout.println();
 						for (int row = 0; row < tableModel.getRowCount(); row++) {
 							for (int col = 0; col < tableModel.getColumnCount(); col++){
-								csvout.print((String)tableModel.getValueAt(row, col));
+								csvout.print(tableModel.getValueAt(row, col).toString());
 							}
 							csvout.println();
 						}

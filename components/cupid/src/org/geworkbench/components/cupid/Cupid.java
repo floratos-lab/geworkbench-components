@@ -147,8 +147,8 @@ public class Cupid extends JPanel implements VisualPlugin {
 				JFileChooser fc=new JFileChooser();
 				fc.removeChoosableFileFilter(fc.getAcceptAllFileFilter());
 				fc.setFileFilter(new CsvFileFilter());
-				fc.setDialogTitle("Save ceRNA results");
-				int choice = fc.showOpenDialog(Cupid.this.getComponent());
+				fc.setDialogTitle("Save Cupid results");
+				int choice = fc.showSaveDialog(Cupid.this.getComponent());
 				if (choice == JFileChooser.APPROVE_OPTION) {
 					String fname = fc.getSelectedFile().getAbsolutePath();
 					if (!fname.toLowerCase().endsWith(".csv")){
@@ -172,7 +172,7 @@ public class Cupid extends JPanel implements VisualPlugin {
 						csvout.println();
 						for (int row = 0; row < tableModel.getRowCount(); row++) {
 							for (int col = 0; col < tableModel.getColumnCount(); col++){
-								csvout.print((String)tableModel.getValueAt(row, col));
+								csvout.print((String)tableModel.getValueAt(row, col).toString());
 							}
 							csvout.println();
 						}
