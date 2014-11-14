@@ -35,6 +35,7 @@ import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
 import org.geworkbench.bison.model.analysis.ParamValidationResults;
+import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.events.listeners.ParameterActionListener;
 import org.geworkbench.util.ValidationUtils;
 
@@ -321,6 +322,9 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 
 		loadModulatorsFile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent actionEvent) {
+				if(dataSet==null) { /* this happens when Mindy component is loaded after the dataset is loaded*/
+					dataSet = ProjectPanel.getInstance().getDataSet();
+				}
 				StringBuilder geneListBuilder = new StringBuilder();
 				try {
 					File hubFile = new File(modulatorFile);
@@ -369,6 +373,9 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 
 		loadTargetsFile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent actionEvent) {
+				if(dataSet==null) { /* this happens when Mindy component is loaded after the dataset is loaded*/
+					dataSet = ProjectPanel.getInstance().getDataSet();
+				}
 				StringBuilder geneListBuilder = new StringBuilder();
 				try {
 					File hubFile = new File(targetFile);
@@ -504,6 +511,9 @@ public class MindyParamPanel extends AbstractSaveableParameterPanel {
 
 		loadDPIAnnotationFile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent actionEvent) {
+				if(dataSet==null) { /* this happens when Mindy component is loaded after the dataset is loaded*/
+					dataSet = ProjectPanel.getInstance().getDataSet();
+				}
 				StringBuilder geneListBuilder = new StringBuilder();
 				try {
 					File hubFile = new File(dpiAnnotationFile);
