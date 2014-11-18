@@ -23,18 +23,22 @@ import javax.swing.JToggleButton;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geworkbench.bison.datastructure.biocollections.DSDataSet;
 import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarraySet;
+import org.geworkbench.bison.datastructure.bioobjects.DSBioObject;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
 import org.geworkbench.bison.datastructure.complex.panels.DSPanel;
+import org.geworkbench.builtin.projects.ProjectPanel;
 import org.geworkbench.engine.config.VisualPlugin;
 import org.geworkbench.engine.management.AcceptTypes;
 import org.geworkbench.engine.management.Publish;
 import org.geworkbench.events.ImageSnapshotEvent;
 import org.geworkbench.events.MarkerSelectedEvent;
 import org.geworkbench.events.PhenotypeSelectedEvent;
+import org.geworkbench.events.ProjectEvent;
 import org.geworkbench.util.BusySwingWorker;
 import org.geworkbench.util.ProgressBar;
 import org.jfree.chart.ChartFactory;
@@ -107,6 +111,20 @@ public class ExpressionProfilePanel extends MicroarrayViewEventBase implements
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				if(refMASet==null) { /* in case the dataset is loaded before the component ExpressionProfile is loaded*/
+					ProjectPanel projectPanel = ProjectPanel.getInstance();
+					DSDataSet<? extends DSBioObject> dataset = projectPanel
+							.getDataSet();
+					if (dataset instanceof DSMicroarraySet) {
+						refMASet = (DSMicroarraySet) dataset;
+						refreshMaSetView();
+						projectPanel.publishProjectEvent(new ProjectEvent(
+								refMASet, projectPanel.getSelection()
+										.getSelectedNode()));
+					} else {
+						log.error("unexpected data node type "+dataset);
+					}
+				}
 				if (activatedMarkers == null) {
 					log.error("activatedMarkers is null");
 					return;
@@ -156,7 +174,7 @@ public class ExpressionProfilePanel extends MicroarrayViewEventBase implements
 		jToolBar3.add(jEnabledBox);
 
 	}
-
+	
 	/**
 	 * @param event
 	 */
