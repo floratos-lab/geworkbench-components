@@ -81,7 +81,7 @@ public class PudgeBrowser implements VisualPlugin {
 
 	private PudgeResultSet resultData;
 	private String jobname = "";
-	private String urlbase = "http://bhapp.c2b2.columbia.edu/pudge/cgi-bin/";
+	private String urlbase = "https://honiglab.c2b2.columbia.edu/pudge/cgi-bin/";
 	private String finalResultURL = "";
 	private static String osname = System.getProperty("os.name").toLowerCase();
 	private final static boolean is_mac = (osname.indexOf("mac") > -1);

@@ -26,7 +26,7 @@ public class PudgeAnalysis extends AbstractAnalysis implements
 		ProteinSequenceAnalysis {
 	private static final long serialVersionUID = 1L;
 	public PudgeConfigPanel pcp;
-	String strurl = "http://bhapp.c2b2.columbia.edu/pudge/cgi-bin/pipe_int.cgi";
+	String strurl = "https://honiglab.c2b2.columbia.edu/pudge/cgi-bin/pipe_int.cgi";
 	String req = "--AaB03x\r\n"
 			+ "content-disposition: form-data; name=\"dir_name\"\r\n\r\n@\r\n--AaB03x\r\n"
 			+ "content-disposition: form-data; name=\"dummy\"\r\n\r\nacademic\r\n--AaB03x\r\n"
