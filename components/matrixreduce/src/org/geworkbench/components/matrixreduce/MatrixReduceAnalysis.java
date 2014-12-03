@@ -247,7 +247,7 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 			String tempDirName = "mr";
 			tempDir = new File(tempDirParent + tempDirName);
 			tempDir.mkdirs();
-			File microarrayFile = new File(FilePathnameUtils.getTemporaryFilesDirectoryPath() + MICROARRAY_SET_FILE_NAME);
+			File microarrayFile = new File(tempDirParent + MICROARRAY_SET_FILE_NAME);
 			if (stopAlgorithm) {
 				stopAlgorithm = false;
 				progressBar.stop();
@@ -284,7 +284,7 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 
 			// Copy sequence file in to temp dir
 			File sequenceSource = new File(params.getSequenceFile());
-			File sequenceFileTemp = new File(SEQUENCE_FILE_NAME);
+			File sequenceFileTemp = new File(tempDirParent + SEQUENCE_FILE_NAME);
 			Util
 					.copyFile(new FileInputStream(sequenceSource),
 							sequenceFileTemp);
@@ -294,7 +294,7 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 			File topoFileTemp = null;
 			if (!StringUtils.isEmpty(s)) {
 				File topoSource = new File(s);
-				topoFileTemp = new File(TOPOLOGY_FILE_NAME);
+				topoFileTemp = new File(tempDirParent + TOPOLOGY_FILE_NAME);
 				Util.copyFile(new FileInputStream(topoSource), topoFileTemp);
 			}
 
@@ -332,7 +332,7 @@ public class MatrixReduceAnalysis extends AbstractGridAnalysis implements
 				 * We don't have source for 'FitModel' to fix that issue. 
 				 */
 				String topologyPattern = params.getTopoPattern().toLowerCase();
-                topoFileTemp = new File(TOPOLOGY_FILE_NAME);
+                topoFileTemp = new File(tempDirParent + TOPOLOGY_FILE_NAME);
                 InputStream is = new ByteArrayInputStream(topologyPattern.getBytes("UTF-8"));
                 Util.copyFile(is, topoFileTemp);
                 topoFile = StringUtils.replace(topoFileTemp.getPath(), "\\",
