@@ -55,6 +55,10 @@ public class BioDBnetClient {
 				InputStream stream = getMethod.getResponseBodyAsStream();
 				DocumentBuilder docBuilder = docBuilderFactory
 						.newDocumentBuilder();
+				int n = stream.read();
+				if(n!=10) {
+					throw new IOException("A 0x0A is expected, though incorrect, as the first byte from biodbnet web service. Now it is "+n);
+				}
 				Document doc = docBuilder.parse(stream);
 
 				// normalize text representation
