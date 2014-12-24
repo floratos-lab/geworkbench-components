@@ -58,7 +58,6 @@ public class PCAAnalysisPanel extends GPAnalysisPanel
         variables = new JComboBox();
         variables.addItem("genes");
         variables.addItem("experiments");
-		variables.setSelectedIndex(1);
 
         ParameterActionListener parameterActionListener = new ParameterActionListener(this);
         
