@@ -735,6 +735,11 @@ public class EVDPanel implements VisualPlugin {
                 renderer.setSeriesShapesVisible(index, true);
             }
 
+        } else {
+            for (int i = 0; i < propertiesList.size(); i++) {
+                // Note: "i+1" because we did not define base.
+                renderer.setSeriesShapesVisible(i+1, true);
+            }
         }
 
         newPlot.setRenderer(renderer);
