@@ -42,7 +42,6 @@ import edu.columbia.c2b2.aracne.Parameter;
 
 /**
  * @author Matt Hall
- * @version $Id$
  */
 public class AracneAnalysis extends AbstractGridAnalysis implements
 		ClusteringAnalysis {
@@ -126,14 +125,14 @@ public class AracneAnalysis extends AbstractGridAnalysis implements
 		DSItemList<DSMicroarray> arrays = mSetView.items();
 		String[] arrayNames = new String[arrays.size()];
 		float[][] markerValues = new float[arrayNames.length][markers.length];
-		i = 0;	 
-		for (DSMicroarray microarray : arrays) {	
+		for (int index=0; index<arrays.size(); index++) {
+			DSMicroarray microarray = arrays.get(index);
 			j = 0;
 			for (DSGeneMarker marker : mSetView.markers()) {
-				markerValues[i][j++] = (float) microarray.getMarkerValue(marker)
+				markerValues[index][j++] = (float) microarray.getMarkerValue(marker)
 						.getValue();
 			}
-			arrayNames[i++] = microarray.getLabel();
+			arrayNames[index] = microarray.getLabel();
 		}
 		
 		aracneInput.setMicroarrayNames(arrayNames);
