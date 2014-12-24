@@ -1093,10 +1093,10 @@ public class ScatterPlot implements VisualPlugin {
         boolean chartRemoved = false;
         while (chartIterator.hasNext()) {
             Chart chart = chartIterator.next();
-            if (chart.index == group.xIndex) {
+            chart.chartData.xLabel = null;
+            if (!chartRemoved && chart.index == group.xIndex) {
                 chartIterator.remove();
                 chartRemoved = true;
-                break;
             }
         }
         updateCharts(type);
