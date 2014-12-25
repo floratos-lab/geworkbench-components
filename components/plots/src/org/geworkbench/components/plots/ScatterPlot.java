@@ -802,7 +802,7 @@ public class ScatterPlot implements VisualPlugin {
         mainPanel.add(rightPanel);
         popupMenu = new JPopupMenu();
         JMenuItem xAxisItem = new JMenuItem("Put on X-axis", 'X');
-        popupMenu.add(xAxisItem);
+//        popupMenu.add(xAxisItem);
         JMenuItem clearAllItem = new JMenuItem("Clear All", 'A');
         popupMenu.add(clearAllItem);
 
