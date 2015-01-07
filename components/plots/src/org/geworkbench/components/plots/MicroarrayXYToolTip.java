@@ -21,30 +21,29 @@ import org.jfree.data.xy.XYDataset;
 class MicroarrayXYToolTip extends StandardXYToolTipGenerator {
 	private static final long serialVersionUID = -896282253416405020L;
 	
-	private ChartData chartData;
-    private ChartPanel chartPanel;
+	private Chart chartData;
     private Rectangle2D shapeBound;
     private XYPlot xyPlot;
     
     
     final DSMicroarraySetView<DSGeneMarker, DSMicroarray> dataSetView;
     
-    public MicroarrayXYToolTip(DSMicroarraySetView<DSGeneMarker, DSMicroarray> dataSetView, ChartData data, ChartPanel chartPanel, XYPlot xyPlot) {
+    public MicroarrayXYToolTip(DSMicroarraySetView<DSGeneMarker, DSMicroarray> dataSetView, Chart data, XYPlot xyPlot) {
     	this.dataSetView = dataSetView;
     	
         this.chartData = data;
-        this.chartPanel = chartPanel;
         this.xyPlot = xyPlot;
         shapeBound = null;
     }
 
     public String generateToolTip(XYDataset data, int series, int item) {
-    	/*
+    	ChartPanel chartPanel = chartData.panel;
+		/*
 		 * because this customized tooltip needs to know the chart panel
 		 * size, it is NOT supposed to called in any case when chartPanel is
 		 * null - which was OK for a more regular tool tip.
 		 */
-		if (chartPanel == null) {
+		if (chartPanel  == null) {
 			throw new RuntimeException("tooltip error: no ChartPanel");
 			}
 		/* this customized tooltip also needs to know the the symbol shape */

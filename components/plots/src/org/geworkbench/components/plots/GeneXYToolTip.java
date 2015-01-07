@@ -17,10 +17,10 @@ import org.jfree.data.xy.XYDataset;
 class GeneXYToolTip extends StandardXYToolTipGenerator {
 	private static final long serialVersionUID = 3928716706611595907L;
 	
-	private ChartData chartData;
+	private final Chart chartData;
 
 	private final DSMicroarraySetView<DSGeneMarker, DSMicroarray> dataSetView;
-    public GeneXYToolTip(DSMicroarraySetView<DSGeneMarker, DSMicroarray> dataSetView, ChartData data) {
+    public GeneXYToolTip(DSMicroarraySetView<DSGeneMarker, DSMicroarray> dataSetView, Chart data) {
     	this.dataSetView = dataSetView;
         this.chartData = data;
     }

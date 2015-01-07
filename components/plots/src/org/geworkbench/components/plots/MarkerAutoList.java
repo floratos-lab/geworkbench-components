@@ -12,6 +12,7 @@ import org.geworkbench.components.plots.ScatterPlot.PlotType;
 import org.geworkbench.util.JAutoList;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 
 /**
@@ -74,34 +75,35 @@ class MarkerAutoList extends JAutoList {
                 if (existing == null) {
                     // Put item on the y-axis.
                     // Already reach maximum plots? Replace the oldest one.
-                    Chart attributes;
+                    Chart chart;
                     if (group.charts.size() == ScatterPlot.MAXIMUM_CHARTS) {
-                        attributes = group.charts.remove(0);
+                    	chart = group.charts.remove(0);
                     } else {
                         // Otherwise, create a new one.
-                        attributes = new Chart(dataSetView);
+                    	chart = new Chart(dataSetView);
                     }
                     //attributes.index = index;
-                    group.charts.add(attributes);
-                    JFreeChart chart;
-                		attributes.index = findMarkerIndex(clickedLabel);
-                        chart = scatterPlot.createChart(PlotType.MARKER, group.xIndex, attributes);
+                    group.charts.add(chart);
+                    
+                    chart.index = findMarkerIndex(clickedLabel);
+                    JFreeChart jfreechart = scatterPlot.createChart(PlotType.MARKER, group.xIndex, chart);
 
-                    if (attributes.panel == null) {
-                        attributes.panel = new ChartPanel(chart);
+                    if (chart.panel == null) {
+                    	chart.panel = new ChartPanel(jfreechart);
                             
-                        attributes.panel.addChartMouseListener(new GeneChartMouseListener(attributes.chartData, scatterPlot));
+                    	chart.panel.addChartMouseListener(new ScatterPlotMouseListener(chart, scatterPlot, PlotType.MARKER));
 
-                            /* This following is necessary to make tooltip aware of chart panel, which is out of the 'regular" chain of info flow. */
-                        MicroarrayXYToolTip tooltips = new MicroarrayXYToolTip(dataSetView, attributes.chartData, attributes.panel, chart.getXYPlot());
-                        XYItemRenderer renderer = chart.getXYPlot().getRenderer();                      
+                        /* This following is necessary to make tooltip aware of chart panel, which is out of the 'regular" chain of info flow. */
+                    	XYPlot xyPlot = jfreechart.getXYPlot();
+                        MicroarrayXYToolTip tooltips = new MicroarrayXYToolTip(dataSetView, chart, xyPlot);
+                        XYItemRenderer renderer = xyPlot.getRenderer();
                         Rectangle2D bound = renderer.getBaseShape().getBounds2D();
                         tooltips.setShapeBound(bound);
                         renderer. setBaseToolTipGenerator(tooltips);
-                        chart.getXYPlot().setRenderer(renderer);
+                        xyPlot.setRenderer(renderer);
                         /* END of section to handle tooltip */
                     } else {
-                        attributes.panel.setChart(chart);
+                    	chart.panel.setChart(jfreechart);
                     }
                 } else {
                     // Otherwise, remove the chart

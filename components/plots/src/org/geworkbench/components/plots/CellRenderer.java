@@ -24,7 +24,7 @@ class CellRenderer extends DefaultListCellRenderer {
         String labelToMatch = label.getText().trim();
         if(group.charts.size() > 0){
         	// Check for x-axis
-        	String xLabel = group.charts.get(0).chartData.getXLabel().trim();
+        	String xLabel = group.charts.get(0).getXLabel().trim();
         	if(labelToMatch.trim().startsWith(xLabel)){
         		// Color the label to indicate that it is on the x-axis of the chart.
                 label.setBackground(Color.BLACK);
@@ -32,7 +32,7 @@ class CellRenderer extends DefaultListCellRenderer {
         	} else {            	
             	// Check for y-axis
             	for(Chart c: group.charts){
-            		String yLabel = c.chartData.getYLabel().trim();
+            		String yLabel = c.getYLabel().trim();
             		if(labelToMatch.trim().startsWith(yLabel)){
             			// Color the label to indicate that there is a chart.
                         label.setBackground(Color.LIGHT_GRAY);

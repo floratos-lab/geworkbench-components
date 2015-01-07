@@ -439,7 +439,7 @@ public class ScatterPlot implements VisualPlugin {
         boolean chartRemoved = false;
         while (chartIterator.hasNext()) {
             Chart chart = chartIterator.next();
-            chart.chartData.xLabel = null;
+            chart.setXLabel(null);
             if (!chartRemoved && chart.index == group.xIndex) {
                 chartIterator.remove();
                 chartRemoved = true;
@@ -549,14 +549,14 @@ public class ScatterPlot implements VisualPlugin {
     		if ( e.getPanel().size() > 0 ){
     			ChartGroup group = chartGroups.get(PlotType.MARKER);
     			if(group.charts.size() > 0){
-    				ChartData cd = group.charts.get(0).chartData;
+    				Chart cd = group.charts.get(0);
     				String xlabel = cd.getXLabel();
     				if(!matchLabel(e.getPanel(), xlabel)){
             			clearAllCharts(PlotType.MARKER);
             			group.xIndex = -1;
             		} else {
 		            	for(int i = 0; i < group.charts.size(); i++){
-		            		cd = group.charts.get(i).chartData;
+		            		cd = group.charts.get(i);
 		            		String ylabel = cd.getYLabel();
 		            		if(!matchLabel(e.getPanel(), ylabel)){
 		            			group.charts.remove(i);
@@ -591,14 +591,14 @@ public class ScatterPlot implements VisualPlugin {
             if( activatedArrays != null && activatedArrays.size() > 0 ){
             	ChartGroup group = chartGroups.get(PlotType.ARRAY);
     			if(group.charts.size() > 0){
-    				ChartData cd = group.charts.get(0).chartData;
+    				Chart cd = group.charts.get(0);
     				String xlabel = cd.getXLabel();
     				if(!matchLabel(activatedArrays, xlabel)){
             			clearAllCharts(PlotType.ARRAY);
             			group.xIndex = -1;
             		} else {
 		            	for(int i = 0; i < group.charts.size(); i++){
-		            		cd = group.charts.get(i).chartData;
+		            		cd = group.charts.get(i);
 		            		String ylabel = cd.getYLabel();
 		            		if(!matchLabel(activatedArrays, ylabel)){
 		            			group.charts.remove(i);
@@ -809,14 +809,14 @@ public class ScatterPlot implements VisualPlugin {
             plots.addSeries(series);
         }
 
-        chart.chartData.setXLabel(label1);
-        chart.chartData.setYLabel(label2);
+        chart.setXLabel(label1);
+        chart.setYLabel(label2);
         JFreeChart mainChart = ChartFactory.createScatterPlot("", label1, label2, plots, PlotOrientation.VERTICAL, true, true, false); // Title, (, // X-Axis label,  Y-Axis label,  Dataset,  Show legend
         XYLineAnnotation annotation = chartGroups.get(plotType).lineAnnotation;
         if (annotation != null) {
             mainChart.getXYPlot().addAnnotation(annotation);
         }
-        chart.chartData.setXyPoints(xyPoints);
+        chart.setXyPoints(xyPoints);
 
         setTooltips(dataSetView, mainChart, plotType, propertiesList, panelsSelected, chart);
 
@@ -855,16 +855,14 @@ public class ScatterPlot implements VisualPlugin {
     		JFreeChart mainChart, PlotType plotType, ArrayList<PanelVisualProperties> propertiesList, boolean panelsSelected,
     		Chart chart) // only for microasrray 
     {
-    	ChartData chartData = chart.chartData;
     	StandardXYItemRenderer renderer = null;
     	if(plotType==PlotType.ARRAY) {
-    		  ChartPanel chartPanel = chart.panel;
-    	      MicroarrayXYToolTip tooltips = new MicroarrayXYToolTip(dataSetView, chartData, chartPanel, mainChart.getXYPlot());
+    	      MicroarrayXYToolTip tooltips = new MicroarrayXYToolTip(dataSetView, chart, mainChart.getXYPlot());
     	      renderer = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES, tooltips);      
     	      Rectangle2D bound = renderer.getBaseShape().getBounds2D();
     	      tooltips.setShapeBound(bound);
     	} else if(plotType==PlotType.MARKER) {
-            StandardXYToolTipGenerator tooltips = new GeneXYToolTip(dataSetView, chartData);
+            StandardXYToolTipGenerator tooltips = new GeneXYToolTip(dataSetView, chart);
             renderer = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES, tooltips);
     	} else {
     		log.error("wrong plot type");

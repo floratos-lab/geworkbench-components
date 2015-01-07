@@ -10,32 +10,32 @@ import org.jfree.chart.title.TextTitle;
 
 class JFreeChartProperties{
 	
-	private Boolean antiAlias = null;
-	private Paint backgroundPaint = null;
+	private final boolean antiAlias;
+	private final Paint backgroundPaint;
 		
-	private TextTitle textTitle = null;
+	private final TextTitle textTitle;
 		
-	private Boolean  domainAxisLineVisible   = null;
-	private Boolean  domainTickLabelsVisible = null;
-	private Boolean  domainTickMarksVisible  = null;
-	private Boolean  domainVisible           = null;
+	private final boolean  domainAxisLineVisible;
+	private final boolean  domainTickLabelsVisible;
+	private final boolean  domainTickMarksVisible;
+	private final boolean  domainVisible;
 
-	private Boolean  rangeAxisLineVisible   = null;
-	private Boolean  rangeTickLabelsVisible = null;
-	private Boolean  rangeTickMarksVisible  = null;
-	private Boolean  rangeVisible           = null;
+	private final boolean  rangeAxisLineVisible;
+	private final boolean  rangeTickLabelsVisible;
+	private final boolean  rangeTickMarksVisible;
+	private final boolean  rangeVisible;
 		
-	private Paint paint = null;
-	private PlotOrientation plotOrientation = null;
+	private final Paint paint;
+	private final PlotOrientation plotOrientation;
 		
-	private Boolean  domainCrosshairLockedOnData     = null;
-	private Boolean  domainCrosshairVisible          = null; 
-	private Boolean  domainGridlinesVisible          = null; 
+	private final boolean  domainCrosshairLockedOnData;
+	private final boolean  domainCrosshairVisible; 
+	private final boolean  domainGridlinesVisible; 
 		
-	private Boolean  rangeCrosshairLockedOnData      = null; 
-	private Boolean  rangeCrosshairVisible           = null;
-	private Boolean  rangeGridlinesVisible           = null;
-	private Boolean  rangeZeroBaselineVisible        = null;
+	private final boolean  rangeCrosshairLockedOnData;
+	private final boolean  rangeCrosshairVisible;
+	private final boolean  rangeGridlinesVisible;
+	private final boolean  rangeZeroBaselineVisible;
 		
 	public JFreeChartProperties(JFreeChart jFreeChartOriginal) {
 
