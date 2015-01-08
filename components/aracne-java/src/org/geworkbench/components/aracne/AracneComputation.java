@@ -110,21 +110,26 @@ public class AracneComputation {
 		final Parameter p = new Parameter();
 		String[] hubGenes = aracneInput.gethubGeneList();
 		int hubGeneCnt = 1; //avoid divide by zero if none set.
+		boolean hubListEmpty = false;
 		if (hubGenes != null && hubGenes.length > 0) {
 		    hubGeneCnt = hubGenes.length;
 			Vector<String> hubGeneList = new Vector<String>();
 			for (int i = 0; i < hubGenes.length; i++)
 				hubGeneList.add(hubGenes[i]);
 			p.setSubnet(new Vector<String>(hubGeneList));
+		} else {
+			hubListEmpty = true; //can only be true if All-vs-All selected
 		}
 
 		if (aracneInput.getIsThresholdMI()) {
 			p.setThreshold(aracneInput.getThreshold());
-		} else {
-			if (!aracneInput.getNoCorrection())
+		} else {  //Threshold type is p-value
+			if (!aracneInput.getNoCorrection()) { //Bonferroni correction requested
+				if (hubListEmpty)  //can only be true if All-vs-All selected
+					hubGeneCnt = aracneInput.getMarkers().length;  //hubs = all markers.
 				p.setPvalue(aracneInput.getThreshold()
 						/ (aracneInput.getMarkers().length * hubGeneCnt));
-			else
+			} else
 				p.setPvalue(aracneInput.getThreshold());
 		}
 
