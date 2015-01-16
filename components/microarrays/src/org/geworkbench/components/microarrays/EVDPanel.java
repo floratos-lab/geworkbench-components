@@ -35,6 +35,7 @@ import org.geworkbench.bison.datastructure.biocollections.microarrays.DSMicroarr
 import org.geworkbench.bison.datastructure.biocollections.views.CSMicroarraySetView;
 import org.geworkbench.bison.datastructure.biocollections.views.DSMicroarraySetView;
 import org.geworkbench.bison.datastructure.bioobjects.markers.DSGeneMarker;
+import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMarkerValue;
 import org.geworkbench.bison.datastructure.bioobjects.microarray.DSMicroarray;
 import org.geworkbench.bison.datastructure.complex.panels.CSPanel;
 import org.geworkbench.bison.datastructure.complex.panels.DSItemList;
@@ -214,11 +215,12 @@ public class EVDPanel implements VisualPlugin {
 		maxOccurrence = 0;
 
 		// FIXME there may be some more efficient way
-		int numGenes = maSetView.markers().size();
-		int numArraySets = maSetView.size();
-		for (int geneCtr = 0; geneCtr < numGenes; geneCtr++) {
-			for (int maCtr = 0; maCtr < numArraySets ; maCtr++) {
-				double value = maSetView.getValue(geneCtr, maCtr);
+		DSItemList<DSMicroarray> microarrays = maSetView.items();
+		int numArraySets = microarrays.size();
+		for (int maCtr = 0; maCtr < numArraySets; maCtr++) {
+			DSMicroarray ma = microarrays.get(maCtr);
+			for (DSMarkerValue v : ma.getMarkerValues()) {
+				double value = v.getValue();
 				if (Double.isNaN(value)) {
 					value = 0;
 				} else if (value > maxExpressionValue) {
@@ -228,7 +230,6 @@ public class EVDPanel implements VisualPlugin {
 				}
 			}
 		}
-		DSItemList<DSMicroarray> microarrays = maSetView.items();
 		/* Note: Because CSItemList does not follow Java collections' normal behavior,
 		 * the regular for-each loop or loop via iterator does not work here. */
 		for(int index=0; index<microarrays.size(); index++) {
