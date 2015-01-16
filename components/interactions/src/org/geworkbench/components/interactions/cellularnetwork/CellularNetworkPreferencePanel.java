@@ -1043,6 +1043,37 @@ public class CellularNetworkPreferencePanel extends javax.swing.JPanel {
 			 
 			return;
 		}
+		
+		
+		InteractionsConnectionImpl interactionsConnection = new InteractionsConnectionImpl();
+		 
+	    try {
+				if ( !interactionsConnection.isExportable(context, version))
+				{
+					JOptionPane
+					.showMessageDialog(
+							null,
+							"The selected interactome and version is not available for export.",
+
+							"Information",
+							JOptionPane.INFORMATION_MESSAGE);
+			 
+			         return;
+				}
+		} catch (ConnectException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+		} catch (SocketTimeoutException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+		} catch (UnAuthenticatedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+		} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+		}
+		
 	 
 		if (networkSelectedInteractionTypes == null || networkSelectedInteractionTypes.size() == 0)
 		{
