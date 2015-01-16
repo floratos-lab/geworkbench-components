@@ -391,6 +391,31 @@ public class InteractionsConnectionImpl {
 
 		return arrayList;
 	}
+	
+	
+	boolean isExportable(String context,
+			String version)
+			throws ConnectException, SocketTimeoutException, IOException,
+			UnAuthenticatedException {
+		boolean isExportable = false;
+
+		String methodAndParams = "getExportFlag" + Constants.DEL
+				+ context +  Constants.DEL + version;
+		ResultSetlUtil rs = ResultSetlUtil.executeQuery(methodAndParams,
+				ResultSetlUtil.getUrl());
+		while (rs.next()) {
+			 
+			String value = rs.getString("export_yn").trim();			 
+			if (value.equalsIgnoreCase("Y")) {
+				isExportable = true;
+				break;
+			}
+			 
+		}
+		rs.close();
+
+		return isExportable;
+	}
 
 	/**
 	 * Test the connection. The actual query result is ignored.
