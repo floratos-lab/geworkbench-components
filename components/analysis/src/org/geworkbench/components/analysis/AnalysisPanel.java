@@ -31,6 +31,7 @@ import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 
 import org.apache.axis.types.URI.MalformedURIException;
 import org.apache.commons.lang.StringUtils;
@@ -98,7 +99,6 @@ import edu.columbia.geworkbench.cagrid.dispatcher.client.DispatcherClient;
  * @author First Genetic Trust Inc.
  * @author keshav
  * @author yc2480
- * @version $Id$
  * 
  */
 public class AnalysisPanel extends CommandBase implements
@@ -952,7 +952,7 @@ public class AnalysisPanel extends CommandBase implements
 		}
 		Object resultObject = results.getResults();
 		if (resultObject instanceof DSAncillaryDataSet) {
-			DSAncillaryDataSet<DSBioObject> dataSet = (DSAncillaryDataSet<DSBioObject>) resultObject;		
+			final DSAncillaryDataSet<DSBioObject> dataSet = (DSAncillaryDataSet<DSBioObject>) resultObject;		
 			
 			//add start/end time to history
 			String history = "Analysis started at: " + Util.formatDateStandard(startDate) +  NEWLINE;
@@ -966,7 +966,14 @@ public class AnalysisPanel extends CommandBase implements
 			history += "\nTotal elapsed time: " + DurationFormatUtils.formatDurationHMS(elapsedTime);
 			HistoryPanel.addToHistory(dataSet, history);
 			
-			ProjectPanel.getInstance().addDataSetSubNode(dataSet);
+			SwingUtilities.invokeLater(new Runnable() {
+
+				@Override
+				public void run() {
+					ProjectPanel.getInstance().addDataSetSubNode(dataSet);
+				}
+				
+			});
 		}
 		else if (resultObject instanceof DSMicroarraySet){
 			DSMicroarraySet dataSet = (DSMicroarraySet) resultObject;		
