@@ -644,7 +644,11 @@ public class GenomeSpace implements VisualPlugin {
 						JOptionPane.showMessageDialog(null, "Cannot upload "+mset.getLabel()+" to genomespace",
 								"Upload Error", JOptionPane.ERROR_MESSAGE);
 					}
-					System.setProperty("org.xml.sax.driver", saxdriver);
+					if(saxdriver==null) {
+						System.clearProperty("org.xml.sax.driver");
+					} else {
+						System.setProperty("org.xml.sax.driver", saxdriver);
+					}
 				}
 			}
 
