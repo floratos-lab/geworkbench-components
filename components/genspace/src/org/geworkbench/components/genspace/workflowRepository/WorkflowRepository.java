@@ -56,9 +56,6 @@ import org.geworkbench.engine.skin.Skin;
 public class WorkflowRepository extends JPanel implements VisualPlugin,
 		 Runnable,UpdateablePanel {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 4935248850479380240L;
 
 	private static JFrame frame;
