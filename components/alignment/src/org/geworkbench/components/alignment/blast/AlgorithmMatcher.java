@@ -30,7 +30,7 @@ public class AlgorithmMatcher {
 	private static AlgorithmMatcher instance;
 	private List<DatabaseInfo> databaseList = null;
 	private static final String TOOL = "geWorkbench";
-	private static final String CLIENT_EMAIL = "geworkbench.c2b2.columbia.edu";
+	private static final String CLIENT_EMAIL = "geworkbench@c2b2.columbia.edu";
 	
 	@SuppressWarnings("unchecked")
 	private AlgorithmMatcher() {
