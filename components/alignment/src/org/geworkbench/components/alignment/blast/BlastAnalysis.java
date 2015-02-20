@@ -55,7 +55,7 @@ public class BlastAnalysis extends AbstractAnalysis implements
 	private CSSequenceSet<CSSequence> activeSequenceDB;
 	private DSSequenceSet<? extends DSSequence> sequenceDB;
 
-	private final static int TIMEGAP = 4000;
+	private final static long TIMEGAP = 20000;
 	private final static String LINEBREAK = System
 			.getProperty("line.separator");
 
