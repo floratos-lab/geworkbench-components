@@ -78,6 +78,52 @@ public class GenSpaceLogin extends JPanel implements VisualPlugin,
 		ActionEvent e = new ActionEvent(b1, 1, "foo");
 		actionPerformed(e);
 	}
+
+	/**
+	 * This method gets the username and password from geWorkbench login module
+	 * 
+	 * @author Abhaar Gupta
+	 */
+	private static void getUserInfo() throws NoSuchFieldException,
+			SecurityException, ClassNotFoundException,
+			IllegalArgumentException, IllegalAccessException {
+		final Field field1 = Class.forName(
+				"org.geworkbench.builtin.projects.RWspHandler")
+				.getDeclaredField("savedUserInfo");
+		field1.setAccessible(true);
+		String userInfo = (String) field1.get(Class
+				.forName("org.geworkbench.builtin.projects.RWspHandler"));
+		final Field field2 = Class.forName(
+				"org.geworkbench.builtin.projects.RWspHandler")
+				.getDeclaredField("USER_INFO_DELIMIETER");
+		field2.setAccessible(true);
+		String delimiter = (String) field2.get(Class
+				.forName("org.geworkbench.builtin.projects.RWspHandler"));
+		if (!StringUtils.isEmpty(userInfo)) {
+			String s[] = userInfo.split(delimiter, 2);
+			if (s.length >= 2) {
+				username = s[0];
+				password = s[1];
+			}
+		}
+	}
+
+	/**
+	 * This method passes the username/password acquired from above to genSpace
+	 * login module.
+	 * 
+	 * @author Abhaar Gupta
+	 */
+	public void autoGSLogin() throws NoSuchFieldException, SecurityException,
+			ClassNotFoundException, IllegalArgumentException,
+			IllegalAccessException {
+		getUserInfo();
+		tf.setText(username);
+		pf.setText(password);
+		ActionEvent e = new ActionEvent(b1, 1, "autoLogging");
+		actionPerformed(e);
+	}
+
 	@Override
 	public void run() {
 

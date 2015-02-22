@@ -150,6 +150,15 @@ public class GenSpace {
 		login = new org.geworkbench.components.genspace.ui.GenSpaceLogin();
 		login.addMahoutPanel();
 
+		try {
+			login.autoGSLogin();
+		} catch (NoSuchFieldException | SecurityException
+				| ClassNotFoundException | IllegalArgumentException
+				| IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 //		SequenceAlignmentPanel saPanel = SequenceAlignmentPanel.getInstance();
 		
 		jtp.addTab("genSpace Login", login);
