@@ -11,6 +11,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.lang.reflect.*;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -20,6 +21,7 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
+import org.apache.commons.lang.StringUtils;
 import org.geworkbench.components.genspace.GenSpace;
 import org.geworkbench.components.genspace.GenSpaceServerFactory;
 import org.geworkbench.components.genspace.MahoutRecommendationPanel;
@@ -49,6 +51,7 @@ public class GenSpaceLogin extends JPanel implements VisualPlugin,
 	private JTextField tf;
 	private JPasswordField pf;
 	private JButton b1, b2, b3;
+	private static String username, password;
 	
 	private JLabel msgText, msgText1, msgText2, msgText3, msgText4, msgText5,
 			msgText6;
