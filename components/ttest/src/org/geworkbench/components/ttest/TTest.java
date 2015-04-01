@@ -69,7 +69,7 @@ public class TTest {
 		if (caseArray.length != rowCount || caseArray[0].length != caseCount
 				|| controlArray.length != rowCount
 				|| controlArray[0].length != controlCount) {
-			throw new TTestInvalidInputException("Array dimesnion not match");
+			throw new TTestInvalidInputException("Array dimensions do not match");
 		}
 
 		// the fields in result
