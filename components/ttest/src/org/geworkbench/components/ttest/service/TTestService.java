@@ -8,19 +8,23 @@ import org.geworkbench.components.ttest.data.TTestOutput;
 public class TTestService {
 
 	public TTestOutput execute(TTestInput input) {
-		 
+
+		TTestOutput output = null;
 		try {
-			TTestOutput output = null;
-			try {
-			output = new TTest(
-					input).execute();
-			} catch (NullPointerException e) {
-				e.printStackTrace();
+			output = new TTest(input).execute();
+			double[] tValue = output.tValue;
+			for (int i = 0; i < tValue.length; i++) {
+				if (tValue[i] == Double.POSITIVE_INFINITY)
+					tValue[i] = Double.MAX_VALUE;
+				if (tValue[i] == Double.NEGATIVE_INFINITY)
+					tValue[i] = -Double.MAX_VALUE;
 			}
-			return output;
+
+		} catch (NullPointerException e) {
+			e.printStackTrace();
 		} catch (TTestException e) {
 			e.printStackTrace();
-			return null;
 		}
+		return output;
 	}
 }
