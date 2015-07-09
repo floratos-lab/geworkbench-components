@@ -8,13 +8,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-import org.apache.commons.math.MathException;
-import org.apache.commons.math.stat.StatUtils;
-import org.apache.commons.math.stat.inference.TestUtils;
-import org.apache.commons.math.stat.ranking.NaNStrategy;
-import org.apache.commons.math.stat.ranking.NaturalRanking;
-import org.apache.commons.math.stat.ranking.TiesStrategy;
-import org.apache.commons.math.util.MathUtils;
+import org.apache.commons.math3.stat.StatUtils;
+import org.apache.commons.math3.stat.inference.TestUtils;
+import org.apache.commons.math3.stat.ranking.NaNStrategy;
+import org.apache.commons.math3.stat.ranking.NaturalRanking;
+import org.apache.commons.math3.stat.ranking.TiesStrategy;
+import org.apache.commons.math3.util.CombinatoricsUtils;
+import org.apache.commons.math3.util.FastMath;
 import org.geworkbench.components.ttest.data.TTestInput;
 import org.geworkbench.components.ttest.data.TTestOutput;
 
@@ -191,9 +191,6 @@ public class TTest {
 				} catch (IllegalArgumentException e) {
 					e.printStackTrace();
 					throw new TTestException(e.getMessage());
-				} catch (MathException e) {
-					e.printStackTrace();
-					throw new TTestException(e.getMessage());
 				}
 			}
 		}
@@ -217,7 +214,7 @@ public class TTest {
 		// get max-T
 		double[][] maxTValue = null;
 		if(useAllCombinations) {
-			int sampleSize = (int) MathUtils.binomialCoefficient(caseCount+controlCount, caseCount);
+			int sampleSize = (int) CombinatoricsUtils.binomialCoefficient(caseCount+controlCount, caseCount);
 			maxTValue = new double[rowCount][sampleSize];
 			int i = reversedRank2index[rowCount-1];
 			maxTValue[rowCount-1] = calculateTValueForAllPermutations(i);
@@ -268,7 +265,7 @@ public class TTest {
 	private double[] getPValueWithMinPMethod(double[] tValue) {
 		double[][] sampleTValue = null;
 		if(useAllCombinations) {
-			int sampleSize = (int) MathUtils.binomialCoefficient(caseCount+controlCount, caseCount);
+			int sampleSize = (int) CombinatoricsUtils.binomialCoefficient(caseCount+controlCount, caseCount);
 			sampleTValue = new double[rowCount][sampleSize];
 			for(int i=0; i<rowCount; i++) {
 				sampleTValue[i] = calculateTValueForAllPermutations(i);
@@ -408,7 +405,7 @@ public class TTest {
 
 	// use all permutations
 	private double[] calculateTValueForAllPermutations(int row) {
-		int sampleSize = (int) MathUtils.binomialCoefficient(caseCount+controlCount, caseCount);
+		int sampleSize = (int) CombinatoricsUtils.binomialCoefficient(caseCount+controlCount, caseCount);
 		double[] sampleTValue = new double[sampleSize];
 		final int total = caseCount + controlCount;
 		
@@ -500,7 +497,7 @@ public class TTest {
 			} else if (caseMean <= 0 || controlMean <= 0) {
 				foldChange[index] = Double.NaN;
 			} else {
-				foldChange[index] = MathUtils.log(2.0, caseMean / controlMean);
+				foldChange[index] = FastMath.log(2.0, caseMean / controlMean);
 			}
 		}
 
