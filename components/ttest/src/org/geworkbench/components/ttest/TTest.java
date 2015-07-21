@@ -197,7 +197,7 @@ public class TTest {
 		return pValue;
 	}
 	
-	private double[] getPValueWithMaxTMethod(double[] tValue) {
+	private double[] getPValueWithMaxTMethod(double[] tValue) throws TTestException {
 		// rank tValue's absolute value
 		double[] absolute = new double[tValue.length];
 		for(int i=0; i<absolute.length; i++) {
@@ -214,7 +214,11 @@ public class TTest {
 		// get max-T
 		double[][] maxTValue = null;
 		if(useAllCombinations) {
-			int sampleSize = (int) CombinatoricsUtils.binomialCoefficient(caseCount+controlCount, caseCount);
+			long longSampleSize = CombinatoricsUtils.binomialCoefficient(caseCount+controlCount, caseCount);
+			if(longSampleSize>Integer.MAX_VALUE) {
+				throw new TTestException("The parameter setting requires array size too large (" + longSampleSize + ").");
+			}
+			int sampleSize = (int) longSampleSize;
 			maxTValue = new double[rowCount][sampleSize];
 			int i = reversedRank2index[rowCount-1];
 			maxTValue[rowCount-1] = calculateTValueForAllPermutations(i);
@@ -262,10 +266,14 @@ public class TTest {
 		return pValue;
 	}
 	
-	private double[] getPValueWithMinPMethod(double[] tValue) {
+	private double[] getPValueWithMinPMethod(double[] tValue) throws TTestException {
 		double[][] sampleTValue = null;
 		if(useAllCombinations) {
-			int sampleSize = (int) CombinatoricsUtils.binomialCoefficient(caseCount+controlCount, caseCount);
+			long longSampleSize = CombinatoricsUtils.binomialCoefficient(caseCount+controlCount, caseCount);
+			if(longSampleSize>Integer.MAX_VALUE) {
+				throw new TTestException("The parameter setting requires array size too large (" + longSampleSize + ").");
+			}
+			int sampleSize = (int) longSampleSize;
 			sampleTValue = new double[rowCount][sampleSize];
 			for(int i=0; i<rowCount; i++) {
 				sampleTValue[i] = calculateTValueForAllPermutations(i);
@@ -404,8 +412,12 @@ public class TTest {
 	}
 
 	// use all permutations
-	private double[] calculateTValueForAllPermutations(int row) {
-		int sampleSize = (int) CombinatoricsUtils.binomialCoefficient(caseCount+controlCount, caseCount);
+	private double[] calculateTValueForAllPermutations(int row) throws TTestException {
+		long longSampleSize = CombinatoricsUtils.binomialCoefficient(caseCount+controlCount, caseCount);
+		if(longSampleSize>Integer.MAX_VALUE) {
+			throw new TTestException("The parameter setting requires array size too large (" + longSampleSize + ").");
+		}
+		int sampleSize = (int) longSampleSize;
 		double[] sampleTValue = new double[sampleSize];
 		final int total = caseCount + controlCount;
 		

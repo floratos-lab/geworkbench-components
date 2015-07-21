@@ -7,7 +7,7 @@ import org.geworkbench.components.ttest.data.TTestOutput;
 
 public class TTestService {
 
-	public TTestOutput execute(TTestInput input) {
+	public TTestOutput execute(TTestInput input) throws TTestException {
 
 		TTestOutput output = null;
 		try {
@@ -21,8 +21,6 @@ public class TTestService {
 			}
 
 		} catch (NullPointerException e) {
-			e.printStackTrace();
-		} catch (TTestException e) {
 			e.printStackTrace();
 		}
 		return output;

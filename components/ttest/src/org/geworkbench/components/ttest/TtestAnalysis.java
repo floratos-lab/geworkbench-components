@@ -285,22 +285,22 @@ public class TtestAnalysis extends AbstractAnalysis implements
 					+ histMarkerString);
 
 		} catch (TTestException e) {
-			e.printStackTrace();
 			return new AlgorithmExecutionResults(
 					false,
-					"Exception happened in t-test computaiton: "+e,
+					"Exception happened in t-test computaiton:\n"+e,
 					null);
-		}
-		SwingUtilities.invokeLater(new Runnable() {
-
-			@Override
-			public void run() {
-				if(pbTtest!=null) {
-					pbTtest.dispose();
+		} finally {
+			SwingUtilities.invokeLater(new Runnable() {
+	
+				@Override
+				public void run() {
+					if(pbTtest!=null) {
+						pbTtest.dispose();
+					}
 				}
-			}
-			
-		});
+				
+			});
+		}
 		
 		return new AlgorithmExecutionResults(true, "Ttest", sigSet);
 	} // end of method calculate
